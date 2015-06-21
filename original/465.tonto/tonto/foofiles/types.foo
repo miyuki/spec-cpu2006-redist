@@ -1,0 +1,2774 @@
+!-------------------------------------------------------------------------------
+!
+! TYPES : used to deposit all derived types used in TONTO.
+!
+! A separate module is required so that two modules can use each others types
+! even if they can't use each others routines by with a "use" statement. In the
+! C++ language every one of TONTO's objects are "friendly" with each other.
+!
+! (c) dylan jayatilaka, university of western australia, 1998
+!
+! $Id: types.foo,v 1.59.2.33 2003/11/13 05:33:55 reaper Exp $
+!
+!-------------------------------------------------------------------------------
+
+module TYPES
+
+   implicit none
+
+
+
+   type system_type
+
+   error_status :: INT  DEFAULT(0)
+   ! Set non-zero on error.
+
+   error_output_unit :: INT  DEFAULT(SYSTEM_ERROR_OUTPUT_UNIT)
+   ! The file unit number for error messages.
+
+   memory_used :: INT  DEFAULT(0)
+   ! The amount of memory used by the program so far.
+
+   memory_blocks_used :: INT  DEFAULT(0)
+   ! The current number of active memory blocks allocated using "create"
+   ! commands
+
+   max_memory_used :: INT  DEFAULT(0)
+   ! The maximum amount of memory used so far.
+
+   max_memory_blocks_used :: INT  DEFAULT(0)
+   ! The maximum number of memory blocks allocated used by the program so far.
+
+   memory_limit :: INT  DEFAULT(SYSTEM_MEMORY_LIMIT)
+   ! A soft memory limit. A warning is generated if this limit is exceeded bu
+   ! the program is not stopped.
+
+   memory_limit_exceeded :: BIN  DEFAULT(FALSE)
+   ! Set TRUE if the soft memory limit is exceeded.
+
+   memory_leak_detected :: BIN  DEFAULT(FALSE)
+   ! Set TRUE if a memory leak has been detected. This is to prevent cascading
+   ! memory leak reports from parent routines. However, this switch is set back
+   ! to FALSE whenever a new routine is entered at a level below where the
+   ! current leak occured, so it is not so useful.
+
+   memory_leak_level :: INT  DEFAULT(0)
+   ! Gives the memory leak level below which leaks are not reported. This is to
+   ! ensure that the same memory leak is not reported at lower levels. The
+   ! variable is reset to 0 whenever a new routine is entered at a level lower
+   ! than the leak.
+
+   memory_units :: STR  DEFAULT(SYSTEM_MEMORY_UNITS)
+   ! The units for acconting for memory usage.
+
+   stack_level :: INT  DEFAULT(0)
+   ! The current call-stack level.
+
+   max_stack_level :: INT  DEFAULT(0)
+   ! The maximum call-stack level.
+
+   stack_show_level :: INT  DEFAULT(-1)
+   ! Enable printing of the call-stack, for all routines at this level or higher
+   ! in the call-stack.
+
+   memory_used_stack :: INTVEC* DEFAULT_NULL
+   ! An array which stores the amount of memory used by each routine at a given
+   ! call-level in the call-stack.
+
+   call_stack :: STRVEC*  DEFAULT_NULL
+   ! Stores the name of each subroutine at each call-level, for routine traceback.
+
+   show_call_stack :: BIN  DEFAULT(FALSE)
+   ! If TRUE, tells whether to show an indented call-stack as the program runs.
+   ! The memory gained or lost by each routine is also displayed.  Be warned,
+   ! setting this switch produces copious output.
+
+   io_file :: TEXTFILE*  DEFAULT_NULL
+   ! Last I/O file used
+
+   time_stack_level :: INT  DEFAULT(0)
+   ! The current time call-stack level. This is essentially just the same as
+   ! stack_level. It is not the same since we may want to check timings when the
+   ! ENSURE statements are turned on -- call_stack always implies ENSURE.
+
+   time_call_stack :: INTVEC*  DEFAULT_NULL
+   ! Stores the *indices* of the routines called at each call-level.  This is
+   ! used for subracting the childrens elspased times from parent routines.
+
+   time_strt_stack :: REALVEC*  DEFAULT_NULL
+   ! Stores the starting times for all routines in the time_call_stack.
+
+   n_timed_routines :: INT  DEFAULT(0)
+   ! The number of routines that have currently been called and are being timed.
+
+   time_for_routine :: REALVEC*  DEFAULT_NULL
+   ! The time taken for a particular routine -- all routines called in the
+   ! program will be timed in this stack.
+
+   name_for_routine :: STRVEC*  DEFAULT_NULL
+   ! The name for a particular timed routine -- all routines called in the
+   ! program will be named in this stack.
+
+   time_limit :: REAL  DEFAULT(ZERO)
+   ! Set a total time limit on a profile run. A zero value means no time limit.
+   ! If the time limit is exceeded the programs stops and dumps a profile up to
+   ! that point. Pretty good, huh.
+
+   known_keywords :: STRVEC*  DEFAULT_NULL
+   ! List of known keywords in the current case statement, if applicable
+   ! This allows a nice error message to be returned saying what the allowed
+   ! options in the case statement were.
+
+   end
+
+
+
+  type parallel_type
+
+    do_parallel :: BIN DEFAULT(FALSE)
+    ! Whether or not to do parallel stuff.
+
+    rank :: INT
+    ! The number of the current processor
+
+    nprocs :: INT DEFAULT(1)
+    ! Number of processors
+
+    mpi_status :: INTVEC* DEFAULT_NULL
+    ! Status field used for all MPI routines.
+
+  end
+
+
+
+   type time_type
+
+   started :: INTVEC(5)
+   ! Contains real start time, in Julian day,h,m,s,ms
+
+   stopped :: INTVEC(5)
+   ! Contains real stop time, in Julian day,h,m,s,ms
+
+   start_cpu :: REAL
+   ! Contains CPU start time, in seconds
+
+   stop_cpu :: REAL
+   ! Contains CPU stop  time, in seconds
+
+   end
+
+
+
+   type buffer_type
+
+   item_start :: INT
+   ! The position of the first character of the last item processed in
+   ! the buffer string
+
+   item_end :: INT
+   ! The position of the last character of the last item processed in
+   ! the buffer string
+
+   item_index :: INT
+   ! The item number of the last item processed in the buffer string
+
+   n_items :: INT
+   ! The total number of items in the string
+
+   analysed :: BIN  DEFAULT(FALSE)
+   ! True, if the buffer string has been analysed
+
+   comment_chars :: STR  DEFAULT(BUFFER_COMMENT_CHARS)
+   ! The comment character symbols (concatenated) to be used in the
+   ! buffer string
+
+   quote_chars :: STR  DEFAULT(BUFFER_QUOTE_CHARS)
+   ! The quote character symbols (concatenated) to be used in the
+   ! buffer string
+
+   string :: BSTR  DEFAULT(" ")
+   ! This is the actual buffer string
+
+   end
+
+
+
+   type unitnumber_type
+
+   unit :: INT
+   ! The unit number
+
+   end
+
+
+
+   type file_type
+
+   name :: STR  DEFAULT("unknown")
+   ! The name of the file
+
+   unit :: INT  DEFAULT(0)
+   ! The unit number
+
+   record :: INT  DEFAULT(1)
+   ! The current record of the output
+
+   io_status :: INT  DEFAULT(0)
+   ! Set non-zero if there is an error condition
+
+   action :: STR  DEFAULT("readwrite")
+   ! The type of action performed on this file
+
+   file_status :: STR  DEFAULT("unknown")
+   ! File status
+
+   buffered :: BIN  DEFAULT(FALSE)
+   ! Whether to use buffering if the file is for numbers
+
+   int_buffer_pos :: INT  DEFAULT(1)
+   ! The integer buffer position marker
+
+   int_buffer :: INTVEC* DEFAULT_NULL
+   ! The integer buffer which is flushed to the file when full
+
+   real_buffer_pos :: INT  DEFAULT(1)
+   ! The real buffer position marker
+
+   real_buffer :: REALVEC* DEFAULT_NULL
+   ! The real buffer which is flushed to the file when full
+
+   cpx_buffer_pos :: INT  DEFAULT(1)
+   ! The cpx buffer position marker
+
+   cpx_buffer :: CPXVEC* DEFAULT_NULL
+   ! The cpx buffer which is flushed to the file when full
+
+   end
+
+
+
+   type textfile_type
+
+   name :: STR  DEFAULT("unknown")
+   ! The name of the file
+
+   action :: STR  DEFAULT("unknown")
+   ! The action status of the file, "read" or "write"
+
+   unit :: INT
+   ! The unit number
+
+   record :: INT
+   ! The current record of the output
+
+   io_status :: INT
+   ! Set non-zero if there is an error condition
+
+   ignore_end_of_file :: BIN  DEFAULT(FALSE)
+   ! Set to TRUE if the end of file is not to be regarded as an error.
+
+   no_of_lines :: INT DEFAULT(-1)
+   ! The number of lines in the file. This is only set if the end-of-file is
+   ! encountered.
+
+   n_fields :: INT  DEFAULT(TEXTFILE_N_FIELDS)
+   ! No of fields (i.e. columns) to use for outputting the variable
+
+   int_width :: INT  DEFAULT(TEXTFILE_INT_WIDTH)
+   ! Width of an integer field
+
+   real_width :: INT  DEFAULT(TEXTFILE_REAL_WIDTH)
+   ! Width of a real field
+
+   real_precision :: INT  DEFAULT(TEXTFILE_REAL_PRECISION)
+   ! No. of decimal places to use for outputing a real variable
+
+   real_style :: STR  DEFAULT(TEXTFILE_REAL_STYLE)
+   ! Fortran style character for a real variable
+
+   margin_width :: INT  DEFAULT(TEXTFILE_MARGIN_WIDTH)
+   ! Margin width
+
+   use_labels :: BIN  DEFAULT(TEXTFILE_USE_LABELS)
+   ! Whether to use column and row labels on vectors and matrices
+
+   default_units :: STR  DEFAULT(" ")
+   ! Each REAL number is assumed to have "default_units", and are converted
+   ! into generic (internal) units, usually A.U.
+
+   comment_chars :: STR  DEFAULT(TEXTFILE_COMMENT_CHARS)
+   ! The comment character symbols (concatenated) to be used in the textfile
+
+   quote_chars :: STR  DEFAULT(TEXTFILE_QUOTE_CHARS)
+   ! The quote character symbols (concatenated) to be used in the textfile
+
+   buffer :: BUFFER
+   ! The output buffer which holds one line of output to be flushed
+
+   internal :: STRVEC* DEFAULT_NULL
+   ! Used to keep a record of of the entire file, internally
+
+   saved :: TEXTFILE* DEFAULT_NULL
+   ! Used to keep a record of a previous file, say for input redirect
+
+   end
+
+
+
+   type archive_type
+
+   root_name :: STR
+   ! Archive root name (usually, the name of the job)
+
+   name :: STR
+   ! Archive name (usually, the name of the entity in the archive)
+
+   genre :: STR
+   ! Archive basis genre for opmatrix objects, or a qualifier for name
+
+   format :: STR
+   ! Archive format (blank for binary)
+
+   file :: FILE* DEFAULT_NULL
+   ! Binary file part
+
+   textfile :: TEXTFILE* DEFAULT_NULL
+   ! Text file part
+
+   end
+
+
+
+   type cif_type
+
+   file :: TEXTFILE* DEFAULT_NULL
+   ! The actual CIF file to be processed
+
+   data_block_name :: STR  DEFAULT(" ")
+   ! The name of the data block
+
+   start_of_data :: INT  DEFAULT(1)
+   ! The starting line of the data block
+
+   end_of_data :: INT  DEFAULT(0)
+   ! The end line of the data block
+
+   data_block_found :: BIN  DEFAULT(FALSE)
+   ! Set TRUE if a data block has been sucessfully found
+
+   end
+
+
+
+   type rys_type
+
+   nroots :: INT
+   ! No. of rys roots
+
+   w :: REALVEC* DEFAULT_NULL
+   ! The Rys weights
+
+   r :: REALVEC* DEFAULT_NULL
+   ! The Rys roots
+
+   end
+
+
+
+   type intvec__type
+
+   element :: INTVEC* DEFAULT_NULL
+   ! Encapsulated ivec type
+
+   end
+
+
+
+   type realvec__type
+
+   element :: REALVEC* DEFAULT_NULL
+   ! Encapsulated vec type
+
+   end
+
+
+
+   type realmat__type
+
+   element :: REALMAT* DEFAULT_NULL
+   ! Encapsulated mat type
+
+   end
+
+
+
+   type realmat3__type
+
+   element :: REALMAT3* DEFAULT_NULL
+   ! Encapsulated mat3 type
+
+   end
+
+
+
+   type realmat4__type
+
+   element :: REALMAT4* DEFAULT_NULL
+   ! Encapsulated mat4 type
+
+   end
+
+
+
+   type opvector_type
+
+   n_bf :: INT
+   ! No of spatial basis functions (i.e. AO's)
+
+   restricted :: REALVEC* DEFAULT_NULL
+   ! Restricted spinorbital representation
+
+   alpha :: REALVEC* DEFAULT_NULL
+   ! Alpha part of a DODS representation
+
+   beta :: REALVEC* DEFAULT_NULL
+   ! Beta  part of a DODS representation
+
+   general :: REALVEC* DEFAULT_NULL
+   ! General mixed alpha-beta matrix representation
+
+   end
+
+
+
+   type opmatrix_type
+
+   n_bf :: INT
+   ! No of real spatial basis functions (i.e. AO's)
+
+   restricted :: REALMAT* DEFAULT_NULL
+   ! Restricted spinorbital representation
+
+   alpha :: REALMAT* DEFAULT_NULL
+   ! Alpha part of a DODS representation
+
+   beta :: REALMAT* DEFAULT_NULL
+   ! Beta  part of a DODS representation
+
+   general :: REALMAT* DEFAULT_NULL
+   ! General mixed alpha-beta matrix representation
+
+   restricted_complex :: CPXMAT* DEFAULT_NULL
+   ! Complex restricted representation
+
+   alpha_complex :: CPXMAT* DEFAULT_NULL
+   ! Complex alpha part of a DODS representation
+
+   beta_complex :: CPXMAT* DEFAULT_NULL
+   ! Complex beta  part of a DODS representation
+
+   general_complex :: CPXMAT* DEFAULT_NULL
+   ! Complex general mixed alpha-beta matrix representation
+
+   triangle :: REALVEC* DEFAULT_NULL
+   ! Space saving for symmetric matrices: lower triangle only
+
+   square :: REALVEC* DEFAULT_NULL
+   ! Space saving for hermitian matrices: lower triangle is real part, upper is imaginary
+
+   end
+
+
+
+   type intvecinthash_type
+
+   n_keys :: INT
+   ! The number of keys
+
+   n_size :: INT
+   ! The size of the keys and values arrays.
+
+   reverse_search :: BIN
+   ! If TRUE, the search for values is performed from the largest key to the
+   ! smallest.
+
+   keys :: INTMAT* DEFAULT_NULL
+   ! The array of keys, stored contigously by columns.
+
+   values :: INTVEC* DEFAULT_NULL
+   ! The array of values.
+
+   end
+
+
+
+   type intvecintvechash_type
+
+   n_keys :: INT
+   ! The number of keys
+
+   n_size :: INT
+   ! The size of the keys and values arrays.
+
+   reverse_search :: BIN
+   ! If TRUE, the search for values is performed from the largest key to the
+   ! smallest.
+
+   keys :: INTMAT* DEFAULT_NULL
+   ! The array of keys, stored contigously by columns.
+
+   values :: INTMAT* DEFAULT_NULL
+   ! The array of values.
+
+   end
+
+
+
+   type reflection_type
+
+   h :: INT
+   ! Miller h index for the reflection
+
+   k :: INT
+   ! Miller k index for the reflection
+
+   l :: INT
+   ! Miller l index for the reflection
+
+   F_exp :: REAL
+   ! Experimental structure factor
+
+   F_sigma :: REAL
+   ! Experimental error in the structure factor
+
+   F_calc :: CPX
+   ! Calculated complex structure factor without including corrections
+
+   F_pred :: REAL
+   ! Calculated structure factor including scale and extinction corrections
+
+   I_exp :: REAL
+   ! Experimental intensity
+
+   I_sigma :: REAL
+   ! Experimental error in the intensity
+
+   I_pred :: REAL
+   ! Calculated intensity including scale and extinction corrections
+
+   end
+
+
+
+   type diis_type
+
+   keep :: INT  DEFAULT(DIIS_KEEP)
+   ! No. of parameter vectors to keep for use in extrapolation
+
+   n_vec :: INT  DEFAULT(0)
+   ! The number of parameter vectors currently available for extrapolation
+
+   new :: INT  DEFAULT(0)
+   ! The integer identifier for the new (current) parameter vector
+
+   error_length :: REAL  DEFAULT(ZERO)
+   ! The length of the DIIS error vector
+
+   archive :: ARCHIVE
+   ! Archive used to store the DIIS parameter and error vectors
+
+   coeff :: REALVEC* DEFAULT_NULL
+   ! The DIIS coefficients which combine/extrapolate the stored parameter vectors
+
+   end
+
+
+
+   type gaussian_type
+
+   l :: INT  DEFAULT(0)
+   ! l quantum number for the gaussian
+
+   ex :: REAL  DEFAULT(ZERO)
+   ! Exponent for the gaussian
+
+   pos :: REALVEC(3)  DEFAULT(ZERO)
+   ! Position of the gaussian
+   end
+
+
+
+   type gaussian2_type
+
+   a :: GAUSSIAN
+   ! Shell "a" of the pair
+
+   b :: GAUSSIAN
+   ! Shell "b" of the pair
+
+   end
+
+
+
+   type gaussian4_type
+
+   a :: GAUSSIAN
+   ! Shell "a" of the quartet
+
+   b :: GAUSSIAN
+   ! Shell "b" of the quartet
+
+   c :: GAUSSIAN
+   ! Shell "c" of the quartet
+
+   d :: GAUSSIAN
+   ! Shell "d" of the quartet
+
+   end
+
+
+
+   type shell_type
+
+   l :: INT  DEFAULT(0)
+   ! l quantum number for the gaussian shell
+
+   n_comp :: INT  DEFAULT(0)
+   ! No. of components for the gaussian shell
+
+   n_cc :: INT  DEFAULT(0)
+   ! No. of contractions for the gaussian shell
+
+   ex :: REALVEC* DEFAULT_NULL
+   ! Exponent vector
+
+   cc :: REALVEC* DEFAULT_NULL
+   ! Contraction coefficient vector
+
+   end
+
+
+
+   type shell1_type
+
+   l :: INT  DEFAULT(0)
+   ! l quantum number of the shell
+
+   n_comp :: INT  DEFAULT(0)
+   ! No. of components for the shell
+
+   n_cc :: INT  DEFAULT(0)
+   ! No. of contraction coefficients for the shell
+
+   pos :: REALVEC(3)  DEFAULT(ZERO)
+   ! Position of the shell
+
+   ex :: REALVEC* DEFAULT_NULL
+   ! Exponent vector
+
+   cc :: REALVEC* DEFAULT_NULL
+   ! Contraction coefficient vector
+
+   end
+
+
+
+   type shell2_type
+
+   a :: SHELL1
+   ! Shell "a" of the pair
+
+   b :: SHELL1
+   ! Shell "b" of the pair
+
+   n_gaussian_pairs :: INT
+   ! The number of gaussian pair products in the shell pair, .a.n_cc*.b.n_cc
+
+   l_max :: INT
+   ! Maximum of the angular momenta on each shell, max(.a.l,.b.l)
+
+   l_min :: INT
+   ! Minimum of the angular momenta on each shell, min(.a.l,.b.l)
+
+   l_sum :: INT
+   ! Sum of the angular momenta on each shell, .a.l+.b.l
+
+   kappa_max :: REAL
+   ! Maximum of .a.cc * .b.cc * kappa_ab for the two electron integrals.
+
+   exponent_sum :: REALVEC* DEFAULT_NULL
+   ! The sum of all gaussian pair exponents as a flattened array with shell "a"
+   ! exponents incrementing most rapidly, .a.ex(:)+.b.ex(:)
+
+   exponent_inv :: REALVEC* DEFAULT_NULL
+   ! The inverse of the sum of the gaussian pair exponents, as a flattened
+   ! array, 1/(.a.ex(:)+.b.ex(:))
+
+   a_exponent_inv :: REALVEC* DEFAULT_NULL
+   ! The product of the exponent of shell "a" with the inverse of the sum of the
+   ! gaussian pair exponents, as a flattened array, .a.ex(:)/(.a.ex(:)+.b.ex(:))
+
+   b_exponent_inv :: REALVEC* DEFAULT_NULL
+   ! The product of the exponent of shell "b" with the inverse of the sum of the
+   ! gaussian pair exponents, as a flattened array, .b.ex(:)/(.a.ex(:)+.b.ex(:))
+
+   cc_prefactor :: REALVEC* DEFAULT_NULL
+   ! The contraction coefficient product with an exponential part for each
+   ! gaussian pair as a flattened array with shell "a" gaussian components
+   ! incrementing most rapidly. Useful for integral evaluation.
+
+   normalising_factors :: REALVEC* DEFAULT_NULL
+   ! The product of the normalisation coefficients, as a flattened array,
+   ! .a.l.normalising_factors * .b.l.normalising_factors.
+
+   pair_center :: REALMAT* DEFAULT_NULL
+   ! The center of the product gaussian of gaussians .a and .b.
+
+   center_diff :: REALMAT* DEFAULT_NULL
+   ! The difference between pair_center and the position of the gaussian of
+   ! higher angular momentum out of .a and .b.
+
+   end
+
+
+
+   type shellpair_type
+
+   a :: SHELL
+   ! Shell "a" of the pair
+
+   b :: SHELL
+   ! Shell "b" of the pair
+
+   n_gaussian_pairs :: INT
+   ! The number of gaussian pair products in the shell pair, .a.n_cc*.b.n_cc
+
+   l_max :: INT
+   ! Maximum of the angular momenta on each shell, max(.a.l,.b.l)
+
+   l_min :: INT
+   ! Minimum of the angular momenta on each shell, min(.a.l,.b.l)
+
+   l_sum :: INT
+   ! Sum of the angular momenta on each shell
+
+   exponent_sum :: REALVEC* DEFAULT_NULL
+   ! The sum of all gaussian pair exponents as a flattened array with shell "a"
+   ! exponents incrementing most rapidly, .a.ex(:)+.b.ex(:)
+
+   exponent_inv :: REALVEC* DEFAULT_NULL
+   ! The inverse of the sum of the gaussian pair exponents, as a flattened
+   ! array, 1/(.a.ex(:)+.b.ex(:))
+
+   a_exponent_inv :: REALVEC* DEFAULT_NULL
+   ! The product of the exponent of shell "a" with the inverse of the sum of the
+   ! gaussian pair exponents, as a flattened array, .a.ex(:)/(.a.ex(:)+.b.ex(:))
+
+   b_exponent_inv :: REALVEC* DEFAULT_NULL
+   ! The product of the exponent of shell "b" with the inverse of the sum of the
+   ! gaussian pair exponents, as a flattened array, .b.ex(:)/(.a.ex(:)+.b.ex(:))
+
+   cc_prefactor :: REALVEC* DEFAULT_NULL
+   ! The contraction coefficient product with an exponential part for each
+   ! gaussian pair as a flattened array with shell "a" gaussian components
+   ! incrementing most rapidly. Useful for integral evaluation.
+
+   normalising_factors :: REALVEC* DEFAULT_NULL
+   ! The product of the normalisation coefficients, as a flattened array,
+   ! .a.l.normalising_factors * .b.l.normalising_factors.
+
+   hrr_index_larger :: INTMAT3* DEFAULT_NULL
+   ! The mapping of the cartesian angular momenta to a single array, from
+   ! max(.a.l,.b.l) to .a.l+.b.l.  In the HRR, this is the index for the
+   ! component with the larger angular momentum.
+
+   hrr_index_smaller :: INTMAT3* DEFAULT_NULL
+   ! The mapping of the cartesian angular momenta to a single array, from zero
+   ! up to .a.l+.b.l.  In the HRR, this is the index for the component with the
+   ! smaller angular momentum.
+
+   hrr_components :: INTMAT* DEFAULT_NULL
+   ! Cartesian components of the angular momenta from zero up to .a.l+.b.l.
+
+   hrr_comp_to_use :: INTVEC* DEFAULT_NULL
+   ! Which cartesian component of angular momentum to use for the HRR for the
+   ! angular momenta between zero up to .a.l+.b.l.
+
+   form_3dints_x_indices :: INTVEC* DEFAULT_NULL
+   ! Which indices to use for combining the 2d ERIs to 3d ERIS, for the
+   ! angular momenta from .l_max up to .a.l+.b.l.
+
+   form_3dints_y_indices :: INTVEC* DEFAULT_NULL
+   ! Which indices to use for combining the 2d ERIs to 3d ERIS, for the
+   ! angular momenta from .l_max up to .a.l+.b.l.
+
+   form_3dints_z_indices :: INTVEC* DEFAULT_NULL
+   ! Which indices to use for combining the 2d ERIs to 3d ERIS, for the
+   ! angular momenta from .l_max up to .a.l+.b.l.
+
+   form_3dints_yz_rms_indices :: INTVEC* DEFAULT_NULL
+   ! Which indices to use for combining the 2d ERIs to 3d ERIS, for the
+   ! angular momenta from .l_max up to .a.l+.b.l.  This version is for the
+   ! reduced multiplication scheme, where the y and z arrays have been collapsed
+   ! into one product array.
+
+   end
+
+
+
+   type shell4_type
+
+   a :: SHELL1
+   ! Shell "a" of the quartet
+
+   b :: SHELL1
+   ! Shell "b" of the quartet
+
+   c :: SHELL1
+   ! Shell "c" of the quartet
+
+   d :: SHELL1
+   ! Shell "d" of the quartet
+
+   end
+
+
+
+   type shellquartet_type
+
+   ab :: SHELLPAIR* DEFAULT_NULL
+   ! Pair "ab" of the quartet
+
+   cd :: SHELLPAIR* DEFAULT_NULL
+   ! Pair "cd" of the quartet
+
+   end
+
+
+
+   type shell1quartet_type
+
+   a :: SHELL* DEFAULT_NULL
+   ! Shell "a" of the quartet
+
+   b :: SHELL* DEFAULT_NULL
+   ! Shell "b" of the quartet
+
+   c :: SHELL* DEFAULT_NULL
+   ! Shell "c" of the quartet
+
+   d :: SHELL* DEFAULT_NULL
+   ! Shell "d" of the quartet
+
+   pos_a :: REALVEC(3)
+   ! Position of the "a" shell.
+
+   pos_b :: REALVEC(3)
+   ! Position of the "b" shell
+
+   pos_c :: REALVEC(3)
+   ! Position of the "c" shell
+
+   pos_d :: REALVEC(3)
+   ! Position of the "d" shell
+
+   ab_nullify :: BIN
+   ! Whether to nullify the precalculated .ab vectors or destroy them, i.e.
+   ! whether they were pointer assigned or created/calculated.
+
+   cd_nullify :: BIN
+   ! Whether to nullify the precalculated .cd vectors or destroy them, i.e.
+   ! whether they were pointer assigned or created/calculated.
+
+   ab_n_gaussian_pairs :: INT
+   ! The number of gaussian pair products in the shell pair, .a.n_cc*.b.n_cc
+
+   ab_l_max :: INT
+   ! Maximum of the angular momenta on each shell, max(.a.l,.b.l)
+
+   ab_l_min :: INT
+   ! Minimum of the angular momenta on each shell, min(.a.l,.b.l)
+
+   ab_l_sum :: INT
+   ! Sum of the angular momenta on each shell, .a.l+.b.l
+
+   ab_kappa_max :: REAL
+   ! Maximum of .a.cc * .b.cc * kappa_ab for the two electron integrals.
+
+   ab_exponent_sum :: REALVEC* DEFAULT_NULL
+   ! The sum of all gaussian pair exponents as a flattened array with shell "a"
+   ! exponents incrementing most rapidly, .a.ex(:)+.b.ex(:)
+
+   ab_cc_prefactor :: REALVEC* DEFAULT_NULL
+   ! The contraction coefficient product with an exponential part for each
+   ! gaussian pair as a flattened array with shell "a" gaussian components
+   ! incrementing most rapidly. Useful for integral evaluation.
+
+   ab_normalising_factors :: REALVEC* DEFAULT_NULL
+   ! The product of the normalisation coefficients, as a flattened array,
+   ! .a.l.normalising_factors * .b.l.normalising_factors.
+
+   ab_pair_center :: REALMAT* DEFAULT_NULL
+   ! The center of the product gaussian of gaussians .a and .b.
+
+   ab_center_diff :: REALMAT* DEFAULT_NULL
+   ! The difference between ab_pair_center and the position of the gaussian of
+   ! higher angular momentum out of .a and .b.
+
+   cd_n_gaussian_pairs :: INT
+   ! The number of gaussian pair products in the shell pair, .c.n_cc*.d.n_cc
+
+   cd_l_max :: INT
+   ! Maximum of the angular momenta on each shell, max(.c.l,.d.l)
+
+   cd_l_min :: INT
+   ! Minimum of the angular momenta on each shell, min(.c.l,.d.l)
+
+   cd_l_sum :: INT
+   ! Sum of the angular momenta on each shell, .c.l+.d.l
+
+   cd_kappa_max :: REAL
+   ! Maximum of .c.cc * .d.cc * kappa_cd for the two electron integrals.
+
+   cd_exponent_sum :: REALVEC* DEFAULT_NULL
+   ! The sum of all gaussian pair exponents as a flattened array with shell "c"
+   ! exponents incrementing most rapidly, .c.ex(:)+.d.ex(:)
+
+   cd_cc_prefactor :: REALVEC* DEFAULT_NULL
+   ! The contraction coefficient product with an exponential part for each
+   ! gaussian pair as a flattened array with shell "c" gaussian components
+   ! incrementing most rapidly. Useful for integral evaluation.
+
+   cd_normalising_factors :: REALVEC* DEFAULT_NULL
+   ! The product of the normalisation coefficients, as a flattened array,
+   ! .c.l.normalising_factors * .d.l.normalising_factors.
+
+   cd_pair_center :: REALMAT* DEFAULT_NULL
+   ! The center of the product gaussian of gaussians .c and .d.
+
+   cd_center_diff :: REALMAT* DEFAULT_NULL
+   ! The difference between cd_pair_center and the position of the gaussian of
+   ! higher angular momentum out of .c and .d.
+
+   ab_hrr_index_larger :: INTMAT3* DEFAULT_NULL
+   ! The mapping of the cartesian angular momenta to a single array, from
+   ! max(.a.l,.b.l) to .a.l+.b.l.  In the HRR, this is the index for the
+   ! component with the larger angular momentum.
+
+   ab_hrr_index_smaller :: INTMAT3* DEFAULT_NULL
+   ! The mapping of the cartesian angular momenta to a single array, from zero
+   ! up to .a.l+.b.l.  In the HRR, this is the index for the component with the
+   ! smaller angular momentum.
+
+   ab_hrr_components :: INTMAT* DEFAULT_NULL
+   ! Cartesian components of the angular momenta from zero up to .a.l+.b.l.
+
+   ab_hrr_comp_to_use :: INTVEC* DEFAULT_NULL
+   ! Which cartesian component of angular momentum to use for the HRR for the
+   ! angular momenta between zero up to .a.l+.b.l.
+
+   ab_form_3dints_x_indices :: INTVEC* DEFAULT_NULL
+   ! Which indices to use for combining the 2d ERIs to 3d ERIS, for the
+   ! angular momenta from .ab_l_max up to .a.l+.b.l.
+
+   ab_form_3dints_y_indices :: INTVEC* DEFAULT_NULL
+   ! Which indices to use for combining the 2d ERIs to 3d ERIS, for the
+   ! angular momenta from .ab_l_max up to .a.l+.b.l.
+
+   ab_form_3dints_z_indices :: INTVEC* DEFAULT_NULL
+   ! Which indices to use for combining the 2d ERIs to 3d ERIS, for the
+   ! angular momenta from .ab_l_max up to .a.l+.b.l.
+
+   ab_form_3dints_yz_rms_indices :: INTVEC* DEFAULT_NULL
+   ! Which indices to use for combining the 2d ERIs to 3d ERIS, for the
+   ! angular momenta from .ab_l_max up to .a.l+.b.l.  This version is for the
+   ! reduced multiplication scheme, where the y and z arrays have been collapsed
+   ! into one product array.
+
+   cd_hrr_index_larger :: INTMAT3* DEFAULT_NULL
+   ! The mapping of the cartesian angular momenta to a single array, from
+   ! max(.c.l,.d.l) to .c.l+.d.l.  In the HRR, this is the index for the
+   ! component with the larger angular momentum.
+
+   cd_hrr_index_smaller :: INTMAT3* DEFAULT_NULL
+   ! The mapping of the cartesian angular momenta to a single array, from zero
+   ! up to .c.l+.d.l.  In the HRR, this is the index for the component with the
+   ! smaller angular momentum.
+
+   cd_hrr_components :: INTMAT* DEFAULT_NULL
+   ! Cartesian components of the angular momenta from zero up to .c.l+.d.l.
+
+   cd_hrr_comp_to_use :: INTVEC* DEFAULT_NULL
+   ! Which cartesian component of angular momentum to use for the HRR for the
+   ! angular momenta between zero up to .c.l+.d.l.
+
+   cd_form_3dints_x_indices :: INTVEC* DEFAULT_NULL
+   ! Which indices to use for combining the 2d ERIs to 3d ERIS, for the
+   ! angular momenta from .cd_l_max up to .c.l+.d.l.
+
+   cd_form_3dints_y_indices :: INTVEC* DEFAULT_NULL
+   ! Which indices to use for combining the 2d ERIs to 3d ERIS, for the
+   ! angular momenta from .cd_l_max up to .c.l+.d.l.
+
+   cd_form_3dints_z_indices :: INTVEC* DEFAULT_NULL
+   ! Which indices to use for combining the 2d ERIs to 3d ERIS, for the
+   ! angular momenta from .cd_l_max up to .c.l+.d.l.
+
+   cd_form_3dints_yz_rms_indices :: INTVEC* DEFAULT_NULL
+   ! Which indices to use for combining the 2d ERIs to 3d ERIS, for the
+   ! angular momenta from .cd_l_max up to .c.l+.d.l.  This version is for the
+   ! reduced multiplication scheme, where the y and z arrays have been collapsed
+   ! into one product array.
+
+   r2ab :: REAL
+   ! The distance between shells .a and .b.
+
+   r2cd :: REAL
+   ! The distance between shells .c and .d.
+
+   end
+
+
+
+   type basis_type
+
+   label :: STR
+   ! Unique label for the basis set
+
+   n_shell :: INT
+   ! No. of shells in the basis, equal to size(shell)
+
+   n_bf :: INT
+   ! No. of basis functions for the shell
+
+   n_prim :: INT
+   ! No. of primitives for the shell
+
+   shell :: SHELLVEC* DEFAULT_NULL
+   ! The list of gaussian shells in the basis set
+
+   end
+
+
+
+   type interpolator_type
+
+   kind :: STR  DEFAULT("linear")
+   ! The kind of interpolation used (usually "linear"). Also allowed is
+   ! "logarithmic"
+
+   n_data :: INT  DEFAULT(0)
+   ! The number of "data_points" and "values" in the table
+
+   data_point :: REALVEC*  DEFAULT_NULL
+   ! The list of data points, from smallest to largest.
+
+   data_value :: REALVEC*  DEFAULT_NULL
+   ! The list of values corresponding to each data value.
+
+   spacing :: REAL  DEFAULT(ZERO)
+   ! The spacing between data points, if using an even spaced grid.
+   ! (this is the case if spacing in non-zero)
+
+   finalised :: BIN  DEFAULT(FALSE)
+   ! Set TRUE if the object is ready for use
+
+   end
+
+
+
+   type slatershell_type
+
+   l :: INT  DEFAULT(0)
+   ! l quantum number 
+
+   n_comp :: INT  DEFAULT(0)
+   ! The number of l-components, normally 2*l+1 for spherical type slater
+   ! functions.
+
+   n_orb :: INT DEFAULT(0)
+   ! The number of generally contracted orbitals.
+
+   n_prim :: INT  DEFAULT(0)
+   ! No. of exponents/contractions (i.e. the number of primitives for one
+   ! *single* angular momentum shell component, e.g. p_x).
+
+   n :: INTVEC* DEFAULT_NULL
+   ! The n quantum numbers.
+
+   z :: REALVEC* DEFAULT_NULL
+   ! The exponent zeta for each slater function
+
+   c :: REALMAT* DEFAULT_NULL
+   ! The contraction coefficient matrix -- this is a generally contracted slater
+   ! shell. The size of .dim1 is "n_cc". The size of .dim2 is "n_orb".
+
+   kind :: STRVEC* DEFAULT_NULL
+   ! The kinds of the orbitals (1s, 2s, 2p, etc.), if available.
+   ! It's length is "n_orb".
+
+   occupancy :: INTVEC* DEFAULT_NULL
+   ! The occupany number of each contracted orbital, if available.
+   ! It's length is "n_orb".
+
+   end
+
+
+
+   type slaterbasis_type
+
+   label :: STR
+   ! Unique label for the basis set
+
+   configuration :: STR
+   ! A STR representation of the configuration.
+
+   n_shell :: INT
+   ! No. of shells in the basis, equal to size(shell)
+
+   n_bf :: INT
+   ! No. of basis functions for the shell
+
+   n_prim :: INT
+   ! No. of primitives for the shell
+
+   shell :: SLATERSHELLVEC* DEFAULT_NULL
+   ! The list of gaussian shells in the basis set
+
+   interpolator :: INTERPOLATOR* DEFAULT_NULL
+   ! An interpolator object, used for calculating the atomic density at a
+   ! certain radius, from e.g. the coppensbasis
+
+   end
+
+
+
+   type coppensorbital_type
+
+   kind :: STR
+   ! The kind of the orbital (1s, 2s, 2p, etc.)
+
+   occupancy :: INT
+   ! The number of electrons in the orbital.
+
+   n_fun :: INT
+   ! The number of contracted fitting functions
+
+   n :: INTVEC* DEFAULT_NULL
+   ! The n quantum numbers
+
+   c :: REALVEC* DEFAULT_NULL
+   ! The contraction coefficient
+
+   z :: REALVEC* DEFAULT_NULL
+   ! The exponent zeta for each slater function
+
+   end
+
+
+
+   type coppensbasis_type
+
+   label :: STR
+   ! The basis label
+
+   n_orb :: INT
+   ! The number of orbitals in the basis
+
+   n_prim :: INT
+   ! The number of primitive functions in the basis
+
+   orbital :: COPPENSORBITALVEC* DEFAULT_NULL
+   ! The list of fitted Slater atomic orbitals, Coppens style.
+
+   interpolator :: INTERPOLATOR* DEFAULT_NULL
+   ! An interpolator object, used for calculating the atomic density at a
+   ! certain radius, from e.g. the coppensbasis
+
+   end
+
+
+
+   type atom_type
+
+   label :: STR  DEFAULT("?")
+   ! The label for the atom (not necessarily unique)
+
+   atomic_number :: INT
+   ! The atomic number
+
+   pos :: REALVEC(3)
+   ! Atom position
+
+   axis_system :: STR  DEFAULT("cartesian")
+   ! Specifies the coordinate axis system
+
+   U_iso :: REAL  DEFAULT(ZERO)
+   ! The isotropic thermal smearing value for the atom
+
+   thermal_tensor :: REALMAT(3,3)  DEFAULT(ZERO)
+   ! The thermal tensor for the atom
+
+   thermal_axis_system :: STR  DEFAULT("cartesian")
+   ! Specifies the thermal tensor coordinate system
+
+   basis_label :: STR  DEFAULT(" ")
+   ! The label of the basis set to match to.
+
+   basis :: BASIS* DEFAULT_NULL
+   ! The basis for the atom
+
+   slaterbasis :: SLATERBASIS* DEFAULT_NULL
+   ! The Slater function basis set for the atom. This includes occupancies and
+   ! can be used for Hirshfeld surface plots and sum-of-spherical atoms densities.
+
+   coppensbasis :: COPPENSBASIS* DEFAULT_NULL
+   ! The Coppens-style fitted relativistic orbital basis for the atom. This is
+   ! used for Hirshfeld surface plots and sum-of-spherical atoms densities.
+
+   density_matrix :: OPMATRIX* DEFAULT_NULL
+   ! The density matrix for the atom
+
+   natural_orbitals :: OPMATRIX* DEFAULT_NULL
+   ! The natural orbitals for the atom
+
+   occupation_numbers :: OPVECTOR* DEFAULT_NULL
+   ! The occupation numbers for the atom
+
+   energy :: REAL
+   ! The energy of the isolated atom
+
+   group :: INT
+   ! An integer which describes thr group to which the atom belongs
+
+   sequence_number :: INT  DEFAULT(0)
+   ! The sequence number (unique within on molecule, only one chain allowed yet)
+
+   residue_atom_name :: STR  DEFAULT("?")
+   ! The unique name for the atom in its (protein-)residue
+
+   residue_name :: STR  DEFAULT("UNK")
+   ! The residue name (must be part of residue table for pdbfile as input)
+
+   mm_forcefield_name :: STR  DEFAULT("?")
+   ! The name of the forcefield (e.g. amber, sybyl,...)
+
+   mm_atom_type :: STR  DEFAULT("?")
+   ! The atom type, used to define the force field potential
+
+   mm_charge :: REAL  DEFAULT(ZERO)
+   ! The atomic charge (relative to the force field!)
+
+   restraining_position :: REALVEC(3)  DEFAULT(ZERO)
+   ! A position used for restrained geometry optimization
+
+   restraining_force_constant :: REAL  DEFAULT(ZERO)
+   ! A force constant used for restrained geometry optimisations
+
+   site_occupancy :: REAL  DEFAULT(ONE)
+   ! The crystallographic site occupancy.
+
+   end
+
+
+
+   type plotgrid_type
+
+   kind :: STR  DEFAULT(" ")
+   ! The type of plot calculation wanted
+
+   orbital :: INT  DEFAULT(0)
+   ! The orbital to plot (if any)
+
+   n_x :: INT  DEFAULT(PLOTGRID_NX)
+   ! The number of points on the x-axis
+
+   n_y :: INT  DEFAULT(PLOTGRID_NY)
+   ! The number of points on the y-axis
+
+   n_z :: INT  DEFAULT(PLOTGRID_NZ)
+   ! The number of points on the z-axis
+
+   n_pt :: INT  DEFAULT(0)
+   ! The total no. of points in the plot
+
+   atom :: ATOMVEC* DEFAULT_NULL
+   ! List of atoms which can be used to define grid aces and positions.
+
+   centre_atom :: INT  DEFAULT(0)
+   ! Use this atom as the centre of the plot
+
+   x_atom_1, x_atom_2 :: INT
+   ! These atoms define the x-axis of the plot
+
+   y_atom_1, y_atom_2 :: INT
+   ! These atoms define the y-axis of the plot (made orthogonal to the x-axis)
+
+   z_atom_1, z_atom_2 :: INT
+   ! These atoms define the z-axis of the plot.
+
+   del :: REAL  DEFAULT(ONE)
+   ! The distance between axis points in the plot
+
+   centre :: REALVEC(3)  DEFAULT(ZERO)
+   ! Centre of the plot
+
+   origin :: REALVEC(3)  DEFAULT(ZERO)
+   ! Bottom left point of the plot
+
+   x_axis :: REALVEC(3)  DEFAULT(PLOTGRID_X_AXIS)
+   ! x-axis of the plot
+
+   y_axis :: REALVEC(3)  DEFAULT(PLOTGRID_Y_AXIS)
+   ! y-axis of the plot
+
+   z_axis :: REALVEC(3)  DEFAULT(PLOTGRID_Z_AXIS)
+   ! z-axis of the plot
+
+   width :: REALVEC(3)  DEFAULT(PLOTGRID_WIDTH)
+   ! The widths (in a.u.) of each axis of the plot
+
+   offset :: REALVEC(3)  DEFAULT(ZERO)
+   ! The centre of the plot is offset by this amount
+
+   x_width_set :: BIN  DEFAULT(TRUE)
+   ! If False the x_width, i.e. width(1), is to be calculated from the size of
+   ! the inputted x_axis vector; or if a width has *not* been inputted.
+
+   y_width_set :: BIN  DEFAULT(TRUE)
+   ! If False the y_width, i.e. width(2), is to be calculated from the size of
+   ! the inputted y_axis vector; or if a width has *not* been inputted.
+
+   z_width_set :: BIN  DEFAULT(TRUE)
+   ! If False the z_width, i.e. width(3), is to be calculated from the size of
+   ! the inputted z_axis vector; or if a width has *not* been inputted.
+
+   x_axis_defined :: BIN  DEFAULT(FALSE)
+   ! Flag set true if the user has defined the x_axis in the input
+
+   y_axis_defined :: BIN  DEFAULT(FALSE)
+   ! Flag set true if the user has defined the y_axis in the input
+
+   z_axis_defined :: BIN  DEFAULT(FALSE)
+   ! Flag set true if the user has defined the z_axis in the input
+
+   box_centre :: REALVEC(3)
+   ! The centre of the bounding box, defined as the centre of an optional
+   ! inputted atom list.
+
+   bounding_box :: REALVEC(3)
+   ! The bounding box for the molecule, defined from an optional atom list.
+
+   box_scale_factor :: REAL
+   ! Scale factor for the bounding box.  Usually leave it at 1.
+
+   box_axes :: REALMAT(3,3)
+   ! The axes of the bounding box, defined as the principal axes of the shape
+   ! tensor (essentially the unit weighted moment of inertia tensor). Defined
+   ! from an optionally inputted atom list.
+
+   desired_separation :: REAL  DEFAULT(ZERO)
+   ! The desired separation between grid points.
+
+   end
+
+
+
+   type dftgrid_type
+
+   spherical_grid_kind :: STR  DEFAULT(DFTGRID_SPHERICAL_GRID_KIND)
+   ! Identifier for the kind of spherical grid
+
+   radial_grid_kind :: STR  DEFAULT(DFTGRID_RADIAL_GRID_KIND)
+   ! Type of radial grid
+
+   spherical_grid_order :: INT  DEFAULT(DFTGRID_SPHERICAL_GRID_ORDER)
+   ! Order of the spherical grid
+
+   radial_grid_order :: INT  DEFAULT(DFTGRID_RADIAL_GRID_ORDER)
+   ! Order of the radial grid
+
+   n_spherical_pts :: INT  DEFAULT(0)
+   ! No of spherical grid points
+
+   n_radial_pts :: INT  DEFAULT(0)
+   ! No of radial grid points
+
+   n_pts :: INT  DEFAULT(0)
+   ! No of integration grid points
+
+   becke_m_partition_power :: REAL  DEFAULT(DFTGRID_BECKE_M_PARTITION_POWER)
+   ! Used in smoothing the partition boundary
+
+   gauss_chebyshev_alpha :: REAL  DEFAULT(DFTGRID_GAUSS_CHEBYSHEV_ALPHA)
+   ! Gauss-Chebychev radial grid parameters
+
+   gauss_chebyshev_m :: REAL   DEFAULT(DFTGRID_GAUSS_CHEBYSHEV_M)
+   ! ?
+
+   euler_maclaurin_alpha :: REAL  DEFAULT(DFTGRID_EULER_MACLAURIN_ALPHA)
+   ! Euler-Maclaurin radial grid parameters
+
+   euler_maclaurin_m :: REAL   DEFAULT(DFTGRID_EULER_MACLAURIN_M)
+   !
+
+   archive :: ARCHIVE
+   ! Archive to store the generated grids
+
+   finalized :: BIN  DEFAULT(FALSE)
+   ! Set to true if the DFTGRID has been "set" using set_grid_data
+
+   single_atom_points :: REALMAT* DEFAULT_NULL
+   ! The dft grid points at the origin for a single atom.
+
+   single_atom_weights :: REALVEC* DEFAULT_NULL
+   ! The dft grid weights at the origin for a single atom.
+
+   end
+
+
+
+   type irrep_type
+
+   label :: STR(4)
+   ! Irrep label
+
+   dimension :: INT
+   ! Irrep dimension
+
+   character :: REALVEC* DEFAULT_NULL
+   ! Characters for the irrep
+
+   mat :: REALMAT3* DEFAULT_NULL
+   ! Representation matrices for the irrep
+
+   end
+
+
+
+   type pointgroup_type
+
+   symbol :: STR(4)
+   ! symmetry symbol
+
+   ID_symbol :: STR(4)
+   ! group id symbol
+
+   ID_number :: INT
+   ! group id number
+
+   axis_order :: INT
+   ! principal axis order
+
+   order :: INT
+   ! order of the group
+
+   n_irrep :: INT
+   ! no of irreducible representations
+
+   n_gen :: INT
+   ! No. of generators
+
+   has_complex_irreps :: BIN
+   ! true if the group has complex irreps
+
+   table :: INTMAT* DEFAULT_NULL
+   ! group multiplication table
+
+   mat :: REALMAT3* DEFAULT_NULL
+   ! 3x3 representation matrices
+
+   ptr :: REALMAT3* DEFAULT_NULL
+   ! 3x3 representation matrices for p functions, same as mat
+
+   dtr :: REALMAT3* DEFAULT_NULL
+   ! 6x6 representation matrices for d functions
+
+   ftr :: REALMAT3* DEFAULT_NULL
+   ! 10x10 representation matrices for f functions
+
+   gtr :: REALMAT3* DEFAULT_NULL
+   ! 15x15 representation matrices for g functions
+
+   inverse :: INTVEC* DEFAULT_NULL
+   ! Indices of inverse group elements
+
+   irrep :: IRREPVEC* DEFAULT_NULL
+   ! List of irrrducible representations
+
+   end
+
+
+
+   type unitcell_type
+
+   angle :: REALVEC(3)
+   ! The cell angles  (in radians)
+
+   length :: REALVEC(3)
+   ! The cell lengths (in bohr)
+
+   volume :: REAL
+   ! The cell volumes (bohr^3)
+
+   direct_matrix :: REALMAT(3,3)
+   ! Direct lattice cell matrix (bohr). The columns are vectors of the three
+   ! cell axes.
+
+   inverse_matrix :: REALMAT(3,3)
+   ! Inverse direct lattice cell matrix (bohr^{-1})
+
+   reciprocal_matrix :: REALMAT(3,3)
+   ! Reciprocal lattice cell matrix (bohr^{-1}).
+
+   direct_U_matrix :: REALMAT(3,3)
+   ! Converts thermal tensors from crystal to cartesian systems.
+
+   reciprocal_U_matrix :: REALMAT(3,3)
+   ! Converts thermal tensors from cartesian to crystal systems.
+
+   info_made :: BIN
+   ! Set TRUE if all the above information is consistent.
+
+   end
+
+
+
+   type spacegroup_type
+
+   IT_symbol :: STR
+   ! International Table (Hermann-Maguin) symmetry symbol
+
+   IT_group_number :: INT
+   ! International tables group number
+
+   Hall_symbol :: STR
+   ! Hall notation symbol
+
+   HM_symbol :: STR
+   ! Hermann-Mauguin notation symbol
+
+   Schoenflies_symbol :: STR
+   ! Hermann-Mauguin notation symbol
+
+   lattice_symbol :: STR(1)
+   ! Lattice symmetry symbol
+
+   lattice_symbol_index :: INT
+   ! Lattice symbol index number
+
+   lattice_type :: STR
+   ! Lattice type
+
+   centrosymmetric :: BIN
+   ! True if center of symmetry present
+
+   axis_order :: INTVEC(3)
+   ! Order of each crystal axis
+
+   axis_symbol :: STRVEC(len=1,3)
+   ! Superscript rotation axis symbol
+
+   axis_symbol_index :: INTVEC(3)
+   ! Indicates the numberical index corresponding to the axis symbol x, y, z ...
+
+   has_axis_bar :: BINVEC(3)
+   ! True if bar for this axis
+
+   has_translation :: BINVEC(3)
+   ! True if translation subscript present for this axis
+
+   translation_symbol :: STRMAT(len=1,3,3)
+   ! Subscript translation symbols for each axis
+
+   origin_shift :: INTVEC(3)
+   ! Subscript translation symbols for each axis
+
+   nL :: INT
+   ! No. of translational lattice generators
+
+   nR :: INT
+   ! No. of rotation generators
+
+   nG :: INT
+   ! No. of generators
+
+   n_seitz :: INT
+   ! No. of Seitz matrices
+
+   seitz :: REALMAT3* DEFAULT_NULL
+   ! The spacegroup Seitz matrices.
+
+   n_unique :: INT
+   ! No. of equivalent positions unrelated by traslation or inversion
+
+   unique_symop :: INTVEC* DEFAULT_NULL
+   ! Index of unique symops not related by translation or inversion
+
+   map_to_unique :: INTVEC* DEFAULT_NULL
+   ! Maps symop to a unique symop. Negative indicates inversion
+
+   analysed :: BIN
+   ! Set TRUE if the spacegroup symbol has been succesfully analysed
+
+   end
+
+
+
+   type crystal_type
+
+   kind :: STR
+   ! Kind of diffraction experiment used.
+
+   spacegroup :: SPACEGROUP
+   ! The crystal spacegroup
+
+   unitcell :: UNITCELL
+   ! The crystal unit cell
+
+   n_fragment_atoms :: INT
+   ! No. of atoms in the inputted cell fragment, used to calculate structure
+   ! factors, or do wavefunction fitting.
+
+   fragment_geometry :: REALMAT* DEFAULT_NULL
+   ! The geometry for a molecular fragment in the crystal (in the crystal
+   ! coordiante system) used to calculate structure factors or do wavefunction
+   ! fitting. IMPORTANT NOTE --- this is not to be confused with the
+   ! "asymmetric_unit_geometry"; it may include symmetry non-unique atoms.
+
+   n_fragment_cell_atoms :: INT
+   ! No. of atoms in the whole unit cell which are generated from
+   ! "fragment_geometry" by spacegroup symmetry operations. This will be the whole
+   ! unit cell if the "fragment_geometry" includes all asymmetric unit cell.
+
+   fragment_cell_geometry :: REALMAT* DEFAULT_NULL
+   ! The geometry of all atoms in the unit cell generated from
+   ! "fragment_geometry" by the spacegroup symmetry operations. It will usually
+   ! be the full "unit_cell_geometry", but may not be.
+
+   symop_for_fragment_cell_atom :: INTVEC* DEFAULT_NULL
+   ! symop_for_unit_cell_atom :: INTVEC* DEFAULT_NULL
+   ! "symop_for_fragment_cell_atom(a)" is the index of the spacegroup symmetry
+   ! operation that generates atom position "fragment_cell_geometry(:,a)" from a
+   ! unique atom position in "fragment_geometry".
+
+   atom_for_fragment_cell_atom :: INTVEC* DEFAULT_NULL
+   ! fragment_atom_for :: INTVEC* DEFAULT_NULL
+   ! "atom_for_fragment_cell_atom(a)" is the index of the unique fragment atom
+   ! in "fragment_geometry" which generates atom position
+   ! "fragment_cell_geometry(:,a)", using "symop_for_fragment_cell_atom(a)".
+
+   n_unique_fragment_atoms :: INT
+   ! n_unique_unit_cell_atoms :: INT
+   ! No. of unique fragment atoms.
+
+   unique_fragment_atom :: INTVEC* DEFAULT_NULL
+   ! unique_atom :: INTVEC* DEFAULT_NULL
+   ! The list of symmetry-unique fragment atoms. This list may be a subset of
+   ! the asymmetric unit -- but it usually will be the asymmetric unit.
+
+   unique_symop_for_fragment_atom :: INTVEC* DEFAULT_NULL
+   ! unique_atom_symop_for :: INTVEC* DEFAULT_NULL
+   ! "unique_symop_for_fragment_atom(a)" is the index of the spacegroup symmetry
+   ! operation which maps the atom "unique_atom_for_fragment_atom(a)" onto the
+   ! "a"-th atom position, fragment_geometry(:,a).
+
+   unique_atom_for_fragment_atom :: INTVEC* DEFAULT_NULL
+   ! unique_atom_for :: INTVEC* DEFAULT_NULL
+   ! "unique_atom_for_fragment_atom(a)" is the index of the symmetry-unique atom
+   ! position in "fragment_geometry" which generates the position
+   ! "fragment_geometry(:,a)".
+
+   n_reduced_symops :: INT
+   ! No. of symops needed to make the unit_cell_geometry from fragment_geometry
+   ! OBSOLETE
+
+   reduced_symop :: INTVEC* DEFAULT_NULL
+   ! Indices of the reduced symops in the spacegroup seitz list, i.e. those
+   ! symops which make distinctly different fragment_geometries when transformed
+   ! back to the unit cell. The unit symop is part of the reduced_symop list.
+   ! OBSOLETE
+
+   n_cluster_symops :: INT
+   ! No. of cluster symops which generate distinctly different fragment geometries.
+   ! OBSOLETE
+
+   cluster_symop :: INTVEC* DEFAULT_NULL
+   ! Indices of the cluster symops in the spacegroup seitz list. These are the
+   ! same as the reduced_symop's, except that the fragment_geometry and its
+   ! symmetry transform are not mapped back to the unit cell
+   ! OBSOLETE
+
+   n_inverted_symops :: INT
+   ! Number of symmetry operations related by inversion
+
+   inverted_symop :: INTVEC* DEFAULT_NULL
+   ! Indices of the unique symops related by inversion
+
+   translated_symop :: INTVEC* DEFAULT_NULL
+   ! Indices of the unique symops related by translation
+
+   n_unique_SF_symops :: INT
+   ! Number of unique symmetry operations not related by inversion or
+   ! translation. This is used to save work in structure factor (SF)
+   ! calculations.
+
+   unique_SF_symop :: INTVEC* DEFAULT_NULL
+   ! Indices of the unique symops not related by inversion or translation.
+   ! This is used to save work in structure factor (SF) calculations.
+
+   repetition_factor :: REALVEC* DEFAULT_NULL
+   ! The partition factors for fragment_geometry Useful to get structure
+   ! factor contributions from a small portion of the fragment.
+
+   Z :: REAL
+   ! The crystallographic Z factor for the molecular cell fragment in the
+   ! unitcell
+
+   reduced_group_info_made :: BIN
+   ! Set TRUE if the reduced group information has been made
+
+   n_asymmetric_unit_atoms :: INT
+   ! No. of atoms in the asymmetric unit of the unit cell.
+
+   asymmetric_unit_geometry :: REALMAT* DEFAULT_NULL
+   ! The asymmetric unit cell geometry. Usually inputted from a CIF file. This
+   ! may or may not be the same as fragment_cell_geometry. It is NOT used for
+   ! structure factor calculations, but for cluster generation.
+
+   n_unit_cell_atoms :: INT
+   ! Total no. of unit cell atoms.
+
+   unit_cell_geometry :: REALMAT* DEFAULT_NULL
+   ! The full unit cell geometry, in the crystal coordiante system, generated
+   ! from the asymmetric_unit_geometry.
+
+   symop_for_unit_cell_atom :: INTVEC* DEFAULT_NULL
+   ! "symop_for_unit_cell_atom(a)" is the index of the spacegroup symmetry
+   ! operation that generates atom position "unit_cell_geometry(:,a)" from a
+   ! unique atom position in "asymmetric_unit_geometry".
+
+   atom_for_unit_cell_atom :: INTVEC* DEFAULT_NULL
+   ! "atom_for_unit_cell_atom(a)" is the index of the unique unit cell atom
+   ! in "asymmetric_unit_geometry" which generates atom position
+   ! "unit_cell_geometry(:,a)", using "symop_for_unit_cell_atom(a)".
+
+   reflections :: REFLECTIONVEC* DEFAULT_NULL
+   ! The structure factor information
+
+   scale_factor :: REAL
+   ! Scale factor to apply to the predicted structure factors
+
+   exp_scale_factor :: REAL
+   ! Fixed scale factor to apply to the experimental structure factors
+
+   optimise_scale :: BIN
+   ! True if an overall scaler factor is to be optimised, for use in calculating
+   ! F_pred
+
+   synthesize_sigma_I :: BIN
+   ! True if artificial sigma(I) errors are to be gereated from poisson
+   ! statistics and used in calculating agreement statistics
+
+   optimise_extinction :: BIN
+   ! True if extinction is to be optimised.
+
+   correct_dispersion :: BIN
+   ! True if dispersion is to be corrected
+
+   extinction_factor :: REAL
+   ! Secondary extinction factor
+
+   wavelength :: REAL
+   ! Experiment wavelength
+
+   thermal_smearing_model :: STR
+   ! Thermal smearing model for ft integrals
+
+   partition_model :: STR
+   ! Model for partitioning fragments of the molecule
+
+   n_param :: INT
+   ! No of fitting parameters used
+
+   end
+
+
+
+   type cluster_type
+
+   radius :: REAL  DEFAULT(CLUSTER_RADIUS)
+   ! The radius of the cluster. This number determines the maximum acceptable
+   ! distance between an atom in fragment_geometry and its crystal transformed
+   ! image. It defines the cluster.
+
+   add_criteria :: STR  DEFAULT(CLUSTER_ADD_CRITERIA)
+   ! The add criteria, i.e. whether to add atoms by whole clusters within a
+   ! certain distance (radius) of the starting fragment, or by individual atoms
+   ! within a certain distance of the starting fragment.
+
+   start_with_fragment :: BIN  DEFAULT(FALSE)
+   ! Start building the cluster from the initial fragment geometry
+
+   defragment :: BIN  DEFAULT(CLUSTER_DEFRAGMENT)
+   ! If TRUE, the cluster ends are defragmented, i.e. any atoms which are bonded
+   ! at the ends of the cluster are included into the cluster.
+
+   n_atoms :: INT
+   ! The number of atoms in the cluster
+
+   geometry :: REALMAT* DEFAULT_NULL
+   ! The (3 x .n_atoms) sized array of cluster atom positions
+
+   crystal :: CRYSTAL* DEFAULT_NULL
+   ! The crystal information used to generate the cluster
+
+   asymmetric_cell_atom :: ATOMVEC* DEFAULT_NULL
+   ! The atom list data associated with the *asymmetric* unit cell_geometry (see
+   ! below) used to generate the cluster atom positions.
+
+   n_fragment_atoms :: INT
+   ! The number of fragment atoms used to build the cluster
+
+   fragment_geometry :: REALMAT* DEFAULT_NULL
+   ! The (3 x .n_fragment_atoms) sized array of fragment atom positions used to
+   ! generate the cluster.
+
+   n_symop :: INT
+   ! The number of symmetry operators used to generate the cluster
+
+   symop :: INTMAT* DEFAULT_NULL
+   ! The (4 x .n_symop) sized list of symmetry operators used to generate the
+   ! cluster. symop(1,q) is the index of the Seitz operator, while symop(2:4,q)
+   ! is the translation vector applied (in the crystal axis coordinate system).
+
+   fragment_width :: REALVEC(3)
+   ! The width of the crystal fragment, to the nearest unit cell
+
+   fragment_offset :: INTVEC(3)
+   ! The center point of the fragment_geometry, to the nearest unit cell
+
+   symop_for_atom :: INTVEC* DEFAULT_NULL
+   ! symop_for_atom(a) is the *index* "s" of the symmetry operation in .symop,
+   ! .symop(:,s), used to generate the cluster atom "a", whose positon is given
+   ! by .geometry(:,a).
+
+   parent_for_atom :: INTVEC* DEFAULT_NULL
+   ! parent_for_atom(a) is the index of the unique asymmetric unit cell atoms in
+   ! *used to generate* the cluster atom "a" using one of the symmetry
+   ! operations in .symop (specifically the symop with index .symop_for_atom(a)).
+
+   atom_for_cell_atom :: INTMAT* DEFAULT_NULL
+   ! atom_for_cell_atom(a,s) is the index of the cluster atom in .geometry which
+   ! is *generated by* asymmetric cell atom "a", whose position is in
+   ! .crystal.asymmetric_cell_geometry(:,a), by the symop with index "s",
+   ! .symop(:,s). This is the inverse information array of parent_for_atom(a).
+
+   minimum_distance_to_atom :: REALVEC* DEFAULT_NULL
+   ! minimum_distance_to_atom(a) is the minimum distance from the cluster
+   ! atom "a", whose position is given in .geometry(:,a), to the crystal
+   ! fragment, whose geometry is given in .fragment_geometry
+
+   closest_fragment_atom_to_atom :: INTVEC* DEFAULT_NULL
+   ! closest_fragment_atom_to_atom(a) is the index of the atom in
+   ! .fragment_geometry which is closest to the cluster atom "a", whose positon
+   ! is .geometry(:,a).
+
+   is_fragment_atom :: BINVEC* DEFAULT_NULL
+   ! is_fragment_atom(a) is TRUE if .geometry(:,a) is the position of a fragment
+   ! atom, i.e. if "a" is the index of a fragm,ent atom.
+
+   symop_is_redundant :: BINVEC* DEFAULT_NULL
+   ! symop_is_redundant(q) is TRUE if .symop(:,q) does not generate any new
+   ! cluster atom (cluster atom positions are stored in .geometry). Instead,
+   ! symops earlier in the .symop list are able to generate the atoms that symop
+   ! "q" can generate.
+
+   partition_factor :: REALVEC* DEFAULT_NULL
+   ! A list of partition factors which can be applied to a density matrix in
+   ! order to partition it. This array can be generated automatically, or it can
+   ! be explicitly inputted.
+
+   info_made :: BIN  DEFAULT(FALSE)
+   ! Set to true if the routine make_info has been called
+
+   end
+
+
+
+   type scfdata_type
+
+   kind :: STR
+   ! The kind of SCF calculation to perform
+
+   dft_exchange :: STR
+   ! The DFT exchange functional to be used
+
+   dft_correlation :: STR
+   ! The DFT correlation functional to be used
+
+   dft_non_local_exchange :: BIN
+   ! TRUE if the exchange functional is non local, otherwise false.
+
+   dft_non_local_correlation :: BIN
+   ! TRUE if the correlation functional is non local, otherwise false.
+
+   initial_density :: STR
+   ! The kind of density matrix to start the SCF calc
+
+   initial_mos :: STR
+   ! The kind of initial MO's to start the SCF calc
+
+   nuclear_energy :: REAL
+   ! Nuclear repulsion energy for the associated molecule
+
+   kinetic_energy :: REAL
+   ! The kinetic energy for the associated molecule
+
+   dft_energy_correction :: REAL
+   ! The DFT energy correction to the SCF energy for the associated molecule
+
+   energy :: REAL
+   ! The SCF energy for the associated molecule
+
+   old_energy :: REAL
+   ! The SCF energy from the previous SCF cycle
+
+   difference :: REAL
+   ! The change in the SCF energy between cycles
+
+   convergence :: REAL
+   ! A number which measures the convergnece of the SCF
+
+   diis_convergence :: REAL
+   ! A limit below which the DIIS is deemed converged
+
+   diis_start_iteration :: INT DEFAULT(SCFDATA_DIIS_START_ITERATION)
+   ! Which iteration of the SCF to start the DIIS
+
+   using_rough_convergence :: BIN
+   ! Whether to apply lower integral accuracy
+
+   rough_convergence :: REAL
+   ! How much to converge to before increasing integral accuracy
+
+   rough_diis_convergence :: REAL
+   ! How much to converge the DIIS error to before increasing integral accuracy
+
+   iteration :: INT
+   ! The interation count for the SCF procedure
+
+   total_iterations :: INT
+   ! The total interation count for the SCF procedure, which does not get reset
+   ! after each lambda increment.
+
+   lambda_iteration :: INT
+   ! Lambda iteration count for the x-ray SCF procedure
+
+   min_iterations :: INT
+   ! The minimum number of SCF iterations to perform
+
+   max_iterations :: INT
+   ! The maximum number of SCF iterations to perform
+
+   lambda :: REAL
+   ! The initial lambda value to use in an x-ray SCF procedure
+
+   lambda_max :: REAL
+   ! The maximum lambda value to use in an x-ray SCF procedure
+
+   lambda_step :: REAL
+   ! The value to step the lambda value between lambda cycles in an x-ray SCF
+   ! calc.
+
+   fit_value :: REAL
+   ! The value of E + lambda * chi2 in an x-ray SCF calc.
+
+   old_fit_value :: REAL
+   ! The value of E + lambda * chi2 of the previous iteration in an x-ray SCF
+   ! calc.
+
+   F_chi2 :: REAL
+   ! Chi^2 agreement statistic for an x-ray SCF calc
+
+   old_F_chi2 :: REAL
+   ! Chi^2 agreement statistic for an x-ray SCF calc of the previous iteration
+
+   F_gof :: REAL
+   ! Goodness-of-fit agreement statistic for x-ray SCF calc
+
+   F_r_factor :: REAL
+   ! R-factor agreement statistic for x-ray SCF calc
+
+   F_weighted_r_factor :: REAL
+   ! The weighted r-factor agreement statistic
+
+   test :: BIN
+   ! Test flag. Set True if some test procedure is to be executed
+
+   direct :: BIN
+   ! True if using direct SCF
+
+   using_delta_build :: BIN
+   ! True if using an incremental (delta) fock build as advocated by Almlof.
+
+   using_fock_diis :: BIN
+   ! True if using DIIS extrapolation for fock matrices
+
+   using_MO_diis :: BIN
+   ! True if using DIIS extrapolation for molecular orbitals
+
+   using_damping :: BIN
+   ! True if using damping
+
+   using_level_shift :: BIN
+   ! True if using level shifting
+
+   using_camp_king :: BIN
+   ! True if using Camp-King converger
+
+   camp_king_iters :: INT
+   ! How many iterations the Camp-King converger took in SCF cycle
+
+   using_dynamic_damping :: BIN
+   ! True if using the Dynamic Damper
+
+   dynamic_damp_factor :: REAL
+   ! Damp factor used by the Dynamic Damper
+
+   diis :: DIIS
+   ! For diis extrapolation (usually Fock matrix DIIS extrapolation)
+
+   diis_error :: REAL
+   ! The DIIS error
+
+   old_diis_error :: REAL
+   ! The DIIS error of the previous iteration
+
+   using_diis_auto_start :: BIN
+   ! Set TRUE if starting DIIS automatically based on the size of
+   ! the diis error
+
+   damp_finish :: INT
+   ! Iteration when density matrix damping is turned off
+
+   damp_factor :: REAL
+   ! The damping factor to use
+
+   level_shift_finish :: INT
+   ! Iteration when level shifting is turned off
+
+   level_shift :: REAL
+   ! Value to level shift the virtual orbitals
+
+   output :: BIN
+   ! True if output is wanted
+
+   nddo :: BIN
+   ! Neglect of diatomic differential overlap
+
+   nudo :: BIN
+   ! Neglect of unconnected differential overlap
+
+   pie :: BIN
+   ! Projective integral expansion method (PIE) developed by Mayer.
+   ! See Mayer, CPL 332, 381 (2000).
+
+   using_bl_term :: BIN
+   ! Switch on/off the B.L term (complex SCF reqd.)
+
+   using_bs_term :: BIN
+   ! Switch on/off the B.S term
+
+   using_bs_t_term :: BIN
+   ! Switch on/off the (B.S) T_e term
+
+   using_aa_term :: BIN
+   ! Switch on/off the A.A diamagnetic term
+
+   using_1e_sl_term :: BIN
+   ! Switch on/off the 1 electron S.L term
+
+   using_1e_srxa_term :: BIN
+   ! Switch on/off the 1 electron diamagnetic term
+
+   using_1e_zora_term :: BIN
+   ! Switch on/off the 1 electron ZORA terms
+
+   sl_1e_factor :: REAL
+   ! Factor to apply to the 1-electron S.L terms
+
+   using_2e_sl_term :: BIN
+   ! Switch on/off the 2 electron S.L terms
+
+   sl_2e_factor :: REAL
+   ! Factor to apply to the 2-electron S.L terms
+
+   eri_limit :: REAL
+   ! Cutoff for the two electron integrals
+
+   old_eri_cutoff :: REAL
+   ! Previous iteration's cutoff for the two electron integrals, used for
+   ! detecting if an incremental fock build is required.
+
+   quantization_axis :: REALVEC(3)  DEFAULT(ZERO)
+   ! Quantization axis for GCHF, if using initial MO's as a guess
+
+   group :: BIN
+   ! Set TRUE if doing a noninteracting group SCF calculation
+
+   using_MO_gradient_update :: BIN
+   ! Set TRUE if using the gradient of the orbital coefficients to
+   ! update the coefficients
+
+   MO_gradient_stepsize :: REAL
+   ! The stepisize to use for updating the orbitals
+
+   max_update_stepsize :: REAL
+   ! The maximum update stepsize to use for updating any SCF object, e.g. the orbitals
+
+   end
+
+
+
+   type colour_type
+
+   name :: STR
+   ! The standard colour name for this colour.
+
+   RGB255 :: INTVEC(3)
+   ! The RGB triple for this colour as a triple of integers between 0 and 255.
+
+   end
+
+
+
+   type colourfunction_type
+
+   n_data :: INT
+   ! The number of data values (and their associated colours) used to make
+   ! the colour function
+
+   data :: REALVEC* DEFAULT_NULL
+   ! The list of data values, from smallest to largest
+
+   RGB :: REALMAT* DEFAULT_NULL
+   ! The RGB values corresponding to each data value. Their norm should be
+   ! between zero and 3.
+
+   finalised :: BIN
+   ! Set TRUE if the object is ready for use
+
+   end
+
+
+
+   type marchingcube_type
+
+   vertex_pos :: REALMAT(3,0:7)
+   ! A (3 x 0:7) dimensioned list of the actual coordinates of each cube vertex.
+   ! The second index is the standard marching cubes vertex number.
+
+   value_at_vertex :: REALVEC(0:7)
+   ! A (0:7) dimensioned list of the values of the function at each cube vertex.
+
+   vertex_gradient :: REALMAT(3,0:7)
+   ! A (3 x 0:7) dimensioned list of the vertex gradients at each cube vertex.
+   ! The second index is the standard marching cubes vertex number.
+
+   vertex_hessian :: REALMAT3(3,3,0:7)
+   ! A (3 x 3 x 0:7) dimensioned list of the hessian at each cube vertex.
+   ! The third index is the standard marching cubes vertex number.
+
+   side_length :: REAL
+   ! The length of each side of the cube
+
+   iso_value :: REAL
+   ! The isovalue to be used for the isosurface
+
+   accuracy :: REAL
+   ! The function accuracy to which each isosurface point is determined
+
+   case :: INT
+   ! The case number of this marching cube, for lookup in edge_table and
+   ! triangle_table
+
+   interior_case :: INT
+   ! The case number corresponding to a cube being wholly within a surface.
+   ! Normally this is when the interior of the surface has larger values than
+   ! the exterior, and in this case the default is 0.
+
+   exterior_case :: INT
+   ! The case number corresponding to a cube being wholly outside a surface.
+   ! Normally this is when the interior of the surface has smaller values than
+   ! the exterior, and in this case the default is 255.
+
+   edge_bit_string :: INT
+   ! The edge bit string for the marching cube. This is just the appropriate
+   ! element of the edge_table i.e. if the bit is set, then that edge crosses
+   ! the isosurface and must be interpolated.
+
+   skip_bit_string :: INT
+   ! A bit string which tells whether to skip processing certain cube edges.
+   ! Can be used when certain edge vertex points are already done.
+
+   cube_bit_string :: INT
+   ! The grad bit string for the marching cube. This tells which *vertices* of
+   ! the cube cross the isosurface and must be interpolated.
+
+   n_edge :: INT
+   ! The number of marching cube edges that need to be considered on this
+   ! marching cube
+
+   n_triangle :: INT
+   ! The number of triangles formed on this marching cube
+
+   n_pt :: INT
+   ! The number of points up until this cube was analysed. Used to keep a
+   ! list of unique indices to define triangle vertices and points.
+
+   triangle_edge_index :: INTMAT(3,5)
+   ! The (3 x .n_triangle) dimensioned list of 3-edges on the marching cube
+   ! used to form triangles. This is just the appropriate row from the
+   ! triangle_table. The maximum number of triangles is 5.
+
+   triangle_vertex_index :: INTMAT(3,5)
+   ! The (3,.n_triangle) dimensioned list of groups of 3 *unique* triangle
+   ! vertex *indices*. These indices point to a unique list of points. The
+   ! maximum number of triangles is 5.
+
+   edge_vertex_pos :: REALMAT(3,0:11)
+   ! A (3 x 0:11) dimensioned list of the interpolated triangle vertex
+   ! coordinates on each edge of the cube (if that edge is needed).
+
+   edge_vertex_gradient :: REALMAT(3,0:11)
+   ! A (3 x 0:11) dimensioned list of the interpolated triangle vertex normals
+   ! on each edge of the cube (if that edge is needed).
+
+   edge_vertex_hessian :: REALMAT3(3,3,0:11)
+   ! A (3 x 3 x 0:11) dimensioned list of the interpolated triangle vertex
+   ! hessians on each edge of the cube (if that edge is needed).
+
+   edge_mean_curvature :: REALVEC(0:11)
+   ! A (0:11) dimensioned list of the (interpolated) mean curvatures on each
+   ! edge of the cube that crosses the isosurface (if that edge is needed).
+
+   edge_gaussian_curvature :: REALVEC(0:11)
+   ! A (0:11) dimensioned list of the (interpolated) gaussian curvatures on each
+   ! edge of the cube that crosses the isosurface (if that edge is needed).
+
+   edge_vertex_index :: INTVEC(0:11)
+   ! A (0:11) dimensioned list of the *unique* triangle vertex *indices* DEFAULT_NULL
+   ! for each edge of the marching cube (if that edge is needed).
+
+   vertex_edge_index :: INTVEC(12)
+   ! A list of the edge indices for each unique triangle vertex index.
+   ! Essentially, this is the reverse mapping of edge_vertex_index.
+
+   end
+
+
+
+   type isosurface_type
+
+   kind :: STR
+   ! The kind of isosurface plot, if known. This helps in deciding which way the
+   ! normals of the isosurface should point.
+
+   triangulation_method :: STR
+   ! The method used to triangulate the isosurface.
+
+   iso_value :: REAL
+   ! The isovalue to be used for the isosurface
+
+   grid :: PLOTGRID
+   ! The isosurface plotgrid
+
+   n_pt :: INT
+   ! The number of isosurface points
+
+   point :: REALMAT* DEFAULT_NULL
+   ! A (3 x n_pt) list of points on the isosurface
+
+   n_face :: INT
+   ! The number of triangulated faces on the isosurface
+
+   face :: INTMAT* DEFAULT_NULL
+   ! A (3 x n_face) list of the triangular faces of the surface. Each face is
+   ! represented by three integers which move in an anticlockwise direction when
+   ! viwed from the outside.
+
+   point_gradient :: REALMAT* DEFAULT_NULL
+   ! A (3 x n_pt) list of the function gradient vectors for every point on the
+   ! isosurface
+
+   point_mean_curvature :: REALVEC* DEFAULT_NULL
+   ! A (3 x n_pt) list of the mean surface curvatures for every point on the
+   ! isosurface
+
+   point_gaussian_curvature :: REALVEC* DEFAULT_NULL
+   ! A (3 x n_pt) list of the gaussian surface curvatures for every point on the
+   ! isosurface
+
+   volume :: REAL
+   ! The best estimate of the interior volume of the isosurface (the average of
+   ! .volume_min and .volume_max).
+
+   volume_min :: REAL
+   ! A lower bound to the interior volume of the isosurface.
+
+   volume_max :: REAL
+   ! An upper bound to the interior volume of the isosurface.
+
+   n_skip :: INT
+   ! The number of function evaluations skipped (recursive method only)
+
+   level :: INT
+   ! The current level to which the initial box has been divided, in the
+   ! recursive marching cube algorithm.
+
+   final_level :: INT
+   ! The final level to which the initial box must be divided, in the
+   ! recursive marching cube algorithm.
+
+   scan_level :: INT
+   ! The level to which the initial box must be divided, in the recursive
+   ! marching cube algorithm, to achieve resolution of all important features.
+
+   del :: REAL
+   ! The current box side length in the recursive marching cubes algorithm.
+
+   x :: INT
+   ! The (partial) x-coordinate of the box in the recursive marching cubes
+   ! algorithm.  This is a binary number, with each bit from the right
+   ! representing a segment double the size to which the current box belongs.
+
+   y :: INT
+   ! The (partial) y-coordinate of the box in the recursive marching cubes
+   ! algorithm.  This is a binary number, with each bit from the right
+   ! representing a box double the size to which the current box belongs.
+
+   z :: INT
+   ! The (partial) z-coordinate of the box in the recursive marching cubes
+   ! algorithm.  This is a binary number, with each bit from the right
+   ! representing a box double the size to which the current box belongs.
+
+   hash :: INTVECINTVECHASH* DEFAULT_NULL
+   ! A hash table storing marching cube edge_vertex_index information as a
+   ! function of the cube coordinates, [.x,.y,.z]
+
+   big_interior :: BIN
+   ! Set TRUE if the interior of the isosurface is bigger than the exterior,
+   ! i.e. if the point_normals are to be reversed on output. This switch could
+   ! probably be determined automatically, assuming the botton left had corner
+   ! of the plot (the first point) was "outside".
+
+!  shift :: REALVEC* DEFAULT_NULL
+!  ! A list of distances representing how far each point shifted from its
+!  ! estimate to come to the isosurface.
+
+!  adjoining_face :: INTMAT* DEFAULT_NULL
+!  ! A (3 x n_face) list of the three adjoining faces for a particular face
+
+!  adjoining_edge :: INTMAT* DEFAULT_NULL
+!  ! A (3 x n_face) list of the adjoining edge for the adjoining faces for
+!  ! a particular face
+
+!  ok :: BINVEC* DEFAULT_NULL
+!  ! A list of switches telling if each face is acceptably smooth.
+
+!  ok_neighbours :: BINVEC* DEFAULT_NULL
+!  ! A list of switched telling if all three neighbours of each face is acceptably smooth.
+
+!  n_skip :: INT
+!  ! The number of faces which are acceptapbly smooth, and can be skippped
+
+!  smallness :: REAL
+!  ! The maximum acceptable distance between triangulated points.
+!  ! Used as a face smallness criteria.
+
+!  flatness :: REAL
+!  ! The maximum acceptable distance between a triangulated point and its ray origin
+!  ! i.e. its "shift" (see above).  Used as a face flatness criteria.
+
+!  accuracy :: REAL
+!  ! The accuracy to which each isosurface point is determined
+
+   surface_property :: STR
+   ! The name of a surface property to plot or calculate
+
+   surface_property_values :: REALVEC* DEFAULT_NULL
+   ! The values of .surface_property as evaluated on the surface.
+
+   chop_surface_property_range :: BIN
+   ! Whether to use surface_property_cutoff_range, rather than scaling the
+   ! smallest value to zero and the largest to one.
+
+   surface_property_cutoff_range :: REALVEC(2)
+   ! The cutoffs for values of .surface_property for colouring.  Values of the
+   ! property outside this range will be chopped.
+
+   surface_point :: REALVEC(3)
+   ! A special point which lies on or near the isosurface, used for calculations
+   ! of connected area, for example.
+
+   surface_property_lower_bound :: REAL
+   ! A lower bound to the property value, for calculating surface areas.
+
+   surface_property_upper_bound :: REAL
+   ! A upper bound to the property value, for calculating surface areas.
+
+   colour :: COLOURFUNCTION* DEFAULT_NULL
+   ! A colourfunction used for colouring the isourface
+
+   atom :: ATOMVEC* DEFAULT_NULL
+   ! A list of atoms associated with ths isosurface.
+
+   use_interpolator :: BIN
+   ! If set TRUE, then the routine used to calculate the isosurface may use
+   ! interpolation tables, rather than exact values, if possible.
+
+   end
+
+
+
+   type roby_type
+
+   kind :: STR
+   ! The kind of Roby calculation to perform
+
+   n1 :: REALVEC* DEFAULT_NULL
+   ! Roby population for each atom-group
+
+   n2 :: REALMAT* DEFAULT_NULL
+   ! Roby pair population for each atom-group pair
+   ! NOTE: these are *not* shared populations
+
+   n_shared :: REAL
+   ! Roby multiple shared population for a specified atom-group
+
+   bond_index :: REALMAT* DEFAULT_NULL
+   ! Gould Bond indices for each pair of atoms
+
+   percent_covalency :: REALMAT* DEFAULT_NULL
+   ! The % covalency of the given bond pair
+
+   gould_charge :: REALVEC* DEFAULT_NULL
+   ! Roby-Gould charges
+
+   cruickshank_charge :: REALVEC* DEFAULT_NULL
+   ! Cruikshank-Avramedes charges
+
+   summed_n2 :: REALVEC* DEFAULT_NULL
+   ! Summed atom-group pair populations
+
+   summed_n3 :: REALVEC* DEFAULT_NULL
+   ! Summed atom-group triple populations
+
+   atom_list :: INTVEC* DEFAULT_NULL
+   ! The indices of a list of roby atoms to be used in some way
+   ! for population analysis
+
+   atom_group :: INTVECVEC* DEFAULT_NULL
+   ! The indices of the roby atoms defining different spaces
+
+   analyse_all_atom_pairs :: BIN
+   ! If set TRUE, the bond index information is printed out ONLY for every
+   ! atom pair which is considered "bonded". Otherwise all pairs of atoms are
+   ! analysed. This is onlyeffective when an atom_list is defined.
+
+   bond_scale_factor :: REAL
+   ! Used to multiply the sum of the Bragg-Slater radii for two atoms,
+   ! to determine a distance cutoff within which the atoms are regarded
+   ! to be bonded
+
+   covalent_cutoff :: REAL
+   ! Angles (in radians) greater than this are ignored when calculating
+   ! the covalent bond index
+
+   ionic_cutoff :: REAL
+   ! Angles (in radians) greater than this are ignored when calculating
+   ! the ionic bond index
+
+   pi_on_2_cutoff :: REAL
+   ! Angles (in radians) greater than this are regareded as pi/2
+
+   zero_cutoff :: REAL
+   ! Angles (in radians) *less* than this are regareded as zero
+
+   occupied_ANO_cutoff :: REAL
+   ! Atomic natural orbitals with occupations less than this number
+   ! are regarded as unoccupied. This number is used to define the Roby
+   ! atomic projector
+
+   output_theta_info :: BIN
+   ! If set TRUE, the bond index information is printed out for every
+   ! space V_theta. See the paper for details.
+
+   atom_a :: INTVEC* DEFAULT_NULL
+   ! The indices of the atoms defining space V_A
+
+   atom_b :: INTVEC* DEFAULT_NULL
+   ! The indices of the atoms defining space V_B
+
+   atom_ab :: INTVEC* DEFAULT_NULL
+   ! The indices of the roby atoms defining spaces V_A and V_B
+
+   theta_C :: REALMAT* DEFAULT_NULL
+   ! The matrix of the covalent theta orbitals
+
+   eval_C :: REALVEC* DEFAULT_NULL
+   ! The array of the covalent theta eigenvalues
+
+   theta_angle :: REALVEC* DEFAULT_NULL
+   ! The array of covalent theta angles
+
+   pair :: INTVEC* DEFAULT_NULL
+   ! An array which pairs the positive eigenvalues in eval_C with the
+   ! negative eigenvalues, thus definining each theta subspace
+
+   theta_I :: REALMAT* DEFAULT_NULL
+   ! The matrix of the covalent theta orbitals
+
+   eval_I :: REALVEC* DEFAULT_NULL
+   ! The matrix of the covalent theta eigenvalues
+
+   pop_C :: REALVEC* DEFAULT_NULL
+   ! Covalent theta orbital popualtions
+
+   pop_I :: REALVEC* DEFAULT_NULL
+   ! Covalent theta orbital popualtions
+
+   pop_A :: REALVEC* DEFAULT_NULL
+   ! Atom "A" theta orbital popualtions
+
+   pop_B :: REALVEC* DEFAULT_NULL
+   ! Atom "B" theta orbital popualtions
+
+   covalent_index :: REALVEC* DEFAULT_NULL
+   ! The vector of each covalent theta bond index
+
+   ionic_index :: REALVEC* DEFAULT_NULL
+   ! The vector of each covalent theta bond index
+
+   proportion_a :: REALMAT* DEFAULT_NULL
+   ! The proportion to partition for atom A, between two atoms (A,B)
+   ! using Gould's probabilistic scheme
+
+   charge :: INT
+   ! The total charge on the molecule
+
+   mult :: INT
+   ! The spin multiplicity of the molecule
+
+   rho :: OPMATRIX* DEFAULT_NULL
+   ! The density matrix of the molecule
+
+   overlap_matrix :: REALMAT* DEFAULT_NULL
+   ! The full molecular overlap matrix for Roby analysis
+
+   atom :: ATOMVEC* DEFAULT_NULL
+   ! The actual list of atoms to be used in the Roby calculations
+   ! Usually this will come from a MOL object
+
+   end
+
+
+
+   type mol_type
+
+   name :: STR
+   ! Name of molecule
+
+   charge :: INT
+   ! Electric charge of the molecule
+
+   mult :: INT
+   ! Spin multiplicity of the molecule
+
+   E_field :: REALVEC(3)
+   ! Applied electric field in atomic units
+
+   B_field :: REALVEC(3)
+   ! Applied magnetic field in atomic units
+
+   gauge_origin :: REALVEC(3)
+   ! Global gauge origin for magnetic field
+
+   atom :: ATOMVEC* DEFAULT_NULL
+   ! List of atoms in molecule
+
+   basis_set_kind :: STR
+   ! A suffix string representing the name of the basis set class
+   ! to be used for each atom
+
+   basis :: BASISVEC* DEFAULT_NULL
+   ! List of basis sets used
+
+   slaterbasis :: SLATERBASISVEC* DEFAULT_NULL
+   ! List of Slater basis sets used
+
+   coppensbasis :: COPPENSBASISVEC* DEFAULT_NULL
+   ! List of coppens basis sets used
+
+   basis_info_made :: BIN
+   ! Set TRUE if the gaussian basis set info has been made.
+
+   grid :: PLOTGRID* DEFAULT_NULL
+   ! Rectangular grid data, for plots
+
+   isosurface :: ISOSURFACE* DEFAULT_NULL
+   ! An object used for creating triangluated meshes for isosurface plots.
+
+   dftgrid :: DFTGRID* DEFAULT_NULL
+   ! DFT integration grid data
+
+   crystal :: CRYSTAL* DEFAULT_NULL
+   ! Crystal data for the enclosing crystal
+
+   cluster :: CLUSTER* DEFAULT_NULL
+   ! Crystal cluster data
+
+   cif :: CIF* DEFAULT_NULL
+   ! Crystallographic Information file (CIF) object
+
+   pointgroup :: POINTGROUP* DEFAULT_NULL
+   ! Pointgroup symmetry of the molecule
+
+   saved :: MOL* DEFAULT_NULL
+   ! For saving self and temporarily using an alternative in its place
+
+   n_e :: INT
+   ! No of electrons
+
+   n_a :: INT
+   ! No of alpha electrons
+
+   n_b :: INT
+   ! No of beta electrons
+
+   n_atom :: INT
+   ! No of atoms
+
+   n_atom_kind :: INT
+   ! No of atoms of a different kind
+
+   n_basis :: INT
+   ! No of basis sets
+
+   n_shell :: INT
+   ! Total number of shells in the molecular basis set
+
+   n_shell_pairs :: INT
+   ! Total number of shell pairs in the molecular basis set
+
+   n_bf :: INT
+   ! Total number of basis functions in the molecular basis set
+
+   n_prim :: INT
+   ! Total number of primitives in the molecular basis set
+
+   n_unique_shells :: INT
+   ! Number of unique shells in the basis set.
+
+   atom_for_shell :: INTVEC* DEFAULT_NULL
+   ! Atom index for molecular shell index array
+
+   atom_shell_for_shell :: INTVEC* DEFAULT_NULL
+   ! Atom shell index for molecular shell index array
+
+   first_shell_for_atom :: INTVEC* DEFAULT_NULL
+   ! First molecule shell index for an atom
+
+   last_shell_for_atom :: INTVEC* DEFAULT_NULL
+   ! Last molecule shell index for an atom
+
+   basis_shell_for_shell :: INTVEC* DEFAULT_NULL
+   ! Map a shell of the molecule to a shell of the basis set
+
+   first_basis_fn_for_shell :: INTVEC* DEFAULT_NULL
+   ! First basis function for a given shell
+
+   last_basis_fn_for_shell :: INTVEC* DEFAULT_NULL
+   ! Last basis function for a given shell
+
+   first_basis_fn_for_atom :: INTVEC* DEFAULT_NULL
+   ! For the atom basis function limits
+
+   last_basis_fn_for_atom :: INTVEC* DEFAULT_NULL
+   ! For the atom basis function limits
+
+   precomputed_basis_shellpair :: SHELLPAIRVEC* DEFAULT_NULL
+   ! Precomputed stuff for shellpairs of the basis set, to speed up
+   ! later calculations of gaussian integrals.
+
+   atom_kind :: INTVEC* DEFAULT_NULL
+   ! The unique kind of each atom in .atom
+
+   unique_atom :: INTVEC* DEFAULT_NULL
+   ! List of the unique atoms (of different kind)
+
+   scfdata :: SCFDATA* DEFAULT_NULL
+   ! SCF data object
+
+   orbital_energies :: OPVECTOR* DEFAULT_NULL
+   ! The orbital energies
+
+   molecular_orbitals :: OPMATRIX* DEFAULT_NULL
+   ! The real molecular orbitals
+
+   density_matrix :: OPMATRIX* DEFAULT_NULL
+   ! The real density matrix
+
+   natural_orbitals :: OPMATRIX* DEFAULT_NULL
+   ! The natural orbitals
+
+   occupation_numbers :: OPVECTOR* DEFAULT_NULL
+   ! The natural orbital occupation numbers
+
+   fock_matrix :: OPMATRIX* DEFAULT_NULL
+   ! The real fock matrix
+
+   constraint_matrix :: OPMATRIX* DEFAULT_NULL
+   ! The real constraint matrix
+
+   old_molecular_orbitals :: OPMATRIX* DEFAULT_NULL
+   ! The real molecular orbitals from the previous SCF iteration
+
+   old_density_matrix :: OPMATRIX* DEFAULT_NULL
+   ! The real density matrix from the previous SCF iteration
+
+   old_fock_matrix :: OPMATRIX* DEFAULT_NULL
+   ! The real fock matrix from the previous SCF iteration
+
+   old_constraint_matrix :: OPMATRIX* DEFAULT_NULL
+   ! The real constraint matrix from the previous SCF iteration
+
+   atom_group :: INTVECVEC* DEFAULT_NULL
+   ! A list of atom group indices, for group property decomposition
+
+   atom_group_energy :: REALVEC* DEFAULT_NULL
+   ! The SCF energy of each atom group
+
+   group_charges :: INTVEC* DEFAULT_NULL
+   ! A list of charges for each group in the molecule, defined in atom_groups.
+
+   optimise_thermals :: BIN
+   ! Whether to optimise the thermal parameters
+
+   roby :: ROBY* DEFAULT_NULL
+   ! A Roby data object
+
+   CIF_file_name :: STR  DEFAULT(" ")
+   ! The name of a CIF file to be used for input
+
+   CIF_data_block_name :: STR  DEFAULT(" ")
+   ! The name of a CIF file data block, to be used for processing
+
+   CX_file_name :: STR  DEFAULT(" ")
+   ! The name of the Crystal Explorer (CX) output file
+
+   end
+
+
+end

@@ -1,0 +1,11 @@
+FOPTNS   = $(FDEBUG)
+FFLAGS   = -I$(srcdir) -I$(moddir) -p$(moddir) -YEXT_NAMES=LCS -YEXT_SFX='_' -ffree
+FPROF    = -P
+FDEBUG   = -g -en -v 
+FFAST    = -O3 -cpu:host 
+FSUFFIX  = F95
+MODCASE  = -uc
+LIBS     = -L. -L$(objdir) -llapack -lblas -lU77
+
+DEFS     = -DFLUSH -DUSE_CALL_STACK_MANAGEMENT -DBROKEN_PURE -DBROKEN_TYPE_INITIALIZATION 
+MKLIB    = ar -rus

@@ -1,0 +1,370 @@
+!---------------------------------------------------------------------------
+!
+!  CPXVEC: Complex vector operations ...
+!
+! Copyright (C) Dylan Jayatilaka, 1997
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: cpxvec.foo,v 1.7.2.2 2003/11/13 05:34:39 reaper Exp $
+!---------------------------------------------------------------------------
+
+module CPXVEC
+
+   implicit none
+
+contains
+
+   create(dim) ::: get_from(INTRINSICVEC), leaky
+   ! Create space for object
+      self :: PTR
+   end
+
+   destroy ::: get_from(INTRINSICVEC), leaky
+   ! Destroy space for object
+      self :: PTR
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   create_copy(vec) ::: get_from(INTRINSICVEC)
+   ! Create a replica copy of vec.
+      vec :: SELF_TYPE, IN
+      self :: PTR
+   end
+
+   copy(vec) ::: get_from(INTRINSICVEC), leaky
+   ! Copy "vec".
+      vec :: SELF_TYPE, IN
+   end
+
+   dim result(res)
+   ! Returns the size of self as a one dimensional array
+      res :: INT
+      res = size(self)
+   end
+
+   shrink(dim) ::: get_from(INTRINSICVEC), leaky
+   ! Shrink self to dimension dim.  Contents are retained.
+     self :: PTR
+     dim :: INT, IN
+   end
+
+   expand(dim) ::: get_from(INTRINSICVEC), leaky
+   ! Expand self to dimension dim. New slots are left undefined.
+     self :: PTR
+     dim :: INT, IN
+   end
+
+   join(v) result (res) ::: get_from(INTRINSICVEC), leaky
+   ! Yield a vector which is the concatenation of "self" and "v"
+     v :: SELF_TYPE, IN
+     res :: SELF_TYPE*
+   end
+
+   join(v1,v2) result (res) ::: get_from(INTRINSICVEC), leaky
+   ! Yield a vector which is the concatenation of "self" and "v1" and "v2"
+     v1,v2 :: SELF_TYPE, IN
+     res :: SELF_TYPE*
+   end
+
+   to_product_of(a,b,dagger_a)
+   ! Set "self" to the product of matrix "a" and vector "b". If present,
+   ! "dagger_a" can be set to TRUE if "a" needs to be daggered.
+       a :: CPXMAT, IN
+       b :: CPXVEC, IN
+      dagger_a :: BIN, optional
+      a1,a2, i,j :: INT
+      ta :: BIN
+      a1 = size(a,1); a2 = size(a,2)
+      ta = FALSE
+      if (present(dagger_a)) ta = dagger_a
+      if (ta) then
+         self = ZERO
+         do i = 1,a2
+         do j = 1,a1
+            self(i) = self(i) + conjg(a(j,i))*b(j)
+         end
+         end
+      else
+         self = ZERO
+         do i = 1,a1
+         do j = 1,a2
+            self(i) = self(i) + a(i,j)*b(j)
+         end
+         end
+      end
+   end
+
+   to_product_of(a,b,transpose_a)
+   ! Set "self" to the product of matrix "a" and vector "b". If present,
+   ! "transpose_a" can be set to TRUE if "a" needs to be transposed.
+       a :: REALMAT, IN
+       b :: CPXVEC, IN
+      transpose_a :: BIN, optional
+      a1,a2, i,j :: INT
+      ta :: BIN
+      a1 = size(a,1); a2 = size(a,2)
+      ta = FALSE
+      if (present(transpose_a)) ta = transpose_a
+      if (ta) then
+         self = ZERO
+         do i = 1,a2
+         do j = 1,a1
+            self(i) = self(i) + a(j,i)*b(j)
+         end
+         end
+      else
+         self = ZERO
+         do i = 1,a1
+         do j = 1,a2
+            self(i) = self(i) + a(i,j)*b(j)
+         end
+         end
+      end
+   end
+
+   plus_product_of(a,b,dagger_a)
+   ! Set "self" to the product of matrix "a" and vector "b". If present,
+   ! "dagger_a" can be set to TRUE if "a" needs to be daggered.
+       a :: CPXMAT, IN
+       b :: CPXVEC, IN
+      dagger_a :: BIN, optional
+      a1,a2, i,j :: INT
+      ta :: BIN
+      a1 = size(a,1); a2 = size(a,2)
+      ta = FALSE
+      if (present(dagger_a)) ta = dagger_a
+      if (ta) then
+         do i = 1,a2
+         do j = 1,a1
+            self(i) = self(i) + conjg(a(j,i))*b(j)
+         end
+         end
+      else
+         do i = 1,a1
+         do j = 1,a2
+            self(i) = self(i) + a(i,j)*b(j)
+         end
+         end
+      end
+   end
+
+   plus_product_of(a,b,transpose_a)
+   ! Set "self" to the product of matrix "a" and vector "b". If present,
+   ! "transpose_a" can be set to TRUE if "a" needs to be transposed.
+       a :: REALMAT, IN
+       b :: CPXVEC, IN
+      transpose_a :: BIN, optional
+      a1,a2, i,j :: INT
+      ta :: BIN
+      a1 = size(a,1); a2 = size(a,2)
+      ta = FALSE
+      if (present(transpose_a)) ta = transpose_a
+      if (ta) then
+         do i = 1,a2
+         do j = 1,a1
+            self(i) = self(i) + a(j,i)*b(j)
+         end
+         end
+      else
+         do i = 1,a1
+         do j = 1,a2
+            self(i) = self(i) + a(i,j)*b(j)
+         end
+         end
+      end
+   end
+
+   dot(b) result (res) ::: get_from(INTRINSICVEC), pure
+   ! Return the dot product with "b"
+      self :: IN
+      b :: SELF_TYPE, IN
+      res :: ELEMENT_TYPE
+   end
+
+   to_cross_product(a,b) ::: get_from(INTRINSICVEC), pure
+   ! Set the vector to the cross product of "a" and "b".
+      self :: INOUT
+      a,b :: SELF_TYPE, IN
+   end
+
+   norm result (val) ::: pure
+   ! Return the norm of self
+      self :: IN
+      val :: CPX
+       i :: INT
+      val = ZERO
+      do i=1,size(self)
+        val = val + self(i)*self(i)
+      end
+      val = sqrt(val)
+   end
+
+   chop_large_values(val) ::: pure
+   ! Set all values in the self whose absolute value is larger than "val" to
+   ! "val" times the sign of the original value.
+      self :: INOUT
+      val :: REAL, IN
+      dim,i :: INT
+      ba :: REAL
+      bb,phase :: CPX
+      dim = size(self)
+      do i = 1,dim
+         bb = self(i)
+         ba = abs(bb)
+         if (ba==ZERO) then
+            self(i) = ZERO
+         else
+            phase = bb/ba
+            self(i) = phase*min(val,ba)
+         end
+     end
+   end
+
+   largest_value result (maxv) ::: pure
+   ! Return the largest value in self
+      self :: IN
+      maxv :: REAL
+      bb :: REAL
+      i :: INT
+      maxv = abs(self(1))
+      do i = 2,size(self)
+        bb = abs(self(i))
+        if (bb > maxv) maxv = bb
+      end
+!      res = dzamax(size(self),self,1) ! blas library
+   end
+
+   smallest_value result (minv) ::: pure
+   ! Return the smallest value in self
+      self :: IN
+      minv :: REAL
+      bb :: REAL
+      i :: INT
+      minv = abs(self(1))
+      do i = 2,size(self)
+        bb = abs(self(i))
+        if (bb < minv) minv = bb
+      end
+!      res = dzamin(size(self),self,1) ! blas library
+   end
+
+   index_of_largest_value result (ind) ::: pure
+   ! Return the index of the largest value in self
+      self :: IN
+      ind :: INT
+      i :: INT
+      maxv,bb :: REAL
+      maxv = abs(self(1))
+      ind = 1
+      do i = 2,size(self)
+        bb = abs(self(i))
+        if (bb > maxv) then
+          maxv = bb
+          ind = i
+        end
+      end
+!      ind = izamax(size(self),self,1) ! blas library
+   end
+
+   index_of_smallest_value result (ind) ::: pure
+   ! Return the index of the smallest value in self
+      self :: IN
+      ind :: INT
+      i :: INT
+      minv,bb :: REAL
+      minv = abs(self(1))
+      ind = 1
+      do i = 2,size(self)
+        bb = abs(self(i))
+        if (bb < minv) then
+          minv = bb
+          ind = i
+        end
+      end
+!      ind = izamin(size(self),self,1) ! blas library
+   end
+
+   alpha result(res)
+   ! return the alpha sector of the vector
+      self :: TARGET
+      res :: CPXVEC*
+       n :: INT
+   ENSURE(.dim.is_even,"self is not even-dimensioned")
+      n = size(self)/2
+      res => self(1:n)
+   end
+
+   beta result(res)
+   ! return the beta sector of the vector
+      self :: TARGET
+      res :: CPXVEC*
+       n :: INT
+   ENSURE(.dim.is_even,"self is not even-dimensioned")
+      n = size(self)/2
+      res => self(n+1:2*n)
+   end
+
+   set_alpha(X)
+   ! Set the alpha sector of the vector
+       X :: CPXVEC
+       n :: INT
+   ENSURE(.dim.is_even,"self is not even-dimensioned")
+      n = size(self)/2
+      self(1:n) = X
+   end
+
+   set_beta(X)
+   ! Set the beta sector of the vector
+       X :: CPXVEC
+       n :: INT
+   ENSURE(.dim.is_even,"self is not even-dimensioned")
+      n = size(self)/2
+      self(n+1:2*n) = X
+   end
+
+   set_alpha(X)
+   ! Set the alpha sector of the vector
+       X :: REALVEC
+       n :: INT
+   ENSURE(.dim.is_even,"self is not even-dimensioned")
+      n = size(self)/2
+      self(1:n) = X
+   end
+
+   set_beta(X)
+   ! Set the beta sector of the vector
+       X :: REALVEC
+       n :: INT
+   ENSURE(.dim.is_even,"self is not even-dimensioned")
+      n = size(self)/2
+      self(n+1:2*n) = X
+   end
+
+end

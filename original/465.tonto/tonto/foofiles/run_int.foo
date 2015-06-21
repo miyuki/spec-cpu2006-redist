@@ -1,0 +1,67 @@
+! Copyright (C) Dylan Jayatilaka, 1999
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: run_int.foo,v 1.5.2.2 2003/11/13 06:33:25 reaper Exp $
+
+program run_INT
+
+  use TYPES
+  use SYSTEM
+  use TEXTFILE
+  use INT
+
+  implicit none
+
+  i :: INT
+  answer :: REALVEC*
+
+  tonto.initialize
+
+  stdout.create_stdout
+  stdout.open
+
+  stdout.flush
+  stdout.text("Factorials:")
+  stdout.flush
+  do i = 0,15
+    stdout.text( i.to_str.trim //"! = " &
+              // i.factorial.to_str_no_zeros.trim )
+  end
+
+  stdout.flush
+  stdout.text("Double factorials:")
+  stdout.flush
+  do i = 0,15
+    stdout.text( i.to_str.trim //"!! = " &
+              // i.double_factorial.to_str_no_zeros.trim )
+  end
+
+  stdout.set_real_precision(2)
+  stdout.set_real_width(7)
+  stdout.set_fields(10)
+
+  stdout.flush
+  stdout.text("Coefficients of the Legendre polynomials:")
+  stdout.flush
+  do i = 0,8
+    allocate(answer(i+1))
+    answer = i.legendre_polynomials
+    stdout.show("n = "//i.to_str.trim//", coeffs = ",answer)
+    deallocate(answer)
+  end
+
+end

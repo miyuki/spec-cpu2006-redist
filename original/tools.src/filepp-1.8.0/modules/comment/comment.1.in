@@ -1,0 +1,44 @@
+.\"  Hey Emacs! This file is -*- nroff -*- source.
+.\" __FILEPP_INPUT__ version __VERSION__
+.\" filepp is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program; see the file COPYING.  If not, write to
+.\" the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+.\"
+.SH C/C++ COMMENT MODULE - c-comment.pm
+The c-comment module removes all C style:
+
+\fI/* comment */\fP
+
+and C++ style:
+
+\fI// comment\fP
+
+comments from a file.  C and C++ comments are removed after keywords
+have been processed.  If you wish to remove C and C++ comments before
+keywords are processed, define the macro \fBREMOVE_C_COMMENTS_FIRST\fP
+before loading the module, eg:
+
+\fBfilepp -DREMOVE_C_COMMENTS_FIRST -m c-comment.pm\fP
+
+.SH HASH COMMENT MODULE - hash-comment.pm
+The hash-comment module removes all comments of the style:
+
+\fI# comment\fP
+
+from a file.  This is the commenting style used by Perl, Bourne Shell,
+C Shell and many other programs and configuration files.  Hash
+comments are removed after keywords have been processed.  If you wish
+to remove hash comments before keywords are processed, define the
+macro \fBREMOVE_HASH_COMMENTS_FIRST\fP before loading the module
+(Note: if you do this and also use # as the keyword character then the
+keywords will be removed BEFORE they are processed).

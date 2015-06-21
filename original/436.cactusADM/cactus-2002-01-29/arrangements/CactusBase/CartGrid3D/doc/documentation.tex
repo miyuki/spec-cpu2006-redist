@@ -1,0 +1,68 @@
+\documentclass{article}
+\begin{document}
+
+\title{CartGrid3D}
+\author{Gabrielle Allen, Gerd Lanfermann}
+\date{1999}
+\maketitle
+
+\abstract{Cartesian coordinates and symmetries for 3D grids}
+
+\section{Purpose}
+
+Allows you to set up coordinates on a 3D Cartesian grid in a 
+flexible manner. Different grid domains (e.g. octant) can 
+be chosen to allow you to exploit any symmetry in your 
+problem. Routines for registering symmetries of grid functions
+and applying symmetry conditions across the coordinate axes 
+are provided.
+
+\section{Comments}
+
+\subsection{Coordinates}
+
+The Cartesian coordinates supplied by this thorn are
+grid functions with the standard names {\tt x}, {\tt y}, and
+{\tt z}. To use these coordinates you need to {\tt inherit}
+from {\tt grid}.  The coordinates are
+registered with the flesh using the same names "x", "y" 
+and "z". In addition a grid function {\tt r} (registered as
+"r") is provided, containing the radial coordinate from
+the origin where
+$$
+r = \sqrt{x^2+y^2+z^2}
+$$
+
+{\tt CartGrid3D} registers the lower and upper range of each coordinate
+with the flesh.
+
+\subsection{Symmetries}
+
+If your problem and initial data allow it, {\tt CartGrid3D}
+allows you to enforce either an even or odd parity
+symmetry condition for any grid functions at each
+coordinate axes. For a function $\phi(x,y,z)$,
+even parity symmetry on the $x$-axis means
+$$
+\phi(-x,y,z) = \phi(x,y,z)
+$$
+while odd parity symmetry means
+$$
+\phi(-x,y,z) = -\phi(x,y,z)
+$$
+
+Note that the symmetries will only be enforced if a 
+symmetry domain is chosen (that is, if 
+{\tt domain} is {\tt octant}, {\tt quadrant} or {\tt bitant}).
+
+\subsection{Registering Symmetry Behaviour}
+
+Each grid function can register how it behaves under a coordinate change
+
+
+% Automatically created from the ccl files by using gmake thorndoc
+\include{interface}
+\include{param}
+\include{schedule}
+
+\end{document}

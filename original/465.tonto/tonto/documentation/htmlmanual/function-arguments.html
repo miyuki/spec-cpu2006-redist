@@ -1,0 +1,241 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>Function arguments</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Writing foo modules for TONTO"
+HREF="foo-modules.html"><LINK
+REL="PREVIOUS"
+TITLE="Large modules"
+HREF="large-modules.html"><LINK
+REL="NEXT"
+TITLE="Writing the main run_XXXX program"
+HREF="run-xxxx.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="large-modules.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="run-xxxx.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="FUNCTION-ARGUMENTS"
+></A
+>Function arguments</H1
+><P
+ALIGN="justify"
+>Sometimes you may want to design routines which takes as its first
+argument a function as an argument.</P
+><P
+ALIGN="justify"
+>Currently, such functions are placed in the module according to the type
+of argument the function returns, and these arguments are marked as
+<TT
+CLASS="LITERAL"
+>[routinal]</TT
+>.  What that means is that the first argument is
+<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>not</I
+></SPAN
+> assumed to be of the type contained inthe module, but
+must be specified manually, say by an interface specification. For an example,
+see the <TT
+CLASS="LITERAL"
+>minimise_brent</TT
+> routine in the <TT
+CLASS="LITERAL"
+>REAL</TT
+>
+module.</P
+><P
+ALIGN="justify"
+>Usually, such routinals are used in conjunction with a routine with the
+<TT
+CLASS="LITERAL"
+>[selfless]</TT
+> attribute.  Selfless routines are those whose
+first argument is <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>not</I
+></SPAN
+> the <TT
+CLASS="LITERAL"
+>self</TT
+> argument
+of type contained in the module. Instead, the <TT
+CLASS="LITERAL"
+>self</TT
+> variable
+is set at the first line of the selfless routine to be equal to a
+<TT
+CLASS="LITERAL"
+>saved_self</TT
+> variable which is globally visible within the
+module. In this was, a selfless routine can be passed to a routinal (typically a
+minimiser) which then calls the passed routine during the course of its
+execution. The called selfless routine can have access to the current
+<TT
+CLASS="LITERAL"
+>self</TT
+> variable. In this way, a function and some of its
+arguments can be passed to a minimiser. In some languages this is called
+<SPAN
+CLASS="QUOTE"
+>"closure"</SPAN
+>.  For an example, see the <TT
+CLASS="LITERAL"
+>chi2</TT
+>
+selfless routine in the <TT
+CLASS="LITERAL"
+>CRSYTAL</TT
+> module.</P
+><P
+ALIGN="justify"
+>Compilers are not often able to cope with this mechanism, so
+unfortunately, it is rarely used.</P
+><P
+ALIGN="justify"
+>Currently, there is no convention in TONTO on which module to place
+routines which take subroutines as their first argument. Such routines are not
+encountered in TONTO.</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="large-modules.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="run-xxxx.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Large modules</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="foo-modules.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Writing the main <TT
+CLASS="LITERAL"
+>run_XXXX</TT
+> program</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,518 @@
+<HTML><HEAD><SCRIPT language="JavaScript" src="../resources/script.js" type="text/javascript"></SCRIPT><TITLE>DOMNamedNodeMap class Reference</TITLE><link href="XercesApi.css" rel="stylesheet" type="text/css"></HEAD><BODY alink="#ff0000" bgcolor="#ffffff" leftmargin="4" link="#0000ff" marginheight="4" marginwidth="4" text="#000000" topmargin="4" vlink="#0000aa"><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" height="60" rowspan="3" valign="top" width="135"><IMG border="0" height="60" hspace="0" src="../resources/logo.gif" vspace="0" width="135"></TD><TD align="left" colspan="4" height="5" valign="top" width="456"><IMG border="0" height="5" hspace="0" src="../resources/line.gif" vspace="0" width="456"></TD><TD align="left" height="60" rowspan="3" valign="top" width="29"><IMG border="0" height="60" hspace="0" src="../resources/right.gif" vspace="0" width="29"></TD></TR><TR><TD align="left" bgcolor="#0086b2" colspan="4" height="35" valign="top" width="456"><IMG alt="" border="0" height="35" hspace="0" src="../graphics/api-header.jpg" vspace="0" width="456"></TD></TR><TR><TD align="left" height="20" valign="top" width="168"><IMG border="0" height="20" hspace="0" src="../resources/bottom.gif" vspace="0" width="168"></TD><TD align="left" height="20" valign="top" width="96"><A href="http://xml.apache.org/" onMouseOut="rolloverOff('xml');" onMouseOver="rolloverOn('xml');" target="new"><IMG alt="http://xml.apache.org/" border="0" height="20" hspace="0" name="xml" onLoad="rolloverLoad('xml','../resources/button-xml-hi.gif','../resources/button-xml-lo.gif');" src="../resources/button-xml-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.apache.org/" onMouseOut="rolloverOff('asf');" onMouseOver="rolloverOn('asf');" target="new"><IMG alt="http://www.apache.org/" border="0" height="20" hspace="0" name="asf" onLoad="rolloverLoad('asf','../resources/button-asf-hi.gif','../resources/button-asf-lo.gif');" src="../resources/button-asf-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.w3.org/" onMouseOut="rolloverOff('w3c');" onMouseOver="rolloverOn('w3c');" target="new"><IMG alt="http://www.w3.org/" border="0" height="20" hspace="0" name="w3c" onLoad="rolloverLoad('w3c','../resources/button-w3c-hi.gif','../resources/button-w3c-lo.gif');" src="../resources/button-w3c-lo.gif" vspace="0" width="96"></A></TD></TR></TABLE><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" valign="top" width="120"><IMG border="0" height="14" hspace="0" src="../resources/join.gif" vspace="0" width="120"><BR>
+  <A href="../../index.html" onMouseOut="rolloverOff('side-ext-2');" onMouseOver="rolloverOn('side-ext-2');"><IMG alt="Home" border="0" height="12" hspace="0" name="side-ext-2" onLoad="rolloverLoad('side-ext-2','../graphics/ext-2-label-2.jpg','../graphics/ext-2-label-3.jpg');" src="../graphics/ext-2-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../index.html" onMouseOut="rolloverOff('side-index');" onMouseOver="rolloverOn('side-index');"><IMG alt="Readme" border="0" height="12" hspace="0" name="side-index" onLoad="rolloverLoad('side-index','../graphics/index-label-2.jpg','../graphics/index-label-3.jpg');" src="../graphics/index-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../releases.html" onMouseOut="rolloverOff('side-releases');" onMouseOver="rolloverOn('side-releases');"><IMG alt="Release Info" border="0" height="12" hspace="0" name="side-releases" onLoad="rolloverLoad('side-releases','../graphics/releases-label-2.jpg','../graphics/releases-label-3.jpg');" src="../graphics/releases-label-3.jpg" vspace="0" width="120"></A><BR>
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../install.html" onMouseOut="rolloverOff('side-install');" onMouseOver="rolloverOn('side-install');"><IMG alt="Installation" border="0" height="12" hspace="0" name="side-install" onLoad="rolloverLoad('side-install','../graphics/install-label-2.jpg','../graphics/install-label-3.jpg');" src="../graphics/install-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://xml.apache.org/dist/xerces-c/" onMouseOut="rolloverOff('side-ext-18');" onMouseOver="rolloverOn('side-ext-18');"><IMG alt="Download" border="0" height="12" hspace="0" name="side-ext-18" onLoad="rolloverLoad('side-ext-18','../graphics/ext-18-label-2.jpg','../graphics/ext-18-label-3.jpg');" src="../graphics/ext-18-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../build.html" onMouseOut="rolloverOff('side-build');" onMouseOver="rolloverOn('side-build');"><IMG alt="Build" border="0" height="12" hspace="0" name="side-build" onLoad="rolloverLoad('side-build','../graphics/build-label-2.jpg','../graphics/build-label-3.jpg');" src="../graphics/build-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../faqs.html" onMouseOut="rolloverOff('side-faqs');" onMouseOver="rolloverOn('side-faqs');"><IMG alt="FAQs" border="0" height="12" hspace="0" name="side-faqs" onLoad="rolloverLoad('side-faqs','../graphics/faqs-label-2.jpg','../graphics/faqs-label-3.jpg');" src="../graphics/faqs-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../samples.html" onMouseOut="rolloverOff('side-samples');" onMouseOver="rolloverOn('side-samples');"><IMG alt="Samples" border="0" height="12" hspace="0" name="side-samples" onLoad="rolloverLoad('side-samples','../graphics/samples-label-2.jpg','../graphics/samples-label-3.jpg');" src="../graphics/samples-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../api.html" onMouseOut="rolloverOff('side-api');" onMouseOver="rolloverOn('side-api');"><IMG alt="API Docs" border="0" height="12" hspace="0" name="side-api" onLoad="rolloverLoad('side-api','../graphics/api-label-2.jpg','../graphics/api-label-3.jpg');" src="../graphics/api-label-3.jpg" vspace="0" width="120"></A><BR>  
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../ApacheDOMC++Binding.html" onMouseOut="rolloverOff('side-ext-64');" onMouseOver="rolloverOn('side-ext-64');"><IMG alt="DOM C++ Binding" border="0" height="12" hspace="0" name="side-ext-64" onLoad="rolloverLoad('side-ext-64','../graphics/ext-64-label-2.jpg','../graphics/ext-64-label-3.jpg');" src="../graphics/ext-64-label-3.jpg" vspace="0" width="120"></A><BR> 
+  <A href="../program.html" onMouseOut="rolloverOff('side-program');" onMouseOver="rolloverOn('side-program');"><IMG alt="Programming" border="0" height="12" hspace="0" name="side-program" onLoad="rolloverLoad('side-program','../graphics/program-label-2.jpg','../graphics/program-label-3.jpg');" src="../graphics/program-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../migrate.html" onMouseOut="rolloverOff('side-migrate');" onMouseOver="rolloverOn('side-migrate');"><IMG alt="Migration Guide" border="0" height="12" hspace="0" name="side-migrate" onLoad="rolloverLoad('side-migrate','../graphics/migrate-label-2.jpg','../graphics/migrate-label-3.jpg');" src="../graphics/migrate-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../feedback.html" onMouseOut="rolloverOff('side-feedback');" onMouseOver="rolloverOn('side-feedback');"><IMG alt="Feedback" border="0" height="12" hspace="0" name="side-feedback" onLoad="rolloverLoad('side-feedback','../graphics/feedback-label-2.jpg','../graphics/feedback-label-3.jpg');" src="../graphics/feedback-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../bug-report.html" onMouseOut="rolloverOff('side-bug-report');" onMouseOver="rolloverOn('side-bug-report');"><IMG alt="Bug-Reporting" border="0" height="12" hspace="0" name="side-bug-report" onLoad="rolloverLoad('side-bug-report','../graphics/bug-report-label-2.jpg','../graphics/bug-report-label-3.jpg');" src="../graphics/bug-report-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../pdf.html" onMouseOut="rolloverOff('side-pdf');" onMouseOver="rolloverOn('side-pdf');"><IMG alt="PDF Document" border="0" height="12" hspace="0" name="side-pdf" onLoad="rolloverLoad('side-pdf','../graphics/pdf-label-2.jpg','../graphics/pdf-label-3.jpg');" src="../graphics/pdf-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="http://xml.apache.org/websrc/cvsweb.cgi/xml-xerces/c/" onMouseOut="rolloverOff('side-ext-96');" onMouseOver="rolloverOn('side-ext-96');"><IMG alt="CVS Repository" border="0" height="12" hspace="0" name="side-ext-96" onLoad="rolloverLoad('side-ext-96','../graphics/ext-96-label-2.jpg','../graphics/ext-96-label-3.jpg');" src="../graphics/ext-96-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://marc.theaimsgroup.com/?l=xerces-c-dev" onMouseOut="rolloverOff('side-ext-98');" onMouseOver="rolloverOn('side-ext-98');"><IMG alt="Mail Archive" border="0" height="12" hspace="0" name="side-ext-98" onLoad="rolloverLoad('side-ext-98','../graphics/ext-98-label-2.jpg','../graphics/ext-98-label-3.jpg');" src="../graphics/ext-98-label-3.jpg" vspace="0" width="120"></A><BR>
+
+<IMG border="0" height="14" hspace="0" src="../resources/close.gif" vspace="0" width="120"><BR></TD><TD align="left" valign="top" width="500"><TABLE border="0" cellpadding="3" cellspacing="0"><TR><TD>
+    <TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#FFFFFF" colspan="2" width="494"><TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#039acc" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#039acc" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#039acc" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" width="492"><FONT color="#ffffff" face="arial,helvetica,sanserif" size="+1"><IMG border="0" height="2" hspace="0" src="../resources/void.gif" vspace="0" width="2"><B>API Docs for SAX and DOM</B></FONT></TD><TD bgcolor="#017299" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#017299" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#017299" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></TD></TR><TR><TD width="10">&nbsp;</TD><TD width="484"><FONT color="#000000" face="arial,helvetica,sanserif">
+
+	    <P>
+<!-- Generated by Doxygen 1.2.14 -->
+<center>
+<a class="qindex" href="index.html">Main Page</a> &nbsp; <a class="qindex" href="hierarchy.html">Class Hierarchy</a> &nbsp; <a class="qindex" href="classes.html">Alphabetical List</a> &nbsp; <a class="qindex" href="annotated.html">Compound List</a> &nbsp; <a class="qindex" href="files.html">File List</a> &nbsp; <a class="qindex" href="functions.html">Compound Members</a> &nbsp; <a class="qindex" href="globals.html">File Members</a> &nbsp; </center>
+<hr><h1>DOMNamedNodeMap  Class Reference</h1><code>DOMNamedNodeMap</code>s are used to represent collections of nodes that can be accessed by name. 
+<a href="#_details">More...</a>
+<p>
+<a href="classDOMNamedNodeMap-members.html">List of all members.</a><table border=0 cellpadding=0 cellspacing=0>
+<tr><td colspan=2><br><h2>Public Methods</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
+<tr><td nowrap align=right valign=top>virtual&nbsp;</td><td valign=bottom><a class="el" href="classDOMNamedNodeMap.html#z106_0">~DOMNamedNodeMap</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Destructor.</em> <a href="#z106_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Functions introduced in DOM Level 1</div></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classDOMNode.html">DOMNode</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMNamedNodeMap.html#z107_0">setNamedItem</a> (<a class="el" href="classDOMNode.html">DOMNode</a> *arg)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Adds a node using its <code>nodeName</code> attribute.</em> <a href="#z107_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classDOMNode.html">DOMNode</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMNamedNodeMap.html#z107_1">item</a> (XMLSize_t index) const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Returns the <code>index</code>th item in the map.</em> <a href="#z107_1">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classDOMNode.html">DOMNode</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMNamedNodeMap.html#z107_2">getNamedItem</a> (const XMLCh *name) const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Retrieves a node specified by name.</em> <a href="#z107_2">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual XMLSize_t&nbsp;</td><td valign=bottom><a class="el" href="classDOMNamedNodeMap.html#z107_3">getLength</a> () const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>The number of nodes in the map.</em> <a href="#z107_3">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classDOMNode.html">DOMNode</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMNamedNodeMap.html#z107_4">removeNamedItem</a> (const XMLCh *name)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Removes a node specified by name.</em> <a href="#z107_4">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Functions introduced in DOM Level 2</div></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classDOMNode.html">DOMNode</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMNamedNodeMap.html#z108_0">getNamedItemNS</a> (const XMLCh *namespaceURI, const XMLCh *localName) const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Retrieves a node specified by local name and namespace URI.</em> <a href="#z108_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classDOMNode.html">DOMNode</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMNamedNodeMap.html#z108_1">setNamedItemNS</a> (<a class="el" href="classDOMNode.html">DOMNode</a> *arg)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Adds a node using its <code>namespaceURI</code> and <code>localName</code>.</em> <a href="#z108_1">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classDOMNode.html">DOMNode</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMNamedNodeMap.html#z108_2">removeNamedItemNS</a> (const XMLCh *namespaceURI, const XMLCh *localName)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Removes a node specified by local name and namespace URI.</em> <a href="#z108_2">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan=2><br><h2>Protected Methods</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Hidden constructors</div></td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classDOMNamedNodeMap.html#z104_0">DOMNamedNodeMap</a> ()</td></tr>
+</table>
+<hr><a name="_details"></a><h2>Detailed Description</h2>
+<code>DOMNamedNodeMap</code>s are used to represent collections of nodes that can be accessed by name.
+<p>
+Note that <code>DOMNamedNodeMap</code> does not inherit from <code><a class="el" href="classDOMNodeList.html">DOMNodeList</a></code>; <code>DOMNamedNodeMap</code>s are not maintained in any particular order. Nodes contained in a <code>DOMNamedNodeMap</code> may also be accessed by an ordinal index, but this is simply to allow convenient enumeration of the contents, and does not imply that the DOM specifies an order to these Nodes.
+<p>
+<dl compact><dt><b>
+Since: </b><dd>
+DOM Level 1 </dl>
+<p>
+<hr><h2>Constructor &amp; Destructor Documentation</h2>
+<a name="z104_0" doxytag="DOMNamedNodeMap::DOMNamedNodeMap"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> DOMNamedNodeMap::DOMNamedNodeMap </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [protected]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="z106_0" doxytag="DOMNamedNodeMap::~DOMNamedNodeMap"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual DOMNamedNodeMap::~DOMNamedNodeMap </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Destructor.
+<p>
+    </td>
+  </tr>
+</table>
+<hr><h2>Member Function Documentation</h2>
+<a name="z107_3" doxytag="DOMNamedNodeMap::getLength"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual XMLSize_t DOMNamedNodeMap::getLength </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+The number of nodes in the map.
+<p>
+The range of valid child node indices is 0 to <code>length-1</code> inclusive. <dl compact><dt><b>
+Since: </b><dd>
+DOM Level 1 </dl>    </td>
+  </tr>
+</table>
+<a name="z107_2" doxytag="DOMNamedNodeMap::getNamedItem"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classDOMNode.html">DOMNode</a>* DOMNamedNodeMap::getNamedItem </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>name</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Retrieves a node specified by name.
+<p>
+<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>name</em>&nbsp;</td><td>
+The <code>nodeName</code> of a node to retrieve. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+A <code><a class="el" href="classDOMNode.html">DOMNode</a></code> (of any type) with the specified <code>nodeName</code>, or <code>null</code> if it does not identify any node in the map. </dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 1 </dl>    </td>
+  </tr>
+</table>
+<a name="z108_0" doxytag="DOMNamedNodeMap::getNamedItemNS"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classDOMNode.html">DOMNode</a>* DOMNamedNodeMap::getNamedItemNS </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>namespaceURI</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const XMLCh *&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>localName</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Retrieves a node specified by local name and namespace URI.
+<p>
+<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>namespaceURI</em>&nbsp;</td><td>
+The <em>namespace URI</em> of the node to retrieve. </td></tr>
+<tr><td valign=top><em>localName</em>&nbsp;</td><td>
+The <em>local name</em> of the node to retrieve. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+A <code><a class="el" href="classDOMNode.html">DOMNode</a></code> (of any type) with the specified local name and namespace URI, or <code>null</code> if they do not identify any node in the map. </dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 2 </dl>    </td>
+  </tr>
+</table>
+<a name="z107_1" doxytag="DOMNamedNodeMap::item"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classDOMNode.html">DOMNode</a>* DOMNamedNodeMap::item </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">XMLSize_t&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>index</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Returns the <code>index</code>th item in the map.
+<p>
+If <code>index</code> is greater than or equal to the number of nodes in the map, this returns <code>null</code>. <dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>index</em>&nbsp;</td><td>
+Index into the map. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+The node at the <code>index</code>th position in the <code>DOMNamedNodeMap</code>, or <code>null</code> if that is not a valid index. </dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 1 </dl>    </td>
+  </tr>
+</table>
+<a name="z107_4" doxytag="DOMNamedNodeMap::removeNamedItem"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classDOMNode.html">DOMNode</a>* DOMNamedNodeMap::removeNamedItem </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>name</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Removes a node specified by name.
+<p>
+If the removed node is an <code><a class="el" href="classDOMAttr.html">DOMAttr</a></code> with a default value it is immediately replaced. <dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>name</em>&nbsp;</td><td>
+The <code>nodeName</code> of a node to remove. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+The node removed from the map if a node with such a name exists. </dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em><a class="el" href="classDOMException.html">DOMException</a></em>&nbsp;</td><td>
+ NOT_FOUND_ERR: Raised if there is no node named <code>name</code> in the map. <br>
+ NO_MODIFICATION_ALLOWED_ERR: Raised if this <code>DOMNamedNodeMap</code> is readonly. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 1 </dl>    </td>
+  </tr>
+</table>
+<a name="z108_2" doxytag="DOMNamedNodeMap::removeNamedItemNS"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classDOMNode.html">DOMNode</a>* DOMNamedNodeMap::removeNamedItemNS </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>namespaceURI</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const XMLCh *&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>localName</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Removes a node specified by local name and namespace URI.
+<p>
+<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>namespaceURI</em>&nbsp;</td><td>
+The <em>namespace URI</em> of the node to remove. </td></tr>
+<tr><td valign=top><em>localName</em>&nbsp;</td><td>
+The <em>local name</em> of the node to remove. When this <code>DOMNamedNodeMap</code> contains the attributes attached to an element, as returned by the attributes attribute of the <code><a class="el" href="classDOMNode.html">DOMNode</a></code> interface, if the removed attribute is known to have a default value, an attribute immediately appears containing the default value as well as the corresponding namespace URI, local name, and prefix. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+The node removed from the map if a node with such a local name and namespace URI exists. </dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em><a class="el" href="classDOMException.html">DOMException</a></em>&nbsp;</td><td>
+ NOT_FOUND_ERR: Raised if there is no node named <code>name</code> in the map. <br>
+ NO_MODIFICATION_ALLOWED_ERR: Raised if this <code>DOMNamedNodeMap</code> is readonly. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 2 </dl>    </td>
+  </tr>
+</table>
+<a name="z107_0" doxytag="DOMNamedNodeMap::setNamedItem"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classDOMNode.html">DOMNode</a>* DOMNamedNodeMap::setNamedItem </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classDOMNode.html">DOMNode</a> *&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>arg</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Adds a node using its <code>nodeName</code> attribute.
+<p>
+<br>
+As the <code>nodeName</code> attribute is used to derive the name which the node must be stored under, multiple nodes of certain types (those that have a "special" string value) cannot be stored as the names would clash. This is seen as preferable to allowing nodes to be aliased. <dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>arg</em>&nbsp;</td><td>
+A node to store in a named node map. The node will later be accessible using the value of the <code>nodeName</code> attribute of the node. If a node with that name is already present in the map, it is replaced by the new one. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+If the new <code><a class="el" href="classDOMNode.html">DOMNode</a></code> replaces an existing node the replaced <code><a class="el" href="classDOMNode.html">DOMNode</a></code> is returned, otherwise <code>null</code> is returned. </dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em><a class="el" href="classDOMException.html">DOMException</a></em>&nbsp;</td><td>
+ WRONG_DOCUMENT_ERR: Raised if <code>arg</code> was created from a different document than the one that created the <code>DOMNamedNodeMap</code>. <br>
+NO_MODIFICATION_ALLOWED_ERR: Raised if this <code>DOMNamedNodeMap</code> is readonly. <br>
+INUSE_ATTRIBUTE_ERR: Raised if <code>arg</code> is an <code><a class="el" href="classDOMAttr.html">DOMAttr</a></code> that is already an attribute of another <code><a class="el" href="classDOMElement.html">DOMElement</a></code> object. The DOM user must explicitly clone <code><a class="el" href="classDOMAttr.html">DOMAttr</a></code> nodes to re-use them in other elements. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 1 </dl>    </td>
+  </tr>
+</table>
+<a name="z108_1" doxytag="DOMNamedNodeMap::setNamedItemNS"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classDOMNode.html">DOMNode</a>* DOMNamedNodeMap::setNamedItemNS </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classDOMNode.html">DOMNode</a> *&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>arg</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Adds a node using its <code>namespaceURI</code> and <code>localName</code>.
+<p>
+<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>arg</em>&nbsp;</td><td>
+A node to store in a named node map. The node will later be accessible using the value of the <code>namespaceURI</code> and <code>localName</code> attribute of the node. If a node with those namespace URI and local name is already present in the map, it is replaced by the new one. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+If the new <code><a class="el" href="classDOMNode.html">DOMNode</a></code> replaces an existing node the replaced <code><a class="el" href="classDOMNode.html">DOMNode</a></code> is returned, otherwise <code>null</code> is returned. </dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em><a class="el" href="classDOMException.html">DOMException</a></em>&nbsp;</td><td>
+ WRONG_DOCUMENT_ERR: Raised if <code>arg</code> was created from a different document than the one that created the <code>DOMNamedNodeMap</code>. <br>
+NO_MODIFICATION_ALLOWED_ERR: Raised if this <code>DOMNamedNodeMap</code> is readonly. <br>
+INUSE_ATTRIBUTE_ERR: Raised if <code>arg</code> is an <code><a class="el" href="classDOMAttr.html">DOMAttr</a></code> that is already an attribute of another <code><a class="el" href="classDOMElement.html">DOMElement</a></code> object. The DOM user must explicitly clone <code><a class="el" href="classDOMAttr.html">DOMAttr</a></code> nodes to re-use them in other elements. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 2 </dl>    </td>
+  </tr>
+</table>
+<hr>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="DOMNamedNodeMap_8hpp-source.html">DOMNamedNodeMap.hpp</a></ul>
+    </FONT></TD></TR></TABLE><BR>
+</TD></TR></TABLE></TD></TR></TABLE><BR><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD bgcolor="#0086b2"><IMG height="1" src="images/dot.gif" width="1" alt=""></TD></TR><TR><TD align="center"><FONT color="#0086b2" size="-1"><I>
+              Copyright &copy; 2004 The Apache Software Foundation.
+              All Rights Reserved.
+            </I></FONT></TD></TR></TABLE></BODY></HTML>

@@ -1,0 +1,313 @@
+<HTML><HEAD><SCRIPT language="JavaScript" src="../resources/script.js" type="text/javascript"></SCRIPT><TITLE>XSModel.hpp Source File</TITLE><link href="XercesApi.css" rel="stylesheet" type="text/css"></HEAD><BODY alink="#ff0000" bgcolor="#ffffff" leftmargin="4" link="#0000ff" marginheight="4" marginwidth="4" text="#000000" topmargin="4" vlink="#0000aa"><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" height="60" rowspan="3" valign="top" width="135"><IMG border="0" height="60" hspace="0" src="../resources/logo.gif" vspace="0" width="135"></TD><TD align="left" colspan="4" height="5" valign="top" width="456"><IMG border="0" height="5" hspace="0" src="../resources/line.gif" vspace="0" width="456"></TD><TD align="left" height="60" rowspan="3" valign="top" width="29"><IMG border="0" height="60" hspace="0" src="../resources/right.gif" vspace="0" width="29"></TD></TR><TR><TD align="left" bgcolor="#0086b2" colspan="4" height="35" valign="top" width="456"><IMG alt="" border="0" height="35" hspace="0" src="../graphics/api-header.jpg" vspace="0" width="456"></TD></TR><TR><TD align="left" height="20" valign="top" width="168"><IMG border="0" height="20" hspace="0" src="../resources/bottom.gif" vspace="0" width="168"></TD><TD align="left" height="20" valign="top" width="96"><A href="http://xml.apache.org/" onMouseOut="rolloverOff('xml');" onMouseOver="rolloverOn('xml');" target="new"><IMG alt="http://xml.apache.org/" border="0" height="20" hspace="0" name="xml" onLoad="rolloverLoad('xml','../resources/button-xml-hi.gif','../resources/button-xml-lo.gif');" src="../resources/button-xml-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.apache.org/" onMouseOut="rolloverOff('asf');" onMouseOver="rolloverOn('asf');" target="new"><IMG alt="http://www.apache.org/" border="0" height="20" hspace="0" name="asf" onLoad="rolloverLoad('asf','../resources/button-asf-hi.gif','../resources/button-asf-lo.gif');" src="../resources/button-asf-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.w3.org/" onMouseOut="rolloverOff('w3c');" onMouseOver="rolloverOn('w3c');" target="new"><IMG alt="http://www.w3.org/" border="0" height="20" hspace="0" name="w3c" onLoad="rolloverLoad('w3c','../resources/button-w3c-hi.gif','../resources/button-w3c-lo.gif');" src="../resources/button-w3c-lo.gif" vspace="0" width="96"></A></TD></TR></TABLE><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" valign="top" width="120"><IMG border="0" height="14" hspace="0" src="../resources/join.gif" vspace="0" width="120"><BR>
+  <A href="../../index.html" onMouseOut="rolloverOff('side-ext-2');" onMouseOver="rolloverOn('side-ext-2');"><IMG alt="Home" border="0" height="12" hspace="0" name="side-ext-2" onLoad="rolloverLoad('side-ext-2','../graphics/ext-2-label-2.jpg','../graphics/ext-2-label-3.jpg');" src="../graphics/ext-2-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../index.html" onMouseOut="rolloverOff('side-index');" onMouseOver="rolloverOn('side-index');"><IMG alt="Readme" border="0" height="12" hspace="0" name="side-index" onLoad="rolloverLoad('side-index','../graphics/index-label-2.jpg','../graphics/index-label-3.jpg');" src="../graphics/index-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../releases.html" onMouseOut="rolloverOff('side-releases');" onMouseOver="rolloverOn('side-releases');"><IMG alt="Release Info" border="0" height="12" hspace="0" name="side-releases" onLoad="rolloverLoad('side-releases','../graphics/releases-label-2.jpg','../graphics/releases-label-3.jpg');" src="../graphics/releases-label-3.jpg" vspace="0" width="120"></A><BR>
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../install.html" onMouseOut="rolloverOff('side-install');" onMouseOver="rolloverOn('side-install');"><IMG alt="Installation" border="0" height="12" hspace="0" name="side-install" onLoad="rolloverLoad('side-install','../graphics/install-label-2.jpg','../graphics/install-label-3.jpg');" src="../graphics/install-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://xml.apache.org/dist/xerces-c/" onMouseOut="rolloverOff('side-ext-18');" onMouseOver="rolloverOn('side-ext-18');"><IMG alt="Download" border="0" height="12" hspace="0" name="side-ext-18" onLoad="rolloverLoad('side-ext-18','../graphics/ext-18-label-2.jpg','../graphics/ext-18-label-3.jpg');" src="../graphics/ext-18-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../build.html" onMouseOut="rolloverOff('side-build');" onMouseOver="rolloverOn('side-build');"><IMG alt="Build" border="0" height="12" hspace="0" name="side-build" onLoad="rolloverLoad('side-build','../graphics/build-label-2.jpg','../graphics/build-label-3.jpg');" src="../graphics/build-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../faqs.html" onMouseOut="rolloverOff('side-faqs');" onMouseOver="rolloverOn('side-faqs');"><IMG alt="FAQs" border="0" height="12" hspace="0" name="side-faqs" onLoad="rolloverLoad('side-faqs','../graphics/faqs-label-2.jpg','../graphics/faqs-label-3.jpg');" src="../graphics/faqs-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../samples.html" onMouseOut="rolloverOff('side-samples');" onMouseOver="rolloverOn('side-samples');"><IMG alt="Samples" border="0" height="12" hspace="0" name="side-samples" onLoad="rolloverLoad('side-samples','../graphics/samples-label-2.jpg','../graphics/samples-label-3.jpg');" src="../graphics/samples-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../api.html" onMouseOut="rolloverOff('side-api');" onMouseOver="rolloverOn('side-api');"><IMG alt="API Docs" border="0" height="12" hspace="0" name="side-api" onLoad="rolloverLoad('side-api','../graphics/api-label-2.jpg','../graphics/api-label-3.jpg');" src="../graphics/api-label-3.jpg" vspace="0" width="120"></A><BR>  
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../ApacheDOMC++Binding.html" onMouseOut="rolloverOff('side-ext-64');" onMouseOver="rolloverOn('side-ext-64');"><IMG alt="DOM C++ Binding" border="0" height="12" hspace="0" name="side-ext-64" onLoad="rolloverLoad('side-ext-64','../graphics/ext-64-label-2.jpg','../graphics/ext-64-label-3.jpg');" src="../graphics/ext-64-label-3.jpg" vspace="0" width="120"></A><BR> 
+  <A href="../program.html" onMouseOut="rolloverOff('side-program');" onMouseOver="rolloverOn('side-program');"><IMG alt="Programming" border="0" height="12" hspace="0" name="side-program" onLoad="rolloverLoad('side-program','../graphics/program-label-2.jpg','../graphics/program-label-3.jpg');" src="../graphics/program-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../migrate.html" onMouseOut="rolloverOff('side-migrate');" onMouseOver="rolloverOn('side-migrate');"><IMG alt="Migration Guide" border="0" height="12" hspace="0" name="side-migrate" onLoad="rolloverLoad('side-migrate','../graphics/migrate-label-2.jpg','../graphics/migrate-label-3.jpg');" src="../graphics/migrate-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../feedback.html" onMouseOut="rolloverOff('side-feedback');" onMouseOver="rolloverOn('side-feedback');"><IMG alt="Feedback" border="0" height="12" hspace="0" name="side-feedback" onLoad="rolloverLoad('side-feedback','../graphics/feedback-label-2.jpg','../graphics/feedback-label-3.jpg');" src="../graphics/feedback-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../bug-report.html" onMouseOut="rolloverOff('side-bug-report');" onMouseOver="rolloverOn('side-bug-report');"><IMG alt="Bug-Reporting" border="0" height="12" hspace="0" name="side-bug-report" onLoad="rolloverLoad('side-bug-report','../graphics/bug-report-label-2.jpg','../graphics/bug-report-label-3.jpg');" src="../graphics/bug-report-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../pdf.html" onMouseOut="rolloverOff('side-pdf');" onMouseOver="rolloverOn('side-pdf');"><IMG alt="PDF Document" border="0" height="12" hspace="0" name="side-pdf" onLoad="rolloverLoad('side-pdf','../graphics/pdf-label-2.jpg','../graphics/pdf-label-3.jpg');" src="../graphics/pdf-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="http://xml.apache.org/websrc/cvsweb.cgi/xml-xerces/c/" onMouseOut="rolloverOff('side-ext-96');" onMouseOver="rolloverOn('side-ext-96');"><IMG alt="CVS Repository" border="0" height="12" hspace="0" name="side-ext-96" onLoad="rolloverLoad('side-ext-96','../graphics/ext-96-label-2.jpg','../graphics/ext-96-label-3.jpg');" src="../graphics/ext-96-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://marc.theaimsgroup.com/?l=xerces-c-dev" onMouseOut="rolloverOff('side-ext-98');" onMouseOver="rolloverOn('side-ext-98');"><IMG alt="Mail Archive" border="0" height="12" hspace="0" name="side-ext-98" onLoad="rolloverLoad('side-ext-98','../graphics/ext-98-label-2.jpg','../graphics/ext-98-label-3.jpg');" src="../graphics/ext-98-label-3.jpg" vspace="0" width="120"></A><BR>
+
+<IMG border="0" height="14" hspace="0" src="../resources/close.gif" vspace="0" width="120"><BR></TD><TD align="left" valign="top" width="500"><TABLE border="0" cellpadding="3" cellspacing="0"><TR><TD>
+    <TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#FFFFFF" colspan="2" width="494"><TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#039acc" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#039acc" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#039acc" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" width="492"><FONT color="#ffffff" face="arial,helvetica,sanserif" size="+1"><IMG border="0" height="2" hspace="0" src="../resources/void.gif" vspace="0" width="2"><B>API Docs for SAX and DOM</B></FONT></TD><TD bgcolor="#017299" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#017299" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#017299" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></TD></TR><TR><TD width="10">&nbsp;</TD><TD width="484"><FONT color="#000000" face="arial,helvetica,sanserif">
+
+	    <P>
+<!-- Generated by Doxygen 1.2.14 -->
+<center>
+<a class="qindex" href="index.html">Main Page</a> &nbsp; <a class="qindex" href="hierarchy.html">Class Hierarchy</a> &nbsp; <a class="qindex" href="classes.html">Alphabetical List</a> &nbsp; <a class="qindex" href="annotated.html">Compound List</a> &nbsp; <a class="qindex" href="files.html">File List</a> &nbsp; <a class="qindex" href="functions.html">Compound Members</a> &nbsp; <a class="qindex" href="globals.html">File Members</a> &nbsp; </center>
+<hr><h1>XSModel.hpp</h1><a href="XSModel_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><pre>00001 <font class="comment">/*</font>
+00002 <font class="comment"> * The Apache Software License, Version 1.1</font>
+00003 <font class="comment"> *</font>
+00004 <font class="comment"> * Copyright (c) 2003 The Apache Software Foundation.  All rights</font>
+00005 <font class="comment"> * reserved.</font>
+00006 <font class="comment"> *</font>
+00007 <font class="comment"> * Redistribution and use in source and binary forms, with or without</font>
+00008 <font class="comment"> * modification, are permitted provided that the following conditions</font>
+00009 <font class="comment"> * are met:</font>
+00010 <font class="comment"> *</font>
+00011 <font class="comment"> * 1. Redistributions of source code must retain the above copyright</font>
+00012 <font class="comment"> *    notice, this list of conditions and the following disclaimer.</font>
+00013 <font class="comment"> *</font>
+00014 <font class="comment"> * 2. Redistributions in binary form must reproduce the above copyright</font>
+00015 <font class="comment"> *    notice, this list of conditions and the following disclaimer in</font>
+00016 <font class="comment"> *    the documentation and/or other materials provided with the</font>
+00017 <font class="comment"> *    distribution.</font>
+00018 <font class="comment"> *</font>
+00019 <font class="comment"> * 3. The end-user documentation included with the redistribution,</font>
+00020 <font class="comment"> *    if any, must include the following acknowledgment:</font>
+00021 <font class="comment"> *       "This product includes software developed by the</font>
+00022 <font class="comment"> *        Apache Software Foundation (http://www.apache.org/)."</font>
+00023 <font class="comment"> *    Alternately, this acknowledgment may appear in the software itself,</font>
+00024 <font class="comment"> *    if and wherever such third-party acknowledgments normally appear.</font>
+00025 <font class="comment"> *</font>
+00026 <font class="comment"> * 4. The names "Xerces" and "Apache Software Foundation" must</font>
+00027 <font class="comment"> *    not be used to endorse or promote products derived from this</font>
+00028 <font class="comment"> *    software without prior written permission. For written</font>
+00029 <font class="comment"> *    permission, please contact apache\@apache.org.</font>
+00030 <font class="comment"> *</font>
+00031 <font class="comment"> * 5. Products derived from this software may not be called "Apache",</font>
+00032 <font class="comment"> *    nor may "Apache" appear in their name, without prior written</font>
+00033 <font class="comment"> *    permission of the Apache Software Foundation.</font>
+00034 <font class="comment"> *</font>
+00035 <font class="comment"> * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED</font>
+00036 <font class="comment"> * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES</font>
+00037 <font class="comment"> * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE</font>
+00038 <font class="comment"> * DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR</font>
+00039 <font class="comment"> * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,</font>
+00040 <font class="comment"> * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT</font>
+00041 <font class="comment"> * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF</font>
+00042 <font class="comment"> * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND</font>
+00043 <font class="comment"> * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,</font>
+00044 <font class="comment"> * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT</font>
+00045 <font class="comment"> * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF</font>
+00046 <font class="comment"> * SUCH DAMAGE.</font>
+00047 <font class="comment"> * ====================================================================</font>
+00048 <font class="comment"> *</font>
+00049 <font class="comment"> * This software consists of voluntary contributions made by many</font>
+00050 <font class="comment"> * individuals on behalf of the Apache Software Foundation, and was</font>
+00051 <font class="comment"> * originally based on software copyright (c) 1999, International</font>
+00052 <font class="comment"> * Business Machines, Inc., http://www.ibm.com .  For more information</font>
+00053 <font class="comment"> * on the Apache Software Foundation, please see</font>
+00054 <font class="comment"> * &lt;http://www.apache.org/&gt;.</font>
+00055 <font class="comment"> */</font>
+00056 
+00057 <font class="comment">/*</font>
+00058 <font class="comment"> * $Log: XSModel.hpp,v $</font>
+00059 <font class="comment"> * Revision 1.10  2003/12/24 17:42:02  knoaman</font>
+00060 <font class="comment"> * Misc. PSVI updates</font>
+00061 <font class="comment"> *</font>
+00062 <font class="comment"> * Revision 1.9  2003/11/26 16:12:23  knoaman</font>
+00063 <font class="comment"> * Add a method to return the XSObject mapped to a schema grammar component</font>
+00064 <font class="comment"> *</font>
+00065 <font class="comment"> * Revision 1.8  2003/11/21 22:34:45  neilg</font>
+00066 <font class="comment"> * More schema component model implementation, thanks to David Cargill.</font>
+00067 <font class="comment"> * In particular, this cleans up and completes the XSModel, XSNamespaceItem,</font>
+00068 <font class="comment"> * XSAttributeDeclaration and XSAttributeGroup implementations.</font>
+00069 <font class="comment"> *</font>
+00070 <font class="comment"> * Revision 1.7  2003/11/21 17:25:09  knoaman</font>
+00071 <font class="comment"> * Use XSObjectFactory to create various components.</font>
+00072 <font class="comment"> *</font>
+00073 <font class="comment"> * Revision 1.6  2003/11/15 21:18:39  neilg</font>
+00074 <font class="comment"> * fixes for compilation under gcc</font>
+00075 <font class="comment"> *</font>
+00076 <font class="comment"> * Revision 1.5  2003/11/14 22:47:53  neilg</font>
+00077 <font class="comment"> * fix bogus log message from previous commit...</font>
+00078 <font class="comment"> *</font>
+00079 <font class="comment"> * Revision 1.4  2003/11/14 22:33:30  neilg</font>
+00080 <font class="comment"> * Second phase of schema component model implementation.  </font>
+00081 <font class="comment"> * Implement XSModel, XSNamespaceItem, and the plumbing necessary</font>
+00082 <font class="comment"> * to connect them to the other components.</font>
+00083 <font class="comment"> * Thanks to David Cargill.</font>
+00084 <font class="comment"> *</font>
+00085 <font class="comment"> * Revision 1.3  2003/11/06 15:30:04  neilg</font>
+00086 <font class="comment"> * first part of PSVI/schema component model implementation, thanks to David Cargill.  This covers setting the PSVIHandler on parser objects, as well as implementing XSNotation, XSSimpleTypeDefinition, XSIDCDefinition, and most of XSWildcard, XSComplexTypeDefinition, XSElementDeclaration, XSAttributeDeclaration and XSAttributeUse.</font>
+00087 <font class="comment"> *</font>
+00088 <font class="comment"> * Revision 1.2  2003/10/10 18:37:51  neilg</font>
+00089 <font class="comment"> * update XSModel and XSObject interface so that IDs can be used to query components in XSModels, and so that those IDs can be recovered from components</font>
+00090 <font class="comment"> *</font>
+00091 <font class="comment"> * Revision 1.1  2003/09/16 14:33:36  neilg</font>
+00092 <font class="comment"> * PSVI/schema component model classes, with Makefile/configuration changes necessary to build them</font>
+00093 <font class="comment"> *</font>
+00094 <font class="comment"> */</font>
+00095 
+00096 <font class="preprocessor">#if !defined(XSMODEL_HPP)</font>
+<a name="l00097"></a><a class="code" href="XSModel_8hpp.html#a0">00097</a> <font class="preprocessor"></font><font class="preprocessor">#define XSMODEL_HPP</font>
+00098 <font class="preprocessor"></font>
+00099 <font class="preprocessor">#include &lt;<a class="code" href="PlatformUtils_8hpp.html">xercesc/util/PlatformUtils.hpp</a>&gt;</font>
+00100 <font class="preprocessor">#include &lt;<a class="code" href="XSObject_8hpp.html">xercesc/framework/psvi/XSObject.hpp</a>&gt;</font>
+00101 <font class="preprocessor">#include &lt;<a class="code" href="XSNamedMap_8hpp.html">xercesc/framework/psvi/XSNamedMap.hpp</a>&gt;</font>
+00102 
+00103 <font class="preprocessor">#include &lt;xercesc/util/ValueVectorOf.hpp&gt;</font>
+00104 <font class="preprocessor">#include &lt;xercesc/validators/schema/SchemaElementDecl.hpp&gt;</font>
+00105 
+00106 <a class="code" href="XercesDefs_8hpp.html#a2">XERCES_CPP_NAMESPACE_BEGIN</a>
+00107 
+00120 <font class="comment">// forward declarations</font>
+<a name="l00121"></a><a class="code" href="XSModel_8hpp.html#a1">00121</a> <font class="keyword">class </font><a class="code" href="XSModel_8hpp.html#a1">Grammar</a>;
+00122 <font class="keyword">class </font><a class="code" href="classXMLGrammarPool.html">XMLGrammarPool</a>;
+00123 <font class="keyword">class </font><a class="code" href="classXSAnnotation.html">XSAnnotation</a>;
+00124 <font class="keyword">class </font><a class="code" href="classXSAttributeDeclaration.html">XSAttributeDeclaration</a>;
+00125 <font class="keyword">class </font><a class="code" href="classXSAttributeGroupDefinition.html">XSAttributeGroupDefinition</a>;
+00126 <font class="keyword">class </font><a class="code" href="classXSElementDeclaration.html">XSElementDeclaration</a>;
+00127 <font class="keyword">class </font><a class="code" href="classXSModelGroupDefinition.html">XSModelGroupDefinition</a>;
+00128 <font class="keyword">class </font><a class="code" href="classXSNamespaceItem.html">XSNamespaceItem</a>;
+00129 <font class="keyword">class </font><a class="code" href="classXSNotationDeclaration.html">XSNotationDeclaration</a>;
+00130 <font class="keyword">class </font><a class="code" href="classXSTypeDefinition.html">XSTypeDefinition</a>;
+00131 <font class="keyword">class </font>XSObjectFactory;
+00132 
+<a name="l00133"></a><a class="code" href="classXSModel.html">00133</a> <font class="keyword">class </font><a class="code" href="XercesDefs_8hpp.html#a9"></a> <a class="code" href="classXSModel.html">XSModel</a> : <font class="keyword">public</font> <a class="code" href="classXMemory.html">XMemory</a>
+00134 {
+00135 <font class="keyword">public</font>:
+00136 
+00137     <font class="comment">//  Constructors and Destructor</font>
+00138     <font class="comment">// -----------------------------------------------------------------------</font>
+00141 <font class="comment"></font>
+00147     <a class="code" href="classXSModel.html">XSModel</a>( <a class="code" href="classXMLGrammarPool.html">XMLGrammarPool</a> *grammarPool
+00148                 , <a class="code" href="classMemoryManager.html">MemoryManager</a>* <font class="keyword">const</font> manager = <a class="code" href="classXMLPlatformUtils.html#z477_4">XMLPlatformUtils::fgMemoryManager</a>);
+00149 
+00159     <a class="code" href="classXSModel.html">XSModel</a>( <a class="code" href="classXSModel.html">XSModel</a> *baseModel
+00160                 , GrammarResolver *grammarResolver
+00161                 , <a class="code" href="classMemoryManager.html">MemoryManager</a>* <font class="keyword">const</font> manager = <a class="code" href="classXMLPlatformUtils.html#z477_4">XMLPlatformUtils::fgMemoryManager</a>);
+00162 
+00164 
+00167     ~<a class="code" href="classXSModel.html">XSModel</a>();
+00169 
+00170     <font class="comment">//---------------------</font>
+00174 <font class="comment"></font>
+00181     <a class="code" href="XSConstants_8hpp.html#a9">StringList</a> *getNamespaces();
+00182 
+00191     <a class="code" href="XSConstants_8hpp.html#a6">XSNamespaceItemList</a> *getNamespaceItems();
+00192 
+00203     <a class="code" href="classXSNamedMap.html">XSNamedMap&lt;XSObject&gt;</a> *getComponents(<a class="code" href="classXSConstants.html#s26">XSConstants::COMPONENT_TYPE</a> objectType);
+00204 
+00217     <a class="code" href="classXSNamedMap.html">XSNamedMap&lt;XSObject&gt;</a> *getComponentsByNamespace(<a class="code" href="classXSConstants.html#s26">XSConstants::COMPONENT_TYPE</a> objectType, 
+00218                                                <font class="keyword">const</font> XMLCh *compNamespace);
+00219 
+00223     <a class="code" href="XSConstants_8hpp.html#a2">XSAnnotationList</a> *getAnnotations();
+00224 
+00232     <a class="code" href="classXSElementDeclaration.html">XSElementDeclaration</a> *getElementDeclaration(<font class="keyword">const</font> XMLCh *name
+00233             , <font class="keyword">const</font> XMLCh *compNamespace);
+00234 
+00242     <a class="code" href="classXSAttributeDeclaration.html">XSAttributeDeclaration</a> *getAttributeDeclaration(<font class="keyword">const</font> XMLCh *name
+00243             , <font class="keyword">const</font> XMLCh *compNamespace);
+00244 
+00253     <a class="code" href="classXSTypeDefinition.html">XSTypeDefinition</a> *getTypeDefinition(<font class="keyword">const</font> XMLCh *name
+00254             , <font class="keyword">const</font> XMLCh *compNamespace);
+00255 
+00263     <a class="code" href="classXSAttributeGroupDefinition.html">XSAttributeGroupDefinition</a> *getAttributeGroup(<font class="keyword">const</font> XMLCh *name
+00264             , <font class="keyword">const</font> XMLCh *compNamespace);
+00265 
+00273     <a class="code" href="classXSModelGroupDefinition.html">XSModelGroupDefinition</a> *getModelGroupDefinition(<font class="keyword">const</font> XMLCh *name
+00274             , <font class="keyword">const</font> XMLCh *compNamespace);
+00275 
+00283     <a class="code" href="classXSNotationDeclaration.html">XSNotationDeclaration</a> *getNotationDeclaration(<font class="keyword">const</font> XMLCh *name
+00284             , <font class="keyword">const</font> XMLCh *compNamespace);
+00285 
+00295     <a class="code" href="classXSObject.html">XSObject</a> *getXSObjectById(<font class="keywordtype">unsigned</font> <font class="keywordtype">int</font>  compId
+00296                 , <a class="code" href="classXSConstants.html#s26">XSConstants::COMPONENT_TYPE</a> compType);
+00297 
+00299 
+00300     <font class="comment">//----------------------------------</font>
+00304 <font class="comment"></font>    <a class="code" href="XSNamedMap_8hpp.html#a1">XMLStringPool</a>*  getURIStringPool();
+00305 
+00306     <a class="code" href="classXSNamespaceItem.html">XSNamespaceItem</a>* getNamespaceItem(<font class="keyword">const</font> XMLCh* <font class="keyword">const</font> key);
+00307 
+00315     <a class="code" href="classXSObject.html">XSObject</a>* getXSObject(<font class="keywordtype">void</font>* key);
+00316 
+00318 <font class="keyword">private</font>:
+00319 
+00320     <font class="comment">// -----------------------------------------------------------------------</font>
+00321     <font class="comment">//  Helper methods</font>
+00322     <font class="comment">// -----------------------------------------------------------------------</font>
+00323     <font class="keywordtype">void</font> addGrammarToXSModel
+00324     (
+00325         <a class="code" href="classXSNamespaceItem.html">XSNamespaceItem</a>* namespaceItem
+00326     );
+00327     <font class="keywordtype">void</font> addS4SToXSModel
+00328     (
+00329         <a class="code" href="classXSNamespaceItem.html">XSNamespaceItem</a>* <font class="keyword">const</font> namespaceItem
+00330         , RefHashTableOf&lt;DatatypeValidator&gt;* <font class="keyword">const</font> builtInDV
+00331     );
+00332     <font class="keywordtype">void</font> addComponentToNamespace
+00333     (
+00334          <a class="code" href="classXSNamespaceItem.html">XSNamespaceItem</a>* <font class="keyword">const</font> namespaceItem
+00335          , <a class="code" href="classXSObject.html">XSObject</a>* <font class="keyword">const</font> component
+00336          , <font class="keywordtype">int</font> componentIndex
+00337          , <font class="keywordtype">bool</font> addToXSModel = <font class="keyword">true</font>
+00338     );
+00339 
+00340     <font class="comment">// -----------------------------------------------------------------------</font>
+00341     <font class="comment">//  Unimplemented constructors and operators</font>
+00342     <font class="comment">// -----------------------------------------------------------------------</font>
+00343     <a class="code" href="classXSModel.html">XSModel</a>(<font class="keyword">const</font> <a class="code" href="classXSModel.html">XSModel</a>&amp;);
+00344     <a class="code" href="classXSModel.html">XSModel</a> &amp; operator=(<font class="keyword">const</font> <a class="code" href="classXSModel.html">XSModel</a> &amp;);
+00345 
+00346 <font class="keyword">protected</font>:
+<a name="l00347"></a><a class="code" href="classXSModel.html#l0">00347</a>     <font class="keyword">friend</font> <font class="keyword">class </font>XSObjectFactory;
+00348 
+00349     <font class="comment">// -----------------------------------------------------------------------</font>
+00350     <font class="comment">//  data members</font>
+00351     <font class="comment">// -----------------------------------------------------------------------</font>
+00352     <font class="comment">// fMemoryManager:</font>
+00353     <font class="comment">//  used for any memory allocations</font>
+<a name="l00354"></a><a class="code" href="classXSModel.html#n0">00354</a>     <a class="code" href="classMemoryManager.html">MemoryManager</a>* <font class="keyword">const</font>                    fMemoryManager;
+00355  
+<a name="l00356"></a><a class="code" href="classXSModel.html#n1">00356</a>     <a class="code" href="XSConstants_8hpp.html#a9">StringList</a>*                             fNamespaceStringList;
+<a name="l00357"></a><a class="code" href="classXSModel.html#n2">00357</a>     <a class="code" href="XSConstants_8hpp.html#a6">XSNamespaceItemList</a>*                    fXSNamespaceItemList;
+00358 
+<a name="l00359"></a><a class="code" href="classXSModel.html#n3">00359</a>     RefVectorOf&lt;XSElementDeclaration&gt;*      fElementDeclarationVector;
+<a name="l00360"></a><a class="code" href="classXSModel.html#n4">00360</a>     RefVectorOf&lt;XSAttributeDeclaration&gt;*    fAttributeDeclarationVector;
+00361 
+00362     <font class="comment">/* Need a XSNamedMap for each component    top-level?</font>
+00363 <font class="comment">          ATTRIBUTE_DECLARATION     = 1,       </font>
+00364 <font class="comment">          ELEMENT_DECLARATION       = 2,        </font>
+00365 <font class="comment">          TYPE_DEFINITION           = 3,        </font>
+00366 <font class="comment">          ATTRIBUTE_USE             = 4,       no </font>
+00367 <font class="comment">          ATTRIBUTE_GROUP_DEFINITION= 5,        </font>
+00368 <font class="comment">          MODEL_GROUP_DEFINITION    = 6,       </font>
+00369 <font class="comment">          MODEL_GROUP               = 7,       no </font>
+00370 <font class="comment">          PARTICLE                  = 8,       no</font>
+00371 <font class="comment">          WILDCARD                  = 9,       no</font>
+00372 <font class="comment">          IDENTITY_CONSTRAINT       = 10,      no</font>
+00373 <font class="comment">          NOTATION_DECLARATION      = 11,       </font>
+00374 <font class="comment">          ANNOTATION                = 12,      no </font>
+00375 <font class="comment">          FACET                     = 13,      no</font>
+00376 <font class="comment">          MULTIVALUE_FACET          = 14       no</font>
+00377 <font class="comment">    */</font>
+<a name="l00378"></a><a class="code" href="classXSModel.html#n5">00378</a>     <a class="code" href="classXSNamedMap.html">XSNamedMap&lt;XSObject&gt;</a>*                   fComponentMap[<a class="code" href="classXSConstants.html#s26s13">XSConstants::MULTIVALUE_FACET</a>];
+<a name="l00379"></a><a class="code" href="classXSModel.html#n6">00379</a>     <a class="code" href="XSNamedMap_8hpp.html#a1">XMLStringPool</a>*                          fURIStringPool;
+<a name="l00380"></a><a class="code" href="classXSModel.html#n7">00380</a>     <a class="code" href="XSConstants_8hpp.html#a2">XSAnnotationList</a>*                       fXSAnnotationList;
+<a name="l00381"></a><a class="code" href="classXSModel.html#n8">00381</a>     RefHashTableOf&lt;XSNamespaceItem&gt;*        fHashNamespace;
+<a name="l00382"></a><a class="code" href="classXSModel.html#n9">00382</a>     XSObjectFactory*                        fObjFactory;
+<a name="l00383"></a><a class="code" href="classXSModel.html#n10">00383</a>     RefVectorOf&lt;XSNamespaceItem&gt;*           fDeleteNamespace;
+<a name="l00384"></a><a class="code" href="classXSModel.html#n11">00384</a>     <a class="code" href="classXSModel.html">XSModel</a>*                                fParent;
+<a name="l00385"></a><a class="code" href="classXSModel.html#n12">00385</a>     <font class="keywordtype">bool</font>                                    fDeleteParent;
+<a name="l00386"></a><a class="code" href="classXSModel.html#n13">00386</a>     <font class="keywordtype">bool</font>                                    fAddedS4SGrammar;
+00387 };
+00388 
+<a name="l00389"></a><a class="code" href="classXSModel.html#z360_0">00389</a> <font class="keyword">inline</font> <a class="code" href="XSNamedMap_8hpp.html#a1">XMLStringPool</a>*  <a class="code" href="classXSModel.html#z360_0">XSModel::getURIStringPool</a>()
+00390 {
+00391     <font class="keywordflow">return</font> <a class="code" href="classXSModel.html#n6">fURIStringPool</a>;
+00392 }
+00393 
+<a name="l00394"></a><a class="code" href="classXSModel.html#z359_0">00394</a> <font class="keyword">inline</font> <a class="code" href="XSConstants_8hpp.html#a9">StringList</a> *<a class="code" href="classXSModel.html#z359_0">XSModel::getNamespaces</a>()
+00395 {
+00396     <font class="keywordflow">return</font> <a class="code" href="classXSModel.html#n1">fNamespaceStringList</a>;
+00397 }
+00398 
+<a name="l00399"></a><a class="code" href="classXSModel.html#z359_1">00399</a> <font class="keyword">inline</font> <a class="code" href="XSConstants_8hpp.html#a6">XSNamespaceItemList</a> *<a class="code" href="classXSModel.html#z359_1">XSModel::getNamespaceItems</a>()
+00400 {
+00401     <font class="keywordflow">return</font> <a class="code" href="classXSModel.html#n2">fXSNamespaceItemList</a>;
+00402 }
+00403 
+00404 <a class="code" href="XercesDefs_8hpp.html#a3">XERCES_CPP_NAMESPACE_END</a>
+00405 
+00406 <font class="preprocessor">#endif</font>
+</pre></div>    </FONT></TD></TR></TABLE><BR>
+</TD></TR></TABLE></TD></TR></TABLE><BR><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD bgcolor="#0086b2"><IMG height="1" src="images/dot.gif" width="1" alt=""></TD></TR><TR><TD align="center"><FONT color="#0086b2" size="-1"><I>
+              Copyright &copy; 2004 The Apache Software Foundation.
+              All Rights Reserved.
+            </I></FONT></TD></TR></TABLE></BODY></HTML>

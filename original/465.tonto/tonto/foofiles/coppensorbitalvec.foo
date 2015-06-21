@@ -1,0 +1,343 @@
+!---------------------------------------------------------------------------
+!
+! COPPENSORBITALVEC: COPPENSORBITAL vectors
+!
+! Copyright (C) Dylan Jayatilaka, 2002
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: coppensorbitalvec.foo,v 1.2.2.7 2003/10/13 06:22:45 reaper Exp $
+!---------------------------------------------------------------------------
+
+module COPPENSORBITALVEC
+
+   implicit none
+
+   saved_self :: SELF_TYPE*, private  DEFAULT_NULL
+
+contains
+
+!  ******************
+!  Allocation methods
+!  ******************
+
+   create(dim) ::: get_from(OBJECTVEC)
+   ! Create space for object
+      self :: PTR
+      dim :: INT
+   end
+
+   destroy ::: get_from(OBJECTVEC)
+   ! Destroy space for object
+      self :: PTR
+   end
+
+   create_copy(vec) ::: get_from(OBJECTVEC)
+   ! Create a replica copy of "vec".
+      vec :: SELF_TYPE, IN
+      self :: PTR
+   end
+
+   copy(vec) ::: get_from(OBJECTVEC), leaky
+   ! Copy "vec".
+      vec :: SELF_TYPE, IN
+   end
+
+   nullify_ptr_part ::: get_from(OBJECTVEC)
+   ! Nullify the pointer parts of self
+   end
+
+   destroy_ptr_part ::: get_from(OBJECTVEC)
+   ! Destroy the pointer parts of self
+   end
+
+!   created result(res) ::: get_from(OBJECTVEC)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!   end
+
+!   destroyed result(res) ::: get_from(OBJECTVEC)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!   end
+
+   set_defaults ::: get_from(OBJECTVEC)
+   ! Set default values
+   end
+
+   set_saved_self 
+   ! Set saved_self
+      self :: PTR
+      saved_self => self
+   end
+
+! ***********************
+! List-based I/O Routines
+! ***********************
+
+   read_list_keywords ::: get_from(OBJECTVEC), leaky
+   ! Read in and process list-based keywords from "stdin". List-based keywords
+   ! are those that are intended to apply to each individual element of the list
+   ! through a list of "keys" stored in the associated list-element type module.
+   ! NOTE: this routine will create the list, if required.
+     self :: PTR
+   end
+
+   process_list_keyword(keyword) ::: get_from(OBJECTVEC), leaky
+   ! Process a list-type "keyword", common to all list-type objects.
+     self :: PTR
+     keyword :: STR(*), IN
+   end
+
+   read_data(ignore_braces) ::: get_from(OBJECTVEC), leaky
+   ! Process the keywords list to read data or commands. If "ignore_braces" is
+   ! present then the opening and closing braces, which are normally required,
+   ! are ignored.
+     self :: PTR
+     ignore_braces :: BIN, optional
+   end
+
+   data_length result (length) ::: get_from(OBJECTVEC)
+   ! Read ahead in stdin to get the "length" of the data list, i.e. the number
+   ! of data items in the list. The data must begin with the first data item,
+   ! *not* a "{" symbol.  The order of data items comprising the list is given
+   ! by keys defined in the associated list-element type module. The data list
+   ! must be terminated by a "}" symbol.
+     self :: PTR
+     length :: INT
+   end
+
+   read_altered_data ::: get_from(OBJECTVEC), leaky
+   ! Read in a sublist of the complete list, and alter the data for that
+   ! sublist.  The order of the data items in the sublist is given by the "keys"
+   ! defined in the associated list-element type module.
+     self :: PTR
+   end
+
+   read_append_data ::: get_from(OBJECTVEC), leaky
+   ! Read in a set of data to append to an existing set.
+     self :: PTR
+   end
+
+   process_keys ::: get_from(OBJECTVEC), leaky
+   ! Process the "keys" on each element of the list.
+     self :: PTR
+   end
+
+   keys_created result (res) ::: get_from(OBJECTVEC)
+   ! Return TRUE if the list-element keys are created.
+      self :: PTR
+      res :: BIN
+   end
+
+   set_keys(the_keys) ::: get_from(OBJECTVEC)
+   ! This is for setting the "keys" externally.
+     self :: PTR
+     the_keys :: STRVEC(len=*,:)
+   end
+
+   clear_keys ::: get_from(OBJECTVEC)
+   ! This is for destroying the "keys" externally.
+     self :: PTR
+   end
+
+   read_keys ::: get_from(OBJECTVEC)
+   ! Read a new set of keys
+      self :: PTR
+   end
+
+   put_keys_table ::: get_from(OBJECTVEC)
+   ! Output a generic table based on the "keys"
+     self :: PTR
+   end
+
+   put_table_header ::: get_from(OBJECTVEC)
+   ! Put out a table header based on "keys"
+      self :: PTR
+   end
+
+   put_table_footer ::: get_from(OBJECTVEC)
+   ! Put out a table footer based on "keys"
+      self :: PTR
+   end
+
+   redirect ::: get_from(OBJECT), leaky
+   ! Redirect input
+     self :: PTR
+   end
+
+   revert ::: get_from(OBJECT), leaky
+   ! Revert back to previous stdin file
+     self :: PTR
+   end
+
+! ***************************
+! Non-list based I/O routines
+! ***************************
+
+   read_keywords
+   ! Read in and process normal (non list-type) keywords from "stdin".
+     self :: PTR
+     word :: STR
+     ENSURE(stdin.next_item=="{","expecting open bracket symbol, {")
+     stdin.read(word)
+     do                 ! Loop over input keywords
+       stdin.read(word)
+       word.to_lower_case
+       if (word=="}")      exit
+       if (stdin.reverted) exit
+       .process_keyword(word)
+     end
+   end
+
+   process_keyword(keyword)
+   ! Process a normal (non list-type) "keyword".
+     self :: PTR
+     keyword :: STR
+     word :: STR
+     word = keyword
+     word.to_lower_case
+     select case (word)
+       case("}") ! do nothing.
+       case("put               "); .put
+       case("redirect          "); .redirect
+       case("revert            "); .revert
+       case default;               UNKNOWN(word)
+     end
+   end
+
+!*******************************************************************************
+
+   shrink(dim) ::: get_from(OBJECTVEC), leaky
+   ! Shrink self to dimension dim.  Contents are retained.
+     self :: PTR
+     dim :: INT, IN
+   end
+
+   expand(dim) ::: get_from(OBJECTVEC),leaky
+   ! Expand the vector "self" to "dim". New slots are left undefined.
+     self :: PTR
+     dim :: INT, IN
+   end
+
+   append(v) ::: get_from(OBJECTVEC), leaky
+   ! Expands self and appends the contents of vector "v".
+     self :: PTR
+     v :: SELF_TYPE, IN
+   end
+
+   append(value) ::: get_from(OBJECTVEC), leaky
+   ! Expands self by 1, and appends the single scalar "value" onto the end.
+     self :: PTR
+     value :: ELEMENT_TYPE, IN
+   end
+
+   put ::: get_from(OBJECTVEC)
+   ! Output the list information
+   end
+
+   put_table ::: get_from(OBJECTVEC)
+   ! Output table information
+   end
+
+   n_orbitals result (res)
+   ! Return the number of orbitals
+      res :: INT
+      res = .dim
+   end
+
+   maximum_orbital_n_value result (res)
+   ! Returns the maximum orbital n value
+     self :: IN
+     res :: INT
+     i :: INT
+     res = 0
+     do i = 1,.dim
+        res = max(maxval(self(i).n),res)
+     end
+   end
+
+   same_as(vec) result(same)
+   ! Return TRUE if the orbital vector "self" is the same as "vec".
+      vec :: SELF_TYPE
+      same :: BIN
+      i :: INT
+      if (.dim /= vec.dim) then
+         same = FALSE
+         return
+      else
+         same = TRUE
+         do i = 1,.dim
+            same = same AND self(i).same_as(vec(i))
+            if (NOT same) exit
+         end
+      end
+   end
+
+   density_value_at_radius(R) result (res) ::: selfless, public
+   ! Return the total coppens density values at the radial value "R".
+     R,res :: REAL
+     n :: INT
+     self :: SELF_TYPE*
+     self => saved_self
+     res = ZERO ! Work out radial density here
+     do n = 1,.dim
+        res = res + self(n).density_at_radius(R)
+     end
+   end
+
+   density_at_radius(R) result (res)
+   ! Return the total coppens density values at the radial value "R".
+     R,res :: REAL
+     n :: INT
+     res = ZERO ! Work out radial density here
+     do n = 1,.dim
+        res = res + self(n).density_at_radius(R)
+     end
+   end
+
+   densities_at_radii(R) result (res)
+   ! Make the total coppens density values at the radial values "R".
+     R :: REALVEC
+     res :: REALVEC(R.dim)
+     n :: INT
+     res = ZERO ! Work out radial density here
+     do n = 1,.dim
+        res = res + self(n).densities_at_radii(R)
+     end
+   end
+
+   unnormalise
+   ! Set the value of the orbital coefficients to correspond to un-normalised
+   ! Slater functions -- assuming they are normalised. This saves computation.
+      i :: INT
+      do i = 1,.dim
+         self(i).unnormalise
+      end
+   end
+
+   renormalise
+   ! Set the value of the orbitals coefficients to correspond to normalised
+   ! Slater functions --- assuming they are w.r.t. unnormalised functions. 
+      i :: INT
+      do i = 1,.dim
+         self(i).renormalise
+      end
+   end
+
+end

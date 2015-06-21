@@ -1,0 +1,1170 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>Which Fortran compiler options to use?</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Compiling customised versions of TONTO"
+HREF="customised-compilation.html"><LINK
+REL="PREVIOUS"
+TITLE="Compiling customised versions of TONTO"
+HREF="customised-compilation.html"><LINK
+REL="NEXT"
+TITLE="Which C-preprocessor options to use?"
+HREF="c-preprocessor.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="customised-compilation.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="c-preprocessor.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="COMPILER-OPTIONS"
+></A
+>Which Fortran compiler options to use?</H1
+><P
+ALIGN="justify"
+>To get TONTO to work on any platform, or to understand how to change it
+to produce certain version for debugging or profiling, you need to decide what
+compile options to use on the Fortran compiler that you have. In general these
+changes are compiler specific, but there are usually compler options which
+correspond to each other across platforms.</P
+><P
+ALIGN="justify"
+>In all cases, you should alter the <TT
+CLASS="LITERAL"
+>Makefile</TT
+> variables
+<TT
+CLASS="LITERAL"
+>FC</TT
+>, <TT
+CLASS="LITERAL"
+>FOPTNS</TT
+>, <TT
+CLASS="LITERAL"
+>FFLAGS</TT
+>,
+<TT
+CLASS="LITERAL"
+>FPROF</TT
+>, <TT
+CLASS="LITERAL"
+>FDEBUG</TT
+>, <TT
+CLASS="LITERAL"
+>FFAST</TT
+>,
+<TT
+CLASS="LITERAL"
+>FSUFFIX</TT
+>, <TT
+CLASS="LITERAL"
+>PROGSUFFIX</TT
+>,
+<TT
+CLASS="LITERAL"
+>MODSUFFIX</TT
+>, <TT
+CLASS="LITERAL"
+>OBJSUFFIX</TT
+>,
+<TT
+CLASS="LITERAL"
+>LIBS</TT
+>, and <TT
+CLASS="LITERAL"
+>DEFS</TT
+>.  For example, here are the
+values for the <TT
+CLASS="LITERAL"
+>COMPAQ</TT
+> <B
+CLASS="COMMAND"
+>f95</B
+> compiler on the
+<TT
+CLASS="LITERAL"
+>OSF1</TT
+> operating system. These options can be found in the
+<TT
+CLASS="LITERAL"
+>COMPAQ-f95-on-OSF1</TT
+> file in the <TT
+CLASS="LITERAL"
+>site_config</TT
+>
+directory.</P
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>FC       = f95
+FOPTNS   = $(FFAST)
+FFLAGS  := -cpp -module ./new_modules  \
+           -I. -I./f90files -I./interfaces -I./modules -I./objects
+FPROF   := -p -g3 -gen_feedback
+FDEBUG  := -g -ladebug -check bounds -check format -check overflow \
+           -warn argument_checking -warn declarations -warn unused \
+           -warn truncated_source -error_limit 10 -std
+FFAST   := -g0 -O4 -arch host -align dcommons -assume noaccuracy_sensitive \
+           -pipeline -unroll 8 -threads -speculate by_routine -transform_loops
+FSUFFIX := f90
+ 
+LIBS    := -lcxml
+DEFS    := -DCOMPAQ -DUSE_ERROR_MANAGEMENT</PRE
+></TD
+></TR
+></TABLE
+><P
+ALIGN="justify"
+>The meaning of each of these variables is now discussed.</P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FC"
+></A
+>The <TT
+CLASS="LITERAL"
+>FC</TT
+> variable</H2
+><P
+ALIGN="justify"
+>The variable <TT
+CLASS="LITERAL"
+>FC</TT
+> is set to the command for the Fortran95
+compiler on your machine,
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>FC       = f95</PRE
+></TD
+></TR
+></TABLE
+>
+It consists of the <TT
+CLASS="LITERAL"
+>FC</TT
+> variable, followed by the assignment
+operator <TT
+CLASS="LITERAL"
+>=</TT
+>, and then command <TT
+CLASS="LITERAL"
+>f95</TT
+>, which is
+the name of the Fortran95 compiler to use.  If you don't know what this command
+is, try typing
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>man -k fortran</PRE
+></TD
+></TR
+></TABLE
+></P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FOPTNS"
+></A
+>The <TT
+CLASS="LITERAL"
+>FOPTNS</TT
+> variable</H2
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>FOPTNS</TT
+> variable is not set to have any specific
+compiler optionsr; instead, it is is set to be equal to one of three other
+variables, as shown by the three possibile the lines below:
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>FOPTNS   = $(FFAST)
+FOPTNS   = $(FDEBUG)
+FOPTNS   = $(FFAST) $(FPROF)</PRE
+></TD
+></TR
+></TABLE
+>
+Which one you choose depends on the type of executable that you want to
+generate.  If set to <TT
+CLASS="LITERAL"
+>$(FFAST)</TT
+> then the options used will be
+those for producing the optimal executable for TONTO. If set to
+<TT
+CLASS="LITERAL"
+>$(FDEBUG)</TT
+> the options used will be those appropriate for
+using TONTO in a debugger, and will usually involve no optimisation at all. If
+set to <TT
+CLASS="LITERAL"
+>$(FFAST) $(FPROF)</TT
+> then the executable generated will
+be appropriate for profiling using a profiling tools, to see where the
+bottlenecks in exdecutaion speed will occur.</P
+><P
+ALIGN="justify"
+>The complie options to set for the variables <TT
+CLASS="LITERAL"
+>FFAST</TT
+>,
+<TT
+CLASS="LITERAL"
+>FDEBUG</TT
+> and <TT
+CLASS="LITERAL"
+>FPROF</TT
+> are described
+below.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FFLAGS"
+></A
+>The <TT
+CLASS="LITERAL"
+>FFLAGS</TT
+> variable</H2
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>FFLAGS</TT
+> variable must be set to the basic option
+flags that are needed to compile TONTO which are common to all
+compilations.For example,
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>FFLAGS  := -cpp -module ./new_modules  \
+           -I. -I./f90files -I./interfaces -I./modules -I./objects</PRE
+></TD
+></TR
+></TABLE
+>
+This line consists of the <TT
+CLASS="LITERAL"
+>FFLAGS</TT
+> variable, followed by an
+assignment operator, <TT
+CLASS="LITERAL"
+>:=</TT
+>, followed by the list of standard
+options which the compiler is to use.  The <TT
+CLASS="LITERAL"
+>\</TT
+> character at the
+end of the first two lines means that the line following the
+<TT
+CLASS="LITERAL"
+>\</TT
+> character should be joined onto the first, as if the
+<TT
+CLASS="LITERAL"
+>\</TT
+> character was not there, as if there were only one line in
+all. It is useful for splitting up long lines.</P
+><P
+ALIGN="justify"
+>To get TONTO to compile and work, Fortran compiler options must be found
+for the tasks described below, and they must replace or substitute for all the
+options to the right of the <TT
+CLASS="LITERAL"
+>FFLAGS</TT
+> variable assignment in the
+example above.
+<P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>All the module files from the compilation (they will usually be
+files which end in a <TT
+CLASS="LITERAL"
+>.mod</TT
+> suffix) must be deposited in the
+module subdirectory, <TT
+CLASS="LITERAL"
+>./module</TT
+>. In the above example, this
+is achieved by the compiler flags:
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="90%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>   -module ./module</PRE
+></TD
+></TR
+></TABLE
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The compiler must know where Fortran95 files, module information
+files, and object files reside during intermediate stages of compilation.  In
+the example above, this is given by (respectively) the options
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="90%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>   -I./f90files -I./modules -I./objects</PRE
+></TD
+></TR
+></TABLE
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The Fortran code must be preprocessed using the C preprocessor
+before being compiled by the Fortran compiler. In the example above this was
+achieved by the compiler option
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="90%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>   -cpp</PRE
+></TD
+></TR
+></TABLE
+>
+Furthermore, the C preprocessor must be given the names of certain
+directories that it needs, in order to include the appropriate files.
+In the example above this is achieved by the following compiler options,
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="90%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>   -I. -I./interfaces</PRE
+></TD
+></TR
+></TABLE
+></P
+></LI
+></UL
+></P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FFAST"
+></A
+>The <TT
+CLASS="LITERAL"
+>FFAST</TT
+> variable</H2
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>FFAST</TT
+> variable must be set to the options flags
+that are needed to compile TONTO with as high a degree of optimisation as is
+reasonably possible. For example,
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>FFAST   := -g0 -O4 -arch host -align dcommons -assume noaccuracy_sensitive \
+           -pipeline -unroll 8 -threads -speculate by_routine -transform_loops</PRE
+></TD
+></TR
+></TABLE
+>
+In this case, the <TT
+CLASS="LITERAL"
+>-g0</TT
+> option indicates that no debugging
+information is to be used.  The <TT
+CLASS="LITERAL"
+>-O4</TT
+> indicates that
+optimisation level 4 is to be used, which is the highest appropriate for
+intra-module optimisation on the COMPAQ compiler. SImilar options will be
+available on other compilers.</P
+><P
+ALIGN="justify"
+>Other options which may not appear on other compilers are:
+<P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>-arch host</TT
+>  option, which produces code
+optimal for the particular COMPAQ chip the compiler is working on.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>-align dcommons</TT
+> option, which places
+variables on appropriate bit boundaries to allow faster memory
+access</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>-assume noaccuracy_sensitive</TT
+> which allows
+mathematically equivalent transformations of the code to speed
+execuation.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>-pipeline</TT
+> option which allows a form of
+software pipelining to speed execution</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>-unroll 8</TT
+> option which separates loops
+into blocks of 8, to allow effeicient use of cache memory</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>-threads</TT
+> which allows some form of
+parallelisation</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>-speculate by_routine</TT
+> which allows the
+compiler to inline certain routines which it feels may enhance
+optimisation</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>-transform_loops</TT
+> options which rearranges
+loop orders if it will lead to better memory access and hence better
+performance.</P
+></LI
+></UL
+></P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FDEBUG"
+></A
+>The <TT
+CLASS="LITERAL"
+>FDEBUG</TT
+> variable</H2
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>FDEBUG</TT
+> variable must be set to the options flags
+that are needed to compile TONTO so that it works with a debugger and so that
+appropriate warnings are issued for unusual or non-conformant code. This is
+recommended for developers.
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>FDEBUG  := -g -ladebug -check bounds -check format -check overflow \
+           -warn argument_checking -warn declarations -warn unused \
+           -warn truncated_source -error_limit 10 -std</PRE
+></TD
+></TR
+></TABLE
+>
+In this case, the <TT
+CLASS="LITERAL"
+>-g</TT
+> option indicates that full debugging
+information is to be used.  Sometimes, the <TT
+CLASS="LITERAL"
+>-O0</TT
+> option may
+also need to be specified to indicate that there is to be no optimisation used.
+(In this case, it is assumed as the default). </P
+><P
+ALIGN="justify"
+>The options which may be compiler specific are:
+<P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>-ladebug</TT
+> option, which indicates that
+specific debugging information needed for the COMPAQ <TT
+CLASS="LITERAL"
+>ladebug</TT
+>
+debugger is to be generated.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>-check bounds</TT
+> argument, which checks if
+array bounds have been exceeded.  This may severely affect performance, but it
+is recommended fir developers</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>-check format</TT
+> option which checks for
+formatting errors</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>-check overflow</TT
+> option, which prints
+information on the type of incorrect operation that was attampted (e.g.
+divide-by-zero, or exponentiation of too large or too small an
+exponent)</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>-warn argument_checking</TT
+> which informs if
+incorrect types are passed to certain subroutines. This should only be necessary
+for non TONTO code since argument checking is gauranteed by the Fortran 90
+standard.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>-warn declarations</TT
+> and <TT
+CLASS="LITERAL"
+>-warn
+unused </TT
+> which warns if there are incorrect declarations or any usused
+variables</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>-warn truncated_source</TT
+> which warns if
+there are any lines which have been truncated with remaining characters. This is
+very useful for TONTO because sometimes the preprocessor can generate lines
+which are excessively long.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>-error_limit 10</TT
+> option which limits the
+number of errors to a manageable number, 10.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>-std</TT
+> options which forces the compiler to
+accept only standard Fortran95 syntax</P
+></LI
+></UL
+></P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FPROF"
+></A
+>The <TT
+CLASS="LITERAL"
+>FPROF</TT
+> variable</H2
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>FPROF</TT
+> variable is set to the compiler options
+needed to perform profiling tests on TONTO programs. That is, tests which
+examine the speed of execution of various routines in TONTO.  Profiling tests
+are often done in conjunction with the highest levels of optimisation (it
+doesn't make sense to check the speed of an unoptimised program).</P
+><P
+ALIGN="justify"
+>For the COMPAQ compiler, the following options are required
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>FPROF   := -p -g3 -gen_feedback</PRE
+></TD
+></TR
+></TABLE
+>
+The <TT
+CLASS="LITERAL"
+>-p</TT
+> indicates profiling options should be turned on. The
+<TT
+CLASS="LITERAL"
+>-g3</TT
+> indicates a high level of debugging information is to be
+included with the executable.  The <TT
+CLASS="LITERAL"
+>-gen_feedback</TT
+> indicates
+that a statistics file is to be generated at the time of execuation, which can
+be later analysed by a profiling tool.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FSUFFIX"
+></A
+>The <TT
+CLASS="LITERAL"
+>FSUFFIX</TT
+> variable</H2
+><P
+ALIGN="justify"
+>This is set to the suffix used to indicate a Fortran90 or Fortran95
+program to your compiler. Typically, it will be
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>FSUFFIX := f90</PRE
+></TD
+></TR
+></TABLE
+>
+Although other common possibilities are <TT
+CLASS="LITERAL"
+>.F90</TT
+>,
+<TT
+CLASS="LITERAL"
+>.f95</TT
+> or <TT
+CLASS="LITERAL"
+>.F95</TT
+>.  The default is
+<TT
+CLASS="LITERAL"
+>.F90</TT
+>.  Note that unix is case-sensitive for filenames.</P
+><P
+ALIGN="justify"
+>It is important to note that on some systems, the type of suffix
+determines whether the C-preprocessor is executed.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PROGSUFFIX"
+></A
+>The <TT
+CLASS="LITERAL"
+>PROGSUFFIX</TT
+> variable</H2
+><P
+ALIGN="justify"
+>This is set to the suffix used to indicate an executable program to your
+compiler.  The default is
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>PROGSUFFIX := exe</PRE
+></TD
+></TR
+></TABLE
+>
+if none is specified.  Note that unix is case-sensitive for filenames.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="MODSUFFIX"
+></A
+>The <TT
+CLASS="LITERAL"
+>MODSUFFIX</TT
+> variable</H2
+><P
+ALIGN="justify"
+>This is set to the suffix used for module information files by your
+compiler.  It is by the makefile while building the program.  The default is
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>MODSUFFIX := mod</PRE
+></TD
+></TR
+></TABLE
+>
+if none is specified.  Other possibilities include <TT
+CLASS="LITERAL"
+>.d</TT
+> and
+<TT
+CLASS="LITERAL"
+>.vo</TT
+>.  Note that unix is case-sensitive for filenames.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="OBJSUFFIX"
+></A
+>The <TT
+CLASS="LITERAL"
+>OBJSUFFIX</TT
+> variable</H2
+><P
+ALIGN="justify"
+>This is set to the suffix used for object files used by your compiler.
+The default is
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>OBJSUFFIX := o</PRE
+></TD
+></TR
+></TABLE
+>
+if none is specified.  A common possibility on the Windows platform is
+<TT
+CLASS="LITERAL"
+>.obj</TT
+>.  Note that unix is case-sensitive for filenames.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="LIBS"
+></A
+>The <TT
+CLASS="LITERAL"
+>LIBS</TT
+> variable</H2
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>LIBS</TT
+> variable is set so that the compiler can use
+the BLAS and LAPACK libraries.  On the COMPAQ system these are bundled together
+in the <TT
+CLASS="LITERAL"
+>libcxml</TT
+> library, which is included by the line
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>LIBS  := -lcxml</PRE
+></TD
+></TR
+></TABLE
+>
+Other common possibilities may be
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>LIBS  := -llapack -lblas</PRE
+></TD
+></TR
+></TABLE
+>
+or
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>LIBS  := -L /usr/lib/gcc-lib/i386-redhat-linux/2.96 -lg2c -llapack -lblas</PRE
+></TD
+></TR
+></TABLE
+>
+The above lines are what you would use if you compile and install the freely
+available BLAS and LAPACK libraries with your own compiler. The procedure for
+doing this is described in a separate section.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="MODCASE"
+></A
+>The <TT
+CLASS="LITERAL"
+>MODCASE</TT
+> variable</H2
+><P
+ALIGN="justify"
+>This is to tell the Makefile whether the module names get converted to
+uppercase or lowercase when outputting module information files.
+The default is
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>MODCASE := -lc</PRE
+></TD
+></TR
+></TABLE
+>
+if none is specified.  The other alternative is <TT
+CLASS="LITERAL"
+>-uc</TT
+> to
+specify conversion to uppercase.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="DEFS"
+></A
+>The <TT
+CLASS="LITERAL"
+>DEFS</TT
+> variable</H2
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>DEFS</TT
+> variable is set to enable any machine specific
+commands in the fortran code, via the C-preprocessor. On the COMPAQ machine, we
+have
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>DEFS    := -DCOMPAQ -DUSE_ERROR_MANAGEMENT</PRE
+></TD
+></TR
+></TABLE
+>
+Here, the <TT
+CLASS="LITERAL"
+>-DCOMPAQ</TT
+> indicates that any C-processor directives
+which apply to the <TT
+CLASS="LITERAL"
+>COMPAQ</TT
+> switch are to be activated. The
+<TT
+CLASS="LITERAL"
+>-DUSE_ERROR_MANAGEMENT</TT
+> instructs the C-preprocessor to use
+code appropriate for generating an error-managed executable.  You can also
+generate version which check for memory leaks, and test preconditions are
+postconditions to a routine. These possibilities are discussed in
+<A
+HREF="customised-compilation.html"
+>the chapter called <I
+>Compiling customised versions of TONTO</I
+></A
+>&#62;.</P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="customised-compilation.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="c-preprocessor.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Compiling customised versions of TONTO</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="customised-compilation.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Which C-preprocessor options to use?</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,249 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>Compiling customised versions of TONTO</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Communication and data storage in TONTO"
+HREF="communication.html"><LINK
+REL="NEXT"
+TITLE="Which Fortran compiler options to use?"
+HREF="compiler-options.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="CHAPTER"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="communication.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="compiler-options.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="CUSTOMISED-COMPILATION"
+></A
+>Compiling customised versions of TONTO</H1
+><P
+ALIGN="justify"
+>There are two distinct ways to customise TONTO: by altering compiler
+flags, or by altering C-preprocessor macros.</P
+><P
+ALIGN="justify"
+>If you are a programmer, or of you need to port TONTO to another
+platform, you should read this chapter.</P
+><P
+ALIGN="justify"
+>If you are a user, it still might be convenient to have several versions
+of a TONTO program.  For example, you might might want one version which is
+highly optimised, to be used for production calculations; and you might want
+another version compiled with no optimisation and full memory management and
+error checking turned on, to be used for code development or testing input
+decks.</P
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="CUSTOMISING"
+></A
+>What can be customised, and what is the default?</H1
+><P
+ALIGN="justify"
+>By altering compile options, you can make versions with
+<P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>high optimisation (this is the default)</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>high optimisation and profiling</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>no optimisation and debugging switches</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>different mathematical libraries</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>different compilers on the same platform</P
+></LI
+></UL
+></P
+><P
+ALIGN="justify"
+>By altering certain C-preprocessor macros you can make versions of TONTO
+which will
+<P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Issue error messages labelled with their calling routine when
+anticipated problems are detected (turned on by default)</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Issue error messages labelled with their calling routine when
+certain preconditions for executing a routine are not satisfied (turned off by
+default).</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Issue a full routine call-stack traceback when an error
+condition is detected; and at the same time issue error messages when routines
+contain unintentional memory leaks (turned off by default)</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Generate a version of TONTO which reverts to Fortran90
+language definitions (turned off when the compiler is Fortran95
+compliant)</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Generate a version of TONTO which does not use derived type
+initialisation (turned off when the compiler is Fortran95
+compliant)</P
+></LI
+></UL
+></P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="communication.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="compiler-options.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Communication and data storage in TONTO</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Which Fortran compiler options to use?</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

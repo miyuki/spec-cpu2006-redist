@@ -1,0 +1,14 @@
+# /*@@
+#   @file      make.post
+#   @date      Mon Jan 18 19:17:14 1999
+#   @author    Tom Goodale
+#   @desc 
+#   Post wrapper after including a make.code.defn file in a
+#   subdirectory.  
+#   @enddesc 
+# @@*/
+
+# This is a simply expanded variable (i.e. :=, rather than =)
+# and is used to track all source files
+
+CCTK_SRCS += $(subst /./,/,$(addprefix $(CCTK_THIS_SUBDIR)/, $(SRCS)))

@@ -1,0 +1,405 @@
+% /*@@
+%   @file      Makesystem.tex
+%   @date      Wed Jan 12 14:38:29 2000
+%   @author    Tom Goodale
+%   @desc 
+%   
+%   @enddesc 
+%   @version $Header: /cactus/Cactus/doc/MaintGuide/Makesystem.tex,v 1.2 2001/05/11 10:40:34 goodale Exp $
+% @@*/
+
+\begin{cactuspart}{3}{The Make System}{$RCSfile: Makesystem.tex,v $}{$Revision: 1.2 $}
+\renewcommand{\thepage}{\Alph{part}\arabic{page}}
+
+\chapter{Introduction}
+
+The make system has several design criteria:
+
+\begin{itemize}
+\item[]
+Must be able to build the code on all supported platforms
+\item[]
+Must allow object files and executables for different architectures to 
+co-exist without conflicts.
+\item[]
+Must allow object files and exectutables for different compiler options to
+co-exist without conflict.
+\item[]
+Must allow object files and executables for different thornsets to 
+co-exist without conflicts.
+\item[]
+Thorn-writers must be able to easily add and remove files from their
+thorns without having to edit files provided by the flesh or other thorns.
+\item[]
+Thorn-writers must be able to control the compilation options and 
+dependencies of their own thorns.
+\end{itemize}
+
+The first criterion is achieved by standarising to the use the the freely
+available GNU make programme, which is available on all platforms, and
+the use of {\em Autoconf} to detect the specific features of the particular
+machine the user is compiling on.
+
+The next three criteria are achieved by the introduction of {\em configurations}
+which contain all the information and object files associated with a 
+particular combination of machine, compilation options and thorns.
+
+The final criteria are achieved by allowing the thorn-writer to specify their
+files and options in configuration files readable by the GNU make program,
+or by specifying their own make file.
+
+\section{Note on philosophy of the make system}
+
+Make options can be divided into two classes.
+
+\begin{itemize}
+\item[Configuration-time options]
+Things which have an effect on the resulting executable. 
+E.g. optimisation or debugging options.
+\item[Make-time options]
+Things which don't effect the final executable.
+E.g. warning-flags, flags to make in parallel.
+\end{itemize}
+
+Whenever an option is added to the make system care should be taken
+to preserve this distinction.  It should be possible to go to the
+{\em config-data} directory of a configuration and examine the files
+there to determine how an executable was built.  It should not be
+necessary to know the command-line used to build it.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Make files}
+\label{ch:makefiles}
+
+\section{Makefile}
+\label{sec:makefiles:Makefile}
+
+This is the master makefile.  
+
+In normal operation it calls {\em make.configuration} with the
+-j TJOBS flag to build TJOBS thorns in parallel.
+
+\section{lib/make/make.configuration}
+\label{sec:makefiles:configuration}
+
+This is the makefile which actually builds a configuration.
+
+All built objects for a configuration go into a subdirectory called
+{\em build} of the configuration.
+
+For each each thorn listed in the {\em make.thornlist} file generated
+by the {\em CST} it runs {\em make.thornlib} or a file called {\em makefile} 
+in the thorn's own source directory to generate a library for
+that thorn.  Before running the sub-makefile it changes directory to a subdirectory
+of the {\em build} directory with the same name as the thorn and sets
+
+\begin{itemize}
+\item[TOP]
+The CCTK top-level directory.
+\item[SRCDIR]
+The thorn's source directory.
+\item[CONFIG]
+The {\em config} subdirectory of the configuration. 
+\item[NAME]
+The name of the library which should be created for the thorn
+(including directory info).
+\item[THORN]
+The name of the thorn.
+\end{itemize}
+
+The sub-makefile is passed the -j FJOBS flag to build FJOBS files in parallel.
+
+If {\em make.thornlist} doesn't exist, it runs the {\em CST} to generate it from
+the {\em ThornList} file.
+
+If {\em ThornList} doesn't exist, it generates a list of thorns in the 
+{\em arrangements} and then gives the user the option to edit the
+list.
+
+\section{lib/make/make.thornlib}
+\label{sec:makefiles:thornlib}
+
+This makefile is responsible for producing a library from the contents of a
+thorn's source directory.
+
+In each source directory of a thorn the author may put two files.
+
+\begin{itemize}
+\item[make.code.defn]
+This should contain a line
+\begin{verbatim}
+SRCS = 
+\end{verbatim}
+which lists the names of source files {\em in that directory}.
+\item[make.code.deps]
+This is an optional file which gives standard make dependency rules
+for the files in that directory.
+\end{itemize}
+
+In addition the thorn's top-level {\em make.code.defn} file can
+contain a line
+\begin{verbatim}
+SUBDIRS = 
+\end{verbatim}
+
+which lists {\em all} subdirectories of the thorn's {\em src} directory which
+contain files to be compiled.
+
+To process the subdirectories the makefile runs the sub-makefile {\em make.subdir}
+in each subdirectory. 
+
+Once that is done it compiles files in the {\em src} directory and then all
+the object files into a library which is named by the {\em NAME} make-variable.
+
+All object files are compiled by the rules given in {\em make.config.rules}.
+
+Since the make language doesn't contain looping constructions it is a bit tricky
+to construct the full list of object files.  To do this the makefile uses
+the GNU make {\em foreach} function to include all the subdirectory 
+{\em make.code.defn} files, along with two auxiliary files {\em make.pre} and
+{\em make.post} which are included respectively before and after each 
+{\em make.code.defn} file.  These auxiliary files allow the {\em SRCS} variables set in
+the {\em make.code.defn} files to be concatanated onto one make variable 
+{\em CCTK\_SRCS}.
+
+Extensive use is made of the two different flavours of variable (simply-expanded and 
+recursively-expanded) available within GNU make.
+
+The GNU `-include' construct is used to suppress warnings when an optional file is
+not available.
+
+\section{lib/make/make.subdir}
+\label{sec:makefiles:subdir}
+
+This builds all the object files for a specific subdirectory according
+to the list of files provided by the {\em make.code.defn} file
+in that subdirectory.  Extra dependencies can be provided for these 
+files by the presence of the optional file {\em make.code.deps} in the
+directory.
+
+\section{lib/make/make.pre and lib/make/make.post}
+\label{sec:makefiles:prepost}
+
+These are auxiliary files used to construct the full list of source
+files for a particular thorn.
+
+{\em make.pre} resets the {\em SRCS} variable to an empty value.  
+{\em make.post} adds the name of the subdirectory onto all filenames
+in the {\em SRCS} variable and adds the resulting list to the 
+{\em CCTK\_SRCS} make variable.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Autoconf stuff}
+\label{ch:autoconf}
+
+GNU autoconf is a program designed to detec the features available
+on a particular platform.  It can be used to determine the 
+compilers available on a platform, what the CPU and operating 
+system are, whate flags the compilers take, and as many other things
+as m4 macros can be written to cover.
+
+Autoconf is configured by a file {\em configure.in} which autoconf
+turns into a file called {\em configure} (which should never be
+editted by hand).  The cactus configuration includes the resulting
+{\em configure} file and this should not need to be regenerated by
+other than flesh-maintainers.
+
+When the {\em configure} script is run it takes the files
+{\em config.h.in}, {\em make.config.defn.in}, {\em make.config.rules.in},
+and {\em make.config.deps.in} and generates new files in the 
+configuration's {\em config-data} subdirectory with the same names with the
+{\em .in} stripped off.  The configure script replaces certain parts of these
+files with the values it has detected for this architecture.
+
+In addition {\em configure} runs the {\em configure.pl} perl script to
+do things which can only be done easily by perl.
+
+\section{configure.in}
+\label{sec:autoconf:configure}
+
+This and the macro-definition file {\em aclocal.m4} are the 
+sources for the {\em configure} script.  Autoconf should be
+run in this directory if either of these files is editted.
+
+Once the script has determined the host architecture, it checks
+the {\em known-architecture} directory for any preferred 
+compilers.  By default autoconf macros will choose GNU CC if
+it is available, however for some architectures this may not be
+desirable.
+
+It then proceeds to determine the available compilers and auxiliary
+programs if they haven't alrady been specified in an environment variable
+or in the {\em known-architecture} file for this architecture.
+
+Once the set of programs to be used has been detected or chosen, the
+known-architecture files are again checked for specific features
+which would otherwise require the writing of complicated macros to detect.
+(Remember that the goal is that people don't need to write autoconf macros
+or run autuconf themselves.)
+
+Once that is done it looks at each subdirectory of the {\em extras}
+directory for packages which have their own configuration process.  If a
+subdirectory has an exectubale file called {\em setup.sh} this is called.
+
+The rest of the script is concerned with detecting various header files,
+sizes of various types, and of setting defaults for things which haven't
+been set by the {\em known-architecture} file.
+
+\section{config.h.in}
+\label{sec:autoconf:h}
+
+This file is turned into {\em config.h} in the {\em config-data}
+directory in the configuration.
+
+It contains C preprocessor macros which define various features or
+configuration options.
+
+\section{make.config.defn.in}
+\label{sec:autoconf:defn}
+
+This file is turned into {\em make.config.defn} in the {\em config-data}
+directory in the configuration.
+
+It contains make macros needed to define or build the particular 
+configuration.
+
+\section{make.config.rules.in}
+\label{sec:autoconf:rules}
+
+This file is turned into {\em make.config.rules} in the {\em config-data}
+directory in the configuration.
+
+It contains the rules needed to create an object file from a source file.
+Note that currently this isn't modified by the configuration process, as
+everything is controlled from variables in the {\em make.config.defn} file.
+However this situation may change in the future if really necessary.
+
+\section{make.config.deps.in}
+\label{sec:autoconf:deps}
+
+This file is turned into {\em make.config.deps} in the {\em config-data}
+directory in the configuration.
+
+Currently this file is empty;  it may gain conent later if we need to
+use autoconf to generate dependency stuff.
+
+\section{aclocal.m4}
+\label{sec:autoconf:aclocal}
+
+This contains m4 macros not distributed with autconf.
+
+\section{CCTK\_functions.sh}
+\label{sec:autoconf:functions}
+
+This contains Bourne-shell functions which can be used by 
+the configure script, or by stuff in the {\em extras} or 
+{\em known-architrectures} subdirectories.
+
+\subsection{CCTK\_Search}
+
+This can be used to search a set of directories for a specific file
+or files and then set a variable as a result.
+
+Usage: CCTK\_Search <variable> <subdirectories to search> <what to search for> [base directory]
+
+It will search each of the listed subdirectory of the base directory for the desired
+file or directory, and, if it's found, set the varibale to the name of the subdirectory.
+
+\subsection{CCTK\_CreateFile}
+
+Creates a file with specific contents.
+
+Usage: CCTK\_CreateFile <filename> <content> 
+
+Note that this can only put one line in the file to begin with.  Additional
+lines can be added ith {\em CCTK\_WriteLine}.
+
+\subsection{CCTK\_WriteLine}
+
+Write one line to a file.
+
+Usage: CCTK\_WriteLine <file> <line> 
+
+\section{known-architectures}
+\label{sec:autoconf:knownarch}
+
+This contains files which tell autoconf about specific not-easily-detectable
+features about particular architectures.  Each file in this directory is
+named with the name held by the host\_os autoconf variable.
+
+Each file is called twice by the configure script.  Once to determine
+the `preferred-compilers' for that architecture, and once for
+everything else.
+
+The first time is straight after the operating system is 
+determined, and the variable {\em CCTK\_CONFIG\_STAGE} is set to
+`preferred-compilers'.  It should only set the names of compilers,
+and not touch anything else.  
+
+The second time it is called is after the compilers and
+auxiliary programs have been detected or otherwise chosen. 
+{\em CCTK\_CONFIG\_STAGE} is set to `misc' in this case.  This stage
+can be used to set compiler options based upon the chosen compilers.
+The scripts are allowed to write (append) to {\em cctk\_archdefs.h} in
+this stage if it needs to add to the C preprocessor macros included
+by the code.  {\em CCTK\_WriteLine} can be used to write to the
+file.
+
+\section{extras}
+\label{sec:autoconf:extras}
+
+This directory is used to hold configuration programs for optional
+extra packages.
+
+If a subdirectory of this directory contains an executable file 
+{\em setup.sh}, this file is run.
+
+The two files {\em cctk\_extradefs.h} and {make.extra.defn} can be appended
+to, to add c preprocessor macros or add/modify make variables respectively.
+{\em CCTK\_WriteLine} can be used to do this.  
+
+Note that include directories should be added to {\em SYS\_INC\_DIRS} and not
+directly to {\em INC\_DIRS}.
+
+\section{config.sub and config.guess}
+\label{sec:autoconf:subguess}
+
+These files are provided in the autoconf distribution.  They are used to
+determine the host operatings system, cpu, etc and put them into a
+canonical form.
+
+The files distributed with Cactus are slightly modified to allow recognition
+or the Cray T3E, to work with the Portland compilers under Linux, and to
+not do something stupid with unrecognised HP machines.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Perl scripts}
+\label{ch:perlscripts}
+
+Various perl scripts are used in the make system.
+
+\section{setup\_configuration.pl}
+\label{sec:perlscripts:setup}
+
+This is called by the top level makefile to create a new configuration or
+to modify an old one.  It parses an options file setting environment 
+variables as specified in that file, and then runs the autoconf-generated
+configure script.
+
+\section{configure.pl}
+\label{sec:perlscripts:configure}
+
+This file is called from the configure script to determine the way Fortran
+names are represented for the specified Fortran compiler.  It works out the
+names for subroutines/functions, and for common blocks, and write a
+perl script which can be used to convert a name to the appropriate form so
+C and Fortran can be linked together.
+
+\section{new\_thorn.pl}
+\label{sec:perlscripts:newthorn}
+
+This generates the skeleton for a new thorn.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{cactuspart}

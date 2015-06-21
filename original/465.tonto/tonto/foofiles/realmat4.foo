@@ -1,0 +1,129 @@
+!---------------------------------------------------------------------------
+!
+!  REALMAT4: 4 dimensional matrices
+!
+! Copyright (C) Dylan Jayatilaka and Daniel Grimwood, 1998
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: realmat4.foo,v 1.5 2003/02/19 07:48:57 reaper Exp $
+!---------------------------------------------------------------------------
+
+module REALMAT4
+
+   implicit none
+
+contains
+
+   create(dim1,dim2,dim3,dim4)
+   ! Create a 4-d array
+     self :: PTR
+     dim1,dim2,dim3,dim4 :: INT, IN
+     nullify(self)
+     allocate(self(dim1,dim2,dim3,dim4))
+     ADD_MEMORY(dim1*dim2*dim3*dim4*REAL_SIZE)
+   end
+
+   create(bounds)
+   ! Create a 4-d array with all upper "bounds" specified
+     self :: PTR
+     bounds :: INTVEC(4), IN
+     .create(bounds(1),bounds(2),bounds(3),bounds(4))
+   end
+
+   create(lb1,ub1,lb2,ub2,lb3,ub3,lb4,ub4)
+   ! Create a 4-d array with all bound specified
+     self :: PTR
+     lb1,lb2,lb3,lb4,ub1,ub2,ub3,ub4 :: INT, IN
+     nullify(self)
+     allocate(self(lb1:ub1,lb2:ub2,lb3:ub3,lb4:ub4))
+     ADD_MEMORY((ub1-lb1+1)*(ub2-lb2+1)*(ub3-lb3+1)*(ub4-lb4+1)*REAL_SIZE)
+   end
+
+   create(bounds1,bounds2,bounds3,bounds4)
+   ! Create a 4-d array with all pair bounds specified
+     self :: PTR
+     bounds1,bounds2,bounds3,bounds4 :: INTVEC(2), IN
+     .create(bounds1(1),bounds1(2),bounds2(1),bounds2(2), &
+             bounds3(1),bounds3(2),bounds4(1),bounds4(2))
+   end
+
+   create(bounds)
+   ! Create a 4-d array with all bounds specified
+     self :: PTR
+     bounds :: INTMAT(4,2), IN
+     .create(bounds(1,1),bounds(1,2),bounds(2,1),bounds(2,2), &
+             bounds(3,1),bounds(3,2),bounds(4,1),bounds(4,2))
+   end
+
+   create_copy(m)
+   ! Create a copy of matrix "m"
+      self :: PTR
+       m :: REALMAT4*
+      .create(lbound(m,1),ubound(m,1), &
+              lbound(m,2),ubound(m,2), &
+              lbound(m,3),ubound(m,3), &
+              lbound(m,4),ubound(m,4)  )
+      self = m
+   end
+
+   destroy
+   ! Destroy the object
+      self :: PTR
+      if (.destroyed) return
+      DELETE_MEMORY(size(self)*REAL_SIZE)
+      deallocate(self)
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   plus_product(a,b)
+   ! The product of "b" with scalar "a" is added to "self".
+      a :: REAL, IN
+      b :: REALMAT4, IN
+     d1,d2,d3,d4,dim1,dim2,dim3,dim4 :: INT
+     dim1=size(self,1)
+     dim2=size(self,2)
+     dim3=size(self,3)
+     dim4=size(self,4)
+   ENSURE(size(self,1)==dim1,"array dimension mismatch")
+   ENSURE(size(self,2)==dim2,"array dimension mismatch")
+   ENSURE(size(self,3)==dim3,"array dimension mismatch")
+   ENSURE(size(self,4)==dim4,"array dimension mismatch")
+     do d4=1,dim4
+       do d3=1,dim3
+         do d2=1,dim2
+           do d1=1,dim1
+             self(d1,d2,d3,d4) = self(d1,d2,d3,d4) + a * b(d1,d2,d3,d4)
+           end
+         end
+       end
+     end
+   end
+
+end

@@ -1,0 +1,91 @@
+!---------------------------------------------------------------------------
+!
+! IRREPVEC: For representing an array of irreps
+!
+! Copyright (C) Daniel Grimwood, 1999
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: irrepvec.foo,v 1.4.2.1 2003/03/24 01:28:52 dylan Exp $
+!---------------------------------------------------------------------------
+
+module IRREPVEC
+
+   implicit none
+
+contains
+
+   create(dim)
+   ! Create an irrepvec
+      self :: PTR
+      dim :: INT
+      nullify(self)
+      allocate(self(dim))
+      ADD_MEMORY(dim*IRREP_SIZE)
+      .nullify_ptr_part
+   end
+
+   destroy
+   ! Destroy an irrepvec
+      self :: PTR
+      if (.destroyed) return
+      .destroy_ptr_part
+      DELETE_MEMORY(size(self)*IRREP_SIZE)
+      deallocate(self)
+   end
+
+   nullify_ptr_part
+   ! Nullify the pointer parts of an irrepvec
+       i :: INT
+      do i = 1,size(self)
+         self(i).nullify_ptr_part
+      end
+   end
+
+   destroy_ptr_part
+   ! Destroy the pointer parts of an irrepvec
+       i :: INT
+      do i = 1,size(self)
+         self(i).destroy_ptr_part
+      end
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   create_copy(vec) ::: get_from(OBJECTVEC)
+   ! Create a replica copy of "vec".
+      vec :: SELF_TYPE, IN
+      self :: PTR
+   end
+
+   copy(vec) ::: get_from(OBJECTVEC), leaky
+   ! Copy "vec".
+      vec :: SELF_TYPE, IN
+   end
+
+end

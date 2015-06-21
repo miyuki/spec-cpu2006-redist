@@ -1,0 +1,72 @@
+	filepp - A generic file pre-processor
+
+See the file INSTALL for installation instructions.
+
+The following examples of how filepp can be used are included with
+this ditribution:
+
+test.html - HTML document:
+	to build: make test
+	output:   test.html
+	input:    test.html.in footer.html.in header.html.in
+
+testsuite - Testsuite, included in test.html.  If all tests passed should
+	return no output (except for 3 warnings about macro 'ARTHUR'
+	which should be printed to stderr).
+
+testmod.pm - A very simple Filepp module.
+
+filepp.1 - Man page:
+	to build: make man
+	output: filepp.1
+	input:  filepp.1.in
+
+filepp.lsm - Linux Software Map (LSM) entry:
+	to build: make lsm
+	output: filepp.lsm
+	input:  filepp.lsm.in
+
+
+The Makefile is used to build these files, it includes example rules
+which can be used to convert from a filepp input file to the output
+file.
+
+Filepp also supports modules which can be used to modify and extend
+the core functionality.  All modules included with this release can be
+found in the "modules" directory.
+
+Credits:
+
+filepp is written by Darren Miller <darren@cabaret.demon.co.uk>
+
+Thanks also go to the many who have submitted patches, bug reports,
+comments and generally helped make filepp what it is.  Special thanks
+go to:
+
+Terry R. Friedrichsen
+Steve Hancock
+James Yolkowski
+Stephen Brooks
+
+
+For full documentation on how to use filepp read the man page.
+
+  Copyright (C) 2000-2007 Darren Miller
+
+  filepp is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+Comments are welcome.
+
+	- Darren Miller <darren@cabaret.demon.co.uk>

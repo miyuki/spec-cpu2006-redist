@@ -1,0 +1,547 @@
+!-------------------------------------------------------------------------------
+!
+! COPPENSORBITAL: used to describe contracted slater orbitals fitted to
+! relativistic Hartree Fock calculations, as described by Coppens and Liu, and
+! Macch and Coppens..
+!
+! Copyright (C) Mark Hore, Dylan Jayatilaka, 2002
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: coppensorbital.foo,v 1.2.2.8 2003/11/13 05:34:39 reaper Exp $
+!-------------------------------------------------------------------------------
+module COPPENSORBITAL
+
+   implicit none
+
+   keys :: STRVEC*, private DEFAULT_NULL
+
+   values_cutoff :: REAL, private = COPPENSORBITAL_VALUES_CUTOFF
+
+contains
+
+! ***************************
+! Create and destroy routines
+! ***************************
+
+   create ::: get_from(OBJECT), leaky
+   ! Create an object
+      self :: PTR
+   end
+
+   destroy ::: get_from(OBJECT), leaky
+   ! Destroy an object
+      self :: PTR
+   end
+
+   nullify_ptr_part
+   ! Nullify the pointer parts of the atomvec
+      nullify(.n)
+      nullify(.c)
+      nullify(.z)
+   end
+
+   destroy_ptr_part
+   ! Destroy the pointer parts
+      .n.destroy
+      .c.destroy
+      .z.destroy
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   set_defaults
+   ! Set default values
+      .kind = "?"
+      .occupancy = ZERO
+      .n_fun = 0
+   end
+
+   copy(c) ::: leaky
+   ! Create a copy of c
+       c :: SELF_TYPE
+       self = c
+       if (c.n.created) .n.create_copy(c.n)
+       if (c.c.created) .c.create_copy(c.c)
+       if (c.z.created) .z.create_copy(c.z)
+   end
+
+   ex(i) result(res)
+   ! Return the exponent of the "i" th slater orbital
+       i :: INT
+       res :: REAL
+       res = .z(i)
+   end
+
+   cc(i) result(res)
+   ! Return the contraction coefficient of the "i" th slater orbital
+       i :: INT
+       res :: REAL
+       res = .c(i)
+   end
+
+! ***********
+! I/O methods
+! ***********
+
+   read_keywords ::: get_from(OBJECT), recursive, leaky
+   ! Read data from "stdin" using keyword style input.
+   end
+
+   process_keyword(keyword) ::: leaky
+   ! Process command "keyword". Data is inputted from "stdin", unless "keyword"
+   ! is a sequence of blank separated strings.  In this case, the sequence is
+   ! processed as if it were a separate file.
+     keyword :: STR(*), IN
+     word :: STR
+     word = keyword
+     word.to_lower_case
+     select case (word)
+        case ("}                          ")  ! exit case
+        case ("c=                         "); .read_c
+        case ("kind=                      "); .read_kind
+        case ("kind,occupancy,num,n,c,z=  "); .read_kind_occ_num_n_c_z
+        case ("n=                         "); .read_n
+        case ("n,c,z=                     "); .read_n_c_z
+        case ("n,c,z*=                    "); .read_n_c_z_ptr
+        case ("n_fun=                     "); .read_n_fun
+        case ("num=                       "); .read_n_fun
+        case ("occupancy=                 "); .read_occupancy
+        case ("values_cutoff=             "); .read_values_cutoff
+        case ("z=                         "); .read_z
+        case  default;                        UNKNOWN(word)
+     end
+   end
+
+   read_units ::: get_from(OBJECT)
+   ! Read a string which describes the units to be used
+   end
+
+   read_junk ::: get_from(OBJECT)
+   ! Read in a junk string, useful for ignoring a field
+   end
+
+   read_kind
+   ! Read in the orbital kind ("1s", "2s", "2p" ....)
+      stdin.read(.kind)
+   end
+
+   read_occupancy
+   ! Read in the orbital occupancy
+      stdin.read(.occupancy)
+   end
+
+   read_n_fun
+   ! Read in the number of contracted functions.
+      stdin.read(.n_fun)
+   end
+
+   read_n ::: leaky
+   ! Read in the "n" quantum numbers. NOTE: n_fun must already have been input.
+      ENSURE(.n_fun>0,"n_fun is negative; use n_fun= before this command")
+      .n.destroy
+      .n.create(.n_fun)
+      stdin.read(.n)
+   end
+
+   read_c ::: leaky
+   ! Read in the "c" contraction coefficients. NOTE: n_fun must already have
+   ! been input.
+      ENSURE(.n_fun>0,"n_fun is negative; use n_fun= before this command")
+      .c.destroy
+      .c.create(.n_fun)
+      stdin.read(.c)
+   end
+
+   read_z ::: leaky
+   ! Read in the "z" slater function exponents. NOTE: n_fun must already have
+   ! been input.
+      ENSURE(.n_fun>0,"n_fun is negative; use n_fun= before this command")
+      .z.destroy
+      .z.create(.n_fun)
+      stdin.read(.z)
+   end
+
+   read_n_c_z ::: leaky
+   ! Read in the "n", "c" and "z" vectors. NOTE: .n_fun must previously have been inputted.
+      i :: INT
+      val :: REAL
+      ENSURE(.n_fun>0,"n_fun is negative; use n_fun= before this command")
+      .n.destroy; .c.destroy; .z.destroy
+      .n.create(.n_fun)
+      .c.create(.n_fun)
+      .z.create(.n_fun)
+      do i = 1,.n_fun
+         stdin.read(val)
+         ENSURE(val.is_int,"n number is not integer")
+         .n(i) = val
+         stdin.read(.c(i))
+         stdin.read(.z(i))
+      end
+   end
+
+   read_n_c_z_ptr ::: leaky
+   ! Read in the "n", "c" and "z" vectors. NOTE: it is not necessary to read in
+   ! n_fun, it will be defined from the vector length.
+      tmp :: REALVEC*
+      i,k :: INT
+      stdin.read(tmp)
+      ENSURE(mod(tmp.dim,3)==0,"number of data not divisible by three")
+      .n_fun = tmp.dim/3
+      .n.destroy; .c.destroy; .z.destroy
+      .n.create(.n_fun)
+      .c.create(.n_fun)
+      .z.create(.n_fun)
+      k = 1
+      do i = 1,3
+         ENSURE(tmp(k).is_int,"n number is not integer")
+         .n(k) = tmp(k)
+         .c(k) = tmp(k+1)
+         .z(k) = tmp(k+2)
+         k = k + 3
+      end
+      tmp.destroy
+   end
+
+   read_kind_occ_num_n_c_z ::: leaky
+   ! Read in everything: the "kind", "occupnacy", "n_fun", and "n", "c" and "z".
+      .read_kind
+      .read_occupancy
+      .read_n_fun
+      .read_n_c_z
+   end
+
+   read_values_cutoff
+   ! Read in a cutoff below which values of the the coppensorbital on a grid are
+   ! set to zero.
+      stdin.read(values_cutoff)
+   end
+
+!  ********************
+!  Key related routines
+!  ********************
+
+   read_keys ::: get_from(OBJECT)
+   ! Read the "keys".
+   end
+
+   process_keys ::: get_from(OBJECT), leaky
+   ! Process each of the words in the "keys" list.
+   end
+
+   keys_created result (res) ::: get_from(OBJECT)
+   ! Return TRUE if the list-element keys are created.
+      res :: BIN
+   end
+
+   set_keys(the_keys) ::: get_from(OBJECT)
+   ! This is for setting the "keys" externally.
+     the_keys :: STRVEC(len=*,:)
+   end
+
+   clear_keys ::: get_from(OBJECT)
+   ! This is for destroying the "keys" externally.
+   end
+
+   put_table_footer ::: get_from(OBJECT)
+   ! Output a table footer from the list of "keys". NOTE: not all keywords need
+   ! contribute to the banner - any unrecognised keyword is skipped.
+   end
+
+   put_table_header
+   ! Output a table header from the list of "keys". NOTE: not all keywords need
+   ! contribute to the banner - any unrecognised keyword is skipped.
+     word :: STR
+     width,k :: INT
+     width = .table_width
+     if (width > 0) then
+       stdout.dash(width=width)
+       do k = 1,size(keys)
+         word = keys(k)
+         word.to_lower_case
+         select case (word)
+           case ("flush        "); stdout.flush; exit
+           case ("put_kind     "); stdout.put("kind",int_width=TRUE)
+           case ("put_occ      "); stdout.put("Occ.",int_width=TRUE)
+           case ("put_occupancy"); stdout.put("Occ.",int_width=TRUE)
+           case ("put_n_fun    "); stdout.put("n_fun",int_width=TRUE)
+           case default
+         end
+         if (k==size(keys)) then
+           stdout.flush ! In case they didn't write one.
+           WARN("no flush keyword - you may later overrun the output buffer")
+         end
+       end
+       stdout.dash(width=width)
+     end
+   end
+
+   table_width result (res)
+   ! Return how wide a table is, based on "keys".  Note that not all keywords
+   ! need to contribute to the banner - any unrecognised keyword is skipped.
+     res :: INT
+     word :: STR
+     int_dash,real_dash,k :: INT
+     int_dash = 0
+     real_dash = 0
+     ENSURE(keys.created,"no keywords")
+     do k = 1,size(keys)
+       word = keys(k)
+       word.to_lower_case
+       select case (word)
+         case ("put_kind     "); int_dash = int_dash + 1
+         case ("put_occ      "); int_dash = int_dash + 1
+         case ("put_occupancy"); int_dash = int_dash + 1
+         case ("put_n_fun    "); int_dash = int_dash + 1
+         case ("flush        "); exit
+         case default
+       end
+     end
+     res = int_dash * stdout.int_width + real_dash * stdout.real_width
+   end
+
+! *******
+! Methods
+! *******
+
+   same_as(b) result(res)
+   ! Return TRUE if "self" is the same as "b".
+      self :: IN
+      b :: SELF_TYPE, IN
+      res :: BIN
+      res = .kind == b.kind AND .occupancy == b.occupancy &
+            AND .n.same_as(b.n) AND .c.same_as(b.c) AND .z.same_as(b.z)
+   end
+
+   density_at_radius(R) result(res)
+   ! Returns the value of the coppens orbital at radius "R".
+      R :: REAL, IN
+      res :: REAL
+      res = .value_at_radius(R)
+      res = .occupancy*res*res
+   end
+
+   densities_at_radii(R) result(res)
+   ! Returns the values of the coppens density at all the radii "R".
+      R :: REALVEC, IN
+      res :: REALVEC(R.dim)
+      res = .values_at_radii(R)
+      res = .occupancy*res*res
+   end
+
+   value_at_radius(R) result(res)
+   ! Returns the value of the coppens orbital at radius "R".
+      R :: REAL, IN
+      res :: REAL
+      nm1 :: INTVEC*
+      res = ZERO
+      nm1.create(.n.dim)
+      nm1 = .n - 1
+      res = sum(.c * R**nm1 * exp(-.z*R))
+      nm1.destroy
+   end
+
+   values_at_radii(R) result(res)
+   ! Returns the values of the coppens orbital at all the radii "R".
+      R :: REALVEC, IN
+      res :: REALVEC(R.dim)
+      nm1 :: INTVEC*
+      i :: INT
+      nm1.create(.n.dim)
+      nm1 = .n - 1
+      do i = 1,R.dim
+         res(i) = sum(.c * R(i)**nm1 * exp(-.z*R(i)) )
+      end
+      nm1.destroy
+   end
+
+   unnormalise 
+   ! Set the value of the coefficient to correspond to un-normalised Slater
+   ! functions -- assuming they are normalised. This saves in computation time.
+      i,n2 :: INT
+      do i = 1,.n_fun
+        n2 = 2*.n(i)
+        .c(i) = .c(i) * sqrt(TWO*.z(i)/n2.factorial) * (TWO*.z(i))**.n(i)
+      end
+   end
+
+   renormalise 
+   ! Set the value of the coefficient to correspond to normalised slater
+   ! functions --- assuming they are w.r.t. unnormalised functions. 
+      i,n2 :: INT
+      do i = 1,.n_fun
+        n2 = 2*.n(i)
+        .c(i) = .c(i) / (sqrt(TWO*.z(i)/n2.factorial) * (TWO*.z(i))**.n(i))
+      end
+   end
+
+   values_at_points(pt,pos) result(res)
+   ! Make the orbital values on the series of points specified in "pt", assuming
+   ! the orbital is at point "pos"; and put the results in "res".
+      pt :: REALMAT, IN
+      pos :: REALVEC(3), IN
+      res :: REALVEC(pt.dim1)
+      R :: REALVEC*
+      x,y,z  :: REAL
+      n,n_pt :: INT
+      ENSURE(pt.dim2==3,"incorrect second dimension, pt array")
+      n_pt = pt.dim1
+      R.create(n_pt)
+      do n = 1,n_pt
+         x = pt(n,1) - pos(1)
+         y = pt(n,2) - pos(2)
+         z = pt(n,3) - pos(3)
+         R(n) = sqrt(x*x + y*y + z*z)
+      end
+      res = .values_at_radii(R)
+      R.destroy
+   end
+
+   make_values_at_opt(pt,pos,grid)
+   ! Make the orbital values on the series of points specified in "pt", assuming
+   ! the orbital is at point "pos"; and put the results in the array "grid".
+   ! This is an optimised version.
+      self :: IN
+      pt :: REALMAT, IN
+      pos :: REALVEC(3), IN
+      grid :: REALVEC, OUT
+      tmp,n_val :: REALVEC*
+      x,y,z,R,R2,pos1,pos2,pos3 :: REAL
+      cutoff,cutoff1,cutoff2,cutoff3,cutoff4,minz,maxn1divminz :: REAL
+      n,n_pt,i,n2,maxn1 :: INT
+      ENSURE(grid.dim==pt.dim1,"grid size wrong!")
+
+      ! The cutoff of the orbital value.  Values smaller than this are set to
+      ! zero.
+      cutoff = values_cutoff
+      n_val.create(.n.dim)
+      n_val = .n - ONE
+
+      pos1 = pos(1)
+      pos2 = pos(2)
+      pos3 = pos(3)
+      tmp.create(.n_fun)
+      do i = 1,.n_fun
+        n2 = 2*.n(i)
+        tmp(i) = .c(i) * sqrt(TWO*.z(i)/n2.factorial) * (TWO*.z(i))**.n(i)
+      end
+
+      maxn1 = maxval(.n)-1
+      minz =  minval(.z)
+      maxn1divminz = maxn1/minz
+
+      ! cutoff1 <= maxn1*log(R) - minz*R.  (Strict test).
+      cutoff1 = log(cutoff/(.n_fun*maxval(tmp)))
+      cutoff2 = cutoff1/minz
+
+      ! Looser yet strict test.
+      ! log(R) < R, substitute into strict test.
+      cutoff3 = cutoff1/(maxn1-minz)
+      ! Do the test on R^2, so avoid sqrt below where possible.
+      cutoff4 = cutoff3*cutoff3
+
+      n_pt = pt.dim1
+      do n = 1,n_pt
+         x = pt(n,1) - pos1
+         y = pt(n,2) - pos2
+         z = pt(n,3) - pos3
+         R2 = x*x + y*y + z*z
+
+         ! Do maxn==1 as special case.
+         if (maxn1==0) then
+
+           ! Do test using R2.
+           if (cutoff4 < R2) then
+             grid(n) = ZERO
+           else if (R2 == ZERO) then
+             grid(n) = sum(ZERO**n_val(:) * tmp(:))
+           else
+             ! Do test using R.
+             R = sqrt(R2)
+             if (cutoff2 > -R) then
+               grid(n) = ZERO
+             else
+               grid(n) = sum(R**n_val(:) * exp(-.z(:)*R) * tmp(:))
+             end
+           end
+
+         ! not maxn==1 special case.
+         else
+
+           ! Do test using R2.
+           if (cutoff4 < R2) then
+             grid(n) = ZERO
+           else if (R2 == ZERO) then
+             grid(n) = sum(tmp(:))
+           else
+             ! Do test using R.
+             R = sqrt(R2)
+             if (cutoff2 > maxn1divminz*log(R)-R) then
+               grid(n) = ZERO
+             else
+               grid(n) = sum(R**n_val(:) * exp(-.z(:)*R) * tmp(:))
+             end
+           end
+         end
+
+      end
+      tmp.destroy
+      n_val.destroy
+   end
+
+   put
+   ! Put the orbital information to "stdout"
+      stdout.flush
+      stdout.show("Kind        = ",.kind)
+      stdout.show("Occupancy   = ",.occupancy)
+      stdout.show("No. of funs = ",.n_fun)
+      .put_table
+   end
+
+   put_table
+   ! Put the orbital information to "stdout" in table format
+      i :: INT
+      stdout.flush
+      stdout.dash(int_fields=2,real_fields=2)
+      stdout.put("#",int_width=TRUE)
+      stdout.put("N",int_width=TRUE)
+      stdout.put("Exponent")
+      stdout.put("Coeff.")
+      stdout.flush
+      stdout.dash(int_fields=2,real_fields=2)
+      do i = 1,.n_fun
+         stdout.put(i)
+         stdout.put(.n(i))
+         stdout.put(.z(i))
+         stdout.put(.c(i))
+         stdout.flush
+      end
+      stdout.dash(int_fields=2,real_fields=2)
+   end
+
+end

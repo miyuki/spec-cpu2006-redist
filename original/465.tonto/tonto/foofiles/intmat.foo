@@ -1,0 +1,926 @@
+!---------------------------------------------------------------------------
+!
+!  INTMAT: Integer matrix operations ...
+!
+! Copyright (C) Dylan Jayatilaka, 1996
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: intmat.foo,v 1.8.2.2 2003/11/13 05:35:09 reaper Exp $
+!---------------------------------------------------------------------------
+
+module INTMAT
+
+   implicit none
+
+contains
+
+   create(dim1,dim2) ::: get_from(INTRINSICMAT)
+   ! Create a matrix with the given dimensions
+      self :: PTR
+      dim1,dim2 :: INT, IN
+   end
+
+   create(lb1,ub1,lb2,ub2) ::: get_from(INTRINSICMAT)
+   ! Create a matrix with the given dimensions
+      self :: PTR
+      lb1,ub1,lb2,ub2 :: INT, IN
+   end
+
+   create(bounds1,bounds2) ::: get_from(INTRINSICMAT)
+   ! Create a matrix with the specified bounds for each dimension
+      self :: PTR
+      bounds1,bounds2 :: INTVEC, IN
+   end
+
+   create_copy(matrix) ::: get_from(INTRINSICMAT)
+   ! Create a replica copy of matrix
+      self :: PTR
+      matrix :: SELF_TYPE, IN
+   end
+
+   destroy ::: get_from(INTRINSICMAT)
+   ! Destroy the object
+      self :: PTR
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   is_square result(res) ::: get_from(INTRINSICMAT)
+   ! Returns TRUE if the matrix is square
+      self :: IN
+      res :: BIN
+   end
+
+   is_diagonal result(res)
+   ! Returns TRUE if the matrix "self" is a diagonal matrix
+      self :: IN
+      res :: BIN
+      dim,i,j :: INT
+      off_diagonal_is_zero :: BIN
+      ENSURE(.is_square,"Non-square matrix")
+      dim = .dim1
+      res = TRUE
+      do i = 1,dim
+      do j = 1,dim
+         if (i==j) cycle
+         off_diagonal_is_zero = self(i,j)==0
+         if (off_diagonal_is_zero) cycle
+         res = FALSE
+         return
+      end
+      end
+   end
+
+   has_unit_diagonal result(res)
+   ! Returns TRUE if the matrix "self" has 1's as diagonal elements
+      self :: IN
+      res :: BIN
+      i :: INT
+      diagonal_is_one :: BIN
+      ENSURE(.is_square,"Non-square matrix")
+      res = TRUE
+      do i = 1,.dim1
+         diagonal_is_one = (1 - self(i,i))==0
+         if (diagonal_is_one) cycle
+         res = FALSE
+         exit
+      end
+   end
+
+   is_unit_matrix result(res)
+   ! Returns TRUE if the matrix "self" is the unit matrix
+      self :: IN
+      res :: BIN
+      ENSURE(.is_square,"Non-square matrix")
+      res = .is_diagonal AND .has_unit_diagonal
+   end
+
+   is_inversion_matrix result(res)
+   ! Returns TRUE if the matrix "self" is an inversion matrix
+   ! i.e. minus the unit matrix
+      self :: IN
+      res :: BIN
+      dim,i :: INT
+      diagonal_is_minus_one :: BIN
+      ENSURE(.is_square,"Non-square matrix")
+      dim = .dim1
+      res = TRUE
+      do i = 1,dim
+         diagonal_is_minus_one = (self(i,i)+1)==0
+         if (diagonal_is_minus_one) cycle
+         res = FALSE
+         exit
+      end
+      if (res) res = .is_diagonal
+   end
+
+   is_symmetric result(res)
+   ! Returns TRUE if the matrix "self" is a symmetric matrix
+      self :: IN
+      res :: BIN
+      dim,i,j :: INT
+      diff :: INT
+      ENSURE(.is_square,"Non-square matrix")
+      dim = .dim1
+      res = TRUE
+      do i = 1,dim
+      do j = 1,i-1
+         diff = abs(self(i,j)-self(j,i))
+         if (diff==0) cycle
+         res = FALSE
+         return
+      end
+      end
+   end
+
+   is_same_shape_as(b) result(res) ::: get_from(INTRINSICMAT), pure
+   ! Returns TRUE if the matrix "b" has the same shape as self
+      self :: IN
+      b :: INTMAT, IN
+      res :: BIN
+   end
+
+   is_transposed_shape_of(b) result(res) ::: get_from(INTRINSICMAT), pure
+   ! Returns TRUE if the matrix "b" is the transposed shape of self
+      self :: IN
+      b :: INTMAT, IN
+      res :: BIN
+   end
+
+   equals(b) result(res)
+   ! Check if the matrix is the same as "b".
+      self :: IN
+      b :: SELF_TYPE, IN
+      res :: BIN
+      res = .same_as(b)
+   end
+
+   same_as(b) result(res)
+   ! Check if the matrix is the same as "b". 
+      self :: IN
+      b :: SELF_TYPE, IN
+      res :: BIN
+      i,del :: INT
+      ENSURE(.is_same_shape_as(b),"incompatible dimensions")
+      res =  TRUE
+      do i = 1,.dim2
+         del = sum( abs(self(:,i)-b(:,i)) )
+         if (del==0) cycle
+         res = FALSE
+         exit
+      end
+   end
+
+   has_column(c,col) result(res)
+   ! Returns TRUE if the matrix "self" has a column "c". If present, the
+   ! first matching column index "col" is also returned.
+      self :: IN
+      c :: INTVEC, IN
+      col :: INT, optional
+      res :: BIN
+      n :: INT
+      ENSURE(c.dim==.dim1,"incompatible column size")
+      res = FALSE
+      do n = 1,.dim2
+         res = self(:,n).same_as(c)
+         if (NOT res) cycle
+         if (present(col)) col = n
+         exit
+      end
+   end
+
+   all_in_range(range) result(res)
+   ! Return TRUE if all values of self are within the specified "range".
+      range :: INTVEC(2)
+      res :: BIN
+      res = all(range(1) <= self AND self <= range(2))
+   end
+
+   in_range(range) result(res)
+   ! Return element ij as TRUE if self(i,j) is within the specified "range".
+      range :: INTVEC(2)
+      res :: BINMAT(size(self,1),size(self,2))
+      res = (range(1) <= self AND self <= range(2))
+   end
+
+   range result(res)
+   ! Return the range (smallest and largest value) of self.
+   ! NOTE: Returns a real.
+      res :: REALVEC(2)
+      res(1) = minval(self)
+      res(2) = maxval(self)
+   end
+
+   shrink(dim1,dim2) ::: get_from(INTRINSICMAT), leaky
+   ! Shrinks self to dimension dim1xdim2.  Contents are retained.
+     self :: PTR
+     dim1,dim2 :: INT, IN
+   end
+
+   shrink_columns(dim2) ::: get_from(INTRINSICMAT), leaky
+   ! Shrinks columns of self to dimension dim2. Contents are retained.
+     self :: PTR
+     dim2 :: INT, IN
+   end
+
+   expand(dim1,dim2) ::: get_from(INTRINSICMAT), leaky
+   ! Expands self to dimension dim1xdim2.  Contents are retained.
+     self :: PTR
+     dim1,dim2 :: INT, IN
+   end
+
+   expand_columns(dim2) ::: get_from(INTRINSICMAT), leaky
+   ! Expands the columns self to dim2.  Contents are retained.
+     self :: PTR
+     dim2 :: INT, IN
+   end
+
+   append_column(col) ::: leaky
+   ! Append the column "col" onto the end of self.
+     self :: PTR
+     col :: INTVEC
+     old_dim2,new_dim2 :: INT
+     ENSURE(.created, "self not allocated")
+     ENSURE(.dim1==col.dim, "2nd dimension given is too small")
+     old_dim2 = .dim2
+     new_dim2 = .dim2 + 1
+     .expand_columns(new_dim2)
+     self(:,new_dim2) = col
+   end
+
+   append_columns(cols) ::: get_from(INTRINSICMAT), leaky
+   ! Append the columns "cols" onto the end of self.
+     self :: PTR
+     cols :: SELF_TYPE
+   end
+
+   to_unit_matrix
+   ! Set self to the unit matrix
+      dim,i :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim = size(self,1)
+      self = 0
+      do i = 1,dim
+         self(i,i) = 1
+      end
+   end
+
+   to_inverse_matrix
+   ! Set self to the negative unit matrix
+      dim,i :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim = size(self,1)
+      self = 0
+      do i = 1,dim
+         self(i,i) = -1
+      end
+   end
+
+   set_to(b) ::: get_from(INTRINSICMAT)
+   ! Set self to "b"
+      b :: SELF_TYPE, IN
+   end
+
+   plus(b) ::: get_from(INTRINSICMAT)
+   ! Add to self the matrix "b"
+      b :: SELF_TYPE, IN
+   end
+
+   minus(b) ::: get_from(INTRINSICMAT)
+   ! Subtract from self the matrix "b"
+      b :: SELF_TYPE, IN
+   end
+
+   to_scaled_imat(fac,b)
+   ! Set self to the scaled matrix "b"
+      b :: SELF_TYPE, IN
+      fac :: INT, IN
+      ENSURE(.is_same_shape_as(b),"incompatible shapes")
+      self = fac*b
+   end
+
+   plus_scaled_imat(fac,b)
+   ! Add to self the scaled matrix "b"
+      b :: SELF_TYPE, IN
+      fac :: INT, IN
+      ENSURE(.is_same_shape_as(b),"incompatible shapes")
+      self = self+fac*b
+   end
+
+   to_product_of(a,b,transpose_a,transpose_b)
+   ! Set self to the product of "a" and "b"
+      a, b :: SELF_TYPE, IN
+      transpose_a, transpose_b :: BIN, optional, IN
+      if (present(transpose_a)) then
+        if (present(transpose_b)) then
+          self = matmul(transpose(a),transpose(b))
+        else
+          self = matmul(transpose(a),b)
+        end
+      else
+        if (present(transpose_b)) then
+          self = matmul(a,transpose(b))
+        else
+          self = matmul(a,b)
+        end
+      end
+   end
+
+   to_scaled_product_of(fac,a,b,transpose_a,transpose_b)
+   ! Set self to the scaled product of "a" and "b"
+      a, b :: SELF_TYPE, IN
+      fac :: REAL, IN
+      transpose_a, transpose_b :: BIN, optional, IN
+      if (present(transpose_a)) then
+        if (present(transpose_b)) then
+          self = fac*matmul(transpose(a),transpose(b))
+        else
+          self = fac*matmul(transpose(a),b)
+        end
+      else
+        if (present(transpose_b)) then
+          self = fac*matmul(a,transpose(b))
+        else
+          self = fac*matmul(a,b)
+        end
+      end
+   end
+
+   plus_product_of(a,b,transpose_a,transpose_b)
+   ! Add to self the product of "a" and "b"
+      a, b :: SELF_TYPE, IN
+      transpose_a, transpose_b :: BIN, optional, IN
+      if (present(transpose_a)) then
+        if (present(transpose_b)) then
+          self = self+matmul(transpose(a),transpose(b))
+        else
+          self = self+matmul(transpose(a),b)
+        end
+      else
+        if (present(transpose_b)) then
+          self = self+matmul(a,transpose(b))
+        else
+          self = self+matmul(a,b)
+        end
+      end
+   end
+
+   plus_scaled_product_of(fac,a,b,transpose_a,transpose_b)
+   ! Add to self the scaled product of "a" and "b"
+      a, b :: SELF_TYPE, IN
+      fac :: REAL, IN
+      transpose_a, transpose_b :: BIN, optional, IN
+      if (present(transpose_a)) then
+        if (present(transpose_b)) then
+          self = self+fac*matmul(transpose(a),transpose(b))
+        else
+          self = self+fac*matmul(transpose(a),b)
+        end
+      else
+        if (present(transpose_b)) then
+          self = self+fac*matmul(a,transpose(b))
+        else
+          self = self+fac*matmul(a,b)
+        end
+      end
+   end
+
+   trace result (res) ::: get_from(INTRINSICMAT)
+   ! Return the trace of self
+      self :: IN
+      res :: ELEMENT_TYPE
+   end
+
+   trace_product_with(b) result (res) ::: get_from(INTRINSICMAT)
+   ! Return the trace of the product of "self" with matrix b.
+      self :: IN
+      b :: SELF_TYPE, IN
+      res :: ELEMENT_TYPE
+   end
+
+   sum_row_vectors result(res)
+   ! Sum the row vectors (i.e. columns) in "self".
+      res :: INTVEC(size(self,2))
+      j :: INT
+      do j = 1,size(self,2)
+         res(j) = sum(self(:,j))
+      end
+   end
+
+   sum_column_vectors result(res)
+   ! Sum the column vectors (i.e. rows) in "self".
+      res :: INTVEC(size(self,1))
+      i :: INT
+      do i = 1,size(self,1)
+         res(i) = sum(self(i,:))
+      end
+   end
+
+   swap_columns(col1,col2)
+   ! Swap columns "col1" and "col2" in "self".
+      col1,col2 :: INT
+      i :: INT
+      val :: REAL
+   ENSURE(col1<=.dim1 AND col2<=.dim2,"columns exceed dimesions")
+      if (col1==col2) return
+      do i = 1,.dim1
+         val = self(i,col1)
+         self(i,col1) = self(i,col2)
+         self(i,col2) = val
+      end
+   end
+
+   swap_columns(list)
+   ! Sequentially swap all columns in a column "list",
+   ! self(:,i)       = self(:,list(i))
+   ! self(:,list(i)) = self(:,i)
+      list :: INTVEC, IN
+      l :: INT
+   ENSURE(maxval(list)<=.dim2,"list value exceed column dimension")
+      do l = 1,list.dim
+         .swap_columns(l,list(l))
+      end
+   end
+
+   reverse_column_order
+   ! Reverse the order of the columns of self.
+      tmp :: REALVEC*
+      n,n_col :: INT
+      n_col = size(self,2)
+      tmp.create(size(self,1))
+      do n=1,n_col/2
+        tmp = self(:,n_col-n+1)
+        self(:,n_col-n+1) = self(:,n)
+        self(:,n) = tmp
+      end
+      tmp.destroy
+   end
+
+   column_norms result(res)
+   ! Return the norms of every column
+      res :: REALVEC(size(self,2))
+      i :: INT
+      do i = 1,.dim2
+         res(i) = sqrt(real( sum(self(:,i)*self(:,i)) ,kind=REAL_KIND))
+      end
+   end
+
+   get_column_norms(res)
+   ! Return the norms of every column
+      res :: REALVEC
+      i :: INT
+   ENSURE(res.dim==.dim2,"wrong size, res array")
+      do i = 1,.dim2
+         res(i) = sqrt(real( sum(self(:,i)*self(:,i)) ,kind=REAL_KIND))
+      end
+   end
+
+   max_abs_column_difference result(res)
+   ! Return the maximum of the absolute difference between all the column vector
+   ! pairs of the matrix.
+      res :: INTVEC(size(self,1))
+      i,j,dim :: INT
+      diff,col_i,col_j :: INTVEC(size(self,1))
+      dim = .dim2
+      diff = ZERO
+      do i = 1,.dim2
+         col_i = self(:,i)
+         do j = 1,i-1
+            col_j = self(:,j)
+            diff = max(abs(col_i-col_j),diff)
+         end
+      end
+      res = diff
+   end
+
+   mean_column_vector result(res)
+   ! Return the mean of the column vectors.
+      res :: REALVEC(size(self,1))
+      res = float(.sum_column_vectors)/.dim2
+   end
+
+   compress_to_triangle(tr)
+   ! Converts the lower triangle of matrix self to the triangle "tr".
+   ! using row order.
+      self :: IN
+      tr :: INTVEC
+      dim,i,j,ij :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(size(tr)>=.tri_size,"triangle array too small")
+      dim = .dim1
+      ij = 0
+      do i = 1,dim
+         do j = 1,i
+            tr(ij+j) = self(j,i)
+         end
+         ij = ij+i
+      end
+   end
+
+   uncompress_from_triangle(tr)
+   ! Converts the triangle "tr" into the symmetric matrix "self".
+      tr :: INTVEC
+      tmp :: REAL
+      dim,i,j,ij :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(size(tr)>=.tri_size,"triangle array too small")
+      dim = .dim1
+      ij = 0
+      do i = 1,dim
+         do j = 1,i
+            tmp = tr(ij+j)
+            self(j,i) = tmp
+            self(i,j) = tmp
+         end
+         ij = ij+i
+      end
+   end
+
+   from_diagonal(d)
+   ! Converts the diagonal vector "d" to matrix "self".
+      d :: INTVEC
+      dim,i :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(size(d)==.dim1,"incompatibale diagonal length")
+      dim  = size(d)
+      self = ZERO
+      do i = 1,dim
+         self(i,i) = d(i)
+      end
+   end
+
+   tri_size result (ltr)
+   ! Returns the size of the lower triangle needed to store self.
+      self :: IN
+      ltr :: INT
+      dim :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim = size(self,1)
+      ltr = dim*(dim+1)/2
+   end
+
+   set_diagonal(val)
+   ! Set the diagonal of "self" to "val"
+      val :: INT
+      dim,i :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim = size(self,1)
+      do i = 1,dim
+         self(i,i) = val
+      end
+   end
+
+   add_to_diagonal(val)
+   ! Add "val" to the diagonal of "self"
+      val :: INT
+      dim,i :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim = size(self,1)
+      do i = 1,dim
+         self(i,i) = self(i,i) + val
+      end
+   end
+
+   zero_diagonal
+   ! Zero the diagonal elements of "self"
+      dim,i :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim = size(self,1)
+      do i = 1,dim
+         self(i,i) = 0
+      end
+   end
+
+   zero_off_diagonal
+   ! Zero the off diagonal elements of "self"
+      dim,i,j :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim = size(self,1)
+      do i = 1,dim
+      do j = 1,dim
+         if (i==j) cycle
+         self(i,j) = 0
+      end
+      end
+   end
+
+   weight_diagonal(fac)
+   ! Weight the diagonal elements of "self" by "fac"
+      fac :: INT, IN
+      dim,i :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim = size(self,1)
+      do i = 1,dim
+         self(i,i) = fac*self(i,i)
+      end
+   end
+
+   get_diagonal(diag)
+   ! Get the diagonal elements of "self" in vector "diag"
+      diag :: INTVEC
+      dim,i :: INT
+      ENSURE(size(diag)==min(.dim1,.dim2),"diag vector is incompatible")
+      dim  = size(diag)
+      do i = 1,dim
+         diag(i) = self(i,i)
+      end
+   end
+
+   max_diagonal_element result (res)
+   ! Get the maximum element on the diagonal of the matrix
+      res :: INT
+      dim,i :: INT
+      ENSURE(min(.dim1,.dim2)>0,"cannot have zero sized dimensions")
+      dim = min(.dim1,.dim2)
+      res = self(1,1)
+      do i = 2,dim
+         res = max(self(i,i),res)
+      end
+   end
+
+   max_abs_diagonal_element result (res)
+   ! Get the maximum absolute value of the diagonal elements of the self matrix
+      res :: INT
+      dim,i :: INT
+      ENSURE(min(.dim1,.dim2)>0,"cannot have zero sized dimensions")
+      dim = min(.dim1,.dim2)
+      res = abs(self(1,1))
+      do i = 2,dim
+         res = max(abs(self(i,i)),res)
+      end
+   end
+
+   symmetric_fold
+   ! Add the upper triangle of "self" into the lower triangle
+      dim,i,j :: INT
+   ENSURE(.is_square,"non-square matrix")
+      dim = size(self,1)
+      do i = 1,dim
+         do j=1,i-1
+            self(i,j) = self(i,j)+self(j,i)
+         end
+      end
+   end
+
+   antisymmetric_fold
+   ! Subtract the upper triangle of "self" into the lower triangle
+      dim,i,j :: INT
+   ENSURE(.is_square,"non-square matrix")
+      dim = size(self,1)
+      do i = 1,dim
+         do j=1,i-1
+            self(i,j) = self(i,j)-self(j,i)
+         end
+      end
+   end
+
+   symmetric_reflect
+   ! Set the upper half of self to the lower half
+      dim,i,j :: INT
+   ENSURE(.is_square,"non-square matrix")
+      dim = size(self,1)
+      do i = 1,dim
+      do j = 1,i-1
+         self(j,i) = self(i,j)
+      end
+      end
+   end
+
+   antisymmetric_reflect
+   ! Set the upper half of self to the negative of the lower half.
+   ! The diagonals are set to zero
+      dim,i,j :: INT
+   ENSURE(.is_square,"non-square matrix")
+      dim = size(self,1)
+      do i = 1,dim
+         do j = 0,i-1
+            self(j,i) = -self(i,j)
+         end
+      end
+      do i = 1,dim
+         self(i,i) = 0
+      end
+   end
+
+   make_diagonally_dominant(permutation)
+   ! Rearrange the order of the columns of self so that the largest magnitude
+   ! elements in each column occur along the diagonal. If "permutation" is
+   ! present, it is a matrix which achieves this ordering, i.e. at the
+   ! conclusion of the routine, self = self(:,permutation).
+      permutation :: INTVEC, optional
+      perm :: INTVEC*
+      mask :: BINMAT*
+      i,n  :: INT
+      loc :: INTVEC(2)
+   ENSURE(.is_square,"not square")
+      if (present(permutation)) &
+   ENSURE(permutation.dim==.dim2,"wrong size, perm")
+      n = .dim2
+      perm.create(n)
+      mask.create(n,n)
+      mask = TRUE
+      do i = 1,n
+        loc = maxloc(abs(self),mask=mask)
+        perm(loc(1))   = loc(2)
+        mask(:,loc(2)) = FALSE ! eliminate this column next time
+        mask(loc(1),:) = FALSE ! eliminate this row also
+      ! write(*,*) " loc  =",loc
+      ! write(*,*) " mask =",mask
+      end
+      self = self(:,perm)
+      if (present(permutation)) permutation = perm
+      mask.destroy
+      perm.destroy
+   end
+
+   to_gaussian_xyz_powers(l_max)
+   ! Make "self(1:3,i)", the three xyz powers of all cartesian gaussian
+   ! functions "i" of angular momentum up to "l_max", where "i" is the standard
+   ! lexical index of the cartesian gaussian. (This routine essentially defines
+   ! the standard order).  The shape of "self" is: [3, l_max.n_comp_sum ].
+     self :: OUT
+     l_max :: INT, IN
+     i,L,a,b,c :: INT
+   ENSURE(.dim1==3,"wrong 1st dimension, self")
+   ENSURE(.dim2==l_max.n_comp_sum,"wrong 2nd dimension, self")
+     i = 1          ! This is the total lexical index
+     do L = 0,l_max ! Loop over all shells with momentum L
+                    ! Loop over powers a, b, c
+       do a = L,floor((L+2)*THIRD),-1
+         do b = min(L-a,a),floor((L-a+1)*HALF),-1
+           c = L-a-b
+           if (a==b AND b==c) then
+             self(:,i)   = [a,a,a]
+             i = i+1
+           else if (a>b AND b==c) then
+             self(:,i)   = [a,b,b]
+             self(:,i+1) = [b,a,b]
+             self(:,i+2) = [b,b,a]
+             i = i+3
+           else if (a==b AND b>c) then
+             self(:,i)   = [a,a,c]
+             self(:,i+1) = [a,c,a]
+             self(:,i+2) = [c,a,a]
+             i = i+3
+           else
+             self(:,i)   = [a,b,c]
+             self(:,i+1) = [a,c,b]
+             self(:,i+2) = [b,a,c]
+             self(:,i+3) = [c,a,b]
+             self(:,i+4) = [b,c,a]
+             self(:,i+5) = [c,b,a]
+             i = i+6
+           end
+         end
+       end
+     end
+   end
+
+   to_gaussian_xyz_powers(l_max,index)
+   ! Make "self(1:3,i)", the three xyz powers of all cartesian gaussian
+   ! functions "i" of angular momentum up to "l_max", where "i" is the standard
+   ! lexical index of the cartesian gaussian. (This routine essentially defines
+   ! the standard order).  The shape of "self" is: [3, l_max.n_comp_sum ].
+   ! Array "index" maps the three xyz powers of each cartesian gaussian back to
+   ! its lexical index *within a shell of the same angular momentum* i.e. not
+   ! the total lexical index. NOTE: "index" has lower bounds of 0, and so is
+   ! passed as a pointer.
+     self :: OUT
+     l_max :: INT, IN
+     index :: INTMAT3*
+     i,L,k,a,b,c :: INT
+   ENSURE(self.dim1==3,"wrong 1st dimension, self")
+   ENSURE(self.dim2==l_max.n_comp_sum,"wrong 2nd dimension, self")
+   ENSURE(lbound(index,1)==0,"wrong lower bound, index")
+   ENSURE(lbound(index,2)==0,"wrong lower bound, index")
+   ENSURE(lbound(index,3)==0,"wrong lower bound, index")
+   ENSURE(ubound(index,1)==l_max,"wrong upper bound, index")
+   ENSURE(ubound(index,2)==l_max,"wrong upper bound, index")
+   ENSURE(ubound(index,3)==l_max,"wrong upper bound, index")
+     i = 1              ! This is the total lexical index
+     do L = 0,l_max     ! Loop over all shells with momentum L
+       k = 1            ! This is the local shell lexical index
+       !                  Loop over powers a, b, c
+       do a = L,floor((L+2)*THIRD),-1
+         do b = min(L-a,a),floor((L-a+1)*HALF),-1
+           c = L-a-b
+           if (a==b AND b==c) then
+             self(:,i)   = [a,a,a]
+             index(a,a,a) = k
+             i = i+1
+             k = k+1
+           else if (a>b AND b==c) then
+             self(:,i)   = [a,b,b]
+             self(:,i+1) = [b,a,b]
+             self(:,i+2) = [b,b,a]
+             index(a,b,b) = k
+             index(b,a,b) = k+1
+             index(b,b,a) = k+2
+             i = i+3
+             k = k+3
+           else if (a==b AND b>c) then
+             self(:,i)   = [a,a,c]
+             self(:,i+1) = [a,c,a]
+             self(:,i+2) = [c,a,a]
+             index(a,a,c) = k
+             index(a,c,a) = k+1
+             index(c,a,a) = k+2
+             i = i+3
+             k = k+3
+           else
+             self(:,i)   = [a,b,c]
+             self(:,i+1) = [a,c,b]
+             self(:,i+2) = [b,a,c]
+             self(:,i+3) = [c,a,b]
+             self(:,i+4) = [b,c,a]
+             self(:,i+5) = [c,b,a]
+             index(a,b,c) = k
+             index(a,c,b) = k+1
+             index(b,a,c) = k+2
+             index(c,a,b) = k+3
+             index(b,c,a) = k+4
+             index(c,b,a) = k+5
+             i = i+6
+             k = k+6
+           end
+         end
+       end
+     end
+   end
+
+   bin_XY_data(X,Y,bin_side_length,data_count) ::: leaky
+   ! Set self to a matrix whose ij-th element contains the number of data points
+   ! [X(k),Y(k)] which lie in the ij-th bin. A bin is simply a range of values
+   ! of side length "bin_side_length" covering the set of points from
+   ! [X_min,Y_min] to [X_max,Y_max]. The dimension of self is calculated within
+   ! this routine. If "data_count" is present, then the bin count associated
+   ! with each data item [X(k),Y(k)] is returned in an array.
+      self :: PTR
+      X,Y :: REALVEC, IN
+      bin_side_length :: REAL, IN
+      data_count :: INTVEC*, optional
+      X_min,X_max,X_mid,X_ran :: REAL
+      Y_min,Y_max,Y_mid,Y_ran :: REAL
+      X_range,Y_range :: REALVEC(2)
+      dim,n_X,n_Y,i,j,k :: INT
+   ENSURE(X.dim==Y.dim,"incompatible data points")
+      dim = X.dim
+      X_min = minval(X); Y_min = minval(Y)
+      X_max = maxval(X); Y_max = maxval(Y)
+      X_mid = HALF*(X_min+X_max)
+      Y_mid = HALF*(Y_min+Y_max)
+      X_ran = X_max-X_min
+      Y_ran = Y_max-Y_min
+      n_X = ceiling(X_ran/bin_side_length)
+      n_Y = ceiling(Y_ran/bin_side_length)
+      X_min = X_mid - (n_X/TWO)*bin_side_length
+      Y_min = Y_mid - (n_Y/TWO)*bin_side_length
+      X_ran = X_ran/n_X; Y_ran = Y_ran/n_Y
+      ! Now do the binning ...
+      self.create(n_X,n_Y)
+      if (present(data_count)) data_count.create(dim)
+      do i = 1,n_X
+      do j = 1,n_Y
+         X_range(1) = X_min + (i-1)*bin_side_length
+         X_range(2) = X_range(1)  + bin_side_length
+         Y_range(1) = Y_min + (j-1)*bin_side_length
+         Y_range(2) = Y_range(1)  + bin_side_length
+         self(i,j) = count(X.in_range(X_range) AND Y.in_range(Y_range))
+         if (present(data_count)) then
+         do k = 1,dim
+            if (X(k).is_in_range(X_range) AND Y(k).is_in_range(Y_range)) then
+            data_count(k) = self(i,j)
+            end
+         end
+         end
+      end
+      end
+   end
+
+end

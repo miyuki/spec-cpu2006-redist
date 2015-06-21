@@ -1,0 +1,13 @@
+this is a ## test
+"this is a ## test"
+#define macro another ## test
+macro
+#define hasargs(doof) doof doof ## doof
+hasargs(scoop)
+
+#define bla   1
+#define bla_i 2
+#define expand(A,B) testfunc(A,bla##B)
+
+expand (this,)
+expand (this,_i)

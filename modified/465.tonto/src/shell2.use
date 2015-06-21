@@ -1,0 +1,79 @@
+   use TYPES_MODULE
+   use SYSTEM_MODULE
+ 
+   use RYS_MODULE, only: get_weights_
+   use RYS_MODULE, only: create_
+   use RYS_MODULE, only: destroy_
+ 
+   use SHELL1_MODULE, only: put_
+   use SHELL1_MODULE, only: set_
+   use SHELL1_MODULE, only: nullify_ptr_part_
+   use SHELL1_MODULE, only: destroy_ptr_part_
+   use SHELL1_MODULE, only: copy_
+ 
+   use INTVEC_MODULE, only: index_of_first_nonzero_value_
+ 
+ 
+   use CPXMAT3_MODULE, only: create_
+   use CPXMAT3_MODULE, only: destroy_
+ 
+   use REALVEC_MODULE, only: normalising_factors_
+   use REALVEC_MODULE, only: create_
+   use REALVEC_MODULE, only: create_copy_
+   use REALVEC_MODULE, only: destroy_
+ 
+   use CPXMAT4_MODULE, only: create_
+   use CPXMAT4_MODULE, only: destroy_
+ 
+   use INT_MODULE, only: n_comp_
+   use INT_MODULE, only: make_gaussian_xyz_indices_
+   use INT_MODULE, only: n_comp_sum_
+   use INT_MODULE, only: make_gaussian_xyz_powers_
+ 
+   use GAUSSIAN2_MODULE, only: make_nuclear_attraction_ints_
+   use GAUSSIAN2_MODULE, only: set_
+   use GAUSSIAN2_MODULE, only: make_ft_r_
+   use GAUSSIAN2_MODULE, only: make_NA_1st_deriv_ints_
+   use GAUSSIAN2_MODULE, only: make_dipole_ints_
+   use GAUSSIAN2_MODULE, only: make_overlap_ints_
+   use GAUSSIAN2_MODULE, only: make_T_1st_deriv_ints_
+   use GAUSSIAN2_MODULE, only: make_magnetic_jp_ints_
+   use GAUSSIAN2_MODULE, only: make_e_coeff_
+   use GAUSSIAN2_MODULE, only: make_L_ints_
+   use GAUSSIAN2_MODULE, only: make_spin_orbit_B_ints_
+   use GAUSSIAN2_MODULE, only: make_magnetic_S_ints_
+   use GAUSSIAN2_MODULE, only: make_ft_component_
+   use GAUSSIAN2_MODULE, only: make_irrotational_jp_ints_
+   use GAUSSIAN2_MODULE, only: make_spin_orbit_ints_
+   use GAUSSIAN2_MODULE, only: make_octupole_ints_
+   use GAUSSIAN2_MODULE, only: make_E_field_ints_
+   use GAUSSIAN2_MODULE, only: make_S_1st_deriv_ints_
+   use GAUSSIAN2_MODULE, only: make_solenoidal_jp_ints_
+   use GAUSSIAN2_MODULE, only: make_quadrupole_ints_
+   use GAUSSIAN2_MODULE, only: make_E_gradient_ints_
+   use GAUSSIAN2_MODULE, only: make_ft_nabla_
+   use GAUSSIAN2_MODULE, only: make_ft_
+ 
+   use INTMAT_MODULE, only: create_
+   use INTMAT_MODULE, only: destroy_
+ 
+   use REALMAT3_MODULE, only: create_
+   use REALMAT3_MODULE, only: destroy_
+ 
+   use REALMAT4_MODULE, only: create_
+   use REALMAT4_MODULE, only: destroy_
+ 
+   use INTMAT3_MODULE, only: make_index_of_components_
+   use INTMAT3_MODULE, only: create_
+   use INTMAT3_MODULE, only: destroy_
+ 
+   use TEXTFILE_MODULE, only: stdin
+   use TEXTFILE_MODULE, only: stdout
+   use TEXTFILE_MODULE, only: put_
+   use TEXTFILE_MODULE, only: flush_
+ 
+   use REALMAT_MODULE, only: create_
+   use REALMAT_MODULE, only: destroy_
+ 
+   use CPXVEC_MODULE, only: create_
+   use CPXVEC_MODULE, only: destroy_

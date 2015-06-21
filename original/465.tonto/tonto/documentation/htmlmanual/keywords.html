@@ -1,0 +1,592 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>Keyword documentation for TONTO</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="A ZORA relativistic calculation, gzz tensor
+calculation, and parity violating weak force energy shift calculation"
+HREF="zora-calc.html"><LINK
+REL="NEXT"
+TITLE="ATOM"
+HREF="atom.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="CHAPTER"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="zora-calc.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="atom.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="KEYWORDS"
+></A
+>Keyword documentation for TONTO</H1
+><P
+ALIGN="justify"
+>This chapter describes the current set of keywords used in TONTO.</P
+><P
+ALIGN="justify"
+>You must have read <A
+HREF="calc-chap.html"
+>the chapter called <I
+>Using TONTO to do calculations</I
+></A
+>&#62; in order to understand the
+documentation.</P
+><P
+ALIGN="justify"
+>Even though the online documentation is primarily for programmers, there
+is a short introduction on how to use the online documentation to find keywords
+and what needs to be entered after those keywords.</P
+><P
+ALIGN="justify"
+>For those that prefer a book, the keyword documentation for every module
+is given.  It is comprised of a short synopsis, and then a listing of all valid
+keyword tokens, a description of the type of data which are required to follow
+the keyword (if any), as well as explanatory notes and special conditions
+applying to that keyword.</P
+><P
+ALIGN="justify"
+>Not all modules in TONTO have keywords input: only modules which are
+more complex than a <TT
+CLASS="LITERAL"
+>TEXTFILE</TT
+> can have keywords, since a
+module that uses keywords must use the <TT
+CLASS="LITERAL"
+>TEXTFILE</TT
+>
+module.</P
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="ONLINE-DOC"
+></A
+>The online documentation</H1
+><P
+ALIGN="justify"
+>The online documentation is intended mainly for programmers, but it can be
+easily used to find keywords and to find what should be entered after a
+keyword.</P
+><P
+ALIGN="justify"
+>The online documentation is compirised of two parts: the short
+documentation, and the long documentation. You will need to understand what you
+are looking at in these two parts before you can find the keywords and what they
+require as input.</P
+><P
+ALIGN="justify"
+>If you have not already made the documentation, refer to <A
+HREF="making-documentation.html"
+>the Section called <I
+>Making the TONTO html documentation</I
+> in the chapter called <I
+>Compiling and Installing TONTO</I
+></A
+>&#62;.</P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SHORT-DOCS"
+></A
+>The short documentation</H2
+><P
+ALIGN="justify"
+>The short documentation for a module is obtained by clicking your mouse on
+the module name in the left frame bar of the TONTO homepage, or the left frame
+bar when you open the file <TT
+CLASS="LITERAL"
+>documentation/index.html</TT
+>. </P
+><P
+ALIGN="justify"
+>It consists of 
+<P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+> a <SPAN
+CLASS="QUOTE"
+>"Synopsis"</SPAN
+> describing what kind of object the
+module is intended for</P
+></LI
+><LI
+><P
+ALIGN="justify"
+> a list of the <SPAN
+CLASS="QUOTE"
+>"Used modules"</SPAN
+> which are required by
+the module</P
+></LI
+><LI
+><P
+ALIGN="justify"
+> a list (in green) of the <SPAN
+CLASS="QUOTE"
+>"type components"</SPAN
+> used to
+store information for this type (if it is not an array or a simple data type).
+There is an explanation of what each type component represents, and and what
+type of data is held in the component, following the double colon
+<TT
+CLASS="LITERAL"
+>::</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+> a list of any explicitly constructed <SPAN
+CLASS="QUOTE"
+>"generic
+interfaces"</SPAN
+> and the module procedures which make up these generic
+interface names; this section is not present in many modules</P
+></LI
+><LI
+><P
+ALIGN="justify"
+> a list (in red) of the <SPAN
+CLASS="QUOTE"
+>"procedures components"</SPAN
+>
+which comprise the code components of the module, and the arguments that these
+routines take, together with an explanation of what the procedure
+does.</P
+></LI
+></UL
+></P
+><P
+ALIGN="justify"
+>You can click your browser on any underlined item to obtain more detailed
+information---usually, the actual code in the long documentation---for that
+item. </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="LONG-DOCS"
+></A
+>The long documentation</H2
+><P
+ALIGN="justify"
+>The long documentation is comprised essentially of the
+<B
+CLASS="COMMAND"
+>foo</B
+> code for the module.</P
+><P
+ALIGN="justify"
+>Again, you will see green <SPAN
+CLASS="QUOTE"
+>"type components"</SPAN
+> or red
+<SPAN
+CLASS="QUOTE"
+>"procedure components"</SPAN
+> in this code.  You can click on these  to
+find out exactly what they are.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="FINDING-KEYWORDS"
+></A
+>Finding keywords in TONTO online</H2
+><P
+ALIGN="justify"
+>According to the design of TONTO, every module which accepts keywords
+must have a <TT
+CLASS="LITERAL"
+>process_input(word)</TT
+> routine. This will appear in
+red.</P
+><P
+ALIGN="justify"
+>You can get an up-to-date list of keywords used in TONTO by looking in
+the <TT
+CLASS="LITERAL"
+>process_input</TT
+> routine in the long html documentation, as
+explained below.</P
+><P
+ALIGN="justify"
+>As well as being convenient, this is particularly useful when there are
+undocumented keywords, or keywords which have been incorrectly documented
+(sorry).</P
+><P
+ALIGN="justify"
+>The procedure for finding keyword documentation is as follows:
+<P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Decide which module the keyword resides. This will invariably be
+the <TT
+CLASS="LITERAL"
+>MOL</TT
+> module.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Click on the documentation for that module in framebar on the
+left.</P
+><P
+ALIGN="justify"
+>For the <TT
+CLASS="LITERAL"
+>MOL</TT
+> module, you may have to click on the
+<TT
+CLASS="LITERAL"
+>mol_main</TT
+> module which contains the <TT
+CLASS="LITERAL"
+>read</TT
+>
+routine.</P
+><P
+ALIGN="justify"
+>Do not click the <TT
+CLASS="LITERAL"
+>foo</TT
+> part of the module name: that will
+give you the raw <TT
+CLASS="LITERAL"
+>foo</TT
+> code.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Find the <TT
+CLASS="LITERAL"
+>process_input</TT
+> routine within the
+short html documentation in the main documentation windo on the right. Click on
+it.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>You will now be within the code of a routine. Scroll down until
+you can see a <TT
+CLASS="LITERAL"
+>case</TT
+> statement. Following this case statement
+there will be many strings involving data keywords such as
+<TT
+CLASS="LITERAL"
+>name=</TT
+> or task keywords like <TT
+CLASS="LITERAL"
+>scf</TT
+>.  These
+are the allowed keywords.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>To see what kind of data might be accepted by this keyword, look
+to the corresponding code to the right of the case option. </P
+></LI
+><LI
+><P
+ALIGN="justify"
+>In the simple case,
+a variable may be inputted directly from that line, like this:
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="90%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>   case("name=");   stdin.read(.name)</PRE
+></TD
+></TR
+></TABLE
+>
+which means the variable <TT
+CLASS="LITERAL"
+>.name</TT
+> (usually in green) is to be
+inputted from the input file, <TT
+CLASS="LITERAL"
+>stdin</TT
+>. Click on the variable
+<TT
+CLASS="LITERAL"
+>.name</TT
+> to see what data type it is (e.g. a string,
+<TT
+CLASS="LITERAL"
+>STR</TT
+>, or a double precision number, <TT
+CLASS="LITERAL"
+>REAL</TT
+>).
+Since in this case <TT
+CLASS="LITERAL"
+>.name</TT
+> is a <TT
+CLASS="LITERAL"
+>STR</TT
+>, you
+know that following the <TT
+CLASS="LITERAL"
+>name=</TT
+> keyword you 
+must enter a <TT
+CLASS="LITERAL"
+>STR</TT
+>.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>In the more usual case, a routine may be called, like this:
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="90%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>   case("name=");   .read_name</PRE
+></TD
+></TR
+></TABLE
+>
+where the routine <TT
+CLASS="LITERAL"
+>.read_name</TT
+> is in red. Click on this routine
+to get to the short documentation.  Click again to see the code associated with
+the routine.  In this code, which will invariably very short, you may see
+exactly what is being inputted. For example, there may be a line like this:
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="90%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>   case("name=");   stdin.read(.name)</PRE
+></TD
+></TR
+></TABLE
+>
+exactly as in the case above.</P
+><P
+ALIGN="justify"
+>If a <TT
+CLASS="LITERAL"
+>STR</TT
+> variable in being read in, and if there are
+only a few allowed options for this string variable, there should be a
+<TT
+CLASS="LITERAL"
+>case</TT
+> statement telling you what options are allowed.</P
+><P
+ALIGN="justify"
+>If you do not see a <TT
+CLASS="LITERAL"
+>stdin.read(...)</TT
+> line within your
+routine, keep reading.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Sometimes, a read routine, for example the
+<TT
+CLASS="LITERAL"
+>read_name</TT
+> above, may call other read routines to input data.
+An example might be
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="90%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>   .shell.read</PRE
+></TD
+></TR
+></TABLE
+>
+where <TT
+CLASS="LITERAL"
+>.shell</TT
+> is in green and <TT
+CLASS="LITERAL"
+>.read</TT
+> is in
+red.  There may be a sequence of these routines. This is particularly true of
+derived data input.  In this case, follow each <TT
+CLASS="LITERAL"
+>.read</TT
+>-like
+routine by clicking on it. Eventually, you will come to code in which simple
+data such as strings or numbers are inputted. The order that you should enter
+these data, is the sequential order that you click on the routines, from top to
+bottom.</P
+></LI
+></UL
+></P
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="zora-calc.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="atom.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>A ZORA relativistic calculation, g<SUB
+>zz</SUB
+> tensor
+calculation, and parity violating weak force energy shift calculation</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>ATOM</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

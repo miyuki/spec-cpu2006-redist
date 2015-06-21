@@ -1,0 +1,135 @@
+   use TYPES_MODULE
+   use SYSTEM_MODULE
+ 
+   use REFLECTION_MODULE, only: F_r_
+   use REFLECTION_MODULE, only: F_z_
+   use REFLECTION_MODULE, only: F_z2_
+ 
+ 
+   use CIF_MODULE, only: open_
+   use CIF_MODULE, only: read_looped_item_
+   use CIF_MODULE, only: create_
+   use CIF_MODULE, only: find_looped_item_
+   use CIF_MODULE, only: destroy_
+   use CIF_MODULE, only: find_crystal_data_block_
+ 
+   use INTVEC_MODULE, only: shrink_
+   use INTVEC_MODULE, only: create_
+   use INTVEC_MODULE, only: expand_
+   use INTVEC_MODULE, only: create_copy_
+   use INTVEC_MODULE, only: destroy_
+ 
+   use BINVEC_MODULE, only: create_
+   use BINVEC_MODULE, only: destroy_
+ 
+   use CPXMAT_MODULE, only: create_
+   use CPXMAT_MODULE, only: destroy_
+ 
+   use REAL_MODULE, only: is_zero_
+   use REAL_MODULE, only: to_str_
+ 
+   use CPXMAT3_MODULE, only: create_
+   use CPXMAT3_MODULE, only: destroy_
+ 
+   use REALVEC_MODULE, only: same_as_
+   use REALVEC_MODULE, only: create_
+   use REALVEC_MODULE, only: to_product_of_
+   use REALVEC_MODULE, only: create_copy_
+   use REALVEC_MODULE, only: destroy_
+ 
+   use SPACEGROUP_MODULE, only: put_
+   use SPACEGROUP_MODULE, only: read_CIF_
+   use SPACEGROUP_MODULE, only: set_defaults_
+   use SPACEGROUP_MODULE, only: nullify_ptr_part_
+   use SPACEGROUP_MODULE, only: destroy_ptr_part_
+   use SPACEGROUP_MODULE, only: read_keywords_
+   use SPACEGROUP_MODULE, only: analyse_
+   use SPACEGROUP_MODULE, only: copy_
+ 
+   use INT_MODULE, only: to_str_
+ 
+   use ATOM_MODULE, only: chemical_symbol_
+ 
+   use UNITCELL_MODULE, only: change_from_fractional_
+   use UNITCELL_MODULE, only: read_CIF_
+   use UNITCELL_MODULE, only: set_defaults_
+   use UNITCELL_MODULE, only: put_CX_
+   use UNITCELL_MODULE, only: put_
+   use UNITCELL_MODULE, only: make_info_
+   use UNITCELL_MODULE, only: read_keywords_
+   use UNITCELL_MODULE, only: copy_
+   use UNITCELL_MODULE, only: change_into_fractional_
+ 
+   use REFLECTIONVEC_MODULE, only: scale_F_exp_
+   use REFLECTIONVEC_MODULE, only: scale_F_sigma_
+   use REFLECTIONVEC_MODULE, only: have_indices_
+   use REFLECTIONVEC_MODULE, only: set_F_pred_
+   use REFLECTIONVEC_MODULE, only: have_F_sigma_
+   use REFLECTIONVEC_MODULE, only: have_F_exp_
+   use REFLECTIONVEC_MODULE, only: simulate_new_F_exp_
+   use REFLECTIONVEC_MODULE, only: n_refl_
+   use REFLECTIONVEC_MODULE, only: have_F_calc_
+   use REFLECTIONVEC_MODULE, only: F_weighted_r_factor_
+   use REFLECTIONVEC_MODULE, only: put_
+   use REFLECTIONVEC_MODULE, only: put_I_stats_
+   use REFLECTIONVEC_MODULE, only: I_r_factor_
+   use REFLECTIONVEC_MODULE, only: F_r_factor_
+   use REFLECTIONVEC_MODULE, only: read_list_keywords_
+   use REFLECTIONVEC_MODULE, only: set_F_exp_
+   use REFLECTIONVEC_MODULE, only: have_I_pred_
+   use REFLECTIONVEC_MODULE, only: clear_keys_
+   use REFLECTIONVEC_MODULE, only: I_goodness_of_fit_
+   use REFLECTIONVEC_MODULE, only: put_F_stats_
+   use REFLECTIONVEC_MODULE, only: create_
+   use REFLECTIONVEC_MODULE, only: put_F_qq_plot_
+   use REFLECTIONVEC_MODULE, only: create_copy_
+   use REFLECTIONVEC_MODULE, only: indices_
+   use REFLECTIONVEC_MODULE, only: set_keys_
+   use REFLECTIONVEC_MODULE, only: set_F_sigma_
+   use REFLECTIONVEC_MODULE, only: I_chi2_
+   use REFLECTIONVEC_MODULE, only: set_F_calc_
+   use REFLECTIONVEC_MODULE, only: I_weighted_r_factor_
+   use REFLECTIONVEC_MODULE, only: destroy_
+   use REFLECTIONVEC_MODULE, only: have_F_pred_
+   use REFLECTIONVEC_MODULE, only: F_goodness_of_fit_
+   use REFLECTIONVEC_MODULE, only: put_labelled_F_qq_plot_
+   use REFLECTIONVEC_MODULE, only: F_chi2_
+ 
+   use REALMAT3_MODULE, only: create_
+ 
+   use STR_MODULE, only: to_lower_case_
+ 
+   use TEXTFILE_MODULE, only: stdin
+   use TEXTFILE_MODULE, only: stdout
+   use TEXTFILE_MODULE, only: set_default_units_
+   use TEXTFILE_MODULE, only: text_
+   use TEXTFILE_MODULE, only: next_str_
+   use TEXTFILE_MODULE, only: skip_next_item_
+   use TEXTFILE_MODULE, only: next_item_
+   use TEXTFILE_MODULE, only: show_
+   use TEXTFILE_MODULE, only: put_
+   use TEXTFILE_MODULE, only: tab_
+   use TEXTFILE_MODULE, only: read_
+   use TEXTFILE_MODULE, only: flush_
+   use TEXTFILE_MODULE, only: reverted_
+   use TEXTFILE_MODULE, only: read_ptr_
+   use TEXTFILE_MODULE, only: dash_
+ 
+   use STRVEC_MODULE, only: destroy_
+ 
+   use ATOMVEC_MODULE, only: get_geometry_
+ 
+   use ARCHIVE_MODULE, only: read_
+   use ARCHIVE_MODULE, only: set_
+ 
+   use REALMAT_MODULE, only: shrink_columns_
+   use REALMAT_MODULE, only: equals_
+   use REALMAT_MODULE, only: max_abs_column_difference_
+   use REALMAT_MODULE, only: create_
+   use REALMAT_MODULE, only: expand_
+   use REALMAT_MODULE, only: create_copy_
+   use REALMAT_MODULE, only: destroy_
+   use REALMAT_MODULE, only: has_column_
+ 
+   use CPXVEC_MODULE, only: create_
+   use CPXVEC_MODULE, only: destroy_

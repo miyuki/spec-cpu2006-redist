@@ -1,0 +1,477 @@
+<HTML><HEAD><SCRIPT language="JavaScript" src="../resources/script.js" type="text/javascript"></SCRIPT><TITLE>URLInputSource class Reference</TITLE><link href="XercesApi.css" rel="stylesheet" type="text/css"></HEAD><BODY alink="#ff0000" bgcolor="#ffffff" leftmargin="4" link="#0000ff" marginheight="4" marginwidth="4" text="#000000" topmargin="4" vlink="#0000aa"><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" height="60" rowspan="3" valign="top" width="135"><IMG border="0" height="60" hspace="0" src="../resources/logo.gif" vspace="0" width="135"></TD><TD align="left" colspan="4" height="5" valign="top" width="456"><IMG border="0" height="5" hspace="0" src="../resources/line.gif" vspace="0" width="456"></TD><TD align="left" height="60" rowspan="3" valign="top" width="29"><IMG border="0" height="60" hspace="0" src="../resources/right.gif" vspace="0" width="29"></TD></TR><TR><TD align="left" bgcolor="#0086b2" colspan="4" height="35" valign="top" width="456"><IMG alt="" border="0" height="35" hspace="0" src="../graphics/api-header.jpg" vspace="0" width="456"></TD></TR><TR><TD align="left" height="20" valign="top" width="168"><IMG border="0" height="20" hspace="0" src="../resources/bottom.gif" vspace="0" width="168"></TD><TD align="left" height="20" valign="top" width="96"><A href="http://xml.apache.org/" onMouseOut="rolloverOff('xml');" onMouseOver="rolloverOn('xml');" target="new"><IMG alt="http://xml.apache.org/" border="0" height="20" hspace="0" name="xml" onLoad="rolloverLoad('xml','../resources/button-xml-hi.gif','../resources/button-xml-lo.gif');" src="../resources/button-xml-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.apache.org/" onMouseOut="rolloverOff('asf');" onMouseOver="rolloverOn('asf');" target="new"><IMG alt="http://www.apache.org/" border="0" height="20" hspace="0" name="asf" onLoad="rolloverLoad('asf','../resources/button-asf-hi.gif','../resources/button-asf-lo.gif');" src="../resources/button-asf-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.w3.org/" onMouseOut="rolloverOff('w3c');" onMouseOver="rolloverOn('w3c');" target="new"><IMG alt="http://www.w3.org/" border="0" height="20" hspace="0" name="w3c" onLoad="rolloverLoad('w3c','../resources/button-w3c-hi.gif','../resources/button-w3c-lo.gif');" src="../resources/button-w3c-lo.gif" vspace="0" width="96"></A></TD></TR></TABLE><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" valign="top" width="120"><IMG border="0" height="14" hspace="0" src="../resources/join.gif" vspace="0" width="120"><BR>
+  <A href="../../index.html" onMouseOut="rolloverOff('side-ext-2');" onMouseOver="rolloverOn('side-ext-2');"><IMG alt="Home" border="0" height="12" hspace="0" name="side-ext-2" onLoad="rolloverLoad('side-ext-2','../graphics/ext-2-label-2.jpg','../graphics/ext-2-label-3.jpg');" src="../graphics/ext-2-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../index.html" onMouseOut="rolloverOff('side-index');" onMouseOver="rolloverOn('side-index');"><IMG alt="Readme" border="0" height="12" hspace="0" name="side-index" onLoad="rolloverLoad('side-index','../graphics/index-label-2.jpg','../graphics/index-label-3.jpg');" src="../graphics/index-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../releases.html" onMouseOut="rolloverOff('side-releases');" onMouseOver="rolloverOn('side-releases');"><IMG alt="Release Info" border="0" height="12" hspace="0" name="side-releases" onLoad="rolloverLoad('side-releases','../graphics/releases-label-2.jpg','../graphics/releases-label-3.jpg');" src="../graphics/releases-label-3.jpg" vspace="0" width="120"></A><BR>
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../install.html" onMouseOut="rolloverOff('side-install');" onMouseOver="rolloverOn('side-install');"><IMG alt="Installation" border="0" height="12" hspace="0" name="side-install" onLoad="rolloverLoad('side-install','../graphics/install-label-2.jpg','../graphics/install-label-3.jpg');" src="../graphics/install-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://xml.apache.org/dist/xerces-c/" onMouseOut="rolloverOff('side-ext-18');" onMouseOver="rolloverOn('side-ext-18');"><IMG alt="Download" border="0" height="12" hspace="0" name="side-ext-18" onLoad="rolloverLoad('side-ext-18','../graphics/ext-18-label-2.jpg','../graphics/ext-18-label-3.jpg');" src="../graphics/ext-18-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../build.html" onMouseOut="rolloverOff('side-build');" onMouseOver="rolloverOn('side-build');"><IMG alt="Build" border="0" height="12" hspace="0" name="side-build" onLoad="rolloverLoad('side-build','../graphics/build-label-2.jpg','../graphics/build-label-3.jpg');" src="../graphics/build-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../faqs.html" onMouseOut="rolloverOff('side-faqs');" onMouseOver="rolloverOn('side-faqs');"><IMG alt="FAQs" border="0" height="12" hspace="0" name="side-faqs" onLoad="rolloverLoad('side-faqs','../graphics/faqs-label-2.jpg','../graphics/faqs-label-3.jpg');" src="../graphics/faqs-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../samples.html" onMouseOut="rolloverOff('side-samples');" onMouseOver="rolloverOn('side-samples');"><IMG alt="Samples" border="0" height="12" hspace="0" name="side-samples" onLoad="rolloverLoad('side-samples','../graphics/samples-label-2.jpg','../graphics/samples-label-3.jpg');" src="../graphics/samples-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../api.html" onMouseOut="rolloverOff('side-api');" onMouseOver="rolloverOn('side-api');"><IMG alt="API Docs" border="0" height="12" hspace="0" name="side-api" onLoad="rolloverLoad('side-api','../graphics/api-label-2.jpg','../graphics/api-label-3.jpg');" src="../graphics/api-label-3.jpg" vspace="0" width="120"></A><BR>  
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../ApacheDOMC++Binding.html" onMouseOut="rolloverOff('side-ext-64');" onMouseOver="rolloverOn('side-ext-64');"><IMG alt="DOM C++ Binding" border="0" height="12" hspace="0" name="side-ext-64" onLoad="rolloverLoad('side-ext-64','../graphics/ext-64-label-2.jpg','../graphics/ext-64-label-3.jpg');" src="../graphics/ext-64-label-3.jpg" vspace="0" width="120"></A><BR> 
+  <A href="../program.html" onMouseOut="rolloverOff('side-program');" onMouseOver="rolloverOn('side-program');"><IMG alt="Programming" border="0" height="12" hspace="0" name="side-program" onLoad="rolloverLoad('side-program','../graphics/program-label-2.jpg','../graphics/program-label-3.jpg');" src="../graphics/program-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../migrate.html" onMouseOut="rolloverOff('side-migrate');" onMouseOver="rolloverOn('side-migrate');"><IMG alt="Migration Guide" border="0" height="12" hspace="0" name="side-migrate" onLoad="rolloverLoad('side-migrate','../graphics/migrate-label-2.jpg','../graphics/migrate-label-3.jpg');" src="../graphics/migrate-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../feedback.html" onMouseOut="rolloverOff('side-feedback');" onMouseOver="rolloverOn('side-feedback');"><IMG alt="Feedback" border="0" height="12" hspace="0" name="side-feedback" onLoad="rolloverLoad('side-feedback','../graphics/feedback-label-2.jpg','../graphics/feedback-label-3.jpg');" src="../graphics/feedback-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../bug-report.html" onMouseOut="rolloverOff('side-bug-report');" onMouseOver="rolloverOn('side-bug-report');"><IMG alt="Bug-Reporting" border="0" height="12" hspace="0" name="side-bug-report" onLoad="rolloverLoad('side-bug-report','../graphics/bug-report-label-2.jpg','../graphics/bug-report-label-3.jpg');" src="../graphics/bug-report-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../pdf.html" onMouseOut="rolloverOff('side-pdf');" onMouseOver="rolloverOn('side-pdf');"><IMG alt="PDF Document" border="0" height="12" hspace="0" name="side-pdf" onLoad="rolloverLoad('side-pdf','../graphics/pdf-label-2.jpg','../graphics/pdf-label-3.jpg');" src="../graphics/pdf-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="http://xml.apache.org/websrc/cvsweb.cgi/xml-xerces/c/" onMouseOut="rolloverOff('side-ext-96');" onMouseOver="rolloverOn('side-ext-96');"><IMG alt="CVS Repository" border="0" height="12" hspace="0" name="side-ext-96" onLoad="rolloverLoad('side-ext-96','../graphics/ext-96-label-2.jpg','../graphics/ext-96-label-3.jpg');" src="../graphics/ext-96-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://marc.theaimsgroup.com/?l=xerces-c-dev" onMouseOut="rolloverOff('side-ext-98');" onMouseOver="rolloverOn('side-ext-98');"><IMG alt="Mail Archive" border="0" height="12" hspace="0" name="side-ext-98" onLoad="rolloverLoad('side-ext-98','../graphics/ext-98-label-2.jpg','../graphics/ext-98-label-3.jpg');" src="../graphics/ext-98-label-3.jpg" vspace="0" width="120"></A><BR>
+
+<IMG border="0" height="14" hspace="0" src="../resources/close.gif" vspace="0" width="120"><BR></TD><TD align="left" valign="top" width="500"><TABLE border="0" cellpadding="3" cellspacing="0"><TR><TD>
+    <TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#FFFFFF" colspan="2" width="494"><TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#039acc" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#039acc" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#039acc" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" width="492"><FONT color="#ffffff" face="arial,helvetica,sanserif" size="+1"><IMG border="0" height="2" hspace="0" src="../resources/void.gif" vspace="0" width="2"><B>API Docs for SAX and DOM</B></FONT></TD><TD bgcolor="#017299" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#017299" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#017299" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></TD></TR><TR><TD width="10">&nbsp;</TD><TD width="484"><FONT color="#000000" face="arial,helvetica,sanserif">
+
+	    <P>
+<!-- Generated by Doxygen 1.2.14 -->
+<center>
+<a class="qindex" href="index.html">Main Page</a> &nbsp; <a class="qindex" href="hierarchy.html">Class Hierarchy</a> &nbsp; <a class="qindex" href="classes.html">Alphabetical List</a> &nbsp; <a class="qindex" href="annotated.html">Compound List</a> &nbsp; <a class="qindex" href="files.html">File List</a> &nbsp; <a class="qindex" href="functions.html">Compound Members</a> &nbsp; <a class="qindex" href="globals.html">File Members</a> &nbsp; </center>
+<hr><h1>URLInputSource  Class Reference</h1>This class is a derivative of the standard <a class="el" href="classInputSource.html">InputSource</a> class. 
+<a href="#_details">More...</a>
+<p>
+Inheritance diagram for URLInputSource:<p><center><img src="classURLInputSource__inherit__graph.gif" border="0" usemap="#URLInputSource__inherit__map" alt="Inheritance graph"></center>
+<map name="URLInputSource__inherit__map">
+<area href="classInputSource.html" shape="rect" coords="20,105,103,86" alt="">
+<area href="classXMemory.html" shape="rect" coords="27,36,96,17" alt="">
+</map>
+<center><font size="2">[<a href="graph_legend.html">legend</a>]</font></center>Collaboration diagram for URLInputSource:<p><center><img src="classURLInputSource__coll__graph.gif" border="0" usemap="#URLInputSource__coll__map" alt="Collaboration graph"></center>
+<map name="URLInputSource__coll__map">
+<area href="classInputSource.html" shape="rect" coords="35,127,117,108" alt="">
+<area href="classXMemory.html" shape="rect" coords="11,36,80,17" alt="">
+<area href="classXMLURL.html" shape="rect" coords="141,127,208,108" alt="">
+<area href="classMemoryManager.html" shape="rect" coords="172,36,281,17" alt="">
+</map>
+<center><font size="2">[<a href="graph_legend.html">legend</a>]</font></center><a href="classURLInputSource-members.html">List of all members.</a><table border=0 cellpadding=0 cellspacing=0>
+<tr><td colspan=2><br><h2>Public Methods</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Constructors</div></td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classURLInputSource.html#z223_0">URLInputSource</a> (const <a class="el" href="classXMLURL.html">XMLURL</a> &amp;urlId, <a class="el" href="classMemoryManager.html">MemoryManager</a> *const manager=<a class="el" href="classXMLPlatformUtils.html#z477_4">XMLPlatformUtils::fgMemoryManager</a>)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>This constructor accepts an already built URL.</em> <a href="#z223_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classURLInputSource.html#z223_1">URLInputSource</a> (const XMLCh *const baseId, const XMLCh *const systemId, <a class="el" href="classMemoryManager.html">MemoryManager</a> *const manager=<a class="el" href="classXMLPlatformUtils.html#z477_4">XMLPlatformUtils::fgMemoryManager</a>)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>This constructor takes a base system id URL and a possibly relative system id.</em> <a href="#z223_1">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classURLInputSource.html#z223_2">URLInputSource</a> (const XMLCh *const baseId, const XMLCh *const systemId, const XMLCh *const publicId, <a class="el" href="classMemoryManager.html">MemoryManager</a> *const manager=<a class="el" href="classXMLPlatformUtils.html#z477_4">XMLPlatformUtils::fgMemoryManager</a>)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>This constructor is indentical to the previous one, except that it also allows you to set a public id if you want to.</em> <a href="#z223_2">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classURLInputSource.html#z223_3">URLInputSource</a> (const XMLCh *const baseId, const char *const systemId, <a class="el" href="classMemoryManager.html">MemoryManager</a> *const manager=<a class="el" href="classXMLPlatformUtils.html#z477_4">XMLPlatformUtils::fgMemoryManager</a>)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>This constructor is identical to the second constructor above, except that it accepts the relative system id part as a local code page string and just transcodes it internally, as a convenience.</em> <a href="#z223_3">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classURLInputSource.html#z223_4">URLInputSource</a> (const XMLCh *const baseId, const char *const systemId, const char *const publicId, <a class="el" href="classMemoryManager.html">MemoryManager</a> *const manager=<a class="el" href="classXMLPlatformUtils.html#z477_4">XMLPlatformUtils::fgMemoryManager</a>)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>This constructor is identical to the third constructor above, except that it accepts the relative and public ids as local code page strings and just transcodes them internally, as a convenience.</em> <a href="#z223_4">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classURLInputSource.html#z224_0">~URLInputSource</a> ()</td></tr>
+<tr><td colspan="2"><div class="groupHeader">Virtual methods</div></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classBinInputStream.html">BinInputStream</a> *&nbsp;</td><td valign=bottom><a class="el" href="classURLInputSource.html#z225_0">makeStream</a> () const</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>This method will return a binary input stream derivative that will parse from the source refered to by the URL system id.</em> <a href="#z225_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Getter methods</div></td></tr>
+<tr><td nowrap align=right valign=top>const <a class="el" href="classXMLURL.html">XMLURL</a> &amp;&nbsp;</td><td valign=bottom><a class="el" href="classURLInputSource.html#z226_0">urlSrc</a> () const</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>This method will return a const reference to the URL member which contains the system id in pre-parsed URL form.</em> <a href="#z226_0">More...</a><em></em></font><br><br></td></tr>
+</table>
+<hr><a name="_details"></a><h2>Detailed Description</h2>
+This class is a derivative of the standard <a class="el" href="classInputSource.html">InputSource</a> class.
+<p>
+It provides for the parser access to data which is referenced via a URL, as apposed to a local file name. The URL can be provided via an <a class="el" href="classXMLURL.html">XMLURL</a> class, as a fully qualified system id, or a base system id and a system id which may be fully qualified or may be relative to the base.
+<p>
+As with all <a class="el" href="classInputSource.html">InputSource</a> derivatives. The primary objective of an input source is to create an input stream via which the parser can spool in data from the referenced source.
+<p>
+Note that the parse system does not necessarily support URL based XML entities out of the box. Support for socket based access is optional and controlled by the per-platform support. 
+<p>
+<hr><h2>Constructor &amp; Destructor Documentation</h2>
+<a name="z223_0" doxytag="URLInputSource::URLInputSource"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> URLInputSource::URLInputSource </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const <a class="el" href="classXMLURL.html">XMLURL</a> &amp;&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>urlId</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classMemoryManager.html">MemoryManager</a> *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>manager</em> = <a class="el" href="classXMLPlatformUtils.html#z477_4">XMLPlatformUtils::fgMemoryManager</a></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+This constructor accepts an already built URL.
+<p>
+It is assumed that it is correct and it will be used as is. In this case, no public id accepted, but it can still be set via the parent class' <a class="el" href="classInputSource.html#z426_1">setPublicId</a>() method.<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>urlId</em>&nbsp;</td><td>
+The URL which holds the system id of the entity to parse. </td></tr>
+<tr><td valign=top><em>manager</em>&nbsp;</td><td>
+Pointer to the memory manager to be used to allocate objects. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="z223_1" doxytag="URLInputSource::URLInputSource"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> URLInputSource::URLInputSource </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>baseId</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const XMLCh *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>systemId</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classMemoryManager.html">MemoryManager</a> *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>manager</em> = <a class="el" href="classXMLPlatformUtils.html#z477_4">XMLPlatformUtils::fgMemoryManager</a></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+This constructor takes a base system id URL and a possibly relative system id.
+<p>
+The relative part is parsed and, if it is indeed relative, it will be made relative to the passed base id. Otherwise, it will be taken as is.<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>baseId</em>&nbsp;</td><td>
+The base system id URL which provides the base for any relative id part.</td></tr>
+<tr><td valign=top><em>systemId</em>&nbsp;</td><td>
+The possibly relative system id URL. If its relative its based on baseId, else its taken as is. </td></tr>
+<tr><td valign=top><em>manager</em>&nbsp;</td><td>
+Pointer to the memory manager to be used to allocate objects. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="z223_2" doxytag="URLInputSource::URLInputSource"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> URLInputSource::URLInputSource </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>baseId</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const XMLCh *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>systemId</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const XMLCh *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>publicId</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classMemoryManager.html">MemoryManager</a> *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>manager</em> = <a class="el" href="classXMLPlatformUtils.html#z477_4">XMLPlatformUtils::fgMemoryManager</a></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+This constructor is indentical to the previous one, except that it also allows you to set a public id if you want to.
+<p>
+<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>baseId</em>&nbsp;</td><td>
+The base system id URL which provides the base for any relative id part.</td></tr>
+<tr><td valign=top><em>systemId</em>&nbsp;</td><td>
+The possibly relative system id URL. If its relative its based on baseId, else its taken as is.</td></tr>
+<tr><td valign=top><em>publicId</em>&nbsp;</td><td>
+The optional public id to set. This is just passed on to the parent class for storage.</td></tr>
+<tr><td valign=top><em>manager</em>&nbsp;</td><td>
+Pointer to the memory manager to be used to allocate objects. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="z223_3" doxytag="URLInputSource::URLInputSource"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> URLInputSource::URLInputSource </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>baseId</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const char *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>systemId</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classMemoryManager.html">MemoryManager</a> *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>manager</em> = <a class="el" href="classXMLPlatformUtils.html#z477_4">XMLPlatformUtils::fgMemoryManager</a></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+This constructor is identical to the second constructor above, except that it accepts the relative system id part as a local code page string and just transcodes it internally, as a convenience.
+<p>
+<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>baseId</em>&nbsp;</td><td>
+The base system id URL which provides the base for any relative id part.</td></tr>
+<tr><td valign=top><em>systemId</em>&nbsp;</td><td>
+The possibly relative system id URL. If its relative its based on baseId, else its taken as is.</td></tr>
+<tr><td valign=top><em>manager</em>&nbsp;</td><td>
+Pointer to the memory manager to be used to allocate objects. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="z223_4" doxytag="URLInputSource::URLInputSource"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> URLInputSource::URLInputSource </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>baseId</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const char *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>systemId</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const char *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>publicId</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classMemoryManager.html">MemoryManager</a> *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>manager</em> = <a class="el" href="classXMLPlatformUtils.html#z477_4">XMLPlatformUtils::fgMemoryManager</a></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+This constructor is identical to the third constructor above, except that it accepts the relative and public ids as local code page strings and just transcodes them internally, as a convenience.
+<p>
+<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>baseId</em>&nbsp;</td><td>
+The base system id URL which provides the base for any relative id part.</td></tr>
+<tr><td valign=top><em>systemId</em>&nbsp;</td><td>
+The possibly relative system id URL. If its relative its based on baseId, else its taken as is.</td></tr>
+<tr><td valign=top><em>publicId</em>&nbsp;</td><td>
+The optional public id to set. This is just passed on to the parent class for storage. on to the parent class for storage.</td></tr>
+<tr><td valign=top><em>manager</em>&nbsp;</td><td>
+Pointer to the memory manager to be used to allocate objects. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="z224_0" doxytag="URLInputSource::~URLInputSource"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> URLInputSource::~URLInputSource </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<hr><h2>Member Function Documentation</h2>
+<a name="z225_0" doxytag="URLInputSource::makeStream"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classBinInputStream.html">BinInputStream</a>* URLInputSource::makeStream </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+This method will return a binary input stream derivative that will parse from the source refered to by the URL system id.
+<p>
+
+<p>
+Implements <a class="el" href="classInputSource.html#z424_0">InputSource</a>.    </td>
+  </tr>
+</table>
+<a name="z226_0" doxytag="URLInputSource::urlSrc"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const <a class="el" href="classXMLURL.html">XMLURL</a> &amp; URLInputSource::urlSrc </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const</td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+This method will return a const reference to the URL member which contains the system id in pre-parsed URL form.
+<p>
+If you just want the string format, call <a class="el" href="classInputSource.html#z425_2">getSystemId</a>() on the parent class.
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+A const reference to a URL object that contains the current system id set for this input source. </dl>    </td>
+  </tr>
+</table>
+<hr>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="URLInputSource_8hpp-source.html">URLInputSource.hpp</a></ul>
+    </FONT></TD></TR></TABLE><BR>
+</TD></TR></TABLE></TD></TR></TABLE><BR><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD bgcolor="#0086b2"><IMG height="1" src="images/dot.gif" width="1" alt=""></TD></TR><TR><TD align="center"><FONT color="#0086b2" size="-1"><I>
+              Copyright &copy; 2004 The Apache Software Foundation.
+              All Rights Reserved.
+            </I></FONT></TD></TR></TABLE></BODY></HTML>

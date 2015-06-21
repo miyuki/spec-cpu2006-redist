@@ -1,0 +1,1566 @@
+<HTML><HEAD><SCRIPT language="JavaScript" src="../resources/script.js" type="text/javascript"></SCRIPT><TITLE>XercesDOMParser class Reference</TITLE><link href="XercesApi.css" rel="stylesheet" type="text/css"></HEAD><BODY alink="#ff0000" bgcolor="#ffffff" leftmargin="4" link="#0000ff" marginheight="4" marginwidth="4" text="#000000" topmargin="4" vlink="#0000aa"><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" height="60" rowspan="3" valign="top" width="135"><IMG border="0" height="60" hspace="0" src="../resources/logo.gif" vspace="0" width="135"></TD><TD align="left" colspan="4" height="5" valign="top" width="456"><IMG border="0" height="5" hspace="0" src="../resources/line.gif" vspace="0" width="456"></TD><TD align="left" height="60" rowspan="3" valign="top" width="29"><IMG border="0" height="60" hspace="0" src="../resources/right.gif" vspace="0" width="29"></TD></TR><TR><TD align="left" bgcolor="#0086b2" colspan="4" height="35" valign="top" width="456"><IMG alt="" border="0" height="35" hspace="0" src="../graphics/api-header.jpg" vspace="0" width="456"></TD></TR><TR><TD align="left" height="20" valign="top" width="168"><IMG border="0" height="20" hspace="0" src="../resources/bottom.gif" vspace="0" width="168"></TD><TD align="left" height="20" valign="top" width="96"><A href="http://xml.apache.org/" onMouseOut="rolloverOff('xml');" onMouseOver="rolloverOn('xml');" target="new"><IMG alt="http://xml.apache.org/" border="0" height="20" hspace="0" name="xml" onLoad="rolloverLoad('xml','../resources/button-xml-hi.gif','../resources/button-xml-lo.gif');" src="../resources/button-xml-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.apache.org/" onMouseOut="rolloverOff('asf');" onMouseOver="rolloverOn('asf');" target="new"><IMG alt="http://www.apache.org/" border="0" height="20" hspace="0" name="asf" onLoad="rolloverLoad('asf','../resources/button-asf-hi.gif','../resources/button-asf-lo.gif');" src="../resources/button-asf-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.w3.org/" onMouseOut="rolloverOff('w3c');" onMouseOver="rolloverOn('w3c');" target="new"><IMG alt="http://www.w3.org/" border="0" height="20" hspace="0" name="w3c" onLoad="rolloverLoad('w3c','../resources/button-w3c-hi.gif','../resources/button-w3c-lo.gif');" src="../resources/button-w3c-lo.gif" vspace="0" width="96"></A></TD></TR></TABLE><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" valign="top" width="120"><IMG border="0" height="14" hspace="0" src="../resources/join.gif" vspace="0" width="120"><BR>
+  <A href="../../index.html" onMouseOut="rolloverOff('side-ext-2');" onMouseOver="rolloverOn('side-ext-2');"><IMG alt="Home" border="0" height="12" hspace="0" name="side-ext-2" onLoad="rolloverLoad('side-ext-2','../graphics/ext-2-label-2.jpg','../graphics/ext-2-label-3.jpg');" src="../graphics/ext-2-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../index.html" onMouseOut="rolloverOff('side-index');" onMouseOver="rolloverOn('side-index');"><IMG alt="Readme" border="0" height="12" hspace="0" name="side-index" onLoad="rolloverLoad('side-index','../graphics/index-label-2.jpg','../graphics/index-label-3.jpg');" src="../graphics/index-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../releases.html" onMouseOut="rolloverOff('side-releases');" onMouseOver="rolloverOn('side-releases');"><IMG alt="Release Info" border="0" height="12" hspace="0" name="side-releases" onLoad="rolloverLoad('side-releases','../graphics/releases-label-2.jpg','../graphics/releases-label-3.jpg');" src="../graphics/releases-label-3.jpg" vspace="0" width="120"></A><BR>
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../install.html" onMouseOut="rolloverOff('side-install');" onMouseOver="rolloverOn('side-install');"><IMG alt="Installation" border="0" height="12" hspace="0" name="side-install" onLoad="rolloverLoad('side-install','../graphics/install-label-2.jpg','../graphics/install-label-3.jpg');" src="../graphics/install-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://xml.apache.org/dist/xerces-c/" onMouseOut="rolloverOff('side-ext-18');" onMouseOver="rolloverOn('side-ext-18');"><IMG alt="Download" border="0" height="12" hspace="0" name="side-ext-18" onLoad="rolloverLoad('side-ext-18','../graphics/ext-18-label-2.jpg','../graphics/ext-18-label-3.jpg');" src="../graphics/ext-18-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../build.html" onMouseOut="rolloverOff('side-build');" onMouseOver="rolloverOn('side-build');"><IMG alt="Build" border="0" height="12" hspace="0" name="side-build" onLoad="rolloverLoad('side-build','../graphics/build-label-2.jpg','../graphics/build-label-3.jpg');" src="../graphics/build-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../faqs.html" onMouseOut="rolloverOff('side-faqs');" onMouseOver="rolloverOn('side-faqs');"><IMG alt="FAQs" border="0" height="12" hspace="0" name="side-faqs" onLoad="rolloverLoad('side-faqs','../graphics/faqs-label-2.jpg','../graphics/faqs-label-3.jpg');" src="../graphics/faqs-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../samples.html" onMouseOut="rolloverOff('side-samples');" onMouseOver="rolloverOn('side-samples');"><IMG alt="Samples" border="0" height="12" hspace="0" name="side-samples" onLoad="rolloverLoad('side-samples','../graphics/samples-label-2.jpg','../graphics/samples-label-3.jpg');" src="../graphics/samples-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../api.html" onMouseOut="rolloverOff('side-api');" onMouseOver="rolloverOn('side-api');"><IMG alt="API Docs" border="0" height="12" hspace="0" name="side-api" onLoad="rolloverLoad('side-api','../graphics/api-label-2.jpg','../graphics/api-label-3.jpg');" src="../graphics/api-label-3.jpg" vspace="0" width="120"></A><BR>  
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../ApacheDOMC++Binding.html" onMouseOut="rolloverOff('side-ext-64');" onMouseOver="rolloverOn('side-ext-64');"><IMG alt="DOM C++ Binding" border="0" height="12" hspace="0" name="side-ext-64" onLoad="rolloverLoad('side-ext-64','../graphics/ext-64-label-2.jpg','../graphics/ext-64-label-3.jpg');" src="../graphics/ext-64-label-3.jpg" vspace="0" width="120"></A><BR> 
+  <A href="../program.html" onMouseOut="rolloverOff('side-program');" onMouseOver="rolloverOn('side-program');"><IMG alt="Programming" border="0" height="12" hspace="0" name="side-program" onLoad="rolloverLoad('side-program','../graphics/program-label-2.jpg','../graphics/program-label-3.jpg');" src="../graphics/program-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../migrate.html" onMouseOut="rolloverOff('side-migrate');" onMouseOver="rolloverOn('side-migrate');"><IMG alt="Migration Guide" border="0" height="12" hspace="0" name="side-migrate" onLoad="rolloverLoad('side-migrate','../graphics/migrate-label-2.jpg','../graphics/migrate-label-3.jpg');" src="../graphics/migrate-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../feedback.html" onMouseOut="rolloverOff('side-feedback');" onMouseOver="rolloverOn('side-feedback');"><IMG alt="Feedback" border="0" height="12" hspace="0" name="side-feedback" onLoad="rolloverLoad('side-feedback','../graphics/feedback-label-2.jpg','../graphics/feedback-label-3.jpg');" src="../graphics/feedback-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../bug-report.html" onMouseOut="rolloverOff('side-bug-report');" onMouseOver="rolloverOn('side-bug-report');"><IMG alt="Bug-Reporting" border="0" height="12" hspace="0" name="side-bug-report" onLoad="rolloverLoad('side-bug-report','../graphics/bug-report-label-2.jpg','../graphics/bug-report-label-3.jpg');" src="../graphics/bug-report-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../pdf.html" onMouseOut="rolloverOff('side-pdf');" onMouseOver="rolloverOn('side-pdf');"><IMG alt="PDF Document" border="0" height="12" hspace="0" name="side-pdf" onLoad="rolloverLoad('side-pdf','../graphics/pdf-label-2.jpg','../graphics/pdf-label-3.jpg');" src="../graphics/pdf-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="http://xml.apache.org/websrc/cvsweb.cgi/xml-xerces/c/" onMouseOut="rolloverOff('side-ext-96');" onMouseOver="rolloverOn('side-ext-96');"><IMG alt="CVS Repository" border="0" height="12" hspace="0" name="side-ext-96" onLoad="rolloverLoad('side-ext-96','../graphics/ext-96-label-2.jpg','../graphics/ext-96-label-3.jpg');" src="../graphics/ext-96-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://marc.theaimsgroup.com/?l=xerces-c-dev" onMouseOut="rolloverOff('side-ext-98');" onMouseOver="rolloverOn('side-ext-98');"><IMG alt="Mail Archive" border="0" height="12" hspace="0" name="side-ext-98" onLoad="rolloverLoad('side-ext-98','../graphics/ext-98-label-2.jpg','../graphics/ext-98-label-3.jpg');" src="../graphics/ext-98-label-3.jpg" vspace="0" width="120"></A><BR>
+
+<IMG border="0" height="14" hspace="0" src="../resources/close.gif" vspace="0" width="120"><BR></TD><TD align="left" valign="top" width="500"><TABLE border="0" cellpadding="3" cellspacing="0"><TR><TD>
+    <TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#FFFFFF" colspan="2" width="494"><TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#039acc" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#039acc" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#039acc" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" width="492"><FONT color="#ffffff" face="arial,helvetica,sanserif" size="+1"><IMG border="0" height="2" hspace="0" src="../resources/void.gif" vspace="0" width="2"><B>API Docs for SAX and DOM</B></FONT></TD><TD bgcolor="#017299" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#017299" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#017299" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></TD></TR><TR><TD width="10">&nbsp;</TD><TD width="484"><FONT color="#000000" face="arial,helvetica,sanserif">
+
+	    <P>
+<!-- Generated by Doxygen 1.2.14 -->
+<center>
+<a class="qindex" href="index.html">Main Page</a> &nbsp; <a class="qindex" href="hierarchy.html">Class Hierarchy</a> &nbsp; <a class="qindex" href="classes.html">Alphabetical List</a> &nbsp; <a class="qindex" href="annotated.html">Compound List</a> &nbsp; <a class="qindex" href="files.html">File List</a> &nbsp; <a class="qindex" href="functions.html">Compound Members</a> &nbsp; <a class="qindex" href="globals.html">File Members</a> &nbsp; </center>
+<hr><h1>XercesDOMParser  Class Reference</h1>This class implements the Document Object Model (DOM) interface. 
+<a href="#_details">More...</a>
+<p>
+Inheritance diagram for XercesDOMParser:<p><center><img src="classXercesDOMParser__inherit__graph.gif" border="0" usemap="#XercesDOMParser__inherit__map" alt="Inheritance graph"></center>
+<map name="XercesDOMParser__inherit__map">
+<area href="classAbstractDOMParser.html" shape="rect" coords="185,105,319,86" alt="">
+<area href="classXMemory.html" shape="rect" coords="7,36,76,17" alt="">
+<area href="classXMLDocumentHandler.html" shape="rect" coords="100,36,247,17" alt="">
+<area href="classXMLErrorReporter.html" shape="rect" coords="271,36,393,17" alt="">
+<area href="classXMLEntityHandler.html" shape="rect" coords="417,36,535,17" alt="">
+</map>
+<center><font size="2">[<a href="graph_legend.html">legend</a>]</font></center>Collaboration diagram for XercesDOMParser:<p><center><img src="classXercesDOMParser__coll__graph.gif" border="0" usemap="#XercesDOMParser__coll__map" alt="Collaboration graph"></center>
+<map name="XercesDOMParser__coll__map">
+<area href="classAbstractDOMParser.html" shape="rect" coords="19,27,152,9" alt="">
+<area href="classErrorHandler.html" shape="rect" coords="43,85,128,66" alt="">
+<area href="classEntityResolver.html" shape="rect" coords="37,153,133,134" alt="">
+<area href="classXMLEntityResolver.html" shape="rect" coords="23,221,148,202" alt="">
+</map>
+<center><font size="2">[<a href="graph_legend.html">legend</a>]</font></center><a href="classXercesDOMParser-members.html">List of all members.</a><table border=0 cellpadding=0 cellspacing=0>
+<tr><td colspan=2><br><h2>Public Methods</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Constructors and Destructor</div></td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z463_0">XercesDOMParser</a> (<a class="el" href="classXMLValidator.html">XMLValidator</a> *const valToAdopt=0, <a class="el" href="classMemoryManager.html">MemoryManager</a> *const manager=<a class="el" href="classXMLPlatformUtils.html#z477_4">XMLPlatformUtils::fgMemoryManager</a>, <a class="el" href="classXMLGrammarPool.html">XMLGrammarPool</a> *const gramPool=0)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Construct a XercesDOMParser, with an optional validator.</em> <a href="#z463_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z463_1">~XercesDOMParser</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Destructor.</em> <a href="#z463_1">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Getter methods</div></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classErrorHandler.html">ErrorHandler</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z464_0">getErrorHandler</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Get a pointer to the error handler.</em> <a href="#z464_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>const <a class="el" href="classErrorHandler.html">ErrorHandler</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z464_1">getErrorHandler</a> () const</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Get a const pointer to the error handler.</em> <a href="#z464_1">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classEntityResolver.html">EntityResolver</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z464_2">getEntityResolver</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Get a pointer to the entity resolver.</em> <a href="#z464_2">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>const <a class="el" href="classEntityResolver.html">EntityResolver</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z464_3">getEntityResolver</a> () const</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Get a const pointer to the entity resolver.</em> <a href="#z464_3">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classXMLEntityResolver.html">XMLEntityResolver</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z464_4">getXMLEntityResolver</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Get a pointer to the entity resolver.</em> <a href="#z464_4">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>const <a class="el" href="classXMLEntityResolver.html">XMLEntityResolver</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z464_5">getXMLEntityResolver</a> () const</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Get a const pointer to the entity resolver.</em> <a href="#z464_5">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z464_6">isCachingGrammarFromParse</a> () const</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Get the 'Grammar caching' flag.</em> <a href="#z464_6">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z464_7">isUsingCachedGrammarInParse</a> () const</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Get the 'Use cached grammar' flag.</em> <a href="#z464_7">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="XSModel_8hpp.html#a1">Grammar</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z464_8">getGrammar</a> (const XMLCh *const nameSpaceKey)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Retrieve the grammar that is associated with the specified namespace key.</em> <a href="#z464_8">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="XSModel_8hpp.html#a1">Grammar</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z464_9">getRootGrammar</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Retrieve the grammar where the root element is declared.</em> <a href="#z464_9">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh *&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z464_10">getURIText</a> (unsigned int uriId) const</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Returns the string corresponding to a URI id from the URI string pool.</em> <a href="#z464_10">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>unsigned int&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z464_11">getSrcOffset</a> () const</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Returns the current src offset within the input source.</em> <a href="#z464_11">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Setter methods</div></td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z465_0">setErrorHandler</a> (<a class="el" href="classErrorHandler.html">ErrorHandler</a> *const handler)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Set the error handler.</em> <a href="#z465_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z465_1">setEntityResolver</a> (<a class="el" href="classEntityResolver.html">EntityResolver</a> *const handler)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Set the entity resolver.</em> <a href="#z465_1">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z465_2">setXMLEntityResolver</a> (<a class="el" href="classXMLEntityResolver.html">XMLEntityResolver</a> *const handler)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Set the entity resolver.</em> <a href="#z465_2">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z465_3">cacheGrammarFromParse</a> (const bool newState)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Set the 'Grammar caching' flag.</em> <a href="#z465_3">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z465_4">useCachedGrammarInParse</a> (const bool newState)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Set the 'Use cached grammar' flag.</em> <a href="#z465_4">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Utility methods</div></td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z466_0">resetDocumentPool</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Reset the documents vector pool and release all the associated memory back to the system.</em> <a href="#z466_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Implementation of the XMLErrorReporter interface.</div></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z467_0">error</a> (const unsigned int errCode, const XMLCh *const msgDomain, const <a class="el" href="classXMLErrorReporter.html#s4">XMLErrorReporter::ErrTypes</a> errType, const XMLCh *const errorText, const XMLCh *const systemId, const XMLCh *const publicId, const XMLSSize_t lineNum, const XMLSSize_t colNum)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Handle errors reported from the parser.</em> <a href="#z467_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z467_1">resetErrors</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Reset any error data before a new parse.</em> <a href="#z467_1">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Implementation of the XMLEntityHandler interface.</div></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z468_0">endInputSource</a> (const <a class="el" href="classInputSource.html">InputSource</a> &amp;inputSource)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Handle an end of input source event.</em> <a href="#z468_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual bool&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z468_1">expandSystemId</a> (const XMLCh *const systemId, XMLBuffer &amp;toFill)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Expand a system id.</em> <a href="#z468_1">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z468_2">resetEntities</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Reset any entity handler information.</em> <a href="#z468_2">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classInputSource.html">InputSource</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z468_3">resolveEntity</a> (const XMLCh *const publicId, const XMLCh *const systemId, const XMLCh *const baseURI=0)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Resolve a public/system id.</em> <a href="#z468_3">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classInputSource.html">InputSource</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z468_4">resolveEntity</a> (<a class="el" href="classXMLResourceIdentifier.html">XMLResourceIdentifier</a> *resourceIdentifier)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Resolve a public/system id.</em> <a href="#z468_4">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z468_5">startInputSource</a> (const <a class="el" href="classInputSource.html">InputSource</a> &amp;inputSource)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Handle a 'start input source' event.</em> <a href="#z468_5">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Implementation of Grammar preparsing interface's.</div></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="XSModel_8hpp.html#a1">Grammar</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z469_0">loadGrammar</a> (const <a class="el" href="classInputSource.html">InputSource</a> &amp;source, const short grammarType, const bool toCache=false)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Preparse schema grammar (XML Schema, DTD, etc.) via an input source object.</em> <a href="#z469_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="XSModel_8hpp.html#a1">Grammar</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z469_1">loadGrammar</a> (const XMLCh *const systemId, const short grammarType, const bool toCache=false)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Preparse schema grammar (XML Schema, DTD, etc.) via a file path or URL.</em> <a href="#z469_1">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="XSModel_8hpp.html#a1">Grammar</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z469_2">loadGrammar</a> (const char *const systemId, const short grammarType, const bool toCache=false)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Preparse schema grammar (XML Schema, DTD, etc.) via a file path or URL.</em> <a href="#z469_2">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classXercesDOMParser.html#z469_3">resetCachedGrammarPool</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>This method allows the user to reset the pool of cached grammars.</em> <a href="#z469_3">More...</a><em></em></font><br><br></td></tr>
+</table>
+<hr><a name="_details"></a><h2>Detailed Description</h2>
+This class implements the Document Object Model (DOM) interface.
+<p>
+It should be used by applications which choose to parse and process the XML document using the DOM api's. This implementation also allows the applications to install an error and an entitty handler (useful extensions to the DOM specification).
+<p>
+
+<p>
+It can be used to instantiate a validating or non-validating parser, by setting a member flag. 
+<p>
+<hr><h2>Constructor &amp; Destructor Documentation</h2>
+<a name="z463_0" doxytag="XercesDOMParser::XercesDOMParser"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> XercesDOMParser::XercesDOMParser </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classXMLValidator.html">XMLValidator</a> *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>valToAdopt</em> = 0, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classMemoryManager.html">MemoryManager</a> *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>manager</em> = <a class="el" href="classXMLPlatformUtils.html#z477_4">XMLPlatformUtils::fgMemoryManager</a>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classXMLGrammarPool.html">XMLGrammarPool</a> *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>gramPool</em> = 0</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Construct a XercesDOMParser, with an optional validator.
+<p>
+Constructor with an instance of validator class to use for validation. If you don't provide a validator, a default one will be created for you in the scanner.<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>gramPool</em>&nbsp;</td><td>
+Pointer to the grammar pool instance from  external application. The parser does NOT own it.</td></tr>
+<tr><td valign=top><em>valToAdopt</em>&nbsp;</td><td>
+Pointer to the validator instance to use. The parser is responsible for freeing the memory. </td></tr>
+<tr><td valign=top><em>manager</em>&nbsp;</td><td>
+Pointer to the memory manager to be used to allocate objects. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="z463_1" doxytag="XercesDOMParser::~XercesDOMParser"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual XercesDOMParser::~XercesDOMParser </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Destructor.
+<p>
+    </td>
+  </tr>
+</table>
+<hr><h2>Member Function Documentation</h2>
+<a name="z465_3" doxytag="XercesDOMParser::cacheGrammarFromParse"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void XercesDOMParser::cacheGrammarFromParse </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const bool&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>newState</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Set the 'Grammar caching' flag.
+<p>
+This method allows users to enable or disable caching of grammar when parsing XML documents. When set to true, the parser will cache the resulting grammar for use in subsequent parses.
+<p>
+If the flag is set to true, the 'Use cached grammar' flag will also be set to true.
+<p>
+The parser's default state is: false.<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>newState</em>&nbsp;</td><td>
+The value specifying whether we should cache grammars or not.</td></tr>
+</table>
+</dl><dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classXercesDOMParser.html#z464_6">isCachingGrammarFromParse</a> , <a class="el" href="classXercesDOMParser.html#z465_4">useCachedGrammarInParse</a> </dl>    </td>
+  </tr>
+</table>
+<a name="z468_0" doxytag="XercesDOMParser::endInputSource"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void XercesDOMParser::endInputSource </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const <a class="el" href="classInputSource.html">InputSource</a> &amp;&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>inputSource</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Handle an end of input source event.
+<p>
+This method is used to indicate the end of parsing of an external entity file.
+<p>
+<b>&lt;font color="FF0000"&gt;This method is a no-op for this DOM implementation.&lt;/font&gt;</b><dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>inputSource</em>&nbsp;</td><td>
+A const reference to the <a class="el" href="classInputSource.html">InputSource</a> object which points to the XML file being parsed. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classInputSource.html">InputSource</a> </dl>
+<p>
+Implements <a class="el" href="classXMLEntityHandler.html#z270_0">XMLEntityHandler</a>.    </td>
+  </tr>
+</table>
+<a name="z467_0" doxytag="XercesDOMParser::error"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void XercesDOMParser::error </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const unsigned int&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>errCode</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const XMLCh *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>msgDomain</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const <a class="el" href="classXMLErrorReporter.html#s4">XMLErrorReporter::ErrTypes</a>&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>errType</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const XMLCh *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>errorText</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const XMLCh *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>systemId</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const XMLCh *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>publicId</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const XMLSSize_t&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>lineNum</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const XMLSSize_t&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>colNum</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Handle errors reported from the parser.
+<p>
+This method is used to report back errors found while parsing the XML file. This method is also borrowed from the SAX specification. It calls the corresponding user installed Error Handler method: 'fatal', 'error', 'warning' depending on the severity of the error. This classification is defined by the XML specification.<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>errCode</em>&nbsp;</td><td>
+An integer code for the error. </td></tr>
+<tr><td valign=top><em>msgDomain</em>&nbsp;</td><td>
+A const pointer to an Unicode string representing the message domain to use. </td></tr>
+<tr><td valign=top><em>errType</em>&nbsp;</td><td>
+An enumeration classifying the severity of the error. </td></tr>
+<tr><td valign=top><em>errorText</em>&nbsp;</td><td>
+A const pointer to an Unicode string representing the text of the error message. </td></tr>
+<tr><td valign=top><em>systemId</em>&nbsp;</td><td>
+A const pointer to an Unicode string representing the system id of the XML file where this error was discovered. </td></tr>
+<tr><td valign=top><em>publicId</em>&nbsp;</td><td>
+A const pointer to an Unicode string representing the public id of the XML file where this error was discovered. </td></tr>
+<tr><td valign=top><em>lineNum</em>&nbsp;</td><td>
+The line number where the error occurred. </td></tr>
+<tr><td valign=top><em>colNum</em>&nbsp;</td><td>
+The column number where the error occurred. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classErrorHandler.html">ErrorHandler</a> </dl>    </td>
+  </tr>
+</table>
+<a name="z468_1" doxytag="XercesDOMParser::expandSystemId"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool XercesDOMParser::expandSystemId </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>systemId</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>XMLBuffer &amp;&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>toFill</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Expand a system id.
+<p>
+This method allows an installed <a class="el" href="classXMLEntityHandler.html">XMLEntityHandler</a> to further process any system id's of enternal entities encountered in the XML file being parsed, such as redirection etc.
+<p>
+<b>&lt;font color="FF0000"&gt;This method always returns 'false' for this DOM implementation.&lt;/font&gt;</b><dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>systemId</em>&nbsp;</td><td>
+A const pointer to an Unicode string representing the system id scanned by the parser. </td></tr>
+<tr><td valign=top><em>toFill</em>&nbsp;</td><td>
+A pointer to a buffer in which the application processed system id is stored. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+'true', if any processing is done, 'false' otherwise. </dl>
+<p>
+Implements <a class="el" href="classXMLEntityHandler.html#z270_1">XMLEntityHandler</a>.    </td>
+  </tr>
+</table>
+<a name="z464_3" doxytag="XercesDOMParser::getEntityResolver"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const <a class="el" href="classEntityResolver.html">EntityResolver</a> * XercesDOMParser::getEntityResolver </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const</td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Get a const pointer to the entity resolver.
+<p>
+This method returns the installed entity resolver. If no resolver has been installed, then it will be a zero pointer.
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+A const pointer to the installed entity resolver object. </dl>    </td>
+  </tr>
+</table>
+<a name="z464_2" doxytag="XercesDOMParser::getEntityResolver"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classEntityResolver.html">EntityResolver</a> * XercesDOMParser::getEntityResolver </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Get a pointer to the entity resolver.
+<p>
+This method returns the installed entity resolver. If no resolver has been installed, then it will be a zero pointer.
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+The pointer to the installed entity resolver object. </dl>    </td>
+  </tr>
+</table>
+<a name="z464_1" doxytag="XercesDOMParser::getErrorHandler"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const <a class="el" href="classErrorHandler.html">ErrorHandler</a> * XercesDOMParser::getErrorHandler </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const</td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Get a const pointer to the error handler.
+<p>
+This method returns the installed error handler. If no handler has been installed, then it will be a zero pointer.
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+A const pointer to the installed error handler object. </dl>    </td>
+  </tr>
+</table>
+<a name="z464_0" doxytag="XercesDOMParser::getErrorHandler"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classErrorHandler.html">ErrorHandler</a> * XercesDOMParser::getErrorHandler </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Get a pointer to the error handler.
+<p>
+This method returns the installed error handler. If no handler has been installed, then it will be a zero pointer.
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+The pointer to the installed error handler object. </dl>    </td>
+  </tr>
+</table>
+<a name="z464_8" doxytag="XercesDOMParser::getGrammar"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="XSModel_8hpp.html#a1">Grammar</a>* XercesDOMParser::getGrammar </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *const&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>nameSpaceKey</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Retrieve the grammar that is associated with the specified namespace key.
+<p>
+<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>nameSpaceKey</em>&nbsp;</td><td>
+Namespace key </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+Grammar associated with the Namespace key. </dl>    </td>
+  </tr>
+</table>
+<a name="z464_9" doxytag="XercesDOMParser::getRootGrammar"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="XSModel_8hpp.html#a1">Grammar</a>* XercesDOMParser::getRootGrammar </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Retrieve the grammar where the root element is declared.
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+Grammar where root element declared </dl>    </td>
+  </tr>
+</table>
+<a name="z464_11" doxytag="XercesDOMParser::getSrcOffset"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> unsigned int XercesDOMParser::getSrcOffset </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const</td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Returns the current src offset within the input source.
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+offset within the input source </dl>    </td>
+  </tr>
+</table>
+<a name="z464_10" doxytag="XercesDOMParser::getURIText"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh* XercesDOMParser::getURIText </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">unsigned int&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>uriId</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const</td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Returns the string corresponding to a URI id from the URI string pool.
+<p>
+<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>uriId</em>&nbsp;</td><td>
+id of the string in the URI string pool. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+URI string corresponding to the URI id. </dl>    </td>
+  </tr>
+</table>
+<a name="z464_5" doxytag="XercesDOMParser::getXMLEntityResolver"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const <a class="el" href="classXMLEntityResolver.html">XMLEntityResolver</a> * XercesDOMParser::getXMLEntityResolver </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const</td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Get a const pointer to the entity resolver.
+<p>
+This method returns the installed entity resolver. If no resolver has been installed, then it will be a zero pointer.
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+A const pointer to the installed entity resolver object. </dl>    </td>
+  </tr>
+</table>
+<a name="z464_4" doxytag="XercesDOMParser::getXMLEntityResolver"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classXMLEntityResolver.html">XMLEntityResolver</a> * XercesDOMParser::getXMLEntityResolver </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Get a pointer to the entity resolver.
+<p>
+This method returns the installed entity resolver. If no resolver has been installed, then it will be a zero pointer.
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+The pointer to the installed entity resolver object. </dl>    </td>
+  </tr>
+</table>
+<a name="z464_6" doxytag="XercesDOMParser::isCachingGrammarFromParse"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool XercesDOMParser::isCachingGrammarFromParse </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const</td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Get the 'Grammar caching' flag.
+<p>
+This method returns the state of the parser's grammar caching when parsing an XML document.
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+true, if the parser is currently configured to cache grammars, false otherwise.</dl><dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classXercesDOMParser.html#z465_3">cacheGrammarFromParse</a> </dl>    </td>
+  </tr>
+</table>
+<a name="z464_7" doxytag="XercesDOMParser::isUsingCachedGrammarInParse"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool XercesDOMParser::isUsingCachedGrammarInParse </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const</td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Get the 'Use cached grammar' flag.
+<p>
+This method returns the state of the parser's use of cached grammar when parsing an XML document.
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+true, if the parser is currently configured to use cached grammars, false otherwise.</dl><dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classXercesDOMParser.html#z465_4">useCachedGrammarInParse</a> </dl>    </td>
+  </tr>
+</table>
+<a name="z469_2" doxytag="XercesDOMParser::loadGrammar"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="XSModel_8hpp.html#a1">Grammar</a>* XercesDOMParser::loadGrammar </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const char *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>systemId</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const short&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>grammarType</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const bool&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>toCache</em> = false</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Preparse schema grammar (XML Schema, DTD, etc.) via a file path or URL.
+<p>
+This method invokes the preparsing process on a schema grammar XML file specified by the file path parameter. If the 'toCache' flag is enabled, the parser will cache the grammars for re-use. If a grammar key is found in the pool, no caching of any grammar will take place.
+<p>
+
+<p>
+<b>"Experimental - subject to change"</b><dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>systemId</em>&nbsp;</td><td>
+A const char pointer to a native string which contains the path to the XML grammar file to be preparsed. </td></tr>
+<tr><td valign=top><em>grammarType</em>&nbsp;</td><td>
+The grammar type (Schema or DTD). </td></tr>
+<tr><td valign=top><em>toCache</em>&nbsp;</td><td>
+If <code>true</code>, we cache the preparsed grammar, otherwise, no chaching. Default is <code>false</code>. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+The preparsed schema grammar object (SchemaGrammar or DTDGrammar). That grammar object is owned by the parser.</dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em><a class="el" href="classSAXException.html">SAXException</a></em>&nbsp;</td><td>
+ Any SAX exception, possibly wrapping another exception. </td></tr>
+<tr><td valign=top><em><a class="el" href="classXMLException.html">XMLException</a></em>&nbsp;</td><td>
+ An exception from the parser or client handler code. </td></tr>
+<tr><td valign=top><em><a class="el" href="classDOMException.html">DOMException</a></em>&nbsp;</td><td>
+ A DOM exception as per DOM spec. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="z469_1" doxytag="XercesDOMParser::loadGrammar"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="XSModel_8hpp.html#a1">Grammar</a>* XercesDOMParser::loadGrammar </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>systemId</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const short&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>grammarType</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const bool&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>toCache</em> = false</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Preparse schema grammar (XML Schema, DTD, etc.) via a file path or URL.
+<p>
+This method invokes the preparsing process on a schema grammar XML file specified by the file path parameter. If the 'toCache' flag is enabled, the parser will cache the grammars for re-use. If a grammar key is found in the pool, no caching of any grammar will take place.
+<p>
+
+<p>
+<b>"Experimental - subject to change"</b><dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>systemId</em>&nbsp;</td><td>
+A const XMLCh pointer to the Unicode string which contains the path to the XML grammar file to be preparsed. </td></tr>
+<tr><td valign=top><em>grammarType</em>&nbsp;</td><td>
+The grammar type (Schema or DTD). </td></tr>
+<tr><td valign=top><em>toCache</em>&nbsp;</td><td>
+If <code>true</code>, we cache the preparsed grammar, otherwise, no chaching. Default is <code>false</code>. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+The preparsed schema grammar object (SchemaGrammar or DTDGrammar). That grammar object is owned by the parser.</dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em><a class="el" href="classSAXException.html">SAXException</a></em>&nbsp;</td><td>
+ Any SAX exception, possibly wrapping another exception. </td></tr>
+<tr><td valign=top><em><a class="el" href="classXMLException.html">XMLException</a></em>&nbsp;</td><td>
+ An exception from the parser or client handler code. </td></tr>
+<tr><td valign=top><em><a class="el" href="classDOMException.html">DOMException</a></em>&nbsp;</td><td>
+ A DOM exception as per DOM spec. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="z469_0" doxytag="XercesDOMParser::loadGrammar"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="XSModel_8hpp.html#a1">Grammar</a>* XercesDOMParser::loadGrammar </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const <a class="el" href="classInputSource.html">InputSource</a> &amp;&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>source</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const short&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>grammarType</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const bool&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>toCache</em> = false</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Preparse schema grammar (XML Schema, DTD, etc.) via an input source object.
+<p>
+This method invokes the preparsing process on a schema grammar XML file specified by the SAX <a class="el" href="classInputSource.html">InputSource</a> parameter. If the 'toCache' flag is enabled, the parser will cache the grammars for re-use. If a grammar key is found in the pool, no caching of any grammar will take place.
+<p>
+
+<p>
+<b>"Experimental - subject to change"</b><dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>source</em>&nbsp;</td><td>
+A const reference to the SAX <a class="el" href="classInputSource.html">InputSource</a> object which points to the schema grammar file to be preparsed. </td></tr>
+<tr><td valign=top><em>grammarType</em>&nbsp;</td><td>
+The grammar type (Schema or DTD). </td></tr>
+<tr><td valign=top><em>toCache</em>&nbsp;</td><td>
+If <code>true</code>, we cache the preparsed grammar, otherwise, no chaching. Default is <code>false</code>. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+The preparsed schema grammar object (SchemaGrammar or DTDGrammar). That grammar object is owned by the parser.</dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em><a class="el" href="classSAXException.html">SAXException</a></em>&nbsp;</td><td>
+ Any SAX exception, possibly wrapping another exception. </td></tr>
+<tr><td valign=top><em><a class="el" href="classXMLException.html">XMLException</a></em>&nbsp;</td><td>
+ An exception from the parser or client handler code. </td></tr>
+<tr><td valign=top><em><a class="el" href="classDOMException.html">DOMException</a></em>&nbsp;</td><td>
+ A DOM exception as per DOM spec.</td></tr>
+</table>
+</dl><dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classInputSource.html#z427_0">InputSource::InputSource</a> </dl>    </td>
+  </tr>
+</table>
+<a name="z469_3" doxytag="XercesDOMParser::resetCachedGrammarPool"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void XercesDOMParser::resetCachedGrammarPool </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+This method allows the user to reset the pool of cached grammars.
+<p>
+    </td>
+  </tr>
+</table>
+<a name="z466_0" doxytag="XercesDOMParser::resetDocumentPool"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void XercesDOMParser::resetDocumentPool </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Reset the documents vector pool and release all the associated memory back to the system.
+<p>
+When parsing a document using a DOM parser, all memory allocated for a DOM tree is associated to the DOM document.
+<p>
+If you do multiple parse using the same DOM parser instance, then multiple DOM documents will be generated and saved in a vector pool. All these documents (and thus all the allocated memory) won't be deleted until the parser instance is destroyed.
+<p>
+If you don't need these DOM documents anymore and don't want to destroy the DOM parser instance at this moment, then you can call this method to reset the document vector pool and release all the allocated memory back to the system.
+<p>
+It is an error to call this method if you are in the middle of a parse (e.g. in the mid of a progressive parse).<dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>IOException</em>&nbsp;</td><td>
+ An exception from the parser if this function is called when a parse is in progress. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="z468_2" doxytag="XercesDOMParser::resetEntities"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void XercesDOMParser::resetEntities </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Reset any entity handler information.
+<p>
+This method allows the installed <a class="el" href="classXMLEntityHandler.html">XMLEntityHandler</a> to reset itself.
+<p>
+<b>&lt;font color="FF0000"&gt;This method is a no-op for this DOM implementation.&lt;/font&gt;</b> 
+<p>
+Implements <a class="el" href="classXMLEntityHandler.html#z270_2">XMLEntityHandler</a>.    </td>
+  </tr>
+</table>
+<a name="z467_1" doxytag="XercesDOMParser::resetErrors"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void XercesDOMParser::resetErrors </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Reset any error data before a new parse.
+<p>
+This method allows the user installed Error Handler callback to 'reset' itself.
+<p>
+<b>&lt;font color="FF0000"&gt;This method is a no-op for this DOM implementation.&lt;/font&gt;</b> 
+<p>
+Implements <a class="el" href="classXMLErrorReporter.html#z273_1">XMLErrorReporter</a>.    </td>
+  </tr>
+</table>
+<a name="z468_4" doxytag="XercesDOMParser::resolveEntity"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classInputSource.html">InputSource</a>* XercesDOMParser::resolveEntity </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classXMLResourceIdentifier.html">XMLResourceIdentifier</a> *&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>resourceIdentifier</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Resolve a public/system id.
+<p>
+This method allows a user installed entity handler to further process any pointers to external entities. The applications can implement 'redirection' via this callback.<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>resourceIdentifier</em>&nbsp;</td><td>
+An object containing the type of resource to be resolved and the associated data members corresponding to this type. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+The value returned by the user installed resolveEntity method or NULL otherwise to indicate no processing was done. The returned <a class="el" href="classInputSource.html">InputSource</a> is owned by the parser which is responsible to clean up the memory. </dl><dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classXMLEntityHandler.html">XMLEntityHandler</a> , <a class="el" href="classXMLEntityResolver.html">XMLEntityResolver</a> </dl>
+<p>
+Implements <a class="el" href="classXMLEntityHandler.html#z270_4">XMLEntityHandler</a>.    </td>
+  </tr>
+</table>
+<a name="z468_3" doxytag="XercesDOMParser::resolveEntity"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classInputSource.html">InputSource</a>* XercesDOMParser::resolveEntity </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>publicId</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const XMLCh *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>systemId</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const XMLCh *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>baseURI</em> = 0</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Resolve a public/system id.
+<p>
+This method allows a user installed entity handler to further process any pointers to external entities. The applications can implement 'redirection' via this callback. This method is also borrowed from the SAX specification.
+<p>
+<dl compact><dt><b>
+Deprecated: </b><dd>
+This method is no longer called (the other resolveEntity one is).</dl><dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>publicId</em>&nbsp;</td><td>
+A const pointer to a Unicode string representing the public id of the entity just parsed. </td></tr>
+<tr><td valign=top><em>systemId</em>&nbsp;</td><td>
+A const pointer to a Unicode string representing the system id of the entity just parsed. </td></tr>
+<tr><td valign=top><em>baseURI</em>&nbsp;</td><td>
+A const pointer to a Unicode string representing the base URI of the entity just parsed, or <code>null</code> if there is no base URI. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+The value returned by the user installed resolveEntity method or NULL otherwise to indicate no processing was done. The returned <a class="el" href="classInputSource.html">InputSource</a> is owned by the parser which is responsible to clean up the memory. </dl><dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classDOMEntityResolver.html">DOMEntityResolver</a> , <a class="el" href="classXMLEntityHandler.html">XMLEntityHandler</a> </dl>
+<p>
+Implements <a class="el" href="classXMLEntityHandler.html#z270_3">XMLEntityHandler</a>.    </td>
+  </tr>
+</table>
+<a name="z465_1" doxytag="XercesDOMParser::setEntityResolver"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void XercesDOMParser::setEntityResolver </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classEntityResolver.html">EntityResolver</a> *const&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>handler</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Set the entity resolver.
+<p>
+This method allows applications to install their own entity resolver. By installing an entity resolver, the applications can trap and potentially redirect references to external entities.
+<p>
+<em>Any previously set entity resolver is merely dropped, since the parser does not own them. If both setEntityResolver and setXMLEntityResolver are called, then the last one is used.</em><dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>handler</em>&nbsp;</td><td>
+A const pointer to the user supplied entity resolver.</td></tr>
+</table>
+</dl><dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classXercesDOMParser.html#z464_2">getEntityResolver</a> </dl>    </td>
+  </tr>
+</table>
+<a name="z465_0" doxytag="XercesDOMParser::setErrorHandler"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void XercesDOMParser::setErrorHandler </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classErrorHandler.html">ErrorHandler</a> *const&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>handler</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Set the error handler.
+<p>
+This method allows applications to install their own error handler to trap error and warning messages.
+<p>
+<em>Any previously set handler is merely dropped, since the parser does not own them.</em><dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>handler</em>&nbsp;</td><td>
+A const pointer to the user supplied error handler.</td></tr>
+</table>
+</dl><dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classXercesDOMParser.html#z464_0">getErrorHandler</a> </dl>    </td>
+  </tr>
+</table>
+<a name="z465_2" doxytag="XercesDOMParser::setXMLEntityResolver"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void XercesDOMParser::setXMLEntityResolver </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classXMLEntityResolver.html">XMLEntityResolver</a> *const&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>handler</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Set the entity resolver.
+<p>
+This method allows applications to install their own entity resolver. By installing an entity resolver, the applications can trap and potentially redirect references to external entities.
+<p>
+<em>Any previously set entity resolver is merely dropped, since the parser does not own them. If both setEntityResolver and setXMLEntityResolver are called, then the last one set is used.</em><dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>handler</em>&nbsp;</td><td>
+A const pointer to the user supplied entity resolver.</td></tr>
+</table>
+</dl><dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classXercesDOMParser.html#z464_4">getXMLEntityResolver</a> </dl>    </td>
+  </tr>
+</table>
+<a name="z468_5" doxytag="XercesDOMParser::startInputSource"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void XercesDOMParser::startInputSource </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const <a class="el" href="classInputSource.html">InputSource</a> &amp;&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>inputSource</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Handle a 'start input source' event.
+<p>
+This method is used to indicate the start of parsing an external entity file.
+<p>
+<b>&lt;font color="FF0000"&gt;This method is a no-op for this DOM parse implementation.&lt;/font&gt;</b><dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>inputSource</em>&nbsp;</td><td>
+A const reference to the <a class="el" href="classInputSource.html">InputSource</a> object which points to the external entity being parsed. </td></tr>
+</table>
+</dl>
+<p>
+Implements <a class="el" href="classXMLEntityHandler.html#z270_5">XMLEntityHandler</a>.    </td>
+  </tr>
+</table>
+<a name="z465_4" doxytag="XercesDOMParser::useCachedGrammarInParse"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void XercesDOMParser::useCachedGrammarInParse </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const bool&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>newState</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Set the 'Use cached grammar' flag.
+<p>
+This method allows users to enable or disable the use of cached grammars. When set to true, the parser will use the cached grammar, instead of building the grammar from scratch, to validate XML documents.
+<p>
+If the 'Grammar caching' flag is set to true, this mehod ignore the value passed in.
+<p>
+The parser's default state is: false.<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>newState</em>&nbsp;</td><td>
+The value specifying whether we should use the cached grammar or not.</td></tr>
+</table>
+</dl><dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classXercesDOMParser.html#z464_7">isUsingCachedGrammarInParse</a> , <a class="el" href="classXercesDOMParser.html#z465_3">cacheGrammarFromParse</a> </dl>    </td>
+  </tr>
+</table>
+<hr>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="XercesDOMParser_8hpp-source.html">XercesDOMParser.hpp</a></ul>
+    </FONT></TD></TR></TABLE><BR>
+</TD></TR></TABLE></TD></TR></TABLE><BR><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD bgcolor="#0086b2"><IMG height="1" src="images/dot.gif" width="1" alt=""></TD></TR><TR><TD align="center"><FONT color="#0086b2" size="-1"><I>
+              Copyright &copy; 2004 The Apache Software Foundation.
+              All Rights Reserved.
+            </I></FONT></TD></TR></TABLE></BODY></HTML>

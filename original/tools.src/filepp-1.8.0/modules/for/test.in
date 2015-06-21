@@ -1,0 +1,44 @@
+For loop example COUNTER 10 > 1 -2.5, expect 10, 7.5, 5, 2.5
+#for COUNTER 10 > 1 -2.5
+__LINE__  COUNTER
+#endfor
+
+__LINE__
+
+Test of nested loops, expect outer 10,8,6,4,2, inner 2,3.5,5
+#for	OUTER    10 > 1 -2
+# for INNER 2 <= 5 1.5
+   outer=OUTER, inner=INNER
+# endfor
+#endfor
+
+Test of macros in for line, expect 100,102,104:
+#define START_VAL 100
+#define END_VAL 105
+#define INC_VAL 2
+#define COMPARE_VAL <
+#for TESTER START_VAL COMPARE_VAL END_VAL INC_VAL
+  TESTER
+#endfor
+
+Test of loop break out, expect 1,2,3,4,5
+#define END_LOOP 10
+#for LEAVE_LOOP 1 < END_LOOP 1
+ LEAVE_LOOP
+# if LEAVE_LOOP >= 5
+#  define LEAVE_LOOP END_LOOP
+# endif
+#endfor
+
+Test of include files in loop, expect 0.1,0.2,0.3
+#for INCLUDE_LOOP 0.1 <= 0.3 0.1
+# include "test.h"
+#endfor
+End loop value should be 0.4: INCLUDE_LOOP
+
+
+#if 0
+#for TEST 1 < 10 1
+TEST
+#endfor
+#endif

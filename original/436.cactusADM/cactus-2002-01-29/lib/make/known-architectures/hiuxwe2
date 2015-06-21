@@ -1,0 +1,92 @@
+#! /bin/sh
+# /*@@
+#   @file      hiuxwe2
+#   @date      Wed Apr 19 17:58:22 2000
+#   @author    Tom Goodale
+#   @desc  Optimazations by Peter Diener
+#   Configuration file for the Hitachi SR8000-F1
+#   @enddesc 
+#   @version $Header: /cactus/Cactus/lib/make/known-architectures/hiuxwe2,v 1.5 2001/06/20 13:28:34 tradke Exp $
+# @@*/
+
+if test "$CCTK_CONFIG_STAGE" = "preferred-compilers" ; then
+
+  #
+  # use the native compilers by default
+  #
+  if test -z "$CC"; then
+    echo Setting C compiler to cc
+    CC="cc"
+  fi
+
+  if test -z "$CXX"; then
+    echo Setting C++ compiler to CC
+    CXX="CC"
+  fi
+
+  if test -z "$LD"; then
+    echo Setting linker to CC
+    LD="CC"
+  fi
+
+else
+
+  : ${F77FLAGS="-conti199 -msg=w -uinline=2"}
+  : ${F90FLAGS="-conti199 -msg=w -uinline=2"}
+  if test "$LD" = "CC" ; then
+    F77FLAGS="$F77FLAGS -64"
+    F90FLAGS="$F90FLAGS -64"
+  fi
+
+  : ${F77_OPTIMISE_FLAGS="-opt=ss -pvfunc=2 -noparallel -model=F1"}
+  : ${F90_OPTIMISE_FLAGS="-opt=ss -pvfunc=2 -noparallel -model=F1 -noscope"}
+
+  : ${F77_WARN_FLAGS="-fullmsg"}
+  : ${F90_WARN_FLAGS="-fullmsg"}
+
+  if test "$CC" = "cc" ; then
+    CFLAGS="$CFLAGS -64"
+    : ${C_OPTIMISE_FLAGS="-O4 -pvec -pvfunc -predicate -model=F1"}
+  fi
+  if test "$CXX" = "CC" ; then
+    CXXFLAGS="$CXXFLAGS -64"
+#   : ${CXX_OPTIMISE_FLAGS="-O4 -pvec -pvfunc -predicate -model=F1"}
+  fi
+  if test "$LD" = "CC" ; then
+    LDFLAGS="$LDFLAGS -64"
+  fi
+
+# /lib/cpp cannot generate dependencies on this machine but we have gcc.
+: ${C_DEPEND='gcc -E -M $(CPPFLAGS)'}
+: ${CXX_DEPEND='$(C_DEPEND)'}
+: ${F_DEPEND='$(C_DEPEND) -x c'}
+: ${F77_DEPEND='$(F_DEPEND)'}
+
+# Yet another CXX->C translator 8-(.
+  : ${CXX_WORKING_NAME='$(notdir $<)'}
+
+  : ${CXX_POSTPROCESSING='if test -r $(SCRATCH_BUILD)$(DIRSEP)$(basename $(basename $(notdir $@))).o ; then cp $(SCRATCH_BUILD)$(DIRSEP)$(basename $(basename $(notdir $@))).o $@ ; fi'}
+
+  : ${LIBS="f90s f90 hf90pvmath hf90math m"}
+
+  : ${L2_CACHELINE_BYTES="128"}
+  : ${L2_CACHE_SIZE="128*1024"}
+
+# MPI stuff
+
+  if test -n "$MPI" ; then
+    NATIVE_MPI_LIBS="mpi"
+    if test "$LD" = "CC" ; then
+      NATIVE_MPI_LIB_DIRS="/usr/mpi/lib/lib64"
+    else
+      NATIVE_MPI_LIB_DIRS="/usr/mpi/lib/lib32"
+    fi
+    NATIVE_MPI_INC_DIRS="/usr/mpi/include"
+  fi
+
+# PTHREADS stuff
+
+  if test "X$PTHREADS" = "Xyes"; then
+    PTHREADS_DEFINE="_PTHREADS_D10"
+  fi
+fi

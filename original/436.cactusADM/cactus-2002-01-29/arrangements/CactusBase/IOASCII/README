@@ -1,0 +1,26 @@
+Cactus Code Thorn IOASCII
+Authors    : Gabrielle Allen, Tom Goodale, Thomas Radke
+CVS info   : $Header: /cactus/CactusBase/IOASCII/README,v 1.2 2001/12/13 12:23:13 tradke Exp $
+--------------------------------------------------------------------------
+
+1. Purpose of the thorn
+
+This thorn does 1D, 2D, and 3D output of 3D variables in ASCII format.
+
+1D output slices through the edge (in octant mode) or center
+(in all origin-centered modes) of the grid in the x,y, and z directions.
+If the grid is cubed it will also slice in the diagonal direction.
+Ouput files can be processed with either gnuplot or xgraph.
+
+2D output is done for the xy, xz, and yz plane.
+Ouput files can be processed with the splot command in gnuplot.
+
+3D output is simply done for the full 3D grid variables.
+Ouput files can be processed with the splot command in gnuplot.
+
+The IO methods "IOASCII_1D", "IOASCII_2D", and "IOASCII_3D" are registered 
+which can be called by other thorns via CCTK_OutputVarAsByMethod()
+to output a variable without specifying it in the parameter file.
+
+
+2. Additional information

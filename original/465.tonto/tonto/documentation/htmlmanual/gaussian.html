@@ -1,0 +1,467 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>GAUSSIAN</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Keyword documentation for TONTO"
+HREF="keywords.html"><LINK
+REL="PREVIOUS"
+TITLE="DFTGRID"
+HREF="dftgrid.html"><LINK
+REL="NEXT"
+TITLE="MOL"
+HREF="mol.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="dftgrid.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="mol.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="GAUSSIAN"
+></A
+><TT
+CLASS="LITERAL"
+>GAUSSIAN</TT
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="GAUSSIAN-PURPOSE"
+></A
+>Purpose</H2
+><P
+ALIGN="justify"
+>For describing a single gaussian function at any position in space, and
+with a given angular momentum <TT
+CLASS="LITERAL"
+>l</TT
+>.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="GAUSSIAN-SYNOPSIS"
+></A
+>Synopsis</H2
+><P
+ALIGN="justify"
+>The gaussian module is used mainly to help in defining gaussian pair data
+(see the <TT
+CLASS="LITERAL"
+>GAUSSIAN2</TT
+> module) or gaussian quartet data (see the
+<TT
+CLASS="LITERAL"
+>GAUSSIAN4</TT
+>  module).  These are used for one-electron and two
+electron integrals.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="GAUSSIAN-INPUT"
+></A
+>Default input data order</H2
+><P
+ALIGN="justify"
+>There is no associated GAUSSIANVEC type; an input data order has not been
+defined.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="GAUSSIAN-KEYWORDS"
+></A
+>Listing of keywords</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>ex= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the exponent of the gaussian.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>l= INT|STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read either an integer representing the <TT
+CLASS="LITERAL"
+>l</TT
+>
+value of the gaussian; or read a single character representing the angular
+momentum.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>If the inputted data in an integer, it must be
+non-negative</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>If the inputted data in a character is must be
+<TT
+CLASS="LITERAL"
+>s</TT
+>, <TT
+CLASS="LITERAL"
+>p</TT
+>, <TT
+CLASS="LITERAL"
+>d</TT
+>,
+<TT
+CLASS="LITERAL"
+>f</TT
+>, <TT
+CLASS="LITERAL"
+>g</TT
+>, <TT
+CLASS="LITERAL"
+>...</TT
+>,
+<TT
+CLASS="LITERAL"
+>z</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>See also <TT
+CLASS="LITERAL"
+>l_chr=</TT
+> and
+<TT
+CLASS="LITERAL"
+>l_int=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>l_chr= STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read a single character representing the angular momentum of the
+gaussian.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Must be <TT
+CLASS="LITERAL"
+>s</TT
+>, <TT
+CLASS="LITERAL"
+>p</TT
+>,
+<TT
+CLASS="LITERAL"
+>d</TT
+>, <TT
+CLASS="LITERAL"
+>f</TT
+>, <TT
+CLASS="LITERAL"
+>g</TT
+>,
+<TT
+CLASS="LITERAL"
+>...</TT
+>, <TT
+CLASS="LITERAL"
+>z</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>See also <TT
+CLASS="LITERAL"
+>l=</TT
+> and
+<TT
+CLASS="LITERAL"
+>l_int=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>l_int= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read a single integer which is the angular momentum of the
+gaussian.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Inputted data must be non-negative</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>See also <TT
+CLASS="LITERAL"
+>l=</TT
+> and
+<TT
+CLASS="LITERAL"
+>l_chr=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>pos= REALVEC(3)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the position of the gaussian.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>units= STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read a string which describes the units of the next inputted
+numerical entity; that is, the next real or complex number, real or complex
+vector, or real or complex matrix.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default atomic units are restored after the numerical entity
+has been inputted</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Warning: if the next inputted datum is not a numerical entity,
+the new units keyword remains in force</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="dftgrid.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="mol.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>DFTGRID</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="keywords.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>MOL</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

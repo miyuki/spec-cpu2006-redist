@@ -1,0 +1,522 @@
+# Makefile.in generated automatically by automake 1.5 from Makefile.am.
+
+# Copyright 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001
+# Free Software Foundation, Inc.
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+
+@SET_MAKE@
+
+# Note: Makefile is automatically generated from Makefile.in by the configure
+# script, and Makefile.in is generated from Makefile.am by automake.
+
+SHELL = @SHELL@
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
+top_builddir = ../..
+
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOMAKE = @AUTOMAKE@
+AUTOHEADER = @AUTOHEADER@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+INSTALL_HEADER = $(INSTALL_DATA)
+transform = @program_transform_name@
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+host_alias = @host_alias@
+host_triplet = @host@
+AMTAR = @AMTAR@
+AS = @AS@
+ASFLAGS = @ASFLAGS@
+AWK = @AWK@
+CC = @CC@
+CC_FOR_BUILD = @CC_FOR_BUILD@
+CPP = @CPP@
+CXX = @CXX@
+CXXCPP = @CXXCPP@
+DEPDIR = @DEPDIR@
+DLLTOOL = @DLLTOOL@
+ECHO = @ECHO@
+EXEEXT = @EXEEXT@
+F77 = @F77@
+F77LINK = @F77LINK@
+FLIBS = @FLIBS@
+GCJ = @GCJ@
+GCJFLAGS = @GCJFLAGS@
+GMXLIB_LIBOBJS = @GMXLIB_LIBOBJS@
+IDENT = @IDENT@
+INCLUDES = @INCLUDES@
+INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
+LIBSUFFIX = @LIBSUFFIX@
+LIBTOOL = @LIBTOOL@
+LN_S = @LN_S@
+MDLIB_LIBOBJS = @MDLIB_LIBOBJS@
+MPICC = @MPICC@
+OBJDUMP = @OBJDUMP@
+OBJEXT = @OBJEXT@
+PACKAGE = @PACKAGE@
+RANLIB = @RANLIB@
+RC = @RC@
+RPM = @RPM@
+SHARED_VERSION_INFO = @SHARED_VERSION_INFO@
+STRIP = @STRIP@
+VERSION = @VERSION@
+X_CFLAGS = @X_CFLAGS@
+X_EXTRA_LIBS = @X_EXTRA_LIBS@
+X_LIBS = @X_LIBS@
+X_PRE_LIBS = @X_PRE_LIBS@
+am__include = @am__include@
+am__quote = @am__quote@
+install_sh = @install_sh@
+
+AM_CPPFLAGS = -I$(top_srcdir)/include -DGMXLIBDIR=\"$(datadir)/top\"
+
+LDADD = ../mdlib/libmd@LIBSUFFIX@.la ../gmxlib/libgmx@LIBSUFFIX@.la
+
+
+# Ngmx requires X11 - nothing is built if it doesn't exist
+@USE_X11_TRUE@bin_PROGRAMS = ngmx xrama highway
+@USE_X11_TRUE@EXTRA_PROGRAMS = gmxlogo dlg scrollw showcol
+
+XSRC = xutil.c		xmb.c		x11.c		\
+		xdlghi.c   	fgrid.c    	xdlgitem.c 	\
+		popup.c 	pulldown.c	xdlg.c		\
+		manager.c 	buttons.c 	nmol.c 		\
+		nleg.c 		dialogs.c	logo.c 		\
+		filter.c	molps.c	        Xstuff.h	\
+		dialogs.h	logo.h		molps.h		\
+		nleg.h		nmol.h		pulldown.h	\
+		xdlg.h		xdlgitem.h	xutil.h		\
+		buttons.h	fgrid.h		manager.h	\
+		nener.h		nload.h		popup.h		\
+		x11.h		xdlghi.h	xmb.h		
+
+
+EXTRA_DIST = alert.bm 	gromacs.bm 	play.bm 	\
+		rewind.bm 	stop_ani.bm 	ff.bm 		\
+		info.bm 	rama.bm 	stop.bm
+
+
+ngmx_SOURCES = ngmx.c $(XSRC)
+xrama_SOURCES = xrama.c $(XSRC)
+highway_SOURCES = highway.c $(XSRC) 
+gmxlogo_SOURCES = gmxlogo.c logo.c $(XSRC)
+dlg_SOURCES = dlg.c $(XSRC)
+scrollw_SOURCES = scrollw.c $(XSRC)
+showcol_SOURCES = showcol.c $(XSRC)
+
+CLEANFILES = *~ \\\#*
+subdir = src/ngmx
+mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+CONFIG_HEADER = $(top_builddir)/src/config.h
+CONFIG_CLEAN_FILES =
+@USE_X11_TRUE@EXTRA_PROGRAMS = gmxlogo$(EXEEXT) dlg$(EXEEXT) \
+@USE_X11_TRUE@	scrollw$(EXEEXT) showcol$(EXEEXT)
+@USE_X11_FALSE@EXTRA_PROGRAMS =
+@USE_X11_TRUE@bin_PROGRAMS = ngmx$(EXEEXT) xrama$(EXEEXT) \
+@USE_X11_TRUE@	highway$(EXEEXT)
+@USE_X11_FALSE@bin_PROGRAMS =
+PROGRAMS = $(bin_PROGRAMS)
+
+am_dlg_OBJECTS = dlg.$(OBJEXT) xutil.$(OBJEXT) xmb.$(OBJEXT) \
+	x11.$(OBJEXT) xdlghi.$(OBJEXT) fgrid.$(OBJEXT) \
+	xdlgitem.$(OBJEXT) popup.$(OBJEXT) pulldown.$(OBJEXT) \
+	xdlg.$(OBJEXT) manager.$(OBJEXT) buttons.$(OBJEXT) \
+	nmol.$(OBJEXT) nleg.$(OBJEXT) dialogs.$(OBJEXT) logo.$(OBJEXT) \
+	filter.$(OBJEXT) molps.$(OBJEXT)
+dlg_OBJECTS = $(am_dlg_OBJECTS)
+dlg_LDADD = $(LDADD)
+dlg_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+dlg_LDFLAGS =
+am_gmxlogo_OBJECTS = gmxlogo.$(OBJEXT) logo.$(OBJEXT) xutil.$(OBJEXT) \
+	xmb.$(OBJEXT) x11.$(OBJEXT) xdlghi.$(OBJEXT) fgrid.$(OBJEXT) \
+	xdlgitem.$(OBJEXT) popup.$(OBJEXT) pulldown.$(OBJEXT) \
+	xdlg.$(OBJEXT) manager.$(OBJEXT) buttons.$(OBJEXT) \
+	nmol.$(OBJEXT) nleg.$(OBJEXT) dialogs.$(OBJEXT) logo.$(OBJEXT) \
+	filter.$(OBJEXT) molps.$(OBJEXT)
+gmxlogo_OBJECTS = $(am_gmxlogo_OBJECTS)
+gmxlogo_LDADD = $(LDADD)
+gmxlogo_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+gmxlogo_LDFLAGS =
+am_highway_OBJECTS = highway.$(OBJEXT) xutil.$(OBJEXT) xmb.$(OBJEXT) \
+	x11.$(OBJEXT) xdlghi.$(OBJEXT) fgrid.$(OBJEXT) \
+	xdlgitem.$(OBJEXT) popup.$(OBJEXT) pulldown.$(OBJEXT) \
+	xdlg.$(OBJEXT) manager.$(OBJEXT) buttons.$(OBJEXT) \
+	nmol.$(OBJEXT) nleg.$(OBJEXT) dialogs.$(OBJEXT) logo.$(OBJEXT) \
+	filter.$(OBJEXT) molps.$(OBJEXT)
+highway_OBJECTS = $(am_highway_OBJECTS)
+highway_LDADD = $(LDADD)
+highway_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+highway_LDFLAGS =
+am_ngmx_OBJECTS = ngmx.$(OBJEXT) xutil.$(OBJEXT) xmb.$(OBJEXT) \
+	x11.$(OBJEXT) xdlghi.$(OBJEXT) fgrid.$(OBJEXT) \
+	xdlgitem.$(OBJEXT) popup.$(OBJEXT) pulldown.$(OBJEXT) \
+	xdlg.$(OBJEXT) manager.$(OBJEXT) buttons.$(OBJEXT) \
+	nmol.$(OBJEXT) nleg.$(OBJEXT) dialogs.$(OBJEXT) logo.$(OBJEXT) \
+	filter.$(OBJEXT) molps.$(OBJEXT)
+ngmx_OBJECTS = $(am_ngmx_OBJECTS)
+ngmx_LDADD = $(LDADD)
+ngmx_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+ngmx_LDFLAGS =
+am_scrollw_OBJECTS = scrollw.$(OBJEXT) xutil.$(OBJEXT) xmb.$(OBJEXT) \
+	x11.$(OBJEXT) xdlghi.$(OBJEXT) fgrid.$(OBJEXT) \
+	xdlgitem.$(OBJEXT) popup.$(OBJEXT) pulldown.$(OBJEXT) \
+	xdlg.$(OBJEXT) manager.$(OBJEXT) buttons.$(OBJEXT) \
+	nmol.$(OBJEXT) nleg.$(OBJEXT) dialogs.$(OBJEXT) logo.$(OBJEXT) \
+	filter.$(OBJEXT) molps.$(OBJEXT)
+scrollw_OBJECTS = $(am_scrollw_OBJECTS)
+scrollw_LDADD = $(LDADD)
+scrollw_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+scrollw_LDFLAGS =
+am_showcol_OBJECTS = showcol.$(OBJEXT) xutil.$(OBJEXT) xmb.$(OBJEXT) \
+	x11.$(OBJEXT) xdlghi.$(OBJEXT) fgrid.$(OBJEXT) \
+	xdlgitem.$(OBJEXT) popup.$(OBJEXT) pulldown.$(OBJEXT) \
+	xdlg.$(OBJEXT) manager.$(OBJEXT) buttons.$(OBJEXT) \
+	nmol.$(OBJEXT) nleg.$(OBJEXT) dialogs.$(OBJEXT) logo.$(OBJEXT) \
+	filter.$(OBJEXT) molps.$(OBJEXT)
+showcol_OBJECTS = $(am_showcol_OBJECTS)
+showcol_LDADD = $(LDADD)
+showcol_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+showcol_LDFLAGS =
+am_xrama_OBJECTS = xrama.$(OBJEXT) xutil.$(OBJEXT) xmb.$(OBJEXT) \
+	x11.$(OBJEXT) xdlghi.$(OBJEXT) fgrid.$(OBJEXT) \
+	xdlgitem.$(OBJEXT) popup.$(OBJEXT) pulldown.$(OBJEXT) \
+	xdlg.$(OBJEXT) manager.$(OBJEXT) buttons.$(OBJEXT) \
+	nmol.$(OBJEXT) nleg.$(OBJEXT) dialogs.$(OBJEXT) logo.$(OBJEXT) \
+	filter.$(OBJEXT) molps.$(OBJEXT)
+xrama_OBJECTS = $(am_xrama_OBJECTS)
+xrama_LDADD = $(LDADD)
+xrama_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+xrama_LDFLAGS =
+
+DEFS = @DEFS@
+DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)/src
+CPPFLAGS = @CPPFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+depcomp = $(SHELL) $(top_srcdir)/config/depcomp
+@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/buttons.Po $(DEPDIR)/dialogs.Po \
+@AMDEP_TRUE@	$(DEPDIR)/dlg.Po $(DEPDIR)/fgrid.Po \
+@AMDEP_TRUE@	$(DEPDIR)/filter.Po $(DEPDIR)/gmxlogo.Po \
+@AMDEP_TRUE@	$(DEPDIR)/highway.Po $(DEPDIR)/logo.Po \
+@AMDEP_TRUE@	$(DEPDIR)/manager.Po $(DEPDIR)/molps.Po \
+@AMDEP_TRUE@	$(DEPDIR)/ngmx.Po $(DEPDIR)/nleg.Po \
+@AMDEP_TRUE@	$(DEPDIR)/nmol.Po $(DEPDIR)/popup.Po \
+@AMDEP_TRUE@	$(DEPDIR)/pulldown.Po $(DEPDIR)/scrollw.Po \
+@AMDEP_TRUE@	$(DEPDIR)/showcol.Po $(DEPDIR)/x11.Po \
+@AMDEP_TRUE@	$(DEPDIR)/xdlg.Po $(DEPDIR)/xdlghi.Po \
+@AMDEP_TRUE@	$(DEPDIR)/xdlgitem.Po $(DEPDIR)/xmb.Po \
+@AMDEP_TRUE@	$(DEPDIR)/xrama.Po $(DEPDIR)/xutil.Po
+COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
+	$(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+CFLAGS = @CFLAGS@
+DIST_SOURCES = $(dlg_SOURCES) $(gmxlogo_SOURCES) $(highway_SOURCES) \
+	$(ngmx_SOURCES) $(scrollw_SOURCES) $(showcol_SOURCES) \
+	$(xrama_SOURCES)
+DIST_COMMON = Makefile.am Makefile.in
+SOURCES = $(dlg_SOURCES) $(gmxlogo_SOURCES) $(highway_SOURCES) $(ngmx_SOURCES) $(scrollw_SOURCES) $(showcol_SOURCES) $(xrama_SOURCES)
+
+all: all-am
+
+.SUFFIXES:
+.SUFFIXES: .c .lo .o .obj
+
+mostlyclean-libtool:
+	-rm -f *.lo
+
+clean-libtool:
+	-rm -rf .libs _libs
+
+distclean-libtool:
+	-rm -f libtool
+$(srcdir)/Makefile.in:  Makefile.am  $(top_srcdir)/configure.ac $(ACLOCAL_M4)
+	cd $(top_srcdir) && \
+	  $(AUTOMAKE) --gnu  src/ngmx/Makefile
+Makefile:  $(srcdir)/Makefile.in  $(top_builddir)/config.status
+	cd $(top_builddir) && \
+	  CONFIG_HEADERS= CONFIG_LINKS= \
+	  CONFIG_FILES=$(subdir)/$@ $(SHELL) ./config.status
+install-binPROGRAMS: $(bin_PROGRAMS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(bindir)
+	@list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  p1=`echo $$p|sed 's/$(EXEEXT)$$//'`; \
+	  if test -f $$p \
+	     || test -f $$p1 \
+	  ; then \
+	    f=`echo $$p1|sed '$(transform);s/$$/$(EXEEXT)/'`; \
+	   echo " $(INSTALL_PROGRAM_ENV) $(LIBTOOL) --mode=install $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/$$f"; \
+	   $(INSTALL_PROGRAM_ENV) $(LIBTOOL) --mode=install $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/$$f; \
+	  else :; fi; \
+	done
+
+uninstall-binPROGRAMS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  f=`echo $$p|sed 's/$(EXEEXT)$$//;$(transform);s/$$/$(EXEEXT)/'`; \
+	  echo " rm -f $(DESTDIR)$(bindir)/$$f"; \
+	  rm -f $(DESTDIR)$(bindir)/$$f; \
+	done
+
+clean-binPROGRAMS:
+	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
+dlg$(EXEEXT): $(dlg_OBJECTS) $(dlg_DEPENDENCIES) 
+	@rm -f dlg$(EXEEXT)
+	$(LINK) $(dlg_LDFLAGS) $(dlg_OBJECTS) $(dlg_LDADD) $(LIBS)
+gmxlogo$(EXEEXT): $(gmxlogo_OBJECTS) $(gmxlogo_DEPENDENCIES) 
+	@rm -f gmxlogo$(EXEEXT)
+	$(LINK) $(gmxlogo_LDFLAGS) $(gmxlogo_OBJECTS) $(gmxlogo_LDADD) $(LIBS)
+highway$(EXEEXT): $(highway_OBJECTS) $(highway_DEPENDENCIES) 
+	@rm -f highway$(EXEEXT)
+	$(LINK) $(highway_LDFLAGS) $(highway_OBJECTS) $(highway_LDADD) $(LIBS)
+ngmx$(EXEEXT): $(ngmx_OBJECTS) $(ngmx_DEPENDENCIES) 
+	@rm -f ngmx$(EXEEXT)
+	$(LINK) $(ngmx_LDFLAGS) $(ngmx_OBJECTS) $(ngmx_LDADD) $(LIBS)
+scrollw$(EXEEXT): $(scrollw_OBJECTS) $(scrollw_DEPENDENCIES) 
+	@rm -f scrollw$(EXEEXT)
+	$(LINK) $(scrollw_LDFLAGS) $(scrollw_OBJECTS) $(scrollw_LDADD) $(LIBS)
+showcol$(EXEEXT): $(showcol_OBJECTS) $(showcol_DEPENDENCIES) 
+	@rm -f showcol$(EXEEXT)
+	$(LINK) $(showcol_LDFLAGS) $(showcol_OBJECTS) $(showcol_LDADD) $(LIBS)
+xrama$(EXEEXT): $(xrama_OBJECTS) $(xrama_DEPENDENCIES) 
+	@rm -f xrama$(EXEEXT)
+	$(LINK) $(xrama_LDFLAGS) $(xrama_OBJECTS) $(xrama_LDADD) $(LIBS)
+
+mostlyclean-compile:
+	-rm -f *.$(OBJEXT) core *.core
+
+distclean-compile:
+	-rm -f *.tab.c
+
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/buttons.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/dialogs.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/dlg.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/fgrid.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/filter.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/gmxlogo.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/highway.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/logo.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/manager.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/molps.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/ngmx.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/nleg.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/nmol.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/popup.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/pulldown.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/scrollw.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/showcol.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/x11.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/xdlg.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/xdlghi.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/xdlgitem.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/xmb.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/xrama.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/xutil.Po@am__quote@
+
+distclean-depend:
+	-rm -rf $(DEPDIR)
+
+.c.o:
+@AMDEP_TRUE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(COMPILE) -c `test -f $< || echo '$(srcdir)/'`$<
+
+.c.obj:
+@AMDEP_TRUE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(COMPILE) -c `cygpath -w $<`
+
+.c.lo:
+@AMDEP_TRUE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/$*.Plo' tmpdepfile='$(DEPDIR)/$*.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(LTCOMPILE) -c -o $@ `test -f $< || echo '$(srcdir)/'`$<
+CCDEPMODE = @CCDEPMODE@
+uninstall-info-am:
+
+tags: TAGS
+
+ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
+	list='$(SOURCES) $(HEADERS) $(TAGS_FILES)'; \
+	unique=`for i in $$list; do \
+	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
+	  done | \
+	  $(AWK) '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	mkid -fID $$unique $(LISP)
+
+TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
+		$(TAGS_FILES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	list='$(SOURCES) $(HEADERS) $(TAGS_FILES)'; \
+	unique=`for i in $$list; do \
+	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
+	  done | \
+	  $(AWK) '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	test -z "$(ETAGS_ARGS)$$unique$(LISP)$$tags" \
+	  || etags $(ETAGS_ARGS) $$tags  $$unique $(LISP)
+
+GTAGS:
+	here=`CDPATH=: && cd $(top_builddir) && pwd` \
+	  && cd $(top_srcdir) \
+	  && gtags -i $(GTAGS_ARGS) $$here
+
+distclean-tags:
+	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH
+
+DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
+
+top_distdir = ../..
+distdir = $(top_distdir)/$(PACKAGE)-$(VERSION)
+
+distdir: $(DISTFILES)
+	@for file in $(DISTFILES); do \
+	  if test -f $$file; then d=.; else d=$(srcdir); fi; \
+	  dir=`echo "$$file" | sed -e 's,/[^/]*$$,,'`; \
+	  if test "$$dir" != "$$file" && test "$$dir" != "."; then \
+	    $(mkinstalldirs) "$(distdir)/$$dir"; \
+	  fi; \
+	  if test -d $$d/$$file; then \
+	    cp -pR $$d/$$file $(distdir) \
+	    || exit 1; \
+	  else \
+	    test -f $(distdir)/$$file \
+	    || cp -p $$d/$$file $(distdir)/$$file \
+	    || exit 1; \
+	  fi; \
+	done
+check-am: all-am
+check: check-am
+all-am: Makefile $(PROGRAMS)
+
+installdirs:
+	$(mkinstalldirs) $(DESTDIR)$(bindir)
+
+install: install-am
+install-exec: install-exec-am
+install-data: install-data-am
+uninstall: uninstall-am
+
+install-am: all-am
+	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
+
+installcheck: installcheck-am
+install-strip:
+	$(MAKE) $(AM_MAKEFLAGS) INSTALL_PROGRAM="$(INSTALL_STRIP_PROGRAM)" \
+	  `test -z '$(STRIP)' || \
+	    echo "INSTALL_PROGRAM_ENV=STRIPPROG='$(STRIP)'"` install
+mostlyclean-generic:
+
+clean-generic:
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
+
+distclean-generic:
+	-rm -f Makefile $(CONFIG_CLEAN_FILES) stamp-h stamp-h[0-9]*
+
+maintainer-clean-generic:
+	@echo "This command is intended for maintainers to use"
+	@echo "it deletes files that may require special tools to rebuild."
+clean: clean-am
+
+clean-am: clean-binPROGRAMS clean-generic clean-libtool mostlyclean-am
+
+distclean: distclean-am
+
+distclean-am: clean-am distclean-compile distclean-depend \
+	distclean-generic distclean-libtool distclean-tags
+
+dvi: dvi-am
+
+dvi-am:
+
+info: info-am
+
+info-am:
+
+install-data-am:
+
+install-exec-am: install-binPROGRAMS
+
+install-info: install-info-am
+
+install-man:
+
+installcheck-am:
+
+maintainer-clean: maintainer-clean-am
+
+maintainer-clean-am: distclean-am maintainer-clean-generic
+
+mostlyclean: mostlyclean-am
+
+mostlyclean-am: mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool
+
+uninstall-am: uninstall-binPROGRAMS uninstall-info-am
+
+.PHONY: GTAGS all all-am check check-am clean clean-binPROGRAMS \
+	clean-generic clean-libtool distclean distclean-compile \
+	distclean-depend distclean-generic distclean-libtool \
+	distclean-tags distdir dvi dvi-am info info-am install \
+	install-am install-binPROGRAMS install-data install-data-am \
+	install-exec install-exec-am install-info install-info-am \
+	install-man install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool tags uninstall uninstall-am \
+	uninstall-binPROGRAMS uninstall-info-am
+
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

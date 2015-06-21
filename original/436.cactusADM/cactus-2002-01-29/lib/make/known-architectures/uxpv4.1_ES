@@ -1,0 +1,59 @@
+#! /bin/sh
+#  /*@@
+#    @file      uxpv4.1_ES
+#    @date      Thu 06 Sep 2001
+#    @author    Thomas Radke
+#    @desc
+#               Known-architectures file for Fujitsu VPP700
+#    @enddesc
+#    @version   $Header: /cactus/Cactus/lib/make/known-architectures/uxpv4.1_ES,v 1.5 2001/12/20 11:08:09 tradke Exp $
+#  @@*/
+
+if test "$CCTK_CONFIG_STAGE" = "preferred-compilers" ; then
+  : ${F90=frt}
+else
+  # no way to generate dependencies on this machine
+  : ${C_DEPEND='echo'}
+  : ${CXX_DEPEND='echo'}
+  : ${F_DEPEND='echo'}
+  : ${F77_DEPEND='echo'}
+  : ${C_DEPEND_OUT='> /dev/null; touch $@'}
+  : ${CXX_DEPEND_OUT='> /dev/null; touch $@'}
+  : ${F_DEPEND_OUT='> /dev/null; touch $@'}
+  : ${F77_DEPEND_OUT='> /dev/null; touch $@'}
+
+  # this is needed to compile with modules
+  : ${F77FLAGS='-Am'}
+  : ${F90FLAGS='-Am'}
+
+  # some optimization flags
+  : ${C_OPTIMISE_FLAGS='-O -K4'}
+  : ${CXX_OPTIMISE_FLAGS='-O -K4 -Klib'}
+  : ${F77_OPTIMISE_FLAGS='-Kfast -Of'}
+  : ${F90_OPTIMISE_FLAGS='-Kfast -Of'}
+
+  case "$LD" in
+    vcc | CC)
+      # native linker only takes static libs by default
+      # but we also want socket lib
+      : ${LIBS="fj90fv fj90f fj90 fj90f"}
+      : ${LDFLAGS="-d y /usr/lib/libsocket.so /usr/lib/libvfl.so"}
+      ;;
+    cc)
+      : ${LIBS="fj90fv fj90f fj90 fj90f socket vfl elf m gen fjsamp px"}
+      : ${LDFLAGS="-L/usr/lang/lib"}
+      ;;
+    *)
+      echo "Unknown linker $LD, don\'t know what libs to link with."
+      exit 2
+      ;;
+  esac
+
+# MPI stuff
+  if test -n "$MPI" ; then
+    NATIVE_MPI_INC_DIRS="/usr/lang/mpi/include"
+    NATIVE_MPI_LIB_DIRS="/usr/lang/mpi/lib"
+    NATIVE_MPI_LIBS="mpi mp"
+  fi
+
+fi

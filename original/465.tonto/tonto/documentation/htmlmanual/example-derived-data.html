@@ -1,0 +1,531 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>Examples of derived data input</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Using TONTO to do calculations"
+HREF="calc-chap.html"><LINK
+REL="PREVIOUS"
+TITLE="Writing an input file: the basics"
+HREF="input-files.html"><LINK
+REL="NEXT"
+TITLE="Examples of TONTO input files"
+HREF="example-input-files.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="input-files.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="example-input-files.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="EXAMPLE-DERIVED-DATA"
+></A
+>Examples of derived data input</H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="EXAMPLE-GAUSSIAN"
+></A
+>Example input for a <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>GAUSSIAN</I
+></SPAN
+></H2
+><P
+ALIGN="justify"
+>A gaussian function used in theoretical chemistry is defined
+by its position in three dimension space, its exponent, and
+its angular momentum quantum number. These are held in
+variables <TT
+CLASS="LITERAL"
+>pos</TT
+>, <TT
+CLASS="LITERAL"
+>ex</TT
+>, and
+<TT
+CLASS="LITERAL"
+>l</TT
+>. Valid keyword input for one <TT
+CLASS="LITERAL"
+>GAUSSIAN</TT
+>
+piece of data is:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>&lcub; pos= 0.0 0.0 0.0 ex= 3.0 l= 2 put &rcub;</PRE
+></TD
+></TR
+></TABLE
+><P
+ALIGN="justify"
+>or:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>&lcub;&#13;  l=    2 
+  ex=   3.0  
+  pos=  0.0 0.0 0.0 
+  put
+&rcub;</PRE
+></TD
+></TR
+></TABLE
+><P
+ALIGN="justify"
+>Note that the last keyword <TT
+CLASS="LITERAL"
+>put</TT
+> is not a data keyword,
+but would actually cause an operation to be performed---in this case, outputting
+the data to an output file <TT
+CLASS="LITERAL"
+>stdout</TT
+>.</P
+><P
+ALIGN="justify"
+>Remember also that in the above, line breaks are not significant.  The
+ordering of the data keywords above corresponds to the standard input data
+order.  Thus, valid plain style input for one GAUSSIAN piece of data is:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>&lcub; 2  3.0  0.0 0.0 0.0 &rcub;</PRE
+></TD
+></TR
+></TABLE
+><P
+ALIGN="justify"
+>However, such an input line would only be used when inputting a
+<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>list</I
+></SPAN
+> of GAUSSIAN data, i.e. for a GAUSSIANVEC.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="EXAMPLE-SHELL"
+></A
+>Example input for a <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>SHELL</I
+></SPAN
+></H2
+><P
+ALIGN="justify"
+>A shell is a collection of gaussian functions with the same position and
+angular momentum, summed together after being weighted by some
+<SPAN
+CLASS="QUOTE"
+>"contraction coefficients"</SPAN
+>.</P
+><P
+ALIGN="justify"
+>For efficiency reasons, a shell is not represented as a list of
+<SPAN
+CLASS="QUOTE"
+>"gaussian data"</SPAN
+>, since there would be some duplicated information.
+Instead, a shell is stored in TONTO by the following variables: its
+<SPAN
+CLASS="QUOTE"
+>"angular momentum"</SPAN
+> <TT
+CLASS="LITERAL"
+>l</TT
+>, an <TT
+CLASS="LITERAL"
+>INT</TT
+>,
+the exponents of each gaussian function, <TT
+CLASS="LITERAL"
+>ex</TT
+>, a
+<TT
+CLASS="LITERAL"
+>REALVEC</TT
+>, the contraction coefficients, <TT
+CLASS="LITERAL"
+>cc</TT
+>,
+also a <TT
+CLASS="LITERAL"
+>REALVEC</TT
+>, the number of contractions coefficients,
+<TT
+CLASS="LITERAL"
+>n_cc</TT
+>, an <TT
+CLASS="LITERAL"
+>INT</TT
+>, and the number of different
+functions in the shell, <TT
+CLASS="LITERAL"
+>n_comp</TT
+>.</P
+><P
+ALIGN="justify"
+>Not all this information is inputted. For example,
+<TT
+CLASS="LITERAL"
+>n_comp</TT
+>  is currently evaluated from the variable
+<TT
+CLASS="LITERAL"
+>l</TT
+>. Further, some information is inputted in a form which does
+not agree with the way that the information is stored. For example, there is a
+data keyword <TT
+CLASS="LITERAL"
+>l</TT
+>, but this has type <TT
+CLASS="LITERAL"
+>STR</TT
+>. It
+is valid to enter an integer, such as <TT
+CLASS="LITERAL"
+>"2"</TT
+> after the
+<TT
+CLASS="LITERAL"
+>l</TT
+> data keyword---it will be converted to an
+<TT
+CLASS="LITERAL"
+>INT</TT
+> and stored in the variable <TT
+CLASS="LITERAL"
+>l</TT
+>. However,
+you could also input "d", since it is commonly understood that "d" usually means
+a function with angular momentum <TT
+CLASS="LITERAL"
+>2</TT
+>. </P
+><P
+ALIGN="justify"
+>It should also be noted when reading the documentation for the
+<TT
+CLASS="LITERAL"
+>ex=</TT
+> or <TT
+CLASS="LITERAL"
+>cc=</TT
+> data keywords, that these
+keywords can be used only after the <TT
+CLASS="LITERAL"
+>n_cc=</TT
+> keyword.</P
+><P
+ALIGN="justify"
+>Here then is some valid keyword style input for a <TT
+CLASS="LITERAL"
+>SHELL</TT
+>
+piece of information:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>&lcub;&#13;  l=    D
+  n_cc= 3
+  ex=   1.0 2.0 3.0
+  cc=   0.1 0.2 0.3
+&rcub;</PRE
+></TD
+></TR
+></TABLE
+><P
+ALIGN="justify"
+>We can also enter the data like this:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>&lcub;&#13;  l=    D
+  n_cc= 3
+  ex,cc= 1.0 0.1 2.0 0.2 3.0 0.3
+&rcub;</PRE
+></TD
+></TR
+></TABLE
+><P
+ALIGN="justify"
+>Here, the data keyword <SPAN
+CLASS="QUOTE"
+>"<TT
+CLASS="LITERAL"
+>ex,cc=</TT
+>"</SPAN
+> indicates
+that components of the <TT
+CLASS="LITERAL"
+>ex</TT
+> vector and <TT
+CLASS="LITERAL"
+>cc</TT
+>
+vector are to be entered simultaneously, component-wise, in pairs: the first
+element of <TT
+CLASS="LITERAL"
+>ex</TT
+>, then the first element of
+<TT
+CLASS="LITERAL"
+>cc</TT
+>, the second element of <TT
+CLASS="LITERAL"
+>ex</TT
+>, and then the
+second element of <TT
+CLASS="LITERAL"
+>cc</TT
+>, and so on. This is called
+<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>interleaved vector input</I
+></SPAN
+>, and is represented in the
+documentation by a data type declaration like this:</P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>ex,cc= REALVEC(n_cc),REALVEC(n_cc)</DT
+><DD
+><P
+ALIGN="justify"
+>Enter the exponents <TT
+CLASS="LITERAL"
+>ex=</TT
+> and contraction
+coefficients <TT
+CLASS="LITERAL"
+>cc=</TT
+> for the gaussian shell in alternating
+style.</P
+></DD
+></DL
+></DIV
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>n_cc</TT
+> within the <TT
+CLASS="LITERAL"
+>REALVEC(n_cc)</TT
+> symbol
+indicates that the arrays <TT
+CLASS="LITERAL"
+>ex</TT
+> and <TT
+CLASS="LITERAL"
+>cc</TT
+> have
+length equal to the <TT
+CLASS="LITERAL"
+>SHELL</TT
+> component variable
+<TT
+CLASS="LITERAL"
+>n_cc</TT
+>.</P
+><P
+ALIGN="justify"
+>Finally, since the default input data order is <TT
+CLASS="LITERAL"
+>l= n_cc=
+ex,cc=</TT
+>, a valid plain-style input equivalent to the last example
+is:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>&lcub;&#13; D 3
+ 1.0 0.1 
+ 2.0 0.2 
+ 3.0 0.3
+&rcub;</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="input-files.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="example-input-files.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Writing an input file: the basics</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="calc-chap.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Examples of TONTO input files</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,195 @@
+!---------------------------------------------------------------------------
+!
+! REALMATVEC: Vector of matrices
+!
+! Copyright (C) Daniel Grimwood, 1999
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: realmatvec.foo,v 1.4.2.1 2003/11/13 05:36:07 reaper Exp $
+!---------------------------------------------------------------------------
+
+module REALMATVEC
+
+   implicit none
+
+contains
+
+   create(dim)
+   ! Create a matvec
+      self :: PTR
+      dim :: INT
+      nullify(self)
+      allocate(self(dim))
+      ADD_MEMORY(dim*PTR_SIZE)
+      .nullify_ptr_part
+   end
+
+   create(lb,ub)
+   ! Create a matvec
+      self :: PTR
+      lb,ub :: INT
+      nullify(self)
+      allocate(self(lb:ub))
+      ADD_MEMORY((ub-lb+1)*PTR_SIZE)
+      .nullify_ptr_part
+   end
+
+   destroy
+   ! Destroy a matvec
+      self :: PTR
+      if (.destroyed) return
+      .destroy_ptr_part
+      DELETE_MEMORY(size(self)*PTR_SIZE)
+      deallocate(self)
+   end
+
+   nullify_ptr_part
+   ! Nullify the pointer parts of a matvec
+      i :: INT
+      do i = .lb,.ub
+         nullify(self(i).element)
+      end
+   end
+
+   destroy_ptr_part
+   ! Destroy the pointer parts of a matvec
+       i :: INT
+      do i = .lb,.ub
+         self(i).element.destroy
+      end
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   create_copy(m) ::: leaky
+   ! Create a copy of "m"
+      self :: PTR
+       m :: REALMATVEC
+      .create(m.lb,m.ub)
+      .copy(m)
+   end
+
+   copy(m) ::: leaky
+   ! Make a copy of "m"
+      m :: REALMATVEC
+      i :: INT
+   ENSURE(.lb==m.lb,"different lower bounds")
+   ENSURE(.ub==m.ub,"different upper bounds")
+      do i = m.lb,m.ub
+         self(i).element.create_copy(m(i).element)
+      end
+   end
+
+   lb result(res) ::: pure
+   ! Returns the lower bound of self
+      self :: IN
+      res :: INT
+      res = lbound(self,1)
+   end
+
+   ub result(res) ::: pure
+   ! Returns the upper bound of self
+      self :: IN
+      res :: INT
+      res = ubound(self,1)
+   end
+
+   make_xyz_to_spherical_matrices(l_max) ::: leaky
+   ! Make the cartesian gaussian to (real) spherical harmonic gaussian
+   ! transformation matrices up to angular momentum "l_max". The particular
+   ! transformation matrix for angular momentum "L" is self(L).element(c,M)
+   ! where "c" is the lexical index of the cartsian gaussian and "M" is the
+   ! *real* spherical component index, as defined in the book by Helgaker,
+   ! Olsen, and Simons. NOTE: self is created.
+      self :: PTR
+      l_max :: INT
+      two :: INT
+      powers :: INTMAT*
+      idx :: INTMAT3*
+      L,M,i,del,n_comp,offset,x,y,z :: INT
+      top,bot,fac,val,valp,valm :: REAL
+      ix,iy,iz :: INTVEC(3)
+      ENSURE(.destroyed,"self is not destroyed")
+      ENSURE(l_max>=0,"l_max must be non-negative")
+      two = 2
+      .create(0,l_max)
+      do L = 0,l_max
+         n_comp = L.n_comp
+         self(L).element.create(1,n_comp,-L,L)
+         self(L).element = ZERO
+      end
+      allocate(powers(3,l_max.n_comp_sum))
+      allocate(idx(0:l_max,0:l_max,0:l_max))
+      powers.to_gaussian_xyz_powers(l_max) ! cartesian gaussian component xyz powers
+      idx.to_gaussian_xyz_indices(l_max) ! index of gaussian for a given xyz power
+      self(0).element(1,0) = ONE
+      do L = 0,l_max-1
+         del = L.delta(0)
+         top = 2*L+1
+         fac = sqrt((two.raised_to(del))*top/(top+1))
+         n_comp = L.n_comp
+         offset = (L-1).n_comp_sum
+         do i = 1,n_comp ! loop over cartesian gaussian in L-shell
+            ix = powers(:,offset+i)+[1,0,0]; x = idx(ix(1),ix(2),ix(3)) ! multipy by x
+            iy = powers(:,offset+i)+[0,1,0]; y = idx(iy(1),iy(2),iy(3)) ! multipy by y
+            iz = powers(:,offset+i)+[0,0,1]; z = idx(iz(1),iz(2),iz(3)) ! multipy by z
+            valp = fac*self(L).element(i,L)
+            valm = fac*(1-del)*self(L).element(i,-L)
+            self(L+1).element(x, L+1) = self(L+1).element(x, L+1) + valp
+            self(L+1).element(x,-L-1) = self(L+1).element(x,-L-1) + valm
+            self(L+1).element(y, L+1) = self(L+1).element(y, L+1) - valm
+            self(L+1).element(y,-L-1) = self(L+1).element(y,-L-1) + valp
+            do M = -L,L
+               bot = (L+M+1)*(L-M+1)
+               val = (top/sqrt(bot))*self(L).element(i,M)
+               self(L+1).element(z,M) = self(L+1).element(z,M) + val
+            end
+         end
+         if (L>0) then
+         n_comp = (L-1).n_comp
+         offset = (L-2).n_comp_sum
+         do i = 1,n_comp ! loop over cartesian gaussians in (L-1)-shell
+            ix = powers(:,offset+i)+[2,0,0]; x = idx(ix(1),ix(2),ix(3)) ! multiply by x^2
+            iy = powers(:,offset+i)+[0,2,0]; y = idx(iy(1),iy(2),iy(3)) ! multiply by y^2
+            iz = powers(:,offset+i)+[0,0,2]; z = idx(iz(1),iz(2),iz(3)) ! multiply by y^2
+            do M = -L+1,L-1
+               bot = (L+M+1)*(L-M+1)
+               val = sqrt((L+M)*(L-M)/bot)*self(L-1).element(i,M)
+               self(L+1).element(x,M) = self(L+1).element(x,M) - val
+               self(L+1).element(y,M) = self(L+1).element(y,M) - val
+               self(L+1).element(z,M) = self(L+1).element(z,M) - val
+            end
+         end
+         end
+      end
+      deallocate(idx)
+      deallocate(powers)
+   end
+
+end

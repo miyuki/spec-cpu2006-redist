@@ -1,0 +1,3725 @@
+!-------------------------------------------------------------------------------
+!
+! MOL: An object representation of a molecule.
+!
+! Copyright (C) Dylan Jayatilaka, Daniel Grimwood, 1996
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: mol_main.foo,v 1.53.2.28 2003/11/06 10:06:15 dylan Exp $
+!-------------------------------------------------------------------------------
+
+module MOL_main
+
+   use REALVEC, only: minimise_BFGS
+
+   use MOL
+
+   implicit none
+
+   saved_self :: MOL*, private
+
+contains
+
+   read_CX_file_name 
+   ! Read the CX file name
+      stdin.read(.CX_file_name)
+   end
+
+   read_CIF_file_name 
+   ! Read the CIF file name
+      file :: TEXTFILE
+      WARN_IF(.CIF_file_name/=" ","a CIF file name already exists")
+      WARN_IF(.CIF_data_block_name/=" ","a CIF data block name already exists")
+      stdin.read(.CIF_file_name)
+      ENSURE(file.exists(name=.CIF_file_name),"no CIF file exists named: "//.CIF_file_name.trim)
+   end
+
+   read_CIF_data_block_name 
+   ! Read the CIF data block name, set the job name to be this block name.
+      ENSURE(.CIF_file_name/=" ","specify CIF file name first")
+      stdin.read(.CIF_data_block_name)
+      .name = .CIF_file_name.filename_head.trim // "_" &
+           // .CIF_data_block_name ! Set name to the crystal data name
+      WARN("Job name has now been set to: "//.name.trim)
+   end
+
+   find_CIF_crystal_data_block(found) 
+   ! Find the *first* block of crystal and atom information from the CIF file,
+   ! and set the locator ".CIF_data_block_name".  The name of the molecule (job)
+   ! is set to be the name of the cif file concatenated with the data block
+   ! name.  
+      found :: BIN, optional, OUT
+      ENSURE(.CIF_file_name/=" ","no CIF file name")
+      .cif.create(.CIF_file_name)
+      .find_CIF_crystal_data_block(.cif,found)
+      .cif.destroy
+   end
+
+   find_CIF_crystal_data_block(cif,found) 
+   ! Find the *first* block of crystal and atom information from the "cif" file
+   ! (starting from line cif.start_of_data), and set the locator
+   ! ".CIF_data_block_name".  The name of the molecule (job) is set to be the
+   ! name of the cif file concatenated with the data block name.  
+      cif :: CIF
+      found :: BIN, optional, OUT
+      ENSURE(cif.file.created,"no CIF file name")
+      ENSURE(cif.file.name/=" ","no CIF file name")
+      if (NOT cif.file.is_open) cif.open
+      cif.find_crystal_data_block(found)
+      if (present(found)) then
+         if (NOT found) return
+      end
+      .CIF_data_block_name = cif.data_block_name ! <<<<<<<<<
+      .name = cif.file.name.filename_head.trim // "_" &
+           // cif.data_block_name ! Set name to the crystal data name
+      WARN("Job name has now been set to: "//.name.trim)
+   end
+
+   process_CIF ::: leaky
+   ! Process a CIF file, and try to read crystal and atom information, either
+   ! from the current ".CIF_data_block_name", or from the first data block in
+   ! the CIF file which is accetable.
+      self :: PTR
+      if (.CIF_data_block_name==" ") then
+         WARN("no CIF data block as specified, looking for first acceptable data block")
+         .find_CIF_crystal_data_block
+      end
+      .process_CIF_data_block
+   end
+
+   process_CIF_data_block ::: leaky
+   ! Read a named block from the .cif file with name .CIF_file_name and from the
+   ! data block with name .CIF_data_block_name, and extract crystal and atom
+   ! information. NOTE: .cif is created and destroyed in this routine.
+      ENSURE(.CIF_file_name/=" ","no CIF file name")
+      ENSURE(.CIF_data_block_name/=" ","no CIF data block name")
+      ENSURE(.cif.destroyed,"the cif file is created")
+      .cif.create(.CIF_file_name)
+      .cif.open
+      .cif.find_data_block(.CIF_data_block_name)
+      .process_CIF_data_block(.cif) 
+      .cif.destroy
+   end
+
+   process_CIF_data_block(cif) 
+   ! From the current named data block from the "cif", extract crystal and atom
+   ! information. 
+      cif :: CIF
+      ENSURE(cif.data_block_name==.CIF_data_block_name,"inconsistent CIF data block name")
+      ENSURE(cif.start_of_data>0,"no start of data in CIF")
+      ENSURE(cif.end_of_data>cif.start_of_data,"no end of data in CIF")
+      if (NOT cif.file.is_open) cif.open
+      .read_crystal_from_CIF(cif)       ! Read crystal info
+      .read_atoms_from_CIF(cif)         ! Read in atoms of asymmetric unit
+   end
+
+   read_crystal_from_CIF(cif) ::: leaky
+   ! Read crystal unitcell and spacegroup information (but NOT atom positions)
+   ! from a CIF file called "cif".
+      cif :: CIF
+      .crystal.destroy
+      .crystal.create
+      .crystal.read_CIF(cif)
+      if (associated(.atom)) then
+         .resolve_axis_system
+         .crystal.make_reduced_group_data(.atom)
+      end
+   end
+
+   read_atoms_from_CIF(cif) ::: leaky
+   ! Read atom information from a Crystallographic Information File, "cif".
+      cif :: CIF
+      if (.atom.created) then
+         .atom.nullify_basis_part
+         .atom.destroy
+      end
+      .atom.read_CIF(cif)
+      .mult = .default_multiplicity
+      .set_atom_info
+      .resolve_basis_info
+      if (associated(.crystal)) then
+         .resolve_axis_system
+         .crystal.make_reduced_group_data(.atom)
+      end
+   end
+
+   process_CIF_for_CX ::: leaky
+   ! Process and entire .cif file by reading all acceptable data blocks (i.e.
+   ! those with crystal and atom information) and then writing this information
+   ! to a crystal explorer information file. 
+      self :: PTR
+      found :: BIN
+      cif :: CIF*
+      CX_file :: TEXTFILE*
+      ENSURE(.CX_file_name/=" ","no CX file name")
+      CX_file.create(.CX_file_name)
+      CX_file.open(for="write")
+      cif.create(.CIF_file_name)
+      do
+         .find_CIF_crystal_data_block(cif,found)
+         if (NOT found) exit            ! No more crystal data blocks
+         .process_CIF_data_block(cif)   ! Read new crystal, atom info
+         .cluster.create(.crystal,.atom)
+         .cluster.radius = ZERO       
+         .cluster.add_criteria = "fragment"
+         .cluster.start_with_fragment = TRUE
+         .cluster.defragment = FALSE
+         .cluster.make_info             ! Create the cluster
+         .cluster.put
+         .put_CX_data(CX_file)          ! Write out the data
+         .destroy                       ! Destroy self, create from cif
+         .create
+         cif.start_of_data = cif.end_of_data  
+      end
+      cif.destroy
+      CX_file.destroy
+   end
+
+   put_CX_data
+   ! Output information that Crystal Explorer requires to the file 
+   ! with name ".CX_file_name".
+      CX_file :: TEXTFILE*
+   ENSURE(.CX_file_name/=" ","no CX file name")
+      CX_file.create(.CX_file_name)
+      CX_file.open(for="write")
+      .put_CX_data(CX_file)
+      CX_file.close
+      CX_file.destroy
+   end
+
+   put_CX_data(CX_file)
+   ! Output information that Crystal Explorer requires to file "CX_file".
+   ! NOTE: this requires a CIF file to have been read, and a valid data block
+   ! name to be stored in the cif object.
+     CX_file :: TEXTFILE*
+     save :: TEXTFILE*
+     CX_label :: STR
+   ENSURE(.cluster.created,"no cluster data")
+   ENSURE(.cluster.info_made,"no cluster information")
+   ENSURE(.cluster.crystal.created,"no cluster crystal data")
+   ENSURE(.cluster.n_fragment_atoms>0,"no fragment size")
+   ENSURE(.CIF_data_block_name/=" ","no CIF data block name")
+     CX_label = .CIF_data_block_name
+     stdout.flush
+     stdout.text("Writing Crystal Explorer data file: " // CX_file.name.trim)
+     stdout.flush
+     save   => stdout                   ! Redirect stdout to out
+     stdout => CX_file
+     stdout.flush
+     stdout.text("Crystal Explorer data")
+     stdout.show("begin crystal ",CX_label)
+     .cluster.crystal.put_CX(CX_label)  ! Crystal data
+     .cluster.put_CX(CX_label)          ! Cluster/fragment positions
+     stdout.text("end crystal")
+     if (.isosurface.created) then
+     if (.isosurface.atom.created) then ! Isosurface information
+        .isosurface.put_CX(CX_label)    ! &
+                               ! ,.cluster.fragment_atom_indices &
+                               ! ,.cluster.nonfragment_atom_indices)  
+     end
+     end
+     stdout.text("Spartan data")
+     .cluster.put_spartan(CX_label)     ! Spartan data
+     stdout => save                     ! Put back stdout
+   end
+
+   make_monomer_MOs ::: leaky
+   ! Make the monomer molecular orbital matrix from symmetrically orthonormalised
+   ! group (monomer) molecular orbitals. The promolecule orbitals are ordered by group.
+   ! The orbitals and the corresponding promolecule density are *not* archived.
+   ! This will destroy any existing restricted density matrix and MOs.
+      S :: REALMAT*
+      .make_group_density(MOs=TRUE,output=FALSE)
+      S.create(.n_bf,.n_bf)
+      .get_overlap_matrix(S)
+      S.change_basis(.molecular_orbitals.restricted)
+      stdout.text("S in the monomer basis:")
+      stdout.put(S)
+      S.destroy
+   end
+
+   make_promol_MOs ::: leaky
+   ! Make the promolecule molecular orbital matrix from symmetrically orthonormalised
+   ! group (monomer) molecular orbitals. The promolecule orbitals are ordered by group.
+   ! The orbitals and the corresponding density are *not* archived.
+   ! This will destroy any existing restricted density matrix and MOs.
+      S :: REALMAT*
+      .make_group_density(MOs=TRUE,output=FALSE)
+      .symorthonormalise_occupied_MOs
+      S.create(.n_bf,.n_bf)
+      .get_overlap_matrix(S)
+      S.change_basis(.molecular_orbitals.restricted)
+      stdout.text("S in the promolecule monomer basis:")
+      stdout.put(S)
+      S.destroy
+   end
+
+!   optimise_geometry
+!   ! Optimise the Hartree-Fock SCF energy gradient.
+!      k,i :: INT
+!      p :: REALVEC*
+!      energy :: REAL
+!      self :: target
+!      p.create(3*.n_atom)
+!      k = 0
+!      do i = 1,.n_atom
+!         p(k+1) = .atom(i).pos(1)
+!         p(k+2) = .atom(i).pos(2)
+!         p(k+3) = .atom(i).pos(3)
+!         k = k + 3
+!      end
+!      saved_self => self
+!      call minimise_BFGS(hf_scf_energy,hf_scf_gradient,p,energy,TOL(3),TOL(3),TOL(1),25)
+!      stdout.show("Optimised energy = ",energy)
+!      stdout.text("Optimised geometry:")
+!      stdout.put(p,format="column")
+!      p.destroy
+!   end
+!
+!   hf_scf_energy(p) result (res) ::: selfless
+!   ! Evaluates the total HF SCF energy (including nuclear)
+!      p :: REALVEC
+!     res :: REAL
+!     self :: MOL*; self => saved_self
+!   ENSURE(.n_atom*3==p.dim,"wrong size for p")
+!     if (NOT .atom.geometry_vector.same_as(p,tol=TOL(9))) then
+!        .atom.set_geometry_from_vector(p)
+!        .delete_scf_integrals
+!        .hf_scf
+!     end
+!     res = .scf_energy
+!   end
+!
+!   the_scf_energy result (res)
+!   ! Evaluates the total HF SCF energy (including nuclear)
+!     res :: REAL
+!     .scfdata.output = FALSE
+!     .delete_scf_integrals
+!     .hf_scf
+!     res = .scf_electronic_energy(.density_matrix)
+!     .scfdata.output = TRUE
+!   end
+!
+!   the_e2_energy result (res)
+!   ! Evaluates the total HF SCF energy (including nuclear)
+!     res :: REAL
+!   ! .scfdata.output = FALSE
+!   ! .delete_scf_integrals
+!   ! .hf_scf
+!     .delete_scf_integrals
+!     .make_fock_matrix(core=FALSE)
+!     res = .scf_electronic_energy(.density_matrix,core=FALSE)
+!   ! .scfdata.output = TRUE
+!   end
+!
+!   hf_scf_gradient(p) result (g) ::: selfless
+!   !  Evaluate the HF SCF gradient at geometry "g" and return the
+!   !  answer as a vector "res"
+!       p :: REALVEC
+!       g :: REALVEC(size(p))
+!      i,k :: INT
+!      self :: MOL*; self => saved_self
+!   ENSURE(.n_atom*3==p.dim,"wrong size for p")
+!      if (NOT .atom.geometry_vector.same_as(p,tol=TOL(9))) then
+!        .atom.set_geometry_from_vector(p)
+!        .delete_scf_integrals
+!        .hf_scf
+!      end
+!      g = ZERO
+!      .add_S_gradient_term(g)
+!      .add_T_gradient_term(g)
+!      .add_NA_gradient_term(g)
+!      .add_2e_gradient_term(g)
+!   end
+!
+!   hf_scf_energy_gradient
+!   ! Calculate the Hartree-Fock SCF energy gradient.
+!      g :: REALVEC*
+!      P :: REALMAT*
+!      delta, val :: REAL
+!   ENSURE(.density_matrix.restricted.created,"no density matrix")
+!      stdin.read(delta)
+!      g.create(3*.n_atom)
+!      g = ZERO
+!      .add_S_gradient_term(g)
+!      .make_fd_gradient(S_energy,delta)
+!      .add_T_gradient_term(g)
+!      .make_fd_gradient(T_energy,delta)
+!      .add_NA_gradient_term(g)
+!      .make_fd_gradient(NA_energy,delta)
+!      .add_2e_gradient_term(g)
+!      .make_fd_gradient(e2_energy,delta)
+!      .make_fd_gradient(the_e2_energy,delta)
+!      stdout.text("Energy gradient:")
+!      stdout.put(g,format="column")
+!      val = .e2_energy
+!      stdout.show("e2_energy     = ",val)
+!      val = .the_e2_energy
+!      stdout.show("the_e2_energy = ",val)
+!      g.destroy
+!      .make_fd_gradient(the_scf_energy,delta)
+!   end
+!
+!   energy_gradient(gradient)
+!   ! Calculate the Hartree-Fock SCF energy gradient.
+!       gradient :: REALVEC
+!       g :: REALVEC*
+!       P :: REALMAT*
+!   ENSURE(.density_matrix.restricted.created,"no density matrix")
+!      g.create(3*.n_atom)
+!      g = ZERO
+!      .add_S_gradient_term(g)
+!      .add_T_gradient_term(g)
+!      .make_fd_gradient(T_energy)
+!      .add_NA_gradient_term(g)
+!      .make_fd_gradient(NA_energy)
+!      .add_2e_gradient_term(g)
+!      .make_fd_gradient(e2_energy)
+!      gradient = gradient + g
+!      g.destroy
+!   end
+!
+!   make_e_weighted_density_matrix(D) ::: private
+!   ! Make the eigenvalue weighted density matrix used in the overlap
+!   ! derivative energy gradient term
+!     D :: REALMAT
+!     X,MO :: REALMAT*
+!     eigenvalues :: REALVEC*
+!     eig_archive,MO_archive :: ARCHIVE
+!     eig_archive.set(.name,"orbital_energies",genre="restricted")
+!     MO_archive.set(.name,"molecular_orbitals",genre="restricted")
+!   ENSURE(eig_archive.exists,"no eigenvalues")
+!   ENSURE(MO_archive.exists,"no molecular orbitals")
+!     X.create(.n_bf,.n_bf)
+!     MO.create(.n_bf,.n_bf)
+!     eigenvalues.create(.n_bf)
+!     MO_archive.read(MO)
+!     eig_archive.read(eigenvalues)
+!     eigenvalues = TWO*eigenvalues
+!     eigenvalues(.n_e/2+1:) = ZERO
+!     X.to_product_with_diagonal(MO,eigenvalues)
+!     D.to_product_of(X,MO,transpose_b=TRUE)
+!     eigenvalues.destroy
+!     MO.destroy
+!     X.destroy
+!   end
+!
+!   add_S_gradient_term(gradient) ::: private
+!   ! Make the overlap derivative contribution to the SCF gradient by contracting
+!   ! The overlap derivatives with the densitu matrix.
+!     gradient :: REALVEC
+!     g :: REALVEC*
+!     SAx,SAy,SAz, D :: REALMAT*
+!     q,fa,la,fb,lb,atom_a,atom_b, ax,ay,az,bx,by,bz :: INT
+!     val_x,val_y,val_z :: REAL
+!     sh :: SHELL2
+!   ENSURE(.basis_info_made, "no basis set")
+!   ENSURE(.atom.created,  "no atom list")
+!     g.create(3*.n_atom); g = ZERO
+!     D.create(.n_bf,.n_bf)
+!     .make_e_weighted_density_matrix(D) ! includes factor of 2
+!     do q=1,.n_shell_pairs
+!       .get_shell_pair(sh,q,fa,la,fb,lb,atom_a,atom_b)
+!       if (atom_a/=atom_b) then
+!       SAx.create(sh.a.n_comp,sh.b.n_comp)
+!       SAy.create(sh.a.n_comp,sh.b.n_comp)
+!       SAz.create(sh.a.n_comp,sh.b.n_comp)
+!       sh.make_S_1st_deriv_ints(SAx,SAy,SAz)
+!       val_x = SAx.trace_product_with(D(fb:lb,fa:la))
+!       val_y = SAy.trace_product_with(D(fb:lb,fa:la))
+!       val_z = SAz.trace_product_with(D(fb:lb,fa:la))
+!       SAz.destroy; SAy.destroy; SAx.destroy
+!       ax = 3*atom_a - 2; ay = 3*atom_a - 1; az = 3*atom_a
+!       bx = 3*atom_b - 2; by = 3*atom_b - 1; bz = 3*atom_b
+!       g(ax) = g(ax) + val_x ; g(ay) = g(ay) + val_y ; g(az) = g(az) + val_z
+!       g(bx) = g(bx) - val_x ; g(by) = g(by) - val_y ; g(bz) = g(bz) - val_z
+!       end
+!       sh.destroy_ptr_part
+!     end
+!     D.destroy
+!     stdout.flush
+!     stdout.text("S gradient term:")
+!     stdout.put(-TWO*g,format="column")
+!     gradient = gradient - TWO*g ! factor TWO for upper half of shell pairs
+!     g.destroy
+!   end
+!
+!   add_T_gradient_term(gradient) ::: private
+!   ! Add the kinetic derivative contribution to the SCF "gradient" by contracting
+!   ! The kinetic integral derivatives with the densitu matrix.
+!     gradient :: REALVEC
+!     g :: REALVEC*
+!     TAx,TAy,TAz, P :: REALMAT*
+!     q,fa,la,fb,lb,atom_a,atom_b, ax,ay,az,bx,by,bz :: INT
+!     val_x,val_y,val_z :: REAL
+!     arch :: ARCHIVE
+!     sh :: SHELL2
+!   ENSURE(.basis_info_made, "no basis set")
+!   ENSURE(.atom.created,  "no atom list")
+!     arch.set(.name,"density_matrix",genre="restricted")
+!   ENSURE(arch.exists,"no density")
+!     g.create(3*.n_atom); g = ZERO
+!     P.create(.n_bf,.n_bf)
+!     arch.read(P)
+!     do q=1,.n_shell_pairs
+!       .get_shell_pair(sh,q,fa,la,fb,lb,atom_a,atom_b)
+!       if (atom_a/=atom_b) then
+!       TAx.create(sh.a.n_comp,sh.b.n_comp)
+!       TAy.create(sh.a.n_comp,sh.b.n_comp)
+!       TAz.create(sh.a.n_comp,sh.b.n_comp)
+!       sh.make_T_1st_deriv_ints(TAx,TAy,TAz)
+!       val_x = TAx.trace_product_with(P(fb:lb,fa:la))
+!       val_y = TAy.trace_product_with(P(fb:lb,fa:la))
+!       val_z = TAz.trace_product_with(P(fb:lb,fa:la))
+!       TAz.destroy; TAy.destroy; TAx.destroy
+!       ax = 3*atom_a - 2; ay = 3*atom_a - 1; az = 3*atom_a
+!       bx = 3*atom_b - 2; by = 3*atom_b - 1; bz = 3*atom_b
+!       g(ax) = g(ax) + val_x ; g(ay) = g(ay) + val_y ; g(az) = g(az) + val_z
+!       g(bx) = g(bx) - val_x ; g(by) = g(by) - val_y ; g(bz) = g(bz) - val_z
+!       end
+!       sh.destroy_ptr_part
+!     end
+!     P.destroy
+!     stdout.flush
+!     stdout.text("T gradient:")
+!     stdout.put(TWO*g,format="column")
+!     gradient = gradient + TWO*g ! factor for upper half of shell pairs
+!     g.destroy
+!   end
+!
+!   add_NA_gradient_term(gradient) ::: private
+!   ! Add the nuclear attraction derivative contribution to the SCF "gradient" by contracting
+!   ! the nuclear attraction integral derivatives with the densitu matrix. This term includes
+!   ! the Helmann-Feynman contribution.
+!     gradient :: REALVEC
+!     g :: REALVEC*
+!     NAx,NAy,NAz, NBx,NBy,NBz, P :: REALMAT*
+!     q,fa,la,fb,lb,atom_a,atom_b,c, ax,ay,az,bx,by,bz,cx,cy,cz :: INT
+!     val_ax,val_ay,val_az, val_bx,val_by,val_bz, val_cx,val_cy,val_cz, Z, fac :: REAL
+!     arch :: ARCHIVE
+!     sh :: SHELL2
+!   ENSURE(.basis_info_made, "no basis set")
+!   ENSURE(.atom.created,  "no atom list")
+!     arch.set(.name,"density_matrix",genre="restricted")
+!   ENSURE(arch.exists,"no density")
+!     g.create(3*.n_atom); g = ZERO
+!     P.create(.n_bf,.n_bf)
+!     arch.read(P)
+!     do q=1,.n_shell_pairs
+!       .get_shell_pair(sh,q,fa,la,fb,lb,atom_a,atom_b)
+!       NAx.create(sh.a.n_comp,sh.b.n_comp)
+!       NAy.create(sh.a.n_comp,sh.b.n_comp)
+!       NAz.create(sh.a.n_comp,sh.b.n_comp)
+!       NBx.create(sh.a.n_comp,sh.b.n_comp)
+!       NBy.create(sh.a.n_comp,sh.b.n_comp)
+!       NBz.create(sh.a.n_comp,sh.b.n_comp)
+!       fac = TWO; if (fa==fb) fac = ONE
+!       do c=1,.n_atom
+!         if (atom_a==c AND atom_b==c) cycle
+!         sh.make_NA_1st_deriv_ints(NAx,NAy,NAz,NBx,NBy,NBz,.atom(c).pos)
+!         Z = - .atom(c).atomic_number * fac ! for upper half of shell pair
+!         val_ax = Z * NAx.trace_product_with(P(fb:lb,fa:la))
+!         val_ay = Z * NAy.trace_product_with(P(fb:lb,fa:la))
+!         val_az = Z * NAz.trace_product_with(P(fb:lb,fa:la))
+!         val_bx = Z * NBx.trace_product_with(P(fb:lb,fa:la))
+!         val_by = Z * NBy.trace_product_with(P(fb:lb,fa:la))
+!         val_bz = Z * NBz.trace_product_with(P(fb:lb,fa:la))
+!         ax = 3*atom_a - 2; ay = 3*atom_a - 1; az = 3*atom_a
+!         bx = 3*atom_b - 2; by = 3*atom_b - 1; bz = 3*atom_b
+!         cx = 3*c      - 2; cy = 3*c      - 1; cz = 3*c
+!         val_cx = -(val_ax + val_bx)
+!         val_cy = -(val_ay + val_by)
+!         val_cz = -(val_az + val_bz)
+!         g(ax) = g(ax) + val_ax ; g(ay) = g(ay) + val_ay ; g(az) = g(az) + val_az
+!         g(bx) = g(bx) + val_bx ; g(by) = g(by) + val_by ; g(bz) = g(bz) + val_bz
+!         g(cx) = g(cx) + val_cx ; g(cy) = g(cy) + val_cy ; g(cz) = g(cz) + val_cz
+!       end
+!       NBz.destroy; NBy.destroy; NBx.destroy
+!       NAz.destroy; NAy.destroy; NAx.destroy
+!       sh.destroy_ptr_part
+!     end
+!     P.destroy
+!     stdout.flush
+!     stdout.text("NA gradient:")
+!     stdout.put(g,format="column")
+!     gradient = gradient + g
+!     g.destroy
+!   end
+!
+!   add_2e_gradient_term(gradient) ::: private
+!   ! Add the two electron derivative contributions to the "gradient".
+!     gradient :: REALVEC
+!     g :: REALVEC*
+!     P :: REALMAT*
+!     max_I,max_P :: REALVEC*
+!     sh :: SHELL4
+!     AA,BB,CC :: REALMAT5*
+!     ab,cd, sa,sb,sc,sd, atom_a,atom_b,atom_c,atom_d :: INT
+!     a,b,c,d,fa,fb,fc,fd,la,lb,lc,ld :: INT
+!     ax,ay,az,bx,by,bz,cx,cy,cz,dx,dy,dz :: INT
+!     fac,P_dc,P_db,P_cb,P_ba,P_da,P_ca,cutoff,dens,P_max,IP_max :: REAL
+!     AAx,AAy,AAz,BBx,BBy,BBz,CCx,CCy,CCz,DDx,DDy,DDz,SSx,SSy,SSz :: REAL
+!     skip :: BIN
+!     ab_same,cd_same,ac_same :: BIN
+!     arch :: ARCHIVE
+!     arch.set(.name,"density_matrix",genre="restricted")
+!   ENSURE(arch.exists,"no density")
+!     g.create(3*.n_atom); g = ZERO
+!     P.create(.n_bf,.n_bf)
+!     arch.read(P)
+!     cutoff = .scfdata.eri_cutoff
+!     max_I.create(.n_shell_pairs)
+!     max_P.create(.n_shell_pairs)
+!     .make_max_abab_integrals(max_I)
+!     .make_max_density_elements(max_P,P)
+!     P_max = maxval(max_P)
+!     IP_max = maxval(max_I) * P_max
+!     do ab = 1, .n_shell_pairs
+!       if (max_I(ab)*IP_max < cutoff)  cycle                         ! Rough Schwarz test, but quick.
+!       .get_shell_pair_indices(ab,sa,sb,fa,la,fb,lb,atom_a,atom_b)   ! a & b shell indices.
+!       ax = 3*atom_a-2; ay = 3*atom_a-1; az = 3*atom_a
+!       bx = 3*atom_b-2; by = 3*atom_b-1; bz = 3*atom_b
+!       ab_same = atom_a==atom_b
+!       .set_shell_quartet_ab(sh,sa,sb)
+!       do cd = 1,ab
+!         if (max_I(ab)*max_I(cd)*P_max < cutoff)  cycle              ! Rough Schwarz test
+!         .get_shell_pair_indices(cd,sc,sd,fc,lc,fd,ld,atom_c,atom_d) ! c & d shell indices.
+!         cx = 3*atom_c-2; cy = 3*atom_c-1; cz = 3*atom_c
+!         dx = 3*atom_d-2; dy = 3*atom_d-1; dz = 3*atom_d
+!         cd_same = atom_c==atom_d
+!         ac_same = atom_a==atom_c
+!         if (ab_same AND cd_same AND ac_same) cycle ! by translational invariance
+!         ! ab|cd < sqrt(ab|ab) * sqrt(cd|cd) test.
+!         skip = .schwarz_inequality_test(cutoff,ab,cd,sa,sb,sc,sd,max_P,max_I)
+!         if (skip) cycle
+!         .set_shell_quartet_cd(sh,sc,sd)
+!         ! Evaluate the integrals' coincidence factors
+!         fac = ONE
+!         if (sa==sb)            fac = HALF * fac
+!         if (sc==sd)            fac = HALF * fac
+!         if (sa==sc AND sb==sd) fac = HALF * fac
+!         AA.create(fa,la,fb,lb,fc,lc,fd,ld,1,3)
+!         BB.create(fa,la,fb,lb,fc,lc,fd,ld,1,3)
+!         CC.create(fa,la,fb,lb,fc,lc,fd,ld,1,3)
+!         sh.make_ERI_derivatives(AA,BB,CC)
+!         AA = fac*AA; BB = fac*BB; CC = fac*CC
+!         do d = fd,ld
+!         do c = fc,lc
+!           P_dc = P(d,c)
+!           do b = fb,lb
+!             P_db = P(d,b)
+!             P_cb = P(c,b)
+!             do a = fa,la
+!                P_ba = P(b,a)
+!                P_da = P(d,a)
+!                P_ca = P(c,a)
+!                dens = FOUR*P_ba*P_dc - P_ca*P_db - P_da*P_cb
+!                AAx = AA(a,b,c,d,1)*dens; AAy = AA(a,b,c,d,2)*dens; AAz = AA(a,b,c,d,3)*dens
+!                BBx = BB(a,b,c,d,1)*dens; BBy = BB(a,b,c,d,2)*dens; BBz = BB(a,b,c,d,3)*dens
+!                CCx = CC(a,b,c,d,1)*dens; CCy = CC(a,b,c,d,2)*dens; CCz = CC(a,b,c,d,3)*dens
+!                DDx = -(AAx + BBx + CCx)
+!                DDy = -(AAy + BBy + CCy)
+!                DDz = -(AAz + BBz + CCz)
+!                g(ax) = g(ax) + AAx; g(ay) = g(ay) + AAy; g(az) = g(az) + AAz
+!                g(bx) = g(bx) + BBx; g(by) = g(by) + BBy; g(bz) = g(bz) + BBz
+!                g(cx) = g(cx) + CCx; g(cy) = g(cy) + CCy; g(cz) = g(cz) + CCz
+!                g(dx) = g(dx) + DDx; g(dy) = g(dy) + DDy; g(dz) = g(dz) + DDz
+!             end
+!           end
+!         end
+!         end
+!         CC.destroy
+!         BB.destroy
+!         AA.destroy
+!         sh.destroy_cd
+!       end
+!       sh.destroy_ab
+!     end
+!     max_P.destroy
+!     max_I.destroy
+!     P.destroy
+!     stdout.flush
+!     stdout.text("2e gradient:")
+!     stdout.put(g,format="column")
+!     gradient = gradient + g
+!     g.destroy
+!   end
+!
+!   make_fd_gradient(func,delta) ::: private
+!   ! Make the finite difference gradient "g" of the value of function "func"
+!   ! with respect to nuclear perturbations
+!      interface
+!         func(self) result (res)
+!            self :: MOL
+!            res :: REAL
+!         end
+!      end
+!      delta :: REAL, optional
+!      g,p :: REALVEC*
+!      del,e_p,e_m :: REAL
+!      a,i,ai :: INT
+!      del = TOL(7)
+!      if (present(delta)) del = delta
+!      g.create(3*.n_atom)
+!      p.create(3*.n_atom)
+!      .atom.get_geometry_vector(p)
+!      do a = 1,.n_atom
+!      do i = 1,3
+!         ai = 3*(a-1)+i
+!         p(ai) = p(ai) + del
+!         .atom.set_geometry_from_vector(p)
+!         .delete_scf_integrals
+!         e_p   = func(self)
+!         p(ai) = p(ai) - TWO*del
+!         .atom.set_geometry_from_vector(p)
+!         .delete_scf_integrals
+!         e_m   = func(self)
+!         g(ai) = (e_p - e_m)/(TWO*del)
+!         p(ai) = p(ai) + del
+!    ! stdout.show("   ai =",ai)
+!    ! stdout.show("   ep =",e_p)
+!    ! stdout.show("   em =",e_m)
+!         ! put back geometry
+!         .atom.set_geometry_from_vector(p)
+!      end
+!      end
+!      p.destroy
+!      stdout.flush
+!      stdout.text("Finite difference gradient:")
+!      stdout.put(g,format="column")
+!      g.destroy
+!   end
+!
+!   S_energy result (res)
+!   ! Make the energy weighted S energy
+!     res :: REAL
+!     D,S :: REALMAT*
+!     D.create(.n_bf,.n_bf)
+!     S.create(.n_bf,.n_bf)
+!     .make_e_weighted_density_matrix(D) ! includes factor of 2
+!     .make_overlap_matrix(S)
+!     res = - S.trace_product_with(D)
+!     S.destroy
+!     D.destroy
+!   end
+!
+!   T_energy result (res)
+!   ! Make the kinetic energy
+!     res :: REAL
+!     T :: REALMAT*
+!     T.create(.n_bf,.n_bf)
+!     .get_kinetic_matrix(T)
+!     res = .expectation(T)
+!     T.destroy
+!   end
+!
+!   NA_energy result (res)
+!   ! Make the electron-nuclear attraction energy
+!     res :: REAL
+!     Z :: REALMAT*
+!     Z.create(.n_bf,.n_bf)
+!     .get_nuclear_matrix(Z)
+!     res = .expectation(Z)
+!     Z.destroy
+!   end
+
+   optimise_orbitals
+   ! Optimise the Hartree-Fock orbitals directly using Fletcher Powell
+      energy :: REAL
+      MO :: REALVEC*
+      self :: target; saved_self => self
+      .get_initial_guess
+      .molecular_orbitals.restricted.shrink(.n_bf,.n_a)
+      MO.create(.n_bf*.n_a)
+      MO = reshape(.molecular_orbitals.restricted,(/.n_bf*.n_a/))
+#ifndef NOGENERIC
+      call minimise_BFGS(the_r_hf_energy,the_r_hf_energy_MO_gradient,MO,energy,TOL(3),TOL(3),step=TOL(2))
+#else
+      call REALVEC_minimise_BFGS(MOL_the_r_hf_energy,MOL_the_r_hf_energy_MO_gradient,MO,energy,TOL(3),TOL(3),step=TOL(2))
+#endif
+    ! call minimise_FRPR_(the_r_hf_energy,the_r_hf_energy_MO_gradient,MO,energy,TOL(3),TOL(3),step=TOL(2))
+      stdout.show("Optimised energy = ",energy)
+      stdout.text("Optimised orbitals:")
+      stdout.put(MO)
+      MO.destroy
+   end
+
+   the_r_hf_energy(MO) result (res) ::: selfless
+   ! Make the restricted Hartree-Fock energy from "MO", a vector representation
+   ! of the occupied molecular orbitals. Includes nuclear contribution.
+     MO :: REALVEC
+     res :: REAL
+     self :: MOL*; self => saved_self
+     .molecular_orbitals.restricted = reshape(MO,(/.n_bf,.n_a/))
+     .archive_molecular_orbitals
+     .make_non_ortho_scf_density ! writes density & occupations to disk
+     .make_fock_matrix
+     res = .scf_energy
+     stdout.show("hf energy =",res)
+   end
+
+   r_hf_energy(MO) result (res)
+   ! Make the Hartree-Fock energy without any intermediates.
+   ! Includes nuclear contribution.
+     MO :: REALMAT
+     res :: REAL
+     P,N :: REALMAT*
+     P.create(.n_bf,.n_bf)
+     N.create(.n_a ,.n_a)
+     .make_r_non_ortho_scf_density(P,MO,N) ! writes density to disk
+     N.destroy
+     res = .e1_energy(P) + .e2_energy(P) + .nuclear_energy
+     P.destroy
+     stdout.show("hf energy =",res)
+   end
+
+   e1_energy(P) result (res)
+   ! Make the one-electron energy directly from the density matrix "P"
+   ! without constructing any intermediates
+     P   :: REALMAT, target
+     res :: REAL
+     X,Pp   :: REALMAT*
+     q,fa,la,fb,lb, c :: INT
+     fac,this_res :: REAL
+     sh :: SHELL2
+     ENSURE(.basis_info_made, "no basis set")
+     ENSURE(.atom.created,  "no atom list")
+     ENSURE(P.dim1==.n_bf,"wrong size, P")
+     ENSURE(P.is_square,"wrong shape, P")
+     res = ZERO
+     do q = 1,.n_shell_pairs
+        .get_shell_pair(sh,q,fa,la,fb,lb)
+        fac = TWO
+        if (fa==fb) fac = ONE
+        X.create(fa,la,fb,lb)
+        sh.get_kei(X)
+        Pp => P(fb:lb,fa:la)
+        this_res = X.trace_product_with(Pp)
+        do c = 1,.n_atom
+           sh.get_nuc(X,.atom(c).mass,.atom(c).pos)
+           this_res = this_res - .atom(c).atomic_number*X.trace_product_with(Pp)
+        end
+        res = res + this_res * fac
+        X.destroy
+        sh.destroy_ptr_part
+     end
+   end
+
+   e2_energy(P) result (res)
+   ! Make the two electron electrostatic energy directly from the density
+   ! matrix "P" without constructing any intermediates.
+     res :: REAL
+     P :: REALMAT
+     max_I,max_P :: REALVEC*
+     I :: REALMAT4*
+     sh :: SHELL4
+     ab,cd, sa,sb,sc,sd, atom_a,atom_b,atom_c,atom_d :: INT
+     a,b,c,d,fa,fb,fc,fd,la,lb,lc,ld :: INT
+     fac,P_dc,P_db,P_cb,cutoff,dens,P_max,IP_max :: REAL
+     skip :: BIN
+     ENSURE(.basis_info_made, "no basis set")
+     ENSURE(.atom.created,  "no atom list")
+     ENSURE(P.dim1==.n_bf,"wrong size, P")
+     ENSURE(P.is_square,"wrong shape, P")
+     cutoff = .scfdata.eri_cutoff
+     max_I.create(.n_shell_pairs)
+     max_P.create(.n_shell_pairs)
+     .make_max_abab_integrals(max_I)
+     .make_max_density_elements(max_P,P)
+     P_max  = maxval(max_P)
+     IP_max = maxval(max_I) * P_max
+     res = ZERO
+     do ab = 1, .n_shell_pairs
+       if (max_I(ab)*IP_max < cutoff)  cycle                         ! Rough Schwarz test, but quick.
+       .get_shell_pair_indices(ab,sa,sb,fa,la,fb,lb,atom_a,atom_b)   ! a & b shell indices.
+       .set_shell_quartet_ab(sh,sa,sb)
+       do cd = 1,ab
+         if (max_I(ab)*max_I(cd)*P_max < cutoff)  cycle              ! Rough Schwarz test
+         .get_shell_pair_indices(cd,sc,sd,fc,lc,fd,ld,atom_c,atom_d) ! c & d shell indices.
+         ! ab|cd < sqrt(ab|ab) * sqrt(cd|cd) test.
+         skip = .schwarz_inequality_test(cutoff,ab,cd,sa,sb,sc,sd,max_P,max_I)
+         if (skip) cycle
+         .set_shell_quartet_cd(sh,sc,sd)
+         ! Evaluate the integrals' coincidence factors
+         fac = ONE
+         if (sa==sb)            fac = HALF * fac
+         if (sc==sd)            fac = HALF * fac
+         if (sa==sc AND sb==sd) fac = HALF * fac
+         I.create(fa,la,fb,lb,fc,lc,fd,ld)
+         sh.get_ERI(I)
+         do d = fd,ld
+         do c = fc,lc
+           P_dc = P(d,c)
+           do b = fb,lb
+             P_db = P(d,b)
+             P_cb = P(c,b)
+             do a = fa,la
+                dens = FOUR*P(b,a)*P_dc - P(c,a)*P_db - P(d,a)*P_cb
+                res  = res + fac * I(a,b,c,d) * dens
+             end
+           end
+           end
+         end
+         I.destroy
+         sh.destroy_cd
+       end
+       sh.destroy_ab
+     end
+     max_P.destroy
+     max_I.destroy
+   end
+
+   the_r_hf_energy_MO_gradient(MO) result(g) ::: selfless
+   ! Evaluate the gradient of the restricted Hartree-Fock energy with
+   ! respect to the molecular orbitals, (F - SDF) MO N, where "MO" is
+   ! the matrix of the occupied molecular orbital coefficients.
+     MO :: REALVEC
+!     g  :: REALMAT(saved_self.n_bf,saved_self.n_a)
+     g  :: REALVEC(saved_self.n_bf*saved_self.n_a)
+     self :: MOL*; self => saved_self
+     g = .r_hf_energy_MO_gradient(reshape(MO,(/.n_bf,.n_a/)),make_fock=FALSE)
+     ! The fock matrix is not made because in the minimiser the gradient is
+     ! only ever called after the energy routine. This saves a fock build.
+   end
+
+   r_hf_energy_MO_gradient(MO,make_fock) result(g)
+   ! Evaluate the gradient of the restricted Hartree-Fock energy with
+   ! respect to the molecular orbitals, 2(2F - SPF) MO N, where "MO" is
+   ! the matrix of the occupied molecular orbital coefficients.
+   ! If "make_fock" is present and FALSE, the molecular_orbitals are defined
+   ! from "MO", the MO's are archived, and the updated density matrix and
+   ! fock matrix are not made but assumed to be pre-existing.
+     MO :: REALMAT
+     make_fock :: BIN, optional
+     g :: REALVEC(.n_bf*.n_a)
+     do_fock :: BIN
+     W,X,N,S, F,P,g1 :: REALMAT*
+     norm :: REAL
+     archive :: ARCHIVE
+!     e,e0,ep,em :: REAL
+!     b,i :: INT
+!     gg :: REALMAT*
+     ENSURE(.scfdata.using_MO_gradient_update,"not allowed")
+     ENSURE(MO.dim2==.n_a,"wrong dimension 2, MO")
+     do_fock = TRUE
+     if (present(make_fock)) do_fock = make_fock
+     if (do_fock) then ! this assumes that a previous energy was called
+        .molecular_orbitals.restricted = MO
+        .archive_molecular_orbitals
+        .make_non_ortho_scf_density ! writes density & occupations to disk
+        .make_fock_matrix
+     end
+     g1.create(.n_bf,.n_a)
+     X.create(.n_bf,.n_bf)
+     N.create(.n_a ,.n_a )
+     S.create(.n_bf,.n_bf)
+     W.create(.n_bf,.n_bf)
+     F => .fock_matrix.restricted
+     P => .density_matrix.restricted
+     .get_overlap_matrix(S)
+     archive.set(.name,"non_ortho_occupation_matrix",genre="restricted")
+     W.to_product_of(S,P)
+     X = -TWO*F
+     X.plus_product_of(W,F)
+     W.destroy
+     S.destroy
+     X = -X
+     S.create(.n_bf,.n_a)
+     archive.read(N)
+     S.to_product_of(MO,N)
+     N.destroy
+     g1.to_scaled_product_of(TWO,X,S)
+     S.destroy
+     X.destroy
+     norm = g1.trace_product_with(transpose(g1))
+     stdout.show("hf energy gradient =",norm)
+     g = reshape(g1,(/size(g)/))
+     g1.destroy
+   ! stdout.text("g:")
+   ! stdout.put(g)
+     !
+   ! stdout.text("evaluate finite diff g")
+   ! e0 = .r_hf_energy(MO)
+   ! gg.create(3,3)
+   ! do b = 1,3
+   ! do i = 1,3
+   !    MO(b,i) = MO(b,i) + 0.0005
+   !    ep = .r_hf_energy(MO)
+   !    MO(b,i) = MO(b,i) - 0.0005
+   !    MO(b,i) = MO(b,i) - 0.0005
+   !    em = .r_hf_energy(MO)
+   !    gg(b,i) = (ep - em)/0.001
+   !    MO(b,i) = MO(b,i) + 0.0005
+   ! end
+   ! end
+   ! stdout.text("finite diff g:")
+   ! stdout.put(gg)
+   ! gg.destroy
+   ! stop
+   end
+
+   make_non_ortho_scf_density ::: leaky
+   ! Make the non orthogonal density matrix from the molecular orbitals.
+   ! NOTE: the final computed density matrix is written to an archive.
+   ! NOTE: if any old density matrix exists, it is saved in an old archive.
+   ! NOTE: the non orthogonal occupation matrix i.e. the back tranform of
+   ! the inverse of the MO overlap matrix is written to an archive.
+     MO,D,N :: REALMAT*
+     orb_kind :: STR
+     archive :: ARCHIVE
+     ENSURE(.basis_info_made, "no basis set")
+     ENSURE(.molecular_orbitals.created, "no molecular orbitals")
+     ! Determine the kind of density matrix to be made
+     if (.scfdata.destroyed) then; orb_kind = .molecular_orbitals.spinorbital_kind
+     else;                         orb_kind = .scfdata.spinorbital_kind
+     end
+     ! Create space for the right kind of density matrix, or save old density matrix
+     if (.density_matrix.destroyed(orb_kind)) then; .density_matrix.create(orb_kind)
+     else;        .archive_density_matrix(archive_name="old_density_matrix")
+     end
+     ! Now determine the kind of SCF (if any) associated with the density matrix
+     if (.scfdata.destroyed) then; orb_kind = .molecular_orbitals.guess_scf_kind
+     else;                         orb_kind = .scfdata.kind
+     end
+     archive.set(.name,"non_ortho_occupation_matrix")
+     select case (orb_kind)
+       case ("rhf","restricted_hartree_fock","xray_rhf","noninteracting-group-rhf")
+         ENSURE(.molecular_orbitals.created("restricted"),"no MO's")
+         ENSURE(.mult==1,"this is not a singlet state")
+         MO => .molecular_orbitals.restricted
+         D  => .density_matrix.restricted
+         N.create(.n_a,.n_a)
+         .make_r_non_ortho_scf_density(D,MO,N)
+         archive.set_genre("restricted")
+         archive.write(N)
+         N.destroy
+       case default
+         DIE("unknown SCF kind, "//trim(orb_kind))
+     end
+     .archive_density_matrix
+   end
+
+   make_r_non_ortho_scf_density(P,MO,N) ::: leaky
+   ! Make the restricted non-orthogonal density matrix "P" from the molecular
+   ! orbitals "MO". The cofactor/occupation matrix "N" is also returned if
+   ! required. This density includes a factor of two.
+     P,MO,N :: REALMAT
+     S :: REALMAT*
+     ENSURE(.basis_info_made, "no basis set")
+     ENSURE(P.is_square,"wrong size, P")
+     ENSURE(N.is_square,"wrong size, N")
+     ENSURE(P.dim1==.n_bf,"wrong size, P")
+     ENSURE(N.dim1==.n_a ,"wrong size, N")
+     ENSURE(.mult==1,"this is not a singlet state")
+     ENSURE(MO.dim2==.n_a,"wrong size, N")
+     S.create(.n_bf,.n_bf)
+     .get_overlap_matrix(S)
+     S.change_basis(N,MO)
+    ! stdout.text("N^-1:")
+    ! stdout.put(N)
+     N.to_inverse_of(N)
+    ! stdout.text("N:")
+    ! stdout.put(N)
+     N.back_transform(P,MO)
+     P = TWO*P
+     S.destroy
+   end
+
+!   make_r_fock_matrix(F,P,direct,core,r12,test)
+!   ! Make a new restricted Fock matrix "F" from the density matrix "P".
+!   ! If present and TRUE , "direct" means calculate integrals on the fly
+!   ! If present and FALSE, "core" removes the core matrix contribution
+!   ! If present and FALSE, "r12"  removes the two electron contribution
+!     direct,core,r12,test :: BIN, optional
+!     P,F :: REALMAT
+!     J,K :: REALMAT*
+!     do_direct,add_core,add_r12,do_test :: BIN
+!   ENSURE(.basis_info_made, "no basis set")
+!   ENSURE(F.dim1==.n_bf,"wrong shape, F")
+!   ENSURE(P.dim1==.n_bf,"wrong shape, P")
+!   ENSURE(F.is_square,"wrong shape, P")
+!   ENSURE(P.is_square,"wrong shape, P")
+!     do_direct= FALSE
+!     do_test= FALSE
+!     add_core = TRUE
+!     add_r12  = TRUE
+!     if (present(direct)) do_direct = direct
+!     if (present(test))   do_test  = test
+!     if (present(core))   add_core = core
+!     if (present(r12))    add_r12  = r12
+!     if (add_r12) then
+!        J.create(.n_bf,.n_bf)
+!        K.create(.n_bf,.n_bf)
+!        if (do_direct) then; .make_r_JK_direct(J,K,P)
+!        else;                .make_r_JK_disk(J,K,P)
+!        end
+!        F = J - HALF*K
+!        K.destroy
+!        J.destroy
+!     else
+!        F = ZERO
+!     end
+!     if (add_core) .add_core_hamiltonian(F)
+!   end
+!
+!   put_energy_decomposition
+!   ! Put out the energy decomposition specified in the .atom_group array
+!      T,Z,C,K,P,E_T,E_Z,E_C,E_K :: REALMAT*
+!      n_group,i,j,ia,ib,a,b, fa,la,fb,lb :: INT
+!      fac :: REAL
+!      unit :: STR
+!      arch1 :: ARCHIVE
+!   ENSURE(.atom_group.created,"no atom group information")
+!      arch1.set(.name,"density_matrix,restricted")
+!   ENSURE(arch1.exists,"no density matrix")
+!      P.create(.n_bf,.n_bf)
+!      arch1.read(P)
+!      .density_matrix.create("restricted")
+!      .density_matrix.restricted = P
+!      T.create(.n_bf,.n_bf); .get_kinetic_matrix(T)
+!      Z.create(.n_bf,.n_bf); .get_nuclear_matrix(Z)
+!      C.create(.n_bf,.n_bf)
+!      K.create(.n_bf,.n_bf); .make_r_JK_direct(C,K,P)
+!      .make_r_fock(direct=TRUE,core=FALSE,r12=TRUE)
+!      n_group = size(.atom_group)
+!      E_T.create(n_group,n_group); E_T = ZERO
+!      E_Z.create(n_group,n_group); E_Z = ZERO
+!      E_C.create(n_group,n_group); E_C = ZERO
+!      E_K.create(n_group,n_group); E_K = ZERO
+!      do i = 1,n_group
+!      do j = 1,n_group
+!      do ia = 1,size(.atom_group(i).element)
+!      do ib = 1,size(.atom_group(j).element)
+!         a = .atom_group(i).element(ia)
+!         b = .atom_group(j).element(ib)
+!         fa = .first_basis_fn_for_atom(a)
+!         la = .last_basis_fn_for_atom(a)
+!         fb = .first_basis_fn_for_atom(b)
+!         lb = .last_basis_fn_for_atom(b)
+!         fac = ONE
+!       ! if (i/=j) fac = TWO
+!         E_T(i,j) = E_T(i,j) + fac*T(fa:la,fb:lb).trace_product_with(P(fb:lb,fa:la))
+!         E_Z(i,j) = E_Z(i,j) + fac*Z(fa:la,fb:lb).trace_product_with(P(fb:lb,fa:la))
+!         E_C(i,j) = E_C(i,j) + fac*C(fa:la,fb:lb).trace_product_with(P(fb:lb,fa:la))
+!         E_K(i,j) = E_K(i,j) - fac*K(fa:la,fb:lb).trace_product_with(P(fb:lb,fa:la))
+!      end
+!      end
+!      end
+!      end
+!      E_C = HALF*E_C
+!      E_K = HALF*HALF*E_K
+!      stdout.text(" ")
+!      stdout.text("F:")
+!      stdout.put(.fock_matrix.restricted)
+!      stdout.text(" ")
+!      stdout.text("C-K/2:")
+!      stdout.put(C-HALF*K)
+!      stdout.text(" ")
+!      stdout.text("Energy decomposition in AU ...")
+!      stdout.text(" ")
+!      stdout.text("Kinetic interaction terms")
+!      stdout.put(E_T)
+!      stdout.text(" ")
+!      stdout.text("Nuclear attraction interaction terms")
+!      stdout.put(E_Z)
+!      stdout.text(" ")
+!      stdout.text("Coulomb repulsion interaction terms")
+!      stdout.put(E_C)
+!      stdout.text(" ")
+!      stdout.text("Exchange interaction terms")
+!      stdout.put(E_K)
+!      stdout.text(" ")
+!      fac = sum(E_T+E_Z+E_C+E_K)
+!      stdout.show("SCF electronic energy =",fac)
+!      stdout.show("SCF energy            =",fac+.atom.nuclear_energy)
+!      stdout.show("Kinetic energy        =",sum(E_T))
+!      !
+!      unit = "kcal/mol"
+!      fac = unit.conversion_factor
+!      E_T = fac*E_T
+!      E_Z = fac*E_Z
+!      E_C = fac*E_C
+!      E_K = fac*E_K
+!      stdout.text(" ")
+!      stdout.text("Energy decomposition in kcal/mol ...")
+!      stdout.text(" ")
+!      stdout.text("Kinetic interaction terms")
+!      stdout.put(E_T)
+!      stdout.text(" ")
+!      stdout.text("Nuclear attraction interaction terms")
+!      stdout.put(E_Z)
+!      stdout.text(" ")
+!      stdout.text("Coulomb repulsion interaction terms")
+!      stdout.put(E_C)
+!      stdout.text(" ")
+!      stdout.text("Exchange interaction terms")
+!      stdout.put(E_K)
+!      stdout.text(" ")
+!      E_K.destroy
+!      E_C.destroy
+!      E_Z.destroy
+!      E_T.destroy
+!      K.destroy
+!      C.destroy
+!      Z.destroy
+!      T.destroy
+!   end
+!
+!   put_energy_partition
+!   ! Put out the energy decomposition specified in the .atom_group array
+!   ! This routine calculates quadricentric contributions which are
+!   ! comparable to the Fischer-Kollmar decomposition.
+!      T,Z,ZZ,C,K,P,W,E_T,E_Z, EE :: REALMAT*
+!      E_ZZ :: REALMAT3*
+!      E_C,E_K :: REALMAT4*
+!      n_group,x,y,i,j :: INT
+!      fac :: REAL
+!      unit :: STR
+!      arch1 :: ARCHIVE
+!      kinetic_energy,nuclear_attraction,nuclear_repulsion :: REAL
+!      coulomb_repulsion,net_coulomb,bicentric_exchange :: REAL
+!      exchange_attraction,total_interaction :: REAL
+!   ENSURE(.atom_group.created,"no atom group information")
+!      arch1.set(.name,"density_matrix,restricted")
+!   ENSURE(arch1.exists,"no density matrix")
+!      P.create(.n_bf,.n_bf)
+!      arch1.read(P)
+!      W.create(.n_bf,.n_bf)
+!      T.create(.n_bf,.n_bf); .get_kinetic_matrix(T)
+!      Z.create(.n_bf,.n_bf); .get_nuclear_matrix(Z)
+!      n_group = size(.atom_group)
+!      E_T.create(n_group,n_group); E_T = ZERO
+!      E_Z.create(n_group,n_group); E_Z = ZERO
+!      E_C.create(n_group,n_group,n_group,n_group); E_C = ZERO
+!      E_K.create(n_group,n_group,n_group,n_group); E_K = ZERO
+!      E_ZZ.create(n_group,n_group,n_group); E_ZZ = ZERO
+!      ZZ.create(.n_bf,.n_bf)
+!         do i = 1,n_group
+!         do j = 1,i
+!            W = ZERO
+!            .atom_group_AO_subspace_set(W,P,i,j)
+!            if (i/=j) &
+!            .atom_group_AO_subspace_set(W,P,j,i)
+!            E_T(i,j) = T.trace_product_with(W)
+!            E_Z(i,j) = Z.trace_product_with(W)
+!            do x = 1,n_group
+!               .make_nuclear_matrix(ZZ,.atom_group(x).element)
+!               E_ZZ(i,j,x) = ZZ.trace_product_with(W)
+!            end
+!         end
+!         end
+!      ZZ.destroy
+!      C.create(.n_bf,.n_bf)
+!      K.create(.n_bf,.n_bf)
+!      do x = 1,n_group
+!      do y = 1,x
+!         .make_r_JK_group(C,K,P,x,y)
+!         do i = 1,n_group
+!         do j = 1,i
+!            W = ZERO
+!            .atom_group_AO_subspace_set(W,P,i,j)
+!            if (i/=j) &
+!            .atom_group_AO_subspace_set(W,P,j,i)
+!            E_C(i,j,x,y) =  C.trace_product_with(W)
+!            E_K(i,j,x,y) = -K.trace_product_with(W)
+!         end
+!         end
+!      end
+!      end
+!      K.destroy
+!      C.destroy
+!      E_C = HALF*E_C
+!      E_K = HALF*HALF*E_K
+!      EE.create(n_group,n_group)
+!      !
+!      stdout.text(" ")
+!      fac = sum(E_T+E_Z) + sum(E_C+E_K)
+!      stdout.show("SCF electronic energy =",fac)
+!      stdout.show("SCF energy            =",fac+.atom.nuclear_energy)
+!      stdout.show("Kinetic energy        =",sum(E_T))
+!!     stdout.text(" ")
+!!     stdout.text("Energy decomposition in AU ...")
+!!     stdout.text(" ")
+!!     stdout.text("Kinetic interaction terms")
+!!     stdout.put(E_T)
+!!     stdout.text(" ")
+!!     stdout.text("Nuclear attraction interaction terms")
+!!     stdout.put(E_Z)
+!!     stdout.text(" ")
+!!     stdout.text("Nuclear attraction interaction terms ONLY for group 1 nuclei")
+!!     stdout.put(E_ZZ(:,:,1))
+!!     stdout.text(" ")
+!!     stdout.text("Nuclear attraction interaction terms ONLY for group 2 nuclei")
+!!     stdout.put(E_ZZ(:,:,2))
+!!     EE(1,1) = .atom(.atom_group(1).element).nuclear_energy
+!!     EE(2,2) = .atom(.atom_group(2).element).nuclear_energy
+!!     EE(2,1) = .atom.nuclear_energy - EE(1,1) - EE(2,2)
+!!     EE(1,2) = ZERO
+!!     stdout.text(" ")
+!!     stdout.text("Nuclear nuclear repulsion")
+!!     stdout.put(EE)
+!!     EE(1,1) = E_C(1,1,1,1)
+!!     EE(2,1) = E_C(2,2,1,1)
+!!     EE(1,2) = E_C(1,1,2,2)
+!!     EE(2,2) = E_C(2,2,2,2)
+!!     stdout.text(" ")
+!!     stdout.text("Diagonal Coulomb repulsion interaction terms")
+!!     stdout.put(EE)
+!!     EE(1,1) = E_C(1,2,1,1)
+!!     EE(2,1) = E_C(2,1,1,1)
+!!     EE(1,2) = E_C(1,2,2,2)
+!!     EE(2,2) = E_C(2,1,2,2)
+!!     stdout.text(" ")
+!!     stdout.text("Semi diagonal Coulomb repulsion interaction terms")
+!!     stdout.put(EE)
+!!     EE(1,1) = E_C(1,2,1,2)
+!!     EE(2,1) = E_C(2,1,1,2)
+!!     EE(1,2) = E_C(1,2,2,1)
+!!     EE(2,2) = E_C(2,1,2,1)
+!!     stdout.text(" ")
+!!     stdout.text("Off diagonal Coulomb repulsion interaction terms")
+!!     stdout.put(EE)
+!!     stdout.text(" ")
+!!     stdout.text("All Coulomb repulsion interaction terms")
+!!     stdout.put(E_C)
+!!     EE(1,1) = E_K(1,1,1,1)
+!!     EE(2,1) = E_K(2,2,1,1)
+!!     EE(1,2) = E_K(1,1,2,2)
+!!     EE(2,2) = E_K(2,2,2,2)
+!!     stdout.text(" ")
+!!     stdout.text("Diagonal exchange interaction terms")
+!!     stdout.put(EE)
+!!     EE(1,1) = E_K(1,2,1,1)
+!!     EE(2,1) = E_K(2,1,1,1)
+!!     EE(1,2) = E_K(1,2,2,2)
+!!     EE(2,2) = E_K(2,1,2,2)
+!!     stdout.text(" ")
+!!     stdout.text("Semi diagonal exchange interaction terms")
+!!     stdout.put(EE)
+!!     EE(1,1) = E_K(1,2,1,2)
+!!     EE(2,1) = E_K(2,1,1,2)
+!!     EE(1,2) = E_K(1,2,2,1)
+!!     EE(2,2) = E_K(2,1,2,1)
+!!     stdout.text(" ")
+!!     stdout.text("Off diagonal exchange interaction terms")
+!!     stdout.put(EE)
+!!     stdout.text(" ")
+!!     stdout.text("All exchange interaction terms")
+!!     stdout.put(E_K)
+!      !
+!      unit = "kcal/mol"
+!      fac = unit.conversion_factor
+!      E_T = fac*E_T
+!      E_Z = fac*E_Z
+!      E_C = fac*E_C
+!      E_K = fac*E_K
+!      E_ZZ = fac*E_ZZ
+!      stdout.text(" ")
+!      stdout.text("Energy decomposition in kcal/mol ...")
+!      stdout.text(" ")
+!      stdout.text("Kinetic interaction terms")
+!      stdout.put(E_T)
+!      stdout.text(" ")
+!      stdout.text("Nuclear attraction interaction terms")
+!      stdout.put(E_Z)
+!      stdout.text(" ")
+!      stdout.text("Nuclear attraction interaction terms ONLY for group 1 nuclei")
+!      stdout.put(E_ZZ(:,:,1))
+!      stdout.text(" ")
+!      stdout.text("Nuclear attraction interaction terms ONLY for group 2 nuclei")
+!      stdout.put(E_ZZ(:,:,2))
+!      EE(1,1) = fac*.atom(.atom_group(1).element).nuclear_energy
+!      EE(2,2) = fac*.atom(.atom_group(2).element).nuclear_energy
+!      nuclear_repulsion = fac*.atom.nuclear_energy - EE(1,1) - EE(2,2)
+!      EE(2,1) = nuclear_repulsion
+!      EE(1,2) = ZERO
+!      stdout.text(" ")
+!      stdout.text("Nuclear nuclear repulsion")
+!      stdout.put(EE)
+!      EE(1,1) = E_C(1,1,1,1)
+!      EE(2,1) = E_C(2,2,1,1)
+!      EE(1,2) = E_C(1,1,2,2)
+!      EE(2,2) = E_C(2,2,2,2)
+!      stdout.text(" ")
+!      stdout.text("Diagonal Coulomb repulsion interaction terms")
+!      stdout.put(EE)
+!      EE(1,1) = E_C(1,2,1,1)
+!      EE(2,1) = E_C(2,1,1,1)
+!      EE(1,2) = E_C(1,2,2,2)
+!      EE(2,2) = E_C(2,1,2,2)
+!      stdout.text(" ")
+!      stdout.text("Semi diagonal Coulomb repulsion interaction terms")
+!      stdout.put(EE)
+!      EE(1,1) = E_C(1,2,1,2)
+!      EE(2,1) = E_C(2,1,1,2)
+!      EE(1,2) = E_C(1,2,2,1)
+!      EE(2,2) = E_C(2,1,2,1)
+!      stdout.text(" ")
+!      stdout.text("Off diagonal Coulomb repulsion interaction terms")
+!      stdout.put(EE)
+!      stdout.text(" ")
+!      stdout.text("All Coulomb repulsion interaction terms")
+!      stdout.put(E_C)
+!      EE(1,1) = E_K(1,1,1,1)
+!      EE(2,1) = E_K(2,2,1,1)
+!      EE(1,2) = E_K(1,1,2,2)
+!      EE(2,2) = E_K(2,2,2,2)
+!      stdout.text(" ")
+!      stdout.text("Diagonal exchange interaction terms")
+!      stdout.put(EE)
+!      EE(1,1) = E_K(1,2,1,1)
+!      EE(2,1) = E_K(2,1,1,1)
+!      EE(1,2) = E_K(1,2,2,2)
+!      EE(2,2) = E_K(2,1,2,2)
+!      stdout.text(" ")
+!      stdout.text("Semi diagonal exchange interaction terms")
+!      stdout.put(EE)
+!      EE(1,1) = E_K(1,2,1,2)
+!      EE(2,1) = E_K(2,1,1,2)
+!      EE(1,2) = E_K(1,2,2,1)
+!      EE(2,2) = E_K(2,1,2,1)
+!      stdout.text(" ")
+!      stdout.text("Off diagonal exchange interaction terms")
+!      stdout.put(EE)
+!      stdout.text(" ")
+!      stdout.text("All exchange interaction terms")
+!      stdout.put(E_K)
+!      kinetic_energy = E_T(2,1)
+!      nuclear_attraction = sum(E_Z) - E_ZZ(1,1,1) - E_ZZ(2,2,2)
+!      coulomb_repulsion = sum(E_C) - E_C(1,1,1,1) - E_C(2,2,2,2)
+!      net_coulomb = nuclear_attraction + nuclear_repulsion + coulomb_repulsion
+!      bicentric_exchange = E_K(1,1,2,2) + E_K(2,2,1,1)
+!      exchange_attraction = sum(E_K) - E_K(1,1,1,1) - E_K(2,2,2,2)
+!      total_interaction = kinetic_energy + net_coulomb + exchange_attraction
+!      stdout.text(" ")
+!      stdout.text("Interaction energies for "//trim(.name)//":")
+!      stdout.text(" ")
+!      stdout.show("Kinetic energy     =",kinetic_energy)
+!      stdout.show("Exchange energy    =",exchange_attraction)
+!      stdout.show("Kinetic + Exhange  =",kinetic_energy+exchange_attraction)
+!      stdout.show("Bicentric Exchange =",bicentric_exchange)
+!      stdout.show("Net Coulomb energy =",net_coulomb)
+!      stdout.show("Total int. energy  =",total_interaction)
+!      EE.destroy
+!      E_ZZ.destroy
+!      E_K.destroy
+!      E_C.destroy
+!      E_Z.destroy
+!      E_T.destroy
+!      Z.destroy
+!      T.destroy
+!      W.destroy
+!      P.destroy
+!   end
+!
+!   put_ortho_energy_partition
+!   ! Put out the energy decomposition specified in the .atom_group array
+!   ! This routine calculates quadricentric contributions which are
+!   ! comparable to the Fischer-Kollmar decomposition in an orthogonalised
+!   ! AO basis set
+!      T,Z,ZZ,C,K,P,PP,W,E_T,E_Z, S,Sph,Smh, EE :: REALMAT*
+!      E_ZZ :: REALMAT3*
+!      E_C,E_K :: REALMAT4*
+!      n_group,i,j,g,h, fa,la,fb,lb :: INT
+!      fac,fac_ij,fac_xy :: REAL
+!      unit :: STR
+!      arch1 :: ARCHIVE
+!      kinetic_energy,nuclear_attraction,nuclear_repulsion :: REAL
+!      coulomb_repulsion,net_coulomb,bicentric_exchange :: REAL
+!      exchange_attraction,total_interaction :: REAL
+!   ENSURE(.atom_group.created,"no atom group information")
+!      arch1.set(.name,"density_matrix,restricted")
+!   ENSURE(arch1.exists,"no density matrix")
+!      P.create(.n_bf,.n_bf)
+!      PP.create(.n_bf,.n_bf)
+!      arch1.read(P)
+!      W.create(.n_bf,.n_bf)
+!      T.create(.n_bf,.n_bf); .get_kinetic_matrix(T)
+!      Z.create(.n_bf,.n_bf); .get_nuclear_matrix(Z)
+!      S.create(.n_bf,.n_bf); .get_overlap_matrix(S)
+!      Sph.create(.n_bf,.n_bf); Sph.to_sqrt(S)
+!      Smh.create(.n_bf,.n_bf); Smh.to_inverse_sqrt(S)
+!      n_group = size(.atom_group)
+!      E_T.create(n_group,n_group); E_T = ZERO
+!      E_Z.create(n_group,n_group); E_Z = ZERO
+!      E_C.create(n_group,n_group,n_group,n_group); E_C = ZERO
+!      E_K.create(n_group,n_group,n_group,n_group); E_K = ZERO
+!      E_ZZ.create(n_group,n_group,n_group); E_ZZ = ZERO
+!      ZZ.create(.n_bf,.n_bf)
+!      PP = P
+!      PP.change_basis(Sph)
+!         do i = 1,n_group
+!         do j = 1,i
+!            W = ZERO
+!            .atom_group_AO_subspace_set(W,PP,i,j)
+!            if (i/=j) &
+!            .atom_group_AO_subspace_set(W,PP,j,i)
+!            W.change_basis(Smh)
+!            E_T(i,j) = T.trace_product_with(W)
+!            E_Z(i,j) = Z.trace_product_with(W)
+!            do g = 1,n_group
+!               .make_nuclear_matrix(ZZ,.atom_group(g).element)
+!               E_ZZ(i,j,g) = ZZ.trace_product_with(W)
+!            end
+!         end
+!         end
+!      ZZ.destroy
+!      C.create(.n_bf,.n_bf)
+!      K.create(.n_bf,.n_bf)
+!      do g = 1,n_group
+!      do h = 1,g
+!         W = ZERO
+!         .atom_group_AO_subspace_set(W,PP,g,h)
+!         if (g/=h) &
+!         .atom_group_AO_subspace_set(W,PP,h,g)
+!         W.change_basis(Smh)
+!         .make_r_JK_nosym(C,K,W)
+!         do i = 1,n_group
+!         do j = 1,i
+!            W = ZERO
+!            .atom_group_AO_subspace_set(W,PP,i,j)
+!            if (i/=j) &
+!            .atom_group_AO_subspace_set(W,PP,j,i)
+!            W.change_basis(Smh)
+!            E_C(i,j,g,h) =  C.trace_product_with(W)
+!            E_K(i,j,g,h) = -K.trace_product_with(W)
+!         end
+!         end
+!      end
+!      end
+!      K.destroy
+!      C.destroy
+!      E_C = HALF*E_C
+!      E_K = HALF*HALF*E_K
+!      EE.create(n_group,n_group)
+!      !
+!      stdout.text(" ")
+!      fac = sum(E_T+E_Z) + sum(E_C+E_K)
+!      stdout.show("SCF electronic energy =",fac)
+!      stdout.show("SCF energy            =",fac+.atom.nuclear_energy)
+!      stdout.show("Kinetic energy        =",sum(E_T))
+!      !
+!      unit = "kcal/mol"
+!      fac = unit.conversion_factor
+!      E_T = fac*E_T
+!      E_Z = fac*E_Z
+!      E_C = fac*E_C
+!      E_K = fac*E_K
+!      E_ZZ = fac*E_ZZ
+!      stdout.text(" ")
+!      stdout.text("Energy decomposition in kcal/mol ...")
+!      stdout.text(" ")
+!      stdout.text("Kinetic interaction terms")
+!      stdout.put(E_T)
+!      stdout.text(" ")
+!      stdout.text("Nuclear attraction interaction terms")
+!      stdout.put(E_Z)
+!      stdout.text(" ")
+!      stdout.text("Nuclear attraction interaction terms ONLY for group 1 nuclei")
+!      stdout.put(E_ZZ(:,:,1))
+!      stdout.text(" ")
+!      stdout.text("Nuclear attraction interaction terms ONLY for group 2 nuclei")
+!      stdout.put(E_ZZ(:,:,2))
+!      EE(1,1) = fac*.atom(.atom_group(1).element).nuclear_energy
+!      EE(2,2) = fac*.atom(.atom_group(2).element).nuclear_energy
+!      nuclear_repulsion = fac*.atom.nuclear_energy - EE(1,1) - EE(2,2)
+!      EE(2,1) = nuclear_repulsion
+!      EE(1,2) = ZERO
+!      stdout.text(" ")
+!      stdout.text("Nuclear nuclear repulsion")
+!      stdout.put(EE)
+!      EE(1,1) = E_C(1,1,1,1)
+!      EE(2,1) = E_C(2,2,1,1)
+!      EE(1,2) = E_C(1,1,2,2)
+!      EE(2,2) = E_C(2,2,2,2)
+!      stdout.text(" ")
+!      stdout.text("Diagonal Coulomb repulsion interaction terms")
+!      stdout.put(EE)
+!      EE(1,1) = E_C(1,2,1,1)
+!      EE(2,1) = E_C(2,1,1,1)
+!      EE(1,2) = E_C(1,2,2,2)
+!      EE(2,2) = E_C(2,1,2,2)
+!      stdout.text(" ")
+!      stdout.text("Semi diagonal Coulomb repulsion interaction terms")
+!      stdout.put(EE)
+!      EE(1,1) = E_C(1,2,1,2)
+!      EE(2,1) = E_C(2,1,1,2)
+!      EE(1,2) = E_C(1,2,2,1)
+!      EE(2,2) = E_C(2,1,2,1)
+!      stdout.text(" ")
+!      stdout.text("Off diagonal Coulomb repulsion interaction terms")
+!      stdout.put(EE)
+!      stdout.text(" ")
+!      stdout.text("All Coulomb repulsion interaction terms")
+!      stdout.put(E_C)
+!      EE(1,1) = E_K(1,1,1,1)
+!      EE(2,1) = E_K(2,2,1,1)
+!      EE(1,2) = E_K(1,1,2,2)
+!      EE(2,2) = E_K(2,2,2,2)
+!      stdout.text(" ")
+!      stdout.text("Diagonal exchange interaction terms")
+!      stdout.put(EE)
+!      EE(1,1) = E_K(1,2,1,1)
+!      EE(2,1) = E_K(2,1,1,1)
+!      EE(1,2) = E_K(1,2,2,2)
+!      EE(2,2) = E_K(2,1,2,2)
+!      stdout.text(" ")
+!      stdout.text("Semi diagonal exchange interaction terms")
+!      stdout.put(EE)
+!      EE(1,1) = E_K(1,2,1,2)
+!      EE(2,1) = E_K(2,1,1,2)
+!      EE(1,2) = E_K(1,2,2,1)
+!      EE(2,2) = E_K(2,1,2,1)
+!      stdout.text(" ")
+!      stdout.text("Off diagonal exchange interaction terms")
+!      stdout.put(EE)
+!      stdout.text(" ")
+!      stdout.text("All exchange interaction terms")
+!      stdout.put(E_K)
+!      kinetic_energy = E_T(2,1)
+!      nuclear_attraction = sum(E_Z) - E_ZZ(1,1,1) - E_ZZ(2,2,2)
+!      coulomb_repulsion = sum(E_C) - E_C(1,1,1,1) - E_C(2,2,2,2)
+!      net_coulomb = nuclear_attraction + nuclear_repulsion + coulomb_repulsion
+!      bicentric_exchange = E_K(1,1,2,2) + E_K(2,2,1,1)
+!      exchange_attraction = sum(E_K) - E_K(1,1,1,1) - E_K(2,2,2,2)
+!      total_interaction = kinetic_energy + net_coulomb + exchange_attraction
+!      stdout.text(" ")
+!      stdout.text("Interaction energies for "//trim(.name)//":")
+!      stdout.text(" ")
+!      stdout.show("Kinetic energy     =",kinetic_energy)
+!      stdout.show("Exchange energy    =",exchange_attraction)
+!      stdout.show("Kinetic + Exhange  =",kinetic_energy+exchange_attraction)
+!      stdout.show("Bicentric Exchange =",bicentric_exchange)
+!      stdout.show("Net Coulomb energy =",net_coulomb)
+!      stdout.show("Total int. energy  =",total_interaction)
+!      EE.destroy
+!      E_ZZ.destroy
+!      E_K.destroy
+!      E_C.destroy
+!      E_Z.destroy
+!      E_T.destroy
+!      Smh.destroy
+!      Sph.destroy
+!      S.destroy
+!      Z.destroy
+!      T.destroy
+!      W.destroy
+!      PP.destroy
+!      P.destroy
+!   end
+!
+!   make_r_JK_group(J,K,P,row_group,col_group)
+!   ! Make the real coulomb matrix "J" and exchange matrix "K" matrix from the
+!   ! density matrix "P" which is non-zero only for rows belonging to basis
+!   ! functions on atoms in group "row_group" and also columns for basis functions
+!   ! on atoms in the "col_group", as specified in ".atom_group".
+!     J,K,P :: REALMAT
+!     row_group,col_group :: INT
+!     PP :: REALMAT*
+!      I :: REALMAT4*
+!     max_I,max_P :: REALVEC*
+!     sh4 :: SHELL4
+!     ab,cd,i_a,i_b,i_c,i_d :: INT
+!     a,b,c,d,fa,fb,fc,fd,la,lb,lc,ld :: INT
+!     I_abcd,factor,cutoff :: REAL
+!     skip :: BIN
+!   ENSURE(.atom_group.created,"no atom group information")
+!   ENSURE(row_group<=size(.atom_group),"no such row group")
+!   ENSURE(col_group<=size(.atom_group),"no such column group")
+!   ENSURE(row_group>0,"row group index must be positive")
+!   ENSURE(col_group>0,"column group index must be positive")
+!     J = ZERO
+!     K = ZERO
+!     cutoff = SCFDATA_ERI_LIMIT
+!     PP.create(.n_bf,.n_bf)
+!     PP = ZERO
+!     .atom_group_AO_subspace_set(PP,P,row_group,col_group)
+!     if (row_group/=col_group) &
+!     .atom_group_AO_subspace_set(PP,P,col_group,row_group)
+!     max_I.create(.n_shell_pairs)
+!     max_P.create(.n_shell_pairs)
+!     .make_max_abab_integrals(max_I)
+!     .make_max_density_elements(max_P,PP)
+!     do ab = 1, .n_shell_pairs
+!       .get_shell_pair_indices(ab,i_a,i_b)    ! a & b shell indices.
+!       fa = .first_basis_fn_for_shell(i_a)
+!       fb = .first_basis_fn_for_shell(i_b)
+!       la = .last_basis_fn_for_shell(i_a)
+!       lb = .last_basis_fn_for_shell(i_b)
+!       .set_shell_quartet_ab(sh4,i_a,i_b)
+!       do cd = 1,ab
+!         .get_shell_pair_indices(cd,i_c,i_d)  ! c & d shell indices.
+!         fc = .first_basis_fn_for_shell(i_c)
+!         fd = .first_basis_fn_for_shell(i_d)
+!         lc = .last_basis_fn_for_shell(i_c)
+!         ld = .last_basis_fn_for_shell(i_d)
+!                                        ! ab|cd < sqrt(ab|ab) * sqrt(cd|cd) test.
+!         skip = .schwarz_inequality_test(cutoff,ab,cd,i_a,i_b,i_c,i_d,max_P,max_I)
+!         if (skip) cycle
+!                                              ! calculate ab|cd
+!         .set_shell_quartet_cd(sh4,i_c,i_d)
+!         factor = ONE                         ! Evaluate the integrals'
+!         if (i_a==i_b) factor = HALF          ! coincidence factors
+!         if (i_c==i_d) factor = HALF * factor
+!         if (i_a==i_c AND i_b==i_d) factor = HALF * factor
+!         I.create(fa,la,fb,lb,fc,lc,fd,ld)
+!         sh4.get_ERI(I)
+!           do d = fd,ld
+!           do c = fc,lc
+!           do b = fb,lb
+!           do a = fa,la
+!            I_abcd = factor * I(a,b,c,d)
+!            J(a,b) = J(a,b) + I_abcd*PP(d,c) ! These are symmetric
+!            J(a,b) = J(a,b) + I_abcd*PP(c,d)
+!            J(b,a) = J(b,a) + I_abcd*PP(d,c)
+!            J(b,a) = J(b,a) + I_abcd*PP(c,d)
+!            J(c,d) = J(c,d) + I_abcd*PP(b,a)
+!            J(c,d) = J(c,d) + I_abcd*PP(a,b)
+!            J(d,c) = J(d,c) + I_abcd*PP(b,a)
+!            J(d,c) = J(d,c) + I_abcd*PP(a,b)
+!            K(a,d) = K(a,d) + I_abcd*PP(b,c) ! These are asymmetric
+!            K(a,c) = K(a,c) + I_abcd*PP(b,d)
+!            K(b,c) = K(b,c) + I_abcd*PP(a,d)
+!            K(b,d) = K(b,d) + I_abcd*PP(a,c)
+!            K(d,a) = K(d,a) + I_abcd*PP(c,b)
+!            K(c,a) = K(c,a) + I_abcd*PP(d,b)
+!            K(c,b) = K(c,b) + I_abcd*PP(d,a)
+!            K(d,b) = K(d,b) + I_abcd*PP(c,a)
+!           end
+!           end
+!           end
+!           end
+!         I.destroy
+!         sh4.destroy_cd
+!       end
+!       sh4.destroy_ab
+!     end
+!     max_P.destroy
+!     max_I.destroy
+!     PP.destroy
+!   end
+
+!   make_pcc_b_field
+!   !
+!      n_pt,i,j,n, k :: INT
+!      aa,bb,cc :: REAL
+!      pt :: REALMAT*
+!      dma :: CPXMAT3*
+!      re,im :: REAL
+!      n_pt = 59*75
+!    ! n_pt = 25
+!      pt.create(n_pt,3)
+!      aa=7.4/sqrt(2.0)
+!    ! aa=0.4/sqrt(2.0)
+!      bb=0.2/sqrt(2.0)
+!      n = 0
+!      do i=1,75
+!         cc=5.4
+!    !    cc=0.6
+!         do j=1,59
+!            n = n+1
+!            cc = cc - 0.2
+!            pt(n,1)= aa
+!            pt(n,2)=-aa
+!            pt(n,3)= cc
+!         end
+!         aa = aa-bb
+!      end
+!      dma.create(160,160,4)
+!      open(unit=99,file='opdens.c',form='formatted',status='old')
+!      do i=1,160
+!      do j=1,160
+!         do k=1,4
+!            read(99,*) re,im
+!            dma(i,j,k) = cmplx(re,im,kind=CPX_KIND)
+!         enddo
+!      enddo
+!      enddo
+!      close(99)
+!      .density_matrix.destroy("general_complex")
+!      .density_matrix.create(160,"general_complex")
+!      .density_matrix.general_complex.alpha_alpha_set_to(dma(:,:,1))
+!      .density_matrix.general_complex.alpha_beta_set_to(dma(:,:,2))
+!      .density_matrix.general_complex.beta_alpha_set_to(dma(:,:,3))
+!      .density_matrix.general_complex.beta_beta_set_to(dma(:,:,4))
+!      dma.destroy
+!      .make_b_field_grid(pt)
+!      pt.destroy
+!   end
+!
+!   make_b_field_grid(pt)
+!   ! Make the total b_field "b" on ".grid"
+!      pt :: REALMAT
+!      archive :: ARCHIVE
+!      b,w :: REALMAT*
+!      complex :: BIN
+!      n_pt :: INT
+!   ENSURE(.basis_info_made, "no basis set")
+!   ENSURE( .density_matrix.created, "no density matrix")
+!      complex = .density_matrix.spinorbital_kind == "general_complex"
+!   ENSURE(complex, "no general complex density matrix")
+!      .make_spin_b_field_grid(pt)
+!      .make_current_b_field_grid(pt)
+!      n_pt = size(pt,1)
+!      b.create(n_pt,3)
+!      w.create(n_pt,3)
+!      archive.set(.name,"spin_b_field_density_grid")
+!      archive.read(b)
+!      b = 0
+!      archive.set(.name,"current_b_field_density_grid")
+!      archive.read(w)
+!      b = b + w
+!      w.destroy
+!      archive.set(.name,"b_field_density_grid,gnuplot",format="ascii")
+!      archive.write_gnuplot(b,75,59, 1)
+!      archive.set(.name,"b_fie7d_norm_density_grid,gnuplot",format="ascii")
+!      archive.write_gnuplot(b,75,59, 1, norm=TRUE)
+!      archive.set(.name,"b_field_density_grid,normalised,gnuplot",format="ascii")
+!      archive.write_gnuplot(b,75,59, 1, normalise=TRUE)
+!      b.destroy
+!   end
+!
+!   make_spin_b_field_grid(pt)
+!   ! Make the b_field due to the spin density on ".grid"
+!      pt :: REALMAT
+!      archive :: ARCHIVE
+!       b :: REALMAT*
+!      complex :: BIN
+!      n_pt :: INT
+!   ENSURE(.basis_info_made, "no basis set")
+!   ENSURE( .density_matrix.created, "no density matrix")
+!      complex = .density_matrix.spinorbital_kind == "general_complex"
+!   ENSURE(complex, "no general complex density matrix")
+!      n_pt = size(pt,1)
+!      b.create(n_pt,3)
+!      .make_spin_b_field_grid(b,.density_matrix.general_complex,pt)
+!      archive.set(.name,"spin_b_field_density_grid")
+!      archive.write(b)
+!      archive.set(.name,"spin_b_field_density_grid,gnuplot",format="ascii")
+!      archive.write_gnuplot(b,75,59, 1)
+!      archive.set(.name,"spin_b_field_norm_density_grid,gnuplot",format="ascii")
+!      archive.write_gnuplot(b,75,59, 1, norm=TRUE)
+!      archive.set(.name,"spin_b_field_density_grid,normalised,gnuplot",format="ascii")
+!      archive.write_gnuplot(b,75,59, 1, normalise=TRUE)
+!      b.destroy
+!   end
+!
+!   make_spin_b_field_grid(bb,dens,pt)
+!   ! Make the b_field "bb" due to the spin density on ".grid" using complex general
+!   ! AO density matrix "dens"
+!      bb,pt :: REALMAT
+!      dens :: CPXMAT, target
+!      Daa,Dba,Dbb :: CPXMAT*
+!      Mxx,Mxy,Mxz,Myx,Myy,Myz,Mzx,Mzy,Mzz :: REALMAT*
+!      q,a,b,fa,fb,la,lb,k, n_pt :: INT
+!      fac :: REAL
+!      shell :: SHELL2
+!   ENSURE(.basis_info_made, "no basis set")
+!   ENSURE( .atom.created,  "no atom list")
+!      n_pt = size(pt,1)
+!      bb = ZERO
+!      do q = 1,.n_shell_pairs
+!        .get_shell_pair(q,shell,a,b,fa,la,fb,lb)
+!        Daa => dens(fb:lb,fa:la) ! alpha-alpha block
+!        fb = fb + .n_bf
+!        lb = lb + .n_bf
+!        Dba => dens(fb:lb,fa:la) ! beta-alpha block
+!        fa = fa + .n_bf
+!        la = la + .n_bf
+!        Dbb => dens(fb:lb,fa:la) ! beta-beta block
+!        fac = ONE; if (a==b) fac=HALF
+!        Mxx.create(shell.a.n_comp,shell.b.n_comp)
+!        Mxy.create(shell.a.n_comp,shell.b.n_comp)
+!        Mxz.create(shell.a.n_comp,shell.b.n_comp)
+!        Myx.create(shell.a.n_comp,shell.b.n_comp)
+!        Myy.create(shell.a.n_comp,shell.b.n_comp)
+!        Myz.create(shell.a.n_comp,shell.b.n_comp)
+!        Mzx.create(shell.a.n_comp,shell.b.n_comp)
+!        Mzy.create(shell.a.n_comp,shell.b.n_comp)
+!        Mzz.create(shell.a.n_comp,shell.b.n_comp)
+!        do k = 1,n_pt
+!          shell.make_magnetic_S_ints(Mxx,Mxy,Mxz,Myx,Myy,Myz,Mzx,Mzy,Mzz,pt(k,:))
+!          bb(k,1) = bb(k,1) + Mxx.trace_of_product( real(Dba))
+!          bb(k,1) = bb(k,1) + Mxy.trace_of_product(aimag(Dba))
+!          bb(k,1) = bb(k,1) + fac*Mxz.trace_of_product(real(Daa))
+!          bb(k,1) = bb(k,1) - fac*Mxz.trace_of_product(real(Dbb))
+!          bb(k,2) = bb(k,2) + Myx.trace_of_product( real(Dba))
+!          bb(k,2) = bb(k,2) - Myy.trace_of_product(aimag(Dba))
+!          bb(k,2) = bb(k,2) + fac*Myz.trace_of_product(real(Daa))
+!          bb(k,2) = bb(k,2) - fac*Myz.trace_of_product(real(Dbb))
+!          bb(k,3) = bb(k,3) + Mzx.trace_of_product( real(Dba))
+!          bb(k,3) = bb(k,3) + Mzy.trace_of_product(aimag(Dba))
+!          bb(k,3) = bb(k,3) + fac*Mzz.trace_of_product(real(Daa))
+!          bb(k,3) = bb(k,3) - fac*Mzz.trace_of_product(real(Dbb))
+!        end
+!        Mzz.destroy; Mzy.destroy; Mzx.destroy
+!        Myz.destroy; Myy.destroy; Myx.destroy
+!        Mxz.destroy; Mxy.destroy; Mxx.destroy
+!        shell.destroy_ptr_part
+!      end
+!      bb.zero_small_values(TOL(10))
+!      fac = -G_FACTOR*HALF
+!      bb = fac*bb
+!   end
+!
+!   make_current_b_field_grid(pt)
+!   ! Make the b_field due to the current density on ".grid"
+!      pt :: REALMAT
+!      archive :: ARCHIVE
+!       b :: REALMAT*
+!      complex :: BIN
+!      n_pt :: INT
+!   ENSURE(.basis_info_made, "no basis set")
+!   ENSURE(.density_matrix.created, "no density matrix")
+!      .make_ao_density_matrix
+!      complex = .density_matrix.spinorbital_kind.includes("complex")
+!   ENSURE(complex, "no complex density matrix")
+!      n_pt = size(pt,1)
+!      b.create(n_pt,3)
+!      .make_current_b_field_grid(b,.density_matrix.restricted_complex,pt)
+!      archive.set(.name,"current_b_field_density_grid")
+!      archive.write(b)
+!      archive.set(.name,"current_b_field_density_grid,gnuplot",format="ascii")
+!      archive.write_gnuplot(b,75,59, 1)
+!      archive.set(.name,"current_b_field_norm_density_grid,gnuplot",format="ascii")
+!      archive.write_gnuplot(b,75,59, 1, norm=TRUE)
+!      archive.set(.name,"current_b_field_density_grid,normalised,gnuplot",format="ascii")
+!      archive.write_gnuplot(b,75,59, 1, normalise=TRUE)
+!      b.destroy
+!   end
+!
+!   make_current_b_field_grid(bb,dens,pt)
+!   ! Make the magnetic field B field "bb" due to the paramagnetic current
+!   ! density at a set of points "pt" using a complex AO density matrix "dens"
+!      bb,pt :: REALMAT
+!      dens :: CPXMAT, target
+!      Dba :: CPXMAT*
+!      Jx,Jy,Jz :: REALMAT*
+!      q,a,b,fa,fb,la,lb,k, n_pt :: INT
+!      fac :: REAL
+!      shell :: SHELL2
+!   ENSURE(.basis_info_made, "no basis set")
+!   ENSURE( .atom.created,  "no atom list")
+!      n_pt = size(pt,1)
+!      bb = ZERO
+!      do q = 1,.n_shell_pairs
+!        .get_shell_pair(q,shell,a,b,fa,la,fb,lb)
+!        Dba => dens(fb:lb,fa:la)
+!        fac = ONE; if (a==b) fac=HALF
+!        Jx.create(shell.a.n_comp,shell.b.n_comp)
+!        Jy.create(shell.a.n_comp,shell.b.n_comp)
+!        Jz.create(shell.a.n_comp,shell.b.n_comp)
+!        do k = 1,n_pt
+!          shell.make_magnetic_jp_ints(Jx,Jy,Jz,pt(k,:))
+!          bb(k,1) = bb(k,1) + Jx.trace_of_product(aimag(Dba))
+!          bb(k,2) = bb(k,2) + Jy.trace_of_product(aimag(Dba))
+!          bb(k,3) = bb(k,3) + Jz.trace_of_product(aimag(Dba))
+!        end
+!        Jz.destroy; Jy.destroy; Jx.destroy
+!        shell.destroy_ptr_part
+!      end
+!   !  bb.zero_small_values(TOL(10))
+!      bb = -HALF*bb
+!   end
+!
+!   make_spin_b_field_grid(bb,pt,Dx,Dy,Dz)
+!   ! Make the magnetic B field "bb" due to the spin density at a set of points
+!   ! given in "pt" using three real symmetric AO density matrices "Dx", "Dy" and
+!   ! "Dz" corresponding to the Sx, Sy and Sz densities. Note: the contribution
+!   ! is added to whatever is already in bb.
+!      bb,pt :: REALMAT
+!      Dx,Dy,Dz :: REALMAT, target
+!      DD :: REALMAT3*
+!      M :: REALMAT4*
+!      Mxx,Mxy,Mxz,Myx,Myy,Myz,Mzx,Mzy,Mzz :: REALMAT*
+!      q,a,b,fa,fb,la,lb,n, n_pt, i,j,k :: INT
+!      eps :: REALMAT3(3,3,3)
+!      fac :: REAL
+!      shell :: SHELL2
+!   ENSURE(.basis_info_made, "no basis set")
+!   ENSURE(.atom.created,"no atom list")
+!   ENSURE(pt.dim2==3,"no basis set")
+!   ENSURE(Dx.dim1==.n_bf AND Dx.is_square,"wrong shape for Dx")
+!   ENSURE(Dy.dim1==.n_bf AND Dy.is_square,"wrong shape for Dy")
+!   ENSURE(Dz.dim1==.n_bf AND Dz.is_square,"wrong shape for Dz")
+!      n_pt = size(pt,1)
+!      bb = ZERO
+!      do q = 1,.n_shell_pairs
+!        .get_shell_pair(shell,q,a,b,fa,la,fb,lb)
+!        DD.create(shell.a.n_comp,shell.b.n_comp,3)
+!        DD(:,:,1) = Dx(fb:lb,fa:la)
+!        DD(:,:,2) = Dy(fb:lb,fa:la)
+!        DD(:,:,3) = Dz(fb:lb,fa:la)
+!        fac = ONE; if (fa==fb) fac=HALF
+!        M.create(shell.a.n_comp,shell.b.n_comp,3,3)
+!        Mxx => M(:,:,1,1); Mxy => M(:,:,1,2); Mxz => M(:,:,1,3)
+!        Myx => M(:,:,2,1); Myy => M(:,:,2,2); Myz => M(:,:,2,3)
+!        Mzx => M(:,:,3,1); Mzy => M(:,:,3,2); Mzz => M(:,:,3,3)
+!        do n = 1,n_pt
+!          shell.make_magnetic_S_ints(Mxx,Mxy,Mxz,Myx,Myy,Myz,Mzx,Mzy,Mzz,pt(n,:))
+!          do i = 1,3
+!          do j = 1,3
+!          do k = 1,3
+!             eps(i,j,k) = M(:,:,i,j).trace_product_with(DD(:,:,k))
+!          end
+!          end
+!          end
+!          bb(n,1) = bb(n,1) + eps(:,:,1).trace - eps(1,:,:).trace
+!          bb(n,2) = bb(n,2) + eps(:,:,2).trace - eps(2,:,:).trace
+!          bb(n,3) = bb(n,3) + eps(:,:,3).trace - eps(3,:,:).trace
+!        end
+!        M.destroy
+!        DD.destroy
+!        shell.destroy_ptr_part
+!      end
+!   !  bb.zero_small_values(TOL(10))
+!      bb = -bb ! this is -g_e mu_b; the final answer is in units of mu_0/4pi
+!   end
+!
+!   make_pcc_structure_factors
+!   !
+!       S :: REALMAT*
+!      mo,Smo :: REALMAT*
+!      in :: TEXTFILE*
+!      k_pts :: REALMAT*
+!      ftnew,ft :: CPXMAT3*
+!       W :: CPXMAT*
+!      ftnew_nabla,ft_nabla :: CPXMAT4*
+!      shell :: SHELL2*
+!      n_refl,q,i,j :: INT
+!      fa,la,fb,lb,a,b :: INT
+!      fac :: REAL
+!      mo.create(160,4)
+!      in.create("mo35")
+!      in.open(for="read")
+!      in.read(mo,order="by_column")
+!      stdout.text("mo")
+!      stdout.put(mo)
+!
+!      S.create(160,160)
+!      .get_overlap_matrix(S)
+!
+!      Smo.create(4,4)
+!      Smo.create(4,4)
+!      S.change_basis(Smo,mo)
+!      stdout.text("Smo")
+!      stdout.put(Smo)
+!
+!      n_refl = .crystal%n_refl
+!
+!      k_pts.create(n_refl,3)
+!      .crystal.make_k_pts(k_pts)
+!
+!      shell.create
+!      ftnew.create(4,4,1)
+!      ftnew = ZERO
+!      do q = 1,.n_shell_pairs
+!          .get_shell_pair(q,shell,a,b,fa,la,fb,lb)
+!          ft.create(n_refl,shell%a%n_comp,shell%b%n_comp)
+!          shell.make_ft(ft,k_pts)
+!          fac = ONE
+!          if (a==b) fac = HALF
+!          do i = 1,n_refl
+!             ftnew(:,:,i) = ftnew(:,:,i) + &
+!                fac*matmul( transpose(mo(fa:la,:)), matmul(ft(i,:,:),mo(fb:lb,:))) + &
+!                fac* transpose( matmul( transpose(mo(fa:la,:)), matmul(ft(i,:,:),mo(fb:lb,:))) )
+!          end
+!          ft.destroy
+!          shell.destroy_ptr_part
+!      end
+!
+!      do i = 1,n_refl
+!         stdout.put(ftnew(:,:,i))
+!      end
+!      ftnew.destroy
+!
+!      ftnew_nabla.create(4,4,3,1)
+!      ftnew_nabla = ZERO
+!      do q = 1,.n_shell_pairs
+!          .get_shell_pair(q,shell,a,b,fa,la,fb,lb)
+!          ft_nabla.create(n_refl,shell%a%n_comp,shell%b%n_comp,3)
+!          shell.make_ft_nabla(ft_nabla,k_pts)
+!          fac = ONE
+!          if (a==b) fac = HALF
+!          do i = 1,n_refl
+!          do j = 1,3
+!             ftnew_nabla(:,:,j,i) = ftnew_nabla(:,:,j,i) + &
+!                fac*matmul( transpose(mo(fa:la,:)), matmul(ft_nabla(i,:,:,j),mo(fb:lb,:))) - &
+!                fac* transpose( matmul( transpose(mo(fa:la,:)), matmul(ft_nabla(i,:,:,j),mo(fb:lb,:))) )
+!          end
+!          end
+!          ft_nabla.destroy
+!          shell.destroy_ptr_part
+!      end
+!
+!      do i = 1,n_refl
+!      do j = 1,3
+!          stdout.show("component =",j)
+!          stdout.put(ftnew_nabla(:,:,j,i))
+!      end
+!      end
+!      ftnew_nabla.destroy
+!      shell.destroy
+!   end
+!
+!   make_pcc_L_matrices
+!   !
+!       S :: REALMAT*
+!      mo,Smo :: REALMAT*
+!      Lx,Ly,Lz :: REALMAT*
+!      Lxmo,Lymo,Lzmo :: REALMAT*
+!      in :: TEXTFILE*
+!      mo.create(160,4)
+!      in.create("mo35")
+!      in.open(for="read")
+!      in.read(mo,order="by_column")
+!      stdout.text("mo")
+!      stdout.put(mo)
+!
+!      S.create(160,160)
+!      .get_overlap_matrix(S)
+!
+!      Smo.create(4,4)
+!      Smo.create(4,4)
+!      S.change_basis(Smo,mo)
+!      stdout.text("Smo")
+!      stdout.put(Smo)
+!
+!      Lx.create(.n_bf,.n_bf); Lx = ZERO
+!      Ly.create(.n_bf,.n_bf); Ly = ZERO
+!      Lz.create(.n_bf,.n_bf); Lz = ZERO
+!      .make_L_matrices(Lx,Ly,Lz)
+!
+!    ! std_output.text("Lx")
+!    ! std_output.put(Lx)
+!    ! std_output.text("Ly")
+!    ! std_output.put(Ly)
+!    ! std_output.text("Lz")
+!    ! std_output.put(Lz)
+!
+!      Lxmo.create(4,4)
+!      Lymo.create(4,4)
+!      Lzmo.create(4,4)
+!      Lx.change_basis(Lxmo,mo)
+!      Ly.change_basis(Lymo,mo)
+!      Lz.change_basis(Lzmo,mo)
+!
+!      stdout.text("Lxmo")
+!      stdout.put(Lxmo)
+!      stdout.text("Lymo")
+!      stdout.put(Lymo)
+!      stdout.text("Lzmo")
+!      stdout.put(Lzmo)
+!      S.destroy
+!      Smo.destroy
+!      Lxmo.destroy; Lymo.destroy; Lzmo.destroy
+!      Lx.destroy; Ly.destroy; Lz.destroy
+!   end
+!
+!   test_ZORA_SO_matrices
+!   !
+!      SOx,SOy,SOz :: REALMAT*
+!      ZOx,ZOy,ZOz, T :: REALMAT*
+!      T.create(.n_bf,.n_bf)
+!      SOx.create(.n_bf,.n_bf); SOy.create(.n_bf,.n_bf); SOz.create(.n_bf,.n_bf)
+!      ZOx.create(.n_bf,.n_bf); ZOy.create(.n_bf,.n_bf); ZOz.create(.n_bf,.n_bf)
+!      .get_nuclear_matrix(SOz)
+!      .make_ENA_matrix(ZOz)
+!      stdout.text("NA"); stdout.put(SOz)
+!      stdout.text("numerical NA"); stdout.put(ZOz)
+!      .get_spin_orbit_matrices(SOx,SOy,SOz)
+!      .get_1e_ZORA_matrices(T,ZOx,ZOy,ZOz)
+!      stdout.text("SOx"); stdout.put(SOx)
+!      stdout.text("ZOx"); stdout.put(ZOx)
+!      stdout.text("SOy"); stdout.put(SOy)
+!      stdout.text("ZOy"); stdout.put(ZOy)
+!      stdout.text("SOz"); stdout.put(SOz)
+!      stdout.text("ZOz"); stdout.put(ZOz)
+!      SOx.destroy; SOy.destroy; SOz.destroy
+!      ZOx.destroy; ZOy.destroy; ZOz.destroy
+!      T.destroy
+!   end
+!
+!   test_dftgrid
+!   !
+!      Z,NZ,DZ :: REALMAT*
+!      Z.create(.n_bf,.n_bf)
+!      NZ.create(.n_bf,.n_bf)
+!      DZ.create(.n_bf,.n_bf)
+!      .make_nuclear_matrix(DZ,output=TRUE)
+!      .make_nuclear_ints(Z)
+!      .get_ENA_matrix(NZ)
+!      stdout.text("DZ"); stdout.put(DZ)
+!      stdout.text("Z"); stdout.put(Z)
+!      stdout.text("NZ"); stdout.put(NZ)
+!      .test_num
+!      Z.destroy; NZ.destroy; DZ.destroy
+!   end
+!
+!   make_nuclear_ints(Z,output)
+!   ! Calculate the nuclear attraction matrix "Z"
+!   ! if output is present and FALSE then do not make output archive
+!      Z :: REALMAT
+!     output :: BIN, OPTIONAL
+!     do_output :: BIN
+!     atom :: ATOM*
+!     Z_c :: REALMAT*
+!     q,c,fa,la,fb,lb :: INT
+!     shell :: SHELL2
+!     archive :: ARCHIVE
+!   ENSURE(.basis_info_made, "no basis set")
+!   ENSURE( .atom.created,  "no atom list")
+!     do_output=TRUE
+!     if (present(output)) do_output=output
+!     Z = ZERO
+!       do q=1,.n_shell_pairs
+!         .get_shell_pair(shell,q,fa,la,fb,lb)
+!         Z_c.create(shell.a.n_comp,shell.b.n_comp)
+!         do c=1,.n_atom
+!           atom=>.atom(c)
+!         ! shell.get_nuc(Z_c, atom.mass,atom.pos)
+!           shell.make_nuclear_attraction_ints(Z_c, atom.pos)
+!           Z(fa:la,fb:lb) = Z(fa:la,fb:lb) - atom.atomic_number * Z_c
+!         end
+!         Z_c.destroy
+!         shell.destroy_ptr_part
+!       end
+!     Z.make_symmetric
+!     if (do_output) then
+!       archive.set(.name,"nuc_matrix")
+!       archive.write(Z)
+!     end
+!   end
+!
+!   test_num
+!   !
+!     ZZ :: REALMAT*
+!     q,fa,la,fb,lb :: INT
+!     shell :: SHELL2
+!   ENSURE(.basis_info_made, "no basis set")
+!   ENSURE( .atom.created,  "no atom list")
+!   ENSURE( .dftgrid.created, "need to specify dftgrid for ZORA")
+!        q = 529
+!        .get_shell_pair(shell,q,fa,la,fb,lb)
+!        write(*,*) "fa=",fa,"la=",la,"fb=",fb,"lb=",lb
+!        ZZ.create(shell.a.n_comp,shell.b.n_comp)
+!        .dftgrid.make_matrix_elements_of(nuc_pot,self,shell,ZZ)
+!        stdout.text("ZZ")
+!        stdout.put(ZZ)
+!        ZZ.destroy
+!        shell.destroy_ptr_part
+!   end
+!
+!   nuc_pot(values,pts)
+!   ! Calculate the nuclear potential "values" of a given set of "pts".
+!   ! This is usefule for numerical integration of nuclear attraction integrals.
+!      values :: REALVEC
+!      pts :: REALMAT
+!      n_pts,n,i :: INT
+!      Z_n,r_ni :: REAL
+!      pos :: REALVEC(3)
+!      n_pts = size(pts,1)
+!      values = ZERO
+!      do n = 1,.n_atom
+!         Z_n = .atom(n).atomic_number
+!         pos = .atom(n).pos
+!         do i = 1,n_pts
+!            r_ni = pos.distance_to(pts(i,:))
+!            values(i) = values(i) + Z_n/r_ni
+!         end
+!      end
+!   end
+!
+!   get_ENA_matrix(Z)
+!   ! Set "Z" to the numerically calculated electron nuclear attraction matrix.
+!   ! If archives exist, read them; otherwise make them.
+!       Z :: REALMAT
+!      archive :: ARCHIVE
+!      archive.set(.name,"ENA_matrix")
+!      if (archive.exists) then
+!         archive.read(Z)
+!      else
+!         .make_ENA_matrix(Z)
+!      end
+!   end
+!
+!   test_spin_orbit_B_matrices
+!   !
+!      Lx,Ly,Lz :: REALMAT*
+!      fac :: REAL
+!      fac = (TWO*EIGHT*SPEED_OF_LIGHT_AU*SPEED_OF_LIGHT_AU)/G_FACTOR
+!      Lx.create(.n_bf,.n_bf)
+!      Ly.create(.n_bf,.n_bf)
+!      Lz.create(.n_bf,.n_bf)
+!      .make_spin_orbit_B_matrices(Lx,Ly,Lz)
+!      stdout.text("x")
+!      stdout.put( Lx)
+!      stdout.text("y")
+!      stdout.put( Ly)
+!      stdout.text("z")
+!      stdout.put( Lz)
+!      .make_SOB_matrices(Lx,Ly,Lz)
+!      stdout.text("x")
+!      stdout.put( Lx)
+!      stdout.text("y")
+!      stdout.put( Ly)
+!      stdout.text("z")
+!      stdout.put( Lz)
+!      Lx.destroy; Ly.destroy; Lz.destroy
+!   end
+!
+!   make_SOB_matrices(SOBx,SOBy,SOBz)
+!   ! Calculate the gauge modified (B field) spin orbit matrices "SOBx" "SOBy" and "SOBz"
+!      SOBx,SOBy,SOBz :: REALMAT
+!      Qxx,Qxy,Qxz,Qyx,Qyy,Qyz,Qzx,Qzy,Qzz,Qx,Qy,Qz,Qss :: REALMAT*
+!      q,c,a,b,fa,la,fb,lb,atom_a,atom_b :: INT
+!      fac,Z :: REAL
+!      shell :: SHELL2
+!      archive :: ARCHIVE
+!      debug :: BIN
+!      n_a,n_b :: INT
+!   ENSURE(.basis_info_made, "no basis set")
+!   ENSURE( .atom.created,  "no atom list")
+!      fac = G_FACTOR/(TWO*EIGHT*(SPEED_OF_LIGHT_AU)**2)
+!      SOBx = ZERO; SOBy = ZERO; SOBz = ZERO
+!      do q=1,.n_shell_pairs
+!         .get_shell_pair(q,shell,fa,la,fb,lb)
+!         n_a = shell%a%n_comp; n_b = shell%b%n_comp
+!         Qss.create(n_a,n_b)
+!         Qx.create(n_a,n_b);  Qy.create(n_a,n_b);  Qz.create(n_a,n_b)
+!         Qxx.create(n_a,n_b); Qxy.create(n_a,n_b); Qxz.create(n_a,n_b)
+!         Qyx.create(n_a,n_b); Qyy.create(n_a,n_b); Qyz.create(n_a,n_b)
+!         Qzx.create(n_a,n_b); Qzy.create(n_a,n_b); Qzz.create(n_a,n_b)
+!         do c = 1,.n_atom
+!            Z = .atom(c)%atomic_number
+!            shell.make_spin_orbit_B_ints(Qxx,Qxy,Qxz,Qyx,Qyy,Qyz,Qzx,Qzy,Qzz, .atom(c)%pos, .gauge_origin)
+!            Qss = Qxx + Qyy + Qzz
+!            Qx = Qss*.B_field(1) - Qxx*.B_field(1) - Qxy*.B_field(2) - Qxz*.B_field(3)
+!            Qy = Qss*.B_field(2) - Qyx*.B_field(1) - Qyy*.B_field(2) - Qyz*.B_field(3)
+!            Qz = Qss*.B_field(3) - Qzx*.B_field(1) - Qzy*.B_field(2) - Qzz*.B_field(3)
+!            SOBx(fa:la,fb:lb) = SOBx(fa:la,fb:lb) - Z*Qx
+!            SOBy(fa:la,fb:lb) = SOBy(fa:la,fb:lb) - Z*Qy
+!            SOBz(fa:la,fb:lb) = SOBz(fa:la,fb:lb) - Z*Qz
+!         end
+!         shell.destroy_ptr_part
+!         Qzz.destroy; Qzy.destroy; Qzx.destroy
+!         Qyz.destroy; Qyy.destroy; Qyx.destroy
+!         Qxz.destroy; Qxy.destroy; Qxx.destroy
+!         Qz.destroy;  Qy.destroy;  Qx.destroy;  Qss.destroy
+!      end
+!      SOBx.make_symmetric
+!      SOBy.make_symmetric
+!      SOBz.make_symmetric
+!    ! archive.set(.name,"SOB_x_matrix"); archive.write(SOBx)
+!    ! archive.set(.name,"SOB_y_matrix"); archive.write(SOBy)
+!    ! archive.set(.name,"SOB_z_matrix"); archive.write(SOBz)
+!   end
+!
+!   make_pcc_densities
+!   ! Calculate pcc's densities for the paper
+!      mo :: REALMAT*
+!      mo35,mo48,mo49,mo50 :: REALVEC*
+!      p35,p48,p49,p50 :: REALVEC*
+!      g35,g48,g49,g50 :: REALMAT*
+!      j,s :: REALMAT*
+!      in :: TEXTFILE*
+!      n_pt,k :: INT
+!      mu,nu,rt3,fac :: REAL
+!      archive :: ARCHIVE
+!
+!      mo35.create(160)
+!      mo48.create(160)
+!      mo49.create(160)
+!      mo50.create(160)
+!      in.create("mo35")
+!      in.open(for="read")
+!      in.read(mo35)
+!      in.read(mo48)
+!      in.read(mo49)
+!      in.read(mo50)
+!
+!      n_pt = .grid%n_pt
+!      p35.create(n_pt); g35.create(n_pt,3)
+!      p48.create(n_pt); g48.create(n_pt,3)
+!      p49.create(n_pt); g49.create(n_pt,3)
+!      p50.create(n_pt); g50.create(n_pt,3)
+!      .make_orbital_grid(p35,mo35)
+!      .make_orbital_grid(p48,mo48)
+!      .make_orbital_grid(p49,mo49)
+!      .make_orbital_grid(p50,mo50)
+!      .make_nabla_orbital_grid(g35,mo35)
+!      .make_nabla_orbital_grid(g48,mo48)
+!      .make_nabla_orbital_grid(g49,mo49)
+!      .make_nabla_orbital_grid(g50,mo50)
+!
+!      j.create(n_pt,3)
+!      s.create(n_pt,3)
+!      nu = 0.15578d0
+!      mu = 0.19107d0
+!      rt3 = ONE/sqrt(THREE)
+!      fac = ONE/(ONE+mu*mu+nu*nu)
+!      do k = 1,3
+!         j(:,k) =      nu*(p35(:)*g48(:,k) - p48(:)*g35(:,k)) &
+!                + HALF*mu*(p50(:)*g49(:,k) - p49(:)*g50(:,k))
+!      end
+!      j = fac*j
+!
+!      s(:,1) = -rt3*mu * (p35(:)*p49(:) - nu*p48(:)*p50(:))
+!      s(:,2) = -rt3*mu * (p35(:)*p50(:) - nu*p48(:)*p49(:))
+!      s(:,3) = (ONE+mu*mu/THREE) * p48(:)*p48(:) &
+!             + (ONE+nu*nu+mu*mu/SIX) * (p49(:)*p49(:)+p50(:)*p50(:)) &
+!             + (nu*nu+mu*mu/THREE) * p35(:)*p35(:)
+!      s(:,3) = HALF*s(:,3)
+!
+!      archive.set(.name,"current_density")
+!      archive.write(j)
+!      archive.set(.name,"current_density,gnuplot",format="ascii")
+!      archive.write_gnuplot(j, .grid%n_x, .grid%n_y, .grid%n_z)
+!      archive.set(.name,"current_norm_density,gnuplot",format="ascii")
+!      archive.write_gnuplot(j, .grid%n_x, .grid%n_y, .grid%n_z, norm=TRUE)
+!      archive.set(.name,"current_density,normalised,gnuplot",format="ascii")
+!      archive.write_gnuplot(j, .grid%n_x, .grid%n_y, .grid%n_z, normalise=TRUE)
+!
+!      archive.set(.name,"spin_density")
+!      archive.write(s)
+!      archive.set(.name,"spin_density,gnuplot",format="ascii")
+!      archive.write_gnuplot(s, .grid%n_x, .grid%n_y, .grid%n_z)
+!      archive.set(.name,"spin_norm_density,gnuplot",format="ascii")
+!      archive.write_gnuplot(s, .grid%n_x, .grid%n_y, .grid%n_z, norm=TRUE)
+!      archive.set(.name,"spin_density,normalised,gnuplot",format="ascii")
+!      archive.write_gnuplot(s, .grid%n_x, .grid%n_y, .grid%n_z, normalise=TRUE)
+!
+!      s.destroy
+!      j.destroy
+!      g50.destroy; p50.destroy
+!      g49.destroy; p49.destroy
+!      g48.destroy; p48.destroy
+!      g35.destroy; p35.destroy
+!      in.close
+!      in.destroy
+!      mo50.destroy
+!      mo49.destroy
+!      mo48.destroy
+!      mo35.destroy
+!   end
+!
+!   integrate_property(make_property_grid) result (res)
+!   ! Integrate a scalar molecular property, which is represented by a subroutine
+!   ! "make_property_grid" which returns "values" of the property in a vector,
+!   ! given "mol" as the molecule, and "pts" as a set of points. The result of
+!   ! the integration is "res".
+!      interface
+!         make_property_grid(mol,values,pts)
+!            mol :: MOL
+!            values :: REALVEC
+!            pts :: REALMAT
+!         end
+!      end
+!      res :: REAL
+!   ENSURE( .dftgrid.created,"no DFT grid information!")
+!!      res = .dftgrid.integrate_molecular_property(make_property_grid,self)
+!      res = ZERO
+!   end
+!
+!   integrate_rho_numerically
+!   ! Integrate the density numerically
+!      res :: REAL
+!      res = .integrate_property(make_density_grid_1)
+!      stdout.show("numerically integrated charge =",res)
+!   end
+!
+!   put_atom_kind_map
+!   ! Check the atom kind map routine
+!      res :: REAL
+!      atom_kind,unique_atom :: INTVEC*
+!      n_atom,n_kind :: INT
+!      n_atom = .n_atom
+!      atom_kind.create(n_atom)
+!      .atom.make_atom_kind_list(atom_kind,n_kind)
+!      stdout.text("atom kind")
+!      stdout.put(atom_kind,"column")
+!      unique_atom.create(n_kind)
+!      .atom.make_unique_atom_list(unique_atom)
+!      stdout.text("unique atom list")
+!      stdout.put(unique_atom,"column")
+!      unique_atom.destroy
+!      atom_kind.destroy
+!   end
+!
+!   test_eigen
+!   !
+!      n,i :: INT
+!      dot :: REAL
+!       m :: REALMAT*
+!      eval :: REALVEC*
+!      L,R,w :: REALMAT*
+!      stdin.read(n)
+!      m.create(n,n)
+!      stdin.read(m)
+!      eval.create(n)
+!      L.create(n,n)
+!      R.create(n,n)
+!      m.solve_general_eigenproblem(eval,L,R)
+!      stdout.show("n =",n)
+!      stdout.text("eval:")
+!      stdout.put(eval,"column")
+!      stdout.text("Left eigenvectors:")
+!      stdout.put(L)
+!      stdout.text("right eigenvectors:")
+!      stdout.put(R)
+!      w.create(n,n)
+!      w.to_product_of(L,R,transpose_a=TRUE)
+!      stdout.text("(left)^T x (right) eigenvectors:")
+!      stdout.put(w)
+!      w.destroy
+!      R.destroy
+!      L.destroy
+!      eval.destroy
+!      m.destroy
+!   end
+
+! *************************************************************
+! Determinant Variation Perturbation Theory (DVPT) SCF routines
+! *************************************************************
+
+!   DVPT_scf ::: recursive, leaky
+!   ! Do a restricted determinant variation perturbation theory SCF calculation. The following
+!   ! are produced as results: .molecular_orbitals, .orbital_energies, .density_matrix
+!   ENSURE(.basis_info_made, "no basis set")
+!   ENSURE( .atom.created,  "no atom list")
+!     .make_DVPT_initial_mos
+!     .make_DVPT_density_matrices
+!     .make_DVPT_fock_matrices
+!     .scfdata.set(nuclear_energy=.nuclear_energy)
+!     .scfdata.reset(energy=.DVPT_scf_energy, kinetic_energy=ZERO)
+!
+!   ! stdout.text("D:")
+!   ! stdout.put(.density_matrix.restricted)
+!   ! stdout.text("F:")
+!   ! stdout.put(.fock_matrix.restricted)
+!   ! .scfdata.kind="rhf"
+!   ! .scfdata.reset(energy=.scf_energy, kinetic_energy=ZERO)
+!   ! .scfdata.kind="rdvpt"
+!
+!     .scfdata.put_banner
+!     ! Begin iterations
+!     do
+!     ! .extrapolate_scf
+!       .update_DVPT_orbitals
+!       .schmidt_orthonormalise(.molecular_orbitals)
+!       .make_DVPT_density_matrices
+!       .make_DVPT_fock_matrices
+!       .save_DVPT_results
+!       .scfdata.update(energy=.DVPT_scf_energy, kinetic_energy=ZERO)
+!       .scfdata.put_results
+!       if (.scfdata.scf_done) exit
+!     end
+!     .scfdata.cleanup_diis
+!     .fock_matrix.destroy("restricted")
+!   end
+!
+!   update_DVPT_orbitals
+!   ! Solve for the new DVPT orbitals and energies. An initial set of orbitals
+!   ! and a Fock matrix must already exist in memory. The new molecular orbitals
+!   ! "MO*U" are found from the old MOs solving : (MO^T F MO)U = MO^T S MO U E
+!   ! where U is a general matrix (since F is not symmetric).
+!     MO_energies :: REALVEC*
+!     MO,F :: REALMAT*
+!     G,U,left :: REALMAT*
+!      i :: INT
+!     MO_energies => .orbital_energies.restricted
+!     MO => .molecular_orbitals.restricted
+!     F  => .fock_matrix.restricted
+!     G.create(.n_bf,.n_bf)
+!     U.create(.n_bf,.n_bf)
+!     left.create(.n_bf,.n_bf)
+!     G = F
+!     G.change_basis(MO)
+!     ! Level shifting
+!     if ( .scfdata.apply_level_shifting) then
+!       do i = .n_a + 1, .n_bf
+!         G(i,i) = .scfdata.level_shift + G(i,i)
+!       end
+!     end
+!     G.solve_general_eigenproblem(MO_energies,left,U)
+!     G.to_product_of(MO,U)
+!     MO = G
+!     left.destroy
+!     U.destroy
+!     G.destroy
+!   end
+!
+!   save_DVPT_results
+!   ! Save the DVPT results in various archives
+!     archive :: ARCHIVE
+!      m :: INT
+!     .save_scf_results
+!     m = .DVPT_order
+!     archive.set(.name,"DVPT_mo_"// trim(m.to_str))
+!     archive.write(.molecular_orbitals.restricted)
+!   end
+!
+!   make_DVPT_initial_mos ::: leaky
+!   ! Make the DVPT initial orbitals. Currently this is just the same
+!   ! as the usual initial guess, but the MO's are written to disk.
+!       m :: INT
+!      MO :: REALMAT*
+!      m_archive :: ARCHIVE
+!      m = .DVPT_order
+!      m_archive.set(.name,"DVPT_mo_"// trim(m.to_str))
+!      .scfdata.kind = "rhf"
+!      .get_initial_guess
+!      .scfdata.kind = "rdvpt"
+!      MO => .molecular_orbitals.restricted
+!      m_archive.write(MO)
+!   end
+!
+!   DVPT_order result (X)
+!   ! Determine the DVPT order by looking for the highest number "X" for
+!   ! which a DVPT_mo_X archive file exists.
+!       X :: INT
+!      archive :: ARCHIVE
+!      order :: INT = 999
+!      if (order/=999) then
+!         X = order
+!      else
+!         X = 0
+!         do
+!            archive.set(.name,"DVPT_mo_"// trim(X.to_str))
+!            if (NOT archive.exists) exit
+!            X = X + 1
+!         end
+!         order = X
+!      end
+!   end
+!
+!   make_DVPT_density_matrices
+!   ! Make all the DVPT density matrices up to the required order
+!   ! NOTE: the indice order is opposite to the paper.
+!      m,j :: INT
+!      m = .DVPT_order
+!      do j = 0,m
+!         .make_DVPT_density_matrix(m,j)
+!      end
+!      .make_DVPT_eff_density_matrix
+!   !  .scfdata.kind = "rhf"
+!   !  .make_scf_density_matrix
+!   !  .scfdata.kind = "rdvpt"
+!   end
+!
+!   make_DVPT_eff_density_matrix
+!   ! Make the effective DVPT fock matrix
+!      m,i,j :: INT
+!      fac,sum,det :: REAL
+!      DD,D :: REALMAT*
+!      d_archive :: ARCHIVE
+!      .density_matrix.restricted.destroy
+!      DD.create(.n_bf,.n_bf); DD = ZERO
+!      D.create(.n_bf,.n_bf)
+!      m   = .DVPT_order
+!      do i = 0,m
+!      do j = 0,i
+!         fac = TWO
+!         if (i==j) fac = ONE
+!         .get_DVPT_density_matrix(D,det,i,j)
+!         sum = sum + fac*det
+!         D = fac*D
+!         DD.plus(D)
+!      end
+!      end
+!      DD = DD/sum
+!      d_archive.set(.name,"DVPT_density_matrix")
+!      d_archive.write(DD)
+!      .density_matrix.restricted => DD
+!      D.destroy
+!   end
+!
+!   get_DVPT_density_matrix(D,determinant,left,right)
+!   ! Get the determinant variation perturbation theory transition density matrix
+!   ! for a left determinant orbitals "left" and  a right determinant orbitals "right".
+!   ! Make the density if the archive does not exist.
+!       D :: REALMAT
+!      determinant :: REAL
+!      left,right :: INT
+!      d_archive :: ARCHIVE
+!      label :: STR
+!      label = trim(left.to_str) // trim(right.to_str)
+!      d_archive.set(.name,"DVPT_density_"// label)
+!      if (NOT d_archive.exists) .make_DVPT_density_matrix(left,right)
+!      d_archive.read(D)
+!      d_archive.set(.name,"DVPT_determinant_"// trim(left.to_str) // trim(right.to_str))
+!      d_archive.read(determinant)
+!   end
+!
+!   make_DVPT_density_matrix(left,right)
+!   ! Make the determinant variation perturbation theory transition density matrix
+!   ! for a left determinant orbitals "left" and  a right determinant orbitals "right".
+!   ! The density and determinant are stored as archives on disk.
+!      left,right :: INT
+!      D,L,R :: REALMAT*
+!      l_archive,r_archive,d_archive :: ARCHIVE
+!      determinant :: REAL
+!      D.create(.n_bf,.n_bf)
+!      l_archive.set(.name,"DVPT_mo_"// trim(left.to_str))
+!      r_archive.set(.name,"DVPT_mo_"// trim(right.to_str))
+!   ENSURE(l_archive.exists, "no DVPT mo archive, no. ="// trim(left.to_str))
+!   ENSURE(r_archive.exists, "no DVPT mo archive, no. ="// trim(right.to_str))
+!      L.create(.n_bf,.n_bf)
+!      R.create(.n_bf,.n_bf)
+!      l_archive.read(L)
+!      r_archive.read(R)
+!      ! Make density matrix using occupied orbitals only
+!      .make_DVPT_density_matrix(D,determinant,L(:,:.n_a),R(:,:.n_a))
+!
+!      !       stdout.show("det =",determinant)
+!      !       stdout.text("MO:")
+!      !       stdout.put(L(:,.n_a))
+!      !       stdout.text("D:")
+!      !       stdout.put(TWO*D)
+!
+!      R.destroy
+!      L.destroy
+!      d_archive.set(.name,"DVPT_density_"// trim(left.to_str) // trim(right.to_str))
+!      d_archive.write(D)
+!      d_archive.set(.name,"DVPT_determinant_"// trim(left.to_str) // trim(right.to_str))
+!      d_archive.write(determinant)
+!      D.destroy
+!   end
+!
+!   make_DVPT_density_matrix(D,determinant,left,right)
+!   ! Make the determinant variation perturbation theory transition density matrix "D" for a
+!   ! left determinant of occupied orbitals "left" and a right determinant of occupied
+!   ! orbitals "right". Also return the "determinant" of the orbital ovarlap matrix.
+!       D :: REALMAT
+!      left,right :: REALMAT
+!      determinant :: REAL
+!      S,O,C :: REALMAT*
+!      dim :: INT
+!   ENSURE(size(D,1)==size(D,2),"D is not square")
+!   ENSURE(size(D,1)==.n_bf,"D has wrong size")
+!   ENSURE(size(left,1) ==.n_bf,"left has wrong size")
+!   ENSURE(size(right,1)==.n_bf,"right has wrong size")
+!   ENSURE(size(left,2)==size(right,2),"left and and right are incompatible")
+!      dim = size(left,2)
+!      S.create(dim,dim)
+!      O.create(.n_bf,.n_bf)
+!      .get_overlap_matrix(O)
+!      O.change_basis(S,left,right)
+!      O.destroy
+!      C.create(dim,dim)
+!      .make_cofactor(C,determinant,S)
+!      C.back_transform(D,right,left)
+!      C.destroy
+!      S.destroy
+!   end
+!
+!   make_cofactor(C,determinant,S)
+!   ! Make the cofactor matrix "C" and "determinant" for the matrix "S".
+!   ! Note: this constructs the alpha-alpha part of the cofactor, but the
+!   ! determinant is that for the full overlap matrix
+!      C,S :: REALMAT
+!      determinant :: REAL
+!      eval,n :: REALVEC*
+!      left,right,W :: REALMAT*
+!      dim,i :: INT
+!      dot :: REAL
+!   ENSURE(size(C,1)==size(C,2),"C is not square")
+!   ENSURE(size(S,1)==size(S,2),"incorrect size for array S")
+!   ENSURE(size(S,1)==size(C,1),"array C and array S incompatible")
+!      dim = size(C,1)
+!      left.create(dim,dim)
+!      right.create(dim,dim)
+!      eval.create(dim)
+!      ! Get the eigenvalues and determinant of S
+!      S.solve_general_eigenproblem(eval,left,right)
+!      determinant = product(eval)
+!      determinant = determinant*determinant ! include beta part
+!      ! Make the cofactor
+!      n.create(dim)
+!      n = determinant/eval
+!      W.create(dim,dim)
+!      W.to_product_with_diagonal(n,left,transpose_a=TRUE)
+!      C = matmul(right,W)
+!
+!    ! stdout.text("*********make_cofactor**************")
+!    ! stdout.text("S:")
+!    ! stdout.put(S)
+!    ! stdout.text("n:")
+!    ! stdout.put(n,format="column")
+!    ! stdout.text("L:")
+!    ! stdout.put(left)
+!    ! stdout.text("R:")
+!    ! stdout.put(right)
+!    ! W = matmul(right,transpose(left))
+!    ! stdout.text("R L^T:")
+!    ! stdout.put(W)
+!    ! W = matmul(transpose(left),right)
+!    ! stdout.text("L^T R:")
+!    ! stdout.put(W)
+!    ! stdout.text("C:")
+!    ! stdout.put(C)
+!    ! stdout.text("************************************")
+!
+!      W.destroy
+!      n.destroy
+!      eval.destroy
+!      right.destroy
+!      left.destroy
+!   end
+!
+!   make_DVPT_fock_matrices ::: leaky
+!   ! Make the DVPT fock matrices up to the required order,
+!   ! including the effective fock matrix
+!      m,j :: INT
+!      m = .DVPT_order
+!      do j = 0,m
+!         .make_DVPT_fock_matrix(m,j)
+!      end
+!      .make_DVPT_eff_fock_matrix
+!   !  .scfdata.kind = "rhf"
+!   !  .make_fock_matrix
+!   !  .scfdata.kind = "rdvpt"
+!   end
+!
+!   make_DVPT_eff_fock_matrix ::: leaky
+!   ! Make the effective DVPT fock matrix
+!      m,j :: INT
+!      E_m,E_mj,sum,det :: REAL
+!      FF,F,W,D :: REALMAT*
+!      f_archive :: ARCHIVE
+!      .fock_matrix.restricted.destroy
+!      FF.create(.n_bf,.n_bf); FF = ZERO
+!      F.create(.n_bf,.n_bf)
+!      W.create(.n_bf,.n_bf)
+!      D.create(.n_bf,.n_bf)
+!      m   = .DVPT_order
+!      E_m = .DVPT_electronic_energy
+!      sum = ZERO
+!      do j = 0,m
+!         .get_DVPT_fock_matrix(F,m,j)
+!         .get_DVPT_density_matrix(D,det,m,j)
+!         sum = sum + det
+!         det = 1/(TWO*det)
+!         FF.plus(F)
+!         .add_core_hamiltonian(FF)
+!         E_mj = E_m + det*F.trace_of_product(D)
+!         .get_overlap_matrix(F)
+!         W.to_product_of(D,F)
+!         D.to_product_of(F,W)
+!         FF = FF - E_mj*D
+!      end
+!      FF = FF/sum
+!      f_archive.set(.name,"DVPT_effective_fock_"// trim(m.to_str))
+!      f_archive.write(FF)
+!      .fock_matrix.restricted => FF
+!      D.destroy
+!      W.destroy
+!      F.destroy
+!   end
+!
+!   get_DVPT_fock_matrix(F,left,right)
+!   ! Get the determinant variation perturbation theory transition Fock matrix
+!   ! for a left determinant orbitals "left" and  a right determinant orbitals "right".
+!       F :: REALMAT
+!      left,right :: INT
+!      f_archive :: ARCHIVE
+!      label :: STR
+!      label = trim(left.to_str) // trim(right.to_str)
+!      f_archive.set(.name,"DVPT_fock_"// label)
+!      if (NOT f_archive.exists) .make_DVPT_fock_matrix(left,right)
+!      f_archive.read(F)
+!   end
+!
+!   make_DVPT_fock_matrix(left,right)
+!   ! Make the determinant variation perturbation theory transition fock matrix
+!   ! for a left determinant orbitals "left" and  a right determinant orbitals "right".
+!   ! The Fock matrix is stored as an archive on disk.
+!      left,right :: INT
+!       F :: REALMAT*
+!      f_archive :: ARCHIVE
+!      label :: STR
+!      F.create(.n_bf,.n_bf)
+!      .make_DVPT_fock_matrix(F,left,right)
+!      label = trim(left.to_str) // trim(right.to_str)
+!      f_archive.set(.name,"DVPT_fock_"// label)
+!      f_archive.write(F)
+!      F.destroy
+!   end
+!
+!   make_DVPT_fock_matrix(F,left,right)
+!   ! Make the determinant variation perturbation theory transition fock matrix for
+!   ! a left determinant of orbitals "left" and a right determinant of orbitals
+!   ! "right". If present, "D" is used as the density matrix.
+!       F :: REALMAT
+!      left,right :: INT
+!       P :: REALMAT*
+!      determinant,fac :: REAL
+!      P.create(.n_bf,.n_bf)
+!      .get_DVPT_density_matrix(P,determinant,left,right)
+!   !  .make_r_asymmetric_fock(P,F,direct=FALSE,core=FALSE,r12=TRUE)
+!      .make_r_fock(P,F,direct=FALSE,core=FALSE,r12=TRUE)
+!      fac = TWO/determinant
+!      F = fac*F
+!      P.destroy
+!   end
+!
+!   make_r_fock(P,F,direct,core,r12) ::: leaky
+!   ! Make a new restricted Fock matrix "F" from the density matrix "P".
+!   ! If present and TRUE , "direct" means calculate integrals on the fly
+!   ! If present and FALSE, "core" removes the core matrix contribution
+!   ! If present and FALSE, "r12"  removes the two electron contribution
+!     direct,core,r12 :: BIN, optional
+!     P,F :: REALMAT
+!     J,K :: REALMAT*
+!     do_direct,add_core,add_r12 :: BIN
+!
+!     do_direct= FALSE
+!     add_core = TRUE
+!     add_r12  = TRUE
+!     if (present(direct)) do_direct = direct
+!     if (present(core))   add_core = core
+!     if (present(r12))    add_r12  = r12
+!     if (add_r12) then
+!        J.create(.n_bf,.n_bf)
+!        K.create(.n_bf,.n_bf)
+!        if (do_direct) then; .make_r_JK_direct(J,K,P)
+!        else;                .make_r_JK_disk(J,K,P)
+!        end
+!        F = J - HALF*K
+!        K.destroy
+!        J.destroy
+!     else
+!        F = ZERO
+!     end
+!     if (add_core) .add_core_hamiltonian(F)
+!   end
+!
+!   make_r_asymmetric_fock(P,F,direct,core,r12) ::: leaky
+!   ! Make a new restricted Fock matrix "F" from an asymmetric density matrix "P".
+!   ! If present and TRUE , "direct" means calculate integrals on the fly
+!   ! If present and FALSE, "core" removes the core matrix contribution
+!   ! If present and FALSE, "r12"  removes the two electron contribution
+!     direct,core,r12 :: BIN, optional
+!     P,F :: REALMAT
+!     J,K :: REALMAT*
+!     do_direct,add_core,add_r12 :: BIN
+!   ENSURE(size(F,1)==.n_bf, "Fock matrix dimensions wrong")
+!   ENSURE(size(P,1)==.n_bf, "Density matrix dimensions wrong")
+!     do_direct= FALSE
+!     add_core = TRUE
+!     add_r12  = TRUE
+!     if (present(direct)) do_direct = direct
+!     if (present(core))   add_core = core
+!     if (present(r12))    add_r12  = r12
+!     if (add_r12) then
+!        J.create(.n_bf,.n_bf)
+!        K.create(.n_bf,.n_bf)
+!        if (do_direct) then; .make_r_asymmetric_JK_direct(J,K,P)
+!        else;                .make_r_asymmetric_JK_disk(J,K,P)
+!        end
+!        F = J - HALF*K
+!        K.destroy
+!        J.destroy
+!     else
+!        F = ZERO
+!     end
+!     if (add_core) then
+!       .add_core_hamiltonian(F)
+!     end
+!   end
+!
+!   make_r_asymmetric_JK_direct(J,K,P)
+!   ! Make the real coulomb matrices "J" and exchange matrix "K"  from an
+!   ! asymmetric density matrix "P" directly from the integrals.
+!     J,K,P :: REALMAT
+!      I :: REALMAT4*
+!     shell4 :: SHELL4*
+!     I_max :: REALVEC*
+!     ac,ab,cd,aa,cc :: INT
+!     a,b,c,d,fa,fb,fc,fd,la,lb,lc,ld :: INT
+!     cutoff,I_abcd,factor :: REAL
+!     skip :: BIN
+!     J = ZERO
+!     K = ZERO
+!     cutoff = .scfdata.eri_cutoff
+!     shell4.create
+!     I_max.create(.n_shell_pairs)
+!     .make_max_abab_integrals(I_max)
+!     do ab = 1,.n_shell_pairs
+!       .get_shell_pair(ab,a,b)
+!       fa = .first_basis_fn_for_shell(a)
+!       fb = .first_basis_fn_for_shell(b)
+!       la = .last_basis_fn_for_shell(a)
+!       lb = .last_basis_fn_for_shell(b)
+!       do cd = 1,ab
+!         .get_shell_pair(cd,c,d)
+!         fc = .first_basis_fn_for_shell(c)
+!         fd = .first_basis_fn_for_shell(d)
+!         lc = .last_basis_fn_for_shell(c)
+!         ld = .last_basis_fn_for_shell(d)
+!         .get_shell_quartet(shell4,a,b,c,d)
+!         skip = .schwarz_inequality_test(cutoff,ab,cd,fa,la,fb,lb,fc,lc,fd,ld,P,I_max)
+!         if (skip) then
+!            shell4.destroy_ptr_part
+!            cycle
+!         end
+!         I.create(fa,la,fb,lb,fc,lc,fd,ld)
+!         shell4.get_ERI(I)
+!         factor = ONE                                ! Evaluate the integrals
+!         if (a==b)          factor = HALF            ! Coincidence factors
+!         if (c==d)          factor = HALF * factor
+!         if (a==c AND b==d) factor = HALF * factor
+!         do d = fd,ld
+!         do c = fc,lc
+!         do b = fb,lb
+!         do a = fa,la
+!            I_abcd = factor * I(a,b,c,d)
+!            J(a,b) = J(a,b) + I_abcd*(P(d,c)+P(c,d)) ! These are symmetric
+!            J(c,d) = J(c,d) + I_abcd*(P(b,a)+P(a,b))
+!            K(a,d) = K(a,d) + I_abcd*P(b,c)          ! These are asymmetric
+!            K(a,c) = K(a,c) + I_abcd*P(b,d)
+!            K(b,c) = K(b,c) + I_abcd*P(a,d)
+!            K(b,d) = K(b,d) + I_abcd*P(a,c)
+!            K(d,a) = K(d,a) + I_abcd*P(c,b)
+!            K(c,a) = K(c,a) + I_abcd*P(d,b)
+!            K(c,b) = K(c,b) + I_abcd*P(d,a)
+!            K(d,b) = K(d,b) + I_abcd*P(c,a)
+!         end
+!         end
+!         end
+!         end
+!         I.destroy
+!         shell4.destroy_ptr_part
+!       end
+!     end
+!     I_max.destroy
+!     shell4.destroy
+!     .weight_diagonal_blocks(J,TWO)
+!     J.make_symmetric
+!   end
+!
+!   make_r_asymmetric_JK_disk(J,K,P)
+!   ! Make the real coulomb matrices "J" and exchange matrix "K"  from an
+!   ! asymmetric density matrix "P" using disk integrals.
+!     J,K,P :: REALMAT
+!     eri_archive,ind_archive :: ARCHIVE
+!      I :: REALMAT4*
+!     q,n_quartets,a,b,c,d,fa,fb,fc,fd,la,lb,lc,ld :: INT
+!     I_abcd :: REAL
+!     eri_archive.create(.name,"eri_integrals")
+!     ind_archive.create(.name,"eri_index")
+!   ENSURE(.basis_info_made, "no basis set")
+!   ENSURE(.atom.created,  "no atom list")
+!   ENSURE(eri_archive.exists, "no integral file")
+!   ENSURE(ind_archive.exists, "no integral index file")
+!     eri_archive.open(for="read-only",buffered=TRUE,type="real")
+!     ind_archive.open(for="read-only",buffered=TRUE,type="int")
+!     J = ZERO
+!     K = ZERO
+!     n_quartets = .n_shell_quartets
+!     do
+!        ind_archive.file.read(q)
+!        if (q > n_quartets) exit
+!        .get_shell_quartet(q,fa,la,fb,lb,fc,lc,fd,ld)
+!        I.create(fa,la,fb,lb,fc,lc,fd,ld)
+!        eri_archive.file.read(I)
+!        do d = fd,ld
+!        do c = fc,lc
+!        do b = fb,lb
+!        do a = fa,la
+!           I_abcd = I(a,b,c,d)
+!           J(a,b) = J(a,b) + I_abcd*(P(d,c)+P(c,d)) ! These are symmetric
+!           J(c,d) = J(c,d) + I_abcd*(P(b,a)+P(a,b))
+!           K(a,d) = K(a,d) + I_abcd*P(b,c)          ! These are asymmetric
+!           K(a,c) = K(a,c) + I_abcd*P(b,d)
+!           K(b,c) = K(b,c) + I_abcd*P(a,d)
+!           K(b,d) = K(b,d) + I_abcd*P(a,c)
+!           K(d,a) = K(d,a) + I_abcd*P(c,b)
+!           K(c,a) = K(c,a) + I_abcd*P(d,b)
+!           K(c,b) = K(c,b) + I_abcd*P(d,a)
+!           K(d,b) = K(d,b) + I_abcd*P(c,a)
+!        end
+!        end
+!        end
+!        end
+!        I.destroy
+!     end
+!     ind_archive.destroy
+!     eri_archive.destroy
+!     .weight_diagonal_blocks(J,TWO)
+!     J.make_symmetric
+!   end
+!
+!   get_shell_pair_indices_from(index,a,b)
+!   ! Return the actual shell indicies "a" and "b" which map to "index"
+!     index :: INT, IN
+!     a,b :: INT, OUT
+!     a  = (1+sqrt(8.0d0*index-7.0d0))/2
+!     b  = index - a*(a-1)/2
+!   end
+!
+!   DVPT_scf_energy result (res)
+!   ! Evaluates the determinant variation perturbation theory SCF energy
+!   ! (including the nuclear repulsion contribution)
+!     res :: REAL
+!     res = .DVPT_electronic_energy + .nuclear_energy
+!   end
+!
+!   DVPT_electronic_energy result (res)
+!   ! Evaluates the SCF electronic energy
+!     res :: REAL
+!     scf_kind :: STR
+!     F,D :: REALMAT*
+!     m,i,j :: INT
+!     fac,det,sum :: REAL
+!     m = .DVPT_order
+!     scf_kind = .scfdata.kind
+!     select case (scf_kind)
+!        case ("rdvpt","restricted_dvpt")
+!           F.create(.n_bf,.n_bf)
+!           D.create(.n_bf,.n_bf)
+!           res = ZERO
+!           sum = ZERO
+!           do i = 0,m
+!           do j = 0,i
+!              fac = TWO
+!              if (i==j) fac = ONE
+!              .get_DVPT_density_matrix(D,det,i,j)
+!              .get_DVPT_fock_matrix(F,i,j)
+!              .add_core_hamiltonian(F)
+!
+!           !  stdout.show("i   =",i)
+!           !  stdout.show("j   =",j)
+!           !  stdout.show("det =",det)
+!           !  stdout.text("D:")
+!           !  stdout.put(TWO*D)
+!           !  stdout.text("F:")
+!           !  stdout.put(F)
+!
+!              .add_core_hamiltonian(F)
+!              res = res + fac*F.trace_of_product(D)
+!              sum = sum + fac*det
+!           end
+!           end
+!           res = res/sum
+!           D.destroy
+!           F.destroy
+!        case default; DIE("not yet implemented, " // .scfdata.kind)
+!     end
+!   end
+
+   make_spin_b_field_grid(bb,pt,Dx,Dy,Dz)
+   ! Make the magnetic B field "bb" due to the spin density at a set of points
+   ! given in "pt" using three real symmetric AO density matrices "Dx", "Dy" and
+   ! "Dz" corresponding to the Sx, Sy and Sz densities. Note: the contribution
+   ! is added to whatever is already in bb. Note: factor of half in the
+   ! densities is assumed.
+      bb,pt :: REALMAT
+      Dx,Dy,Dz :: REALMAT
+      DD :: REALMAT3*
+      M :: REALMAT4*
+      Mxx,Mxy,Mxz,Myx,Myy,Myz,Mzx,Mzy,Mzz :: REALMAT*
+      q,fa,fb,la,lb,n, n_pt, i,j,k :: INT
+      eps :: REALMAT3(3,3,3)
+      fac :: REAL
+      shell :: SHELL2
+      ENSURE(.basis_info_made,"no basis set")
+      ENSURE(.atom.created,"no atom list")
+      ENSURE(pt.dim2==3,"no basis set")
+      ENSURE(Dx.dim1==.n_bf AND Dx.is_square,"wrong shape for Dx")
+      ENSURE(Dy.dim1==.n_bf AND Dy.is_square,"wrong shape for Dy")
+      ENSURE(Dz.dim1==.n_bf AND Dz.is_square,"wrong shape for Dz")
+      n_pt = size(pt,1)
+      bb = ZERO
+      do q = 1,.n_shell_pairs
+        .get_shell_pair(shell,q,fa,la,fb,lb)
+        DD.create(shell.b.n_comp,shell.a.n_comp,3)
+        DD(:,:,1) = Dx(fb:lb,fa:la)
+        DD(:,:,2) = Dy(fb:lb,fa:la)
+        DD(:,:,3) = Dz(fb:lb,fa:la)
+        fac = ONE; if (fa==fb) fac=HALF
+        M.create(shell.a.n_comp,shell.b.n_comp,3,3)
+        Mxx => M(:,:,1,1); Mxy => M(:,:,1,2); Mxz => M(:,:,1,3)
+        Myx => M(:,:,2,1); Myy => M(:,:,2,2); Myz => M(:,:,2,3)
+        Mzx => M(:,:,3,1); Mzy => M(:,:,3,2); Mzz => M(:,:,3,3)
+        do n = 1,n_pt
+          shell.make_magnetic_S_ints(Mxx,Mxy,Mxz,Myx,Myy,Myz,Mzx,Mzy,Mzz,pt(n,:))
+          do i = 1,3
+          do j = 1,3
+          do k = 1,3
+             eps(i,j,k) = M(:,:,i,j).trace_product_with(DD(:,:,k))
+          end
+          end
+          end
+          bb(n,1) = bb(n,1) + eps(:,:,1).trace - eps(1,:,:).trace
+          bb(n,2) = bb(n,2) + eps(:,:,2).trace - eps(2,:,:).trace
+          bb(n,3) = bb(n,3) + eps(:,:,3).trace - eps(3,:,:).trace
+        end
+        M.destroy
+        DD.destroy
+        shell.destroy_ptr_part
+      end
+   !  bb.zero_small_values(TOL(10))
+      bb = -bb ! this is -g_e mu_b; the final answer is in units of mu_0/4pi
+   end
+
+   make_spin_b_field
+   ! Make the magnetic B field "bb" due to the spin density at a set of points
+   ! given in "pt"
+      B,pt,Dx,Dy,Dz :: REALMAT*
+      dmc :: CPXMAT3*
+      aa,bb :: REAL
+      xv :: REALVEC(3)
+      n_pt,i,j,k,n :: INT
+      n_pt = 60*75
+      n_pt = 56
+      dmc.create(160,160,4)
+      ! Read the density matrix
+      open(unit=13,file="opdens",status="old")
+      do i=1,160
+      do j=1,160
+      do k=1,4
+         read(13,*) dmc(i,j,k)
+      end
+      end
+      end
+      close(13)
+      ! Make the points array
+      pt.create(n_pt,3)
+      aa=7.4/sqrt(2.0)
+!      bb=0.2/sqrt(2.0)
+      bb=2./sqrt(2.0)
+      xv(1)=aa
+      xv(2)=-xv(1)
+      n = 0
+!      do i=1,75
+      do i=1,8
+        xv(3)=5.4
+   !     do j=1,59
+        do j=1,6
+          n = n + 1
+          pt(n,:) = xv
+    !      xv(3)=xv(3)-0.2
+          xv(3)=xv(3)-2.
+        end
+        n = n + 1
+        pt(n,:) = xv ! make one more point
+        xv(1)=xv(1)-bb
+        xv(2)=-xv(1)
+      end
+      Dx.create(160,160)
+      Dy.create(160,160)
+      Dz.create(160,160)
+      Dx =  dmc(:,:,2) + dmc(:,:,3)  * 0.5     ! ab + ba
+      Dy = (dmc(:,:,2) - dmc(:,:,3)) * (0,0.5) ! -i ab + i ba
+      Dz =  dmc(:,:,1) - dmc(:,:,4)  * 0.5     ! aa - bb
+      B.create(n_pt,3)
+      .make_spin_b_field_grid(B,pt,Dx,Dy,Dz)
+      ! Write out the answer
+      stdout.flush
+      stdout.text("The magnetic field from the spin")
+      stdout.put(B)
+      B.destroy
+      Dz.destroy
+      Dy.destroy
+      Dx.destroy
+      pt.destroy
+   end
+
+!   make_divergence_j_para
+!   ! Make the divergence of the paramagnetic current at a set of points
+!   ! given in "pt"
+!      B,pt,Dx,Dy,Dz :: REALMAT*
+!      dmc :: CPXMAT3*
+!      aa,bb :: REAL
+!      xv :: REALVEC(3)
+!      n_pt,i,j,k,n :: INT
+!      n_pt = 60*75
+!      n_pt = 56
+!      dmc.create(160,160,4)
+!      ! Read the density matrix
+!      open(unit=13,file="opdens",status="old")
+!      do i=1,160
+!      do j=1,160
+!      do k=1,4
+!         read(13,*) dmc(i,j,k)
+!      end
+!      end
+!      end
+!      close(13)
+!      ! Make the points array
+!      pt.create(n_pt,3)
+!      aa=7.4/sqrt(2.0)
+!!      bb=0.2/sqrt(2.0)
+!      bb=2./sqrt(2.0)
+!      xv(1)=aa
+!      xv(2)=-xv(1)
+!      n = 0
+!!      do i=1,75
+!      do i=1,8
+!        xv(3)=5.4
+!   !     do j=1,59
+!        do j=1,6
+!          n = n + 1
+!          pt(n,:) = xv
+!    !      xv(3)=xv(3)-0.2
+!          xv(3)=xv(3)-2.
+!        end
+!        n = n + 1
+!        pt(n,:) = xv ! make one more point
+!        xv(1)=xv(1)-bb
+!        xv(2)=-xv(1)
+!      end
+!      Dx.create(160,160)
+!      Dy.create(160,160)
+!      Dz.create(160,160)
+!      Dx =  dmc(:,:,2) + dmc(:,:,3)  * 0.5     ! ab + ba
+!      Dy = (dmc(:,:,2) - dmc(:,:,3)) * (0,0.5) ! -i ab + i ba
+!      Dz =  dmc(:,:,1) - dmc(:,:,4)  * 0.5     ! aa - bb
+!      B.create(n_pt,3)
+!      .make_spin_b_field_grid(B,pt,Dx,Dy,Dz)
+!      ! Write out the answer
+!      stdout.flush
+!      stdout.text("The magnetic field from the spin")
+!      stdout.put(B)
+!      B.destroy
+!      Dz.destroy
+!      Dy.destroy
+!      Dx.destroy
+!      pt.destroy
+!   end
+
+   main
+   ! Main molecule run-loop; assumes stdin and stdout have been defined.
+      self :: PTR
+      tonto.set_error_output_file(stdout)
+      .create
+      .put_banner
+      .read_keywords   ! do it here
+      stdout.flush
+      stdout.text(std_time.time_taken("job "//'"'// trim(.name) //'"'))
+      stdout.text(std_time.cpu_time_taken("job "//'"'// trim(.name) //'"'))
+      .destroy
+   end
+
+   put_banner
+   ! Put to stdout the current TONTO banner
+     stdout.text(" ")
+     stdout.text("---------------------------------------------------------------")
+     stdout.text("                                                               ")
+     stdout.text(" T   O   N   T   O                                             ")
+     stdout.text("                                                               ")
+     stdout.text(" A free object-based system for computational chemistry        ")
+     stdout.text("                                                               ")
+     stdout.text(" Version 0.0                                                   ")
+     stdout.text("                                                               ")
+     stdout.text(" For conditions of use, on-line documentation, and contributor ")
+     stdout.text(" and developer information see :-                              ")
+     stdout.text("                                                               ")
+     stdout.text(" www."//"theochem."//"uwa."//"edu."//"au/tonto/                ")
+     stdout.text("                                                               ")
+     stdout.text(" Dylan Jayatilaka                                              ")
+     stdout.text(" Daniel Grimwood                                               ")
+     stdout.text("---------------------------------------------------------------")
+     stdout.text(" ")
+     std_time.start
+     stdout.text( std_time.start_time )
+   end
+
+   reset_molecule ::: leaky
+   ! Resets the mol data type and reruns the read routine
+      self :: PTR
+      word :: STR
+      .destroy
+      .create
+      stdin.read(word); word.to_lower_case         ! First keyword must be "name"
+      ENSURE(word=="name","first keyword must be name")
+      stdin.read(.name)
+   end
+
+   read_keywords ::: recursive, leaky
+   ! Read data from "stdin" using keyword style input.
+   ! NOTE : this routine reuires a MOL pointer self variable
+      self :: PTR
+      word :: STR
+      stdin.read(word)
+      ENSURE(word=="{","expecting an open bracket symbol, {")
+      read_loop: do          ! Loop over keywords
+         stdin.read(word)
+         if (word=="}")      exit read_loop
+         if (stdin.reverted) exit read_loop
+         .process_keyword(word)
+      end do read_loop
+   end
+
+   process_keyword(keyword) ::: recursive, leaky
+   ! Process a keyword "word". Data is inputted from "stdin", unless
+   ! "word" is a sequence of blank separated strings. In this case,
+   ! the sequence is processed as if it were a separate file.
+   ! NOTE : this routine reuires a MOL pointer self variable
+      self :: PTR
+      keyword :: STR(*)
+      word :: STR
+      timer :: TIME
+      timer.start
+      word = keyword
+      word.to_lower_case
+      if (word.includes(" ")) then
+         stdin.redirect([word])
+         .read_keywords
+         stdin.revert
+      else
+         stdout.flush
+         stdout.text("keyword found --> " // trim(word))
+         select case (word)
+           case ("}                             "); ! exit case
+           case ("assign_natural_orbitals       "); .assign_natural_orbitals
+           case ("atoms=                        "); .read_atoms
+           case ("atom_groups=                  "); .read_atom_groups
+           case ("basis_sets=                   "); .read_basis_sets
+           case ("basis_set_directory=          "); .basis.read_library_directory
+           case ("basis_set_kind=               "); .read_basis_set_kind
+           case ("b_field=                      "); .read_B_field
+           case ("canonicalize_mos              "); .canonicalize_mos
+           case ("charge=                       "); .read_charge
+           case ("cluster=                      "); .read_cluster
+           case ("coppens_basis_sets=           "); .read_coppensbasis_sets
+           case ("create_cluster                "); .create_cluster
+           case ("crystal=                      "); .read_crystal
+           case ("delete_scf_integrals          "); .delete_scf_integrals
+           case ("delete_scf_archives           "); .delete_scf_archives
+           case ("destroy_cluster               "); .destroy_cluster
+           case ("dftgrid=                      "); .read_dftgrid
+         ! case ("dvpt_scf                      "); .DVPT_scf
+           case ("e_field=                      "); .read_E_field
+           case ("fit_thermal_parameters        "); .fit_thermal_parameters
+           case ("force_thermal_symmetry        "); .force_thermal_symmetry
+           case ("gauge_origin=                 "); .read_gauge_origin
+           case ("get_atom_density              "); .get_atom_density
+           case ("get_ano_data                  "); .get_ANO_data
+         ! case ("gradient                      "); .hf_scf_energy_gradient
+           case ("group_charges=                "); .read_group_charges
+           case ("integrate_density_numerically "); .integrate_density_numerically
+           case ("isosurface=                   "); .read_isosurface
+           case ("isosurface_plot               "); .isosurface_plot
+           case ("plot_on_isosurface            "); .plot_on_isosurface
+         ! case ("integrate_density_functional  "); .integrate_density_functional
+           case ("make_ao_density_matrix        "); .make_ao_density_matrix
+           case ("make_ao_sz_density_matrix     "); .make_ao_sz_density_matrix
+           case ("make_atom_density             "); .make_atom_density
+           case ("make_fermi_mobility_grid      "); .make_fermi_mobility_grid
+           case ("make_fock_guess               "); .make_fock_guess
+           case ("make_fock_matrix              "); .make_fock_matrix
+           case ("make_group_density_matrix     "); .make_group_density_matrix
+           case ("make_irrotational_jp_grid     "); .make_irrotational_jp_grid
+           case ("make_monomer_mos              "); .make_monomer_MOs
+           case ("make_mulliken_matrix          "); .make_mulliken_matrix
+           case ("make_natural_orbitals         "); .make_natural_orbitals
+         ! case ("make_pcc_b_field              "); .make_pcc_b_field
+         ! case ("make_pcc_densities            "); .make_pcc_densities
+         ! case ("make_pcc_L_matrices           "); .make_pcc_L_matrices
+         ! case ("make_pcc_structure_factors    "); .make_pcc_structure_factors
+           case ("make_pnd_scalar_magnetic_sf   "); .make_PND_scalar_magnetic_sf
+           case ("make_promol_density_matrix    "); .make_promol_density_matrix
+           case ("make_promol_mos               "); .make_promol_MOs
+           case ("make_scf_density_matrix       "); .make_scf_density_matrix(damp=FALSE)
+           case ("make_spin_b_field             "); .make_spin_b_field
+           case ("make_structure_factors        "); .make_structure_factors
+           case ("make_symortho_density_matrix  "); .make_promol_density_matrix
+           case ("make_sz_structure_factors     "); .make_sz_structure_factors
+           case ("make_vib_averaged_rho_grid    "); .make_vib_averaged_rho_grid
+           case ("make_weak_force_energy_shift  "); .make_weak_force_energy_shift
+           case ("multiplicity=                 "); .read_multiplicity
+           case ("name=                         "); .read_name
+         ! case ("optimise_geometry             "); .optimise_geometry
+           case ("optimise_orbitals             "); .optimise_orbitals
+           case ("optimise_thermal_parameters=  "); .read_optimise_thermals
+           case ("output_style_options=         "); .read_output_style_options
+           case ("plot                          "); .plot
+           case ("plotgrid=                     "); .read_plotgrid
+         ! case ("plot_covalent_density_orbitals"); .plot_covalent_density_orbitals
+         ! case ("plot_covalent_orbitals        "); .plot_covalent_orbitals
+         ! case ("plot_ionic_density_orbitals   "); .plot_ionic_density_orbitals
+         ! case ("plot_ionic_orbitals           "); .plot_ionic_orbitals
+         ! case ("plot_subspace_density         "); .plot_subspace_density
+           case ("pointgroup=                   "); .read_pointgroup
+           case ("put                           "); .put
+           case ("put_all_bonds                 "); .put_all_bonds
+           case ("put_1e_properties             "); .put_1e_properties
+           case ("put_all_atom_coord_info       "); .atom.put_coord_info(TRUE)
+           case ("put_ao_energy_partition       "); .put_AO_energy_partition
+         ! case ("put_atom_kind_map             "); .put_atom_kind_map
+           case ("put_chi2_vs_angle_plot        "); .crystal.put_chi2_vs_angle_plot
+         ! case ("put_cluster_input             "); .put_cluster_input
+           case ("put_crystal                   "); .put_crystal
+           case ("put_crystal_reflection_data   "); .put_crystal_reflection_data
+           case ("put_current_time              "); .put_current_time(timer)
+           case ("put_density_matrix            "); .put_density_matrix
+         ! case ("put_electrostatic_energy      "); .put_electrostatic_energy
+           case ("put_fock_matrix               "); .put_fock_matrix
+           case ("put_f_calc                    "); .crystal.put_F_calc
+           case ("put_fcalc_plots               "); .crystal.put_fcalc_plots
+           case ("put_g_tensor_information      "); .put_g_tensor_information
+           case ("put_labelled_qq_plot          "); .crystal.put_labelled_qq_plot(.name)
+           case ("put_molecular_orbitals        "); .put_molecular_orbitals
+           case ("put_mos_and_energies          "); .put_mos_and_energies
+           case ("put_mo_energy_partition       "); .put_MO_energy_partition
+           case ("put_roby_mmo_energy_partition "); .put_roby_mmo_energy_partition
+           case ("put_roby_smo_energy_partition "); .put_roby_smo_energy_partition
+           case ("put_sao_energy_partition      "); .put_SAO_energy_partition
+           case ("put_scf_energy                "); .put_scf_energy
+           case ("put_scf_energy_in_mo_pairs    "); .put_scf_energy_in_mo_pairs
+           case ("put_plotgrid                  "); .put_plotgrid
+           case ("put_pnd_sf                    "); .put_PND_sf
+           case ("put_pointgroup                "); .put_pointgroup
+           case ("put_qq_plot                   "); .crystal.put_qq_plot(.name)
+           case ("put_sylvian_csizmadia_tensors "); .put_sylvian_csizmadia_tensors
+           case ("put_time_taken                "); .put_time_taken(timer)
+           case ("put_total_time                "); .put_total_time
+           case ("put_vrml                      "); .put_vrml
+           case ("read_archive                  "); .read_archive
+           case ("read_ascii_archive            "); .read_ascii_archive
+           case ("read_g94_checkpoint_file      "); .read_g94_checkpoint_file
+           case ("redirect                      "); .redirect
+           case ("revert                        "); .revert
+         ! case ("put_roby_shared_population    "); .put_roby_shared_population
+         ! case ("roby_population_analysis      "); .roby_population_analysis
+           case ("roby_analysis                 "); .roby_analysis
+           case ("robydata=                     "); .read_robydata
+           case ("scf                           "); .scf
+           case ("scfdata=                      "); .read_scfdata
+           case ("simulate_new_f_exp            "); .crystal.simulate_new_F_exp
+           case ("slater_basis_sets=            "); .read_slaterbasis_sets
+           case ("start_new_molecule            "); .reset_molecule
+           case ("start_timer                   "); timer.start
+         ! case ("test_spin_orbit_b_matrices    "); .test_spin_orbit_B_matrices
+         ! case ("test_zora_so_matrices         "); .test_ZORA_SO_matrices
+         ! case ("test_dftgrid                  "); .test_dftgrid
+         ! case ("test_eigen                    "); .test_eigen
+           case ("unsave                        "); .unsave
+           case ("write_wfn_file                "); .write_wfn_file
+           case ("write_archive                 "); .write_archive
+           case ("write_ascii_archive           "); .write_ascii_archive
+         ! case ("e2_energy                     "); stdout.put(.e2_energy)
+         ! case ("the_e2_energy                 "); stdout.put(.the_e2_energy)
+         ! case ("hf_energy                     "); stdout.put(.hf_energy)
+           ! Crystal Explorer commands ...
+           case ("cif_data_block_name=          "); .read_CIF_data_block_name
+           case ("cif_file_name=                "); .read_CIF_file_name
+           case ("cx_file_name=                 "); .read_CX_file_name
+           case ("cx_surface=                   "); .read_CX_surface
+           case ("process_cif                   "); .process_CIF
+           case ("process_cif_for_cx            "); .process_CIF_for_CX
+           case ("put_cx_data                   "); .put_CX_data
+           case  default ;               UNKNOWN(word)
+         end
+      end
+   end
+
+   read_output_style_options
+   ! Read new output style options, for example change the
+   ! width and number of field, or precision of output.
+      stdout.read_keywords(stdin)
+   end
+
+   redirect ::: leaky
+   ! Redirect the input to the file whose name is the following string
+   ! in the current input file.
+      name :: STR
+      stdin.read(name)
+      stdin.redirect(name)
+   end
+
+   revert ::: leaky
+   ! Revert back to the previously stored input file
+      stdin.revert
+   end
+
+   put_sylvian_csizmadia_tensors
+   ! Put out the Sylvian-Csizmadia polarisability tensors.
+   ! This routine will read the value of the Unsold denominator.
+      Dx,Dy,Dz, P,Pi,Pj,MOi,MOj :: REALMAT*
+      Qxx,Qyy,Qzz,Qxy,Qxz,Qyz :: REALMAT*
+      Oxxx,Oyyy,Ozzz,Oxxy,Oxxz,Oyyx,Oyyz,Ozzx,Ozzy,Oxyz :: REALMAT*
+      x,y,z, i,j :: INT
+      delta,fac :: REAL
+      alpha :: REALMAT(3,3)
+      beta :: REALMAT3(3,3,3)
+      alpha1 :: REALMAT3*
+      alpha2 :: REALMAT4*
+   ENSURE(.density_matrix.created,"no density matrix")
+   ENSURE(.basis_info_made, "no basis info")
+   ENSURE(.atom.created, "no atom info")
+      stdout.flush
+      stdout.text("Sylvian-Csizmadia polarisability tensors")
+      stdout.flush
+      stdin.read(delta)
+      stdout.show("Unsold denominator/a.u. =",delta)
+      Dx.create(.n_bf,.n_bf); Dy.create(.n_bf,.n_bf); Dz.create(.n_bf,.n_bf)
+      Qxx.create(.n_bf,.n_bf); Qyy.create(.n_bf,.n_bf); Qzz.create(.n_bf,.n_bf)
+      Qxy.create(.n_bf,.n_bf); Qxz.create(.n_bf,.n_bf); Qyz.create(.n_bf,.n_bf)
+      Oxxx.create(.n_bf,.n_bf); Oyyy.create(.n_bf,.n_bf); Ozzz.create(.n_bf,.n_bf)
+      Oxxy.create(.n_bf,.n_bf); Oxxz.create(.n_bf,.n_bf)
+      Oyyx.create(.n_bf,.n_bf); Oyyz.create(.n_bf,.n_bf)
+      Ozzx.create(.n_bf,.n_bf); Ozzy.create(.n_bf,.n_bf)
+      Oxyz.create(.n_bf,.n_bf)
+      .get_dipole_matrices(Dx,Dy,Dz)
+      .get_quadrupole_matrices(Qxx,Qyy,Qzz,Qxy,Qxz,Qyz)
+      .get_octupole_matrices(Oxxx,Oyyy,Ozzz,Oxxy,Oxxz,Oyyx,Oyyz,Ozzx,Ozzy,Oxyz)
+      .make_ao_density_matrix
+      x = 1; y = 2; z = 3
+      P.create(.n_bf,.n_bf)
+      P = HALF*.density_matrix.restricted
+      alpha(x,x) = P.trace_product_with(Qxx) - P.trace_product_with(Dx,P,Dx)
+      alpha(y,y) = P.trace_product_with(Qyy) - P.trace_product_with(Dy,P,Dy)
+      alpha(z,z) = P.trace_product_with(Qzz) - P.trace_product_with(Dz,P,Dz)
+      alpha(y,x) = P.trace_product_with(Qxy) - P.trace_product_with(Dy,P,Dx)
+      alpha(z,x) = P.trace_product_with(Qxz) - P.trace_product_with(Dz,P,Dx)
+      alpha(z,y) = P.trace_product_with(Qyz) - P.trace_product_with(Dz,P,Dy)
+      alpha.symmetric_reflect
+      fac = FOUR/delta
+      alpha = fac*alpha
+      stdout.flush
+      stdout.show("No. of occupiedf orbitals = ",.n_a)
+      stdout.flush
+      stdout.text("Orbital eigenvalues:")
+      stdout.flush
+      stdout.put(.orbital_energies,"column")
+      stdout.flush
+      stdout.text("First polarisability:")
+      stdout.flush
+      stdout.put(alpha)
+      ! Evaluate the orbital contributions
+      alpha1.create(3,3,.n_a); alpha1 = ZERO
+      alpha2.create(3,3,.n_a,.n_a); alpha2 = ZERO
+      Pi.create(.n_bf,.n_bf)
+      Pj.create(.n_bf,.n_bf)
+      do i = 1,.n_a
+         MOi => .molecular_orbitals.restricted(:,i:i)
+         Pi.to_product_of(MOi,MOi,transpose_b=TRUE)
+         alpha1(x,x,i) = Pi.trace_product_with(Qxx) - Pi.trace_product_with(Dx,Pi,Dx)
+         alpha1(y,y,i) = Pi.trace_product_with(Qyy) - Pi.trace_product_with(Dy,Pi,Dy)
+         alpha1(z,z,i) = Pi.trace_product_with(Qzz) - Pi.trace_product_with(Dz,Pi,Dz)
+         alpha1(y,x,i) = Pi.trace_product_with(Qxy) - Pi.trace_product_with(Dy,Pi,Dx)
+         alpha1(z,x,i) = Pi.trace_product_with(Qxz) - Pi.trace_product_with(Dz,Pi,Dx)
+         alpha1(z,y,i) = Pi.trace_product_with(Qyz) - Pi.trace_product_with(Dz,Pi,Dy)
+         alpha1(:,:,i).symmetric_reflect
+         do j = 1,(i-1)
+            MOj => .molecular_orbitals.restricted(:,j:j)
+            Pj.to_product_of(MOj,MOj,transpose_b=TRUE)
+            alpha2(x,x,i,j) = -Pi.trace_product_with(Dx,Pj,Dx)-Pj.trace_product_with(Dx,Pi,Dx)
+            alpha2(y,y,i,j) = -Pi.trace_product_with(Dy,Pj,Dy)-Pj.trace_product_with(Dy,Pi,Dy)
+            alpha2(z,z,i,j) = -Pi.trace_product_with(Dz,Pj,Dz)-Pj.trace_product_with(Dz,Pi,Dz)
+            alpha2(y,x,i,j) = -Pi.trace_product_with(Dy,Pj,Dx)-Pj.trace_product_with(Dy,Pi,Dx)
+            alpha2(z,x,i,j) = -Pi.trace_product_with(Dz,Pj,Dx)-Pj.trace_product_with(Dz,Pi,Dx)
+            alpha2(z,y,i,j) = -Pi.trace_product_with(Dz,Pj,Dy)-Pj.trace_product_with(Dz,Pi,Dy)
+            alpha2(:,:,i,j).symmetric_reflect
+            alpha2(:,:,j,i) = alpha2(:,:,i,j)
+         end
+      end
+      Pj.destroy
+      Pi.destroy
+      alpha1 = fac*alpha1
+      alpha2 = fac*alpha2
+      stdout.flush
+      stdout.text("First polarisability, orbital contributions:")
+      stdout.flush
+      do i = 1,.n_a
+         stdout.text("... for orbital "//i.to_str.trim)
+         stdout.put(alpha1(:,:,i))
+      end
+      stdout.flush
+      stdout.text("First polarisability, orbital pair contributions:")
+      stdout.flush
+      do i = 1,.n_a
+      do j = 1,(i-1)
+         stdout.text("... for orbitals "//i.to_str.trim//" and "//j.to_str.trim)
+         stdout.put(alpha2(:,:,i,j))
+      end
+      end
+      stdout.flush
+      stdout.text("Sum of all orbital contributions:")
+      stdout.flush
+      alpha = ZERO
+      do i = 1,.n_a
+         alpha = alpha + alpha1(:,:,i)
+         do j = 1,(i-1)
+            alpha = alpha + alpha2(:,:,i,j)
+         end
+      end
+      stdout.put(alpha)
+      stdout.flush
+      stdout.text("First polarisability, mono-orbital contributions:")
+      stdout.flush
+      do i = 1,.n_a
+         do j = 1,.n_a
+            if (i==j) cycle
+            alpha1(:,:,i) = alpha1(:,:,i) + HALF*alpha2(:,:,i,j)
+         end
+         stdout.text("... for orbital "//i.to_str.trim)
+         stdout.put(alpha1(:,:,i))
+      end
+      stdout.flush
+      stdout.text("Sum of all mono-orbital contributions:")
+      stdout.flush
+      alpha = ZERO
+      do i = 1,.n_a
+         alpha = alpha + alpha1(:,:,i)
+      end
+      stdout.put(alpha)
+      alpha2.destroy
+      alpha1.destroy
+      beta(x,x,x) = P.trace_product_with(Oxxx) - THREE*P.trace_product_with(Dx,P,Qxx) &
+                  + P.trace_product_with(Dx,P,Dx,P,Dx)
+      beta(y,y,y) = P.trace_product_with(Oyyy) - THREE*P.trace_product_with(Dy,P,Qyy) &
+                  + P.trace_product_with(Dy,P,Dy,P,Dy)
+      beta(z,z,z) = P.trace_product_with(Ozzz) - THREE*P.trace_product_with(Dz,P,Qzz) &
+                  + P.trace_product_with(Dz,P,Dz,P,Dz)
+      beta(y,x,x) = P.trace_product_with(Oxxy) - TWO*P.trace_product_with(Dx,P,Qxy) &
+                  - P.trace_product_with(Dy,P,Qxx) + P.trace_product_with(Dy,P,Dx,P,Dx)
+      beta(z,x,x) = P.trace_product_with(Oxxz) - TWO*P.trace_product_with(Dx,P,Qxz) &
+                  - P.trace_product_with(Dz,P,Qxx) + P.trace_product_with(Dz,P,Dx,P,Dx)
+      beta(y,y,x) = P.trace_product_with(Oyyx) - TWO*P.trace_product_with(Dy,P,Qxy) &
+                  - P.trace_product_with(Dx,P,Qyy) + P.trace_product_with(Dy,P,Dy,P,Dx)
+      beta(z,y,x) = P.trace_product_with(Oxyz) - P.trace_product_with(Dz,P,Qxy) &
+                  - P.trace_product_with(Dy,P,Qxz) - P.trace_product_with(Dx,P,Qyz) &
+                  + P.trace_product_with(Dz,P,Dy,P,Dx)
+      beta(z,z,x) = P.trace_product_with(Ozzx) - TWO*P.trace_product_with(Dz,P,Qxz) &
+                  - P.trace_product_with(Dx,P,Qzz) + P.trace_product_with(Dz,P,Dz,P,Dx)
+      beta(z,y,y) = P.trace_product_with(Oyyz) - TWO*P.trace_product_with(Dy,P,Qyz) &
+                  - P.trace_product_with(Dz,P,Qyy) + P.trace_product_with(Dz,P,Dy,P,Dy)
+      beta(z,z,y) = P.trace_product_with(Ozzy) - TWO*P.trace_product_with(Dz,P,Qyz) &
+                  - P.trace_product_with(Dy,P,Qzz) + P.trace_product_with(Dz,P,Dz,P,Dy)
+      beta.make_symmetric
+      fac = 12.0d0/delta
+      beta = fac*beta
+      stdout.flush
+      stdout.text("Second polarisability:")
+      stdout.flush
+      stdout.put(beta)
+      P.destroy
+      Oxyz.destroy
+      Ozzy.destroy; Ozzx.destroy
+      Oyyz.destroy; Oyyx.destroy
+      Oxxz.destroy; Oxxy.destroy
+      Ozzz.destroy; Oyyy.destroy; Oxxx.destroy
+      Qyz.destroy; Qxz.destroy; Qxy.destroy
+      Qzz.destroy; Qyy.destroy; Qxx.destroy
+      Dz.destroy; Dy.destroy; Dx.destroy
+   end
+
+end

@@ -1,0 +1,26 @@
+#
+# Makefile for expat (static) on Windows with MinGW GCC
+#
+# $Id: Makefile.MinGW 6361 2011-03-03 22:29:36Z cloyce $
+#
+
+CC=gcc
+CFLAGS=-O3 -Wall -Wextra -Wno-unused
+CPPFLAGS=-DWIN32 -D_WINDOWS -DNDEBUG -D_MBCS -D_LIB -DCOMPILED_FROM_DSP
+
+SOURCES=xmlparse.c xmlrole.c xmltok.c
+OBJECTS=$(SOURCES:.c=.o)
+
+all: libexpat.a
+
+libexpat.a: $(OBJECTS)
+	$(AR) r $@ $(OBJECTS)
+
+clean:
+	-@del /s /q /f *.o *.obj *.lib *.a
+
+.c.o:
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o $@ $<
+
+.c.i:
+	$(CC) $(CPPFLAGS) $(CFLAGS) -E -C $< > $@

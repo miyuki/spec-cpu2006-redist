@@ -1,0 +1,27 @@
+.\"  Hey Emacs! This file is -*- nroff -*- source.
+.\" __FILEPP_INPUT__ version __VERSION__
+.\" filepp is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program; see the file COPYING.  If not, write to
+.\" the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+.\"
+.SH BLC MODULE - blc.pm
+The Bracket Line Continuation module causes lines to be continued if
+they have more open brackets: "(" than close brackets: ")" on a line.
+The line will be continued until an equal number of open and close
+brackets are found.
+
+Brackets can be prevented from being counted for line continuation by
+escaping them with a backslash: "\(" and "\)".  Any brackets found
+with a preceding backslash will be ignored when deciding if line
+continuation should be done and then have the backslash removed once
+the full line has been found.

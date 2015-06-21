@@ -1,0 +1,259 @@
+# Parameter definitions for thorn IOUtil
+
+#############################################################################
+### declare IOUtil parameters
+### These are declared protected so that they can be seen by other IO thorns.
+#############################################################################
+restricted:
+
+####################
+# Output directories
+####################
+STRING outdir "Name of IO output directory" STEERABLE = RECOVER
+{
+  .* :: "A regex which matches everything"
+} "."
+
+########################
+# How often to do output
+########################
+INT out_every "How often to do IO output" STEERABLE = ALWAYS
+{
+  -1   :: "Never"
+   1:* :: "Every so many iterations"	
+} -1
+
+################
+# various things
+################
+KEYWORD newverbose "Level of screen output for IO?" STEERABLE = ALWAYS
+{
+  "none"     :: "Give no output"
+  "standard" :: "Initial description for each method"
+  "full"     :: "Maximal output"
+} "standard"
+BOOLEAN verbose "Give extended screen output in IO?" STEERABLE = ALWAYS
+{
+} "no"
+BOOLEAN print_timing_info "Print timing information on I/O operations."
+{
+} "no"
+BOOLEAN new_filename_scheme "Use the new filename scheme for output files ?"
+{
+} "no"
+KEYWORD out_fileinfo "Add some useful file information to output files ?" STEERABLE = RECOVER
+{
+  "none"               :: "no file information"
+  "creation date"      :: "add creation date"
+  "parameter filename" :: "add parameter filename"
+  "all"                :: "add all available file information"
+} "all"
+
+#######################
+# Specific to 3D output
+#######################
+KEYWORD out3D_mode "Which mode for 3D IO"
+{
+  "proc"    :: "every processor writes its share of data into a separate file"
+  "np"      :: "data is collected and written by every N'th processor into a separate file, where N is specified by the parameter out3D_procs"
+  "onefile" :: "all output is written into a single file by processor 0"
+} "proc"
+
+INT out3D_procs "Do IO on every N processors."
+{
+  1:*       :: "Must be a positive integer"
+} 8
+BOOLEAN out3D_septimefiles "Write one file per time slice, as opposed to all data in one file"
+{
+} "no"
+BOOLEAN out3D_unchunked "Don't write data in chunks. This parameter is ignored for single-processor runs where output is always done in unchunked mode."
+{
+} "no"
+BOOLEAN out3D_parameters "Write parameters to 3D output files ?"
+{
+} "yes"
+
+
+##############################################
+# Downsampling parameters (only for 3D output)
+##############################################
+INT out3D_downsample_x "Factor by which to downsample output in x direction. Point (0,0,0) is always included." STEERABLE = ALWAYS
+{
+  1:*       :: "Must be a positive integer"
+} 1
+INT out3D_downsample_y "Factor by which to downsample output in y direction. Point (0,0,0) is always included." STEERABLE = ALWAYS
+{
+  1:*       :: "Must be a positive integer"
+} 1
+INT out3D_downsample_z "Factor by which to downsample output in z direction. Point (0,0,0) is always included." STEERABLE = ALWAYS
+{
+  1:*       :: "Must be a positive integer"
+} 1
+BOOLEAN out3D_single "Output 3D data in single precision ? This parameter is ignored for Cactus compiled with single precision"
+{
+} "no"
+
+
+###################################
+# Checkpointing/recovery parameters
+###################################
+BOOLEAN checkpoint_ID "Checkpoint initial data ?" STEERABLE = RECOVER
+{
+} "no"
+BOOLEAN checkpoint_keep_all "Keep all checkpoint files ?" STEERABLE = RECOVER
+{
+} "no"
+KEYWORD recover "Recover from a checkpoint file ?" STEERABLE = RECOVER
+{
+  "no"        :: "Don't recover"
+  "manual"    :: "Recover from the checkpoint file given as <recovery_dir>/<recover_file>"
+  "auto"      :: "Automatically recover from the latest checkpoint file found in <recovery_dir>"
+  "autoprobe" :: "Probe for checkpoint files and automatically recover, continue as usual if nothing was found"
+} "no"
+INT checkpoint_every "Checkpoint every x iterations" STEERABLE = ALWAYS
+{
+  -1:* :: "negative values disable checkpointing"
+} -1
+BOOLEAN checkpoint_on_terminate "Checkpoint after last iteration" STEERABLE = ALWAYS
+{
+} "no"
+INT checkpoint_keep "How many checkpoint files to keep" STEERABLE = RECOVER
+{
+  1:* :: "1 overwrites the latest checkpoint file"
+} 1
+STRING checkpoint_file "File name for regular checkpoint" STEERABLE = ALWAYS
+{
+  .* :: "A regex which matches everything"
+} "checkpoint.chkpt"
+STRING checkpoint_ID_file "File name for initial data checkpoint" STEERABLE = ALWAYS
+{
+  .* :: "A regex which matches everything"
+} "checkpointID"
+STRING recover_file "File name of recovery file" STEERABLE = ALWAYS
+{
+  .* :: "A regex which matches everything"
+} "checkpoint.chkpt"
+STRING checkpoint_dir "Output directory for checkpoint files" STEERABLE = RECOVER
+{
+  .* :: "A regex which matches everything"
+} "."
+STRING recovery_dir "Directory to look for the recovery file" STEERABLE = RECOVER
+{
+  .* :: "A regex which matches everything"
+} "."
+STRING recover_ID_files "List of files to read in as initial data" STEERABLE = RECOVER
+{
+  .* :: "A regex which matches everything"
+} ""
+STRING recover_ID_vars "List of variables to read in from the given initial data files" STEERABLE = RECOVER
+{
+  .* :: "A regex which matches everything"
+} "all"
+BOOLEAN recover_and_remove "Remove checkpoint file after successful recovery ?"  STEERABLE = RECOVER
+{
+} "no"
+
+
+###################################
+# Parameter file writing parameters
+###################################
+KEYWORD parfile_write "Write a parameter file to 'IO::outdir'" STEERABLE = recovery
+{
+  "no"               :: "Do not write a parameter file"
+  "copy"             :: "Copy the original parameter file"
+  "generate"         :: "Generate a parameter file from the current settings"
+#  "verbose generate" :: "Like \"generate\" but describe all parameters in detail"
+} "copy"
+STRING parfile_name "Filename for the parameter file to be written" STEERABLE = recovery
+{
+  ".*" :: "a valid filename, or an empty string if the original parameter "   \
+          "filename should be used"
+} ""
+INT parfile_update_every "How often to update the parameter file for steered parameters" STEERABLE = always
+{
+  0:*:: "Update every so many iterations (zero disables updating)"
+} 0
+
+
+#######################################
+# 1D line slice center setup parameters
+#######################################
+REAL out_xline_y "y-coord for 1D lines in x-direction"
+{
+  *:* :: ""
+} 0.0
+REAL out_xline_z "z-coord for 1D lines in x-direction"
+{
+  *:* :: ""
+} 0.0
+REAL out_yline_x "x-coord for 1D lines in y-direction"
+{
+  *:* :: ""
+} 0.0
+REAL out_yline_z "z-coord for 1D lines in y-direction"
+{
+  *:* :: ""
+} 0.0 
+REAL out_zline_x "x-coord for 1D lines in z-direction"
+{
+  *:* :: ""
+} 0.0
+REAL out_zline_y "y-coord for 1D lines in z-direction"
+{
+  *:* :: ""
+} 0.0
+
+INT out_xline_yi "y-index (from 0) for 1D lines in x-direction"
+{
+  0:* :: ""
+} 0
+INT out_xline_zi "z-index (from 0) for 1D lines in x-direction"
+{
+  0:* :: ""
+} 0
+INT out_yline_xi "x-index (from 0) for 1D lines in y-direction"
+{
+  0:* :: ""
+} 0
+INT out_yline_zi "z-index (from 0) for 1D lines in y-direction"
+{
+  0:* :: ""
+} 0
+INT out_zline_xi "x-index (from 0) for 1D lines in z-direction"
+{
+  0:* :: ""
+} 0
+INT out_zline_yi "y-index (from 0) for 1D lines in z-direction"
+{
+  0:* :: ""
+} 0
+
+
+##################################
+# 2D plane center setup parameters
+##################################
+REAL out_yzplane_x "x-coord for 2D planes in yz"
+{
+  *:* :: ""
+} 0.0
+REAL out_xzplane_y "y-coord for 2D planes in xz"
+{
+  *:* :: ""
+} 0.0
+REAL out_xyplane_z "z-coord for 2D planes in xy"
+{
+  *:* :: "" 
+} 0.0
+
+INT out_xyplane_zi "z-index (from 0) for 2D planes in xy"
+{
+  0:* :: ""
+} 0
+INT out_xzplane_yi "y-index (from 0) for 2D planes in xz"
+{
+  0:* :: ""
+} 0
+INT out_yzplane_xi "x-index (from 0) for 2D planes in yz"
+{
+  0:* :: ""
+} 0

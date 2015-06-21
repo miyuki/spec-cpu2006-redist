@@ -1,0 +1,24 @@
+program run_crystal
+
+! $Id: run_crystal.foo,v 1.2 2003/02/19 07:48:57 reaper Exp $
+
+   use TYPES
+   use SYSTEM
+   use TEXTFILE
+   use CRYSTAL
+
+   implicit none
+
+   c :: CRYSTAL
+
+   tonto.initialize
+
+   stdin.create_stdin
+   stdin.open
+
+   stdout.create_stdout
+   stdout.open
+
+   c.read_keywords
+
+end

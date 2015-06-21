@@ -1,0 +1,914 @@
+!---------------------------------------------------------------------
+!
+! PLOTGRID: for cartesian grid generation, e.g. for plots or surfaces.
+!
+! Copyright (C) Dylan Jayatilaka, 1997
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: plotgrid.foo,v 1.15.2.4 2003/09/22 14:36:30 dylan Exp $
+!
+!---------------------------------------------------------------------
+
+module PLOTGRID
+
+   implicit none
+
+contains
+
+   create(atom)
+   ! Create object
+     self :: PTR
+     atom :: ATOMVEC*, optional
+     nullify(self)
+     allocate(self)
+     ADD_MEMORY(PLOTGRID_SIZE)
+     .set_defaults(atom)
+   end
+
+   create_copy(grid)
+   ! Create a grid object which is a duplicate of grid.
+     self :: PTR
+     grid :: PLOTGRID, IN
+     .create
+     .copy(grid)
+   end
+
+   copy(grid)
+   ! Copy the contents of grid to self.
+     grid :: PLOTGRID, IN
+     self = grid
+   end
+
+   destroy
+   ! Destroy a PLOTGRID object
+      self :: PTR
+      if (.destroyed) return
+      deallocate(self)
+      DELETE_MEMORY(PLOTGRID_SIZE)
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   set_defaults(atom)
+   ! Set up a default grid. If "atom" is present it is used to define an xyz
+   ! bounding box for the molecule. 
+      atom :: ATOMVEC*, optional
+      .kind           = " "
+      .orbital        = 0
+      .centre         = ZERO
+      .offset         = ZERO
+      .centre_atom    = 0
+      .x_atom_1       = 0
+      .x_atom_2       = 0
+      .y_atom_1       = 0
+      .y_atom_2       = 0
+      .x_axis(:)      = PLOTGRID_X_AXIS
+      .y_axis(:)      = PLOTGRID_Y_AXIS
+      .z_axis(:)      = PLOTGRID_Z_AXIS
+      .n_x            = PLOTGRID_NX
+      .n_y            = PLOTGRID_NY
+      .n_z            = PLOTGRID_NZ
+      .width(:)       = PLOTGRID_WIDTH
+      .width(3)       = ZERO    ! assume a planar plot
+      .del            = .width(1)/(PLOTGRID_NX - 1)
+      .x_width_set    = FALSE   ! These are set false only if the widths
+      .y_width_set    = FALSE   ! are explicitly read in
+      .z_width_set    = FALSE
+      .box_centre     = ZERO
+      .bounding_box   = PLOTGRID_WIDTH
+      .box_scale_factor = ONE
+      .box_axes(:,1)  = PLOTGRID_X_AXIS
+      .box_axes(:,2)  = PLOTGRID_Y_AXIS
+      .box_axes(:,3)  = PLOTGRID_Z_AXIS
+      .x_axis_defined = FALSE
+      .y_axis_defined = FALSE
+      .z_axis_defined = FALSE
+      .desired_separation = ZERO
+      nullify(.atom)
+      if (present(atom)) then
+      if (associated(atom)) then
+         .atom => atom
+         .set_bounding_box_and_axes(atom)
+      end
+      end
+   end
+
+   reset_defaults
+   ! Reset a default grid. The only difference to set_defaults is that the
+   ! bounding box and box_axes are not set again.
+      .kind           = " "
+      .orbital        = 0
+      .centre         = ZERO
+      .offset         = ZERO
+      .centre_atom    = 0
+      .x_atom_1       = 0
+      .x_atom_2       = 0
+      .y_atom_1       = 0
+      .y_atom_2       = 0
+      .n_x            = PLOTGRID_NX
+      .n_y            = PLOTGRID_NY
+      .n_z            = PLOTGRID_NZ
+      .width(:)       = PLOTGRID_WIDTH
+      .width(3)       = ZERO    ! assume a planar plot
+      .del            = .width(1)/(PLOTGRID_NX - 1)
+      .x_width_set    = FALSE   ! These are set TRUE only if the widths
+      .y_width_set    = FALSE   ! are explicitly read in
+      .z_width_set    = FALSE
+      .x_axis_defined = FALSE
+      .y_axis_defined = FALSE
+      .z_axis_defined = FALSE
+   end
+
+   set_bounding_box(atom)
+   ! Set up a default bounding box based on the "atom" list size.
+   ! NOTE: This does not mark the widths as having been inputted.
+      atom :: ATOMVEC*
+   ENSURE(associated(atom),"no atom list")
+      .box_centre   = atom.centre_of_atoms
+      .bounding_box = atom.bounding_box
+      .bounding_box = .box_scale_factor*.bounding_box
+   end
+
+   set_bounding_box_and_axes(atom)
+   ! Set up a default bounding box based on the "atom" list size.  NOTE: This
+   ! does not mark the widths as having been inputted.  The bounding box and
+   ! axes are used only with a use_bounding_box_and_axes= option.
+      atom :: ATOMVEC*
+      sm :: REALVEC(3)
+      sa :: REALMAT(3,3)
+      order :: INTVEC(3)
+   ENSURE(associated(atom),"no atom list")
+      atom.make_shape_moments(sm,sa)
+      sm.quick_sort(order)
+      sa = sa(:,order)
+      if (sa.determinant<ZERO) sa(:,3) = -sa(:,3)
+      .x_axis = sa(:,1)
+      .y_axis = sa(:,2)
+      .z_axis = sa(:,3)
+      .box_axes     = sa
+      .box_centre   = atom.centre_of_atoms
+      .bounding_box = atom.bounding_box(sa)
+      .bounding_box = .box_scale_factor*.bounding_box
+   end
+
+   set_points_widths_origin
+   ! Set the number of points along the x axis to be odd. Evaluate the grid
+   ! point separation .del from the current x_width, .width(1); from this
+   ! separation, evaluate the number of points along the y and z axes; adjust
+   ! the y and z widths to be an exact multiple of .del; finally, set the origin
+   ! once the widths are known.
+      .n_x = 2*(.n_x/2) + 1                ! Make # of axis points odd ...
+      if(.n_x>1) .del = .width(1)/(.n_x-1)
+      if(.n_x==1) .width = ZERO
+      .n_y  = nint(.width(2)/.del) + 1
+      .n_y = 2*(.n_y/2) + 1
+      .width(2) = .del*(.n_y-1)            ! adjust y width to the nearest grid point
+      .n_z = nint(.width(3)/.del) + 1
+      .n_z = 2*(.n_z/2) + 1
+      .width(3) = .del*(.n_z-1)            ! adjust z width to the nearest grid point
+      .n_pt = .n_x*.n_y*.n_z
+      .set_origin
+   end
+
+   set_desired_separation(del)
+   ! Set the (approximate) desired separation "del" between grid points along an
+   ! axis direction.  The *actual* separation used may not be the inputted
+   ! separation, but may be slightly smaller: the current .x_width is used to
+   ! work out the number of points along the x_axis which is then used to work
+   ! out the actual .del.  NOTE: After this routine the y and z widths are
+   ! changed to be the nearest multiple of "del" (actually, ".del") that exceeds
+   ! their current value.
+      del :: REAL
+      ENSURE(.n_x>1,"# of x_points must be greater than 1")
+      ENSURE(del>0,"del must be positive")
+      WARN_IF(NOT .x_width_set,"default x_width used to calculate # of x_points")
+      .desired_separation = del
+      .n_x = ceiling(.width(1)/del)
+      .set_points_widths_origin
+   end
+
+   set_centre_from_atom_list(atom)
+   ! Set the .centre of the grid data from an "atom" list. The .origin of the
+   ! plot isd also set using the current plot widths and plot centre.
+      atom :: ATOMVEC*
+   ENSURE(atom.created,"atom list not present")
+   ENSURE(.centre_atom/=0,"no centre_atom")
+      .centre = atom(.centre_atom).pos
+      .set_origin
+   end
+
+   offset_centre
+   ! Offset the .centre by .offset along the current axes.
+      .centre = .centre + .offset(1)*.x_axis
+      .centre = .centre + .offset(2)*.y_axis
+      .centre = .centre + .offset(3)*.z_axis
+      .set_origin
+   end
+
+   set_origin
+   ! Set the origin of the plot (the bottom, front, left-hand corner). It is
+   ! equal to the .centre of the plot minus half the (current) .widths along the
+   ! (current) x, y, and z axes.
+      .origin = .centre
+      .origin = .origin -.width(1)*HALF*.x_axis
+      .origin = .origin -.width(2)*HALF*.y_axis
+      .origin = .origin -.width(3)*HALF*.z_axis
+   end
+
+   set_x_axis_from_atom_list(atom)
+   ! Set the x-axis of the grid data from an "atom" list. If the .x_width has
+   ! not been explicitly set, it is set to twice the length between the atom
+   ! separation (because probably the user wants to see at least those atoms in
+   ! his plot!).
+      atom :: ATOMVEC*
+   ENSURE(atom.created,"atom list not present")
+   ENSURE(.x_atom_1/=0,"no x_atom_1")
+   ENSURE(.x_atom_2/=0,"no x_atom_2")
+      .x_axis = atom(.x_atom_2).pos - atom(.x_atom_1).pos
+      if (NOT .x_width_set) then
+         .width(1) = TWO*.x_axis.norm
+         .set_points_widths_origin
+      end
+      .set_xyz_axes_from_x_axis
+   end
+
+   set_y_axis_from_atom_list(atom)
+   ! Set the y-axis of the grid data from an "atom" list. If the .y_width has
+   ! not been explicitly set, it is set to twice the length between the atom
+   ! separation (because probably the user wants to see at least those atoms in
+   ! his plot!).
+      atom :: ATOMVEC*
+   ENSURE(atom.created,"atom list not present")
+   ENSURE(.y_atom_1/=0,"no y_atom_1")
+   ENSURE(.y_atom_2/=0,"no y_atom_2")
+      .y_axis = atom(.y_atom_2).pos - atom(.y_atom_1).pos
+      if (NOT .y_width_set) then
+         .width(2) = TWO*.y_axis.norm
+         .set_points_widths_origin
+      end
+      .set_xyz_axes_from_y_axis
+   end
+
+   set_z_axis_from_atom_list(atom)
+   ! Set the z-axis of the grid data from an "atom" list. If the .z_width has
+   ! not been explicitly set, it is set to twice the length between the atom
+   ! separation (because probably the user wants to see at least those atoms in
+   ! his plot!).
+      atom :: ATOMVEC*
+   ENSURE(atom.created,"atom list not present")
+   ENSURE(.z_atom_1/=0,"no z_atom_1")
+   ENSURE(.z_atom_2/=0,"no z_atom_2")
+      .z_axis = atom(.z_atom_2).pos - atom(.z_atom_1).pos
+      if (NOT .z_width_set) then
+         .width(3) = TWO*.z_axis.norm
+         .set_points_widths_origin
+      end
+      .set_xyz_axes_from_z_axis
+   end
+
+   set_xyz_axes_from_x_axis
+   ! Set the x,y,z axes of the grid given a new x_axis vector. Also set the
+   ! origin since that is dependent on the axes.
+   ENSURE(NOT .x_axis_defined,"x_axis already explicitly defined")
+   ENSURE(NOT .y_axis_defined,"define x_axis before y_axis")
+   WARN_IF(.z_axis_defined,"orthonormalising inputted x_axis and y_axis to z_axis")
+      .x_axis.normalise
+      if (.z_axis_defined) then; .orthonormalise_x_y_to_z_axis
+      else;                      .orthonormalise_y_z_to_x_axis
+      end
+      .set_origin
+   end
+
+   set_xyz_axes_from_y_axis
+   ! Set the x,y,z axes of the grid given a new y_axis vector. Also set the
+   ! origin since that is dependent on the axes.
+   ENSURE(NOT .y_axis_defined,"y_axis already explicitly defined")
+   ENSURE(NOT .z_axis_defined,"can't set y_axis: z_axis and x_axis are already defined")
+   WARN("y_axis is *always* orthonormalised to x_axis")
+      .y_axis.normalise
+      DIE_IF(.y_axis.same_as(.x_axis),"y_axis is the same as x_axis")
+      .orthonormalise_y_z_to_x_axis
+      .set_origin
+   end
+
+   set_xyz_axes_from_z_axis
+   ! Set the x,y,z axes of the grid given a new z_axis vector. Also set the
+   ! origin since that is dependent on the axes.
+   ENSURE(NOT .z_axis_defined,"z_axis already explicitly defined")
+   WARN_IF(.x_or_y_axes_defined,"inputted x_axis, y_axis to be orthonormalised to inputted z_axis")
+      .z_axis.normalise
+      .orthonormalise_x_y_to_z_axis
+      .set_origin
+   end
+
+   x_or_y_axes_defined result (res)
+   ! Return TRUE if either the x or y axes have been explicitly inputted.
+      res :: BIN
+      res = .x_axis_defined OR .y_axis_defined
+   end
+
+   orthonormalise_x_y_to_z_axis
+   ! Orthogonalise the x and y axes to the z axis.
+      dot :: REAL
+      if (.x_axis.same_as(.z_axis)) &        
+         .x_axis = .y_axis                   ! Make sure x and z are different
+      dot = dot_product(.z_axis,.x_axis)     ! Orthogonalise x_axis to z_axis
+      .x_axis = .x_axis - dot*.z_axis
+      .x_axis.normalise
+      DIE_IF(.x_axis.is_zero,"x_axis is same as z_axis!")
+      .y_axis.to_cross_product(.z_axis,.x_axis)
+   end
+
+   orthonormalise_y_z_to_x_axis
+   ! Orthogonalise the x and y axes to the z axis.
+      dot :: REAL
+      if (.y_axis.same_as(.x_axis)) &        
+         .y_axis = .z_axis                   ! Make sure y and x are different
+      dot = dot_product(.x_axis,.y_axis)     ! Orthogonalise y_axis to x_axis
+      .y_axis = .y_axis - dot*.x_axis
+      .y_axis.normalise
+      DIE_IF(.y_axis.is_zero,"y_axis is same as x_axis!")
+      .z_axis.to_cross_product(.x_axis,.y_axis)
+   end
+
+   update_for_marching_cubes
+   ! Update the grid data to be consistent with the (non-recursive) marching
+   ! cubes algorithm. Essentially, a gridpoint is added along all dimensions.
+      WARN("adjusting grid by adding 2 extra points on all sides")
+      .n_x = .n_x + 2
+      .n_y = .n_y + 2
+      .n_z = .n_z + 2
+      ENSURE(.n_x>=4,"not enough x points for marching cube isosurface algorithm")
+      ENSURE(.n_y>=4,"not enough y points for marching cube isosurface algorithm")
+      ENSURE(.n_z>=4,"not enough z points for marching cube isosurface algorithm")
+      ! center remains the same, extra points added around edges
+      .width  = .width  + 2*.del
+      .origin = .origin - .del*.x_axis
+      .origin = .origin - .del*.y_axis
+      .origin = .origin - .del*.z_axis
+      .n_pt = .n_x*.n_y*.n_z
+   end
+
+!  *************
+!  Input methods
+!  *************
+
+
+   read_keywords ::: get_from(OBJECT), leaky
+   ! Read data from "stdin" using keyword style input.
+   end
+
+   process_keyword(keyword) ::: leaky
+   ! Process command "keyword". Any required data needed by the "keyword" is
+   ! inputted from "stdin".
+      keyword :: STR(*)
+      word :: STR
+      word = keyword
+      word.to_lower_case
+      select case (word)
+         case ("}                         ")  ! exit case
+         case ("box_scale_factor=         "); .read_box_scale_factor
+         case ("centre=                   "); .read_centre
+         case ("centre_atom=              "); .read_centre_atom
+         case ("centre_atoms=             "); .read_centre_atoms
+         case ("crystal_plane=            "); .read_z_axis
+         case ("desired_separation=       "); .read_desired_separation
+         case ("kind=                     "); .read_kind
+         case ("max_x_points=             "); .read_max_x_points
+         case ("min_x_points=             "); .read_min_x_points
+         case ("n_points=                 "); .read_x_points
+         case ("normal=                   "); .read_z_axis
+         case ("offset=                   "); .read_offset
+         case ("orbital=                  "); .read_orbital
+         case ("put                       "); .put
+         case ("units=                    "); .read_units
+         case ("use_bounding_box          "); .use_bounding_box
+         case ("use_bounding_box_and_axes "); .use_bounding_box_and_axes
+         case ("use_bounding_cube         "); .use_bounding_cube
+         case ("use_bounding_cube_and_axes"); .use_bounding_cube_and_axes
+         case ("x_axis=                   "); .read_x_axis
+         case ("x_axis_atoms=             "); .read_x_axis_atoms
+         case ("x_points=                 "); .read_x_points
+         case ("x_width=                  "); .read_x_width
+         case ("y_axis=                   "); .read_y_axis
+         case ("y_axis_atoms=             "); .read_y_axis_atoms
+         case ("y_width=                  "); .read_y_width
+         case ("z_axis=                   "); .read_z_axis
+         case ("z_width=                  "); .read_z_width
+         case default;                    UNKNOWN(word)
+      end
+   end
+
+   read_units ::: get_from(OBJECT)
+   ! Read a string which describes the units to be used
+   end
+
+   read_junk ::: get_from(OBJECT)
+   ! Read in a junk string, useful for ignoring a field
+   end
+
+   read_kind
+   ! Read in the plot kind
+      stdin.read(.kind)
+      select case(.kind)
+         case("crystal_error_map  ")
+         case("electron_density   ")
+         case("laplacian_density  ")
+         case("orbital_density    ")
+         case("orbital            ")
+         case("difference_density ")
+         case("true_fermi_mobility")
+         case("fermi_mobility     ")
+         case("qq_plot            ")
+         case("spin_density       ")
+         case("current_density    ")
+         case("j_density          ")
+         case("jp_density         ")
+         case("div_jp_density     ")
+         case("jd_density         ")
+         case("elf                ")
+         case("tsirelson_elf      ")
+         case("electric_potential ")
+         case("solenoidal_jp      ")
+         case("hirshfeld_density  ")
+         case("stockholder_density")
+         case default;              UNKNOWN(.kind)
+      end
+   end
+
+   read_desired_separation
+   ! Read the (approximate) desired separation between grid points along an axis
+   ! direction.  The number of x points for the plot is adjusted so that the
+   ! *actual* separation is less than the inputted separation. NOTE: the current
+   ! .x_width is used to calculate the number of points.
+      del :: REAL
+      ENSURE(.n_x>1,"# of x_points must be greater than 1")
+      WARN_IF(NOT .x_width_set,"default x_width used to calculate # of x_points")
+      stdin.read(del)
+      .set_desired_separation(del)
+   end
+
+   read_max_x_points
+   ! Read the *maximum number* of x points to be used for the plot. 
+   ! The number of points is adjusted to be no more than this.
+      max_n_x :: INT
+      stdin.read(max_n_x)
+      if (.n_x<=max_n_x) return
+      .n_x = max_n_x
+      WARN_IF(.n_x.is_even,"resetting to nearest odd number")
+      .set_points_widths_origin
+   end
+
+   read_min_x_points
+   ! Read the *minimum number* of x points to be used for the plot. 
+      min_n_x :: INT
+      stdin.read(min_n_x)
+      if (min_n_x<=.n_x) return
+      .n_x = min_n_x
+      WARN_IF(.n_x.is_even,"resetting to nearest odd number")
+      .set_points_widths_origin
+   end
+
+   read_x_points
+   ! Read the number of x points for the plot. This is the precision
+   ! of the plot.
+      stdin.read_int(.n_x)
+      ENSURE( .n_x>0,"number of x_points must be positive")
+      WARN_IF(.n_x.is_even,"resetting to nearest odd number")
+      .set_points_widths_origin
+   end
+
+   read_offset
+   ! Read a 3-vector, used to offset the plot along.
+      stdin.read(.offset)
+      .offset_centre
+   end
+
+   read_orbital
+   ! Read the orbital to plot out
+      stdin.read_int(.orbital)
+   end
+
+   read_centre_atom
+   ! Read the centre atom of the plot
+      stdin.read(.centre_atom)
+      .set_centre_from_atom_list(.atom)
+   end
+
+   read_centre_atoms
+   ! Make the centre of the plot to be the centre of the list of atom indices.
+      atom_list :: INTVEC*
+      i :: INT
+      ENSURE(.atom.created,"atom list not present")
+      stdin.read_ptr(atom_list)
+      ENSURE(size(atom_list)>0,"no atoms specified in input")
+      .centre = ZERO
+      do i=1,size(atom_list)
+        .centre = .centre + .atom(atom_list(i)).pos
+      end
+      .centre = .centre / size(atom_list)
+      atom_list.destroy
+      .set_origin
+   end
+
+   read_centre
+   ! Read the centre position of the plot. Also adjust the origin of the plot.
+      stdin.read(.centre)
+      .set_origin
+   end
+
+   read_x_axis
+   ! Read the x axis vector of the plot. Normally, the y and z axes are defined
+   ! to be orthogonal to the inputted axes, based on the defualt axis settings.
+   ! However, if the z axis has been explicitly defined before hand, then the x
+   ! and y axes are orthogonalised to it.
+      stdin.read(.x_axis)
+      .set_xyz_axes_from_x_axis
+      .x_axis_defined = TRUE
+   end
+
+   read_x_axis_atoms
+   ! Read the atoms which define the x axis vector of the plot. If the z axis
+   ! has been defined, then the x_axis is orthogonalised to it. Otherwise the y
+   ! and z axes are orthogonalised to this vector.
+      stdin.read_int(.x_atom_1)
+      stdin.read_int(.x_atom_2)
+      DIE_IF(.x_atom_1==.x_atom_2,"cannot specify same x axis atoms")
+      .set_x_axis_from_atom_list(.atom)
+      .x_axis_defined = TRUE
+   end
+
+   read_y_axis
+   ! Read the y axis vector of the plot. It is an error to use this command if
+   ! the .z_axis has already been inputted, because the .y_axis is made
+   ! orthogonal to the x_axis and z_axis. Even if the z_axis has not been
+   ! defined, the y_axis is made orthogonal to the x_axis.
+      stdin.read(.y_axis)
+      .set_xyz_axes_from_y_axis
+      .y_axis_defined = TRUE
+   end
+
+   read_y_axis_atoms
+   ! Read the atoms which define the y axis vector of the plot. It is an error
+   ! to use this command if the .z_axis has already been inputted, because the
+   ! .y_axis is made orthogonal to the x_axis and z_axis. Even if the z_axis has
+   ! not been
+      stdin.read_int(.y_atom_1)
+      stdin.read_int(.y_atom_2)
+      DIE_IF(.y_atom_1==.y_atom_2,"cannot specify same y axis atoms")
+      .set_y_axis_from_atom_list(.atom)
+      .y_axis_defined = TRUE
+   end
+
+   read_z_axis
+   ! Read the z axis of the plot. NOTE: If it is inputted, the current x and y
+   ! axes are made orthogonal to it.
+      stdin.read(.z_axis)
+      .set_xyz_axes_from_z_axis
+      .z_axis_defined = TRUE
+   end
+
+   read_z_axis_atoms
+   ! Read the atoms which define the z axis vector of the plot. 
+      stdin.read_int(.z_atom_1)
+      stdin.read_int(.z_atom_2)
+      DIE_IF(.z_atom_1==.z_atom_2,"cannot specify same z axis atoms")
+      .set_z_axis_from_atom_list(.atom)
+      .z_axis_defined = TRUE
+   end
+
+   read_x_width
+   ! Read the x width of the plot
+      stdin.read(.width(1))
+      .set_points_widths_origin
+      .x_width_set = TRUE
+   end
+
+   read_y_width
+   ! Read the y width of the plot
+      stdin.read(.width(2))
+      .set_points_widths_origin
+      .y_width_set = TRUE
+   end
+
+   read_z_width
+   ! Read the z width of the plot. This is normally 0.
+      stdin.read(.width(3))
+      .set_points_widths_origin
+      .z_width_set = TRUE
+   end
+
+   read_box_scale_factor
+   ! Read the bounding box scale factor and apply it immediately.
+      stdin.read(.box_scale_factor)
+      ENSURE(.box_scale_factor>ZERO,"scale factor not positive")
+   end
+
+   set_box_scale_factor(factor)
+   ! Set the bounding box scale factor
+      factor :: REAL
+      .box_scale_factor = factor
+      ENSURE(.box_scale_factor>ZERO,"scale factor not positive")
+   end
+
+   use_bounding_box
+   ! Use the default bounding box centre and bounding box widths.
+       .set_bounding_box(.atom)
+       .centre = .box_centre
+       .width  = .bounding_box
+       .set_points_widths_origin
+   end
+
+   use_bounding_cube
+   ! Use the default bounding box centre and bounding box widths.
+       .set_bounding_box(.atom)
+       .centre = .box_centre
+       .width  = maxval(.bounding_box)
+       .set_points_widths_origin
+   end
+
+   use_bounding_box_and_axes
+   ! Use the default bounding box centre, bounding box axes, and bounding box
+   ! widths.
+       .set_bounding_box_and_axes(.atom)
+       .centre = .box_centre
+       .width  = .bounding_box
+       .x_axis = .box_axes(:,1)
+       .y_axis = .box_axes(:,2)
+       .z_axis = .box_axes(:,3)
+       .set_points_widths_origin
+   end
+
+   use_bounding_cube_and_axes
+   ! Use the default bounding box centre, bounding box axes, and bounding box
+   ! widths.
+       .set_bounding_box_and_axes(.atom)
+       .centre = .box_centre
+       .width  = maxval(.bounding_box)
+       .x_axis = .box_axes(:,1)
+       .y_axis = .box_axes(:,2)
+       .z_axis = .box_axes(:,3)
+       .set_points_widths_origin
+   end
+
+!   widths_were_set result (res)
+!   ! Return TRUE if any of the widths were inputted.
+!      res :: BIN
+!      res =  .x_width_set &
+!          OR .y_width_set &
+!          OR .z_width_set
+!   end
+
+!   read_crystal_plane(in,unitcell)
+!   ! To read in a vector which describes a plane in the crystal.
+!   ! The vector is the normal of the plane.
+!     in :: INPUT
+!     unitcell :: UNITCELL, IN
+!     in.read( .z_axis )
+!     .z_axis.rotate(unitcell.cell_matrix)
+!     .z_axis.normalise
+!     .x_axis.normalise
+!     .y_axis.to_cross_product( .z_axis, .x_axis)
+!     .y_axis.normalise
+!     .x_axis.to_cross_product( .y_axis, .z_axis)
+!     .x_axis.normalise
+!   end
+
+   make_points(x_pt,y_pt,z_pt)
+   ! Make a list of the grid points
+      self :: IN
+      x_pt,y_pt,z_pt :: REALVEC, OUT
+      x1,x2,x3,y1,y2,y3,z1,z2,z3 :: REAL
+      ox,oy,oz :: REAL
+      ix,iy,iz,i_pt,t2,t3 :: INT
+   ENSURE( size(x_pt) == .n_pt, "array of points not correct size")
+   ENSURE( size(y_pt) == .n_pt, "array of points not correct size")
+   ENSURE( size(z_pt) == .n_pt, "array of points not correct size")
+      ox = .origin(1);      oy = .origin(2);      oz = .origin(3)
+      x1 = .del*.x_axis(1); x2 = .del*.x_axis(2); x3 = .del*.x_axis(3)
+      y1 = .del*.y_axis(1); y2 = .del*.y_axis(2); y3 = .del*.y_axis(3)
+      z1 = .del*.z_axis(1); z2 = .del*.z_axis(2); z3 = .del*.z_axis(3)
+      t2 = .n_x*.n_y
+      do i_pt = 1,.n_pt
+         iz = (i_pt-1)/t2
+         t3 = i_pt - iz*t2
+         iy = (t3-1)/.n_x
+         ix = t3 - iy*.n_x
+         x_pt(i_pt) = ox + ix*x1 + iy*y1 + iz*z1
+         y_pt(i_pt) = oy + ix*x2 + iy*y2 + iz*z2
+         z_pt(i_pt) = oz + ix*x3 + iy*y3 + iz*z3
+      end
+   end
+
+   make_points(pt,first_pt,last_pt)
+   ! Return a list of the grid points in "pt". Will return a subset of the grid points
+   ! from "first_pt" to "last_pt", if these options are provided.
+      self :: IN
+      first_pt,last_pt :: INT, IN, optional
+      pt :: REALMAT, OUT
+      x1,x2,x3,y1,y2,y3,z1,z2,z3 :: REAL
+      ox,oy,oz :: REAL
+      ix,iy,iz,i_pt,first,last,t2,t3 :: INT
+      ENSURE(.n_x/=0,"zero number of x points")
+      ENSURE(.n_y/=0,"zero number of y points")
+      first = 1;          last = size(pt,1)
+      if (present(first_pt))     first = first_pt
+      if (present(last_pt))      last  = last_pt
+      ox = .origin(1);      oy = .origin(2);      oz = .origin(3)
+      x1 = .del*.x_axis(1); x2 = .del*.x_axis(2); x3 = .del*.x_axis(3)
+      y1 = .del*.y_axis(1); y2 = .del*.y_axis(2); y3 = .del*.y_axis(3)
+      z1 = .del*.z_axis(1); z2 = .del*.z_axis(2); z3 = .del*.z_axis(3)
+      t2 = .n_x*.n_y
+      do i_pt = first,last
+         iz = (i_pt-1)/t2
+         t3 = i_pt - iz*t2
+         iy = (t3-1)/.n_x
+         ix = t3 - iy*.n_x
+         pt(i_pt,1) = ox + ix*x1 + iy*y1 + iz*z1
+         pt(i_pt,2) = oy + ix*x2 + iy*y2 + iz*z2
+         pt(i_pt,3) = oz + ix*x3 + iy*y3 + iz*z3
+      end
+   end
+
+   make_points(pt,fx,lx,fy,ly,fz,lz)
+   ! Return a list of the grid points in "pt" in grid xyz order, starting from
+   ! the first and last x, y, and z points: "fx", "lx", "fy", "ly", "fz", "lz"
+   ! respectively
+      self :: IN
+      pt :: REALMAT, OUT
+      fx,lx,fy,ly,fz,lz :: INT, IN
+      x1,x2,x3,y1,y2,y3,z1,z2,z3 :: REAL
+      ox,oy,oz :: REAL
+      x,y,z,ix,iy,iz,i_pt :: INT
+   ENSURE(pt.dim1==(lx-fx+1)*(ly-fy+1)*(lz-fz+1),"wrong 1st dimension, pt")
+   ENSURE(pt.dim2==3,"wrong 2nd dimension, pt")
+      ox = .origin(1);      oy = .origin(2);      oz = .origin(3)
+      x1 = .del*.x_axis(1); x2 = .del*.x_axis(2); x3 = .del*.x_axis(3)
+      y1 = .del*.y_axis(1); y2 = .del*.y_axis(2); y3 = .del*.y_axis(3)
+      z1 = .del*.z_axis(1); z2 = .del*.z_axis(2); z3 = .del*.z_axis(3)
+      i_pt = 0
+      do z = fz,lz
+      do y = fy,ly
+      do x = fx,lx
+         ix = x - 1
+         iy = y - 1
+         iz = z - 1
+         i_pt = i_pt + 1
+         pt(i_pt,1) = ox + ix*x1 + iy*y1 + iz*z1
+         pt(i_pt,2) = oy + ix*x2 + iy*y2 + iz*z2
+         pt(i_pt,3) = oz + ix*x3 + iy*y3 + iz*z3
+      end
+      end
+      end
+   end
+
+   point(x,y,z) result (res)
+   ! Return one particular point "res" of the grid, given by grid coordinates
+   ! "x", "y", and "z". (1,1,1) is the bottom (front) left hand corner.
+      self  :: IN
+      x,y,z :: INT, IN
+      res   :: REALVEC(3)
+      x1,x2,x3,y1,y2,y3,z1,z2,z3,ox,oy,oz :: REAL
+      ix,iy,iz :: INT
+      ox = .origin(1);      oy = .origin(2);      oz = .origin(3)
+      x1 = .del*.x_axis(1); x2 = .del*.x_axis(2); x3 = .del*.x_axis(3)
+      y1 = .del*.y_axis(1); y2 = .del*.y_axis(2); y3 = .del*.y_axis(3)
+      z1 = .del*.z_axis(1); z2 = .del*.z_axis(2); z3 = .del*.z_axis(3)
+      ix = x - 1
+      iy = y - 1
+      iz = z - 1
+         res(1) = ox + ix*x1 + iy*y1 + iz*z1
+         res(2) = oy + ix*x2 + iy*y2 + iz*z2
+         res(3) = oz + ix*x3 + iy*y3 + iz*z3
+   end
+
+   make_cube_of_points(p,x,y,z) 
+   ! Return a cube of 8 grid points "p", where the bottom (front) left hand
+   ! corner point has grid coordinates "x", "y", and "z". 
+      self  :: IN
+      p :: REALMAT4(3,0:1,0:1,0:1)
+      x,y,z :: INT
+      x1,x2,x3,y1,y2,y3,z1,z2,z3,ox,oy,oz :: REAL
+      ix,iy,iz :: INT
+      x1 = .del*.x_axis(1); x2 = .del*.x_axis(2); x3 = .del*.x_axis(3)
+      y1 = .del*.y_axis(1); y2 = .del*.y_axis(2); y3 = .del*.y_axis(3)
+      z1 = .del*.z_axis(1); z2 = .del*.z_axis(2); z3 = .del*.z_axis(3)
+      ix = x - 1
+      iy = y - 1
+      iz = z - 1
+      ox = .origin(1) + ix*x1 + iy*y1 + iz*z1 ! cube origin
+      oy = .origin(2) + ix*x2 + iy*y2 + iz*z2
+      oz = .origin(3) + ix*x3 + iy*y3 + iz*z3
+      do iz = 0,1
+      do iy = 0,1
+      do ix = 0,1
+         p(1,ix,iy,iz) = ox + ix*x1 + iy*y1 + iz*z1
+         p(2,ix,iy,iz) = oy + ix*x2 + iy*y2 + iz*z2
+         p(3,ix,iy,iz) = oz + ix*x3 + iy*y3 + iz*z3
+      end
+      end
+      end
+   end
+
+   make_cube_of_points(p,f,l,del,x,y,z) 
+   ! Return a cube of points "p" where the cube edge points start from index "f"
+   ! and end at index "l", and each point separated by distance "del" along a
+   ! grid axis direction ("del" *not* the same as the grid .del).  The (0,0,0)
+   ! point of the cube corresponds to the plotgrid coordinates "x", "y", "z",
+   ! which are numbered from 0 (normally the first point is numbered from 1).
+   ! The axes of the cube are given by the plot grid axes. 
+      self  :: IN
+      f,l,x,y,z :: INT, IN
+      p :: REALMAT4(3,f:l,f:l,f:l)
+      del :: REAL
+      x1,x2,x3,y1,y2,y3,z1,z2,z3,ox,oy,oz :: REAL
+      n,ix,iy,iz :: INT
+      n = l - f + 1
+      x1 = .del*.x_axis(1); x2 = .del*.x_axis(2); x3 = .del*.x_axis(3)
+      y1 = .del*.y_axis(1); y2 = .del*.y_axis(2); y3 = .del*.y_axis(3)
+      z1 = .del*.z_axis(1); z2 = .del*.z_axis(2); z3 = .del*.z_axis(3)
+      ix = x; iy = y; iz = z 
+      ox = .origin(1) + ix*x1 + iy*y1 + iz*z1 ! cube origin
+      oy = .origin(2) + ix*x2 + iy*y2 + iz*z2
+      oz = .origin(3) + ix*x3 + iy*y3 + iz*z3
+      x1 = del*.x_axis(1); x2 = del*.x_axis(2); x3 = del*.x_axis(3) ! 
+      y1 = del*.y_axis(1); y2 = del*.y_axis(2); y3 = del*.y_axis(3)
+      z1 = del*.z_axis(1); z2 = del*.z_axis(2); z3 = del*.z_axis(3)
+      do iz = f,l
+      do iy = f,l
+      do ix = f,l
+         p(1,ix,iy,iz) = ox + ix*x1 + iy*y1 + iz*z1
+         p(2,ix,iy,iz) = oy + ix*x2 + iy*y2 + iz*z2
+         p(3,ix,iy,iz) = oz + ix*x3 + iy*y3 + iz*z3
+      end
+      end
+      end
+   end
+
+   put(output)
+   ! Put the grid data to file "output"
+      output :: TEXTFILE, target, optional
+      out :: TEXTFILE*
+      if (present(output)) then
+        out => output
+      else
+        out => stdout
+      end
+      out.flush
+      out.text("PLOTGRID output")
+      out.flush
+      out.show("Plot grid kind          =", .kind)
+      if (.orbital /= 0) &
+      out.show("Plot orbital no.        =", .orbital)
+      out.show("Number of X grid points =",.n_x)
+      out.show("Number of Y grid points =",.n_y)
+      out.show("Number of Z grid points =",.n_z)
+      out.show("Total number of points  =",.n_pt)
+      out.flush
+      out.show("X-axis width            =",.width(1))
+      out.show("Y-axis width            =",.width(2))
+      out.show("Z-axis width            =",.width(3))
+      out.show("Centre point            =",.centre(1), .centre(2), .centre(3))
+      out.show("Left hand corner        =",.origin(1), .origin(2), .origin(3))
+      out.show("X-axis vector           =",.x_axis(1), .x_axis(2), .x_axis(3))
+      out.show("Y-axis vector           =",.y_axis(1), .y_axis(2), .y_axis(3))
+      out.show("Z-axis vector           =",.z_axis(1), .z_axis(2), .z_axis(3))
+      out.show("Offset vector           =",.offset(1), .offset(2), .offset(3))
+      out.show("Box center              =",.box_centre(1),.box_centre(2),.box_centre(3))
+      out.show("Bounding box            =",.bounding_box(1),.bounding_box(2),.bounding_box(3))
+      out.flush
+      out.show("center_atom             =",.centre_atom)
+      out.show("x_atom_1                =",.x_atom_1)
+      out.show("x_atom_2                =",.x_atom_2)
+      out.show("y_atom_1                =",.y_atom_1)
+      out.show("y_atom_2                =",.y_atom_2)
+      out.show("del                     =",.del)
+   end
+
+end

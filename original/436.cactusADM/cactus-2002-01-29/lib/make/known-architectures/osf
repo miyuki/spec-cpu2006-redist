@@ -1,0 +1,43 @@
+#! /bin/sh
+#  /*@@
+#    @file      osf
+#    @date      Thu Mar 25 15:38:45 1999
+#    @author    Tom Goodale
+#    @desc
+#               known-architectures file for OSF systems
+#    @enddesc
+#    @version   $Header: /cactus/Cactus/lib/make/known-architectures/osf,v 1.8 2001/11/06 16:55:23 tradke Exp $
+#  @@*/
+
+if test "$CCTK_CONFIG_STAGE" = "preferred-compilers" ; then
+
+  if test -z "$CC"; then
+    echo Setting C compiler to cc
+    CC="cc"
+  fi
+
+else
+
+  if test "$CC" = "cc" ; then
+    : ${CFLAGS='-std1'}
+    : ${C_OPTIMISE_FLAGS='-O5 -fast'}
+    : ${C_DEBUG_FLAGS='-g3'}
+  fi
+
+  if test "$CXX" = "cxx" ; then
+    : ${CXX_DEPEND='$(CXX) -E -M $(CPPFLAGS) -noimplicit_include'}
+    : ${CXXFLAGS='-std1'}
+    : ${CXX_OPTIMISE_FLAGS='-O5 -fast'}
+    : ${CXX_DEBUG_FLAGS='-g3'}
+  fi
+
+  : ${F77FLAGS='-std1'}
+  : ${F77_OPTIMISE_FLAGS='-O5 -fast'}
+  : ${F77_DEBUG_FLAGS='-g3'}
+  : ${F90FLAGS='-std1'}
+  : ${F90_OPTIMISE_FLAGS='-O5 -fast'}
+  : ${F90_DEBUG_FLAGS='-g3'}
+
+  : ${LIBS="for m"}
+
+fi

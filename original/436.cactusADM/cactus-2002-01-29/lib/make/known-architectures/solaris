@@ -1,0 +1,51 @@
+#! /bin/sh
+#  /*@@
+#    @file      solaris
+#    @date      Mon May 8 11:56:45 2000
+#    @author    Tom Goodale
+#    @desc 
+#   
+#    @enddesc
+#    @version $Header: /cactus/Cactus/lib/make/known-architectures/solaris,v 1.8 2001/11/09 13:21:08 tradke Exp $
+#  @@*/
+
+if test "$CCTK_CONFIG_STAGE" = "preferred-compilers" ; then
+
+  : ${CC='cc'}
+  : ${CXX='CC'}
+
+else
+
+  if test "x$F90" = 'xf90'; then
+    f90_path="`which f90 | sed -e 's:/bin/f90::'`"
+    SOLARIS_F90_LIBDIR="`find $f90_path -name libfsu.a | grep lib/libfsu.a | sed -e 's:/libfsu.a::'`"
+    if test -n "$SOLARIS_F90_LIBDIR"; then
+      SOLARIS_F90_LIBS="fsu fsumai fminvai fmaxvai fai sunmath mvec"
+    fi
+  fi
+
+  : ${LIBS="socket nsl $SOLARIS_F90_LIBS m ucb"}
+  : ${LIBDIRS="/usr/ucb $SOLARIS_F90_LIBDIR"}
+
+
+  : ${C_DEPEND='$(CPP) -M $(CPPFLAGS)'}
+  : ${CXX_DEPEND='$(CPP) -M $(CPPFLAGS)'}
+
+  if test "$CC" = 'cc' ; then
+    : ${C_OPTIMISE_FLAGS='-xO5 -xtarget=native -fast'}
+  fi
+  if test "$CXX" = 'CC' ; then
+    : ${CXX_OPTIMISE_FLAGS='-xO5 -xtarget=native -fast'}
+  fi
+  : ${F90_OPTIMISE_FLAGS='-xO5 -xtarget=native -fast'}
+  : ${F77_OPTIMISE_FLAGS='-xO5 -xtarget=native -fast'}
+
+# MPI stuff
+
+  if test -n "$MPI" ; then
+    NATIVE_MPI_LIBS="mpi"
+    NATIVE_MPI_LIB_DIRS="/opt/SUNWhpc/lib"
+    NATIVE_MPI_INC_DIRS="/opt/SUNWhpc/include"
+  fi
+
+fi

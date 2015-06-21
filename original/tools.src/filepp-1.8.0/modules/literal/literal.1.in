@@ -1,0 +1,30 @@
+.\"  Hey Emacs! This file is -*- nroff -*- source.
+.\" __FILEPP_INPUT__ version __VERSION__
+.\" filepp is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program; see the file COPYING.  If not, write to
+.\" the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+.\"
+.SH LITERAL MODULE - literal.pm
+The literal module prevents macros appearing in literal strings from
+being replaced.  A literal string is defined as having the form:
+
+\fI"literal string with\fP \fBmacro\fP \fIin"\fP
+
+In the above example, \fBmacro\fP will not be replaced.
+
+The behaviour of the literal module can be reveresed by defining the
+macro \fBLITERAL_REVERSE\fP before loading the module, for example:
+
+filepp -D\fBLITERAL_REVERSE\fP -m literal.pm \fI<files>\fP
+
+This has the effect of only replacing macros which appear in strings.

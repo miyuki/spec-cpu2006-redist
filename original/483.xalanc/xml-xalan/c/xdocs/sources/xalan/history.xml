@@ -1,0 +1,164 @@
+<!--
+ * Copyright 1999-2004 The Apache Software Foundation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+-->
+
+   <s3 title="Changes for &xslt4c; version 1.7">
+     <p>Major updates since version 1.7 include:</p>
+     <ul>
+      <li><resource-ref idref="bugsfixedforthisrelease"/>.</li>
+      <li>Message Localization Support. This feature enables &xslt4c; to issue diagnostic messages 
+      in languages other than the default language (English). In order to utilize this feature, 
+      the user must provide a version of the &xslt4c; message catalog that has been translated in 
+      their language of choice. For more information on how to exploit this feature, please see  
+      <link anchor="locale">Steps for doing a Build with Message Localization Support</link>.</li>
+      <li>Build, packaging, and installation improvements. Changes to the &xslt4c; makefiles now 
+      allow for a more flexible build, packaging, and install process. Each step in a typical 
+      build process can be invoked by specifying the appropriate target, for example to build the 
+      executable, and/or samples, or install the build at user-specified location. For more 
+      information on building &xslt4c;, please see <link anchor="unix">Steps for doing a Unix build
+      </link>.</li>
+      <li>Deprecated DOM Support. The XercesBridge classes have been marked deprecated and moved 
+      into an exclusive directory within the xalanc/XercesParserLiaison directory called 
+      'Deprecated'. If your application is dependent on these classes to interface with the 
+      deprecated Xerces DOM you must alter your include directive with the 'Deprecated' directory. 
+      For example:<br/><br/>
+      <code>#include "xalanc/XercesParserLiaison/XercesDocumentBridge.hpp"</code><br/><br/>
+      should be changed to:<br/><br/>
+      <code>#include "xalanc/XercesParserLiaison/Deprecated/XercesDocumentBridge.hpp"</code><br/><br/></li>
+      <li>Upgrade from Xerces-C 2.3 to Xerces-C 2.4. </li>
+      <li>Porting of ThreadSafe example to UNIX platform.</li>
+      <li>Implementation of EXSLT string extension functions encode-uri() and decode-uri(). </li>
+      <li>Implementation of EXSLT dynamic extension function evaluate(). </li>
+      <li>Implementation of EXSLT date-time extension function date-time().</li>
+     </ul>  
+   </s3>  
+
+   <s3 title="Changes for &xslt4c; version 1.6">
+     <p>Major updates since version 1.5 include:</p>
+     <ul>
+	<li><resource-ref idref="bugsfixedforthisrelease"/>.</li>
+	<li>Directory "sane include" reorganization.  A new sub-directory called &apos;xalanc&apos; has been added to the src directory (for source distribution packages) and include directory (for binary distribution packages).  New source files which include Xalan headers will need to be modified to include the 'xalanc' prefix in the header path.  
+            For example: <br/><br/>
+            <code>#include &lt;XPath/XObject.hpp&gt;</code><br/><br/>
+            will need to be changed to <br/><br/>
+            <code>#include &lt;xalanc/XPath/XObject.hpp&gt;</code><br/><br/>
+            For Windows users, all project files have been modified to reflect this change.  For UNIX users, please see <link anchor="unix">Steps for doing a UNIX build</link> for migration considerations.</li>
+     </ul>  
+   </s3>  
+
+   <s3 title="Changes for &xslt4c; version 1.5">
+     <p>Major updates since version 1.4 include:</p>
+     <ul>
+		<li><resource-ref idref="bugsfixedforthisrelease"/>.</li>
+		<li>For Windows, Xalan-C++ is now packaged as a single DLL.  The project files to build separate DLLs are now deprecated and will not be maintained.</li>
+		<li>Support for &xml4c; DOMNode classes.</li>
+		<li>New sample <em>TransformToXercesDOM</em> that illustrates how
+		  to perform a transform resulting in a &xml4c; DOMDocument</li>
+		<li>Usage of the &xml4c; C++ namespace and creation of &xslt4c;
+		  namespace.</li>
+     </ul>  
+   </s3>  
+   <s3 title="Changes for &xslt4c; version 1.4">
+     <p>Major updates since version 1.3 include:</p>
+     <ul>
+       <li>The &xslt4c; distributions no longer include the &xml4c; headers and libraries. Accordingly, you must download the appropriate &xml4c; distribution (see <link idref="getstarted" anchor="download">Downloading what you need</link>.</li>
+       <li>64-bit build for HP-11; <link anchor="64">untested 64-bit support</link> for Solaris and AIX.</li>
+       <li>New Linux platform and compiler: Redhat 7.2 with gcc 3.1.</li>
+       <li><resource-ref idref="stlport"/> is no longer required on any of our supported platforms.</li> 
+       <li><link idref="extensionslib" anchor="exslt">Alpha support for a number of EXSLT functions</link>.</li>       
+       <li><link idref="samples" anchor="parsedsourcewrappers">ParsedSourceWrappers</link>, a sample that
+       illustrates how to perform transformations with input in the form of a pre-built
+       XalanDOM or XalanSourceTree.</li>
+     </ul>  
+   </s3>  
+  <s3 title="Changes for &xslt4c; version 1.3">
+    <p>Major updates since version 1.2 include:</p>
+     <ul>
+       <li>A new and simplified command-line utility: <link idref="commandline" anchor="xalanexe">the Xalan executable</link></li>
+       <li>New XPath samples exploiting the XPathEvaluator C API and illustrating serialization of an XPath result set: <link idref="samples" anchor="simplexpathcapi">SimpleXPathCAPI</link> and <link idref="samples" anchor="serializenodeset">SerializeNodeSet</link></li>
+       <li>A new <link idref="usagepatterns" anchor="xercesdomwrapperparsedsource">wrapper class</link> that lets you pass in a Xerces DOM as input for a transformation</li>
+<li>Bug fixes.</li>
+<li>Changed XPathException to XalanXPathException because of a clash with a new Xerces class of the same name.</li>
+      </ul>
+   </s3>  
+  <s3 title="Changes for &xslt4c; version 1.2">
+    <p>Major updates since version 1.1 include:</p>
+     <ul>
+      <li><link idref="extensionslib">Introduction of a library of extension functions</link></li>
+      <li>Support for pre-parsed source documents and pre-compiled stylesheets in 
+      <jump href="apiDocs/class_xalantransformer.html">XalanTransformer</jump> and the C API.</li>
+      <li>Support for stylesheet params in <jump href="apiDocs/class_xalantransformer.html">XalanTransformer</jump> 
+      and the C API</li>
+      <li>Support for extension functions in <jump href="apiDocs/class_xalantransformer.html">XalanTransformer</jump></li>
+      <li>Performance enhancements</li>
+      </ul>
+   </s3>  
+<s3 title="Changes for &xslt4c; version 1.1">
+<p>In addition to adding to the list of platforms on which &xslt4c; builds, our focus for this release has been on bug fixes, performance enhancements, 
+and providing a simplified C++ and C API for performing standard transformations. Major updates since version 1.0 include:</p>
+<ul>
+<li>Added HP-UX 11 build.<br/><br/></li>
+<li>Added Solaris build.<br/><br/></li>
+<li>Greatly improved performance.<br/><br/></li>
+<li>Improved conformance to the XSLT specification.<br/><br/></li>
+<li>Simplified the C++ API and provided a C API for performing standard transformations with the <link idref="usagepatterns" 
+anchor="xalantransformer">XalanTransformer</link> class and associated header files.<br/><br/></li>
+<li>Added sample illustrating use of XalanTransformer and the new C++ API: 
+    <link idref="samples" anchor="xalantransform">XalanTransform</link>.<br/><br/></li> 
+<li>Added sample illustrating use of XalanTransformer, the new C API, and how to run &xslt4c; and perform transformations on an 
+    Apache Web server: <link idref="samples" anchor="apachemodulexslt">ApacheModuleXSLT</link>.<br/><br/></li>
+<li>Added the <link idref="samples" anchor="streamtransform">StreamTransform</link> sample.<br/><br/></li>
+<li>Eliminated dependencies on non-public Xerces headers; accordingly can now build with the Xerces distribution.<br/><br/></li>
+<li>Fixed namespace mapping and inheritance problems.<br/><br/></li>
+<li>Fixed failure of &lt;copy-of ...&gt; to include CRLFs (if any) in the result.<br/><br/></li>
+<li>Fixed bug sorting in reverse document order based on position. <br/><br/></li>
+<li>Fixed &lt;xsl:number&gt; bug with use of letter-value="traditional" for "classical" Greek numbering.<br/><br/></li>
+<li>Fixed use of &lt;xsl:fallback&gt; within a top-level extension function.<br/><br/></li>
+<li>Fixed HTML output method bug. The &lt;HEAD&gt; element was not including a &lt;META&gt; tag with the encoding.<br/><br/></li>
+<li>Fixed bug using key() in match patterns to find descendants.<br/><br/></li>
+<li>Fixed bug using the id() function in complex match patterns.<br/><br/></li>
+<li>Fixed problem outputting multiple single-character CDATA sections.<br/><br/></li>
+<li>Fixed problem outputting whitespace characters.<br/><br/></li>
+<li>Fixed problem transforming from a stream on UNIX platforms.<br/><br/></li>
+<li>Fixed a bug with the document() function, which was generating a syntax error if called in the following manner: document(<ref>string</ref>,/).<br/><br/></li>
+<li>Fixed named templates bug accepting global parameter when called with a parameter of the same name that the named template does not 
+    recognize.</li>
+</ul>
+</s3>
+<s3 title="Changes for &xslt4c; version 1.0">
+<p>Major updates since version 0.40.0 include:</p>
+<ul>
+<li>Full support for namespace handling<br/><br/></li>
+<li>Full implementation of the format-number() function and support for the decimal-format element<br/><br/></li>
+<li>Integration with the <resource-ref idref="icu"/> for number formatting, sorting, and output encoding<br/><br/></li>
+<li>Support for the exclude-result-prefixes attribute<br/><br/></li>
+<li>Support for the output encoding attribute</li>
+</ul>
+</s3>
+<s3 title="Changes for &xslt4c; version 0.40.0">
+<p>Major updates since version 0.30.0 include:</p>
+<ul>
+<li>Permitting OS file names (as well as URLs) as command-line arguments with TestXSLT<br/><br/></li>
+<li>Stricter compliance for HTML and XML output<br/><br/></li>
+<li>Improved handling of relative URI's<br/><br/></li>
+<li>Improved handling of Import and Include<br/><br/></li>
+<li>Better namespace handling (although there are still problems here)<br/><br/></li>
+<li>Support for Document() function<br/><br/></li>
+<li>Support for XPath predicates<br/><br/></li>
+<li>Better handling of parameters to stylesheet and templates<br/><br/></li>
+<li>Full implementation of axes ( with the exception of namespace:: )<br/><br/></li>
+</ul>
+</s3>
+	

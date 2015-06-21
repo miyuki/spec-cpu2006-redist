@@ -1,0 +1,2464 @@
+!
+! SHELLQUARTET : A pair of gaussian SHELLPAIR's.
+!
+! This is used mainly for integrals, and differs from shell4 in that each
+! SHELLPAIR of the quartet contains precalculated integral information.
+! (It is up to you to precalculate all this information!)
+!
+! The electron repulsion integral code uses:
+!
+! Lindh, Ryu and Liu, J. Chem. Phys 95(8) 5889-5897.
+!
+! Copyright (C) Daniel Grimwood, 1998
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: shellquartet.foo,v 1.5 2003/02/19 07:48:58 reaper Exp $
+!-------------------------------------------------------------------------------
+
+module SHELLQUARTET
+
+  implicit none
+
+contains
+
+   create ::: leaky
+   ! Create the object, but not its component pairs.
+     self :: PTR
+     nullify(self)
+     allocate(self)
+     ADD_MEMORY(SHELLQUARTET_SIZE)
+     .nullify_ptr_part
+   end
+ 
+   destroy ::: leaky
+   ! Destroy a shell4 object.
+     self :: PTR
+     if (associated(self)) then
+       .destroy_ptr_part
+       DELETE_MEMORY(SHELLQUARTET_SIZE)
+       deallocate(self)
+     end
+   end
+ 
+!   created result(res)
+!   ! Returns true if self has been created
+!     self :: PTR
+!     res :: BIN
+!     res = associated(self)
+!   end
+ 
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!     self :: PTR
+!     res :: BIN
+!     res = NOT associated(self)
+!   end
+ 
+   nullify_ptr_part
+   ! Nullify the pointer parts of self
+     nullify(.ab)
+     nullify(.cd)
+   end
+ 
+   nullify_ab
+   ! Nullify the "ab" pointer part
+     nullify(.ab)
+   end
+ 
+   nullify_cd
+   ! Nullify the "cd" pointer part
+     nullify(.cd)
+   end
+ 
+   destroy_ptr_part ::: leaky
+   ! Destroy the pointer parts of self
+     .ab.destroy
+     .cd.destroy
+   end
+ 
+   destroy_ab ::: leaky
+   ! Destroy the "ab" shellpair pointer parts of self
+     .ab.destroy
+   end
+ 
+   destroy_cd ::: leaky
+   ! Destroy the "cd" shellpair pointer parts of self
+     .cd.destroy
+   end
+ 
+   create_copy(q) ::: leaky
+   ! Create a copy of "q"
+     self :: PTR
+      q :: SHELLQUARTET
+     .create
+     .copy(q)
+   end
+ 
+   copy(q) ::: leaky
+   ! Make a copy of "q"
+      q :: SHELLQUARTET
+     .ab.create_copy(q.ab)
+     .cd.create_copy(q.cd)
+   end
+ 
+   set(ab,cd) ::: leaky
+   ! Copy the shellquartet from "ab" and "cd" shellpair objects
+     ab,cd :: SHELLPAIR, TARGET
+     .ab => ab
+     .cd => cd
+   end
+ 
+   set_pair_ab(ab) ::: leaky
+   ! Set only the "ab" shellpair into the shellquartet
+     ab :: SHELLPAIR, TARGET
+     .ab => ab
+   end
+ 
+   set_pair_cd(cd) ::: leaky
+   ! Set only the "cd" shellpair into the shellquartet
+     cd :: SHELLPAIR, TARGET
+     .cd => cd
+   end
+ 
+   unnormalise
+   ! Unnormalise each shell in this shell quartet
+     .ab.unnormalise
+     .cd.unnormalise
+   end
+ 
+   max_k_ab result(res) ::: private
+   ! Returns the maximum value of the contraction coefficient prefactor
+   ! for the "ab" shell
+     res :: REAL
+     res = maxval(.ab.cc_prefactor)
+   end
+ 
+   max_k_cd result(res) ::: private
+   ! Returns the maximum value of the contraction coefficient prefactor
+   ! for the "cd" shell
+     res :: REAL
+     res = maxval(.cd.cc_prefactor)
+   end
+ 
+   skip_ERI result (res)
+   ! Whether the ERI block will be less than a cutoff value.
+     res :: BIN
+     max_ab,max_cd :: REAL
+     max_ab = .max_k_ab
+     max_cd = .max_k_cd
+     if (max_ab*max_cd > SHELL4_ERI_CUTOFF) then
+       res = FALSE
+     else
+       res = TRUE
+     end
+   end
+
+!  ****************************
+!  Roland Lindh-style integrals
+!  ****************************
+
+   get_ERI(abcd)
+   ! The main routine to produce the block (ab|cd)
+   ! (uses the transfer equation to make (ab|cd) from (es|fs))
+   ! The routines are now all specialised, they will break if you use the wrong
+   ! one.  Best to just use this main routine.
+     self :: IN
+     abcd :: REALMAT4, OUT
+     n_e,n_f,opt,maxl :: INT
+     maxl = max(.ab.l_max,.cd.l_max)
+     n_e = .ab.l_sum
+     n_f = .cd.l_sum
+     select case (maxl)
+       case (0)                                              ! max is s function
+         .make_ssss(abcd)
+       case (1)                                              ! max is p function
+         if (n_e==0) opt = 1
+         if (n_e==1) opt = 4
+         if (n_e==2) opt = 7
+         if (n_f==1) opt = opt + 1
+         if (n_f==2) opt = opt + 2
+         select case (opt)
+           case (9); .make_pppp(abcd)
+           case (8); .make_ppps(abcd)
+           case (7); .make_ppss(abcd)
+           case (6); .make_pspp(abcd)
+           case (5); .make_psps(abcd)
+           case (4); .make_psss(abcd)
+           case (3); .make_sspp(abcd)
+           case (2); .make_ssps(abcd)
+         end
+       case default                                          ! general
+         if (n_e == 0) then;      .make_sscd(abcd)
+         else if (n_f == 0) then; .make_abss(abcd)
+         else;                    .make_abcd(abcd)
+         end
+     end
+   end
+ 
+   make_abcd(abcd) ::: private
+   ! Makes the (ab|cd) integrals, summed over the primitives
+   ! This is the general purpose routine.
+     self :: IN
+     abcd :: REALMAT4, OUT
+     escd :: REALMAT3*
+     esfs :: REALMAT*
+     n_e,n_f,eub,fub :: INT
+     nullify(esfs)
+     nullify(escd)
+     n_e = .ab.l_sum
+     n_f = .cd.l_sum
+     eub = n_e.n_comp_sum - (.ab.l_max-1).n_comp_sum
+     fub = n_f.n_comp_sum - (.cd.l_max-1).n_comp_sum
+     esfs.create(eub,fub)
+     .make_esfs(esfs)
+     escd.create(eub, .cd.a.n_comp, .cd.b.n_comp)
+     .transfer(esfs,escd)
+     .transfer(escd,abcd)
+     escd.destroy
+     esfs.destroy
+     .to_normalise(abcd)
+   end
+ 
+   make_esfs(esfs) ::: private
+   ! Makes the initial (es|fs) integrals, summed over the primitives
+     self :: IN
+     esfs :: REALMAT, OUT
+     Ix,Iy,Iz :: REALMAT3*
+     nroots,dim1,dim2,n_sum :: INT
+     norma,normb,norm,zinv,rho,einv,b_r2ab,rho_zinv,rho_einv :: REAL
+     dim1 = .ab.l_sum + 1
+     dim2 = .cd.l_sum + 1
+     nroots = (dim1+dim2)/2
+     n_sum = nroots * .ab.n_gaussian_pairs * .cd.n_gaussian_pairs
+     Ix.create(dim1,dim2,n_sum)
+     Iy.create(dim1,dim2,n_sum)
+     Iz.create(dim1,dim2,n_sum)
+     .form_2d_ints(Ix,Iy,Iz)
+     .form_esfs(esfs,Ix,Iy,Iz)
+     Iz.destroy
+     Iy.destroy
+     Ix.destroy
+   end
+ 
+   form_2d_ints(Ix,Iy,Iz) ::: private
+   ! Forms the two dimentional integrals
+     self :: IN
+     Ix,Iy,Iz :: REALMAT3, OUT
+     l_e,l_f,dim1,dim2,nroots,ab,cd,s,f :: INT
+     zeta,zinv,eta,einv,ab_prefac,cd_prefac :: REAL
+     norm,xx,rho,rzinv,reinv,hzinv,heinv :: REAL
+     P,PA,Q,QC,QP :: REALVEC(3)
+     rys :: RYS*
+     Ix(1,1,:) = ONE
+     Iy(1,1,:) = ONE
+     Iz(1,1,:) = ONE
+     l_e = .ab.l_sum
+     l_f = .cd.l_sum
+     dim1  = l_e + 1
+     dim2  = l_f + 1
+     nroots = (dim1+dim2)/2
+     rys.create(nroots)
+     s = 1
+     f = nroots
+     do ab = 1,.ab.n_gaussian_pairs
+       zeta = .ab.exponent_sum(ab)
+       zinv = .ab.exponent_inv(ab)
+       ab_prefac = .ab.cc_prefactor(ab)
+       P  = .ab.pair_center(:,ab)
+       PA = .ab.center_diff(:,ab)
+       do cd = 1,.cd.n_gaussian_pairs
+         eta  = .cd.exponent_sum(cd)
+         einv = .cd.exponent_inv(cd)
+         cd_prefac = .cd.cc_prefactor(cd)
+         Q  = .cd.pair_center(:,cd)
+         QC = .cd.center_diff(:,cd)
+         QP = Q - P
+         rho = zeta * eta / (zeta + eta)
+         rzinv = rho * zinv
+         reinv = rho * einv
+         hzinv = HALF * zinv
+         heinv = HALF * einv
+         xx = rho * (QP(1)*QP(1) + QP(2)*QP(2) + QP(3)*QP(3))
+         norm = ab_prefac * cd_prefac * sqrt(rho)
+         rys.get_weights(xx)
+         rys.w(:) = rys.w(:) * norm
+         .form_2d_ints(Ix(:,:,s:f),Iy(:,:,s:f),Iz(:,:,s:f), &
+            rys.r,rys.w,rzinv,reinv,hzinv,heinv,PA,QC,QP)
+         s = s + nroots
+         f = f + nroots
+       end
+     end
+     rys.destroy
+   end
+
+   form_2d_ints(Ix,Iy,Iz,t2,wt,rzinv,reinv,hzinv,heinv,PA,QC,QP) ::: private
+   ! Forms the two dimensional integrals "Ix", "Iy" and "Iz" with momenta only
+   ! on centres A and C, using Rys roots "t2" and weights "wt".
+   ! Other variables are intermediates, to avoid calculations: see caller.
+     self :: IN
+     Ix,Iy,Iz :: REALMAT3, INOUT
+     t2,wt :: REALVEC, IN
+     rzinv,reinv,hzinv,heinv :: REAL, IN
+     PA,QC,QP :: REALVEC(3), IN
+     ret,rzt,ce,cf,bb,f1bb,ce1,cf1 :: REALVEC(size(t2))
+     l_e,l_f,e,f,e1,f1,fp1,ep1,k :: INT
+     l_e = .ab.l_sum
+     l_f = .cd.l_sum
+        if (l_f>0) then
+          ret(:) = t2(:) * reinv
+          Ix(1,2,:) = QC(1) - ret(:)*QP(1)
+          Iy(1,2,:) = QC(2) - ret(:)*QP(2)
+          Iz(1,2,:) = QC(3) - ret(:)*QP(3)
+        end
+        if (l_e>0) then
+          rzt(:) = t2(:) * rzinv
+          Ix(2,1,:) = PA(1) + rzt(:)*QP(1)
+          Iy(2,1,:) = PA(2) + rzt(:)*QP(2)
+          Iz(2,1,:) = PA(3) + rzt(:)*QP(3)
+        end
+        if (l_f>1) then
+          cf(:) = (ONE - ret(:)) * heinv
+          do f = 2,l_f
+            f1  = f - 1
+            fp1 = f + 1
+            cf1(:) = f1*cf(:)
+            Ix(1,fp1,:) = Ix(1,2,:)*Ix(1,f,:) + cf1(:)*Ix(1,f1,:)
+            Iy(1,fp1,:) = Iy(1,2,:)*Iy(1,f,:) + cf1(:)*Iy(1,f1,:)
+            Iz(1,fp1,:) = Iz(1,2,:)*Iz(1,f,:) + cf1(:)*Iz(1,f1,:)
+          end
+        end
+        if (l_e>1) then
+          ce(:) = (ONE - rzt(:)) * hzinv
+          do e = 2,l_e
+            e1  = e - 1
+            ep1 = e + 1
+            ce1(:) = e1*ce(:)
+            Ix(ep1,1,:) = Ix(2,1,:)*Ix(e,1,:) + ce1(:)*Ix(e1,1,:)
+            Iy(ep1,1,:) = Iy(2,1,:)*Iy(e,1,:) + ce1(:)*Iy(e1,1,:)
+            Iz(ep1,1,:) = Iz(2,1,:)*Iz(e,1,:) + ce1(:)*Iz(e1,1,:)
+          end
+        end
+        if (l_f>0 AND l_e>0) then
+          bb(:) = heinv*rzt(:)
+          Ix(2,2,:) = Ix(1,2,:)*Ix(2,1,:) + bb(:)
+          Iy(2,2,:) = Iy(1,2,:)*Iy(2,1,:) + bb(:)
+          Iz(2,2,:) = Iz(1,2,:)*Iz(2,1,:) + bb(:)
+          do f = 2,l_f
+            f1  = f - 1
+            fp1 = f + 1
+            cf1(:) = f1*cf(:)
+            Ix(2,fp1,:) = Ix(1,2,:)*Ix(2,f,:) + cf1(:)*Ix(2,f1,:) + bb(:)*Ix(1,f,:)
+            Iy(2,fp1,:) = Iy(1,2,:)*Iy(2,f,:) + cf1(:)*Iy(2,f1,:) + bb(:)*Iy(1,f,:)
+            Iz(2,fp1,:) = Iz(1,2,:)*Iz(2,f,:) + cf1(:)*Iz(2,f1,:) + bb(:)*Iz(1,f,:)
+          end
+          do e = 2,l_e
+            e1  = e - 1
+            ep1 = e + 1
+            ce1(:) = e1*ce(:)
+            do f = 2,l_f+1
+              f1 = f - 1
+              f1bb(:) = f1*bb(:)
+              Ix(ep1,f,:) = Ix(2,1,:)*Ix(e,f,:) + ce1(:)*Ix(e1,f,:) + f1bb(:)*Ix(e,f1,:)
+              Iy(ep1,f,:) = Iy(2,1,:)*Iy(e,f,:) + ce1(:)*Iy(e1,f,:) + f1bb(:)*Iy(e,f1,:)
+              Iz(ep1,f,:) = Iz(2,1,:)*Iz(e,f,:) + ce1(:)*Iz(e1,f,:) + f1bb(:)*Iz(e,f1,:)
+            end
+          end
+        end
+        ! Multiply Iz by the weight
+        do k = 1,size(Iz,3)
+           Iz(:,:,k) = Iz(:,:,k)*wt(k)
+        end
+   end
+
+   form_esfs(esfs,Ix,Iy,Iz) ::: private
+   ! Forms (es|fs) from the two dimensional integrals for a single
+   ! set of primitives
+     self :: IN
+     esfs :: REALMAT, OUT
+     Ix,Iy,Iz :: REALMAT3, IN
+     nroots,n_cc,dime,dimf,n_e,n_f,eub,fub,n_sum :: INT
+     e_x,e_y,e_z,f_x,f_y,f_z :: INTVEC*
+     e_powers,f_powers,indexe,indexf :: INTMAT*
+     e,f,zf,yf,xf,ze,ye,xe,dime1,dimf1,iie,iif,opt :: INT
+     Ief :: REALMAT3*
+     I1 :: REALMAT*
+     dime   = size(Ix,1)
+     dimf   = size(Ix,2)
+     n_sum  = size(Ix,3)
+     eub = size(esfs,1)
+     fub = size(esfs,2)
+     n_e = .ab.l_sum
+     n_f = .cd.l_sum
+     e_powers.create(eub,3)
+     f_powers.create(fub,3)
+     e_x => e_powers(:,1); e_y => e_powers(:,2); e_z => e_powers(:,3)
+     f_x => f_powers(:,1); f_y => f_powers(:,2); f_z => f_powers(:,3)
+     .ab.l_max.make_gaussian_xyz_indices(e_x,e_y,e_z,n_e)
+     .cd.l_max.make_gaussian_xyz_indices(f_x,f_y,f_z,n_f)
+     opt = 0
+     if (.ab.l_min > 1) opt = opt + 1
+     if (.cd.l_min > 1) opt = opt + 2
+     select case (opt)
+       case (0)
+         ! This version does not use the reduced multiplication scheme.
+         do f=1,fub
+           xf = f_x(f);    yf = f_y(f);    zf = f_z(f)
+           do e=1,eub
+             xe = e_x(e);    ye = e_y(e);    ze = e_z(e)
+             esfs(e,f) = sum(Ix(xe,xf,:) * Iy(ye,yf,:) * Iz(ze,zf,:))
+           end
+         end
+       case (1)
+         ! Apply the reduced multiplication scheme to merge the Iy and Iz 2d
+         ! integrals into a single matrix (upper triangle).
+         dime1 = dime+1
+         I1.create(n_sum,dime*dime1/2)
+         indexe.create(dime,dime) ! map ye,ze to iie
+         iie = 0
+         do ze=1,dime
+           do ye=1,dime1-ze
+             iie = iie + 1
+             indexe(ye,ze) = iie
+           end
+         end
+         do f=1,fub
+           xf = f_x(f);    yf = f_y(f);    zf = f_z(f)
+           iie = 0
+           do ze=1,dime
+             do ye=1,dime1-ze
+               iie = iie + 1
+               I1(:,iie) = Iy(ye,yf,:) * Iz(ze,zf,:)
+             end
+           end
+           ! Now add in the Ix 2d integrals and sum over nroots
+           do e=1,eub
+             iie = indexe(e_y(e),e_z(e))
+             esfs(e,f) = sum(Ix(e_x(e),xf,:) * I1(:,iie))
+           end
+         end
+         indexe.destroy
+         I1.destroy
+       case (2)
+         dimf1 = dimf+1
+         I1.create(n_sum,dimf*dimf1/2)
+         indexf.create(dimf,dimf)
+         iif = 0
+         do zf=1,dimf
+           do yf=1,dimf1-zf
+             iif = iif + 1
+             indexf(yf,zf) = iif
+           end
+         end
+         do e=1,eub
+           xe = e_x(e);    ye = e_y(e);    ze = e_z(e)
+           iif = 0
+           do zf=1,dimf
+             do yf=1,dimf1-zf
+               iif = iif + 1
+               I1(:,iif) = Iy(ye,yf,:) * Iz(ze,zf,:)
+             end
+           end
+           ! Now add in the Ix 2d integrals and sum over nroots
+           do f=1,fub
+             iif = indexf(f_y(f),f_z(f))
+             esfs(e,f) = sum(Ix(xe,f_x(f),:) * I1(:,iif))
+           end
+         end
+         indexf.destroy
+         I1.destroy
+       case (3)
+         dime1=dime+1
+         dimf1=dimf+1
+         Ief.create(n_sum,dime*dime1/2,dimf*dimf1/2)
+         indexf.create(dimf,dimf) ! map yf,zf to iif
+         indexe.create(dime,dime) ! map ye,ze to iie
+         iie = 0
+         do ze=1,dime
+           do ye=1,dime1-ze
+             iie = iie + 1
+             indexe(ye,ze) = iie
+           end
+         end
+         ! Apply reduced multiplication scheme to Iy and Iz, store in triangle.
+         iif = 0
+         do zf=1,dimf
+           do yf=1,dimf1-zf
+             iif = iif + 1
+             indexf(yf,zf) = iif
+             iie = 0
+             do ze=1,dime
+               do ye=1,dime1-ze
+                 iie = iie + 1
+                 Ief(:,iie,iif) = Iy(ye,yf,:) * Iz(ze,zf,:)
+               end
+             end
+           end
+         end
+         ! Now add in the Ix 2d integrals and sum over nroots
+         do f=1,fub
+           xf = f_x(f)
+           iif = indexf(f_y(f),f_z(f))
+           do e=1,eub
+             iie = indexe(e_y(e),e_z(e))
+             esfs(e,f) = sum(Ix(e_x(e),xf,:) * Ief(:,iie,iif))
+           end
+         end
+         Ief.destroy
+         indexf.destroy
+         indexe.destroy
+     end
+     e_powers.destroy
+     f_powers.destroy
+   end
+ 
+   make_pppp(abcd) ::: private
+   ! Make the (pp|pp) integrals, summed over the primitives
+     self :: IN
+     abcd :: REALMAT4, target
+     Iab :: REALMAT*
+     rys :: RYS*
+     ab,cd,nroots,n :: INT
+     zeta,eta,xx,norm,zinv,rho,einv,rho_zinv,rho_einv :: REAL
+     ab_prefac,cd_prefac,Px,Py,Pz,Qx,Qy,Qz :: REAL
+     QPx,QPy,QPz,PAx,PAy,PAz,QCx,QCy,QCz :: REAL
+     ce,cf,bb,bb_2,t2,t2_rz,t2_re,w,half_zinv,half_einv :: REAL
+     Ix12,Ix13,Ix21,Ix22,Ix23,Ix31,Ix32,Ix33 :: REAL
+     Iy12,Iy13,Iy21,Iy22,Iy23,Iy31,Iy32,Iy33 :: REAL
+     Iz12,Iz13,Iz21,Iz22,Iz23,Iz31,Iz32,Iz33 :: REAL
+     px__dxx,py__dxx,pz__dxx :: REAL
+     px__dyy,py__dyy,pz__dyy :: REAL
+     px__dzz,py__dzz,pz__dzz :: REAL
+     px__dxy,py__dxy,pz__dxy :: REAL
+     px__dxz,py__dxz,pz__dxz :: REAL
+     px__dyz,py__dyz,pz__dyz :: REAL
+     dxx_dxx,dyy_dxx,dzz_dxx,dxy_dxx,dxz_dxx,dyz_dxx :: REAL
+     dxx_dyy,dyy_dyy,dzz_dyy,dxy_dyy,dxz_dyy,dyz_dyy :: REAL
+     dxx_dzz,dyy_dzz,dzz_dzz,dxy_dzz,dxz_dzz,dyz_dzz :: REAL
+     dxx_dxy,dyy_dxy,dzz_dxy,dxy_dxy,dxz_dxy,dyz_dxy :: REAL
+     dxx_dxz,dyy_dxz,dzz_dxz,dxy_dxz,dxz_dxz,dyz_dxz :: REAL
+     dxx_dyz,dyy_dyz,dzz_dyz,dxy_dyz,dxz_dyz,dyz_dyz :: REAL
+     Iy12_Iz21,Iy12_Iz12,Iy13_Iz21,Iy21_Iz21,Iy21_Iz22 :: REAL
+     Iy21_Iz12,Iy31_Iz12,Iy21_Iz13,Iy12_Iz31,Iy12_Iz22 :: REAL
+     Iy22_Iz12,Iy22_Iz21 :: REAL
+     Iy12_w, Iy21_w, Iy22_w, Iy13_w, Iy31_w, Iy32_w, Iy23_w :: REAL
+     BAx,BAy,BAz,DCx,DCy,DCz :: REAL
+     px__px_ = ZERO; py__px_ = ZERO; pz__px_ = ZERO
+     dxx_px_ = ZERO; dyy_px_ = ZERO; dzz_px_ = ZERO
+     dxy_px_ = ZERO; dxz_px_ = ZERO; dyz_px_ = ZERO
+     px__py_ = ZERO; py__py_ = ZERO; pz__py_ = ZERO
+     dxx_py_ = ZERO; dyy_py_ = ZERO; dzz_py_ = ZERO
+     dxy_py_ = ZERO; dxz_py_ = ZERO; dyz_py_ = ZERO
+     px__pz_ = ZERO; py__pz_ = ZERO; pz__pz_ = ZERO
+     dxx_pz_ = ZERO; dyy_pz_ = ZERO; dzz_pz_ = ZERO
+     dxy_pz_ = ZERO; dxz_pz_ = ZERO; dyz_pz_ = ZERO
+     px__dxx = ZERO; py__dxx = ZERO; pz__dxx = ZERO
+     dxx_dxx = ZERO; dyy_dxx = ZERO; dzz_dxx = ZERO
+     dxy_dxx = ZERO; dxz_dxx = ZERO; dyz_dxx = ZERO
+     px__dyy = ZERO; py__dyy = ZERO; pz__dyy = ZERO
+     dxx_dyy = ZERO; dyy_dyy = ZERO; dzz_dyy = ZERO
+     dxy_dyy = ZERO; dxz_dyy = ZERO; dyz_dyy = ZERO
+     px__dzz = ZERO; py__dzz = ZERO; pz__dzz = ZERO
+     dxx_dzz = ZERO; dyy_dzz = ZERO; dzz_dzz = ZERO
+     dxy_dzz = ZERO; dxz_dzz = ZERO; dyz_dzz = ZERO
+     px__dxy = ZERO; py__dxy = ZERO; pz__dxy = ZERO
+     dxx_dxy = ZERO; dyy_dxy = ZERO; dzz_dxy = ZERO
+     dxy_dxy = ZERO; dxz_dxy = ZERO; dyz_dxy = ZERO
+     px__dxz = ZERO; py__dxz = ZERO; pz__dxz = ZERO
+     dxx_dxz = ZERO; dyy_dxz = ZERO; dzz_dxz = ZERO
+     dxy_dxz = ZERO; dxz_dxz = ZERO; dyz_dxz = ZERO
+     px__dyz = ZERO; py__dyz = ZERO; pz__dyz = ZERO
+     dxx_dyz = ZERO; dyy_dyz = ZERO; dzz_dyz = ZERO
+     dxy_dyy = ZERO; dxz_dyy = ZERO; dyz_dyy = ZERO
+     dxy_dyz = ZERO; dxz_dyz = ZERO; dyz_dyz = ZERO
+     nroots = 3
+     rys.create(nroots)
+     do ab = 1,.ab.n_gaussian_pairs
+       zeta = .ab.exponent_sum(ab)
+       zinv = .ab.exponent_inv(ab)
+       ab_prefac = .ab.cc_prefactor(ab)
+       Px  = .ab.pair_center(1,ab)
+       Py  = .ab.pair_center(2,ab)
+       Pz  = .ab.pair_center(3,ab)
+       PAx = .ab.center_diff(1,ab)
+       PAy = .ab.center_diff(2,ab)
+       PAz = .ab.center_diff(3,ab)
+       do cd = 1,.cd.n_gaussian_pairs
+         eta  = .cd.exponent_sum(cd)
+         einv = .cd.exponent_inv(cd)
+         cd_prefac = .cd.cc_prefactor(cd)
+         Qx  = .cd.pair_center(1,cd)
+         Qy  = .cd.pair_center(2,cd)
+         Qz  = .cd.pair_center(3,cd)
+         QCx = .cd.center_diff(1,cd)
+         QCy = .cd.center_diff(2,cd)
+         QCz = .cd.center_diff(3,cd)
+         QPx = Qx - Px
+         QPy = Qy - Py
+         QPz = Qz - Pz
+         rho = zeta * eta / (zeta + eta)
+         rho_zinv = rho * zinv
+         rho_einv = rho * einv
+         xx = rho * (QPx*QPx + QPy*QPy + QPz*QPz)  ! xx = rho QP^2
+         norm = ab_prefac * cd_prefac * sqrt(rho)
+         rys.get_weights(xx)
+         half_zinv = HALF * zinv
+         half_einv = HALF * einv
+         do n=1,nroots
+           t2    = rys.r(n)
+           w     = rys.w(n) * norm
+           t2_rz = t2 * rho_zinv
+           t2_re = t2 * rho_einv
+           bb    = t2_rz * half_einv
+           bb_2  = 2*bb
+           cf    = (ONE - t2_re) * half_einv
+           ce    = (ONE - t2_rz) * half_zinv
+           Ix12 = QCx - t2_re * QPx           ! form 2 dimensional integrals.
+           Iy12 = QCy - t2_re * QPy
+           Iz12 = QCz - t2_re * QPz
+           Ix21 = PAx + t2_rz * QPx
+           Iy21 = PAy + t2_rz * QPy
+           Iz21 = PAz + t2_rz * QPz
+           Ix22 = Ix12 * Ix21 + bb
+           Iy22 = Iy12 * Iy21 + bb
+           Iz22 = Iz12 * Iz21 + bb
+           Ix13 = Ix12 * Ix12 + cf
+           Iy13 = Iy12 * Iy12 + cf
+           Iz13 = Iz12 * Iz12 + cf
+           Ix31 = Ix21 * Ix21 + ce
+           Iy31 = Iy21 * Iy21 + ce
+           Iz31 = Iz21 * Iz21 + ce
+           Ix23 = Ix12 * Ix22 + cf * Ix21 + bb * Ix12
+           Iy23 = Iy12 * Iy22 + cf * Iy21 + bb * Iy12
+           Iz23 = Iz12 * Iz22 + cf * Iz21 + bb * Iz12
+           Ix32 = Ix21 * Ix22 + ce * Ix12 + bb * Ix21
+           Iy32 = Iy21 * Iy22 + ce * Iy12 + bb * Iy21
+           Iz32 = Iz21 * Iz22 + ce * Iz12 + bb * Iz21
+           Ix33 = Ix21 * Ix23 + ce * Ix13 + bb_2 * Ix22
+           Iy33 = Iy21 * Iy23 + ce * Iy13 + bb_2 * Iy22
+           Iz33 = Iz21 * Iz23 + ce * Iz13 + bb_2 * Iz22
+           !
+           Iz21 = Iz21 * w    ! Merge the weights and reduce multiplications.
+           Iz31 = Iz31 * w
+           Iz12 = Iz12 * w
+           Iz22 = Iz22 * w
+           Iz32 = Iz32 * w
+           Iz13 = Iz13 * w
+           Iz23 = Iz23 * w
+           Iz33 = Iz33 * w
+           Iy12_Iz21 = Iy12 * Iz21
+           Iy12_Iz12 = Iy12 * Iz12
+           Iy12_Iz22 = Iy12 * Iz22
+           Iy12_Iz31 = Iy12 * Iz31
+           Iy13_Iz21 = Iy13 * Iz21
+           Iy21_Iz21 = Iy21 * Iz21
+           Iy21_Iz22 = Iy21 * Iz22
+           Iy21_Iz12 = Iy21 * Iz12
+           Iy21_Iz13 = Iy21 * Iz13
+           Iy31_Iz12 = Iy31 * Iz12
+           Iy22_Iz12 = Iy22 * Iz12
+           Iy22_Iz21 = Iy22 * Iz21
+           Iy12_w    = Iy12 * w
+           Iy21_w    = Iy21 * w
+           Iy22_w    = Iy22 * w
+           Iy13_w    = Iy13 * w
+           Iy31_w    = Iy31 * w
+           Iy32_w    = Iy32 * w
+           Iy23_w    = Iy23 * w
+           !
+           px__px_ = px__px_ + Ix22 * w     !  combine 2d ints.
+           py__px_ = py__px_ + Ix12 * Iy21_w
+           pz__px_ = pz__px_ + Ix12 * Iz21
+           dxx_px_ = dxx_px_ + Ix32 * w
+           dyy_px_ = dyy_px_ + Ix12 * Iy31_w
+           dzz_px_ = dzz_px_ + Ix12 * Iz31
+           dxy_px_ = dxy_px_ + Ix22 * Iy21_w
+           dxz_px_ = dxz_px_ + Ix22 * Iz21
+           dyz_px_ = dyz_px_ + Ix12 * Iy21_Iz21
+           px__py_ = px__py_ + Ix21 * Iy12_w
+           py__py_ = py__py_ + Iy22_w
+           pz__py_ = pz__py_ + Iy12_Iz21
+           dxx_py_ = dxx_py_ + Ix31 * Iy12_w
+           dyy_py_ = dyy_py_ + Iy32_w
+           dzz_py_ = dzz_py_ + Iy12_Iz31
+           dxy_py_ = dxy_py_ + Ix21 * Iy22_w
+           dxz_py_ = dxz_py_ + Ix21 * Iy12_Iz21
+           dyz_py_ = dyz_py_ + Iy22_Iz21
+           px__pz_ = px__pz_ + Ix21 * Iz12
+           py__pz_ = py__pz_ + Iy21_Iz12
+           pz__pz_ = pz__pz_ + Iz22
+           dxx_pz_ = dxx_pz_ + Ix31 * Iz12
+           dyy_pz_ = dyy_pz_ + Iy31_Iz12
+           dzz_pz_ = dzz_pz_ + Iz32
+           dxy_pz_ = dxy_pz_ + Ix21 * Iy21_Iz12
+           dxz_pz_ = dxz_pz_ + Ix21 * Iz22
+           dyz_pz_ = dyz_pz_ + Iy21_Iz22
+           px__dxx = px__dxx + Ix23 * w
+           py__dxx = py__dxx + Ix13 * Iy21_w
+           pz__dxx = pz__dxx + Ix13 * Iz21
+           dxx_dxx = dxx_dxx + Ix33 * w
+           dyy_dxx = dyy_dxx + Ix13 * Iy31_w
+           dzz_dxx = dzz_dxx + Ix13 * Iz31
+           dxy_dxx = dxy_dxx + Ix23 * Iy21_w
+           dxz_dxx = dxz_dxx + Ix23 * Iz21
+           dyz_dxx = dyz_dxx + Ix13 * Iy21_Iz21
+           px__dyy = px__dyy + Ix21 * Iy13_w
+           py__dyy = py__dyy + Iy23_w
+           pz__dyy = pz__dyy + Iy13_Iz21
+           dxx_dyy = dxx_dyy + Ix31 * Iy13_w
+           dyy_dyy = dyy_dyy + Iy33 * w
+           dzz_dyy = dzz_dyy + Iy13 * Iz31
+           dxy_dyy = dxy_dyy + Ix21 * Iy23_w
+           dxz_dyy = dxz_dyy + Ix21 * Iy13_Iz21
+           dyz_dyy = dyz_dyy + Iy23 * Iz21
+           px__dzz = px__dzz + Ix21 * Iz13
+           py__dzz = py__dzz + Iy21_Iz13
+           pz__dzz = pz__dzz + Iz23
+           dxx_dzz = dxx_dzz + Ix31 * Iz13
+           dyy_dzz = dyy_dzz + Iy31 * Iz13
+           dzz_dzz = dzz_dzz + Iz33
+           dxy_dzz = dxy_dzz + Ix21 * Iy21_Iz13
+           dxz_dzz = dxz_dzz + Ix21 * Iz23
+           dyz_dzz = dyz_dzz + Iy21 * Iz23
+           px__dxy = px__dxy + Ix22 * Iy12_w
+           py__dxy = py__dxy + Ix12 * Iy22_w
+           pz__dxy = pz__dxy + Ix12 * Iy12_Iz21
+           dxx_dxy = dxx_dxy + Ix32 * Iy12_w
+           dyy_dxy = dyy_dxy + Ix12 * Iy32_w
+           dzz_dxy = dzz_dxy + Ix12 * Iy12_Iz31
+           dxy_dxy = dxy_dxy + Ix22 * Iy22_w
+           dxz_dxy = dxz_dxy + Ix22 * Iy12_Iz21
+           dyz_dxy = dyz_dxy + Ix12 * Iy22_Iz21
+           px__dxz = px__dxz + Ix22 * Iz12
+           py__dxz = py__dxz + Ix12 * Iy21_Iz12
+           pz__dxz = pz__dxz + Ix12 * Iz22
+           dxx_dxz = dxx_dxz + Ix32 * Iz12
+           dyy_dxz = dyy_dxz + Ix12 * Iy31_Iz12
+           dzz_dxz = dzz_dxz + Ix12 * Iz32
+           dxy_dxz = dxy_dxz + Ix22 * Iy21_Iz12
+           dxz_dxz = dxz_dxz + Ix22 * Iz22
+           dyz_dxz = dyz_dxz + Ix12 * Iy21_Iz22
+           px__dyz = px__dyz + Ix21 * Iy12_Iz12
+           py__dyz = py__dyz + Iy22_Iz12
+           pz__dyz = pz__dyz + Iy12_Iz22
+           dxx_dyz = dxx_dyz + Ix31 * Iy12_Iz12
+           dyy_dyz = dyy_dyz + Iy32 * Iz12
+           dzz_dyz = dzz_dyz + Iy12 * Iz32
+           dxy_dyz = dxy_dyz + Ix21 * Iy22_Iz12
+           dxz_dyz = dxz_dyz + Ix21 * Iy12_Iz22
+           dyz_dyz = dyz_dyz + Iy22 * Iz22
+         end
+       end
+     end
+     rys.destroy
+     ! Transfer equations
+     BAx = .ab.b.pos(1) - .ab.a.pos(1)
+     BAy = .ab.b.pos(2) - .ab.a.pos(2)
+     BAz = .ab.b.pos(3) - .ab.a.pos(3)
+     DCx = .cd.b.pos(1) - .cd.a.pos(1)
+     DCy = .cd.b.pos(2) - .cd.a.pos(2)
+     DCz = .cd.b.pos(3) - .cd.a.pos(3)
+     Iab => abcd(:,:,1,1)
+     !
+     Iab => abcd(:,:,2,1)
+     !
+     Iab => abcd(:,:,3,1)
+     !
+     Iab => abcd(:,:,1,2)
+     !
+     Iab => abcd(:,:,2,2)
+     !
+     Iab => abcd(:,:,3,2)
+     !
+     Iab => abcd(:,:,1,3)
+     !
+     Iab => abcd(:,:,2,3)
+     !
+     Iab => abcd(:,:,3,3)
+   end
+ 
+   make_ppps(abcd) ::: private
+   ! Make the (pp|ps) integrals, summed over the primitives
+     self :: IN
+     abcd :: REALMAT4, target
+     Iabf :: REALMAT3*
+     rys :: RYS*
+     ab,cd,nroots,n :: INT
+     zeta,zinv,eta,einv,ab_prefac,cd_prefac :: REAL
+     norm,rho,xx,rho_zinv,rho_einv :: REAL
+     Px,Py,Pz,Qx,Qy,Qz :: REAL
+     QPx,QPy,QPz,PAx,PAy,PAz,QCx,QCy,QCz :: REAL
+     ce,bb,t2,t2_rz,t2_re,w,half_zinv,half_einv :: REAL
+     Ix12,Ix21,Ix22,Ix31,Ix32 :: REAL
+     Iy12,Iy21,Iy22,Iy31,Iy32 :: REAL
+     Iz12,Iz21,Iz22,Iz31,Iz32 :: REAL
+     Iy12_Iz21,Iy12_Iz12,Iy21_Iz21,Iy21_Iz22 :: REAL
+     Iy21_Iz12,Iy31_Iz12,Iy12_Iz31,Iy12_Iz22 :: REAL
+     Iy22_Iz12,Iy22_Iz21 :: REAL
+     Iy12_w, Iy21_w, Iy22_w, Iy31_w, Iy32_w :: REAL
+     BAx,BAy,BAz :: REAL
+     px__px_ = ZERO; py__px_ = ZERO; pz__px_ = ZERO
+     dxx_px_ = ZERO; dyy_px_ = ZERO; dzz_px_ = ZERO
+     dxy_px_ = ZERO; dxz_px_ = ZERO; dyz_px_ = ZERO
+     px__py_ = ZERO; py__py_ = ZERO; pz__py_ = ZERO
+     dxx_py_ = ZERO; dyy_py_ = ZERO; dzz_py_ = ZERO
+     dxy_py_ = ZERO; dxz_py_ = ZERO; dyz_py_ = ZERO
+     px__pz_ = ZERO; py__pz_ = ZERO; pz__pz_ = ZERO
+     dxx_pz_ = ZERO; dyy_pz_ = ZERO; dzz_pz_ = ZERO
+     dxy_pz_ = ZERO; dxz_pz_ = ZERO; dyz_pz_ = ZERO
+     nroots = (.ab.l_sum+.cd.l_sum+2)/2
+     rys.create(nroots)
+     do ab = 1,.ab.n_gaussian_pairs
+       zeta = .ab.exponent_sum(ab)
+       zinv = .ab.exponent_inv(ab)
+       ab_prefac = .ab.cc_prefactor(ab)
+       Px  = .ab.pair_center(1,ab)
+       Py  = .ab.pair_center(2,ab)
+       Pz  = .ab.pair_center(3,ab)
+       PAx = .ab.center_diff(1,ab)
+       PAy = .ab.center_diff(2,ab)
+       PAz = .ab.center_diff(3,ab)
+       do cd = 1,.cd.n_gaussian_pairs
+         eta  = .cd.exponent_sum(cd)
+         einv = .cd.exponent_inv(cd)
+         cd_prefac = .cd.cc_prefactor(cd)
+         Qx  = .cd.pair_center(1,cd)
+         Qy  = .cd.pair_center(2,cd)
+         Qz  = .cd.pair_center(3,cd)
+         QCx = .cd.center_diff(1,cd)
+         QCy = .cd.center_diff(2,cd)
+         QCz = .cd.center_diff(3,cd)
+         QPx = Qx - Px
+         QPy = Qy - Py
+         QPz = Qz - Pz
+         rho = zeta * eta / (zeta + eta)
+         rho_zinv = rho * zinv
+         rho_einv = rho * einv
+         xx = rho * (QPx*QPx + QPy*QPy + QPz*QPz)  ! xx = rho QP^2
+         norm = ab_prefac * cd_prefac * sqrt(rho)
+         rys.get_weights(xx)
+         half_zinv = HALF * zinv
+         half_einv = HALF * einv
+         do n=1,nroots
+           t2    = rys.r(n)
+           w     = rys.w(n) * norm
+           t2_rz = t2 * rho_zinv
+           t2_re = t2 * rho_einv
+           bb    = t2_rz * half_einv
+           ce    = (ONE - t2_rz) * half_zinv
+           Ix12 = QCx - t2_re * QPx           ! form 2 dimensional integrals.
+           Iy12 = QCy - t2_re * QPy
+           Iz12 = QCz - t2_re * QPz
+           Ix21 = PAx + t2_rz * QPx
+           Iy21 = PAy + t2_rz * QPy
+           Iz21 = PAz + t2_rz * QPz
+           Ix22 = Ix12 * Ix21 + bb
+           Iy22 = Iy12 * Iy21 + bb
+           Iz22 = Iz12 * Iz21 + bb
+           Ix31 = Ix21 * Ix21 + ce
+           Iy31 = Iy21 * Iy21 + ce
+           Iz31 = Iz21 * Iz21 + ce
+           Ix32 = Ix21 * Ix22 + ce * Ix12 + bb * Ix21
+           Iy32 = Iy21 * Iy22 + ce * Iy12 + bb * Iy21
+           Iz32 = Iz21 * Iz22 + ce * Iz12 + bb * Iz21
+           !
+           Iz21 = Iz21 * w    ! Merge the weights and reduce multiplications.
+           Iz31 = Iz31 * w
+           Iz12 = Iz12 * w
+           Iz22 = Iz22 * w
+           Iz32 = Iz32 * w
+           Iy12_Iz21 = Iy12 * Iz21
+           Iy12_Iz12 = Iy12 * Iz12
+           Iy12_Iz22 = Iy12 * Iz22
+           Iy12_Iz31 = Iy12 * Iz31
+           Iy21_Iz21 = Iy21 * Iz21
+           Iy21_Iz22 = Iy21 * Iz22
+           Iy21_Iz12 = Iy21 * Iz12
+           Iy31_Iz12 = Iy31 * Iz12
+           Iy22_Iz12 = Iy22 * Iz12
+           Iy22_Iz21 = Iy22 * Iz21
+           Iy12_w    = Iy12 * w
+           Iy21_w    = Iy21 * w
+           Iy22_w    = Iy22 * w
+           Iy31_w    = Iy31 * w
+           Iy32_w    = Iy32 * w
+           !
+           px__px_ = px__px_ + Ix22 * w         ! combine 2d ints.
+           py__px_ = py__px_ + Ix12 * Iy21_w
+           pz__px_ = pz__px_ + Ix12 * Iz21
+           dxx_px_ = dxx_px_ + Ix32 * w
+           dyy_px_ = dyy_px_ + Ix12 * Iy31_w
+           dzz_px_ = dzz_px_ + Ix12 * Iz31
+           dxy_px_ = dxy_px_ + Ix22 * Iy21_w
+           dxz_px_ = dxz_px_ + Ix22 * Iz21
+           dyz_px_ = dyz_px_ + Ix12 * Iy21_Iz21
+           px__py_ = px__py_ + Ix21 * Iy12_w
+           py__py_ = py__py_ + Iy22_w
+           pz__py_ = pz__py_ + Iy12_Iz21
+           dxx_py_ = dxx_py_ + Ix31 * Iy12_w
+           dyy_py_ = dyy_py_ + Iy32_w
+           dzz_py_ = dzz_py_ + Iy12_Iz31
+           dxy_py_ = dxy_py_ + Ix21 * Iy22_w
+           dxz_py_ = dxz_py_ + Ix21 * Iy12_Iz21
+           dyz_py_ = dyz_py_ + Iy22_Iz21
+           px__pz_ = px__pz_ + Ix21 * Iz12
+           py__pz_ = py__pz_ + Iy21_Iz12
+           pz__pz_ = pz__pz_ + Iz22
+           dxx_pz_ = dxx_pz_ + Ix31 * Iz12
+           dyy_pz_ = dyy_pz_ + Iy31_Iz12
+           dzz_pz_ = dzz_pz_ + Iz32
+           dxy_pz_ = dxy_pz_ + Ix21 * Iy21_Iz12
+           dxz_pz_ = dxz_pz_ + Ix21 * Iz22
+           dyz_pz_ = dyz_pz_ + Iy21_Iz22
+         end
+       end
+     end
+     rys.destroy
+     if (.cd.a.l==0) then; Iabf => abcd(:,:,1,:)
+     else;                 Iabf => abcd(:,:,:,1) ! .cd.b.l==0
+     end
+     ! Transfer equations
+     BAx = .ab.b.pos(1) - .ab.a.pos(1)
+     BAy = .ab.b.pos(2) - .ab.a.pos(2)
+     BAz = .ab.b.pos(3) - .ab.a.pos(3)
+   end
+ 
+   make_pspp(abcd) ::: private
+   ! Make the (ps|pp) integrals, summed over the primitives
+     self :: IN
+     abcd :: REALMAT4, target
+     Iabf :: REALMAT3*
+     rys :: RYS*
+     ab,cd,nroots,n :: INT
+     zeta,zinv,eta,einv,ab_prefac,cd_prefac :: REAL
+     norm,xx,rho,rho_zinv,rho_einv :: REAL
+     Px,Py,Pz,Qx,Qy,Qz,QPx,QPy,QPz,PAx,PAy,PAz,QCx,QCy,QCz :: REAL
+     cf,bb,t2,t2_rz,t2_re,w,half_zinv,half_einv :: REAL
+     Ix12,Ix13,Ix21,Ix22,Ix23 :: REAL
+     Iy12,Iy13,Iy21,Iy22,Iy23 :: REAL
+     Iz12,Iz13,Iz21,Iz22,Iz23 :: REAL
+     px__dxx,py__dxx,pz__dxx :: REAL
+     px__dyy,py__dyy,pz__dyy :: REAL
+     px__dzz,py__dzz,pz__dzz :: REAL
+     px__dxy,py__dxy,pz__dxy :: REAL
+     px__dxz,py__dxz,pz__dxz :: REAL
+     px__dyz,py__dyz,pz__dyz :: REAL
+     Iy12_Iz21,Iy12_Iz12,Iy13_Iz21,Iy21_Iz21,Iy21_Iz22 :: REAL
+     Iy21_Iz12,Iy21_Iz13,Iy12_Iz22 :: REAL
+     Iy22_Iz12,Iy22_Iz21 :: REAL
+     Iy12_w, Iy21_w, Iy22_w, Iy13_w, Iy23_w :: REAL
+     DCx,DCy,DCz :: REAL
+     px__px_ = ZERO; py__px_ = ZERO; pz__px_ = ZERO
+     px__py_ = ZERO; py__py_ = ZERO; pz__py_ = ZERO
+     px__pz_ = ZERO; py__pz_ = ZERO; pz__pz_ = ZERO
+     px__dxx = ZERO; py__dxx = ZERO; pz__dxx = ZERO
+     px__dyy = ZERO; py__dyy = ZERO; pz__dyy = ZERO
+     px__dzz = ZERO; py__dzz = ZERO; pz__dzz = ZERO
+     px__dxy = ZERO; py__dxy = ZERO; pz__dxy = ZERO
+     px__dxz = ZERO; py__dxz = ZERO; pz__dxz = ZERO
+     px__dyz = ZERO; py__dyz = ZERO; pz__dyz = ZERO
+     nroots = (.ab.l_sum+.cd.l_sum+2)/2
+     rys.create(nroots)
+     do ab = 1,.ab.n_gaussian_pairs
+       zeta = .ab.exponent_sum(ab)
+       zinv = .ab.exponent_inv(ab)
+       ab_prefac = .ab.cc_prefactor(ab)
+       Px  = .ab.pair_center(1,ab)
+       Py  = .ab.pair_center(2,ab)
+       Pz  = .ab.pair_center(3,ab)
+       PAx = .ab.center_diff(1,ab)
+       PAy = .ab.center_diff(2,ab)
+       PAz = .ab.center_diff(3,ab)
+       do cd = 1,.cd.n_gaussian_pairs
+         eta  = .cd.exponent_sum(cd)
+         einv = .cd.exponent_inv(cd)
+         cd_prefac = .cd.cc_prefactor(cd)
+         Qx  = .cd.pair_center(1,cd)
+         Qy  = .cd.pair_center(2,cd)
+         Qz  = .cd.pair_center(3,cd)
+         QCx = .cd.center_diff(1,cd)
+         QCy = .cd.center_diff(2,cd)
+         QCz = .cd.center_diff(3,cd)
+         QPx = Qx - Px
+         QPy = Qy - Py
+         QPz = Qz - Pz
+         rho = zeta * eta / (zeta + eta)
+         rho_zinv = rho * zinv
+         rho_einv = rho * einv
+         xx = rho * (QPx*QPx + QPy*QPy + QPz*QPz)  ! xx = rho QP^2
+         norm = ab_prefac * cd_prefac * sqrt(rho)
+         rys.get_weights(xx)
+         half_zinv = HALF * zinv
+         half_einv = HALF * einv
+         do n=1,nroots
+           t2    = rys.r(n)
+           w     = rys.w(n) * norm
+           t2_rz = t2 * rho_zinv
+           t2_re = t2 * rho_einv
+           bb    = t2_rz * half_einv
+           cf    = (ONE - t2_re) * half_einv
+           Ix12 = QCx - t2_re * QPx           ! form 2 dimensional integrals.
+           Iy12 = QCy - t2_re * QPy
+           Iz12 = QCz - t2_re * QPz
+           Ix21 = PAx + t2_rz * QPx
+           Iy21 = PAy + t2_rz * QPy
+           Iz21 = PAz + t2_rz * QPz
+           Ix22 = Ix12 * Ix21 + bb
+           Iy22 = Iy12 * Iy21 + bb
+           Iz22 = Iz12 * Iz21 + bb
+           Ix13 = Ix12 * Ix12 + cf
+           Iy13 = Iy12 * Iy12 + cf
+           Iz13 = Iz12 * Iz12 + cf
+           Ix23 = Ix12 * Ix22 + cf * Ix21 + bb * Ix12
+           Iy23 = Iy12 * Iy22 + cf * Iy21 + bb * Iy12
+           Iz23 = Iz12 * Iz22 + cf * Iz21 + bb * Iz12
+           !
+           Iz21 = Iz21 * w    ! Merge the weights and reduce multiplications.
+           Iz12 = Iz12 * w
+           Iz22 = Iz22 * w
+           Iz13 = Iz13 * w
+           Iz23 = Iz23 * w
+           Iy12_Iz21 = Iy12 * Iz21
+           Iy12_Iz12 = Iy12 * Iz12
+           Iy12_Iz22 = Iy12 * Iz22
+           Iy13_Iz21 = Iy13 * Iz21
+           Iy21_Iz21 = Iy21 * Iz21
+           Iy21_Iz22 = Iy21 * Iz22
+           Iy21_Iz12 = Iy21 * Iz12
+           Iy21_Iz13 = Iy21 * Iz13
+           Iy22_Iz12 = Iy22 * Iz12
+           Iy22_Iz21 = Iy22 * Iz21
+           Iy12_w    = Iy12 * w
+           Iy21_w    = Iy21 * w
+           Iy22_w    = Iy22 * w
+           Iy13_w    = Iy13 * w
+           Iy23_w    = Iy23 * w
+           !
+           px__px_ = px__px_ + Ix22 * w     ! combine 2d ints.
+           py__px_ = py__px_ + Ix12 * Iy21_w
+           pz__px_ = pz__px_ + Ix12 * Iz21
+           px__py_ = px__py_ + Ix21 * Iy12_w
+           py__py_ = py__py_ + Iy22_w
+           pz__py_ = pz__py_ + Iy12_Iz21
+           px__pz_ = px__pz_ + Ix21 * Iz12
+           py__pz_ = py__pz_ + Iy21_Iz12
+           pz__pz_ = pz__pz_ + Iz22
+           px__dxx = px__dxx + Ix23 * w
+           py__dxx = py__dxx + Ix13 * Iy21_w
+           pz__dxx = pz__dxx + Ix13 * Iz21
+           px__dyy = px__dyy + Ix21 * Iy13_w
+           py__dyy = py__dyy + Iy23_w
+           pz__dyy = pz__dyy + Iy13_Iz21
+           px__dzz = px__dzz + Ix21 * Iz13
+           py__dzz = py__dzz + Iy21_Iz13
+           pz__dzz = pz__dzz + Iz23
+           px__dxy = px__dxy + Ix22 * Iy12_w
+           py__dxy = py__dxy + Ix12 * Iy22_w
+           pz__dxy = pz__dxy + Ix12 * Iy12_Iz21
+           px__dxz = px__dxz + Ix22 * Iz12
+           py__dxz = py__dxz + Ix12 * Iy21_Iz12
+           pz__dxz = pz__dxz + Ix12 * Iz22
+           px__dyz = px__dyz + Ix21 * Iy12_Iz12
+           py__dyz = py__dyz + Iy22_Iz12
+           pz__dyz = pz__dyz + Iy12_Iz22
+         end
+       end
+     end
+     rys.destroy
+     !
+     if (.ab.a.l==0) then; Iabf => abcd(1,:,:,:)
+     else;                 Iabf => abcd(:,1,:,:) ! .ab.b.l==0
+     end
+     ! Transfer equations
+     DCx = .cd.b.pos(1) - .cd.a.pos(1)
+     DCy = .cd.b.pos(2) - .cd.a.pos(2)
+     DCz = .cd.b.pos(3) - .cd.a.pos(3)
+   end
+ 
+   make_psps(abcd) ::: private
+   ! Makes the (ps|ps) integrals, summed over the primitives
+   ! Does ps|ps, ps|sp, sp|ps, sp|sp.
+     self :: IN
+     abcd :: REALMAT4, OUT
+     psps :: REALMAT*
+     rys :: RYS*
+     ab,cd,n :: INT
+     zeta,eta,xx,zinv,rho,einv,norm,half_zinv :: REAL
+     ab_prefac,cd_prefac,rho_zinv,rho_einv :: REAL
+     Px,Py,Pz,Qx,Qy,Qz :: REAL
+     QPx,QPy,QPz,QCx,QCy,QCz,PAx,PAy,PAz :: REAL
+     root,tmp2,tmp3,tmp4,weight,b_r2ab :: REAL
+     Iz11,Ix12,Iy12,Iz12,Ix21,Iy21,Iz21,Ix22,Iy22,Iz22 :: REAL
+     rys.create(2)
+     psps.create(3,3)
+     psps=ZERO
+     do ab = 1,.ab.n_gaussian_pairs
+       zeta = .ab.exponent_sum(ab)
+       zinv = .ab.exponent_inv(ab)
+       ab_prefac = .ab.cc_prefactor(ab)
+       Px  = .ab.pair_center(1,ab)
+       Py  = .ab.pair_center(2,ab)
+       Pz  = .ab.pair_center(3,ab)
+       PAx = .ab.center_diff(1,ab)
+       PAy = .ab.center_diff(2,ab)
+       PAz = .ab.center_diff(3,ab)
+       do cd = 1,.cd.n_gaussian_pairs
+         eta  = .cd.exponent_sum(cd)
+         einv = .cd.exponent_inv(cd)
+         cd_prefac = .cd.cc_prefactor(cd)
+         Qx  = .cd.pair_center(1,cd)
+         Qy  = .cd.pair_center(2,cd)
+         Qz  = .cd.pair_center(3,cd)
+         QCx = .cd.center_diff(1,cd)
+         QCy = .cd.center_diff(2,cd)
+         QCz = .cd.center_diff(3,cd)
+         QPx = Qx - Px
+         QPy = Qy - Py
+         QPz = Qz - Pz
+         rho = zeta * eta / (zeta + eta)
+         rho_zinv = rho * zinv
+         rho_einv = rho * einv
+         xx = rho * (QPx*QPx + QPy*QPy + QPz*QPz)  ! xx = rho QP^2
+         norm = ab_prefac * cd_prefac * sqrt(rho)
+         rys.get_weights(xx)
+         half_zinv = HALF * zinv
+         do n=1,2
+           root = rys.r(n)
+           tmp2 = root * rho_zinv
+           tmp3 = root * rho_einv
+           tmp4 = tmp3 * half_zinv
+           Ix12 = QCx - tmp3 * QPx
+           Iy12 = QCy - tmp3 * QPy
+           Iz12 = QCz - tmp3 * QPz
+           Ix21 = PAx + tmp2 * QPx
+           Iy21 = PAy + tmp2 * QPy
+           Iz21 = PAz + tmp2 * QPz
+           Ix22 = Ix12 * Ix21 + tmp4
+           Iy22 = Iy12 * Iy21 + tmp4
+           Iz22 = Iz12 * Iz21 + tmp4
+           weight = rys.w(n) * norm       ! Merge the wieghts and
+           Iz11 =        weight           ! normalisation into Iz.
+           Iz12 = Iz12 * weight
+           Iz21 = Iz21 * weight
+           Iz22 = Iz22 * weight
+           psps(1,1) = psps(1,1) + (Ix22        * Iz11)
+           psps(2,1) = psps(2,1) + (Ix12 * Iy21 * Iz11)
+           psps(3,1) = psps(3,1) + (Ix12        * Iz21)
+           psps(1,2) = psps(1,2) + (Ix21 * Iy12 * Iz11)
+           psps(2,2) = psps(2,2) + (       Iy22 * Iz11)
+           psps(3,2) = psps(3,2) + (       Iy12 * Iz21)
+           psps(1,3) = psps(1,3) + (Ix21        * Iz12)
+           psps(2,3) = psps(2,3) + (       Iy21 * Iz12)
+           psps(3,3) = psps(3,3) + (              Iz22)
+         end
+       end
+     end
+     rys.destroy
+     if (.ab.a.l == 1) then
+       if (.cd.a.l ==1) then; abcd(:,1,:,1) = psps
+       else;                  abcd(:,1,1,:) = psps
+       end
+     else
+       if (.cd.a.l ==1) then; abcd(1,:,:,1) = psps
+       else;                  abcd(1,:,1,:) = psps
+       end
+     end
+     psps.destroy
+   end
+ 
+   make_abss(abcd) ::: private
+   ! Makes the (ab|ss) integrals, summed over the primitives.
+     self :: IN
+     abcd :: REALMAT4, OUT
+     esss,esssadd :: REALVEC*
+     Ix,Iy,Iz,Iyz :: REALMAT*
+     rys :: RYS*
+     sh :: SHELL2*
+     zeta,zinv,eta,einv,ab_prefac,cd_prefac :: REAL
+     norm,rho,xx,rho_zinv,rho_einv,half_zinv,half_einv :: REAL
+     ab,cd,n_e,nroots,eub,dim,maxl,minl :: INT
+     Qx,Qy,Qz,Px,Py,Pz,QPx,QPy,QPz,PAx,PAy,PAz :: REAL
+     e_powers :: INTMAT*
+     ex,ey,ez :: INTVEC*
+     rzt,ce1,rzthze :: REAL
+     ep1,n :: INT
+     Ix2,Iy2,Iz2,Ix3,Iy3,Iz3 :: REAL
+     Ixe,Ixe1,Iye,Iye1,Ize,Ize1,Ixep1,Iyep1,Izep1 :: REAL
+     n_e = .ab.l_sum
+     maxl = .ab.l_max
+     minl = .ab.l_min
+     dim = n_e + 1
+     eub = n_e.n_comp_sum - (maxl-1).n_comp_sum
+     nroots = (n_e + 2) / 2
+     esss.create(eub)
+     rys.create(nroots)
+     Ix.create(nroots,dim)
+     Iy.create(nroots,dim)
+     Iz.create(nroots,dim)
+     Iyz.create(nroots,dim*(dim+1)/2)
+     esssadd.create(eub)
+     e_powers.create(eub,3)
+     ex => e_powers(:,1)
+     ey => e_powers(:,2)
+     ez => e_powers(:,3)
+     maxl.make_gaussian_xyz_indices(ex,ey,ez,n_e)
+     esss = ZERO
+     do ab = 1,.ab.n_gaussian_pairs
+       zeta = .ab.exponent_sum(ab)
+       zinv = .ab.exponent_inv(ab)
+       ab_prefac = .ab.cc_prefactor(ab)
+       Px  = .ab.pair_center(1,ab)
+       Py  = .ab.pair_center(2,ab)
+       Pz  = .ab.pair_center(3,ab)
+       PAx = .ab.center_diff(1,ab)
+       PAy = .ab.center_diff(2,ab)
+       PAz = .ab.center_diff(3,ab)
+       do cd = 1,.cd.n_gaussian_pairs
+         eta  = .cd.exponent_sum(cd)
+         einv = .cd.exponent_inv(cd)
+         cd_prefac = .cd.cc_prefactor(cd)
+         Qx  = .cd.pair_center(1,cd)
+         Qy  = .cd.pair_center(2,cd)
+         Qz  = .cd.pair_center(3,cd)
+         QPx = Qx - Px
+         QPy = Qy - Py
+         QPz = Qz - Pz
+         rho = zeta * eta / (zeta + eta)
+         rho_zinv = rho * zinv
+         rho_einv = rho * einv
+         xx = rho * (QPx*QPx + QPy*QPy + QPz*QPz)  ! xx = rho QP^2
+         norm = ab_prefac * cd_prefac * sqrt(rho)
+         rys.get_weights(xx)
+         rys.w(:) = rys.w(:) * norm
+         half_zinv = HALF * zinv
+         half_einv = HALF * einv
+         do n=1,nroots
+           rzt      = rys.r(n) * rho_zinv
+           rzthze   = (ONE - rzt) * half_zinv
+           Ix2 = PAx + rzt * QPx
+           Iy2 = PAy + rzt * QPy
+           Iz2 = PAz + rzt * QPz
+           Ix3 = Ix2 * Ix2 + rzthze
+           Iy3 = Iy2 * Iy2 + rzthze
+           Iz3 = Iz2 * Iz2 + rzthze
+           Ix(n,1) = ONE; Iy(n,1) = ONE; Iz(n,1) = ONE
+           Ix(n,2) = Ix2; Iy(n,2) = Iy2; Iz(n,2) = Iz2
+           Ix(n,3) = Ix3; Iy(n,3) = Iy3; Iz(n,3) = Iz3
+           Ixe  = Ix3;   Iye  = Iy3;   Ize  = Iz3
+           Ixe1 = Ix2;   Iye1 = Iy2;   Ize1 = Iz2
+           do ep1 = 4, n_e+1
+             ce1 = (ep1-2) * rzthze
+             Ixep1 = Ix2 * Ixe + ce1 * Ixe1
+             Iyep1 = Iy2 * Iye + ce1 * Iye1
+             Izep1 = Iz2 * Ize + ce1 * Ize1
+             Ix(n,ep1) = Ixep1;   Iy(n,ep1) = Iyep1;   Iz(n,ep1) = Izep1;
+             Ixe1 = Ixe;   Iye1 = Iye;   Ize1 = Ize    ! for next iteration
+             Ixe = Ixep1;  Iye = Iyep1;  Ize = Izep1   ! for next iteration
+           end
+         end
+         .form_esfs_0(Ix,Iy,Iz,Iyz,rys.w,esssadd,ex,ey,ez,dim,eub,minl)
+         esss = esss + esssadd
+       end
+     end
+     e_powers.destroy
+     esssadd.destroy
+     Iyz.destroy
+     Iz.destroy
+     Iy.destroy
+     Ix.destroy
+     rys.destroy
+     ! Transfer equation
+     sh.create(.ab.a,.ab.b)
+     sh.transfer(esss,abcd(:,:,1,1))
+     sh.destroy
+     esss.destroy
+     .to_normalise(abcd)
+   end
+ 
+   make_sscd(abcd) ::: private
+   ! Makes the (ss|cd) integrals, summed over the primitives.
+     self :: IN
+     abcd :: REALMAT4, OUT
+     ssfs,ssfsadd :: REALVEC*
+     Ix,Iy,Iz :: REALMAT*
+     Iyz :: REALMAT*
+     sh :: SHELL2*
+     rys :: RYS*
+     zeta,zinv,eta,einv,rho,xx :: REAL
+     ab,cd,n_f,nroots,fub,dim,maxl,minl :: INT
+     ab_prefac,cd_prefac,norm,rho_einv,half_einv :: REAL
+     Px,Py,Pz,Qx,Qy,Qz,QPx,QPy,QPz,QCx,QCy,QCz :: REAL
+     f_powers :: INTMAT*
+     fx,fy,fz :: INTVEC*
+     ret,cf1,rethen :: REAL
+     fp1,n :: INT
+     Ix2,Iy2,Iz2,Ix3,Iy3,Iz3 :: REAL
+     Ixf,Ixf1,Iyf,Iyf1,Izf,Izf1,Ixfp1,Iyfp1,Izfp1 :: REAL
+     n_f  = .cd.l_sum
+     maxl = .cd.l_max
+     minl = .cd.l_min
+     dim = n_f+1
+     fub = n_f.n_comp_sum - (maxl-1).n_comp_sum
+     nroots = (n_f + 2)/2
+     ssfs.create(fub)
+     rys.create(nroots)
+     Ix.create(nroots,dim)
+     Iy.create(nroots,dim)
+     Iz.create(nroots,dim)
+     Iyz.create(nroots,dim*(dim+1)/2)
+     ssfsadd.create(fub)
+     f_powers.create(fub,3)
+     fx => f_powers(:,1)
+     fy => f_powers(:,2)
+     fz => f_powers(:,3)
+     maxl.make_gaussian_xyz_indices(fx,fy,fz,n_f)
+     ssfs=ZERO
+     do cd = 1,.cd.n_gaussian_pairs
+       eta  = .cd.exponent_sum(cd)
+       einv = .cd.exponent_inv(cd)
+       cd_prefac = .cd.cc_prefactor(cd)
+       Qx  = .cd.pair_center(1,cd)
+       Qy  = .cd.pair_center(2,cd)
+       Qz  = .cd.pair_center(3,cd)
+       QCx = .cd.center_diff(1,cd)
+       QCy = .cd.center_diff(2,cd)
+       QCz = .cd.center_diff(3,cd)
+       do ab = 1,.ab.n_gaussian_pairs
+         zeta = .ab.exponent_sum(ab)
+         zinv = .ab.exponent_inv(ab)
+         ab_prefac = .ab.cc_prefactor(ab)
+         Px  = .ab.pair_center(1,ab)
+         Py  = .ab.pair_center(2,ab)
+         Pz  = .ab.pair_center(3,ab)
+         QPx = Qx - Px
+         QPy = Qy - Py
+         QPz = Qz - Pz
+         rho = zeta * eta / (zeta + eta)
+         rho_einv = rho * einv
+         xx = rho * (QPx*QPx + QPy*QPy + QPz*QPz)  ! xx = rho QP^2
+         norm = ab_prefac * cd_prefac * sqrt(rho)
+         rys.get_weights(xx)
+         rys.w(:) = rys.w(:) * norm
+         half_einv = HALF * einv
+         do n=1,nroots
+           ret     = rys.r(n) * rho_einv
+           rethen  = (ONE - ret) * half_einv
+           Ix2 = QCx - ret * QPx
+           Iy2 = QCy - ret * QPy
+           Iz2 = QCz - ret * QPz
+           Ix3 = Ix2 * Ix2 + rethen
+           Iy3 = Iy2 * Iy2 + rethen
+           Iz3 = Iz2 * Iz2 + rethen
+           Ix(n,1) = ONE; Iy(n,1) = ONE; Iz(n,1) = ONE
+           Ix(n,2) = Ix2; Iy(n,2) = Iy2; Iz(n,2) = Iz2
+           Ix(n,3) = Ix3; Iy(n,3) = Iy3; Iz(n,3) = Iz3
+           Ixf  = Ix3;   Iyf  = Iy3;   Izf  = Iz3
+           Ixf1 = Ix2;   Iyf1 = Iy2;   Izf1 = Iz2
+           do fp1 = 4, n_f+1
+             cf1 = (fp1-2) * rethen
+             Ixfp1 = Ix2 * Ixf + cf1 * Ixf1
+             Iyfp1 = Iy2 * Iyf + cf1 * Iyf1
+             Izfp1 = Iz2 * Izf + cf1 * Izf1
+             Ix(n,fp1) = Ixfp1;   Iy(n,fp1) = Iyfp1;   Iz(n,fp1) = Izfp1;
+             Ixf1 = Ixf;   Iyf1 = Iyf;   Izf1 = Izf    ! for next iteration
+             Ixf = Ixfp1;  Iyf = Iyfp1;  Izf = Izfp1   ! for next iteration
+           end
+         end
+         .form_esfs_0(Ix,Iy,Iz,Iyz,rys.w,ssfsadd,fx,fy,fz,dim,fub,minl)
+         ssfs = ssfs + ssfsadd
+       end
+     end
+     f_powers.destroy
+     ssfsadd.destroy
+     Iyz.destroy
+     Iz.destroy
+     Iy.destroy
+     Ix.destroy
+     rys.destroy
+     ! Transfer equation
+     sh.create(.cd.a,.cd.b)
+     sh.transfer(ssfs,abcd(1,1,:,:))
+     sh.destroy
+     ssfs.destroy
+     .to_normalise(abcd)
+   end
+ 
+   form_esfs_0(Ix,Iy,Iz,Iyz,weights,esfsadd,xx,yy,zz,dim,fub,minl) ::: private
+   ! Forms (es|fs) from the two dimensional integrals for a single
+   ! set of primitives, where e = 0 or f = 0.
+     self :: IN
+     Ix,Iy,Iz,Iyz :: REALMAT, target
+     weights :: REALVEC, IN
+     esfsadd :: REALVEC, OUT
+     xx,yy,zz :: INTVEC
+     dim,fub,minl :: INT, IN
+     f,x,y,z,dim1,dim2,ii :: INT
+     Izz :: REALVEC*
+     ! Apply the reduced multiplication scheme to merge the Iy and Iz 2d
+     ! integrals into a single matrix (upper triangle).
+     if (minl > 2) then
+       dim1 = dim+1
+       dim2 = 2*dim1+1
+       ii = 0
+       do z=1,dim
+         Izz => Iz(:,z)
+         Izz(:) = Izz(:) * weights(:)  ! Merge the weights into Iz.
+         do y=1,dim1-z
+           ii = ii + 1
+           Iyz(:,ii) = Izz * Iy(:,y)
+         end
+       end
+       do f=1,fub
+         x  = xx(f);  y = yy(f);  z = zz(f)
+          ii = -dim1 + z*(dim2-z)/2 + y
+         esfsadd(f)=sum(Ix(:,x) * Iyz(:,ii))
+       end
+     else
+       do z=1,dim
+         Izz => Iz(:,z)
+         Izz(:) = Izz(:) * weights(:)  ! Merge the weights into Iz.
+       end
+       do f=1,fub
+         x  = xx(f);  y = yy(f);  z = zz(f)
+         esfsadd(f)=sum(Ix(:,x) * Iy(:,y) * Iz(:,z))
+       end
+     end
+   end
+ 
+   make_ppss(abcd) ::: private
+   ! Creates the initial (pp|ss) integrals, summed over the primitives.
+     self :: IN
+     abcd :: REALMAT4, OUT
+     rys :: RYS*
+     zeta,zinv,eta,einv,rho,xx :: REAL
+     ab_prefac,cd_prefac,norm,rho_zinv,half_zinv :: REAL
+     Qx,Qy,Qz,Px,Py,Pz,QPx,QPy,QPz,PAx,PAy,PAz :: REAL
+     rzt,rzthze :: REAL
+     Ix2,Iy2,Iz2,Ix3,Iy3,Iz3,w :: REAL
+     px_s,py_s,pz_s,dxx_s,dyy_s,dzz_s,dxy_s,dxz_s,dyx_s :: REAL
+     BAx,BAy,BAz :: REAL
+     ab,cd,n :: INT
+     px_s  = ZERO; py_s  = ZERO; pz_s  = ZERO
+     dxx_s = ZERO; dyy_s = ZERO; dzz_s = ZERO
+     dxy_s = ZERO; dxz_s = ZERO; dyx_s = ZERO
+     rys.create(2)               ! nroots = 2
+     do ab = 1,.ab.n_gaussian_pairs
+       zeta = .ab.exponent_sum(ab)
+       zinv = .ab.exponent_inv(ab)
+       ab_prefac = .ab.cc_prefactor(ab)
+       Px  = .ab.pair_center(1,ab)
+       Py  = .ab.pair_center(2,ab)
+       Pz  = .ab.pair_center(3,ab)
+       PAx = .ab.center_diff(1,ab)
+       PAy = .ab.center_diff(2,ab)
+       PAz = .ab.center_diff(3,ab)
+       do cd = 1,.cd.n_gaussian_pairs
+         eta  = .cd.exponent_sum(cd)
+         einv = .cd.exponent_inv(cd)
+         cd_prefac = .cd.cc_prefactor(cd)
+         Qx  = .cd.pair_center(1,cd)
+         Qy  = .cd.pair_center(2,cd)
+         Qz  = .cd.pair_center(3,cd)
+         QPx = Qx - Px
+         QPy = Qy - Py
+         QPz = Qz - Pz
+         rho = zeta * eta / (zeta + eta)
+         rho_zinv = rho * zinv
+         xx = rho * (QPx*QPx + QPy*QPy + QPz*QPz)  ! xx = rho QP^2
+         norm = ab_prefac * cd_prefac * sqrt(rho)
+         rys.get_weights(xx)
+         half_zinv = HALF * zinv
+         do n=1,2
+           rzt    = rys.r(n) * rho_zinv
+           rzthze = (ONE - rzt) * half_zinv
+           Ix2 = PAx + rzt * QPx
+           Iy2 = PAy + rzt * QPy
+           Iz2 = PAz + rzt * QPz
+           Ix3 = Ix2 * Ix2 + rzthze
+           Iy3 = Iy2 * Iy2 + rzthze
+           Iz3 = Iz2 * Iz2 + rzthze
+           w = rys.w(n) * norm
+           Iz2 = Iz2 * w
+           Iz3 = Iz3 * w
+           px_s  = px_s  + (Ix2 *         w)
+           py_s  = py_s  + (      Iy2 *   w)
+           pz_s  = pz_s  + (            Iz2)
+           dxx_s = dxx_s + (Ix3 *         w)
+           dyy_s = dyy_s + (      Iy3 *   w)
+           dzz_s = dzz_s + (            Iz3)
+           dxy_s = dxy_s + (Ix2 * Iy2 *   w)
+           dxz_s = dxz_s + (Ix2 *       Iz2)
+           dyx_s = dyx_s + (      Iy2 * Iz2)
+         end
+       end
+     end
+     rys.destroy
+     ! Transfer equation.
+     BAx = .ab.b.pos(1) - .ab.a.pos(1)
+     BAy = .ab.b.pos(2) - .ab.a.pos(2)
+     BAz = .ab.b.pos(3) - .ab.a.pos(3)
+     abcd(1,1,1,1) = dxx_s + BAx * px_s
+     abcd(1,2,1,1) = dxy_s + BAx * py_s
+     abcd(1,3,1,1) = dxz_s + BAx * pz_s
+     abcd(2,1,1,1) = dxy_s + BAy * px_s
+     abcd(2,2,1,1) = dyy_s + BAy * py_s
+     abcd(2,3,1,1) = dyx_s + BAy * pz_s
+     abcd(3,1,1,1) = dxz_s + BAz * px_s
+     abcd(3,2,1,1) = dyx_s + BAz * py_s
+     abcd(3,3,1,1) = dzz_s + BAz * pz_s
+   end
+ 
+   make_sspp(abcd) ::: private
+   ! Creates the (ss|pp) integrals, summed over the primitives.
+     self :: IN
+     abcd :: REALMAT4, OUT
+     rys :: RYS*
+     zeta,zinv,eta,einv,rho,xx :: REAL
+     ab_prefac,cd_prefac,norm,rho_einv,half_einv :: REAL
+     QPx,QPy,QPz,QCx,QCy,QCz :: REAL
+     Qx,Qy,Qz,Px,Py,Pz :: REAL
+     ret,rethen :: REAL
+     Ix2,Iy2,Iz2,Ix3,Iy3,Iz3,w :: REAL
+     px_s,py_s,pz_s,dxx_s,dyy_s,dzz_s,dxy_s,dxz_s,dyz_s :: REAL
+     DCx,DCy,DCz :: REAL
+     ab,cd,n :: INT
+     px_s  = ZERO; py_s  = ZERO; pz_s  = ZERO
+     dxx_s = ZERO; dyy_s = ZERO; dzz_s = ZERO
+     dxy_s = ZERO; dxz_s = ZERO; dyz_s = ZERO
+     rys.create(2)               ! nroots = 2
+     do cd = 1,.cd.n_gaussian_pairs
+       eta  = .cd.exponent_sum(cd)
+       einv = .cd.exponent_inv(cd)
+       cd_prefac = .cd.cc_prefactor(cd)
+       Qx  = .cd.pair_center(1,cd)
+       Qy  = .cd.pair_center(2,cd)
+       Qz  = .cd.pair_center(3,cd)
+       QCx = .cd.center_diff(1,cd)
+       QCy = .cd.center_diff(2,cd)
+       QCz = .cd.center_diff(3,cd)
+       do ab = 1,.ab.n_gaussian_pairs
+         zeta = .ab.exponent_sum(ab)
+         zinv = .ab.exponent_inv(ab)
+         ab_prefac = .ab.cc_prefactor(ab)
+         Px  = .ab.pair_center(1,ab)
+         Py  = .ab.pair_center(2,ab)
+         Pz  = .ab.pair_center(3,ab)
+         QPx = Qx - Px
+         QPy = Qy - Py
+         QPz = Qz - Pz
+         rho = zeta * eta / (zeta + eta)
+         rho_einv = rho * einv
+         xx = rho * (QPx*QPx + QPy*QPy + QPz*QPz)  ! xx = rho QP^2
+         norm = ab_prefac * cd_prefac * sqrt(rho)
+         rys.get_weights(xx)
+         half_einv = HALF * einv
+         do n=1,2
+           ret     = rys.r(n) * rho_einv
+           rethen  = (ONE - ret) * half_einv
+           Ix2 = QCx - ret * QPx
+           Iy2 = QCy - ret * QPy
+           Iz2 = QCz - ret * QPz
+           Ix3 = Ix2 * Ix2 + rethen
+           Iy3 = Iy2 * Iy2 + rethen
+           Iz3 = Iz2 * Iz2 + rethen
+           w = rys.w(n) * norm
+           Iz2 = Iz2 * w
+           Iz3 = Iz3 * w
+           px_s  = px_s  + (Ix2 *         w)
+           py_s  = py_s  + (      Iy2 *   w)
+           pz_s  = pz_s  + (            Iz2)
+           dxx_s = dxx_s + (Ix3 *         w)
+           dyy_s = dyy_s + (      Iy3 *   w)
+           dzz_s = dzz_s + (            Iz3)
+           dxy_s = dxy_s + (Ix2 * Iy2 *   w)
+           dxz_s = dxz_s + (Ix2 *       Iz2)
+           dyz_s = dyz_s + (      Iy2 * Iz2)
+         end
+       end
+     end
+     rys.destroy
+     ! Transfer equation.
+     DCx = .cd.b.pos(1) - .cd.a.pos(1)
+     DCy = .cd.b.pos(2) - .cd.a.pos(2)
+     DCz = .cd.b.pos(3) - .cd.a.pos(3)
+     abcd(1,1,1,1) = dxx_s + DCx * px_s
+     abcd(1,1,1,2) = dxy_s + DCx * py_s
+     abcd(1,1,1,3) = dxz_s + DCx * pz_s
+     abcd(1,1,2,1) = dxy_s + DCy * px_s
+     abcd(1,1,2,2) = dyy_s + DCy * py_s
+     abcd(1,1,2,3) = dyz_s + DCy * pz_s
+     abcd(1,1,3,1) = dxz_s + DCz * px_s
+     abcd(1,1,3,2) = dyz_s + DCz * py_s
+     abcd(1,1,3,3) = dzz_s + DCz * pz_s
+   end
+ 
+   make_psss(abcd) ::: private
+   ! Creates the initial (ps|ss) or (sp|ss) integrals, summed over the
+   ! primitives.
+     self :: IN
+     abcd :: REALMAT4, OUT
+     rys :: RYS*
+     zeta,zinv,eta,rho,xx,rho_zinv :: REAL
+     ab,cd :: INT
+     ab_prefac,cd_prefac,norm,rzt :: REAL
+     QPx,QPy,QPz,PAx,PAy,PAz :: REAL
+     Qx,Qy,Qz,Px,Py,Pz :: REAL
+     psss1,psss2,psss3 :: REAL
+     psss1 = ZERO
+     psss2 = ZERO
+     psss3 = ZERO
+     rys.create(1)
+     do ab = 1,.ab.n_gaussian_pairs
+       zeta = .ab.exponent_sum(ab)
+       zinv = .ab.exponent_inv(ab)
+       ab_prefac = .ab.cc_prefactor(ab)
+       Px  = .ab.pair_center(1,ab)
+       Py  = .ab.pair_center(2,ab)
+       Pz  = .ab.pair_center(3,ab)
+       PAx = .ab.center_diff(1,ab)
+       PAy = .ab.center_diff(2,ab)
+       PAz = .ab.center_diff(3,ab)
+       do cd = 1,.cd.n_gaussian_pairs
+         eta  = .cd.exponent_sum(cd)
+         cd_prefac = .cd.cc_prefactor(cd)
+         Qx  = .cd.pair_center(1,cd)
+         Qy  = .cd.pair_center(2,cd)
+         Qz  = .cd.pair_center(3,cd)
+         QPx = Qx - Px
+         QPy = Qy - Py
+         QPz = Qz - Pz
+         rho = zeta * eta / (zeta + eta)
+         rho_zinv = rho * zinv
+         xx = rho * (QPx*QPx + QPy*QPy + QPz*QPz)  ! xx = rho QP^2
+         norm = ab_prefac * cd_prefac * sqrt(rho)
+         rys.get_weights(xx)
+         rzt = rys.r(1) * rho_zinv
+         norm = norm * rys.w(1)
+         psss1 = psss1 + norm * (PAx + rzt * QPx)
+         psss2 = psss2 + norm * (PAy + rzt * QPy)
+         psss3 = psss3 + norm * (PAz + rzt * QPz)
+       end
+     end
+     rys.destroy
+     abcd(1,1,1,1) = psss1
+     if (.ab.a.l == 1) then     ! psss
+       abcd(2,1,1,1) = psss2
+       abcd(3,1,1,1) = psss3
+     else                       ! spss
+       abcd(1,2,1,1) = psss2
+       abcd(1,3,1,1) = psss3
+     end
+   end
+ 
+   make_ssps(abcd) ::: private
+   ! Creates the (ss|ps) or (ss|sp) integrals, summed over the primitives.
+     self :: IN
+     abcd :: REALMAT4, OUT
+     rys :: RYS*
+     zeta,eta,einv,rho,xx,ret :: REAL
+     ab,cd :: INT
+     ab_prefac,cd_prefac,norm,rho_einv :: REAL
+     QPx,QPy,QPz,QCx,QCy,QCz :: REAL
+     Qx,Qy,Qz,Px,Py,Pz :: REAL
+     ssps1,ssps2,ssps3 :: REAL
+     ssps1=ZERO
+     ssps2=ZERO
+     ssps3=ZERO
+     rys.create(1)
+     do cd = 1,.cd.n_gaussian_pairs
+       eta  = .cd.exponent_sum(cd)
+       einv = .cd.exponent_inv(cd)
+       cd_prefac = .cd.cc_prefactor(cd)
+       Qx  = .cd.pair_center(1,cd)
+       Qy  = .cd.pair_center(2,cd)
+       Qz  = .cd.pair_center(3,cd)
+       QCx = .cd.center_diff(1,cd)
+       QCy = .cd.center_diff(2,cd)
+       QCz = .cd.center_diff(3,cd)
+       do ab = 1,.ab.n_gaussian_pairs
+         zeta = .ab.exponent_sum(ab)
+         ab_prefac = .ab.cc_prefactor(ab)
+         Px  = .ab.pair_center(1,ab)
+         Py  = .ab.pair_center(2,ab)
+         Pz  = .ab.pair_center(3,ab)
+         QPx = Qx - Px
+         QPy = Qy - Py
+         QPz = Qz - Pz
+         rho = zeta * eta / (zeta + eta)
+         rho_einv = rho * einv
+         xx = rho * (QPx*QPx + QPy*QPy + QPz*QPz)  ! xx = rho QP^2
+         norm = ab_prefac * cd_prefac * sqrt(rho)
+         rys.get_weights(xx)
+         ret = rys.r(1) * rho_einv
+         norm = norm * rys.w(1)
+         ssps1 = ssps1 + norm * (QCx - ret * QPx)
+         ssps2 = ssps2 + norm * (QCy - ret * QPy)
+         ssps3 = ssps3 + norm * (QCz - ret * QPz)
+       end
+     end
+     rys.destroy
+     abcd(1,1,1,1) = ssps1
+     if (.cd.a.l == 1) then        ! ssps
+       abcd(1,1,2,1) = ssps2
+       abcd(1,1,3,1) = ssps3
+     else                          ! sssp
+       abcd(1,1,1,2) = ssps2
+       abcd(1,1,1,3) = ssps3
+     end
+   end
+ 
+   make_ssss(abcd) ::: private
+   ! Creates the (ss|ss) integrals, summed over the primitives.
+     self :: IN
+     abcd :: REALMAT4, OUT
+     ssss :: REAL
+     rys :: RYS*
+     zeta,eta,rho,xx :: REAL
+     ab,cd :: INT
+     ab_prefac,cd_prefac,norm :: REAL
+     Qx,Qy,Qz,Px,Py,Pz,QPx,QPy,QPz :: REAL
+     ssss = ZERO
+     rys.create(1)
+     do cd = 1,.cd.n_gaussian_pairs
+       eta  = .cd.exponent_sum(cd)
+       cd_prefac = .cd.cc_prefactor(cd)
+       Qx  = .cd.pair_center(1,cd)
+       Qy  = .cd.pair_center(2,cd)
+       Qz  = .cd.pair_center(3,cd)
+       do ab = 1,.ab.n_gaussian_pairs
+         zeta = .ab.exponent_sum(ab)
+         ab_prefac = .ab.cc_prefactor(ab)
+         Px  = .ab.pair_center(1,ab)
+         Py  = .ab.pair_center(2,ab)
+         Pz  = .ab.pair_center(3,ab)
+         QPx = Qx - Px
+         QPy = Qy - Py
+         QPz = Qz - Pz
+         rho = zeta * eta / (zeta + eta)
+         xx = rho * (QPx*QPx + QPy*QPy + QPz*QPz)  ! xx = rho QP^2
+         norm = ab_prefac * cd_prefac * sqrt(rho)
+         rys.get_weights(xx)
+         ssss = ssss + norm * rys.w(1)
+       end
+     end
+     rys.destroy
+     abcd = ssss
+   end
+ 
+   transfer(esfs,escd)
+   ! Applies the transfer equation to (es|fs) to give (es|cd)
+     self :: IN
+     esfs :: REALMAT, IN
+     escd :: REALMAT3, OUT
+     if (.cd.a.l > .cd.b.l) then
+       .transfer_l_c_highest(esfs,escd)
+     else
+       .transfer_l_d_highest(esfs,escd)
+     end
+   end
+ 
+   transfer(escd,abcd)
+   ! Applies the transfer equation to (es|cd) to give (ab|cd)
+     self :: IN
+     escd :: REALMAT3, IN
+     abcd :: REALMAT4, OUT
+     if (.ab.a.l > .ab.b.l) then
+       .transfer_l_a_highest(escd,abcd)
+     else
+       .transfer_l_b_highest(escd,abcd)
+     end
+   end
+ 
+   transfer_l_c_highest(esfs,escd) ::: private
+   ! Applies the transfer equation to (es|fs) to give (es|cd)
+     self :: IN
+     esfs :: REALMAT, IN
+     escd :: REALMAT3, OUT
+     int_new,int_old :: REALMAT3*
+     components,components_c,components_d :: INTMAT*
+     index_c,index_d :: INTMAT3*
+     comp_to_use,component_to_use :: INTVEC*
+     CD :: REALVEC(3)
+     c,d,c1,c2,c3,d1,ld,cub,dub :: INT
+     cx,cy,cz,dx,dy,dz,j,n_f,clb,dlb,tmp,e,eub :: INT
+     CDi,CDx,CDy,CDz,esfs_ec :: REAL
+ 
+     select case (.cd.b.l)
+       case (0)
+         escd(:,:,1)=esfs
+ 
+       case (1)
+         clb = (.cd.a.l-1).n_comp_sum
+         eub = (.ab.l_sum).n_comp_sum - (.ab.l_max-1).n_comp_sum
+         CD   = .cd.a.pos - .cd.b.pos
+         n_f  = .cd.l_sum
+         cub  = .cd.a.n_comp
+ 
+         components.create(3, n_f.n_comp_sum - clb)
+         index_c.create(0,n_f,0,n_f,0,n_f)
+         .cd.a.l.make_gaussian_xyz_powers(components,n_f,index_c)
+ 
+         CDx = CD(1); CDy = CD(2); CDz = CD(3)
+         do c = 1, cub
+           cx = components(1,c)
+           cy = components(2,c)
+           cz = components(3,c)
+           c1 = index_c(cx+1,cy,cz)
+           c2 = index_c(cx,cy+1,cz)
+           c3 = index_c(cx,cy,cz+1)
+           do e = 1, eub
+             esfs_ec = esfs(e,c)
+             escd(e,c,1) = esfs(e,c1) + CDx * esfs_ec
+             escd(e,c,2) = esfs(e,c2) + CDy * esfs_ec
+             escd(e,c,3) = esfs(e,c3) + CDz * esfs_ec
+           end
+         end
+         components.destroy
+         index_c.destroy
+ 
+       case default
+         clb  = (.cd.a.l-1).n_comp_sum
+         eub  = (.ab.l_sum).n_comp_sum - (.ab.l_max-1).n_comp_sum
+         CD   = .cd.a.pos - .cd.b.pos
+         n_f  = .cd.l_sum
+         cub  = (n_f-1).n_comp_sum - clb
+ 
+         index_c.create(0,n_f,0,n_f,0,n_f)
+         index_d.create(0,n_f,0,n_f,0,n_f)
+         components.create(3, n_f.n_comp_sum)
+         comp_to_use.create( n_f.n_comp_sum )
+         tmp=0; tmp.make_gaussian_xyz_powers(components,n_f,index_d,comp_to_use)
+         .cd.a.l.make_gaussian_xyz_power_index(index_c,n_f)
+         components_c => components(:,clb+1:)
+ 
+         nullify(int_new)
+         int_new.create(eub,cub,3)
+ 
+         CDx = CD(1); CDy = CD(2); CDz = CD(3)
+         do c = 1, cub
+           cx = components_c(1,c)
+           cy = components_c(2,c)
+           cz = components_c(3,c)
+           c1 = index_c(cx+1,cy,cz)
+           c2 = index_c(cx,cy+1,cz)
+           c3 = index_c(cx,cy,cz+1)
+           do e = 1, eub
+             esfs_ec = esfs(e,c)
+             int_new(e,c,1) = esfs(e,c1) + CDx * esfs_ec
+             int_new(e,c,2) = esfs(e,c2) + CDy * esfs_ec
+             int_new(e,c,3) = esfs(e,c3) + CDz * esfs_ec
+           end
+         end
+ 
+         do ld=2, .cd.b.l - 1
+           dlb              = (ld-1).n_comp_sum
+           dub              = ld.n_comp
+           cub              = (n_f-ld).n_comp_sum - clb
+           component_to_use => comp_to_use(dlb+1:dlb+dub)
+           components_d     => components(:,dlb+1:dlb+dub)
+           int_old          => int_new
+           nullify(int_new)
+           int_new.create(eub,cub,dub)
+           do d=1,dub
+             dx = components_d(1,d)
+             dy = components_d(2,d)
+             dz = components_d(3,d)
+             j=component_to_use(d)
+             .subtract_from_component(dx,dy,dz,j)
+             d1 = index_d(dx,dy,dz)
+             CDi=CD(j)
+             do c=1,cub
+               cx = components_c(1,c)
+               cy = components_c(2,c)
+               cz = components_c(3,c)
+               .add_to_component(cx,cy,cz,j)
+               c1 = index_c(cx,cy,cz)
+               do e=1,eub
+                 int_new(e,c,d)=int_old(e,c1,d1)+CDi*int_old(e,c,d1)
+               end
+             end
+           end
+           int_old.destroy
+         end
+ 
+         dlb              = (.cd.b.l-1).n_comp_sum
+         dub              = .cd.b.n_comp
+         cub              = .cd.a.n_comp
+         component_to_use => comp_to_use(dlb+1:dlb+dub)
+         components_d     => components(:,dlb+1:dlb+dub)
+         int_old          => int_new
+         do d=1,dub
+           dx = components_d(1,d)
+           dy = components_d(2,d)
+           dz = components_d(3,d)
+           j=component_to_use(d)
+           .subtract_from_component(dx,dy,dz,j)
+           d1 = index_d(dx,dy,dz)
+           CDi=CD(j)
+           do c=1,cub
+             cx = components_c(1,c)
+             cy = components_c(2,c)
+             cz = components_c(3,c)
+             .add_to_component(cx,cy,cz,j)
+             c1 = index_c(cx,cy,cz)
+             do e=1,eub
+               escd(e,c,d)=int_old(e,c1,d1)+CDi*int_old(e,c,d1)
+             end
+           end
+         end
+         int_old.destroy
+         index_c.destroy
+         index_d.destroy
+         components.destroy
+         comp_to_use.destroy
+     end
+   end
+ 
+   transfer_l_d_highest(esfs,escd) ::: private
+   ! Applies the transfer equation to (es|fs) to give (es|cd)
+     self :: IN
+     esfs :: REALMAT, IN
+     escd :: REALMAT3, OUT
+     int_new,int_old :: REALMAT3*
+     components,components_c,components_d :: INTMAT*
+     index_c,index_d :: INTMAT3*
+     comp_to_use,component_to_use :: INTVEC*
+     DC :: REALVEC(3)
+     c,d,c1,d1,d2,d3,lc,cub,dub :: INT
+     cx,cy,cz,dx,dy,dz,j,n_f,clb,dlb,tmp,e,eub :: INT
+     DCi,DCx,DCy,DCz,esfs_ed :: REAL
+ 
+     select case (.cd.a.l)
+       case (0)
+         escd(:,1,:)=esfs
+ 
+       case (1)
+         dlb = (.cd.b.l-1).n_comp_sum
+         eub = (.ab.l_sum).n_comp_sum - (.ab.l_max-1).n_comp_sum
+         DC   = .cd.b.pos - .cd.a.pos
+         n_f  = .cd.l_sum
+         dub  = .cd.b.n_comp
+ 
+         components.create(3, n_f.n_comp_sum - dlb)
+         index_d.create(0,n_f,0,n_f,0,n_f)
+         .cd.b.l.make_gaussian_xyz_powers(components,n_f,index_d)
+ 
+         DCx=DC(1); DCy=DC(2); DCz=DC(3)
+         do d=1,dub
+           dx = components(1,d)
+           dy = components(2,d)
+           dz = components(3,d)
+           d1 = index_d(dx+1,dy,dz)
+           d2 = index_d(dx,dy+1,dz)
+           d3 = index_d(dx,dy,dz+1)
+           do e=1,eub
+             esfs_ed = esfs(e,d)
+             escd(e,1,d)=esfs(e,d1)+DCx*esfs_ed
+             escd(e,2,d)=esfs(e,d2)+DCy*esfs_ed
+             escd(e,3,d)=esfs(e,d3)+DCz*esfs_ed
+           end
+         end
+         components.destroy
+         index_d.destroy
+ 
+       case default
+         dlb = (.cd.b.l-1).n_comp_sum
+         eub = (.ab.l_sum).n_comp_sum - (.ab.l_max-1).n_comp_sum
+         DC   = .cd.b.pos - .cd.a.pos
+         n_f  = .cd.l_sum
+         dub  = (n_f-1).n_comp_sum - dlb
+ 
+         index_c.create(0,n_f,0,n_f,0,n_f)
+         index_d.create(0,n_f,0,n_f,0,n_f)
+         components.create(3, n_f.n_comp_sum)
+         comp_to_use.create( n_f.n_comp_sum )
+         tmp=0; tmp.make_gaussian_xyz_powers(components,n_f,index_c,comp_to_use)
+         .cd.b.l.make_gaussian_xyz_power_index(index_d,n_f)
+         components_d => components(:,dlb+1:)
+ 
+         nullify(int_new)
+         int_new.create(eub,dub,3)
+         DCx=DC(1); DCy=DC(2); DCz=DC(3)
+         do d=1,dub
+           dx = components_d(1,d)
+           dy = components_d(2,d)
+           dz = components_d(3,d)
+           d1 = index_d(dx+1,dy,dz)
+           d2 = index_d(dx,dy+1,dz)
+           d3 = index_d(dx,dy,dz+1)
+           do e=1,eub
+             esfs_ed = esfs(e,d)
+             int_new(e,d,1)=esfs(e,d1)+DCx*esfs_ed
+             int_new(e,d,2)=esfs(e,d2)+DCy*esfs_ed
+             int_new(e,d,3)=esfs(e,d3)+DCz*esfs_ed
+           end
+         end
+         do lc=2, .cd.a.l - 1
+           clb              = (lc-1).n_comp_sum
+           cub              = lc.n_comp
+           dub              = (n_f-lc).n_comp_sum - dlb
+           component_to_use => comp_to_use(clb+1:clb+cub)
+           components_c     => components(:,clb+1:clb+cub)
+           int_old          => int_new
+           nullify(int_new)
+           int_new.create(eub,dub,cub)
+           do c=1,cub
+             cx = components_c(1,c)
+             cy = components_c(2,c)
+             cz = components_c(3,c)
+             j=component_to_use(c)
+             .subtract_from_component(cx,cy,cz,j)
+             c1 = index_c(cx,cy,cz)
+             DCi=DC(j)
+             do d=1,dub
+               dx = components_d(1,d)
+               dy = components_d(2,d)
+               dz = components_d(3,d)
+               .add_to_component(dx,dy,dz,j)
+               d1 = index_d(dx,dy,dz)
+               do e=1,eub
+                 int_new(e,d,c)=int_old(e,d1,c1)+DCi*int_old(e,d,c1)
+               end
+             end
+           end
+           int_old.destroy
+         end
+         clb              = (.cd.a.l-1).n_comp_sum
+         cub              = .cd.a.n_comp
+         dub              = .cd.b.n_comp
+         component_to_use => comp_to_use(clb+1:clb+cub)
+         components_c     => components(:,clb+1:clb+cub)
+         int_old          => int_new
+         do c=1,cub
+           cx = components_c(1,c)
+           cy = components_c(2,c)
+           cz = components_c(3,c)
+           j=component_to_use(c)
+           .subtract_from_component(cx,cy,cz,j)
+           c1 = index_c(cx,cy,cz)
+           DCi=DC(j)
+           do d=1,dub
+             dx = components_d(1,d)
+             dy = components_d(2,d)
+             dz = components_d(3,d)
+             .add_to_component(dx,dy,dz,j)
+             d1 = index_d(dx,dy,dz)
+             do e=1,eub
+               escd(e,c,d)=int_old(e,d1,c1)+DCi*int_old(e,d,c1)
+             end
+           end
+         end
+         int_old.destroy
+         index_c.destroy
+         index_d.destroy
+         components.destroy
+         comp_to_use.destroy
+     end
+   end
+ 
+   transfer_l_a_highest(escd,abcd) ::: private
+   ! Applies the transfer equation to (es|cd) to give (ab|cd)
+     self :: IN
+     escd :: REALMAT3, IN
+     abcd :: REALMAT4, OUT
+     int_new,int_old :: REALMAT4*
+     components,components_a,components_b :: INTMAT*
+     index_a,index_b :: INTMAT3*
+     AB :: REALVEC(3)
+     a,b,c,d,a1,a2,a3,b1,lb,aub,bub,cub,dub :: INT
+     ax,ay,az,bx,by,bz,j,n_e,alb,blb,tmp :: INT
+     ABi,ABx,ABy,ABz,escd_acd :: REAL
+     comp_to_use,component_to_use :: INTVEC*
+ 
+     select case (.ab.b.l)
+       case (0)
+         abcd(:,1,:,:)=escd
+ 
+       case (1)
+         alb = (.ab.a.l-1).n_comp_sum
+         AB   = .ab.a.pos - .ab.b.pos
+         n_e  = .ab.l_sum
+         aub  = .ab.a.n_comp
+         cub  = .cd.a.n_comp
+         dub  = .cd.b.n_comp
+ 
+         components.create(3, n_e.n_comp_sum - alb)
+         index_a.create(0,n_e,0,n_e,0,n_e)
+         .ab.a.l.make_gaussian_xyz_powers(components,n_e,index_a)
+ 
+         ABx=AB(1); ABy=AB(2); ABz=AB(3)
+         do a=1,aub
+           ax = components(1,a)
+           ay = components(2,a)
+           az = components(3,a)
+           a1 = index_a(ax+1,ay,az)
+           a2 = index_a(ax,ay+1,az)
+           a3 = index_a(ax,ay,az+1)
+           do d=1,dub
+             do c=1,cub
+               escd_acd = escd(a,c,d)
+               abcd(a,1,c,d)=escd(a1,c,d) + ABx * escd_acd
+               abcd(a,2,c,d)=escd(a2,c,d) + ABy * escd_acd
+               abcd(a,3,c,d)=escd(a3,c,d) + ABz * escd_acd
+             end
+           end
+         end
+         index_a.destroy
+         components.destroy
+ 
+       case default
+         alb = (.ab.a.l-1).n_comp_sum
+         AB   = .ab.a.pos - .ab.b.pos
+         n_e  = .ab.l_sum
+         aub  = (n_e-1).n_comp_sum - alb
+         bub  = .ab.b.n_comp
+         cub  = .cd.a.n_comp
+         dub  = .cd.b.n_comp
+ 
+         index_b.create(0,n_e,0,n_e,0,n_e)
+         index_a.create(0,n_e,0,n_e,0,n_e)
+         components.create(3, n_e.n_comp_sum)
+         comp_to_use.create( n_e.n_comp_sum )
+         tmp=0; tmp.make_gaussian_xyz_powers(components,n_e,index_b,comp_to_use)
+         tmp=.ab.a.l; tmp.make_gaussian_xyz_power_index(index_a,n_e)
+         components_a => components(:,alb+1:)
+ 
+         nullify(int_new)
+         int_new.create(dub,cub,bub,aub)
+         ABx=AB(1); ABy=AB(2); ABz=AB(3)
+         do a=1,aub
+           ax = components_a(1,a)
+           ay = components_a(2,a)
+           az = components_a(3,a)
+           a1 = index_a(ax+1,ay,az)
+           a2 = index_a(ax,ay+1,az)
+           a3 = index_a(ax,ay,az+1)
+           do c=1,cub
+             do d=1,dub
+               escd_acd = escd(a,c,d)
+               int_new(d,c,1,a)=escd(a1,c,d) + ABx * escd_acd
+               int_new(d,c,2,a)=escd(a2,c,d) + ABy * escd_acd
+               int_new(d,c,3,a)=escd(a3,c,d) + ABz * escd_acd
+             end
+           end
+         end
+ 
+         do lb=2, .ab.b.l - 1
+           blb              = (lb-1).n_comp_sum
+           bub              = lb.n_comp
+           aub              = (n_e-lb).n_comp_sum - alb
+           component_to_use => comp_to_use(blb+1:blb+bub)
+           components_b     => components(:,blb+1:blb+bub)
+           int_old          => int_new
+           nullify(int_new)
+           int_new.create(dub,cub,bub,aub)
+           do b=1,bub
+             bx = components_b(1,b)
+             by = components_b(2,b)
+             bz = components_b(3,b)
+             j = component_to_use(b)
+             .subtract_from_component(bx,by,bz,j)
+             b1 = index_b(bx,by,bz)
+             ABi=AB(j)
+             do a=1,aub
+               ax = components_a(1,a)
+               ay = components_a(2,a)
+               az = components_a(3,a)
+               .add_to_component(ax,ay,az,j)
+               a1 = index_a(ax,ay,az)
+               int_new(:,:,b,a)=int_old(:,:,b1,a1) + ABi * int_old(:,:,b1,a)
+             end
+           end
+           int_old.destroy
+         end
+ 
+         blb              = (.ab.b.l-1).n_comp_sum
+         bub              = .ab.b.n_comp
+         aub              = .ab.a.n_comp
+         component_to_use => comp_to_use(blb+1:blb+bub)
+         components_b     => components(:,blb+1:blb+bub)
+         int_old          => int_new
+         do b=1,bub
+           bx = components_b(1,b)
+           by = components_b(2,b)
+           bz = components_b(3,b)
+           j = component_to_use(b)
+           .subtract_from_component(bx,by,bz,j)
+           b1 = index_b(bx,by,bz)
+           ABi=AB(j)
+           do a=1,aub
+             ax = components_a(1,a)
+             ay = components_a(2,a)
+             az = components_a(3,a)
+             .add_to_component(ax,ay,az,j)
+             a1 = index_a(ax,ay,az)
+             do d=1,dub
+               do c=1,cub
+                 abcd(a,b,c,d)=int_old(d,c,b1,a1) + ABi * int_old(d,c,b1,a)
+               end
+             end
+           end
+         end
+         int_old.destroy
+         comp_to_use.destroy
+         components.destroy
+         index_a.destroy
+         index_b.destroy
+     end
+   end
+ 
+   transfer_l_b_highest(escd,abcd) ::: private
+   ! Applies the transfer equation to (es|cd) to give (ab|cd)
+     self :: IN
+     escd :: REALMAT3, IN
+     abcd :: REALMAT4, OUT
+     int_new,int_old :: REALMAT4*
+     components,components_a,components_b :: INTMAT*
+     index_a,index_b :: INTMAT3*
+     BA :: REALVEC(3)
+     a,b,c,d,a1,b1,b2,b3,la,aub,bub,cub,dub :: INT
+     ax,ay,az,bx,by,bz,j,n_e,alb,blb,tmp :: INT
+     BAi,BAx,BAy,BAz,escd_bcd :: REAL
+     comp_to_use,component_to_use :: INTVEC*
+ 
+     select case (.ab.a.l)
+       case (0)
+         abcd(1,:,:,:)=escd
+ 
+       case (1)
+         blb = (.ab.b.l-1).n_comp_sum
+         BA   = .ab.b.pos - .ab.a.pos
+         n_e  = .ab.l_sum
+         bub  = .ab.b.n_comp
+         cub  = .cd.a.n_comp
+         dub  = .cd.b.n_comp
+ 
+         components.create(3, n_e.n_comp_sum - blb)
+         index_b.create(0,n_e,0,n_e,0,n_e)
+         .ab.b.l.make_gaussian_xyz_powers(components,n_e,index_b)
+ 
+         BAx = BA(1);    BAy = BA(2);    BAz = BA(3)
+         do b = 1, bub
+           bx = components(1,b)
+           by = components(2,b)
+           bz = components(3,b)
+           b1 = index_b(bx+1,by,bz)
+           b2 = index_b(bx,by+1,bz)
+           b3 = index_b(bx,by,bz+1)
+           do d = 1, dub
+             do c = 1, cub
+               escd_bcd = escd(b,c,d)
+               abcd(1,b,c,d) = escd(b1,c,d) + BAx * escd_bcd
+               abcd(2,b,c,d) = escd(b2,c,d) + BAy * escd_bcd
+               abcd(3,b,c,d) = escd(b3,c,d) + BAz * escd_bcd
+             end
+           end
+         end
+ 
+         components.destroy
+         index_b.destroy
+ 
+       case default
+         blb = (.ab.b.l-1).n_comp_sum
+         BA   = .ab.b.pos - .ab.a.pos
+         n_e  = .ab.l_sum
+         bub  = (n_e-1).n_comp_sum - blb
+         aub  = .ab.a.n_comp
+         cub  = .cd.a.n_comp
+         dub  = .cd.b.n_comp
+ 
+         index_a.create(0,n_e,0,n_e,0,n_e)
+         index_b.create(0,n_e,0,n_e,0,n_e)
+         components.create(3, n_e.n_comp_sum)
+         comp_to_use.create( n_e.n_comp_sum )
+         tmp=0; tmp.make_gaussian_xyz_powers(components,n_e,index_a,comp_to_use)
+         tmp=.ab.b.l; tmp.make_gaussian_xyz_power_index(index_b,n_e)
+         components_b => components(:,blb+1:)
+ 
+         nullify(int_new)
+         int_new.create(dub,cub,bub,aub)
+ 
+         BAx = BA(1);    BAy = BA(2);    BAz = BA(3)
+         do b = 1, bub
+           bx = components_b(1,b)
+           by = components_b(2,b)
+           bz = components_b(3,b)
+           b1 = index_b(bx+1,by,bz)
+           b2 = index_b(bx,by+1,bz)
+           b3 = index_b(bx,by,bz+1)
+           do d = 1, dub
+             do c = 1, cub
+               escd_bcd = escd(b,c,d)
+               int_new(d,c,b,1) = escd(b1,c,d) + BAx * escd_bcd
+               int_new(d,c,b,2) = escd(b2,c,d) + BAy * escd_bcd
+               int_new(d,c,b,3) = escd(b3,c,d) + BAz * escd_bcd
+             end
+           end
+         end
+ 
+         do la=2, .ab.a.l - 1
+           alb              = (la-1).n_comp_sum
+           aub              = la.n_comp
+           bub              = (n_e-la).n_comp_sum - blb
+           component_to_use => comp_to_use(alb+1:alb+aub)
+           components_a     => components(:,alb+1:alb+aub)
+           int_old          => int_new
+           nullify(int_new)
+           int_new.create(dub,cub,bub,aub)
+           do a=1,aub
+             ax = components_a(1,a)
+             ay = components_a(2,a)
+             az = components_a(3,a)
+             j=component_to_use(a)
+             .subtract_from_component(ax,ay,az,j)
+             a1 = index_a(ax,ay,az)
+             BAi=BA(j)
+             do b=1,bub
+               bx = components_b(1,b)
+               by = components_b(2,b)
+               bz = components_b(3,b)
+               .add_to_component(bx,by,bz,j)
+               b1 = index_b(bx,by,bz)
+               int_new(:,:,b,a)=int_old(:,:,b1,a1) + BAi * int_old(:,:,b,a1)
+             end
+           end
+           int_old.destroy
+         end
+ 
+         alb              = (.ab.a.l-1).n_comp_sum
+         aub              = .ab.a.n_comp
+         bub              = .ab.b.n_comp
+         component_to_use => comp_to_use(alb+1:alb+aub)
+         components_a     => components(:,alb+1:alb+aub)
+         int_old          => int_new
+         do a=1,aub
+           ax = components_a(1,a)
+           ay = components_a(2,a)
+           az = components_a(3,a)
+           j = component_to_use(a)
+           .subtract_from_component(ax,ay,az,j)
+           a1 = index_a(ax,ay,az)
+           BAi=BA(j)
+           do b=1,bub
+             bx = components_b(1,b)
+             by = components_b(2,b)
+             bz = components_b(3,b)
+             .add_to_component(bx,by,bz,j)
+             b1 = index_b(bx,by,bz)
+             do d=1,dub
+               do c=1,cub
+                 abcd(a,b,c,d)=int_old(d,c,b1,a1) + BAi * int_old(d,c,b,a1)
+               end
+             end
+           end
+         end
+         int_old.destroy
+         comp_to_use.destroy
+         components.destroy
+         index_b.destroy
+         index_a.destroy
+     end
+   end
+ 
+   add_to_component(x,y,z,j) ::: private
+   ! Adds one to the component specified by j.  Used by transfer equation.
+   ! j=1 => x=x+1, j=2 => y=y+1, j=3 => z=z+1.
+     x,y,z :: INT, INOUT
+      j :: INT, IN
+     select case(j)
+       case (1); x = x + 1
+       case (2); y = y + 1
+       case (3); z = z + 1
+     end
+   end
+ 
+   subtract_from_component(x,y,z,j) ::: private
+   ! Subtracts one from the component specified by j.  Used by transfer equation.
+   ! j=1 => x=x-1, j=2 => y=y-1, j=3 => z=z-1.
+     x,y,z :: INT, INOUT
+      j :: INT, IN
+     select case(j)
+       case (1); x = x - 1
+       case (2); y = y - 1
+       case (3); z = z - 1
+     end
+   end
+ 
+   to_normalise(abcd)
+   ! Multiply the matrix by the orbital normalisation coefficients
+   ! for the orbitals a, b, c and d.
+     self :: IN
+     abcd :: REALMAT4, target
+     anorm,bnorm,cnorm,dnorm :: REALVEC*
+     aub,bub,cub,dub,a,b,c,d,opt :: INT
+     normb,normc,normd :: REAL
+     ab_cd :: REALMAT*
+ 
+     opt = 0
+     if (.ab.l_max < 2) opt = opt + 1
+     if (.cd.l_max < 2) opt = opt + 2
+     select case (opt)
+       case (0)                                      ! The general routine.
+         aub=.ab.a.n_comp
+         bub=.ab.b.n_comp
+         cub=.cd.a.n_comp
+         dub=.cd.b.n_comp
+         anorm.create(aub);   anorm.normalising_factors( .ab.a.l )
+         bnorm.create(bub);   bnorm.normalising_factors( .ab.b.l )
+         cnorm.create(cub);   cnorm.normalising_factors( .cd.a.l )
+         dnorm.create(dub);   dnorm.normalising_factors( .cd.b.l )
+         do d=1,dub
+           normd=dnorm(d)
+           do c=1,cub
+             normc=normd*cnorm(c)
+             ab_cd => abcd(:,:,c,d)
+             do b=1,bub
+               normb=normc*bnorm(b)
+               ab_cd(:,b)=ab_cd(:,b)*normb*anorm(:)
+             end
+           end
+         end
+         anorm.destroy; bnorm.destroy; cnorm.destroy; dnorm.destroy
+       case (1)                                      ! .ab.a.l , .ab.b.l either s or p
+         cub = .cd.a.n_comp
+         dub = .cd.b.n_comp
+         cnorm.create(cub);   cnorm.normalising_factors( .cd.a.l )
+         dnorm.create(dub);   dnorm.normalising_factors( .cd.b.l )
+         do d=1,dub
+           normd=dnorm(d)
+           do c=1,cub
+             abcd(:,:,c,d)=abcd(:,:,c,d)*normd*cnorm(c)
+           end
+         end
+         cnorm.destroy; dnorm.destroy
+       case (2)                                      ! .cd.a.l , .cd.b.l either s or p
+         aub = .ab.a.n_comp
+         bub = .ab.b.n_comp
+         anorm.create(aub);   anorm.normalising_factors( .ab.a.l )
+         bnorm.create(bub);   bnorm.normalising_factors( .ab.b.l )
+         do b=1,bub
+           normb=bnorm(b)
+           do a=1,aub
+             abcd(a,b,:,:)=abcd(a,b,:,:)*normb*anorm(a)
+           end
+         end
+         anorm.destroy; bnorm.destroy
+       case (3)                      ! .ab.a.l , .ab.b.l , .cd.a.l , .cd.b.l all s or p
+         ! do nothing
+     end
+   end
+
+end

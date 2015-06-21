@@ -1,0 +1,3 @@
+BASE_FILE	__BASE_FILE__
+FILE		__FILE__
+

@@ -1,0 +1,394 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>SIMPLE-ARRAY-DATA</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="The TONTO input file: technical specification"
+HREF="tech-input.html"><LINK
+REL="PREVIOUS"
+TITLE="SIMPLE-DATA"
+HREF="simple-data.html"><LINK
+REL="NEXT"
+TITLE="DERIVED-DATA"
+HREF="derived-data.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="simple-data.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="derived-data.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="SIMPLE-ARRAY-DATA"
+></A
+><TT
+CLASS="LITERAL"
+>SIMPLE-ARRAY-DATA</TT
+></H1
+><P
+ALIGN="justify"
+><TT
+CLASS="LITERAL"
+>SIMPLE-ARRAY-DATA</TT
+> is composed of lists of
+<TT
+CLASS="LITERAL"
+>SIMPLE-DATA</TT
+> which are separated by
+<TT
+CLASS="LITERAL"
+>WHITESPACE</TT
+>. There are two kinds of
+<TT
+CLASS="LITERAL"
+>SIMPLE-ARRAY-DATA</TT
+>,</P
+><P
+ALIGN="justify"
+><TT
+CLASS="LITERAL"
+>SIMPLE-ARRAY-DATA -&#62;
+SIMPLE-VECTOR-DATA|SIMPLE-MATRIX-DATA</TT
+></P
+><P
+ALIGN="justify"
+>and <TT
+CLASS="LITERAL"
+>SIMPLE-VECTOR-DATA</TT
+> can be of two types,</P
+><P
+ALIGN="justify"
+><TT
+CLASS="LITERAL"
+>SIMPLE-VECTOR-DATA   -&#62;
+FIXED-VECTOR-DATA|VARIABLE-VECTOR-DATA</TT
+></P
+><P
+ALIGN="justify"
+>The definitions of each of these types are:
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>VARIABLE-VECTOR-DATA -&#62; STRVEC|BINVEC|INTVEC|REALVEC|CPXVEC
+FIXED-VECTOR-DATA    -&#62; STRVEC(D)|BINVEC(D)|INTVEC(D)|REALVEC(D)|CPXVEC(D)
+
+D  -&#62; POSITIVE-INT
+
+STRVEC(D) -&#62; &lcub;STR &rcub;D
+BINVEC(D) -&#62; &lcub;BIN &rcub;D
+INTVEC(D)   -&#62; &lcub;INT &rcub;D
+REALVEC(D)    -&#62; &lcub;PLAIN-REAL &rcub;D [UNIT-SPECIFIER]
+CPXVEC(D)   -&#62; &lcub;PLAIN-REAL PLAIN-REAL &rcub;D [UNIT-SPECIFIER]
+
+STRVEC -&#62; &lcub; &lcub;STR &rcub;* &rcub;
+BINVEC -&#62; &lcub; &lcub;BIN &rcub;* &rcub;
+INTVEC   -&#62; &lcub; &lcub;INT &rcub;* &rcub;
+REALVEC    -&#62; &lcub; &lcub;PLAIN-REAL &rcub;* &rcub; [UNIT-SPECIFIER]
+CPXVEC   -&#62; &lcub; &lcub;PLAIN-REAL PLAIN-REAL &rcub;* &rcub; [UNIT-SPECIFIER]</PRE
+></TD
+></TR
+></TABLE
+>
+In the above definitions the grammar element <TT
+CLASS="LITERAL"
+>D</TT
+> stands for an
+integer which also forms part of the name of other grammar element symbol, for
+example <TT
+CLASS="LITERAL"
+>STRVEC(D)</TT
+>.  <TT
+CLASS="LITERAL"
+>STRVEC(D)</TT
+> thus stands
+for an infinite number of specific grammar element symbols,
+<TT
+CLASS="LITERAL"
+>STRVEC(1)</TT
+>, STRVEC(2), <TT
+CLASS="LITERAL"
+>...</TT
+>, etc.  According
+to the definition of <TT
+CLASS="LITERAL"
+>STRVEC(D)</TT
+>, it is a sequence of
+<TT
+CLASS="LITERAL"
+>STR</TT
+> elements separated by whitespace of length
+<TT
+CLASS="LITERAL"
+>D</TT
+>.</P
+><P
+ALIGN="justify"
+>As for <TT
+CLASS="LITERAL"
+>REAL</TT
+> and <TT
+CLASS="LITERAL"
+>CPX</TT
+>, vectors of
+these types may be followed by a <TT
+CLASS="LITERAL"
+>UNIT-SPECIFIER</TT
+>, which is
+used to convert he values of the entire vector into an internal units
+system.</P
+><P
+ALIGN="justify"
+>Unlike <TT
+CLASS="LITERAL"
+>SIMPLE-VECTOR-DATA</TT
+>,
+<TT
+CLASS="LITERAL"
+>SIMPLE-MATRIX-DATA</TT
+> can only be of the fixed variety, 
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>SIMPLE-MATRIX-DATA -&#62;
+   STRMAT(D(1),...,D(N))|BINMAT(D(1),...,D(N))|INTMAT(D(1),...,D(N))|
+   REALMAT(D(1),...,D(N))|CPXMAT(D(1),...,D(N))
+
+N    -&#62; 2|3|4|5
+D(N) -&#62; POSITIVE-INT
+L    -&#62; PRODUCT(D(1),...,D(N))
+
+STRMAT(D(1),D(2)) -&#62; [by_row|by_column] &lcub;STR &rcub;L
+BINMAT(D(1),D(2)) -&#62; [by_row|by_column] &lcub;BIN &rcub;L
+INTMAT(D(1),D(2))   -&#62; [by_row|by_column] &lcub;INT &rcub;L
+REALMAT(D(1),D(2))    -&#62; [by_row|by_column] &lcub;PLAIN-REAL &rcub;L [UNIT-SPECIFIER]
+CPXMAT(D(1),D(2))   -&#62; [by_row|by_column] &lcub;PLAIN-REAL PLAIN-REAL &rcub;L [UNIT-SPECIFIER]
+
+M    -&#62; 3|4|5
+
+STRMAT(D(1),...,D(M)) -&#62; &lcub;STR &rcub;L
+BINMAT(D(1),...,D(M)) -&#62; &lcub;BIN &rcub;L
+INTMAT(D(1),...,D(M))   -&#62; &lcub;INT &rcub;L
+REALMAT(D(1),...,D(M))    -&#62; &lcub;PLAIN-REAL &rcub;L [UNIT-SPECIFIER]
+CPXMAT(D(1),...,D(M))   -&#62; &lcub;PLAIN-REAL PLAIN-REAL &rcub;L [UNIT-SPECIFIER]</PRE
+></TD
+></TR
+></TABLE
+>
+As before <TT
+CLASS="LITERAL"
+>M</TT
+> and <TT
+CLASS="LITERAL"
+>D(M)</TT
+> stands for any
+positive integers, and they form part of the name of other grammar elements, for
+example <TT
+CLASS="LITERAL"
+>REALMAT(D(1),D(2))</TT
+>. Also, in the above definitions,
+<TT
+CLASS="LITERAL"
+>PRODUCT(D(1),...,D(N))</TT
+> stands for the integer which is the
+product of the integers <TT
+CLASS="LITERAL"
+>D(1)</TT
+> to <TT
+CLASS="LITERAL"
+>D(N)</TT
+>
+inclusive.  That is, <TT
+CLASS="LITERAL"
+>L</TT
+> is the number of elements in the
+array.</P
+><P
+ALIGN="justify"
+>From these definitions, it is seen that two dimensional matrices are
+slightly different to three and higher dimensional matrices: two dimensional
+matrices may be preceded by the descriptor <TT
+CLASS="LITERAL"
+>by_row</TT
+>, or
+<TT
+CLASS="LITERAL"
+>by_column</TT
+>.  This is to indicate whether the following
+sequence of <TT
+CLASS="LITERAL"
+>SIMPLE-DATA</TT
+> is to be interpreted as being
+inputted in either row order, or column order, respectively. The default order
+is <TT
+CLASS="LITERAL"
+>by_row</TT
+>, and this is set when the program is compiled.  For
+multidimensional arrays, the default order is always so that the first index of
+the multidimensional array increments most rapidly---that is, the normal Fortran
+column order.</P
+><P
+ALIGN="justify"
+>As usual, matrices of <TT
+CLASS="LITERAL"
+>REAL</TT
+> and <TT
+CLASS="LITERAL"
+>CPX</TT
+>
+values may be followed by a <TT
+CLASS="LITERAL"
+>UNIT-SPECIFIER</TT
+> which will convert
+the inputted matrix <TT
+CLASS="LITERAL"
+>DATA</TT
+> from the specified unit system, into
+the default internal unit system.</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="simple-data.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="derived-data.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>SIMPLE-DATA</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="tech-input.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>DERIVED-DATA</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

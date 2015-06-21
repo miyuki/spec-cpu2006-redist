@@ -1,0 +1,189 @@
+#ifndef _CCTK_CONFIG_H_
+#define _CCTK_CONFIG_H_
+
+/* These are definitely there in C++ */
+#ifndef __cplusplus
+
+/* Define as __inline if that's what the C compiler calls it.  */
+#undef inline
+
+/* Define to empty if the keyword does not work.  */
+#undef const
+
+#endif /* ! defined __cplusplus */
+
+/* Define if your processor stores words with the most significant
+   byte first (like Motorola and SPARC, unlike Intel and VAX).  */
+#undef WORDS_BIGENDIAN
+
+/* Define if standard C headers are available. */
+#undef STDC_HEADERS
+
+/* Size info for various types */
+
+/* The number of bytes in a long int.  */
+#undef SIZEOF_LONG_INT
+
+/* The number of bytes in a int.  */
+#undef SIZEOF_INT
+
+/* The number of bytes in a short int.  */
+#undef SIZEOF_SHORT_INT
+
+
+/* The number of bytes in a long double.  */
+#undef SIZEOF_LONG_DOUBLE
+
+/* The number of bytes in a double.  */
+#undef SIZEOF_DOUBLE
+
+/* The number of bytes in a float.  */
+#undef SIZEOF_FLOAT
+
+/* The number of bytes in a char *.  */
+#undef SIZEOF_CHAR_P
+
+/* The chosen CCTK precision */
+
+/* Floating point precision */
+#undef CCTK_REAL_PRECISION_16
+#undef CCTK_REAL_PRECISION_8
+#undef CCTK_REAL_PRECISION_4
+
+/* Integer precision */
+#undef CCTK_INTEGER_PRECISION_8
+#undef CCTK_INTEGER_PRECISION_4
+#undef CCTK_INTEGER_PRECISION_2
+
+/* Modifier for Fortran function definitions. */
+
+#undef CCTK_FCALL
+
+/* What debugging options to use */
+
+#undef CCTK_DEBUG
+#undef CCTK_TRACEMEMORY
+
+/* Various library functions */
+
+#undef HAVE_GETHOSTBYNAME
+#undef HAVE_GETOPT_LONG_ONLY
+#undef HAVE_CRYPT
+#undef HAVE_FINITE
+#undef HAVE_ISNAN
+
+/* Do we have mode_t ? */
+
+#undef HAVE_MODE_T
+
+/* Do we have socklen_t ? */
+
+#undef HAVE_SOCKLEN_T
+
+/* Do we have SOCKET ? */
+
+#undef HAVE_SOCKET_TYPE
+
+/* Some include things */
+#undef HAVE_TIME_H
+#undef HAVE_SYS_TIME_H
+#undef HAVE_SYS_TYPES_H
+#undef HAVE_UNISTD_H
+#undef HAVE_STRING_H
+#undef HAVE_ASSERT_H
+#undef HAVE_SYS_STAT_H
+#undef HAVE_GETOPT_H
+#undef HAVE_REGEX_H
+#undef HAVE_SYS_SOCKET_H
+#undef HAVE_NETINET_IN_H
+#undef HAVE_NETDB_H
+#undef HAVE_ARPA_INET_H
+#undef HAVE_WINSOCK2_H
+#undef HAVE_CRYPT_H
+#undef HAVE_DIRENT_H
+
+#undef TIME_WITH_SYS_TIME
+
+/* Which format does the C++ STL on this machine provide. */
+
+#undef HAVE_VECTOR
+#undef HAVE_VECTOR_H
+
+/* Timing stuff */
+
+#undef HAVE_TIME_GETTIMEOFDAY
+#undef GETTIMEOFDAY_NEEDS_TIMEZONE
+#undef HAVE_TIME_GETRUSAGE
+#undef HAVE_TIME__FTIME
+
+/* Cache stuff */
+
+#undef CCTK_L2_CACHELINE_BYTES
+#undef CCTK_L2_CACHE_SIZE
+
+/* The name of the NULL device for redirecting things to */
+
+#undef NULL_DEVICE
+
+/* The TYPE of socklen_t if it does not exist */ 
+
+#ifdef HAVE_SOCKLEN_T
+#define CCTK_SOCKLEN_T socklen_t
+#else
+#define CCTK_SOCKLEN_T int
+#endif
+
+/******************************************************************************/
+
+#ifdef CCODE
+
+/* Integer sizes */
+
+/* Define the type of an 8 byte integer */
+#undef CCTK_INT8
+
+/* Define the type of a 4 byte integer */
+#undef CCTK_INT4
+
+/* Define the type of a 2 byte integer */
+#undef CCTK_INT2
+
+/* Float sizes */
+
+/* Define the type of a 16 byte float */
+#undef CCTK_REAL16
+
+/* Define the type of an 8 byte float */
+#undef CCTK_REAL8
+
+/* Define the type of a 4 byte float */
+#undef CCTK_REAL4
+
+#ifdef __cplusplus
+
+/* Some C++ compilers don't have bool ! */
+#undef HAVE_BOOL
+
+#ifndef HAVE_BOOL
+typedef enum {false, true} bool;
+#endif /* HAVE_BOOL */
+
+#endif /* __cplusplus */
+
+
+#endif /*CCODE */
+
+#ifdef FCODE
+
+#endif /*FCODE */
+
+/* Now include the code to pick an appropriate precison for reals and ints */
+#include "cctk_Types.h"
+
+/* Include any other stuff which is specific to this architecture */
+#include "cctk_Archdefs.h"
+
+/* Include any extra stuff from optional extra packages. */
+#include "cctk_Extradefs.h"
+
+#endif /* _CCTK_CONFIG_H_ */

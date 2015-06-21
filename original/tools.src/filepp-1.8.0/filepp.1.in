@@ -1,0 +1,770 @@
+.\"  Hey Emacs! This file is -*- nroff -*- source.
+#define CPP1 \fBcpp\fP(1)
+#define SH1 \fBsh\fP(1)
+#define PERL1 \fBperl\fP(1)
+#define FILEPP1 \fBfilepp\fP
+.\" __FILEPP_INPUT__ version __VERSION__
+.\" filepp is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program; see the file COPYING.  If not, write to
+.\" the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+.\"
+.TH FILEPP 1 "__DATE__"  "Version: __VERSION__"
+.\" Please update the above date whenever this man page is modified.
+.SH NAME
+filepp \- A generic file preprocessor
+.SH SYNOPSIS
+.B filepp
+.RI [ options ]
+.I filename(s)
+.SH DESCRIPTION
+FILEPP1 is a generic file preprocessor designed to allow the
+functionality provided by the C preprocessor CPP1 to be used
+with any file type.  FILEPP1 is designed to be easily customised
+and extended.
+.SH OPTIONS
+FILEPP1 accepts the following command line options:
+.TP
+.BI \-b
+Suppress blank lines originating from include files (this has no
+effect on the top-level file).
+.TP
+.BI \-c
+Read input from STDIN instead of a file.  Note: if both \fB-c\fP and
+input files are specified, both are used as inputs in the order
+given.
+.TP
+.BI \-D macro
+Predefine \fImacro\fP to have a definition of  `\|\fB1\fP\|'.
+.TP
+.BI \-D macro = defn
+Predefine \fImacro\fP to have a definition of \fIdefn\fP.
+.TP
+.BI \-d
+Output debugging information.
+.TP
+.BI \-dd
+Output verbose debugging information.  This option shows all normal
+debugging information, plus the full list of defined macros every time
+the list changes.
+.TP
+.BI \-dl
+Output light debugging information.  This option shows minimal
+debugging information.
+.TP
+.BI \-dpre char
+Prefix all debugging information with \fIchar\fP (can be character or
+string), can be used to make debugging easier to read.
+.TP
+.BI \-dpost char
+Postfix all debugging information with \fIchar\fP (can be character or
+string), this defaults to a newline.  If \fIchar\fP does not contain a
+newline, then no newline will be printed after debugging messages.
+(Newlines can be put in \fIchar\fP using the \_\_NEWLINE\_\_ macro.)
+.TP
+.BI \-ds
+Print debugging info on stdout rather than stderr.
+.TP
+.BI \-e
+Define all environment variables as macros with prefix \fBenvchar\fP.
+.TP
+.BI \-ec " char"
+Set \fBenvchar\fP (prefix of environment variables defined as macros)
+to \fIchar\fP, defaults to \fB$\fP. (Note: this option only takes
+effect at the time the environment variables are converted to
+macros).
+.TP
+.BI -ecn
+Set \fBenvchar\fP (prefix of environment variables defined as macros)
+to nothing (no prefix).
+.TP
+.BI \-h
+Show summary of options.
+.TP
+.BI \-I dir
+Append directory \fIdir\fP to the list of directories searched for
+include files.
+.TP
+.BI \-imacros " file"
+Reads in macros from \fIfile\fP, but discards everything else in the
+file.
+.TP
+.BI \-k
+Turn off parsing of all keywords.  This is useful if you just want to
+use the macro expansion facilities of FILEPP1.  With this option
+all keywords found will be ignored, FILEPP1 will just replace any
+macros specified with the \fB-D\fP\fImacro\fP=\fIdefn\fP option.
+.TP
+.BI \-kc " char"
+Set keyword prefix character to \fIchar\fP (can also be a string).
+All FILEPP1 keywords are prefixed with the character \fB#\fP by
+default.  This option allows the prefix to be changed to something
+else.
+.TP
+.BI \-lc " char"
+Set line continuation character to \fIchar\fP (can also be a string).
+When the line continuation character is found with a newline following
+it, it and the newline are replaced by the line continuation
+replacement character. Default is \fB\\\fP (CPP1 style).
+.TP
+.BI \-lec " char"
+Set optional keyword line end character to \fIchar\fP (can also be a string).
+This allows extra characters to be placed at the end of a line
+containing a keyword.  The extra characters will be ignored.  This is
+useful if keywords are to be embedded in HTML or C style
+comments.  For example, to embed keywords in an HTML comment the
+keyword prefix character could be set to \fB<--!#\fP and the optional
+keyword line end character set to \fB-->\fP.  An example keyword would
+then be:
+
+\fB<!--#include "header.h" -->\fP
+
+In the case the optional keyword line end characters \fB-->\fP would be
+ignored.
+.TP
+.BI \-lr " char"
+Set line continuation replacement character to \fIchar\fP (can also be
+a string).  Default is a null string (CPP1 style).
+.TP
+.BI \-lrn
+Set line continuation replacement character to be a newline.
+.TP
+.BI \-m " module.pm"
+Load module \fImodule.pm\fP.  \fImodule.pm\fP is a PERL1 module which
+can be used to extend or modify the behaviour of FILEPP1.  See
+section \fBFILEPP MODULES\fP for details of modules included with
+filepp and \fBFILEPP MODULE API\fP for details on how to write
+your own modules.
+.TP
+.BI \-M dir
+Append directory \fIdir\fP to the list of directories searched for
+filepp modules.  This list defaults to the directory the filepp
+modules are installed (if any) plus the default Perl module paths.
+(Note: this adds the directory to the Perl @INC list.)
+.TP
+.BI \-mp " char"
+Prefix all macros with \fIchar\fP.  Macros are defined in the normal
+way, but will only be replaced when found prefixed with \fIchar\fP.
+For example, filepp macros will behave similar to Bourne shell (SH1)
+variables if \fIchar\fP is set to \fB$\fP.
+.TP
+.BI \-mpnk
+Turns off macro prefixes within keywords.  When using a macro prefix
+character this option allows macros to be used without the prefix in
+keyword processing.  For example, if the macro prefix is \fB$\fP then
+and \fB#if\fP would be written as:
+
+\fB#if $MACRO == 1\fP
+
+Using the \fBmpnk\fP option allows the \fB#if\fP to be written as:
+
+\fB#if MACRO == 1\fP
+
+.TP
+.BI \-o " \fIname\fP"
+Write output to \fIname\fP instead of STDOUT.  If there is only one
+input file and it has the same name as the output file, the original
+input file will be backed-up as \fIname~\fP.
+.TP
+.BI \-ov
+Overwrite mode, causes the output file to overwrite the input file.
+Useful when modifying a large number of files at once, eg:
+
+FILEPP1 -ov -DTHIS=THAT *
+
+The original input file(s) will be backed-up as \fIname~\fP.
+.TP
+.BI \-ovc " \fBIN\fP=\fBOUT\fP"
+Similar to overwrite mode, the difference is the output filename is
+input filename with \fBIN\fP part converted to \fBOUT\fP.  For
+example, to process a set of files all ending with .in and have the
+output files all ending in .out do:
+
+FILEPP1 -ovc .in=.out *.in
+
+In this case a file called \fItest.in\fP will be processed and the
+output file will be \fItest.out\fP.  Note: if the input file does not
+contain \fBIN\fP then the output file will have the same name as the
+input file and the original input file(s) will be backed-up as
+\fIname~\fP!
+.TP
+.BI \-pb
+Preserve blank lines.  Using this option attempts to keep as many
+lines in the output file as are in the input file, so all blank lines
+which normally would not get printed are printed.  Useful when
+comparing intput file with output.
+.TP
+.BI \-re
+Treat keyword and macro prefix characters and line continuation
+character as Perl regular expressions instead of normal strings.
+.TP
+.BI \-s
+Run FILEPP1 in safe mode.  This turns off the \fBpragma\fP keyword.
+.TP
+.BI \-U macro
+Undefine previously defined \fImacro\fP.
+.TP
+.BI \-u
+Undefine all currently defined macros, including predefined ones.
+.TP
+.BI \-v
+Show version of program.
+.TP
+.BI \-w
+Turn on word boundaries when replacing macros.  When word boundaries
+are on, macros will only be replaced if the macro appears in the text
+as a word.  For example, by default \fImacro\fP would be replaced in
+both cases of the following text:
+
+\fImacro as word, macroNOTaword\fP
+
+but only the first occurrence would be replaced with the \fB-w\fP
+option.
+
+With this option enabled FILEPP1 will only replace macros which
+contain alphanumeric characters.  International (non-ASCII) character
+sets can be supported using Perl's locale handling.
+
+.SH KEYWORDS
+FILEPP1 supports the following keywords:
+.TP
+.BR #include " <\fIFILE\fP>"
+Include a file in the file being processed.  This variant is used for
+"system" include files.  It searches for a file named \fIFILE\fP in a
+list of directories specified by you.  Directories are specified with
+the command option `-I'.  FILEPP1 does not predefine any system
+directories in which to search for files.
+.TP
+.BR #include " ""FILE"""
+Include a file in the file being processed.  This variant is used for
+include files of your own project.  It searches for a file named
+\fIFILE\fP first in the current directory, then in the list of
+directories specified with the command option `-I'.  The current
+directory is the directory the base input file is in.
+.TP
+.BR #define " \fImacro\fP"
+Define the macro \fImacro\fP to have a definition of `1'.  \fImacro\fP can
+then be used with the keywords \fB#ifdef\fP and \fB#ifndef\fP.
+.TP
+.BR #define " \fImacro\fP \fIdefn\fP"
+Define the macro \fImacro\fP to have the value \fIdefn\fP.
+\fImacro\fP can then be used with the keywords \fB#ifdef\fP and
+\fP#ifndef\fP.  Also, all instances of \fImacro\fP following the
+\fB#define\fP statement will be replaced with the string \fIdefn\fP.
+The string \fIdefn\fP is taken to be all the characters on the line
+following \fImacro\fP.
+.TP
+.BR #define " \fImacro(arg1, arg2, ...)\fP \fIdefn\fP"
+Define the macro \fImacro\fP to have the value \fIdefn\fP with
+arguments \fI(arg1, arg2, ...)\fP.  \fImacro\fP can be used as
+follows:
+
+\fB#define\fP \fImacro(foo)\fP defn with foo in
+
+Now when replacing occurs:
+
+\fImacro(bar)\fP
+
+will become:
+
+defn with bar in
+
+Macros can have any number of comma separated arguments.
+
+Macros can also have variable numbers of arguments if the final macro ends
+in ..., for example:
+
+\fB#define\fP \fIerror(string, args...)\fP fprintf(stderr, string, args);
+
+Here the first argument given becomes \fIstring\fP and all other
+arguments will become \fIargs\fP. If called as:
+\fIerror("%d,%s", i, string)\fP it will give
+
+fprintf(stderr, "%d,%s", i, string);
+
+Also, if a macro with a variable number of arguments is passed no
+arguments for the variable argument, then commas can be optionally
+removed from the definition by preceding the definition with "##".
+For example:
+
+\fB#define\fP \fIerror(string, args...)\fP fprintf(stderr, string, ##args);
+
+If this is called as: \fIerror("empty")\fP then result will be:
+
+fprintf(stderr, "empty");
+
+The comma immediately before \fI##args\fP has been removed.
+
+.TP
+.BR #if " \fIexpr\fP"
+A conditional statement, \fIexpr\fP will be evaluated to true (1) or
+false (0).  If \fIexpr\fP evaluates to true, the text between the
+\fB#if\fP and the next \fB#else\fP or \fB#endif\fP will be included.
+If \fIexpr\fP evaluates to false, the text between the \fB#if\fP and
+the next \fB#else\fP or \fB#endif\fP will be ignored.  \fIexpr\fP can
+use all the usual cpp style comparisons (==, !=, <, >, etc.).
+Multiple comparisons can be combined with and (&&) and or (||).  The
+\fBdefined\fP keyword can also be used to check if macros are defined.
+For example:
+
+\fI#if defined macro && macro == defn\fP
+
+Note: filepp's \fB#if\fP does not work in exactly the same way as
+CPP1's \fB#if\fP.  CPP1's \fB#if\fP only does numerical style
+comparisons.  Filepp's \fB#if\fP statement can also compare strings
+and regular expressions using PERL1's full range of comaprison
+operations.  For example, to test if two strings are exactly equal
+use:
+
+\fI#if "MACRO" eq "string"\fP
+
+To test if strings are not equal use \fIne\fP instead of \fIeq\fP.
+Regular expressions can also be tested, for example to test if a macro
+has any whitespace in it use:
+
+\fI#if "MACRO" =~ /\\s/\fP
+
+To test if a macro does not have any whitespace in it \fI=~\fP can be
+replaced with \fI!~\fP.
+
+Perl experts: \fB#if\fP works by first parsing \fIexpr\fP for the
+\fBdefined\fP keyword and checking if the macro it refers to is
+defined, replacing it with 1 if it is and 0 if it isn't.  It then
+checks \fIexpr\fP for any other macros and replaces them with their
+definition.  Finally it passes \fIexpr\fP through Perl's \fBeval\fP
+function, which returns true or false.
+.TP
+.BR #elif " \fIexpr\fP"
+\fB#elif\fP stands for "else if".  Like \fB#else\fP, it goes in the
+middle of a \fB#if\fP[\fBn\fP][\fBdef\fP]-\fB#endif\fP pair and
+subdivides it; it does not require a matching \fB#endif\fP of its own.
+Like \fB#if\fP, the \fB#elif\fP directive includes an expression to be
+tested.
+.TP
+.BR #ifdef " \fImacro\fP"
+A conditional statement, if \fImacro\fP has been defined the text
+between the \fB#ifdef\fP and the next \fB#else\fP or \fB#endif\fP will
+be included.  If \fImacro\fP has not been defined the text between the
+\fB#ifdef\fP and the next \fB#else\fP or \fB#endif\fP will be ignored.
+.TP
+.BR #ifndef " \fImacro\fP"
+The reverse case of the \fB#ifdef\fP conditional.
+.TP
+.BR #else
+The \fB#else\fP directive can be added to a conditional to provide
+alternative text to be used if the condition is false.
+.TP
+.BR #endif
+Used to terminate a conditional statement.  Normal processing resumes
+following the \fB#endif\fP.
+.TP
+.BR #undef " \fImacro\fP"
+Undefine a previously defined macro.
+.TP
+.BR #error " \fImesg\fP"
+Causes FILEPP1 to exit with the error message \fImesg\fP.
+.TP
+.BR #warning " \fImesg\fP"
+Causes FILEPP1 to issue the warning message \fImesg\fP.
+.TP
+.BR #comment " \fImesg\fP"
+As FILEPP1 is supposed to be a generic file preprocessor, it
+cannot support any known comment styles, therefore it defines its own
+with this keyword.  All lines starting with \fB#comment\fP are treated
+as comments and removed by FILEPP1.
+.TP
+.BR #pragma " \fBfilepp\fP \fIfunction arg1, arg2, ...\fP"
+The \fB#pragma\fP keyword immediately followed by the word
+\fBfilepp\fP allows the user to execute a Perl function during
+parsing.  The word immediately following \fBfilepp\fP is taken as the
+name of the function and the remainder of the line is taken to be a
+comma separated list of arguments to the function.  Any of the FILEPP1
+internal functions (see section \fBFILEPP MODULE API\fP) can be called
+with the \fB#pragma\fP keyword.
+
+\fIWarning:\fP There are obvious security risks with allowing
+arbitrary functions to be run, so the -s (safe mode) command line
+option has been added which turns the \fB#pragma\fP keyword off.
+
+.SH PREDEFINED MACROS
+FILEPP1 supports a set of predefined macros.  All the predefined
+macros are of the form \fB__MACRO__\fP, where \fBMACRO\fP is:
+.TP
+.BR FILE
+This macro expands to the name of the current input file.
+.TP
+.BR LINE
+This macro expands to the current input line number.
+.TP
+.BR DATE
+This macro expands to a string that describes the date on which the
+preprocessor is being run.  The string contains eleven characters and
+looks like "__DATE__".
+.TP
+.BR ISO_DATE
+This macro expands to a string that describes the date on which the
+preprocessor is being run.  The string is in the format specified by
+ISO 8601 (YYYY-MM-DD) and looks like "__ISO_DATE__".
+.TP
+.BR TIME
+This macro expands to a string that describes the time at which the
+preprocessor is being run.  The string contains eight characters and
+looks like "__TIME__".
+.TP
+.BR BASE_FILE
+This macro expands to the name of the main input file.
+.TP
+.BR INCLUDE_LEVEL
+This macro expands to a decimal integer constant that represents the
+depth of nesting in include files.  The value of this macro is
+incremented on every \fB#include\fP directive and decremented at every
+end of file.
+.TP
+.BR NEWLINE
+This macro expands to a newline.
+.TP
+.BR TAB
+This macro expands to a tab.
+.TP
+.BR NULL
+This macro expands to nothing.  It is useful if you want to define
+something to be nothing.
+.TP
+.BR VERSION
+This macro expands to a string constant which describes the version
+number of FILEPP1.  The string is a sequence of decimal numbers
+separated by periods and looks like "__VERSION__".
+.TP
+.BR FILEPP_INPUT
+This macro expands to a string constant which says the file was
+generated automatically from the current \fBBASE_FILE\fP and looks
+like "__FILEPP_INPUT__".
+
+.SH FILEPP MODULES
+The following modules are included with the main filepp distribution:
+.PP
+#include "modules/for/for.1.in"
+.PP
+#include "modules/foreach/foreach.1.in"
+.PP
+#include "modules/literal/literal.1.in"
+.PP
+#include "modules/case/case.1.in"
+.PP
+#include "modules/comment/comment.1.in"
+.PP
+#include "modules/function/function.1.in"
+.PP
+#include "modules/maths/maths.1.in"
+.PP
+#include "modules/format/format.1.in"
+.PP
+#include "modules/bigdef/bigdef.1.in"
+.PP
+#include "modules/bigfunc/bigfunc.1.in"
+.PP
+#include "modules/defplus/defplus.1.in"
+.PP
+#include "modules/regexp/regexp.1.in"
+.PP
+#include "modules/blc/blc.1.in"
+.PP
+#include "modules/cmacros/cmacros.1.in"
+.PP
+#include "modules/cpp/cpp.1.in"
+.PP
+#include "modules/grab/grab.1.in"
+.PP
+
+#define EXISTING \fI$existing\fP
+#define FILENAME \fI$filename\fP
+#define FUNCTION \fI$function\fP
+#define NUMBER \fI$number\fP
+#define POSITION \fI$pos\fP
+#define STRING \fI$string\fP
+#define TYPE \fI$type\fP
+
+.SH FILEPP MODULE API
+The behaviour of FILEPP1 can be modified or extended through the use
+of modules.  FILEPP1 modules are in fact PERL1 modules, and the rest
+of this section assumes the reader has a knowledge of Perl.
+
+FILEPP1 modules are PERL1 modules which extend or modify FILEPP1's
+behaviour by either calling or replacing FILEPP1's internal functions.
+FILEPP1 has the Perl package name \fBFilepp\fP so its internal
+functions can be called within modules either as
+\fBFilepp::function()\fP or just \fBfunction()\fP.  Any of FILEPP1's
+internal functions can be called or replaced from within a FILEPP1
+module, the most useful ones are:
+.TP
+.BR Debug(STRING, NUMBER)
+Print STRING as debugging information if debugging is enabled.  NUMBER
+is optional and can be used to set the debugging level at which STRING
+should be printed, lower numbers being higher priority.  Command line
+option \fBd\fP prints all debugging info for 2 and below, option
+\fBdd\fP prints all debugging information for 3 and below and option
+\fBdl\fP prints all debugging information for 1 and below.  If NUMBER
+is not provided, defaults to 1.
+.TP
+.BR AddProcessor(FUNCTION, POSITION, TYPE)
+Allows the module to add a function named FUNCTION to FILEPP1's
+processing chain.  The processing chain is a set of functions which
+are run on each line of a file as it is processed.  The default
+functions in the processing chain are \fBParseKeywords\fP which does
+keyword parsing and \fBReplaceDefines\fP which does macro replacement.
+Further functions can be added to the chain, with each function taking
+a string (the current line) as input and returning the processed
+string as output.
+
+By default, or if POSITION is set to 0, the processor is added to the
+end of the processing chain.  If POSITION is set to 1 the processor is
+added to the start of the processing chain.
+
+TYPE controls what the processor is run on.  There are three options
+for this, 0 (default): the processor runs on everything passed to the
+processing chain; 1: the processor runs on full lines only; 2: the
+processor runs on part lines only (a part line is the text following a
+keyword such as \fBif\fP which needs to be parsed for macros).
+
+Both POSITION and TYPE are optional parameters.
+.TP
+.BR AddProcessorAfter(FUNCTION, EXISTING, TYPE)
+Adds function FUNCTION to the processing chain directly after existing
+processor EXISTING.  If EXISTING is not found then FUNCTION is added
+to the end of the processing chain.  Regular expression matching is
+used to compare EXISTING with the names of the functions in the
+processing chain.
+
+TYPE is optional.
+.TP
+.BR AddProcessorBefore(FUNCTION, EXISTING, TYPE)
+Adds function FUNCTION to the processing chain directly before
+existing processor EXISTING.  If EXISTING is not found then FUNCTION
+is added to the start of the processing chain.  Regular expression
+matching is used to compare EXISTING with the names of the functions
+in the processing chain.
+
+TYPE is optional.
+.TP
+.BR RemoveProcessor(FUNCTION)
+Removes the processor function FUNCTION from the processing chain.
+.TP
+.BR STRING = ReplaceDefines(STRING)
+Replaces all macros in STRING with their definitions and returns the
+processed string.
+.TP
+.BR AddKeyword(STRING, FUNCTION)
+Add the keyword named STRING.  When the keyword is found in text
+processing the function named FUNCTION will be run with everything
+following the keyword passed as a single argument.
+.TP
+.BR RemoveKeyword(STRING)
+Removes the keyword named STRING.
+.TP
+.BR RemoveAllKeywords()
+Removes all the keywords currently defined for FILEPP1 (used for the
+-k command line option).
+.TP
+.BR AddIfword(STRING)
+Adds keyword named STRING to Ifword list.  An Ifword takes in the
+string following the keyword and optionally parses it, returning a 1
+if the string parses to true and 0 for false.  The default Ifwords are
+\fBif\fP, \fBifdef\fP and \fBifndef\fP.
+.TP
+.BR RemoveIfword(STRING)
+Removes keyword named STRING from Ifword list (note: this does NOT
+remove the keyword, use \fBRemoveKeyword\fP for that).
+.TP
+.BR AddElseword(STRING)
+Adds keyword named STRING to Elseword list.  An Elseword takes in the
+string following the keyword and optionally parses it, returning a 1
+if the string parses to true and 0 for false.  The default Elsewords are
+\fBelse\fP and \fBelif\fP.
+.TP
+.BR RemoveElseword(STRING)
+Removes keyword named STRING from Elseword list.
+.TP
+.BR AddEndifword(STRING)
+Adds keyword named STRING to Endifword list.  An Endifword should
+return a 1 to indicate successful termination of the if block.  If the
+Endifword returns 0 the Endifword is ignored and filepp assumes the
+current if block carries on after the Endifword.  The default
+Endifword is \fBendif\fP.
+.TP
+.BR RemoveEndifword(STRING)
+Removes keyword named STRING from Endifword list.
+.TP
+.BR AddIncludePath(STRING)
+Adds the include path STRING to the list of directories to search for
+include files (used for the -I command line option).
+.TP
+.BR AddModulePath(STRING)
+Adds the path STRING to the list of directories to search for filepp
+modules (used for the -M command line option).
+.TP
+.BR AddOpenInputFunc(FUNCTION)
+Adds a FUNCTION to a list of functions to be run each time a new base
+input file is opened.
+.TP
+.BR AddCloseInputFunc(FUNCTION)
+Adds a FUNCTION to a list of functions to be run each time a new base
+input file is closed.
+.TP
+.BR AddOpenOutputFunc(FUNCTION)
+Adds a FUNCTION to a list of functions to be run each time an output
+file is opened.
+.TP
+.BR AddCloseOutputFunc(FUNCTION)
+Adds a FUNCTION to a list of functions to be run each time an output
+file is closed.
+.TP
+.BR AddInputFile(STRING)
+Adds another input file to the list of files to be processed (used for
+adding input files at the command line).
+.TP
+.BR ChangeOutputFile(STRING)
+Closes the current output file and attempts to open a new one named
+STRING.
+.TP
+.BR SetKeywordchar(STRING)
+Set the initial keyword char to STRING (used for the -kc command line
+option).
+.TP
+.BR SetContchar(STRING)
+Set the line continuation char to STRING (used for the -lc command
+line option).
+.TP
+.BR SetContrepchar(STRING)
+Set the line continuation replacement char to STRING (used for the -lr
+command line option).
+.TP
+.BR SetOptLineEndchar(STRING)
+Set the optional keyword line end character to STRING (used for the
+-lec command line option).
+.TP
+.BR SetBlankSupp(1/0)
+Turns blank-line suppression on/off (1 = suppress, 0 = don't
+suppress).  When blank-line suppression is on, blank lines in input
+files will not be copied to the output.  Unlike the corresponding
+command-line option (-b), this function can also have effect in the
+top-level file.  The setting of blank-line suppression applies to the
+current file being processed and all files included in the current
+file.
+.TP
+.BR ResetBlankSupp()
+Resets blank-line suppression to the command-line specified value.
+This only affects the output of blank lines from the current file
+being processed and all files included in the current file.  In the
+top-level file, this always turns blank-line suppression off.
+.TP
+.BR SetEatTrail(STRING)
+If STRING is a macro, whenever the macro is replaced all blank space
+between the macro's replacement and the next character on the line
+will be eaten.  For example, if macro \fIfoo\fP is defined to
+\fIbar\fP and \fIfoo\fP has been set to have it's trail eaten, the
+following:
+
+ eat my foo trail
+
+is replaced with
+
+ eat my bartrail
+
+.TP
+.BR CheckEatTrail(STRING)
+Returns 1 if macro STRING will have it's tail eaten, 0 otherwise.
+.TP
+.BR SetEnvchar(STRING)
+Set the prefix of environment variables converted to macros
+(\fBenvchar\fP) to STRING (used for -ec and -ecn command line
+options).
+.TP
+.BR DefineEnv()
+Define all environment variables as macros with prefix \fBenvchar\fP
+(used for -e command line option).
+.TP
+.BR SetOutput(1/0)
+Turns writing of parsed input file to output file on/off.  This takes
+either 1 (output on) or 0 (output off) as input.  When the output is
+turned off, the only output produced from FILEPP1 will be that
+generated by modules.
+.TP
+.BR SetWordBoundaries(1/0)
+Turns on(1) or off(0) word boundary checking when replacing macros
+(used for the -w command line option).
+.TP
+.BR SetCharPerlre(1/0)
+Turns on(1) or off(0) allowing of keyword prefix char and line
+continuation char to be Perl regular expressions (used for the -re
+command line option).
+.TP
+.BR UndefAll()
+Undefines all currently defined macros, including predefined ones
+(used for the -u command line option).
+.TP
+.BR UseModule(STRING)
+Loads a PERL1 module named STRING using the Perl command
+\fBrequire\fP (used for the -m command line option).
+.TP
+.BR SetParseLineEnd(FUNCTION)
+Sets the function to determine if line continuation should be done on
+current line to FUNCTION.
+.TP
+.BR STRING = GetNextLine()
+Returns the next line (after line continuation has been dealt with) of
+the input file currently being processed.  Returns NULL for end of
+file.
+.TP
+.BR Write(STRING)
+Writes STRING to the current output file.
+.TP
+.BR Output(STRING)
+Conditionally writes STRING to the current output file.  If output is
+turned on then writes STRING.  Output is toggled off/on using
+SetOutput function.
+
+.PP
+In addition all the standard FILEPP1 keywords have equivalent functions
+which optionally take a single argument.  The functions have the same
+name as the keyword, only with a capital first letter (eg:
+\fB#define\fP \fIstring\fP calls the function
+\fBDefine(\fP\fIstring\fP\fB)\fP).
+
+A full description of the \fBParse\fP function and all the other
+FILEPP1 internal functions is beyond the scope of this man page.  The
+FILEPP1 script is well commented and hopefully readable by a Perl
+programmer, so use the source Luke!
+
+.SH BUGS
+FILEPP1 has no known bugs, only "features".  If you find any
+"features", please report them to the author.
+.SH COPYING
+Copyright (C) 2000-2007 Darren Miller
+.PP
+FILEPP1 is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+.PP
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+.PP
+You should have received a copy of the GNU General Public License
+along with this program; see the file COPYING.  If not, write to
+the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+.SH "SEE ALSO"
+.BR CPP1,
+.BR PERL1
+.SH AUTHOR
+Darren Miller <darren@cabaret.demon.co.uk>.

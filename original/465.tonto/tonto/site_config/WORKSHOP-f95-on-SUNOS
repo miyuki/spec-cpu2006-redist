@@ -1,0 +1,12 @@
+#SHELL   := /bin/bash # This might be needed ...
+FOPTNS   = $(FFAST)
+FFLAGS   = -I$(srcdir) -I$(moddir) -M$(moddir) \
+           -ansi -xpp=fpp -dalign -native -time -v
+FPROF    = -p -pg
+FDEBUG   = -g -O1
+FFAST    = -fast -stackvar
+FSUFFIX  = F90
+
+LIBS     = 
+DEFS     = -DUSE_PRE_AND_POST_CONDITIONS
+

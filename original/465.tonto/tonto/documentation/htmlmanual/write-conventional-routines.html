@@ -1,0 +1,205 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>The conventional routines</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Writing foo modules for TONTO"
+HREF="foo-modules.html"><LINK
+REL="PREVIOUS"
+TITLE="Pre-processor changes for array types"
+HREF="array-type-modifications.html"><LINK
+REL="NEXT"
+TITLE="Principles for well designed modules"
+HREF="well-designed-modules.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="array-type-modifications.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="well-designed-modules.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="WRITE-CONVENTIONAL-ROUTINES"
+></A
+>The conventional routines</H1
+><P
+ALIGN="justify"
+>At the very least, every module should include all of the conventional
+routines documented in <A
+HREF="conventional-routines.html"
+>the Section called <I
+>Conventional routines</I
+> in the chapter called <I
+>Writing programs with TONTO</I
+></A
+>&#62;.</P
+><P
+ALIGN="justify"
+>Especially, if the module is to include any I/O, the
+<TT
+CLASS="LITERAL"
+>read</TT
+> and <TT
+CLASS="LITERAL"
+>process_input</TT
+> routines must be
+present, and must be substatially the same as provided in other routines.  All
+you should have to change in these routines are the case statement options with
+the correponding calls to the module routines, and, in the case of array types,
+you will have to replace a call to the correponding component-type read
+routine.</P
+><P
+ALIGN="justify"
+>The reason for insisting on the use of common <TT
+CLASS="LITERAL"
+>read</TT
+> and
+<TT
+CLASS="LITERAL"
+>process_input</TT
+> routines is so that the input files will
+conform to the datbase specification given earlier.  That is important not only
+for ease of data input, but for archiving purposes.</P
+><P
+ALIGN="justify"
+>In a future release of the <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> prrprocessor, some type of template
+inheritance will be used to ensure all these conventional routines appear,
+unchanged.</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="array-type-modifications.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="well-designed-modules.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Pre-processor changes for array types</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="foo-modules.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Principles for well designed modules</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

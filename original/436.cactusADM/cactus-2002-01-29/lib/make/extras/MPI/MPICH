@@ -1,0 +1,147 @@
+#! /bin/sh
+# /*@@
+#   @file      CUSTOM
+#   @date      Wed Jul 21 13:27:07 1999
+#   @author    Tom Goodale
+#   @desc 
+#   
+#   @enddesc
+#   @version $Header: /cactus/Cactus/lib/make/extras/MPI/MPICH,v 1.15 2001/09/13 13:29:56 tradke Exp $
+# @@*/
+
+
+echo "MPICH selected"
+
+# MPICH is pretty configerable itself
+
+# Find the directory.
+if test -z "$MPICH_DIR" ; then
+   echo "MPICH selected but no MPICH_DIR set... Checking some places"
+   CCTK_Search MPICH_DIR "/usr /usr/local /usr/local/mpich /usr/local/packages/mpich /usr/local/apps/mpich /usr/lib/mpich /usr/local/lib/mpich" include/mpe.h
+   if test -z "$MPICH_DIR" ; then
+     if test -n "$MPICH_ARCH" ; then
+       CCTK_Search MPICH_DIR "/usr/local/mpich/$MPICH_ARCH /usr/local/packages/mpich/$MPICH_ARCH /usr/local/apps/mpich/$MPICH_ARCH /usr/lib/mpich/$MPICH_ARCH /usr/local/lib/mpich/$MPICH_ARCH" include/mpe.h
+       if test -z "$MPICH_DIR" ; then
+         if test -n "$MPICH_DEVICE" ; then
+           CCTK_Search MPICH_DIR "/usr/local/mpich/$MPICH_ARCH/$MPICH_DEVICE /usr/local/packages/mpich/$MPICH_ARCH/$MPICH_DEVICE /usr/local/apps/mpich/$MPICH_ARCH/$MPICH_DEVICE /usr/lib/mpich/$MPICH_ARCH/$MPICH_DEVICE /usr/local/lib/mpich/$MPICH_ARCH/$MPICH_DEVICE" include/mpe.h
+           if test -z "$MPICH_DIR" ; then
+             CCTK_Search MPICH_DIR "/usr/local/mpich/$MPICH_DEVICE /usr/local/packages/mpich/$MPICH_DEVICE /usr/local/apps/mpich/$MPICH_DEVICE /usr/lib/mpich/$MPICH_DEVICE /usr/local/lib/mpich/$MPICH_DEVICE" include/mpe.h
+           fi
+         fi
+       fi
+     else
+       CCTK_Search MPICH_DIR "/usr/local/mpich/$MPICH_DEVICE /usr/local/packages/mpich/$MPICH_DEVICE /usr/local/apps/mpich/$MPICH_DEVICE /usr/lib/mpich/$MPICH_DEVICE /usr/local/lib/mpich/$MPICH_DEVICE" include/mpe.h
+
+     fi
+   fi 
+   if test -z "$MPICH_DIR" ; then
+       echo "Unable to locate the MPICH directory - please set MPICH_DIR"
+       exit 2
+   fi
+fi
+
+# Find the MPICH architecture
+
+if test -z "$MPICH_ARCH" ; then 
+  if test -x "$MPICH_DIR/bin/tarch" ; then
+    MPICH_ARCH=`$MPICH_DIR/bin/tarch`
+    echo "MPICH architecture is $MPICH_ARCH"
+  else
+    echo "Cannot execute $MPICH_DIR/bin/tarch"
+    exit 2
+  fi
+fi
+
+# Find the MPICH device - this isn't necessary for mpich-1.2.0
+
+if test -d "$MPICH_DIR/build/$MPICH_ARCH" ; then
+  if test -z "$MPICH_DEVICE" ; then
+     echo "MPICH selected but no MPICH_DEVICE set... Checking for one"
+     CCTK_Search MPICH_DEVICE "ch_p4 ch_shmem globus ch_gm" lib $MPICH_DIR/build/$MPICH_ARCH/$MPICH_DEVICE
+      if test -z "$MPICH_DEVICE" ; then
+         echo "Unable to determine the MPICH device - please set MPICH_DEVICE"
+         exit 2
+     fi
+  fi
+fi
+
+# Work out MPICH version
+
+if test -d "$MPICH_DIR/build/$MPICH_ARCH" ; then
+  MPICH_LIB_DIR="$MPICH_DIR/build/$MPICH_ARCH/$MPICH_DEVICE/lib"
+  MPICH_INC_DIRS="$MPICH_DIR/include $MPICH_DIR/build/$MPICH_ARCH/$MPICH_DEVICE/include"
+else
+  MPICH_LIB_DIR="$MPICH_DIR/lib"
+  MPICH_INC_DIRS="$MPICH_DIR/include"
+fi
+
+# Select the device and any special options for it.
+
+case "$MPICH_DEVICE" in
+
+  globus)
+############################# Globus device ##################################
+# We use the Makefile.mpich to obtain the include and library paths and libs
+# for Globus. These are already prefixed by -I, -L, and -l resp. so we have to
+# get rid of these. The Cactus makefile will add them later again.
+   if test -z "$GLOBUS_LIB_DIR" ; then
+     echo "GLOBUS selected, but GLOBUS_LIB_DIR not set !"
+     exit 2
+   fi
+   GLOBUS_MPICH_MAKEFILE="$GLOBUS_LIB_DIR/../etc/Makefile.mpich"
+   if test ! -r "$GLOBUS_MPICH_MAKEFILE" ; then
+     echo "No Makefile \"$GLOBUS_MPICH_MAKEFILE\" found !"
+     echo "Did you set GLOBUS_LIB_DIR correctly ?"
+     exit 2
+   fi
+
+   GLOBUS_INC_DIRS=`${MAKE-make} -s -f $GLOBUS_MPICH_MAKEFILE userincdir`
+   GLOBUS_INC_DIRS=`echo " $GLOBUS_INC_DIRS" | sed -e 's/ -I/ /g'`
+   MPICH_INC_DIRS="$MPICH_INC_DIRS $GLOBUS_INC_DIRS"
+
+   GLOBUS_LIB_DIRS=`${MAKE-make} -s -f $GLOBUS_MPICH_MAKEFILE userlibpath`
+   MPICH_DEVICE_LIB_DIR=`echo " $GLOBUS_LIB_DIRS" | sed -e 's/ -L/ /g'`
+
+   GLOBUS_LIBS=`${MAKE-make} -s -f $GLOBUS_MPICH_MAKEFILE userlib`
+   MPICH_DEVICE_LIBS=`echo " $GLOBUS_LIBS" | sed -e 's/ -l/ /g'`
+   ;;
+
+ ch_gm)
+############################# Myrinet device ##################################
+#
+   if test -z "$MYRINET_DIR" ; then
+      echo "Myrinet device selected but no MYRINET_DIR set... Checking some places"
+      CCTK_Search MYRINET_DIR "/usr /usr/local /usr/local/myrinet /usr/local/packages/myrinet /usr/local/apps/myrinet" lib/libgm.a
+      if test -z "$MYRINET_DIR" ; then
+         echo "Unable to locate the Myrinet directory - please set MYRINET_DIR"
+         exit 2
+      fi
+   fi
+   MPICH_DEVICE_LIB_DIR="$MYRINET_DIR/lib"
+   MPICH_DEVICE_LIBS="gm"
+   ;;
+
+ *)
+############################# other devices ##################################
+#
+   MPICH_DEVICE_LIB_DIR=""
+   MPICH_DEVICE_LIBS=""
+   ;;
+esac
+
+# Work out what the MPICH library is called
+
+if test -r "$MPICH_LIB_DIRS/libmpi.a" ; then
+   MPICH_LIB=mpi
+else
+   MPICH_LIB=mpich
+fi
+
+# Set the MPI version name
+MPI_VERSION="MPICH_$MPICH_DEVICE"
+
+# Finally set the library lines.
+
+MPI_LIBS="$MPICH_LIB $MPICH_DEVICE_LIBS" 
+MPI_LIB_DIRS="$MPICH_DEVICE_LIB_DIR $MPICH_LIB_DIR"
+MPI_INC_DIRS="$MPICH_INC_DIRS"

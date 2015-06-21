@@ -1,0 +1,18 @@
+# Schedule definitions for thorn IDLinearWaves
+
+if (CCTK_Equals(initial_data,"planewaves")) 
+{
+  schedule planewaves at CCTK_INITIAL
+  {
+    LANG: Fortran
+  } "Construct linear planewave initial data"  
+}
+
+if (CCTK_Equals(initial_data,"teukwaves")) 
+{
+  schedule teukwaves at CCTK_INITIAL
+  {
+    LANG: Fortran
+  } "Construct linear Teukolsky wave initial data"  
+}
+

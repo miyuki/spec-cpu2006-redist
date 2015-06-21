@@ -1,0 +1,150 @@
+<html>
+<head>
+<title>MHonArc Resources: MIMEEXCS</title>
+<link rel="stylesheet" type="text/css" href="../docstyles.css">
+</head>
+<body>
+<!--x-rc-nav-->
+<table border=0><tr valign="top">
+<td align="left" width="50%">[Prev:&nbsp;<a href="mimedecoders.html">MIMEDECODERS</a>]</td><td><nobr>[<a href="../resources.html#mimeexcs">Resources</a>][<a href="../mhonarc.html">TOC</a>]</nobr></td><td align="right" width="50%">[Next:&nbsp;<a href="mimefilters.html">MIMEFILTERS</a>]</td></tr></table>
+<!--/x-rc-nav-->
+<hr>
+<h1>MIMEEXCS</h1>
+<!--X-TOC-Start-->
+<ul>
+<li><a href="#syntax">Syntax</a>
+<li><a href="#description">Description</a>
+<li><a href="#default">Default Setting</a>
+<li><a href="#rcvars">Resource Variables</a>
+<li><a href="#examples">Examples</a>
+<li><a href="#version">Version</a>
+<li><a href="#seealso">See Also</a>
+</ul>
+<!--X-TOC-End-->
+
+<!-- *************************************************************** -->
+<hr>
+<h2><a name="syntax">Syntax</a></h2>
+
+<dl>
+
+<dt><strong>Envariable</strong></dt>
+<dd><p>N/A
+</p>
+</dd>
+
+<dt><strong>Element</strong></dt>
+<dd><p>
+<code>&lt;MIMEEXCS&gt;</code><br>
+<var>content-type</var><br>
+<var>content-type</var><br>
+...
+<code>&lt;/MIMEEXCS&gt;</code><br>
+</p>
+</dd>
+
+<dt><strong>Command-line Option</strong></dt>
+<dd><p>N/A
+</p>
+</dd>
+
+</dl>
+
+<!-- *************************************************************** -->
+<hr>
+<h2><a name="description">Description</a></h2>
+
+<p>MIMEEXCS defines the list of content-types to exclude from processing.
+The exclusion occurs before the data is processed to any filters
+registered via the <a href="mimefilters.html">MIMEFILTERS</a> resource.
+If a message body part is excluded, the converted message will have
+a note that the part was excluded.
+</p>
+<table border=0 cellpadding=4>
+<tr valign=top>
+<td><strong>NOTE</strong></td>
+<td><p>Base types can also be listed to exclude all content-types
+with a give base.  For example, <tt>image/jpg</tt> will only exclude
+JPEG images, but <tt>image</tt> will exclude all images.
+</p>
+</td>
+</tr>
+</table>
+
+<!-- *************************************************************** -->
+<hr>
+<h2><a name="default">Default Setting</a></h2>
+
+<p>Nil.
+</p>
+
+<!-- *************************************************************** -->
+<hr>
+<h2><a name="rcvars">Resource Variables</a></h2>
+
+<p>N/A
+</p>
+
+<!-- *************************************************************** -->
+<hr>
+<h2><a name="examples">Examples</a></h2>
+
+<p>The following example excludes all binaries, images, and postscript
+data:
+</p>
+<pre class="code">
+<b>&lt;MIMEExcs&gt;</b>
+application/octet-stream
+application/postscript
+image
+<b>&lt;/MIMEExcs&gt;</b>
+</pre>
+
+<p>The following is a very restrictive setting to minimize archive
+exploits and large data files:
+</p>
+<pre class="code">
+<b>&lt;MIMEExcs&gt;</b>
+application
+image
+audio
+video
+text/html
+<b>&lt;/MIMEExcs&gt;</b>
+</pre>
+
+<!-- *************************************************************** -->
+<hr>
+<h2><a name="version">Version</a></h2>
+
+<p>2.4.9
+</p>
+
+<!-- *************************************************************** -->
+<hr>
+<h2><a name="seealso">See Also</a></h2>
+
+<p>
+<a href="mimealtprefs.html">MIMEALTPREFS</a>,
+<a href="mimefilters.html">MIMEFILTERS</a>
+</p>
+
+<!-- *************************************************************** -->
+<hr>
+<!--x-rc-nav-->
+<table border=0><tr valign="top">
+<td align="left" width="50%">[Prev:&nbsp;<a href="mimedecoders.html">MIMEDECODERS</a>]</td><td><nobr>[<a href="../resources.html#mimeexcs">Resources</a>][<a href="../mhonarc.html">TOC</a>]</nobr></td><td align="right" width="50%">[Next:&nbsp;<a href="mimefilters.html">MIMEFILTERS</a>]</td></tr></table>
+<!--/x-rc-nav-->
+<hr>
+<address>
+$Date: 2003/01/02 05:46:01 $ <br>
+<img align="top" src="../monicon.png" alt="">
+<a href="http://www.mhonarc.org/"
+><strong>MHonArc</strong></a><br>
+Copyright &#169; 2001, <a href="http://www.mhonarc.org/~ehood"
+>Earl Hood</a>, <a href="mailto:mhonarc@mhonarc.org"
+>mhonarc@mhonarc.org</a><br>
+</address>
+
+</body>
+</html>

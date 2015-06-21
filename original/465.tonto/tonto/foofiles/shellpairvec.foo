@@ -1,0 +1,86 @@
+!-------------------------------------------------------------------------------
+!
+! SHELLPAIRVEC : a vector of pairs of gaussian SHELLPAIR's.
+!
+! This object is used to store precalculated information used in ERI integral
+! evaluation.
+!
+! Copyright (C) Dylan Jayatilaka, 2000
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: shellpairvec.foo,v 1.2.2.1 2003/03/24 01:28:54 dylan Exp $
+!-------------------------------------------------------------------------------
+
+module SHELLPAIRVEC
+
+   implicit none
+
+contains
+
+!  ******************
+!  Allocation methods
+!  ******************
+
+   create(dim)
+   ! Create space for a the shellpair vector
+      self :: PTR
+      dim :: INT, IN
+      nullify(self)
+      allocate(self(dim))
+      ADD_MEMORY(dim*SHELLPAIR_SIZE)
+      .nullify_ptr_part
+   end
+
+   destroy ::: get_from(OBJECTVEC), leaky
+   ! Destroy space for object
+      self :: PTR
+   end
+
+   nullify_ptr_part ::: get_from(OBJECTVEC)
+   ! Nullify the pointer parts of self
+   end
+
+   destroy_ptr_part ::: get_from(OBJECTVEC), leaky
+   ! Destroy the pointer parts of self
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   create_copy(vec) ::: get_from(OBJECTVEC), leaky
+   ! Create a replica copy of "vec".
+      vec :: SELF_TYPE, IN
+      self :: PTR
+   end
+
+   copy(vec) ::: get_from(OBJECTVEC), leaky
+   ! Copy "vec".
+      vec :: SELF_TYPE, IN
+   end
+
+end

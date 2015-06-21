@@ -1,0 +1,365 @@
+!---------------------------------------------------------------------------
+!
+!  STRVEC: String vectors
+!
+!  Notes
+!
+!  Normally, a STR variable means a character string of length STR_SIZE.
+!  However, in this module we use arbitrary length character strings.
+!  (See also the STR module where the same tyhing is done).
+!
+! Copyright (C) Dylan Jayatilaka, 1998
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: strvec.foo,v 1.11.2.3 2003/11/13 05:33:55 reaper Exp $
+!---------------------------------------------------------------------------
+
+module STRVEC
+
+   implicit none
+
+!  Make strings arguments arbitrary length by default
+
+#  undef  STR_SIZE
+#  define STR_SIZE  *
+
+contains
+
+   create(dim)
+   ! Create space for a string vector
+      self :: PTR
+      dim :: INT
+      nullify(self)
+      allocate(self(dim))
+      ADD_MEMORY(dim*len(self(1))*CHR_SIZE)
+   end
+
+   create(v)
+   ! Create space for a string vector as assign "v"
+      self :: PTR
+      v :: STRVEC
+      dim :: INT
+      nullify(self)
+      dim = size(v)
+      allocate(self(dim))
+      ADD_MEMORY(dim*len(self(1))*CHR_SIZE)
+      self = v
+!     do i = 1,dim            ! self = v is buggy on DEC
+!        s = scan(v(i)," ")   ! when v is a constructor
+!        self(i) = v(i)(1:s)
+!     end
+   end
+
+   destroy
+   ! Destroy space for a string vector
+      self :: PTR
+      if (.destroyed) return
+      DELETE_MEMORY(size(self)*len(self(1))*CHR_SIZE)
+      deallocate(self)
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   create_copy(vec) ::: leaky
+   ! Make a copy of "vec"
+      self :: PTR
+      vec :: STRVEC
+      .create(vec.dim)
+      .copy(vec)
+   end
+
+   copy(vec)
+   ! Make a copy of "vec"
+      vec :: STRVEC
+      i :: INT
+      do i = 1,vec.dim
+         self(i).copy(vec(i))
+      end
+   end
+
+   to_lower_case
+   ! Change upper case charaters to lower case in all elements
+       i :: INT
+      do i = 1,size(self)
+         self(i).to_lower_case
+      end
+   end
+
+   to_upper_case
+   ! Change lower case charaters to upper case in all elements
+       i :: INT
+      do i = 1,size(self)
+         self(i).to_upper_case
+      end
+   end
+
+   quick_sort ::: recursive
+   ! Sort the vector into fortran dictionary order
+      smaller,larger :: STRVEC(len=len(self(1)),:), PTR
+      n, ns, ne, nl :: INT
+      chosen :: STR(len(self(1)))
+      n = size(self)
+      if (n>=2) then
+         chosen = self(1)
+         ns = count(self<chosen)
+         nl = count(self>chosen)
+         ne = n - ns - nl
+         smaller.create(ns)
+         larger.create(nl)
+         smaller = pack(self,self<chosen)
+         larger  = pack(self,self>chosen)
+         smaller.quick_sort
+         larger.quick_sort
+         self(1:ns)       = smaller
+         self(ns+1:ns+ne) = chosen
+         self(ns+ne+1:)   = larger
+         larger.destroy
+         smaller.destroy
+      end
+   end
+
+   shrink(dim) ::: leaky
+   ! Shrinks self to dimension dim.  Contents are retained.
+     self :: PTR
+     dim :: INT, IN
+     old :: STRVEC(len=len(self(1)),:), PTR
+   ENSURE(.created,"no self array")
+   ENSURE(dim<=.dim,"dim too large")
+     if (dim==.dim) return
+     old => self
+     nullify(self)
+     self.create(dim)
+     self=old(1:dim)
+     old.destroy
+   end
+
+   expand(dim) ::: leaky
+   ! Expands self to dimension dim.  Contents are retained.
+   ! Elements added are set to zero.
+     self :: PTR
+     dim :: INT, IN
+     old :: STRVEC(len=len(self(1)),:), PTR
+     old_dim :: INT
+     if (.destroyed) then
+        .create(dim)
+        self = " "
+     else
+        ENSURE(dim>=.dim, "dim not large enough")
+        old => self
+        old_dim = old.dim
+        nullify(self)
+        self.create(dim)
+        self(        1:old_dim) = old
+        self(old_dim+1:dim    ) = " "
+        old.destroy
+     end
+   end
+
+   append(v) ::: get_from(INTRINSICVEC), leaky
+   ! Expands self and appends the contents of vector "v".
+     self :: PTR
+     v :: SELF_TYPE, IN
+   end
+
+   append(value) ::: get_from(INTRINSICVEC), leaky
+   ! Expands self by 1, and appends the single scalar "value" onto the end.
+     self :: PTR
+     value :: ELEMENT_TYPE, IN
+   end
+
+   append_only_if_unique(value) ::: get_from(INTRINSICVEC), leaky
+   ! Expands self by 1, and appends the single scalar "value" onto the end, but
+   ! only if the "value" is unique
+     self :: PTR
+     value :: ELEMENT_TYPE, IN
+   end
+
+   remove_repetitions ::: leaky
+   ! Sort through the vector and remove repeated elements which come later in
+   ! the list.  NOTE: the vector may shrink
+      self :: PTR
+      unique :: SELF_TYPE(len=len(self(1)),:), PTR
+      i,n :: INT
+   ENSURE(.created,"no vector")
+      if (.dim==1) return
+      unique.create(.dim)
+      n = 1
+      unique(1) = self(1)
+      do i = 2,.dim
+         if (any(self(i)==unique(1:n))) cycle
+         n = n + 1
+         unique(n) = self(i)
+      end
+      .destroy
+      .create(n)
+      self = unique(1:n)
+      unique.destroy
+   end
+
+   has_repetitions result (res)
+   ! Return TRUE if self has at least one repeated element.
+      res :: BIN
+      unique :: SELF_TYPE(len=len(self(1)),:), PTR
+      i,n :: INT
+      res = FALSE
+      if (.dim==1) return
+      unique.create(.dim)
+      n = 1
+      unique(1) = self(1)
+      do i = 2,.dim
+         if (any(self(i)==unique(1:n))) then
+            res = TRUE
+         else
+            n = n + 1
+            unique(n) = self(i)
+         end
+      end
+      unique.destroy
+   end
+
+   prepend(v) ::: get_from(INTRINSICVEC), leaky
+   ! Prepend the vector "v" to "self". "self" is expanded.
+     self :: PTR
+     v :: SELF_TYPE, IN
+   end
+
+   prepend(value) ::: get_from(INTRINSICVEC), leaky
+   ! Prepend an single "value" to "self". "self" is expanded.
+     self :: PTR
+     value :: ELEMENT_TYPE, IN
+   end
+
+   has_any_included_in(string,at_start) result(res)
+   ! Return TRUE if self has any element included in "string" which starts at
+   ! the start of the "string", provided "at_start" is TRUE; otherwise
+   ! returns TRUE even if the match was not at the start.
+      string :: STR, IN
+      at_start :: BIN, optional
+      res :: BIN
+      first :: BIN
+      first = FALSE
+      if (present(at_start)) first = at_start
+      if (first) then
+         res = any(index(spread(string,1,.dim),self) == 1)
+      else
+         res = any(index(spread(string,1,.dim),self) /= 0)
+      end
+   end
+
+   index_of_first_included_in(string) result(res)
+   ! Return the index of the first element in self which is included in
+   ! "string", or zero otherwise.
+      string :: STR, IN
+      res :: INT
+      i :: INT
+      res = 0
+      do i = 1,size(self)
+         res = index(string,self(i))
+         if (res>0) exit
+      end
+   end
+
+   has_any_including(string) result(res)
+   ! Return TRUE if self has any element which includes "string".
+      string :: STR, IN
+      res :: BIN
+      res = any(index(self,spread(string,1,.dim)) /= 0)
+   end
+
+   includes(string,at_start) result(res)
+   ! Return TRUE for a particular element, if that element of self includes "string".
+   ! Returns FALSE if no element matches. If "at_start" is present and TRUE, then the
+   ! result is TRUE only if the item matches at the start of the string.
+      string :: STR, IN
+      at_start :: BIN, optional
+      res :: BINVEC(size(self))
+      first :: BIN
+      first = FALSE
+      if (present(at_start)) first = at_start
+      if (first) then
+         res = index(self,spread(string,1,.dim)) == 1
+      else
+         res = index(self,spread(string,1,.dim)) /= 0
+      end
+   end
+
+   index_of_first_that_includes(string) result(res)
+   ! Return the index of the first element of self that includes "string".
+   ! Returns 0 if no element matches.
+      string :: STR, IN
+      res :: INT
+      i :: INT
+      do i = 1,.dim
+         res = index(self(i),string)
+         if (res==0) cycle
+         res = i
+         exit
+      end
+   end
+
+   index_of(string) result(res)
+   ! Return the first index of the "string" in self.
+   ! Returns 0 if no element matches.
+      string :: STR, IN
+      res :: INT
+      i :: INT
+      res = 0
+      do i = 1,.dim
+         if (self(i)/=string) cycle
+         res = i
+         exit
+      end
+   end
+
+   index_of_matching_bracket(symbol) result(res)
+   ! Return the first index of the matching bracket "symbol" in self.
+   ! The first element of self need not be an opening bracket symbol.
+      symbol :: STR, IN
+      res :: INT
+      opening :: STRVEC(len=1,4) = ["{","(","\[","<"]
+      closing :: STRVEC(len=1,4) = ["}",")","\]",">"]
+      op,cl :: STR(1)
+      i,s,n :: INT
+      ENSURE(any(symbol==opening),"unrecognised open bracket symbol")
+      ENSURE(.index_of(symbol)>0,"no open bracket symbol in self")
+      ENSURE(.index_of(symbol)<.dim,"open bracket is at end of self")
+      op = symbol
+      cl = closing(opening.index_of(symbol))
+      s = .index_of(op)
+      n = 0
+      do i = s+1,.dim
+         if (self(i)==op) n = n + 1
+         if (self(i)==cl AND n==0) exit
+         if (self(i)==cl AND n>0) n = n - 1
+      end
+      ENSURE(n==0,"unmatching number of closing bracket symbols")
+      res = i
+   end
+
+end

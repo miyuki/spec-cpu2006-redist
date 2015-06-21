@@ -1,0 +1,752 @@
+<HTML><HEAD><SCRIPT language="JavaScript" src="../resources/script.js" type="text/javascript"></SCRIPT><TITLE>XSAttributeDeclaration class Reference</TITLE><link href="XercesApi.css" rel="stylesheet" type="text/css"></HEAD><BODY alink="#ff0000" bgcolor="#ffffff" leftmargin="4" link="#0000ff" marginheight="4" marginwidth="4" text="#000000" topmargin="4" vlink="#0000aa"><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" height="60" rowspan="3" valign="top" width="135"><IMG border="0" height="60" hspace="0" src="../resources/logo.gif" vspace="0" width="135"></TD><TD align="left" colspan="4" height="5" valign="top" width="456"><IMG border="0" height="5" hspace="0" src="../resources/line.gif" vspace="0" width="456"></TD><TD align="left" height="60" rowspan="3" valign="top" width="29"><IMG border="0" height="60" hspace="0" src="../resources/right.gif" vspace="0" width="29"></TD></TR><TR><TD align="left" bgcolor="#0086b2" colspan="4" height="35" valign="top" width="456"><IMG alt="" border="0" height="35" hspace="0" src="../graphics/api-header.jpg" vspace="0" width="456"></TD></TR><TR><TD align="left" height="20" valign="top" width="168"><IMG border="0" height="20" hspace="0" src="../resources/bottom.gif" vspace="0" width="168"></TD><TD align="left" height="20" valign="top" width="96"><A href="http://xml.apache.org/" onMouseOut="rolloverOff('xml');" onMouseOver="rolloverOn('xml');" target="new"><IMG alt="http://xml.apache.org/" border="0" height="20" hspace="0" name="xml" onLoad="rolloverLoad('xml','../resources/button-xml-hi.gif','../resources/button-xml-lo.gif');" src="../resources/button-xml-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.apache.org/" onMouseOut="rolloverOff('asf');" onMouseOver="rolloverOn('asf');" target="new"><IMG alt="http://www.apache.org/" border="0" height="20" hspace="0" name="asf" onLoad="rolloverLoad('asf','../resources/button-asf-hi.gif','../resources/button-asf-lo.gif');" src="../resources/button-asf-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.w3.org/" onMouseOut="rolloverOff('w3c');" onMouseOver="rolloverOn('w3c');" target="new"><IMG alt="http://www.w3.org/" border="0" height="20" hspace="0" name="w3c" onLoad="rolloverLoad('w3c','../resources/button-w3c-hi.gif','../resources/button-w3c-lo.gif');" src="../resources/button-w3c-lo.gif" vspace="0" width="96"></A></TD></TR></TABLE><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" valign="top" width="120"><IMG border="0" height="14" hspace="0" src="../resources/join.gif" vspace="0" width="120"><BR>
+  <A href="../../index.html" onMouseOut="rolloverOff('side-ext-2');" onMouseOver="rolloverOn('side-ext-2');"><IMG alt="Home" border="0" height="12" hspace="0" name="side-ext-2" onLoad="rolloverLoad('side-ext-2','../graphics/ext-2-label-2.jpg','../graphics/ext-2-label-3.jpg');" src="../graphics/ext-2-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../index.html" onMouseOut="rolloverOff('side-index');" onMouseOver="rolloverOn('side-index');"><IMG alt="Readme" border="0" height="12" hspace="0" name="side-index" onLoad="rolloverLoad('side-index','../graphics/index-label-2.jpg','../graphics/index-label-3.jpg');" src="../graphics/index-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../releases.html" onMouseOut="rolloverOff('side-releases');" onMouseOver="rolloverOn('side-releases');"><IMG alt="Release Info" border="0" height="12" hspace="0" name="side-releases" onLoad="rolloverLoad('side-releases','../graphics/releases-label-2.jpg','../graphics/releases-label-3.jpg');" src="../graphics/releases-label-3.jpg" vspace="0" width="120"></A><BR>
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../install.html" onMouseOut="rolloverOff('side-install');" onMouseOver="rolloverOn('side-install');"><IMG alt="Installation" border="0" height="12" hspace="0" name="side-install" onLoad="rolloverLoad('side-install','../graphics/install-label-2.jpg','../graphics/install-label-3.jpg');" src="../graphics/install-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://xml.apache.org/dist/xerces-c/" onMouseOut="rolloverOff('side-ext-18');" onMouseOver="rolloverOn('side-ext-18');"><IMG alt="Download" border="0" height="12" hspace="0" name="side-ext-18" onLoad="rolloverLoad('side-ext-18','../graphics/ext-18-label-2.jpg','../graphics/ext-18-label-3.jpg');" src="../graphics/ext-18-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../build.html" onMouseOut="rolloverOff('side-build');" onMouseOver="rolloverOn('side-build');"><IMG alt="Build" border="0" height="12" hspace="0" name="side-build" onLoad="rolloverLoad('side-build','../graphics/build-label-2.jpg','../graphics/build-label-3.jpg');" src="../graphics/build-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../faqs.html" onMouseOut="rolloverOff('side-faqs');" onMouseOver="rolloverOn('side-faqs');"><IMG alt="FAQs" border="0" height="12" hspace="0" name="side-faqs" onLoad="rolloverLoad('side-faqs','../graphics/faqs-label-2.jpg','../graphics/faqs-label-3.jpg');" src="../graphics/faqs-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../samples.html" onMouseOut="rolloverOff('side-samples');" onMouseOver="rolloverOn('side-samples');"><IMG alt="Samples" border="0" height="12" hspace="0" name="side-samples" onLoad="rolloverLoad('side-samples','../graphics/samples-label-2.jpg','../graphics/samples-label-3.jpg');" src="../graphics/samples-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../api.html" onMouseOut="rolloverOff('side-api');" onMouseOver="rolloverOn('side-api');"><IMG alt="API Docs" border="0" height="12" hspace="0" name="side-api" onLoad="rolloverLoad('side-api','../graphics/api-label-2.jpg','../graphics/api-label-3.jpg');" src="../graphics/api-label-3.jpg" vspace="0" width="120"></A><BR>  
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../ApacheDOMC++Binding.html" onMouseOut="rolloverOff('side-ext-64');" onMouseOver="rolloverOn('side-ext-64');"><IMG alt="DOM C++ Binding" border="0" height="12" hspace="0" name="side-ext-64" onLoad="rolloverLoad('side-ext-64','../graphics/ext-64-label-2.jpg','../graphics/ext-64-label-3.jpg');" src="../graphics/ext-64-label-3.jpg" vspace="0" width="120"></A><BR> 
+  <A href="../program.html" onMouseOut="rolloverOff('side-program');" onMouseOver="rolloverOn('side-program');"><IMG alt="Programming" border="0" height="12" hspace="0" name="side-program" onLoad="rolloverLoad('side-program','../graphics/program-label-2.jpg','../graphics/program-label-3.jpg');" src="../graphics/program-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../migrate.html" onMouseOut="rolloverOff('side-migrate');" onMouseOver="rolloverOn('side-migrate');"><IMG alt="Migration Guide" border="0" height="12" hspace="0" name="side-migrate" onLoad="rolloverLoad('side-migrate','../graphics/migrate-label-2.jpg','../graphics/migrate-label-3.jpg');" src="../graphics/migrate-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../feedback.html" onMouseOut="rolloverOff('side-feedback');" onMouseOver="rolloverOn('side-feedback');"><IMG alt="Feedback" border="0" height="12" hspace="0" name="side-feedback" onLoad="rolloverLoad('side-feedback','../graphics/feedback-label-2.jpg','../graphics/feedback-label-3.jpg');" src="../graphics/feedback-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../bug-report.html" onMouseOut="rolloverOff('side-bug-report');" onMouseOver="rolloverOn('side-bug-report');"><IMG alt="Bug-Reporting" border="0" height="12" hspace="0" name="side-bug-report" onLoad="rolloverLoad('side-bug-report','../graphics/bug-report-label-2.jpg','../graphics/bug-report-label-3.jpg');" src="../graphics/bug-report-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../pdf.html" onMouseOut="rolloverOff('side-pdf');" onMouseOver="rolloverOn('side-pdf');"><IMG alt="PDF Document" border="0" height="12" hspace="0" name="side-pdf" onLoad="rolloverLoad('side-pdf','../graphics/pdf-label-2.jpg','../graphics/pdf-label-3.jpg');" src="../graphics/pdf-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="http://xml.apache.org/websrc/cvsweb.cgi/xml-xerces/c/" onMouseOut="rolloverOff('side-ext-96');" onMouseOver="rolloverOn('side-ext-96');"><IMG alt="CVS Repository" border="0" height="12" hspace="0" name="side-ext-96" onLoad="rolloverLoad('side-ext-96','../graphics/ext-96-label-2.jpg','../graphics/ext-96-label-3.jpg');" src="../graphics/ext-96-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://marc.theaimsgroup.com/?l=xerces-c-dev" onMouseOut="rolloverOff('side-ext-98');" onMouseOver="rolloverOn('side-ext-98');"><IMG alt="Mail Archive" border="0" height="12" hspace="0" name="side-ext-98" onLoad="rolloverLoad('side-ext-98','../graphics/ext-98-label-2.jpg','../graphics/ext-98-label-3.jpg');" src="../graphics/ext-98-label-3.jpg" vspace="0" width="120"></A><BR>
+
+<IMG border="0" height="14" hspace="0" src="../resources/close.gif" vspace="0" width="120"><BR></TD><TD align="left" valign="top" width="500"><TABLE border="0" cellpadding="3" cellspacing="0"><TR><TD>
+    <TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#FFFFFF" colspan="2" width="494"><TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#039acc" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#039acc" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#039acc" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" width="492"><FONT color="#ffffff" face="arial,helvetica,sanserif" size="+1"><IMG border="0" height="2" hspace="0" src="../resources/void.gif" vspace="0" width="2"><B>API Docs for SAX and DOM</B></FONT></TD><TD bgcolor="#017299" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#017299" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#017299" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></TD></TR><TR><TD width="10">&nbsp;</TD><TD width="484"><FONT color="#000000" face="arial,helvetica,sanserif">
+
+	    <P>
+<!-- Generated by Doxygen 1.2.14 -->
+<center>
+<a class="qindex" href="index.html">Main Page</a> &nbsp; <a class="qindex" href="hierarchy.html">Class Hierarchy</a> &nbsp; <a class="qindex" href="classes.html">Alphabetical List</a> &nbsp; <a class="qindex" href="annotated.html">Compound List</a> &nbsp; <a class="qindex" href="files.html">File List</a> &nbsp; <a class="qindex" href="functions.html">Compound Members</a> &nbsp; <a class="qindex" href="globals.html">File Members</a> &nbsp; </center>
+<hr><h1>XSAttributeDeclaration  Class Reference</h1>Inheritance diagram for XSAttributeDeclaration:<p><center><img src="classXSAttributeDeclaration__inherit__graph.gif" border="0" usemap="#XSAttributeDeclaration__inherit__map" alt="Inheritance graph"></center>
+<map name="XSAttributeDeclaration__inherit__map">
+<area href="classXSObject.html" shape="rect" coords="47,105,116,86" alt="">
+<area href="classXMemory.html" shape="rect" coords="47,36,116,17" alt="">
+</map>
+<center><font size="2">[<a href="graph_legend.html">legend</a>]</font></center>Collaboration diagram for XSAttributeDeclaration:<p><center><img src="classXSAttributeDeclaration__coll__graph.gif" border="0" usemap="#XSAttributeDeclaration__coll__map" alt="Collaboration graph"></center>
+<map name="XSAttributeDeclaration__coll__map">
+<area href="classXSObject.html" shape="rect" coords="213,308,283,289" alt="">
+<area href="classXSAnnotation.html" shape="rect" coords="121,398,215,380" alt="">
+<area href="classXSTypeDefinition.html" shape="rect" coords="305,398,423,380" alt="">
+<area href="classXSWildcard.html" shape="rect" coords="71,489,153,470" alt="">
+<area href="classXSParticle.html" shape="rect" coords="547,398,624,380" alt="">
+<area href="classXMemory.html" shape="rect" coords="89,36,159,17" alt="">
+<area href="classXSModel.html" shape="rect" coords="215,217,281,198" alt="">
+<area href="classXSNamedMap.html" shape="rect" coords="161,126,343,108" alt="">
+<area href="classMemoryManager.html" shape="rect" coords="340,36,449,17" alt="">
+<area href="classXSSimpleTypeDefinition.html" shape="rect" coords="285,489,443,470" alt="">
+<area href="classXSComplexTypeDefinition.html" shape="rect" coords="489,580,657,561" alt="">
+</map>
+<center><font size="2">[<a href="graph_legend.html">legend</a>]</font></center><a href="classXSAttributeDeclaration-members.html">List of all members.</a><table border=0 cellpadding=0 cellspacing=0>
+<tr><td colspan=2><br><h2>Public Methods</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Constructors</div></td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classXSAttributeDeclaration.html#z325_0">XSAttributeDeclaration</a> (SchemaAttDef *const attDef, <a class="el" href="classXSSimpleTypeDefinition.html">XSSimpleTypeDefinition</a> *const typeDef, <a class="el" href="classXSAnnotation.html">XSAnnotation</a> *const annot, <a class="el" href="classXSModel.html">XSModel</a> *const xsModel, <a class="el" href="classXSConstants.html#s28">XSConstants::SCOPE</a> scope, <a class="el" href="classXSComplexTypeDefinition.html">XSComplexTypeDefinition</a> *enclosingCTDefinition, <a class="el" href="classMemoryManager.html">MemoryManager</a> *const manager=<a class="el" href="classXMLPlatformUtils.html#z477_4">XMLPlatformUtils::fgMemoryManager</a>)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>The default constructor.</em> <a href="#z325_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classXSAttributeDeclaration.html#z326_0">~XSAttributeDeclaration</a> ()</td></tr>
+<tr><td colspan="2"><div class="groupHeader">overridden XSObject methods</div></td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh *&nbsp;</td><td valign=bottom><a class="el" href="classXSAttributeDeclaration.html#z327_0">getName</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>The name of type <code>NCName</code> of this declaration as defined in XML Namespaces.</em> <a href="#z327_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh *&nbsp;</td><td valign=bottom><a class="el" href="classXSAttributeDeclaration.html#z327_1">getNamespace</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>The [target namespace] of this object, or <code>null</code> if it is unspecified.</em> <a href="#z327_1">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classXSNamespaceItem.html">XSNamespaceItem</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXSAttributeDeclaration.html#z327_2">getNamespaceItem</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>A namespace schema information item corresponding to the target namespace of the component, if it's globally declared; or null otherwise.</em> <a href="#z327_2">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>unsigned int&nbsp;</td><td valign=bottom><a class="el" href="classXSAttributeDeclaration.html#z327_3">getId</a> () const</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Return a unique identifier for a component within this <a class="el" href="classXSModel.html">XSModel</a>, to optimize querying.</em> <a href="#z327_3">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan="2"><div class="groupHeader">XSAttributeDeclaration methods *</div></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classXSSimpleTypeDefinition.html">XSSimpleTypeDefinition</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXSAttributeDeclaration.html#z328_0">getTypeDefinition</a> () const</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>[type definition]: A simple type definition.</em> <a href="#z328_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classXSConstants.html#s28">XSConstants::SCOPE</a>&nbsp;</td><td valign=bottom><a class="el" href="classXSAttributeDeclaration.html#z328_1">getScope</a> () const</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Optional.</em> <a href="#z328_1">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classXSComplexTypeDefinition.html">XSComplexTypeDefinition</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXSAttributeDeclaration.html#z328_2">getEnclosingCTDefinition</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>The complex type definition for locally scoped declarations (see <code>scope</code>).</em> <a href="#z328_2">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classXSConstants.html#s29">XSConstants::VALUE_CONSTRAINT</a>&nbsp;</td><td valign=bottom><a class="el" href="classXSAttributeDeclaration.html#z328_3">getConstraintType</a> () const</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Value constraint: one of <code>VC_NONE, VC_DEFAULT, VC_FIXED</code>.</em> <a href="#z328_3">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh *&nbsp;</td><td valign=bottom><a class="el" href="classXSAttributeDeclaration.html#z328_4">getConstraintValue</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Value constraint: The actual value with respect to the [type definition ].</em> <a href="#z328_4">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classXSAnnotation.html">XSAnnotation</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXSAttributeDeclaration.html#z328_5">getAnnotation</a> () const</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Optional.</em> <a href="#z328_5">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan="2"><div class="groupHeader"></div></td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classXSAttributeDeclaration.html#z329_0">setId</a> (unsigned int id)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Set the id to be returned on <a class="el" href="classXSAttributeDeclaration.html#z327_3">getId</a>().</em> <a href="#z329_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classXSAttributeDeclaration.html#z329_1">getRequired</a> () const</td></tr>
+<tr><td colspan=2><br><h2>Protected Attributes</h2></td></tr>
+<tr><td nowrap align=right valign=top>SchemaAttDef *&nbsp;</td><td valign=bottom><a class="el" href="classXSAttributeDeclaration.html#n0">fAttDef</a></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classXSSimpleTypeDefinition.html">XSSimpleTypeDefinition</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXSAttributeDeclaration.html#n1">fTypeDefinition</a></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classXSAnnotation.html">XSAnnotation</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXSAttributeDeclaration.html#n2">fAnnotation</a></td></tr>
+<tr><td nowrap align=right valign=top>unsigned int&nbsp;</td><td valign=bottom><a class="el" href="classXSAttributeDeclaration.html#n3">fId</a></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classXSConstants.html#s28">XSConstants::SCOPE</a>&nbsp;</td><td valign=bottom><a class="el" href="classXSAttributeDeclaration.html#n4">fScope</a></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classXSComplexTypeDefinition.html">XSComplexTypeDefinition</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXSAttributeDeclaration.html#n5">fEnclosingCTDefinition</a></td></tr>
+<tr><td colspan=2><br><h2>Friends</h2></td></tr>
+<tr><td nowrap align=right valign=top>class&nbsp;</td><td valign=bottom><a class="el" href="classXSAttributeDeclaration.html#l0">XSObjectFactory</a></td></tr>
+</table>
+<hr><h2>Constructor &amp; Destructor Documentation</h2>
+<a name="z325_0" doxytag="XSAttributeDeclaration::XSAttributeDeclaration"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> XSAttributeDeclaration::XSAttributeDeclaration </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">SchemaAttDef *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>attDef</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classXSSimpleTypeDefinition.html">XSSimpleTypeDefinition</a> *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>typeDef</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classXSAnnotation.html">XSAnnotation</a> *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>annot</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classXSModel.html">XSModel</a> *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>xsModel</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classXSConstants.html#s28">XSConstants::SCOPE</a>&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>scope</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classXSComplexTypeDefinition.html">XSComplexTypeDefinition</a> *&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>enclosingCTDefinition</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classMemoryManager.html">MemoryManager</a> *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>manager</em> = <a class="el" href="classXMLPlatformUtils.html#z477_4">XMLPlatformUtils::fgMemoryManager</a></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+The default constructor.
+<p>
+<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>attDef</em>&nbsp;</td><td>
+</td></tr>
+<tr><td valign=top><em>typeDef</em>&nbsp;</td><td>
+</td></tr>
+<tr><td valign=top><em>annot</em>&nbsp;</td><td>
+</td></tr>
+<tr><td valign=top><em>xsModel</em>&nbsp;</td><td>
+</td></tr>
+<tr><td valign=top><em>scope</em>&nbsp;</td><td>
+</td></tr>
+<tr><td valign=top><em>enclosingCTDefinition</em>&nbsp;</td><td>
+</td></tr>
+<tr><td valign=top><em>manager</em>&nbsp;</td><td>
+The configurable memory manager </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="z326_0" doxytag="XSAttributeDeclaration::~XSAttributeDeclaration"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> XSAttributeDeclaration::~XSAttributeDeclaration </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<hr><h2>Member Function Documentation</h2>
+<a name="z328_5" doxytag="XSAttributeDeclaration::getAnnotation"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classXSAnnotation.html">XSAnnotation</a> * XSAttributeDeclaration::getAnnotation </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const</td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Optional.
+<p>
+Annotation.     </td>
+  </tr>
+</table>
+<a name="z328_3" doxytag="XSAttributeDeclaration::getConstraintType"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classXSConstants.html#s29">XSConstants::VALUE_CONSTRAINT</a> XSAttributeDeclaration::getConstraintType </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const</td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Value constraint: one of <code>VC_NONE, VC_DEFAULT, VC_FIXED</code>.
+<p>
+    </td>
+  </tr>
+</table>
+<a name="z328_4" doxytag="XSAttributeDeclaration::getConstraintValue"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh* XSAttributeDeclaration::getConstraintValue </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Value constraint: The actual value with respect to the [type definition ].
+<p>
+    </td>
+  </tr>
+</table>
+<a name="z328_2" doxytag="XSAttributeDeclaration::getEnclosingCTDefinition"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classXSComplexTypeDefinition.html">XSComplexTypeDefinition</a> * XSAttributeDeclaration::getEnclosingCTDefinition </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+The complex type definition for locally scoped declarations (see <code>scope</code>).
+<p>
+    </td>
+  </tr>
+</table>
+<a name="z327_3" doxytag="XSAttributeDeclaration::getId"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> unsigned int XSAttributeDeclaration::getId </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Return a unique identifier for a component within this <a class="el" href="classXSModel.html">XSModel</a>, to optimize querying.
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+id unique for this type of component within this <a class="el" href="classXSModel.html">XSModel</a>. </dl>
+<p>
+Reimplemented from <a class="el" href="classXSObject.html#z389_4">XSObject</a>.    </td>
+  </tr>
+</table>
+<a name="z327_0" doxytag="XSAttributeDeclaration::getName"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh* XSAttributeDeclaration::getName </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+The name of type <code>NCName</code> of this declaration as defined in XML Namespaces.
+<p>
+
+<p>
+Reimplemented from <a class="el" href="classXSObject.html#z389_1">XSObject</a>.    </td>
+  </tr>
+</table>
+<a name="z327_1" doxytag="XSAttributeDeclaration::getNamespace"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh* XSAttributeDeclaration::getNamespace </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+The [target namespace] of this object, or <code>null</code> if it is unspecified.
+<p>
+
+<p>
+Reimplemented from <a class="el" href="classXSObject.html#z389_2">XSObject</a>.    </td>
+  </tr>
+</table>
+<a name="z327_2" doxytag="XSAttributeDeclaration::getNamespaceItem"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classXSNamespaceItem.html">XSNamespaceItem</a>* XSAttributeDeclaration::getNamespaceItem </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+A namespace schema information item corresponding to the target namespace of the component, if it's globally declared; or null otherwise.
+<p>
+
+<p>
+Reimplemented from <a class="el" href="classXSObject.html#z389_3">XSObject</a>.    </td>
+  </tr>
+</table>
+<a name="z329_1" doxytag="XSAttributeDeclaration::getRequired"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool XSAttributeDeclaration::getRequired </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const</td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="z328_1" doxytag="XSAttributeDeclaration::getScope"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classXSConstants.html#s28">XSConstants::SCOPE</a> XSAttributeDeclaration::getScope </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const</td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Optional.
+<p>
+One of <code>SCOPE_GLOBAL</code>, <code>SCOPE_LOCAL</code>,  or <code>SCOPE_ABSENT</code>. If the scope is local, then the  <code>enclosingCTDefinition</code> is present.     </td>
+  </tr>
+</table>
+<a name="z328_0" doxytag="XSAttributeDeclaration::getTypeDefinition"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classXSSimpleTypeDefinition.html">XSSimpleTypeDefinition</a> * XSAttributeDeclaration::getTypeDefinition </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const</td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+[type definition]: A simple type definition.
+<p>
+    </td>
+  </tr>
+</table>
+<a name="z329_0" doxytag="XSAttributeDeclaration::setId"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void XSAttributeDeclaration::setId </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">unsigned int&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>id</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Set the id to be returned on <a class="el" href="classXSAttributeDeclaration.html#z327_3">getId</a>().
+<p>
+    </td>
+  </tr>
+</table>
+<hr><h2>Friends And Related Function Documentation</h2>
+<a name="l0" doxytag="XSAttributeDeclaration::XSObjectFactory"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> friend class XSObjectFactory<code> [friend]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<hr><h2>Member Data Documentation</h2>
+<a name="n2" doxytag="XSAttributeDeclaration::fAnnotation"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classXSAnnotation.html">XSAnnotation</a>* XSAttributeDeclaration::fAnnotation<code> [protected]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="n0" doxytag="XSAttributeDeclaration::fAttDef"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> SchemaAttDef* XSAttributeDeclaration::fAttDef<code> [protected]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="n5" doxytag="XSAttributeDeclaration::fEnclosingCTDefinition"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classXSComplexTypeDefinition.html">XSComplexTypeDefinition</a>* XSAttributeDeclaration::fEnclosingCTDefinition<code> [protected]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="n3" doxytag="XSAttributeDeclaration::fId"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> unsigned int XSAttributeDeclaration::fId<code> [protected]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="n4" doxytag="XSAttributeDeclaration::fScope"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classXSConstants.html#s28">XSConstants::SCOPE</a> XSAttributeDeclaration::fScope<code> [protected]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="n1" doxytag="XSAttributeDeclaration::fTypeDefinition"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classXSSimpleTypeDefinition.html">XSSimpleTypeDefinition</a>* XSAttributeDeclaration::fTypeDefinition<code> [protected]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<hr>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="XSAttributeDeclaration_8hpp-source.html">XSAttributeDeclaration.hpp</a></ul>
+    </FONT></TD></TR></TABLE><BR>
+</TD></TR></TABLE></TD></TR></TABLE><BR><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD bgcolor="#0086b2"><IMG height="1" src="images/dot.gif" width="1" alt=""></TD></TR><TR><TD align="center"><FONT color="#0086b2" size="-1"><I>
+              Copyright &copy; 2004 The Apache Software Foundation.
+              All Rights Reserved.
+            </I></FONT></TD></TR></TABLE></BODY></HTML>

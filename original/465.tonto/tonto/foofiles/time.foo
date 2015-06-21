@@ -1,0 +1,322 @@
+!---------------------------------------------------------------------------
+!
+!  Time: timing routines, such as output date, time execution, etc.
+!
+! Copyright (C) Daniel Grimwood, 1998
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: time.foo,v 1.16.2.5 2003/11/13 05:33:55 reaper Exp $
+!---------------------------------------------------------------------------
+
+module TIME
+
+   implicit none
+
+#ifdef MPI
+#include "mpif.h"
+#endif
+
+   std_time :: TIME, public
+
+  interface reset
+    start
+  end
+
+contains
+
+   start
+   ! starts the counter
+     .started   = .current
+     .start_cpu = .current_cpu_time
+     .stopped = 0
+   end
+
+   stop
+   ! Stop the counter.
+     .stopped  = .current
+     .stop_cpu = .current_cpu_time
+   end
+
+   current result (res)
+   ! returns current time
+     res :: INTVEC(5)
+     time :: INTVEC(8)
+     y,m,d,j :: INT
+#ifdef MPI
+     call MPI_BARRIER(MPI_COMM_WORLD,tonto_parallel.mpi_status)
+#endif
+     call date_and_time(values=time)
+     y = time(1)
+     m = time(2)
+     d = time(3)
+     .to_julian(d,m,y,j)
+     res(1) = j       ! Julian day
+     res(2) = time(5) ! hour
+     res(3) = time(6) ! minute
+     res(4) = time(7) ! second
+     res(5) = time(8) ! millisecond
+   end
+
+   current_cpu_time result (res)
+   ! What the current CPU_TIME is.
+     res :: REAL
+     time :: REAL
+     time = ZERO
+#ifdef MPI
+     call MPI_BARRIER(MPI_COMM_WORLD,tonto_parallel.mpi_status)
+#endif
+#ifndef LANGUAGE_FORTRAN_90
+     call cpu_time(time)
+#endif
+     res = time
+   end
+
+   elapsed result (time)
+   ! returns elapsed time
+     time :: INTVEC(5)
+     time = .subtract_times( .stopped , .started)
+   end
+
+   elapsed_time_in_seconds result (secs)
+   ! returns elapsed time
+     secs :: REAL
+     time :: INTVEC(5)
+     time = .subtract_times( .stopped , .started)
+     secs = .time_to_seconds(time)
+   end
+
+! *********************************************************************
+! return time strings.
+! *********************************************************************
+
+   current_time result (res)
+   !
+     res :: STR(40)
+     res = "The current time is " // .time_to_str( .current ) // "."
+   end
+
+   start_time result (res)
+   !
+     res :: STR(37)
+     res = "Timer started at " // .time_to_str( .started ) // "."
+   end
+
+   stop_time result (res)
+   !
+     res :: STR(37)
+     res = "Timer stopped at " // .time_to_str( .stopped ) // "."
+   end
+
+   time_taken(task) result (res)
+   ! Returns time taken. "Time taken is ..."
+   ! If task given, "Time taken for "task" is ..."
+     res :: STR(132)
+     task :: STR(*), optional
+     .stop
+     if (present(task)) then
+       res = "Wall-clock time taken for " // trim(task) // " is " // &
+             trim( .elapsed_time_to_str( .elapsed )) // "."
+     else
+     res = "Wall-clock time taken is " // trim( .elapsed_time_to_str( .elapsed )) // "."
+     end
+   end
+
+   cpu_time_taken(task) result (res)
+   ! Returns cpu time taken. "CPU time taken is ... CPU seconds."
+   ! If task given, "CPU time taken for "task" is ... CPU seconds."
+     task :: STR(*), optional
+     res :: STR
+     time,time1 :: REAL
+     time_str :: STR(132)
+     .stop
+     time = .stop_cpu - .start_cpu
+#ifdef MPI
+     call MPI_ALLREDUCE(time,time1,1,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,tonto_parallel.mpi_status)
+     time = time1
+#endif
+     write(time_str,'(f15.3)') time
+     if (present(task)) then
+       res = "CPU time taken for " // trim(task) // " is " // &
+              trim(adjustl(time_str)) // " CPU seconds."
+     else
+       res = "CPU time taken is " // trim(adjustl(time_str)) // " CPU seconds."
+     end
+   end
+
+   elapsed_time_to_str(time) result (res)
+   ! Returns the elapsed time as a string.
+   ! Formatted as years, months, days, hours, min, sec, msec.
+   ! If time is greater than a day, does not output min or smaller.
+     time :: INTVEC(5), IN
+     res :: STR
+     comma :: BIN
+     comma = FALSE
+     res = " "
+     res =              .number_with_units(time(1),"day",comma)
+     res = trim(res) // .number_with_units(time(2),"hour",comma)
+     if (time(1) == 0) then
+       res = trim(res) // .number_with_units(time(3),"minute",comma)
+       if (time(2) == 0) then
+         res = trim(res) // .number_with_units(time(4),"second",comma)
+         res = trim(res) // .number_with_units(time(5),"millisecond",comma)
+       end
+     end
+   end
+
+   time_to_str(time) result (res)
+   ! Return a string containing the time.
+   ! Formatted as DD/MM/YYYY HH:MM:SS
+     time :: INTVEC(5), IN
+     res :: STR(19)
+     day,month,hour,min,sec :: STR(2)
+     year :: STR(4)
+     i,y,m,d :: INT
+     .from_julian(d,m,y,time(1))
+     res = " "
+     write(day,fmt='(i2)') d
+     write(month,fmt='(i2)') m
+     write(year,fmt='(i4)') y
+     write(hour,fmt='(i2)') time(2)
+     write(min,fmt='(i2)') time(3)
+     write(sec,fmt='(i2)') time(4)
+     res = day //"/"// month //"/"// year //" "// hour //":"// min //":"// sec
+     do i=1,19
+       if (res(i:i) == " ") res(i:i) = "0"
+     end
+     res(11:11) = " "
+   end
+
+! *********************************************************************
+! private routines
+! *********************************************************************
+
+   number_with_units(number,unit,comma) result (res) ::: private
+   ! Returns the number with its units, if the number is non-zero.
+   ! Inserts a comma if comma is true.  If the number is non-zero,
+   ! then comma is set to true.
+     self :: IN
+     number :: INT, IN
+     unit :: STR(*), IN
+     comma :: BIN
+     res :: STR
+     i :: INT
+     res1 :: STR
+     res = " "
+     if (number /= 0) then
+       res1 = " "
+       write(res1,'(i 20)') number
+       res1 = adjustl(res1)
+       i = 1
+       if (comma) then           ! insert comma at start if needed.
+         res(1:2) = ", "
+         i = 3
+       end
+       res(i:) = trim(res1) // " " // unit
+       if (number /= 1) then     ! add "s" to "unit"s if number not 1.
+         i=len_trim(res)+1
+         res(i:i) = "s"
+       end
+       comma = TRUE
+     end
+   end
+
+   subtract_times(time1,time2) result(res) ::: private
+   ! result = time1 - time2
+     self :: IN
+     time1,time2 :: INTVEC(5), IN
+     res :: INTVEC(5)
+     secs,secs1,secs2 :: REAL
+     secs1 = .time_to_seconds(time1)
+     secs2 = .time_to_seconds(time2)
+     secs = secs1 - secs2
+     res = .seconds_to_time(secs)
+   end
+
+   seconds_to_time(secs) result(res) ::: private
+   ! Returns the number of days, hours, minutes, seconds, milliseconds from the
+   ! number of seconds.
+     self :: IN
+     res :: INTVEC(5)
+     secs :: REAL, IN
+     sex :: REAL
+     sex = abs(secs)
+     res(1) = floor( sex / 86400 ) ! days
+     sex = sex - res(1) * 86400
+     res(2) = floor( sex / 3600 )  ! hours
+     sex = sex - res(2) * 3600
+     res(3) = floor( sex / 60 )    ! minutes
+     sex = sex - res(3) * 60
+     res(4) = floor(sex)           ! seconds
+     sex = sex - res(4)
+     res(5) = 1000*sex             ! milliseconds
+     if (secs < 0) res = - res
+   end
+
+   time_to_seconds(time) result(res) ::: private
+   ! Returns the number of seconds from the days, hours, minutes, seconds, and
+   ! milliseconds.
+     self :: IN
+     time :: INTVEC(5), IN
+     res :: REAL
+     res = 86400d0*time(1)+3600d0*time(2)+60d0*time(3)+time(4)+time(5)/1000d0
+   end
+
+   to_julian(d,m,y,j) ::: private
+   ! Converts the days, months, years, into the Julian date.
+     self :: IN
+     d,m,y :: INT, IN
+      j :: INT, OUT
+     mm,yy,c :: INT
+     mm = m
+     yy = y
+     if (mm>2) then
+       mm = mm - 3
+     else
+       mm = mm + 9
+       yy = yy - 1
+     end
+     c = yy / 100
+     yy = yy - 100 * c
+     j = (146097*c)/4 + (1461*yy)/4 + (153*mm+2)/5 + d + 1721119
+   end
+
+   from_julian(d,m,y,j) ::: private
+   ! Converts the days, months, years, from the Julian date.
+     self :: IN
+      j :: INT, IN
+     d,m,y :: INT, OUT
+     jj :: INT
+     jj=j - 1721119
+     y = (4*jj-1)/146097
+     jj = 4*jj - 1 - 146097 * y
+     d = jj/4
+     jj = (4*d+3)/1461
+     d = 4*d + 3 - 1461*jj
+     d = (d+4)/4
+     m = (5*d-3)/153
+     d = 5*d - 3 - 153*m
+     d = (d+5)/5
+     y = 100*y + jj
+     if (m<10) then
+       m = m + 3
+     else
+       m = m - 9
+       y = y + 1
+     end
+   end
+
+end

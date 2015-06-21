@@ -1,0 +1,59 @@
+program run_GAUSSIAN2
+
+   use GAUSSIAN2
+   use TEST                 
+
+   implicit none
+
+   g :: GAUSSIAN2           ! A GAUSSIAN2 object
+   S :: REALMAT*            ! A pointer to a real matrix
+   d :: DFTGRID*            ! A pointer to a DFT grid object
+ 
+   tonto.initialize         ! Tonto system accounting (memory, call stack)
+   stdout.create_stdout     ! Create the "stdout" file
+   stdout.open              ! Open it.
+   tonto.set_error_output_file(stdout)
+
+   stdout.flush
+   stdout.text("First, define a gaussian pair ...")
+   g.set(l_a=0,pos_a=[0.0d0,0.0d0,0.0d0],ex_a=0.3d0, &
+         l_b=1,pos_b=[0.0d0,0.0d0,0.1d0],ex_b=0.5d0) 
+   g.put                    ! Output to "stdout"
+   stdout.flush             ! Observe dot notation access to "g"
+   stdout.show("The position of the first gaussian is ",g.a.pos)
+   stdout.show("The exponent of the first gaussian is ",g.a.ex)
+
+   stdout.flush
+   stdout.text("Now Make the overlap integrals between the two")
+   stdout.text("two gaussian functions :-")
+   stdout.flush             ! Create space for answer, in array "S"
+   S.create(g.a.n_comp,g.b.n_comp)
+   g.make_overlap_ints(S)   ! Make the integrals
+   stdout.put(S)            ! Output to "stdout"
+
+   stdout.flush
+   stdout.text("Change the precision of the output to 3 decimal")
+   stdout.text("places, and a field width of 8 characters")
+   stdout.set_real_precision(3)
+   stdout.set_real_width(8) 
+
+   stdout.flush
+   stdout.text("Analytically evaluate the nuclear attaction")
+   stdout.text("integrals for gaussian pair assuming the nucleus")
+   stdout.text("of unit charge is at (0,1,0) :- ")
+   stdout.flush
+   g.make_nuclear_attraction_ints(S,c=[0.0d0,1.0d0,0.0d0])
+   stdout.put(S)
+
+   stdout.flush
+   stdout.text("Numerically evaluate the previous integrals with")
+   stdout.text("a default DFT grid :")
+   stdout.flush
+   d.create
+   d.set_defaults
+   d.make_matrix_elements_of(v010,g,S)
+   stdout.put(S)
+
+   tonto.report
+
+end

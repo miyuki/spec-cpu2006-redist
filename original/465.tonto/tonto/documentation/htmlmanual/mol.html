@@ -1,0 +1,3438 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>MOL</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Keyword documentation for TONTO"
+HREF="keywords.html"><LINK
+REL="PREVIOUS"
+TITLE="GAUSSIAN"
+HREF="gaussian.html"><LINK
+REL="NEXT"
+TITLE="PLOTGRID"
+HREF="plotgrid.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="gaussian.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="plotgrid.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="MOL"
+></A
+><TT
+CLASS="LITERAL"
+>MOL</TT
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="MOL-PURPOSE"
+></A
+>Purpose</H2
+><P
+ALIGN="justify"
+>An object representation of a molecule</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="MOL-SYNOPSIS"
+></A
+>Synopsis</H2
+><P
+ALIGN="justify"
+>This is the main module in TONTO. It is intenede to provide a quantum
+mechanocal repr4esentation of a molecule and all properties that can be
+interrogated from a molecule.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="MOL-NOTE"
+></A
+>Special note</H2
+><P
+ALIGN="justify"
+>Because it is quite large, the module may be broken up into parts, each
+part being labelled by a particular working author. Thus for example, the
+current distribution contains <TT
+CLASS="LITERAL"
+>mol_dylan</TT
+>,
+<TT
+CLASS="LITERAL"
+>mol_daniel</TT
+>, <TT
+CLASS="LITERAL"
+>mol_chris</TT
+>.</P
+><P
+ALIGN="justify"
+>The main routine is <TT
+CLASS="LITERAL"
+>mol_main</TT
+> and contains essentially
+just the <TT
+CLASS="LITERAL"
+>read</TT
+> and <TT
+CLASS="LITERAL"
+>process_input</TT
+>
+routines.</P
+><P
+ALIGN="justify"
+>The online documentation may not work properly for routines which are
+under individual author names. Probably you should not be using these routines
+for production purposes.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="MOL-INPUT"
+></A
+>Default input data order</H2
+><P
+ALIGN="justify"
+>There is no associated MOLVEC type; an input data order has not been
+defined.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="MOL-KEYWORDS"
+></A
+>Listing of keywords</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>assign_natural_orbitals</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Assign the natural orbitals to the currently defined molecular
+orbitals.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>atomic_roby_populations</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Evaluate the atomic Roby populations.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>atoms= ATOMVEC</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Enter data for a list of <TT
+CLASS="LITERAL"
+>ATOM</TT
+>'s. That is,
+concerning the number, type, and position of atoms in the molecule.</P
+><P
+ALIGN="justify"
+>Example: 
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="90%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>atoms= &lcub;
+    O1   0.0  0.0  0.0   o-sto3g
+    H2   1.0  0.0  0.0   h-sto3g
+    H    0.0  1.0  0.0   h-sto3g
+&rcub;</PRE
+></TD
+></TR
+></TABLE
+></P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>It is efficient to only specify a
+<TT
+CLASS="LITERAL"
+>basis_label</TT
+>. Later, the entire basis set can be specified
+using the <TT
+CLASS="LITERAL"
+>basis_sets</TT
+> command.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>basis_sets</TT
+> keyword may be used before or
+after the <TT
+CLASS="LITERAL"
+>atoms</TT
+> keyword.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Before a QM calculation can begin, every
+<TT
+CLASS="LITERAL"
+>basis_label</TT
+> must correspond to a defined basis
+set.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Use <TT
+CLASS="LITERAL"
+>"units angstrom"</TT
+> to specify coordinates
+in angstrom units.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Use the <TT
+CLASS="LITERAL"
+>axis_system</TT
+> command to specify
+coordinates in crystal axis system</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The default units for <TT
+CLASS="LITERAL"
+>thermal_tensors</TT
+> is
+<TT
+CLASS="LITERAL"
+>angstrom
+<SUP
+>-2</SUP
+></TT
+>.</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>atoms_groups= GROUP</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Specify a partition of the numbers from 1 to the number of atoms
+in the molecule.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>GROUP</TT
+> module does not exist yet, so this
+keyword is not documented in the standard way yet</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>This is used for nonintegacting-group Hartree-Fock
+calculations</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Within curly brackets <TT
+CLASS="LITERAL"
+>&lcub;</TT
+> and
+<TT
+CLASS="LITERAL"
+>&rcub;</TT
+> use the keywords <TT
+CLASS="LITERAL"
+>atom_group=</TT
+>
+followed by an <TT
+CLASS="LITERAL"
+>INTVEC</TT
+> list of atom indices; use
+<TT
+CLASS="LITERAL"
+>atom_range=</TT
+> or <TT
+CLASS="LITERAL"
+>range=</TT
+> followed by an
+<TT
+CLASS="LITERAL"
+>INTVEC(2)</TT
+> indicating the range of atom indices, inclusive; use
+<TT
+CLASS="LITERAL"
+>group_charges=</TT
+> array to enter an <TT
+CLASS="LITERAL"
+>INTVEC</TT
+>
+describing the charge of each group.</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>b_field= REALVEC(3)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Enter the cartesian components of an externally applied static
+magnetic field <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+><TT
+CLASS="LITERAL"
+>B</TT
+></I
+></SPAN
+>.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default value is
+<TT
+CLASS="LITERAL"
+>(0,0,0)</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>It is assumed that <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+><TT
+CLASS="LITERAL"
+>B</TT
+></I
+></SPAN
+> is
+in atomic units of flux.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>This keyword is used for plots of the diamagnetic part 
+of the current density.</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>basis_set_directory= STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Enter a directory where basis sets for each atom may be
+found.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This keyword must come before any <TT
+CLASS="LITERAL"
+>atoms=</TT
+>
+keyword if basis sets are to be entered for those atoms</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>You must also specify a
+<TT
+CLASS="LITERAL"
+>basis_set_kind=</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The default value is
+<TT
+CLASS="LITERAL"
+>"./basis_sets"</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Not all basis sets are available. See the
+<TT
+CLASS="LITERAL"
+>basis_sets</TT
+> directory and the contents of each file there for
+the list of available basis sets</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>basis_set_kind= STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Enter a the kind of basis set to be used.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This must correspond to an existing basis set file in the basis
+set directory</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>See <TT
+CLASS="LITERAL"
+>basis_set_directory=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>basis_sets= BASISVEC</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Enter data for a list of basis sets for use in quantum chemical
+calculations.</P
+><P
+ALIGN="justify"
+>Example: 
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="90%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>basis_sets= &lcub;
+&lcub;
+    h-sto3g 
+    &lcub;
+      S   3
+        3.42525091         0.15432897
+        0.62391373         0.53532814
+        0.16885540         0.44463454
+    &rcub;
+
+    o-sto3g
+    &lcub;
+      S   3
+      130.70932000         0.15432897
+       23.80886100         0.53532814
+        6.44360830         0.44463454
+      S   3
+        5.03315130        -0.09996723    
+        1.16959610         0.39951283  
+        0.38038900         0.70011547 
+      P   3
+        5.03315130         0.15591627
+        1.16959610         0.60768372
+        0.38038900         0.39195739
+    &rcub;
+&rcub;</PRE
+></TD
+></TR
+></TABLE
+></P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>basis_label</TT
+> need not correspond to any
+that are actually used in the <TT
+CLASS="LITERAL"
+>atoms</TT
+>
+keyword.</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>canonicalize_mos</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Generate a fock matrix from the existing molecule orbitals in
+memory and diagonalise it over the occupied part only, and the virtual part
+only, producing "canonical" molecular orbitals.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The orbitals need not be converged for the existing kind of
+SCF</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>See <TT
+CLASS="LITERAL"
+>scfdata=</TT
+> and especially the
+<TT
+CLASS="LITERAL"
+>scf_kind=</TT
+> within this derived data keyword</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>charge= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Enter the <TT
+CLASS="LITERAL"
+>charge</TT
+> on the molecule in atomic
+units of charge.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The charge on the molecule is used to work out the total number
+of electrons, and with the spin multiplicity, the number of alpha and beta
+electrons.</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>create_cluster</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Create a cluster from the existing set of molecule
+information.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This keyword is not documented in the standard
+way</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to the online documentation</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>crystal= CRYSTAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Enter the data for specifying a crystal, including the
+experimental data for measured structure factors</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>delete_scf_integrals</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Delete the integrals files for the previous SCF
+calculation.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This must be done whenever a new geometry is
+specified.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>This command has an effect for direct calculations, because the
+one electron integrals are always stored on disk.</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>dftgrid= DFTGRID</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Enter the data for specifying an integration grid for DFT
+functions.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>e_field= REALVEC(3)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Enter the cartesian components of an externally applied static
+electric field <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>E</I
+></SPAN
+>.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default value is
+<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>(0,0,0)</I
+></SPAN
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>It is assumed that <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>E</I
+></SPAN
+> is in atomic units of
+flux.</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>factor_density</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Multiply certain atom basis set sized blocks of the density
+matrix by the specified factors</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This keyword is not documented in the standard
+way</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to the online documentation</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>fit_thermal_parameters</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Optimise the thermal parameters so as to minimise the
+&chi;<SUP
+>2</SUP
+> for the predicted vs. the experimental
+structure factors</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Crystal data must be entered, and there must be an existing density matrix</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>crystal=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>force_thermal_symmetry</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Force the thermal parameters on symmetry equivalent atoms to be
+equal.  This is performed by averaging.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This keyword is undocumented</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>gauge_origin= REALVEC(3)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Enter the gauge origin for an externally applied static magnetic
+field.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default value is
+<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>(0,0,0)</I
+></SPAN
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>This keyword will affect spin orbit and magnetic field
+calculations</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>get_atom_density</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the stored sum of spherically averaged atom densities from
+the archive stored on disk into the current density matrix.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>get_homoleptic_bond_index</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Calculate the homoleptic bond index between two Roby
+fragments</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This keyword remains undocumented</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to the online documentation</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>hf_scf_energy_gradient</TT
+></DT
+><DD
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Calculate the Hartree-Fock energy gradient</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Warning: this keyword is untested</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Can you debug it?</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>grid= PLOTGRID</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Enter the data for specifying a rectilinear grid, for
+plots</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>make_ao_density_matrix</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Make the density matrix in the AO basis set from the current
+density matrix. (If the current density matrix of of the restricted kind, no
+operation is performed).</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>make_ao_sz_density_matrix</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Make the matrix of the S<SUB
+>z</SUB
+> operator in the
+AO basis set from the current density matrix. This is used to generate densities
+for use in calculating spin-only magnetic structure factors from UHF
+calculations.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>make_atom_density</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Calculate the density matrix as a sum of spherically averaged
+atomic UHF densities.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The maximum multiplicity Hund's rule is assumed for the spin
+state of the atom.</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>make_fermi_mobility_grid</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Make and print out the Fermi mobility function on the specified
+vibrationally rectilinear plot grid.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>make_fock_guess</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Make an initial set of molecular orbitals and eigenvalues from
+the current fock matrix.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>make_fock_matrix</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Make the fock matrix from a density matrix already in
+memory.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>make_group_density_matrix</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Make a density matrix which is the sum of non-interacting group
+densities</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Refer to the <TT
+CLASS="LITERAL"
+>atom_groups=</TT
+> keyword to define
+the groups</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Only works for closed shell <TT
+CLASS="LITERAL"
+>rhf</TT
+> group
+fragments at the moment</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Can you fix the rest?</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>make_irrotational_jp_grid</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Make and print out the irrotational part of the paramagnetic
+current density on the specified rectilinear grid.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>make_mulliken_matrix</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Make and print out the Mulliken population matrix.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>make_natural_orbitals</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Make the natural orbitals for the currently defined molecular
+orbitals.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>make_pnd_scalar_magnetic_sf</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Make the polarised neutron diffraction (pnd) scalar magnetic 
+structure factors for the currently defined complex density matrix.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>make_promol_density_matrix</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Make a promolecule density matrix from symmetrically
+orthonormalised group molecular orbitals</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The promolecule orbitals are also made, and are ordered by
+group, including the virtual orbitals within each group i.e. the occupation
+number vector is not continguous</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>atom_groups=</TT
+> and
+<TT
+CLASS="LITERAL"
+>make_promol_density</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Only works for <TT
+CLASS="LITERAL"
+>rhf</TT
+> fragment groups at the
+moment</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>make_roby_atoms</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Define the atomic natural orbitals for every atomn in the
+molecule</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>These are used to define the Roby aton projectors from Roby
+population analysis</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>make_scf_density_matrix</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Make a density matrix from the current set of molecular
+orbitals, for the currently defined type of SCF calculation (set in
+<TT
+CLASS="LITERAL"
+>scfdata</TT
+>).</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>make_structure_factors</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Make the structure factors for the currently defined density
+matrix.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>make_sz_structure_factors</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Make the S<SUB
+>z</SUB
+> spin only magnetic structure
+factors for the currently defined density matrix.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>make_vib_averaged_rho_grid</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Make and print out the vubrationally averaged charge density for
+a diatomic molecule using adpative Simpson quadrature.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>make_weak_force_energy_shift</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Calculate the parity violating weak force energy shift from a
+complex spin-orbit SCF calculation.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>multiplicity= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Enter the spin <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>multiplicity</I
+></SPAN
+> value for the
+molecule, <TT
+CLASS="LITERAL"
+>2S+1</TT
+>, where <TT
+CLASS="LITERAL"
+>S</TT
+> is the spin of the
+molecule.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The multiplicity values is used to define the number of alpha
+and beta electrons in unrestricted Hartree-Fock (UHF)
+calculations.</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>name= STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Input the <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>name</I
+></SPAN
+> you wish to give to your
+molecule calculation.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>name=</TT
+> keyword must be the first one in
+any input file.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The value of the inputted string is used to define the start of
+archive file names, so <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>do not</I
+></SPAN
+> use any spaces in
+it.</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>optimise_thermal_parameters= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>If set <TT
+CLASS="LITERAL"
+>TRUE</TT
+>, the thermal parameters in an
+X-ray wavefunction fitting calculations are optimised to minimise the
+&chi;<SUP
+>2</SUP
+> agreement statistic.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>plot_covalent_orbitals INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Output the Roby covalent orbital density for the specified
+orbital index.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>plot_ionic_orbitals INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Output the Roby ionic orbital density for the specified orbital
+index.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>plot_subspace_density INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Output the Roby subspace density for the specified shared
+orbitals whose index is specified.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>pointgroup= CRYSTAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Specify th pointgroup symmetry of the molecule in Schoenflies
+notation.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The character table does not include complex irreps, but they
+are grouped into two dimensional modules.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The character table is not available for the Icosahedral groups.
+used in the <TT
+CLASS="LITERAL"
+>atoms</TT
+> keyword.</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Put out information concerning the current molecule to the
+<TT
+CLASS="LITERAL"
+>stdout TEXTFILE</TT
+>.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_cluster_operations REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Put the crystal Seitz operations which will generate a cluster
+for which no atom is more than a certain specified distance from the center of
+the molecule out to the  <TT
+CLASS="LITERAL"
+>stdout TEXTFILE</TT
+>.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_crystal</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Put out <TT
+CLASS="LITERAL"
+>CRYSTAL</TT
+> information for the current
+molecule to the <TT
+CLASS="LITERAL"
+>stdout TEXTFILE</TT
+>.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_all_atom_coord_info</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Put out all the atom coordinate information.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_ao_energy_partition</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Put out the AO energy partition, which is a kind of Morokuma
+analysis</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This is only available for two <TT
+CLASS="LITERAL"
+>rhf</TT
+> fragment
+groups at the moment</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The density matrix for each group is partitioned according to AO
+basis functions, and then the energy of each block os calculated separately,
+including the <SPAN
+CLASS="QUOTE"
+>"interaction energy"</SPAN
+>
+<TT
+CLASS="LITERAL"
+>E<SUB
+>AB</SUB
+> = E
+- E<SUB
+>AA</SUB
+> -
+  E<SUB
+>BB</SUB
+></TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>put_sao_energy_partition</TT
+> and
+<TT
+CLASS="LITERAL"
+>put_mo_energy_partition</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>atom_groups=</TT
+>
+command</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>make_promol_density_matrix</TT
+> and
+<TT
+CLASS="LITERAL"
+>make_group_density_matrix</TT
+> command</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_chi2_vs_angle_plot</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Make a <TT
+CLASS="LITERAL"
+>gnuplot</TT
+> table of the
+<TT
+CLASS="LITERAL"
+>&chi;<SUP
+>2</SUP
+></TT
+> agreement statistic between
+calculated and experimental structure factors, and the binned <TT
+CLASS="LITERAL"
+>sin
+&thetas;/&lambda;</TT
+> values, where &lambda; is the diffraction particle
+wavelength</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This may be moved to the <TT
+CLASS="LITERAL"
+>CRYSTAL</TT
+> module at a
+later date</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_cluster_input</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Write out the cluster input details for a supercluster of the
+existing molecule</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This keyword remains undcoumented</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to the online documentation</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_crystal</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Put out all crystal information for this molecule</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_crystal_reflection_data</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Put out only crystal reflection information for this
+molecule</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This may be moved to the <TT
+CLASS="LITERAL"
+>CRYSTAL</TT
+> module at a
+later data</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_current_time</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Put the current time out to the  <TT
+CLASS="LITERAL"
+>stdout
+TEXTFILE</TT
+>.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_density_matrix</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Put out the density matrix to the
+<TT
+CLASS="LITERAL"
+>stdout</TT
+>.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_fock_matrix</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Put out the fock matrix to the <TT
+CLASS="LITERAL"
+>stdout</TT
+>.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_f_calc</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Put the calculated structure factors out to the
+<TT
+CLASS="LITERAL"
+>stdout</TT
+>.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_f_calc_plots</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Put out a series of useful <TT
+CLASS="LITERAL"
+>gnuplot</TT
+> files
+detailing the behaviour of the calculated structure factors</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>It produces the normalised deviates vs.
+<TT
+CLASS="LITERAL"
+>sin&thetas;/&lambda;</TT
+>; the normalised deviates vs.
+experimental structre factor magnitude; the normalised deviates vs. experimental
+structre factor magnitude; both of the above plots when the calculated structure
+factors include an extinction correction; and the mean value of the normalised
+deviate with and without extinction</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_fock_matrix</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Put out the fock matrix to the <TT
+CLASS="LITERAL"
+>stdout</TT
+>.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_g_tensor_information</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Calculate and put out the g tensor information from an existing
+complex density matrix.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_labelled_qq_plot</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Write an archive of the <TT
+CLASS="LITERAL"
+>QQ</TT
+> plot for the
+calculated structure factors data, including the <TT
+CLASS="LITERAL"
+>h</TT
+>,
+<TT
+CLASS="LITERAL"
+>k</TT
+>, <TT
+CLASS="LITERAL"
+>l</TT
+> reflection data</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This is a plot of the sorted experimental quantile versus the
+expected gaussian quantile</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>put_qq_plot</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_mos_and_energies</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Put out the molecular orbitals and orbitals energies to the
+<TT
+CLASS="LITERAL"
+>stdout</TT
+>.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_molecular_orbitals</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Put out the molecular orbitals information to the
+<TT
+CLASS="LITERAL"
+>stdout</TT
+>.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_mo_energy_partition</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Put out the MO energy partition, which is a kind of Morokuma
+analysis</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This is only available for two <TT
+CLASS="LITERAL"
+>rhf</TT
+> fragment
+groups at the moment</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The density matrix for each group is partitioned according to MO
+basis functions, and then the energy of each block os calculated separately,
+including the <SPAN
+CLASS="QUOTE"
+>"interaction energy"</SPAN
+>
+<TT
+CLASS="LITERAL"
+>E<SUB
+>AB</SUB
+> = E - E<SUB
+>AA</SUB
+> -
+E<SUB
+>BB</SUB
+></TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>put_ao_energy_partition</TT
+> and
+<TT
+CLASS="LITERAL"
+>put_sao_energy_partition</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>atom_groups=</TT
+>
+command</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>make_promol_density_matrix</TT
+> and
+<TT
+CLASS="LITERAL"
+>make_group_density_matrix</TT
+> command</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_sao_energy_partition</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Put out the symmetrix AO energy partition, which is a kind of
+Morokuma analysis</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This is only available for two <TT
+CLASS="LITERAL"
+>rhf</TT
+> fragment
+groups at the moment</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The density matrix for each group is partitioned according to MO
+basis functions, and then the energy of each block os calculated separately,
+including the <SPAN
+CLASS="QUOTE"
+>"interaction energy"</SPAN
+>
+<TT
+CLASS="LITERAL"
+>E<SUB
+>AB</SUB
+> = E - E<SUB
+>AA</SUB
+> -
+E<SUB
+>BB</SUB
+></TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>put_ao_energy_partition</TT
+> and
+<TT
+CLASS="LITERAL"
+>put_mo_energy_partition</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>atom_groups=</TT
+>
+command</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>make_promol_density_matrix</TT
+> and
+<TT
+CLASS="LITERAL"
+>make_group_density_matrix</TT
+> command</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_scf_energy</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Evaluate and put out the SCF energy</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The kinetic energy is also outputted for
+information</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>scfdata=</TT
+> to set scf
+type</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_scf_energy_in_mo_pairs</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Evaluate and put out the SCF energy in an MO pairs like
+form</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This decomposes the total SCF energy into one orbital in two
+orbital contributions in the expected way</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_plotgrid</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Put out the plotgrid information</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>plotgrid=</TT
+> to set the plot
+information and plot type</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>plot</TT
+> to actually perform the plot
+calculation</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_pnd_sf</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Put out the polarised neutron diffraction (PND) structure factor
+information to the <TT
+CLASS="LITERAL"
+>stdout</TT
+>.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_pointgroup</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Put out <TT
+CLASS="LITERAL"
+>POINTGROUP</TT
+> information for the
+current molecule to the <TT
+CLASS="LITERAL"
+>stdout</TT
+>.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_qq_plot</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Put the data for Hamilton's $QQ$ plot out to the
+<TT
+CLASS="LITERAL"
+>stdout</TT
+>.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This is a plot of the sorted experimental quantile versus the
+expected gaussian quantile</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to
+<TT
+CLASS="LITERAL"
+>put_labelled_qq_plot</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_roby_atom_energy</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Put out the Roby energies for every atom</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This keyword is undocumented</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to the online documentation</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_roby_ionic_energy</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Put out the Roby ionic energies for every atom</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This keyword is undocumented</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to the online documentation</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_roby_shared_energy</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Output the Roby shared energy.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This keyword is undocumented</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to the online documentation</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_roby_shared_population</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Output the Roby shared populations.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This keyword is undocumented</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to the online documentation</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_sylvian_csizmadia_tensors</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Output an approxintmation for the polarisability and
+hyperpolarisability tensors developed by Sylvian and Csizmadia.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_scf_energy_in_mo_pairs</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Calculate and put out the SCF energy in molecular orbitals pairs
+for the current set of molecular orbitals.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_time_taken</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Put the time taken since the <TT
+CLASS="LITERAL"
+>start_timer</TT
+>
+command (or beginning of job, if the <TT
+CLASS="LITERAL"
+>start_timer</TT
+> command is
+not present) to the <TT
+CLASS="LITERAL"
+>stdout</TT
+>.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_total_time</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Put the total time since the <TT
+CLASS="LITERAL"
+>start_timer</TT
+>
+command (or the beginning of job, if the <TT
+CLASS="LITERAL"
+>start_timer</TT
+> command
+is not present) out to the  <TT
+CLASS="LITERAL"
+>stdout</TT
+>.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put_vrml</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Put out a VRML graphics representation of the molecule</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>read_archive STR STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the specified binary archive, and its kind, into the
+program.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Only the possibilities <TT
+CLASS="LITERAL"
+>molecular_orbitals</TT
+>,
+<TT
+CLASS="LITERAL"
+>density_matrix</TT
+>, <TT
+CLASS="LITERAL"
+>natural_orbitals</TT
+>,
+<TT
+CLASS="LITERAL"
+>occupation_numbers</TT
+> and <TT
+CLASS="LITERAL"
+>fock_matrix</TT
+> are
+allowed.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The kind must be one of the <TT
+CLASS="LITERAL"
+>OPMATRIX</TT
+> kind
+types.</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>read_ascii_archive STR STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the specified ASCII archive into the program.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Only the possibilities <TT
+CLASS="LITERAL"
+>molecular_orbitals</TT
+>,
+<TT
+CLASS="LITERAL"
+>density_matrix</TT
+>, <TT
+CLASS="LITERAL"
+>natural_orbitals</TT
+>,
+<TT
+CLASS="LITERAL"
+>occupation_numbers</TT
+> and <TT
+CLASS="LITERAL"
+>fock_matrix</TT
+> are
+allowed.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The kind must be one of the <TT
+CLASS="LITERAL"
+>OPMATRIX</TT
+> kind
+types.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>This command is useful for inputting data from other programs:
+simply rename the input into the appropriate archive file.</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>read_g94_checkpoint_file</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the gaussian94 checkpoint file, generated from the
+<TT
+CLASS="LITERAL"
+>fchk</TT
+> command, into TONTO.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Atom positions, basis sets, molecular orbitals and density
+matrices are inputted.</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>redirect STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Redirect the <TT
+CLASS="LITERAL"
+>stdin</TT
+> to the name of the
+following input file</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>To come back to the original input file, use the
+<TT
+CLASS="LITERAL"
+>revert</TT
+> command</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>See the <TT
+CLASS="LITERAL"
+>revert</TT
+> command</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>roby_energy_analysis</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Perform a Roby energy analysis on the previously calculated
+density matrix.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This keyword remains undocumented</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to the online documentation</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>roby_population_analysis</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Perform a Roby population analysis on the previously calculated
+density matrix.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This keyword remains undocumented</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to the online documentation</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>scf</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Perform an SCF calculation using the specified
+<TT
+CLASS="LITERAL"
+>scfdata</TT
+>.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>At the termination of the program the density matrix, molecular
+orbitals, and fock matrix hold the converged results for future
+calculations.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The results are also stored in archive files on disk for later
+use.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>If a standard SCF calculation is performed, the integrals are
+stored ion disk and reused, if required.</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>scfdata= SCFDATA</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Enter the data for the SCF calculation options, including the
+type of SCF, the initial guess, the convergence criteria, extrapolation
+methods, to name a few.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This does not perform a calculation. Only the required options
+are set.  Use the <TT
+CLASS="LITERAL"
+>scf</TT
+> keyword to invoke the SCF
+calculation.</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>simulate_new_f_exp</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Add a series of &sigma;-variance gaussian random deviates to
+the experimental crystal structure factors</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This may be moved to the <TT
+CLASS="LITERAL"
+>CRYSTAL</TT
+> module at a
+later date</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>start_timer</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Start timing the program from the current point.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>write_archive STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Write the specified binary archive into the program.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Only the possibilities <TT
+CLASS="LITERAL"
+>molecular_orbitals</TT
+>,
+<TT
+CLASS="LITERAL"
+>density_matrix</TT
+>, <TT
+CLASS="LITERAL"
+>natural_orbitals</TT
+>,
+<TT
+CLASS="LITERAL"
+>occupation_numbers</TT
+> and <TT
+CLASS="LITERAL"
+>fock_matrix</TT
+> are
+allowed.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The kind is determined from the current type of object which is
+to be written.</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>write_ascii_archive STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Write the specified ASCII archive into the program.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Only the possibilities <TT
+CLASS="LITERAL"
+>molecular_orbitals</TT
+>,
+<TT
+CLASS="LITERAL"
+>density_matrix</TT
+>, <TT
+CLASS="LITERAL"
+>natural_orbitals</TT
+>,
+<TT
+CLASS="LITERAL"
+>occupation_numbers</TT
+> and <TT
+CLASS="LITERAL"
+>fock_matrix</TT
+> are
+allowed.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The kind is determined from the current type of object which is
+to be written.</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>write_wfn_file</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Write out a MORPHY98 <TT
+CLASS="LITERAL"
+>.wfn</TT
+> input file.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This is useful for performing a Bader analysis on the current
+density matrix.</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="gaussian.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="plotgrid.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>GAUSSIAN</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="keywords.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>PLOTGRID</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

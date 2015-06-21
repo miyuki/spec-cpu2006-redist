@@ -1,0 +1,43 @@
+#define THIS test
+#define THAT more
+#define TOTHER often
+
+'THIS 'THAT 'TOTHER
+THIS THAT TOTHER
+'ANY 'THING 'YOU 'LIKE 
+
+'ANY 'THIS 'THING 'THAT 'YOU 'TOTHER 'LIKE THIS THAT TOTHER
+'ANY'THIS'THING'THAT'YOU'TOTHER'LIKETHISTHATTOTHER
+
+#define ARG(A, B, C) B A C
+'ARG(will, this, work)
+ARG(will, this, work)
+'NOARG(will, this, work)
+
+#ifdef THIS
+NO macro prefixes in ifdef
+#endif
+
+#ifdef 'THIS
+macro prefixes in ifdef
+#endif
+
+#if "THIS" eq "test"
+NO macro prefixes in if
+#endif
+
+#if "'THIS" eq "test"
+macro prefixes in if
+#endif
+
+#pragma filepp SetMacroPrefix $
+
+#define THIS THAT
+
+$THIS
+THIS
+__LINE__
+$__LINE__
+
+#undef __LINE__
+$__LINE__

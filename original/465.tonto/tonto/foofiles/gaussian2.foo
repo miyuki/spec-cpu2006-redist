@@ -1,0 +1,3143 @@
+!---------------------------------------------------------------------------
+!
+!  GAUSSIAN2 : Pairs of gaussian functions
+!
+! Copyright (C) Dylan Jayatilaka, 1998
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: gaussian2.foo,v 1.21.2.2 2003/06/17 04:31:17 reaper Exp $
+!---------------------------------------------------------------------------
+
+module GAUSSIAN2
+
+   implicit none
+
+   pi212 :: REAL, private  = 1.1283791670955d+0
+
+!  The i-th point and weight for n-point Gauss-Hermite quadrature
+
+   first_pt :: INTVEC(9), private = [ 1,2,4, 7,11,16,22,29,37 ]
+   last_pt  :: INTVEC(9), private = [ 1,3,6,10,15,21,28,36,45 ]
+
+   gauss_hermite_pt :: REALVEC(45), private
+
+   data gauss_hermite_pt/                                                                      &
+       0.000000000000000e+0,                                                                   & ! H_11
+      -0.707106781186548e+0, 0.707106781186548e+0,                                             & ! H_12 H_22
+      -1.224744871391590e+0, 0.000000000000000e+0, 1.224744871391590e+0,                       & ! H_13 H_23 H_33
+      -1.650680123885780e+0,-0.524647623275290e+0, 0.524647623275290e+0, 1.650680123885780e+0, & ! H_*4
+      -2.020182870456090e+0,-0.958572464613819e+0, 0.000000000000000e+0, 0.958572464613819e+0, & ! H_*5
+       2.020182870456090e+0,                                                                   &
+      -2.350604973674000e+0,-1.335849074014000e+0,-0.436077411928000e+0, 0.436077411928000e+0, & ! H_*6
+       1.335849074014000e+0, 2.350604973674000e+0,                                             &
+      -2.651961356835233e+0,-1.673551628767471e+0,-0.816287882858965e+0, 0.000000000000000e+0, & ! H_*7
+       0.816287882858965e+0, 1.673551628767471e+0, 2.651961356835233e+0,                       &
+      -2.930637420257244e+0,-1.981656756695843e+0,-1.157193712446780e+0,-0.381186990207322e+0, & ! H_*8
+       0.381186990207322e+0, 1.157193712446780e+0, 1.981656756695843e+0, 2.930637420257244e+0, &
+      -3.190993201781528e+0,-2.266580584531843e+0,-1.468553289216668e+0,-0.723551018752838e+0, & ! H_*9
+       0.000000000000000e+0, 0.723551018752838e+0, 1.468553289216668e+0, 2.266580584531843e+0, &
+       3.190993201781528e+0/
+
+   gauss_hermite_wt :: REALVEC(45), private
+
+   data gauss_hermite_wt/                                                                      &
+       1.772453850905520e+0,                                                                   & ! W_11
+       0.886226925452800e+0, 0.886226925452800e+0,                                             & ! W_12 W_22
+       0.295408975150900e+0, 1.181635900604000e+0, 0.295408975150900e+0,                       & ! W_13 W_23 W_33
+       8.131283544725000e-2, 8.049140900055000e-1, 8.049140900055000e-1, 8.131283544725000e-2, & ! W_*4
+       1.995324205905000e-2, 3.936193231522000e-1, 9.453087204829000e-1, 3.936193231522000e-1, & ! W_*5
+       1.995324205905000e-2,                                                                   &
+       4.530009905509000e-3, 1.570673203229000e-1, 7.246295952244000e-1, 7.246295952244000e-1, & ! W_*6
+       1.570673203229000e-1, 4.530009905509000e-3,                                             &
+       9.717812450995000e-4, 5.451558281913000e-2, 4.256072526101000e-1, 8.102646175568000e-1, & ! W_*7
+       4.256072526101000e-1, 5.451558281913000e-2, 9.717812450995000e-4,                       &
+       1.996040722114000e-4, 1.707798300741000e-2, 2.078023258149000e-1, 6.611470125582000e-1, & ! W_*8
+       6.611470125582000e-1, 2.078023258149000e-1, 1.707798300741000e-2, 1.996040722114000e-4, &
+       3.960697726326000e-5, 4.943624275537000e-3, 8.847452739438000e-2, 4.326515590026000e-1, & ! W_*9
+       7.202352156061000e-1, 4.326515590026000e-1, 8.847452739438000e-2, 4.943624275537000e-3, &
+       3.960697726326000e-5/
+
+contains
+
+   create
+   ! Create a gaussian pair
+      self :: PTR
+      nullify(self)
+      allocate(self)
+      ADD_MEMORY(GAUSSIAN2_SIZE)
+   end
+
+   create(Ga,Gb)
+   ! Create a gaussian pair, and optionally set it to "Ga" and "Gb"
+      self :: PTR
+      Ga,Gb :: GAUSSIAN
+      nullify(self)
+      allocate(self)
+      ADD_MEMORY(GAUSSIAN2_SIZE)
+      .set(Ga,Gb)
+   end
+
+   destroy
+   ! Destroy a guassian pair
+      self :: PTR
+      if (.destroyed) return
+      DELETE_MEMORY(GAUSSIAN2_SIZE)
+      deallocate(self)
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   create_copy(G)
+   ! Create a copy of "G"
+      self :: PTR
+       G :: GAUSSIAN2
+      .create
+      .copy(G)
+   end
+
+   copy(G)
+   ! Set the gaussian pair object to "G"
+      G :: GAUSSIAN2
+      self = G
+   end
+
+   set(Ga,Gb)
+   ! Set the gaissian pair object to "Ga" and "Gb"
+      Ga,Gb :: GAUSSIAN
+      .a.l   = Ga.l
+      .a.pos = Ga.pos
+      .a.ex  = Ga.ex
+      .b.l   = Gb.l
+      .b.pos = Gb.pos
+      .b.ex  = Gb.ex
+   end
+
+   set(l_a,pos_a,ex_a,l_b,pos_b,ex_b)
+   ! Set a gaussian object
+      l_a,l_b :: INT
+      pos_a,pos_b :: REALVEC(3)
+      ex_a,ex_b :: REAL
+      .a.l   = l_a
+      .a.pos = pos_a
+      .a.ex  = ex_a
+      .b.l   = l_b
+      .b.pos = pos_b
+      .b.ex  = ex_b
+   end
+
+   set(ex_a,ex_b)
+   ! Set the exponents of the pair
+      ex_a,ex_b :: REAL, optional
+      if (present(ex_a)) .a.ex = ex_a
+      if (present(ex_b)) .b.ex = ex_b
+   end
+
+   make_e_coeff(e,comp) ::: pure
+   ! Return the McMurchie-Davidson "e" coefficients for component "comp"
+   ! (c) dylan jayatilaka, april 1995
+   ! Checked using mathematica, may 1995
+      self :: IN
+      comp :: INT, IN
+      e :: REALMAT3(0:,0:,0:), OUT ! Generic e coefficient table
+      t,a,b,ap,am,bp,bm,abp,ab,abm,max,l_a,l_b :: INT
+      R,gamma,g1,g2,a1,b1,e000 :: REAL
+      l_a = .a.l
+      l_b = .b.l
+      max = l_a+l_b
+      R = .a.pos(comp)-.b.pos(comp)
+      gamma = .a.ex + .b.ex
+      g1 = 1/gamma
+      b1 = .b.ex*g1*R
+      e000 = exp(-.a.ex*b1*R)
+      e(0,0,0) = e000
+      if (max==0) return               ! Return for e000
+      g2 = HALF*g1
+      a1 = .a.ex*g1*R
+      if (l_a>=1) then
+         e(1,1,0) =  g2*e000
+         e(0,1,0) = -b1*e000
+      end
+      if (l_b>=1) then
+         e(1,0,1) =  g2*e000
+         e(0,0,1) =  a1*e000
+      end
+      if (max==1) return               ! Return for eXX1
+      do a = 1,l_a-1                   ! Consider case b=0
+         ap = a + 1
+         am = a - 1
+         e(ap,ap,0) =  g2*e( a,a,0)
+         e( a,ap,0) =  g2*e(am,a,0) - b1*e(a,a,0)
+         e( 0,ap,0) = -b1*e( 0,a,0) +    e(1,a,0)
+         do t = 1,am
+            e(t,ap,0) = g2*e(t-1,a,0) - b1*e(t,a,0) + (t+1)*e(t+1,a,0)
+         end
+      end
+      do b = 1,l_b-1                   ! Consider case a=0
+         bp = b + 1
+         bm = b - 1
+         e(bp,0,bp) =  g2*e( b,0,b)
+         e( b,0,bp) =  g2*e(bm,0,b) + a1*e(b,0,b)
+         e( 0,0,bp) =  a1*e( 0,0,b) +    e(1,0,b)
+         do t = 1,bm
+            e(t,0,bp) = g2*e(t-1,0,b) + a1*e(t,0,b) + (t+1)*e(t+1,0,b)
+         end
+      end
+      do b = 1,l_b                     ! Now do the rest, a/=0 & b/=0
+         do a = 0,l_a-1
+            ab  = a + b
+            ap  = a + 1
+            abp = ab + 1
+            abm = ab - 1
+            e(abp,ap,b) =  g2*e( ab,a,b)
+            e( ab,ap,b) =  g2*e(abm,a,b) - b1*e(ab,a,b)
+            e(  0,ap,b) = -b1*e(  0,a,b) +    e( 1,a,b)
+            do t = 1,abm
+               e(t,ap,b) = g2*e(t-1,a,b) - b1*e(t,a,b) + (t+1)*e(t+1,a,b)
+            end
+         end
+      end
+   end
+
+   make_e_coeff_derivative(e1,comp,e0) ::: pure, private
+   ! Return the derivative McMurchie-Davidson "e1" coefficients for
+   ! component "comp" with repect to R = .a.pos - .b.pos. The zero order
+   ! derivative E coefficients "e0" for the same component must be supplied.
+   ! This routine is based on Helgaker & Taylor, TCA 83, p. 177 (1992)
+   ! (c) dylan jayatilaka, may 1998
+      self :: IN
+      comp :: INT, IN
+      e0 :: REALMAT3(0:,0:,0:), IN
+      e1 :: REALMAT3(0:,0:,0:), OUT ! Generic e coefficient table
+      t,a,b,ap,am,bp,bm,abp,ab,abm,max :: INT
+      R,gamma,g1,g2,a0,a1,b0,b1,e0000,e1000 :: REAL
+      max = .a.l+.b.l
+      R = .a.pos(comp)-.b.pos(comp)
+      gamma = .a.ex + .b.ex
+      g1 = 1/gamma
+      b0 = .b.ex*g1
+      b1 = b0*R
+      e0000  = e0(0,0,0)
+      e1000 = -2*.a.ex*b1*e0000
+      e1(0,0,0) = e1000
+      if (max==0) return                ! Return for e000
+      a0 = .a.ex*g1
+      a1 = a0*R
+      g2 = HALF*g1
+      if (.a.l>=1) then
+         e1(1,1,0) =  g2*e1000
+         e1(0,1,0) = -b1*e1000 - b0*e0000
+      end
+      if (.b.l>=1) then
+         e1(1,0,1) =  g2*e1000
+         e1(0,0,1) =  a1*e1000 + a0*e0000
+      end
+      if (max==1) return                ! Return for eXX1
+      do a = 1,.a.l-1                   ! Consider case b=0
+         ap = a + 1
+         am = a - 1
+         e1(ap,ap,0) =  g2*e1( a,a,0)
+         e1( a,ap,0) =  g2*e1(am,a,0) - b1*e1(a,a,0) - b0*e0(a,a,0)
+         e1( 0,ap,0) = -b1*e1( 0,a,0) - b0*e0(0,a,0) +    e1(1,a,0)
+         do t = 1,am
+            e1(t,ap,0) = g2*e1(t-1,a,0) - b1*e1(t,a,0) - b0*e0(t,a,0) + (t+1)*e1(t+1,a,0)
+         end
+      end
+      do b = 1,.b.l-1                   ! Consider case a=0
+         bp = b + 1
+         bm = b - 1
+         e1(bp,0,bp) =  g2*e1( b,0,b)
+         e1( b,0,bp) =  g2*e1(bm,0,b) + a1*e1(b,0,b) + a0*e0(b,0,b)
+         e1( 0,0,bp) =  a1*e1( 0,0,b) + a0*e0(0,0,b) +    e1(1,0,b)
+         do t = 1,bm
+            e1(t,0,bp) = g2*e1(t-1,0,b) + a1*e1(t,0,b) + a0*e0(t,0,b) + (t+1)*e1(t+1,0,b)
+         end
+      end
+      do b = 1,.b.l                     ! Now do the rest, a/=0 & b/=0
+         do a = 0,.a.l-1
+            ab  = a + b
+            ap  = a + 1
+            abp = ab + 1
+            abm = ab - 1
+            e1(abp,ap,b) =  g2*e1( ab,a,b)
+            e1( ab,ap,b) =  g2*e1(abm,a,b) - b1*e1(ab,a,b) - b0*e0(ab,a,b)
+            e1(  0,ap,b) = -b1*e1(  0,a,b) - b0*e0( 0,a,b) +    e1( 1,a,b)
+            do t = 1,abm
+               e1(t,ap,b) = g2*e1(t-1,a,b) - b1*e1(t,a,b) - b0*e0(t,a,b) + (t+1)*e1(t+1,a,b)
+            end
+         end
+      end
+   end
+
+   make_ft_component(res,comp,k_pts,k_max)
+   ! Do the Fourier transform of component "comp" of the guassian pair
+   ! evaluated at the points "k_pts"
+      self :: IN
+      comp,k_max :: INT, IN
+      k_pts :: REALVEC, IN
+      res :: CPXMAT3(1:,0:,0:), OUT
+      kn,kn_t :: REAL
+      a,b,t,t_max,n :: INT
+      e :: REALMAT3*
+      val1,val2,k2 :: REALVEC*                 ! Local variables
+      k1 :: REALMAT*
+      t_max = .a.l+.b.l
+      e.create((/0,t_max/),(/0,.a.l/),(/0,.b.l/))
+      .make_e_coeff(e,comp)
+      select case (t_max)
+        case (0)
+          res(:,0,0) = cmplx(e(0,0,0),ZERO,kind=CPX_KIND)
+        case (1)
+          if (.a.l==1) then ! ps
+            res(:,0,0) = cmplx(e(0,0,0),ZERO,kind=CPX_KIND)
+            res(:,1,0) = cmplx(e(0,1,0),e(1,1,0)*k_pts(:),kind=CPX_KIND)
+          else !              sp
+            res(:,0,0) = cmplx(e(0,0,0),ZERO,kind=CPX_KIND)
+            res(:,0,1) = cmplx(e(0,0,1),e(1,0,1)*k_pts(:),kind=CPX_KIND)
+          end
+        case (2)
+          select case (.a.l)
+            case (0) ! sd
+              res(:,0,0) = cmplx(e(0,0,0),ZERO,kind=CPX_KIND)
+              res(:,0,1) = cmplx(e(0,0,1),e(1,0,1)*k_pts(:),kind=CPX_KIND)
+              res(:,0,2) = cmplx(e(0,0,2)-e(2,0,2)*k_pts(:)*k_pts(:),e(1,0,2)*k_pts(:),kind=CPX_KIND)
+            case (1) ! pp
+              res(:,0,0) = cmplx(e(0,0,0),ZERO,kind=CPX_KIND)
+              res(:,0,1) = cmplx(e(0,0,1),e(1,0,1)*k_pts(:),kind=CPX_KIND)
+              res(:,1,0) = cmplx(e(0,1,0),e(1,1,0)*k_pts(:),kind=CPX_KIND)
+              res(:,1,1) = cmplx(e(0,1,1)-e(2,1,1)*k_pts(:)*k_pts(:),e(1,1,1)*k_pts(:),kind=CPX_KIND)
+            case (2) ! ds
+              res(:,0,0) = cmplx(e(0,0,0),ZERO,kind=CPX_KIND)
+              res(:,1,0) = cmplx(e(0,1,0),e(1,1,0)*k_pts(:),kind=CPX_KIND)
+              res(:,2,0) = cmplx(e(0,2,0)-e(2,2,0)*k_pts(:)*k_pts(:),e(1,2,0)*k_pts(:),kind=CPX_KIND)
+          end
+        case (3)
+          select case (.a.l)
+            case (0) ! sf
+              k2.create(k_max)
+              k2(:) = k_pts(:)*k_pts(:)
+              res(:,0,0) = cmplx(e(0,0,0),ZERO,kind=CPX_KIND)
+              res(:,0,1) = cmplx(e(0,0,1),e(1,0,1)*k_pts(:),kind=CPX_KIND)
+              res(:,0,2) = cmplx(e(0,0,2)-e(2,0,2)*k2(:),e(1,0,2)*k_pts(:),kind=CPX_KIND)
+              res(:,0,3) = cmplx(e(0,0,3)-e(2,0,3)*k2(:),(e(1,0,3)-e(3,0,3)*k2(:))*k_pts(:),kind=CPX_KIND)
+              k2.destroy
+            case (1) ! pd
+              k2.create(k_max)
+              k2(:) = k_pts(:)*k_pts(:)
+              res(:,0,0) = cmplx(e(0,0,0),ZERO,kind=CPX_KIND)
+              res(:,0,1) = cmplx(e(0,0,1),e(1,0,1)*k_pts(:),kind=CPX_KIND)
+              res(:,1,0) = cmplx(e(0,1,0),e(1,1,0)*k_pts(:),kind=CPX_KIND)
+              res(:,0,2) = cmplx(e(0,0,2)-e(2,0,2)*k2(:),e(1,0,2)*k_pts(:),kind=CPX_KIND)
+              res(:,1,1) = cmplx(e(0,1,1)-e(2,1,1)*k2(:),e(1,1,1)*k_pts(:),kind=CPX_KIND)
+              res(:,1,2) = cmplx(e(0,1,2)-e(2,1,2)*k2(:),(e(1,1,2)-e(3,1,2)*k2(:))*k_pts(:),kind=CPX_KIND)
+              k2.destroy
+            case (2) ! dp
+              k2.create(k_max)
+              k2(:) = k_pts(:)*k_pts(:)
+              res(:,0,0) = cmplx(e(0,0,0),ZERO,kind=CPX_KIND)
+              res(:,0,1) = cmplx(e(0,0,1),e(1,0,1)*k_pts(:),kind=CPX_KIND)
+              res(:,1,0) = cmplx(e(0,1,0),e(1,1,0)*k_pts(:),kind=CPX_KIND)
+              res(:,1,1) = cmplx(e(0,1,1)-e(2,1,1)*k2(:),e(1,1,1)*k_pts(:),kind=CPX_KIND)
+              res(:,2,0) = cmplx(e(0,2,0)-e(2,2,0)*k2(:),e(1,2,0)*k_pts(:),kind=CPX_KIND)
+              res(:,2,1) = cmplx(e(0,2,1)-e(2,2,1)*k2(:),(e(1,2,1)-e(3,2,1)*k2(:))*k_pts(:),kind=CPX_KIND)
+              k2.destroy
+            case (3) ! fs
+              k2.create(k_max)
+              k2(:) = k_pts(:)*k_pts(:)
+              res(:,0,0) = cmplx(e(0,0,0),ZERO,kind=CPX_KIND)
+              res(:,1,0) = cmplx(e(0,1,0),e(1,1,0)*k_pts(:),kind=CPX_KIND)
+              res(:,2,0) = cmplx(e(0,2,0)-e(2,2,0)*k2(:),e(1,2,0)*k_pts(:),kind=CPX_KIND)
+              res(:,3,0) = cmplx(e(0,3,0)-e(2,3,0)*k2(:),(e(1,3,0)-e(3,3,0)*k2(:))*k_pts(:),kind=CPX_KIND)
+              k2.destroy
+          end
+        case default                            ! general routine
+          k1.create((/1,k_max/),(/0,t_max/))    ! Define k1 array containing
+          do n = 1,k_max                        ! powers k^n of k_pts
+            kn = k_pts(n)
+            kn_t = kn          ! t=0 is 1, has been optimised out below.
+            do t = 2,t_max     ! t=1 is k_pts(n), explicity written below.
+              kn_t = kn_t * kn
+              k1(n,t) = kn_t
+            end
+          end
+          val1.create(k_max)   ! val1 is real part
+          val2.create(k_max)   ! val2 is imaginary part
+          do a = 0,.a.l
+            do b = 0,.b.l
+              t_max = a+b
+              select case (t_max)
+                case (0)
+                  res(:,0,0) = cmplx(e(0,0,0),ZERO,kind=CPX_KIND)
+                case (1)
+                  res(:,a,b) = cmplx(e(0,a,b),e(1,a,b)*k_pts(:),kind=CPX_KIND)
+                case (2)
+                  val1(:) = e(0,a,b) - e(2,a,b)*k1(:,2)
+                  val2(:) = e(1,a,b)*k_pts(:)
+                  res(:,a,b) = cmplx(val1(:),val2(:),kind=CPX_KIND)
+                case default
+                  val1(:) = e(0,a,b)          - e(2,a,b)*k1(:,2)
+                  val2(:) = e(1,a,b)*k_pts(:) - e(3,a,b)*k1(:,3)
+                  do t = 3,t_max-3,4
+                    val1(:) = val1(:) + e(t,a,b)  *k1(:,t)  - e(t+2,a,b)*k1(:,t+2)
+                    val2(:) = val2(:) + e(t+1,a,b)*k1(:,t+1)- e(t+3,a,b)*k1(:,t+3)
+                  end
+                  select case (mod(t_max+1,4))
+                    case (0)
+                    case (1)
+                      val1(:) = val1(:) + e(t_max,a,b)*k1(:,t_max)
+                    case (2)
+                      val1(:) = val1(:) + e(t_max-1,a,b)*k1(:,t_max-1)
+                      val2(:) = val2(:) + e(t_max,a,b)  *k1(:,t_max)
+                    case (3)
+                      val1(:) = val1(:) + e(t_max-2,a,b)*k1(:,t_max-2) - &
+                                          e(t_max,a,b)  *k1(:,t_max)
+                      val2(:) = val2(:) + e(t_max-1,a,b)*k1(:,t_max-1)
+                  end
+                  res(:,a,b) = cmplx(val1(:),val2(:),kind=CPX_KIND)
+              end
+            end
+          end
+          val2.destroy
+          val1.destroy
+          k1.destroy
+      end
+      e.destroy
+   end
+
+   make_ft_dab_component(res,comp,k_pts,k_max) ::: private
+   ! Do the Fourier transform of the derivative of component a minus b
+   ! of a a pair of gaussians, for component "comp" of the guassian
+   ! product pair, evaliated for the points "k_pts".
+   ! Dimensions of res are [[1,size(k_pts)],[0,.a.l],[0,.b.l]].
+      self :: IN
+      comp,k_max :: INT, IN
+      k_pts :: REALVEC, IN
+      res :: CPXMAT3(1:,0:,0:)
+      kn,fac :: REAL
+      a,b,t,t_max,n :: INT
+      e0,e1 :: REALMAT3*
+      val :: REALVEC*                      ! Local variables
+      k1 :: REALMAT*
+      t_max = .a.l+.b.l
+      k1.create((/1,k_max/),(/0,t_max+1/)) ! Define k1 array containing
+      do n = 1,k_max                       ! powers k^n of k_pts
+         k1(n,0) = ONE
+         kn = k_pts(n)
+         do t = 1,t_max+1
+            k1(n,t) = k1(n,t-1)*kn
+         end
+      end
+      val.create(k_max)       ! Now evaluate; use real arithmetic where possible
+      e0.create((/0,.a.l+.b.l/),(/0,.a.l/),(/0,.b.l/))
+      .make_e_coeff(e0,comp)
+      e1.create((/0, .a.l+.b.l /),(/0, .a.l /),(/0, .b.l /))
+      .make_e_coeff_derivative(e1,comp,e0)
+      do a = 0,.a.l
+         do b = 0,.b.l
+            t_max = a+b
+            val = ZERO                         ! Do the real part first ...
+            do t = 0,t_max,4
+               val(:) = val(:) + e1(t,a,b)*k1(:,t)
+            end
+            do t = 2,t_max,4
+               val(:) = val(:) - e1(t,a,b)*k1(:,t)
+            end
+            val = TWO*val
+            res(:,a,b) = cmplx(val(:),ZERO,kind=CPX_KIND)
+            val = ZERO                         ! Now do imaginary part ...
+            do t = 1,t_max,4
+               val(:) = val(:) + e1(t,a,b)*k1(:,t)
+            end
+            do t = 3,t_max,4
+               val(:) = val(:) - e1(t,a,b)*k1(:,t)
+            end
+            val = TWO*val
+            res(:,a,b) = res(:,a,b) + cmplx(ZERO,val(:),kind=CPX_KIND)
+         end
+      end
+      fac = (.a.ex-.b.ex)/(.a.ex+.b.ex)
+      do a = 0,.a.l
+         do b = 0,.b.l
+            t_max = a+b
+            val = ZERO                         ! Do the imaginary part first ...
+            do t = 0,t_max,4
+               val(:) = val(:) + e0(t,a,b)*k1(:,t+1)
+            end
+            do t = 2,t_max,4
+               val(:) = val(:) - e0(t,a,b)*k1(:,t+1)
+            end
+            val = fac*val
+            res(:,a,b) = res(:,a,b) + cmplx(ZERO,val(:),kind=CPX_KIND)
+            val = ZERO                         ! Now do real part ...
+            do t = 1,t_max,4
+               val(:) = val(:) - e0(t,a,b)*k1(:,t+1)
+            end
+            do t = 3,t_max,4
+               val(:) = val(:) + e0(t,a,b)*k1(:,t+1)
+            end
+            val = fac*val
+            res(:,a,b) = res(:,a,b) + cmplx(val(:),ZERO,kind=CPX_KIND)
+         end
+      end
+      e1.destroy
+      e0.destroy
+      val.destroy
+      k1.destroy
+   end
+
+   make_ft_dab(res,ft)
+   ! Form the Fourier transform of the derivative of the product
+   ! of two gaussians w.r.t. coordinates in shell b, from the zeroth
+   ! derivative Fourier transform.  Dimensions of res are
+   ! [[1,size(k_pts)],[0,l_a],[0,l_b]].
+      self :: IN
+      ft :: CPXMAT3(1:,0:,0:), IN
+      res :: CPXMAT3(1:,0:,0:)
+      a,b,l_a,l_b :: INT
+      l_a = ubound(ft,2)-1
+      l_b = ubound(ft,3)-1
+      res = ZERO
+      do a = 0,l_a
+         do b = 0,l_b
+            res(:,a,b) = res(:,a,b) - TWO*.b.ex*ft(:,a,b+1)
+            res(:,a,b) = res(:,a,b) + TWO*.a.ex*ft(:,a+1,b)
+            if (b>0) res(:,a,b) = res(:,a,b) + b*ft(:,a,b-1)
+            if (a>0) res(:,a,b) = res(:,a,b) - a*ft(:,a-1,b)
+         end
+      end
+   end
+
+   make_ft(ft,k_pts)
+   ! Calculates the Fourier transform for a product of two primitive
+   ! gaussian functions, evaluated at a series of k points "k_pts".
+   ! This routine is based on formula (9) in Jayatilaka, CPL 230, p. 228 (1995)
+     self :: IN
+     k_pts :: REALMAT, IN
+     ft :: CPXMAT3, OUT
+     ft_x,ft_y,ft_z :: CPXMAT3*
+     prefac :: CPXVEC*
+     k_max :: INT
+     select case (.a.l + .b.l)
+       case (0);       .make_ft_00(ft(:,1,1),k_pts)
+       case default
+         k_max = size(k_pts,1)
+         ft_x.create((/1,k_max/),(/0,.a.l/),(/0,.b.l/))
+         ft_y.create((/1,k_max/),(/0,.a.l/),(/0,.b.l/))
+         ft_z.create((/1,k_max/),(/0,.a.l/),(/0,.b.l/))
+         prefac.create(k_max)
+         .make_ft_general(ft,k_pts,ft_x,ft_y,ft_z,prefac)
+         prefac.destroy
+         ft_z.destroy
+         ft_y.destroy
+         ft_x.destroy
+     end
+   end
+
+   make_ft(ft,k_pts,ft_x,ft_y,ft_z,prefac)
+   ! Calculates the Fourier transform for a product of two primitive
+   ! gaussian functions, evaluated at a series of k points "k_pts".
+   ! This routine is based on formula (9) in Jayatilaka, CPL 230, p. 228 (1995)
+     self :: IN
+     k_pts :: REALMAT, IN
+     ft :: CPXMAT3, OUT
+     ft_x,ft_y,ft_z :: CPXMAT3*
+     prefac :: CPXVEC, OUT
+     select case (.a.l + .b.l)
+       case (0);       .make_ft_00(ft(:,1,1),k_pts)
+       case default;   .make_ft_general(ft,k_pts,ft_x,ft_y,ft_z,prefac)
+     end
+   end
+
+   make_ft_00(ft,k_pts) ::: private
+   ! Calculates the Fourier transform for a product of two primitive
+   ! gaussian functions, evaluated at a series of k points "k_pts".
+   ! This routine is based on formula (9) in Jayatilaka, CPL 230, p. 228 (1995)
+   ! Specialised routine for .a.l=0 and .b.l=0.
+     self :: IN
+     k_pts :: REALMAT, target
+     ft :: CPXVEC, OUT
+     pos :: REALVEC(3)
+     k_x,k_y,k_z :: REALVEC*
+     g1_exa,g1_exb,e00,fac :: REAL
+     pifac,g1,g4,dot1,dot2,k1,k2,k3,P1,P2,P3,PI_on_gamma :: REAL
+     k :: INT
+     g1 = ONE/(.a.ex+.b.ex)
+     g4 = QUARTER*g1
+     PI_on_gamma = PI*g1
+     pifac = sqrt(PI_on_gamma) * PI_on_gamma
+     g1_exa = g1*.a.ex
+     g1_exb = g1*.b.ex
+     P1 = g1_exa*.a.pos(1) + g1_exb*.b.pos(1)
+     P2 = g1_exa*.a.pos(2) + g1_exb*.b.pos(2)
+     P3 = g1_exa*.a.pos(3) + g1_exb*.b.pos(3)
+     k_x => k_pts(:,1)
+     k_y => k_pts(:,2)
+     k_z => k_pts(:,3)
+     pos = .a.pos - .b.pos
+     e00 = exp(-.a.ex*.b.ex*dot_product(pos,pos)/(.a.ex + .b.ex))
+     fac=cmplx(pifac*e00,ZERO,kind=CPX_KIND)
+     do k = 1, size(k_pts,1)
+       k1 = k_x(k);    k2 = k_y(k);    k3 = k_z(k)
+       dot1 = k1*P1+k2*P2+k3*P3
+       dot2 = -g4 * (k1*k1+k2*k2+k3*k3)
+       ft(k) = fac*exp(cmplx(dot2,dot1,kind=CPX_KIND))
+     end
+   end
+
+   make_ft_general(ft,k_pts,ft_x,ft_y,ft_z,prefac) ::: private
+   ! Calculates the Fourier transform for a product of two primitive
+   ! gaussian functions, evaluated at a series of k points "k_pts".
+   ! This routine is based on formula (9) in Jayatilaka, CPL 230, p. 228 (1995)
+   ! This version of the routine requires the three matrices ft_x,ft_y,ft_z and
+   ! vector prefac to be already allocated, to save on allocation time when
+   ! called inside loops.
+      self :: IN
+      k_pts :: REALMAT, target
+      ft_x,ft_y,ft_z :: CPXMAT3*
+      prefac :: CPXVEC, OUT
+      ft :: CPXMAT3
+      la,lb :: INTMAT*
+      ft_xb,ft_yb,ft_zb :: CPXVEC*
+      ft_xbx,ft_yby,ft_zbz :: CPXMAT*
+      k_x,k_y,k_z :: REALVEC*
+      g1_exa,g1_exb :: REAL
+      pifac,gamma,g1,g4,dot1,dot2,k1,k2,k3,P1,P2,P3,PI_on_gamma :: REAL
+      k_max,n_a,n_b,a,b,k,ax,ay,az,bx,by,bz,bxlast,bylast,bzlast :: INT
+      k_max = size(k_pts,1)
+      n_a = .a.l.n_comp
+      n_b = .b.l.n_comp
+      gamma = .a.ex+.b.ex
+      g1 = ONE/gamma
+      g4 = 0.25d0*g1
+      PI_on_gamma = PI*g1
+      pifac = sqrt(PI_on_gamma) * PI_on_gamma
+      g1_exa = g1*.a.ex
+      g1_exb = g1*.b.ex
+      P1 = g1_exa*.a.pos(1) + g1_exb*.b.pos(1)
+      P2 = g1_exa*.a.pos(2) + g1_exb*.b.pos(2)
+      P3 = g1_exa*.a.pos(3) + g1_exb*.b.pos(3)
+      k_x => k_pts(:,1)
+      k_y => k_pts(:,2)
+      k_z => k_pts(:,3)
+      .make_ft_component(ft_x,1,k_x,k_max)        ! Get the Fourier transforms
+      .make_ft_component(ft_y,2,k_y,k_max)        ! of each component.
+      .make_ft_component(ft_z,3,k_z,k_max)
+      do k = 1,k_max
+        k1 = k_x(k);    k2 = k_y(k);    k3 = k_z(k)
+        dot1 = k1*P1+k2*P2+k3*P3
+        dot2 = -g4 * (k1*k1+k2*k2+k3*k3)
+        prefac(k) = pifac*exp(cmplx(dot2,dot1,kind=CPX_KIND))
+      end
+
+      select case (.a.l)
+        case (0)
+          select case(.b.l)
+            case (0)
+              ft(:,1,1) = ft_x(:,0,0)*ft_y(:,0,0)*ft_z(:,0,0)*prefac(:)
+            case (1)
+              ft(:,1,1) = ft_x(:,0,1)*ft_y(:,0,0)*ft_z(:,0,0)*prefac(:)
+              ft(:,1,2) = ft_x(:,0,0)*ft_y(:,0,1)*ft_z(:,0,0)*prefac(:)
+              ft(:,1,3) = ft_x(:,0,0)*ft_y(:,0,0)*ft_z(:,0,1)*prefac(:)
+            case default
+              do b=0,.b.l ! incorporate prefac into ft_z
+                ft_z(:,0,b) = ft_z(:,0,b) * prefac(:)
+              end
+              lb.create(3,n_b);   .b.l.make_gaussian_xyz_powers(lb)
+              bxlast = lb(1,1)
+              bylast = lb(2,1)
+              bzlast = lb(3,1)
+              ft_xb => ft_x(:,0,bxlast)
+              ft_yb => ft_y(:,0,bylast)
+              ft_zb => ft_z(:,0,bzlast)
+              do b = 1,n_b          ! Loop over all elements and multiply prefactor
+                bx = lb(1,b)
+                by = lb(2,b)
+                bz = lb(3,b)
+                if (bxlast/=bx) then
+                  ft_xb => ft_x(:,0,bx)
+                  bxlast = bx
+                end
+                if (bylast/=by) then
+                  ft_yb=> ft_y(:,0,by)
+                  bylast = by
+                end
+                if (bzlast/=bz) then
+                  ft_zb=> ft_z(:,0,bz)
+                  bzlast = bz
+                end
+                ft(:,1,b) = ft_xb(:)*ft_yb(:)*ft_zb(:)
+              end
+              lb.destroy
+          end
+        case (1)
+          select case (.b.l)
+            case (0)
+              ft(:,1,1) = ft_x(:,1,0)*ft_y(:,0,0)*ft_z(:,0,0)*prefac(:)
+              ft(:,2,1) = ft_x(:,0,0)*ft_y(:,1,0)*ft_z(:,0,0)*prefac(:)
+              ft(:,3,1) = ft_x(:,0,0)*ft_y(:,0,0)*ft_z(:,1,0)*prefac(:)
+            case (1)
+              ft_z(:,0,0) = ft_z(:,0,0) * prefac(:)
+              ft(:,1,1) = ft_x(:,1,1)*ft_y(:,0,0)*ft_z(:,0,0)
+              ft(:,2,1) = ft_x(:,0,1)*ft_y(:,1,0)*ft_z(:,0,0)
+              ft(:,3,1) = ft_x(:,0,1)*ft_y(:,0,0)*ft_z(:,1,0)*prefac(:)
+              ft(:,1,2) = ft_x(:,1,0)*ft_y(:,0,1)*ft_z(:,0,0)
+              ft(:,2,2) = ft_x(:,0,0)*ft_y(:,1,1)*ft_z(:,0,0)
+              ! don't change the order.
+              ft_x(:,0,0) = ft_x(:,0,0) * prefac(:)
+              ft(:,3,2) = ft_x(:,0,0)*ft_y(:,0,1)*ft_z(:,1,0)
+              ft(:,1,3) = ft_x(:,1,0)*ft_y(:,0,0)*ft_z(:,0,1)*prefac(:)
+              ft(:,2,3) = ft_x(:,0,0)*ft_y(:,1,0)*ft_z(:,0,1)
+              ft(:,3,3) = ft_x(:,0,0)*ft_y(:,0,0)*ft_z(:,1,1)
+            case default
+              lb.create(3,n_b);   .b.l.make_gaussian_xyz_powers(lb)
+              do b=0,.b.l
+                ft_z(:,0,b) = ft_z(:,0,b) * prefac(:)
+              end
+              do b = 1,n_b          ! Loop over all elements and multiply prefactor
+                bx = lb(1,b)
+                by = lb(2,b)
+                bz = lb(3,b)
+                ft_xb => ft_x(:,0,bx)
+                ft_yb => ft_y(:,0,by)
+                ft_zb => ft_z(:,0,bz)
+                ft(:,1,b) = ft_x(:,1,bx)*ft_yb*ft_zb
+                ft(:,2,b) = ft_xb*ft_y(:,1,by)*ft_zb
+                ft(:,3,b) = ft_xb*ft_yb*ft_z(:,1,bz) * prefac(:)
+              end
+              lb.destroy
+          end
+        case default
+          select case (.b.l)
+            case (0)
+              do a=0,.a.l
+                ft_z(:,a,0) = ft_z(:,a,0) * prefac(:)
+              end
+              la.create(3,n_a);   .a.l.make_gaussian_xyz_powers(la)
+              do a = 1,n_a
+                ax = la(1,a)
+                ay = la(2,a)
+                az = la(3,a)
+                ft(:,a,1) = ft_x(:,ax,0)*ft_y(:,ay,0)*ft_z(:,az,0)
+              end
+              la.destroy
+            case (1)
+              do a=0,.a.l ! incorporate prefac into ft_z
+                ft_z(:,a,0) = ft_z(:,a,0) * prefac(:)
+                ft_z(:,a,1) = ft_z(:,a,1) * prefac(:)
+              end
+              la.create(3,n_a);   .a.l.make_gaussian_xyz_powers(la)
+              do a = 1,n_a
+                ax = la(1,a)
+                ay = la(2,a)
+                az = la(3,a)
+                ft(:,a,1) = ft_x(:,ax,1)*ft_y(:,ay,0)*ft_z(:,az,0)
+                ft(:,a,2) = ft_x(:,ax,0)*ft_y(:,ay,1)*ft_z(:,az,0)
+                ft(:,a,3) = ft_x(:,ax,0)*ft_y(:,ay,0)*ft_z(:,az,1)
+              end
+              la.destroy
+            case default
+    ! This is the general routine.  It includes reduced multiplication, and use
+    ! of pointers to minimise array finding.
+              do b=0,.b.l ! incorporate prefac into ft_z
+                do a=0,.a.l
+                  ft_z(:,a,b) = ft_z(:,a,b) * prefac(:)
+                end
+              end
+              la.create(3,n_a);   .a.l.make_gaussian_xyz_powers(la)
+              lb.create(3,n_b);   .b.l.make_gaussian_xyz_powers(lb)
+              bxlast = lb(1,1)
+              bylast = lb(2,1)
+              bzlast = lb(3,1)
+              ft_xbx => ft_x(:,:,bxlast)
+              ft_yby => ft_y(:,:,bylast)
+              ft_zbz => ft_z(:,:,bzlast)
+              do b = 1,n_b          ! Loop over all elements and multiply prefactor
+                bx = lb(1,b)
+                by = lb(2,b)
+                bz = lb(3,b)
+                if (bxlast/=bx) then
+                  ft_xbx => ft_x(:,:,bx)
+                  bxlast = bx
+                end
+                if (bylast/=by) then
+                  ft_yby=> ft_y(:,:,by)
+                  bylast = by
+                end
+                if (bzlast/=bz) then
+                  ft_zbz=> ft_z(:,:,bz)
+                  bzlast = bz
+                end
+                do a = 1,n_a
+                  ax = la(1,a)
+                  ay = la(2,a)
+                  az = la(3,a)
+                  ft(:,a,b) = ft_xbx(:,ax+1)*ft_yby(:,ay+1)*ft_zbz(:,az+1)
+                end
+              end
+              lb.destroy
+              la.destroy
+          end
+      end
+   end
+
+   make_ft_nabla(ft,k_pts)
+   ! Calculates the Fourier transform of the current integrals for the product
+   ! of two primitive gaussian functions, evaluated at a series of points
+   ! "k_pts".
+   ! This routine is based on formula (9) in Jayatilaka, CPL 230, p. 228 (1995)
+   ! size of "ft" is [k_max],[.a.l.n_comp],[.b.l.n_comp],[3
+      self :: IN
+      k_pts :: REALMAT, IN
+      ft :: CPXMAT4
+      ci,prefac :: CPX
+      pifac,gamma,g1,g4,dot1,dot2,k1,k2,k3,P1,P2,P3 :: REAL
+      k_max,n_a,n_b,a,b,k,ax,ay,az,bx,by,bz :: INT
+      la,lb :: INTMAT*
+      ft_x,ft_y,ft_z,ft_dx,ft_dy,ft_dz :: CPXMAT3*
+      ci = (ZERO,ONE)                         ! A few useful constants ...
+      k_max = size(k_pts,1)
+      n_a = size(ft,2)
+      n_b = size(ft,3)
+      gamma = .a.ex+.b.ex
+      g1 = 1/gamma
+      g4 = 0.25d0*g1
+      pifac = (PI/gamma)**(1.5)
+      P1 = g1*(.a.ex*.a.pos(1)+.b.ex*.b.pos(1))
+      P2 = g1*(.a.ex*.a.pos(2)+.b.ex*.b.pos(2))
+      P3 = g1*(.a.ex*.a.pos(3)+.b.ex*.b.pos(3))
+      la.create(3, .a.l.n_comp );   .a.l.make_gaussian_xyz_powers(la)
+      lb.create(3, .b.l.n_comp );   .b.l.make_gaussian_xyz_powers(lb)
+
+      ft_x.create((/1,k_max/),(/0,.a.l/),(/0,.b.l/))
+      ft_y.create((/1,k_max/),(/0,.a.l/),(/0,.b.l/))
+      ft_z.create((/1,k_max/),(/0,.a.l/),(/0,.b.l/))
+      .make_ft_component(ft_x,1,k_pts(:,1),k_max)        ! Get the Fourier transforms
+      .make_ft_component(ft_y,2,k_pts(:,2),k_max)        ! of each component.
+      .make_ft_component(ft_z,3,k_pts(:,3),k_max)
+      ft_dx.create((/1,k_max/),(/0,.a.l/),(/0,.b.l/))
+      ft_dy.create((/1,k_max/),(/0,.a.l/),(/0,.b.l/))
+      ft_dz.create((/1,k_max/),(/0,.a.l/),(/0,.b.l/))
+      .make_ft_dab_component(ft_dx,1,k_pts(:,1),k_max)   ! Get the Fourier transforms
+      .make_ft_dab_component(ft_dy,2,k_pts(:,2),k_max)   ! of the derivative of each
+      .make_ft_dab_component(ft_dz,3,k_pts(:,3),k_max)   ! component.
+
+      do a = 1,n_a               ! Loop over all elements and multiply prefactor
+         ax = la(1,a)
+         ay = la(2,a)
+         az = la(3,a)
+         do b = 1,n_b
+            bx = lb(1,b)
+            by = lb(2,b)
+            bz = lb(3,b)
+            do k = 1,k_max
+               k1 = k_pts(k,1)
+               k2 = k_pts(k,2)
+               k3 = k_pts(k,3)
+               dot1 = k1*P1+k2*P2+k3*P3
+               dot2 = k1*k1+k2*k2+k3*k3
+               dot2 = -dot2*g4
+               prefac = pifac*exp(ci*dot1)*exp(dot2)
+               ft(k,a,b,1) = prefac*ft_dx(k,ax,bx)*ft_y(k,ay,by) *ft_z(k,az,bz)
+               ft(k,a,b,2) = prefac*ft_x(k,ax,bx) *ft_dy(k,ay,by)*ft_z(k,az,bz)
+               ft(k,a,b,3) = prefac*ft_x(k,ax,bx) *ft_y(k,ay,by) *ft_dz(k,az,bz)
+            end
+         end
+      end
+      lb.destroy
+      la.destroy
+      ft_dz.destroy
+      ft_dy.destroy
+      ft_dx.destroy
+      ft_z.destroy
+      ft_y.destroy
+      ft_x.destroy
+   end
+
+   make_ft_r(ft,k_pts)
+   ! Calculates the Fourier transform of the derivative of a product of two
+   ! primitive gaussian functions, times vector r, evaluated at a series of
+   ! points "k_pts".
+   ! This routine is based on formula (9) in Jayatilaka, CPL 230, p. 228 (1995)
+   ! size of "ft" is [k_max],[.a.l.n_comp],[.b.l.n_comp],[3
+      k_pts :: REALMAT
+      ft :: CPXMAT4
+      ci,prefac :: CPX
+      pifac,gamma,g1,g4,dot1,dot2,k1,k2,k3,P1,P2,P3 :: REAL
+      k_max,n_a,n_b,a,b,k,ax,ay,az,bx,by,bz :: INT
+      la,lb :: INTMAT*
+      ft_x,ft_y,ft_z :: CPXMAT3*
+      ci = (ZERO,ONE)                         ! A few useful constants ...
+      k_max = size(k_pts,1)
+      n_a = size(ft,2)
+      n_b = size(ft,3)
+      gamma = .a.ex+.b.ex
+      g1 = 1/gamma
+      g4 = 0.25d0*g1
+      pifac = (PI/gamma)**(1.5)
+      P1 = g1*(.a.ex*.a.pos(1)+.b.ex*.b.pos(1))
+      P2 = g1*(.a.ex*.a.pos(2)+.b.ex*.b.pos(2))
+      P3 = g1*(.a.ex*.a.pos(3)+.b.ex*.b.pos(3))
+      la.create(3, .a.l.n_comp );   .a.l.make_gaussian_xyz_powers(la)
+      lb.create(3, .b.l.n_comp );   .b.l.make_gaussian_xyz_powers(lb)
+
+      ft_x.create((/1,k_max/),(/0,.a.l/),(/0,.b.l+1/))
+      ft_y.create((/1,k_max/),(/0,.a.l/),(/0,.b.l+1/))
+      ft_z.create((/1,k_max/),(/0,.a.l/),(/0,.b.l+1/))
+      .make_ft_component(ft_x,1,k_pts(:,1),k_max)        ! Get the Fourier transforms
+      .make_ft_component(ft_y,2,k_pts(:,2),k_max)        ! of each component.
+      .make_ft_component(ft_z,3,k_pts(:,3),k_max)
+
+      do a = 1,n_a               ! Loop over all elements and multiply prefactor
+         ax = la(1,a)
+         ay = la(2,a)
+         az = la(3,a)
+         do b = 1,n_b
+            bx = lb(1,b)
+            by = lb(2,b)
+            bz = lb(3,b)
+            do k = 1,k_max
+               k1 = k_pts(k,1)
+               k2 = k_pts(k,2)
+               k3 = k_pts(k,3)
+               dot1 = k1*P1+k2*P2+k3*P3
+               dot2 = k1*k1+k2*k2+k3*k3
+               dot2 = -dot2*g4
+               prefac = pifac*exp(ci*dot1)*exp(dot2)
+               ft(k,a,b,1) = prefac*(ft_x(k,ax,bx+1)+.b.pos(1)*ft_x(k,ax,bx))*ft_y(k,ay,by)*ft_z(k,az,bz)
+               ft(k,a,b,2) = prefac*ft_x(k,ax,bx)*(ft_y(k,ay,by+1)+.b.pos(2)*ft_y(k,ay,by))*ft_z(k,az,bz)
+               ft(k,a,b,3) = prefac*ft_x(k,ax,bx)*ft_y(k,ay,by)*(ft_z(k,az,bz+1)+.b.pos(3)*ft_z(k,az,bz))
+            end
+         end
+      end
+      lb.destroy
+      la.destroy
+      ft_z.destroy
+      ft_y.destroy
+      ft_x.destroy
+   end
+
+   put_e_coeff(out)
+   ! Put the McMurchie Davidson E coefficients to file "out"
+      out :: TEXTFILE
+      a,b,t :: INT
+      Ex :: REALMAT3*
+      Ey :: REALMAT3*
+      Ez :: REALMAT3*
+      out.flush
+      out.put_text("GAUSSIAN2 output:\n\n")
+      out.put_text("Dylan Jayatilaka, University of Western Australia, March 1998\n\n")
+      out.show("l_a   =",.a.l,real_width=TRUE)
+      out.show("l_b   =",.a.l,real_width=TRUE)
+      out.show("Ra    =",.a.pos)
+      out.show("Rb    =",.b.pos)
+      out.show("R     =",.a.pos-.b.pos)
+      out.show("alpha =",.a.ex)
+      out.show("beta  =",.b.ex)
+      out.flush
+      out.put_dash(int_fields=3,real_fields=3,flush=1)
+      out.put("a",int_width=TRUE)
+      out.put("b",int_width=TRUE)
+      out.put("t",int_width=TRUE)
+      out.put("Ex(t,a,b)")
+      out.put("Ey(t,a,b)")
+      out.put("Ez(t,a,b)",flush=1)
+      Ex.create((/0,.a.l+.b.l/),(/0,.a.l/),(/0,.b.l/))
+      .make_e_coeff(Ex,1)
+      Ey.create((/0,.a.l+.b.l/),(/0,.a.l/),(/0,.b.l/))
+      .make_e_coeff(Ey,2)
+      Ez.create((/0,.a.l+.b.l/),(/0,.a.l/),(/0,.b.l/))
+      .make_e_coeff(Ez,3)
+      out.put_dash(int_fields=3,real_fields=3,flush=1)
+      do a = 0,.a.l
+      do b = 0,.b.l
+      do t = 0,a+b
+         out.put(a)
+         out.put(b)
+         out.put(t)
+         out.put(Ex(t,a,b))
+         out.put(Ey(t,a,b))
+         out.put(Ez(t,a,b),flush=1)
+      end
+      end
+      end
+      Ez.destroy
+      Ey.destroy
+      Ex.destroy
+   end
+
+!  **********************
+!  CADPAC-style integrals
+!  **********************
+
+   make_overlap_ints(S)
+   ! Make the overlap integral matrix "S". Uses Gauss-Hermite quadrature.
+       S :: REALMAT
+      Sx,Sy,Sz :: REALMAT*
+      ax,ay,az,bx,by,bz :: INTVEC*
+      rab :: REALVEC(3)
+      p,prefac :: REAL
+      n_a,n_b,a,b,aix,aiy,aiz,bix,biy,biz :: INT
+      n_a = (.a.l+1)*(.a.l+2)/2
+      n_b = (.b.l+1)*(.b.l+2)/2
+      ax.create(n_a); ay.create(n_a); az.create(n_a); .a.l.make_gaussian_xyz_indices(ax,ay,az)
+      bx.create(n_b); by.create(n_b); bz.create(n_b); .b.l.make_gaussian_xyz_indices(bx,by,bz)
+      Sx.create(.a.l+1,.b.l+1); Sy.create(.a.l+1,.b.l+1); Sz.create(.a.l+1,.b.l+1)
+      .make_overlap_ints(Sx,1)
+      .make_overlap_ints(Sy,2)
+      .make_overlap_ints(Sz,3)
+!     The following loops can be simplified by the one line statement:
+!     S = Sx(ax,bx)*Sy(ay,by)*Sz(az,bz)
+      do b = 1,n_b
+        bix = bx(b)
+        biy = by(b)
+        biz = bz(b)
+        do a = 1,n_a
+          aix = ax(a)
+          aiy = ay(a)
+          aiz = az(a)
+          S(a,b) = Sx(aix,bix)*Sy(aiy,biy)*Sz(aiz,biz)
+        end
+      end
+      Sz.destroy; Sy.destroy; Sx.destroy
+      bz.destroy; by.destroy; bx.destroy
+      az.destroy; ay.destroy; ax.destroy
+      p = .a.ex + .b.ex
+      rab = .a.pos - .b.pos
+      prefac = exp(-.a.ex*.b.ex*sum(rab*rab)/p)/(p*sqrt(p))
+      S = prefac*S
+   end
+
+   make_overlap_ints(Sx,x,max_a,max_b)
+   ! Make the 1-D overlap xyz integral matrix "Sx" for component "x".
+   ! If present, "max_a" and "max_b" are used for the maximum angular momenta
+   ! of centers (a) and (b) respectively -- for derivative integrals.
+   ! Uses Gauss-Hermite quadrature.
+      Sx :: REALMAT
+      x :: INT
+      max_a,max_b :: INT, optional
+      p,t,rp,ax,bx,wt,pt,ra,rb :: REAL
+      l_a,l_b, a,b,i,k :: INT
+      l_a = .a.l; if (present(max_a)) l_a = max_a
+      l_b = .b.l; if (present(max_b)) l_b = max_b
+      p = .a.ex + .b.ex
+      t = sqrt(p)
+      ax = .a.pos(x)
+      bx = .b.pos(x)
+      rp = (.a.ex*ax + .b.ex*bx)/p
+      Sx = ZERO
+      do a = 1,l_a+1
+      do b = 1,l_b+1
+         i = (a+b)/2
+         do k = first_pt(i),last_pt(i)
+            wt = gauss_hermite_wt(k)
+            pt = gauss_hermite_pt(k)/t + rp
+            ra = pt - ax
+            rb = pt - bx
+            if(a>1) wt = wt*ra**(a-1)
+            if(b>1) wt = wt*rb**(b-1)
+            Sx(a,b) = Sx(a,b) + wt
+         end
+      end
+      end
+   end
+
+   make_S_1st_deriv_ints(AAx,AAy,AAz)
+   ! Make the first derivative overlap integrals "AAx", "AAy" and "AAz" which are
+   ! the derivatives of the overlap matrix elements with respect to position A.
+   ! The derivatives with respect to position B are not evaluated. By translational
+   ! invariance, they are just the negative of the derivatives w.r.t. A.
+      AAx,AAy,AAz :: REALMAT
+      Sx,Sy,Sz, Dx,Dy,Dz :: REALMAT*
+      ax,ay,az,bx,by,bz :: INTVEC*
+      rab :: REALVEC(3)
+      p,prefac :: REAL
+      n_a,n_b,a,b,aix,aiy,aiz,bix,biy,biz :: INT
+      n_a = (.a.l+1)*(.a.l+2)/2
+      n_b = (.b.l+1)*(.b.l+2)/2
+      ax.create(n_a); ay.create(n_a); az.create(n_a); .a.l.make_gaussian_xyz_indices(ax,ay,az)
+      bx.create(n_b); by.create(n_b); bz.create(n_b); .b.l.make_gaussian_xyz_indices(bx,by,bz)
+      Sx.create(.a.l+2,.b.l+1); Sy.create(.a.l+2,.b.l+1); Sz.create(.a.l+2,.b.l+1)
+      Dx.create(.a.l+1,.b.l+1); Dy.create(.a.l+1,.b.l+1); Dz.create(.a.l+1,.b.l+1)
+      .make_overlap_ints(Sx,1,.a.l+1)
+      .make_overlap_ints(Sy,2,.a.l+1)
+      .make_overlap_ints(Sz,3,.a.l+1)
+      .differentiate(Sx,"left",Dx) ! with respect to electron coordinates !
+      .differentiate(Sy,"left",Dy)
+      .differentiate(Sz,"left",Dz)
+!     The following loops can be simplified by the statements:
+!     AAx = -Dx(ax,bx)*Sy(ay,by)*Sz(az,bz)
+!     AAy = -Sx(ax,bx)*Dy(ay,by)*Sz(az,bz)
+!     AAz = -Sx(ax,bx)*Sy(ay,by)*Dz(az,bz)
+      do b = 1,n_b
+        bix = bx(b)
+        biy = by(b)
+        biz = bz(b)
+        do a = 1,n_a
+          aix = ax(a)
+          aiy = ay(a)
+          aiz = az(a)
+          ! Minus sign for nuclear derivative
+          AAx(a,b) = -Dx(aix,bix)*Sy(aiy,biy)*Sz(aiz,biz)
+          AAy(a,b) = -Sx(aix,bix)*Dy(aiy,biy)*Sz(aiz,biz)
+          AAz(a,b) = -Sx(aix,bix)*Sy(aiy,biy)*Dz(aiz,biz)
+        end
+      end
+      Dz.destroy; Dy.destroy; Dx.destroy
+      Sz.destroy; Sy.destroy; Sx.destroy
+      bz.destroy; by.destroy; bx.destroy
+      az.destroy; ay.destroy; ax.destroy
+      p = .a.ex + .b.ex
+      rab = .a.pos - .b.pos
+      prefac = exp(-.a.ex*.b.ex*sum(rab*rab)/p)/(p*sqrt(p))
+      AAx = prefac*AAx
+      AAy = prefac*AAy
+      AAz = prefac*AAz
+   end
+
+   make_kinetic_ints(T)
+   ! Make the kinetic integrals "T". Uses Gauss-Hermite quadrature. This routine is
+   ! very inefficient. This includes the factor of -1/2 in T = -1/2 \nabla^2.
+       T :: REALMAT
+      Sx,Sy,Sz, Dx,Dy,Dz, Tx,Ty,Tz :: REALMAT*
+      ax,ay,az,bx,by,bz :: INTVEC*
+      rab :: REALVEC(3)
+      p,prefac :: REAL
+      n_a,n_b,a,b,aix,aiy,aiz,bix,biy,biz :: INT
+      n_a = (.a.l+1)*(.a.l+2)/2
+      n_b = (.b.l+1)*(.b.l+2)/2
+      ax.create(n_a); ay.create(n_a); az.create(n_a); .a.l.make_gaussian_xyz_indices(ax,ay,az)
+      bx.create(n_b); by.create(n_b); bz.create(n_b); .b.l.make_gaussian_xyz_indices(bx,by,bz)
+      Sx.create(.a.l+1,.b.l+3); Sy.create(.a.l+1,.b.l+3); Sz.create(.a.l+1,.b.l+3)
+      Tx.create(.a.l+1,.b.l+1); Ty.create(.a.l+1,.b.l+1); Tz.create(.a.l+1,.b.l+1)
+      Dx.create(.a.l+1,.b.l+2); Dy.create(.a.l+1,.b.l+2); Dz.create(.a.l+1,.b.l+2)
+      .make_overlap_ints(Sx,1,max_b=.b.l+2)
+      .make_overlap_ints(Sy,2,max_b=.b.l+2)
+      .make_overlap_ints(Sz,3,max_b=.b.l+2)
+      .differentiate(Sx,"right",Dx) ! with respect to electron coordinates !
+      .differentiate(Sy,"right",Dy)
+      .differentiate(Sz,"right",Dz)
+      .differentiate(Dx,"right",Tx) ! with respect to electron coordinates !
+      .differentiate(Dy,"right",Ty)
+      .differentiate(Dz,"right",Tz)
+      Dz.destroy; Dy.destroy; Dx.destroy
+!     The following loops can be simplified by the statement:
+!     T = Tx(ax,bx)*Sy(ay,by)*Sz(az,bz) &
+!       + Sx(ax,bx)*Ty(ay,by)*Sz(az,bz) &
+!       + Sx(ax,bx)*Sy(ay,by)*Tz(az,bz)
+      do b = 1,n_b
+        bix = bx(b)
+        biy = by(b)
+        biz = bz(b)
+        do a = 1,n_a
+          aix = ax(a)
+          aiy = ay(a)
+          aiz = az(a)
+          T(a,b) = Tx(aix,bix)*Sy(aiy,biy)*Sz(aiz,biz) + &
+                   Sx(aix,bix)*Ty(aiy,biy)*Sz(aiz,biz) + &
+                   Sx(aix,bix)*Sy(aiy,biy)*Tz(aiz,biz)
+        end
+      end
+      Tz.destroy; Ty.destroy; Tx.destroy
+      Sz.destroy; Sy.destroy; Sx.destroy
+      bz.destroy; by.destroy; bx.destroy
+      az.destroy; ay.destroy; ax.destroy
+      p = .a.ex + .b.ex
+      rab = .a.pos - .b.pos
+      prefac = exp(-.a.ex*.b.ex*sum(rab*rab)/p)/(p*sqrt(p))
+      T = -HALF*prefac*T
+   end
+
+   make_T_1st_deriv_ints(AAx,AAy,AAz)
+   ! Make the first derivative kinetic integrals "AAx", "AAy" and "AAz" which are
+   ! the derivatives of the kinetic matrix elements with respect to position A.
+   ! The derivatives with respect to position B are not evaluated. By translational
+   ! invariance, they are just the negative of the derivatives w.r.t. A.
+   ! This includes the factor of -1/2 in T = -1/2 \nabla^2.
+      AAx,AAy,AAz :: REALMAT
+      SSx,SSy,SSz, SAx,SAy,SAz, TTx,TTy,TTz, TAx,TAy,TAz :: REALMAT*
+      ax,ay,az,bx,by,bz :: INTVEC*
+      rab :: REALVEC(3)
+      p,prefac :: REAL
+      n_a,n_b,a,b,aix,aiy,aiz,bix,biy,biz :: INT
+      n_a = (.a.l+1)*(.a.l+2)/2
+      n_b = (.b.l+1)*(.b.l+2)/2
+      ax.create(n_a); ay.create(n_a); az.create(n_a); .a.l.make_gaussian_xyz_indices(ax,ay,az)
+      bx.create(n_b); by.create(n_b); bz.create(n_b); .b.l.make_gaussian_xyz_indices(bx,by,bz)
+      SSx.create(.a.l+4,.b.l+1); SSy.create(.a.l+4,.b.l+1); SSz.create(.a.l+4,.b.l+1)
+      SAx.create(.a.l+3,.b.l+1); SAy.create(.a.l+3,.b.l+1); SAz.create(.a.l+3,.b.l+1)
+      TTx.create(.a.l+2,.b.l+1); TTy.create(.a.l+2,.b.l+1); TTz.create(.a.l+2,.b.l+1)
+      TAx.create(.a.l+1,.b.l+1); TAy.create(.a.l+1,.b.l+1); TAz.create(.a.l+1,.b.l+1)
+      .make_overlap_ints(SSx,1,.a.l+3)
+      .make_overlap_ints(SSy,2,.a.l+3)
+      .make_overlap_ints(SSz,3,.a.l+3)
+      .differentiate(SSx,"left",SAx)   ! with respect to electron coordinates !
+      .differentiate(SSy,"left",SAy)
+      .differentiate(SSz,"left",SAz)
+      .differentiate(SAx,"left",TTx)   ! with respect to electron coordinates !
+      .differentiate(SAy,"left",TTy)
+      .differentiate(SAz,"left",TTz)
+      .differentiate(TTx,"left",TAx)   ! with respect to electron coordinates !
+      .differentiate(TTy,"left",TAy)
+      .differentiate(TTz,"left",TAz)
+!     The following loops can be simplified by the statements:
+!     AAx = TAx(ax,bx)*SSy(ay,by)*SSz(az,bz) &
+!         + SAx(ax,bx)*TTy(ay,by)*SSz(az,bz) &
+!         + SAx(ax,bx)*SSy(ay,by)*TTz(az,bz)
+!     AAy = TTx(ax,bx)*SAy(ay,by)*SSz(az,bz) &
+!         + SSx(ax,bx)*TAy(ay,by)*SSz(az,bz) &
+!         + SSx(ax,bx)*SAy(ay,by)*TTz(az,bz)
+!     AAz = TTx(ax,bx)*SSy(ay,by)*SAz(az,bz) &
+!         + SSx(ax,bx)*TTy(ay,by)*SAz(az,bz) &
+!         + SSx(ax,bx)*SSy(ay,by)*TAz(az,bz)
+      do b = 1,n_b
+        bix = bx(b)
+        biy = by(b)
+        biz = bz(b)
+        do a = 1,n_a
+          aix = ax(a)
+          aiy = ay(a)
+          aiz = az(a)
+          ! No minus sign for nuclear derivative ... see below for reason
+          AAx(a,b) = TAx(aix,bix)*SSy(aiy,biy)*SSz(aiz,biz) + &
+                     SAx(aix,bix)*TTy(aiy,biy)*SSz(aiz,biz) + &
+                     SAx(aix,bix)*SSy(aiy,biy)*TTz(aiz,biz)
+          AAy(a,b) = TTx(aix,bix)*SAy(aiy,biy)*SSz(aiz,biz) + &
+                     SSx(aix,bix)*TAy(aiy,biy)*SSz(aiz,biz) + &
+                     SSx(aix,bix)*SAy(aiy,biy)*TTz(aiz,biz)
+          AAz(a,b) = TTx(aix,bix)*SSy(aiy,biy)*SAz(aiz,biz) + &
+                     SSx(aix,bix)*TTy(aiy,biy)*SAz(aiz,biz) + &
+                     SSx(aix,bix)*SSy(aiy,biy)*TAz(aiz,biz)
+        end
+      end
+      TAz.destroy; TAy.destroy; TAx.destroy
+      TTz.destroy; TTy.destroy; TTx.destroy
+      SAz.destroy; SAy.destroy; SAx.destroy
+      SSz.destroy; SSy.destroy; SSx.destroy
+      bz.destroy; by.destroy; bx.destroy
+      az.destroy; ay.destroy; ax.destroy
+      p = .a.ex + .b.ex
+      rab = .a.pos - .b.pos
+      prefac = HALF*exp(-.a.ex*.b.ex*sum(rab*rab)/p)/(p*sqrt(p))
+      AAx = prefac*AAx ! should be -1/2 factor on line above, but derivatives are
+      AAy = prefac*AAy ! wrt electrons not nuclei so that reverses the sign
+      AAz = prefac*AAz
+   end
+
+   make_dipole_ints(Dx,Dy,Dz,origin)
+   ! Make the dipole integral matrices "Dx", "Dy", and "Dz".
+   ! "origin" is the gauge origin for the integrals.
+   ! Uses Gauss-Hermite quadrature.
+      Dx,Dy,Dz :: REALMAT
+      origin :: REALVEC(3)
+      Sx,Sy,Sz,Rx,Ry,Rz :: REALMAT*
+      ax,ay,az,bx,by,bz :: INTVEC*
+      rab :: REALVEC(3)
+      p,prefac,Sx_ab,Sy_ab,Sz_ab :: REAL
+      n_a,n_b,a,b,aix,aiy,aiz,bix,biy,biz :: INT
+      n_a = (.a.l+1)*(.a.l+2)/2
+      n_b = (.b.l+1)*(.b.l+2)/2
+      ax.create(n_a); ay.create(n_a); az.create(n_a); .a.l.make_gaussian_xyz_indices(ax,ay,az)
+      bx.create(n_b); by.create(n_b); bz.create(n_b); .b.l.make_gaussian_xyz_indices(bx,by,bz)
+      Sx.create(.a.l+1,.b.l+1); Sy.create(.a.l+1,.b.l+1); Sz.create(.a.l+1,.b.l+1)
+      Rx.create(.a.l+1,.b.l+1); Ry.create(.a.l+1,.b.l+1); Rz.create(.a.l+1,.b.l+1)
+      .make_dipole_ints(Sx,Rx,1,origin(1))
+      .make_dipole_ints(Sy,Ry,2,origin(2))
+      .make_dipole_ints(Sz,Rz,3,origin(3))
+!     The following loops can be simplified by the statements:
+!     Dx = Rx(ax,bx)*Sy(ay,by)*Sz(az,bz)
+!     Dy = Sx(ax,bx)*Ry(ay,by)*Sz(az,bz)
+!     Dz = Sx(ax,bx)*Sy(ay,by)*Rz(az,bz)
+      do b = 1,n_b
+        bix = bx(b)
+        biy = by(b)
+        biz = bz(b)
+        do a = 1,n_a
+          aix = ax(a)
+          aiy = ay(a)
+          aiz = az(a)
+          Sx_ab = Sx(aix,bix)
+          Sy_ab = Sy(aiy,biy)
+          Sz_ab = Sz(aiz,biz)
+          Dx(a,b) = Rx(aix,bix)*Sy_ab*Sz_ab
+          Dy(a,b) = Sx_ab*Ry(aiy,biy)*Sz_ab
+          Dz(a,b) = Sx_ab*Sy_ab*Rz(aiz,biz)
+        end
+      end
+      Rz.destroy; Ry.destroy; Rx.destroy
+      Sz.destroy; Sy.destroy; Sx.destroy
+      bz.destroy; by.destroy; bx.destroy
+      az.destroy; ay.destroy; ax.destroy
+      p = .a.ex + .b.ex
+      rab = .a.pos - .b.pos
+      prefac = exp(-.a.ex*.b.ex*sum(rab*rab)/p)/(p*sqrt(p))
+      Dx = prefac*Dx
+      Dy = prefac*Dy
+      Dz = prefac*Dz
+   end
+
+   make_dipole_ints(Sx,Dx,x,ox,max_a,max_b)
+   ! Make the 1-D overlap integrals "Sx" and dipole integrals "Dx" for component
+   ! "x".
+   ! "ox" is the origin for the dipole terms. If present, "max_a" and "max_b"
+   ! override the l value for gaussian a or b. Uses Gauss-Hermite quadrature.
+      Sx,Dx :: REALMAT
+       x :: INT
+      ox :: REAL
+      max_a,max_b :: INT, optional
+      p,t,ax,bx,rp,wt,pt,ra,rb,rd :: REAL
+      l_a,l_b,a,b,i,k :: INT
+      l_a = .a.l; if (present(max_a)) l_a = max_a
+      l_b = .b.l; if (present(max_b)) l_b = max_b
+      p = .a.ex + .b.ex
+      t = sqrt(p)
+      ax = .a.pos(x)
+      bx = .b.pos(x)
+      rp = (.a.ex*ax + .b.ex*bx)/p
+      Sx = ZERO
+      Dx = ZERO
+      do a = 1,l_a+1
+      do b = 1,l_b+1
+         i = (a+b+1)/2
+         do k = first_pt(i),last_pt(i)
+            wt = gauss_hermite_wt(k)
+            pt = gauss_hermite_pt(k)/t + rp
+            ra = pt - ax
+            rb = pt - bx
+            rd = pt - ox
+            if(a>1) wt = wt*ra**(a-1)
+            if(b>1) wt = wt*rb**(b-1)
+            Sx(a,b) = Sx(a,b) + wt
+            Dx(a,b) = Dx(a,b) + rd*wt
+         end
+      end
+      end
+   end
+
+   make_quadrupole_ints(Qxx,Qyy,Qzz,Qxy,Qxz,Qyz,origin)
+   ! Make the qudrupole integral matrices "Qxx", ..., "Qyz".
+   ! "origin" is the gauge origin for the integrals.
+   ! Uses Gauss-Hermite quadrature.
+      Qxx,Qyy,Qzz,Qxy,Qxz,Qyz :: REALMAT
+      origin :: REALVEC(3)
+      Sx,Sy,Sz,Rx,Ry,Rz,Qx,Qy,Qz :: REALMAT*
+      ax,ay,az,bx,by,bz :: INTVEC*
+      rab :: REALVEC(3)
+      p,prefac :: REAL
+      Sx_ab,Sy_ab,Sz_ab,Rx_ab,Ry_ab,Rz_ab,Qx_ab,Qy_ab,Qz_ab :: REAL
+      n_a,n_b,a,b,aix,aiy,aiz,bix,biy,biz :: INT
+      n_a = (.a.l+1)*(.a.l+2)/2
+      n_b = (.b.l+1)*(.b.l+2)/2
+      ax.create(n_a); ay.create(n_a); az.create(n_a); .a.l.make_gaussian_xyz_indices(ax,ay,az)
+      bx.create(n_b); by.create(n_b); bz.create(n_b); .b.l.make_gaussian_xyz_indices(bx,by,bz)
+      Sx.create(.a.l+1,.b.l+1); Sy.create(.a.l+1,.b.l+1); Sz.create(.a.l+1,.b.l+1)
+      Rx.create(.a.l+1,.b.l+1); Ry.create(.a.l+1,.b.l+1); Rz.create(.a.l+1,.b.l+1)
+      Qx.create(.a.l+1,.b.l+1); Qy.create(.a.l+1,.b.l+1); Qz.create(.a.l+1,.b.l+1)
+      .make_quadrupole_ints(Sx,Rx,Qx,1,origin(1))
+      .make_quadrupole_ints(Sy,Ry,Qy,2,origin(2))
+      .make_quadrupole_ints(Sz,Rz,Qz,3,origin(3))
+!     The following loops can be simplified by the statements:
+!     Qxx = Qx(ax,bx)*Sy(ay,by)*Sz(az,bz)
+!     Qyy = Sx(ax,bx)*Qy(ay,by)*Sz(az,bz)
+!     Qzz = Sx(ax,bx)*Sy(ay,by)*Qz(az,bz)
+!     Qxy = Rx(ax,bx)*Ry(ay,by)*Sz(az,bz)
+!     Qxz = Rx(ax,bx)*Sy(ay,by)*Rz(az,bz)
+!     Qyz = Sx(ax,bx)*Ry(ay,by)*Rz(az,bz)
+      do b = 1,n_b
+        bix = bx(b)
+        biy = by(b)
+        biz = bz(b)
+        do a = 1,n_a
+          aix = ax(a)
+          aiy = ay(a)
+          aiz = az(a)
+          Qx_ab = Qx(aix,bix)
+          Qy_ab = Qy(aiy,biy)
+          Qz_ab = Qz(aiz,biz)
+          Rx_ab = Rx(aix,bix)
+          Ry_ab = Ry(aiy,biy)
+          Rz_ab = Rz(aiz,biz)
+          Sx_ab = Sx(aix,bix)
+          Sy_ab = Sy(aiy,biy)
+          Sz_ab = Sz(aiz,biz)
+          Qxx(a,b) = Qx_ab*Sy_ab*Sz_ab
+          Qyy(a,b) = Sx_ab*Qy_ab*Sz_ab
+          Qzz(a,b) = Sx_ab*Sy_ab*Qz_ab
+          Qxy(a,b) = Rx_ab*Ry_ab*Sz_ab
+          Qxz(a,b) = Rx_ab*Sy_ab*Rz_ab
+          Qyz(a,b) = Sx_ab*Ry_ab*Rz_ab
+        end
+      end
+      Qz.destroy; Qy.destroy; Qx.destroy
+      Rz.destroy; Ry.destroy; Rx.destroy
+      Sz.destroy; Sy.destroy; Sx.destroy
+      bz.destroy; by.destroy; bx.destroy
+      az.destroy; ay.destroy; ax.destroy
+      p = .a.ex + .b.ex
+      rab = .a.pos - .b.pos
+      prefac = exp(-.a.ex*.b.ex*sum(rab*rab)/p)/(p*sqrt(p))
+      Qxx = prefac*Qxx
+      Qyy = prefac*Qyy
+      Qzz = prefac*Qzz
+      Qxy = prefac*Qxy
+      Qxz = prefac*Qxz
+      Qyz = prefac*Qyz
+   end
+
+   make_quadrupole_ints(Sx,Dx,Qx,x,ox,max_a,max_b)
+   ! Make the 1-D overlap integrals "Sx", dipole integrals "Dx" and quadruple
+   ! integrals "Qx" for component "x". "ox" is the origin for the dipole terms.
+   ! If present, "max_a" and "max_b" override the l value for gaussian a or b.
+   ! Uses Gauss-Hermite quadrature.
+      Sx,Dx,Qx :: REALMAT
+       x :: INT
+      ox :: REAL
+      max_a,max_b :: INT, optional
+      p,t,ax,bx,rp,wt,pt,ra,rb,rd :: REAL
+      l_a,l_b,a,b,i,k :: INT
+      l_a = .a.l; if (present(max_a)) l_a = max_a
+      l_b = .b.l; if (present(max_b)) l_b = max_b
+      p = .a.ex + .b.ex
+      t = sqrt(p)
+      ax = .a.pos(x)
+      bx = .b.pos(x)
+      rp = (.a.ex*ax + .b.ex*bx)/p
+      Sx = ZERO
+      Dx = ZERO
+      Qx = ZERO
+      do a = 1,l_a+1
+      do b = 1,l_b+1
+         i = (a+b+2)/2
+         do k = first_pt(i),last_pt(i)
+            wt = gauss_hermite_wt(k)
+            pt = gauss_hermite_pt(k)/t + rp
+            ra = pt - ax
+            rb = pt - bx
+            rd = pt - ox
+            if(a>1) wt = wt*ra**(a-1)
+            if(b>1) wt = wt*rb**(b-1)
+            Sx(a,b) = Sx(a,b) + wt
+            Dx(a,b) = Dx(a,b) + rd*wt
+            Qx(a,b) = Qx(a,b) + rd*rd*wt
+         end
+      end
+      end
+   end
+
+   make_octupole_ints(Oxxx,Oyyy,Ozzz,Oxxy,Oxxz,Oyyx,Oyyz,Ozzx,Ozzy,Oxyz,origin)
+   ! Make the octupole integral matrices "Oxxx", ..., "Oxyz".
+   ! "origin" is the gauge origin for the integrals.
+   ! Uses Gauss-Hermite quadrature.
+      Oxxx,Oyyy,Ozzz,Oxxy,Oxxz,Oyyx,Oyyz,Ozzx,Ozzy,Oxyz :: REALMAT
+      origin :: REALVEC(3)
+      Sx,Sy,Sz,Rx,Ry,Rz,Qx,Qy,Qz,Ox,Oy,Oz :: REALMAT*
+      ax,ay,az,bx,by,bz :: INTVEC*
+      rab :: REALVEC(3)
+      p,prefac :: REAL
+      Sx_ab,Sy_ab,Sz_ab,Rx_ab,Ry_ab,Rz_ab :: REAL
+      Qx_ab,Qy_ab,Qz_ab,Ox_ab,Oy_ab,Oz_ab :: REAL
+      n_a,n_b,a,b,aix,aiy,aiz,bix,biy,biz :: INT
+      n_a = (.a.l+1)*(.a.l+2)/2
+      n_b = (.b.l+1)*(.b.l+2)/2
+      ax.create(n_a); ay.create(n_a); az.create(n_a); .a.l.make_gaussian_xyz_indices(ax,ay,az)
+      bx.create(n_b); by.create(n_b); bz.create(n_b); .b.l.make_gaussian_xyz_indices(bx,by,bz)
+      Sx.create(.a.l+1,.b.l+1); Sy.create(.a.l+1,.b.l+1); Sz.create(.a.l+1,.b.l+1)
+      Rx.create(.a.l+1,.b.l+1); Ry.create(.a.l+1,.b.l+1); Rz.create(.a.l+1,.b.l+1)
+      Qx.create(.a.l+1,.b.l+1); Qy.create(.a.l+1,.b.l+1); Qz.create(.a.l+1,.b.l+1)
+      Ox.create(.a.l+1,.b.l+1); Oy.create(.a.l+1,.b.l+1); Oz.create(.a.l+1,.b.l+1)
+      .make_octupole_ints(Sx,Rx,Qx,Ox,1,origin(1))
+      .make_octupole_ints(Sy,Ry,Qy,Oy,2,origin(2))
+      .make_octupole_ints(Sz,Rz,Qz,Oz,3,origin(3))
+!     The following loops can be simplified by the statements:
+!     Oxxx = Ox(ax,bx)*Sy(ay,by)*Sz(az,bz)
+!     Oyyy = Sx(ax,bx)*Oy(ay,by)*Sz(az,bz)
+!     Ozzz = Sx(ax,bx)*Sy(ay,by)*Oz(az,bz)
+!     Oxxy = Qx(ax,bx)*Ry(ay,by)*Sz(az,bz)
+!     Oxxz = Qx(ax,bx)*Sy(ay,by)*Rz(az,bz)
+!     Oyyx = Rx(ax,bx)*Qy(ay,by)*Sz(az,bz)
+!     Oyyz = Sx(ax,bx)*Qy(ay,by)*Rz(az,bz)
+!     Ozzx = Rx(ax,bx)*Sy(ay,by)*Qz(az,bz)
+!     Ozzy = Sx(ax,bx)*Ry(ay,by)*Qz(az,bz)
+!     Oxyz = Rx(ax,bx)*Ry(ay,by)*Rz(az,bz)
+      do b = 1,n_b
+        bix = bx(b)
+        biy = by(b)
+        biz = bz(b)
+        do a = 1,n_a
+          aix = ax(a)
+          aiy = ay(a)
+          aiz = az(a)
+          Ox_ab = Ox(aix,bix); Oy_ab = Oy(aiy,biy); Oz_ab = Oz(aiz,biz)
+          Qx_ab = Qx(aix,bix); Qy_ab = Qy(aiy,biy); Qz_ab = Qz(aiz,biz)
+          Rx_ab = Rx(aix,bix); Ry_ab = Ry(aiy,biy); Rz_ab = Rz(aiz,biz)
+          Sx_ab = Sx(aix,bix); Sy_ab = Sy(aiy,biy); Sz_ab = Sz(aiz,biz)
+          Oxxx(a,b) = Ox_ab*Sy_ab*Sz_ab
+          Oyyy(a,b) = Sx_ab*Oy_ab*Sz_ab
+          Ozzz(a,b) = Sx_ab*Sy_ab*Oz_ab
+          Oxxy(a,b) = Qx_ab*Ry_ab*Sz_ab
+          Oxxz(a,b) = Qx_ab*Sy_ab*Rz_ab
+          Oyyx(a,b) = Rx_ab*Qy_ab*Sz_ab
+          Oyyz(a,b) = Sx_ab*Qy_ab*Rz_ab
+          Ozzx(a,b) = Rx_ab*Sy_ab*Qz_ab
+          Ozzy(a,b) = Sx_ab*Ry_ab*Qz_ab
+          Oxyz(a,b) = Rx_ab*Ry_ab*Rz_ab
+        end
+      end
+      Oz.destroy; Oy.destroy; Ox.destroy
+      Qz.destroy; Qy.destroy; Qx.destroy
+      Rz.destroy; Ry.destroy; Rx.destroy
+      Sz.destroy; Sy.destroy; Sx.destroy
+      bz.destroy; by.destroy; bx.destroy
+      az.destroy; ay.destroy; ax.destroy
+      p = .a.ex + .b.ex
+      rab = .a.pos - .b.pos
+      prefac = exp(-.a.ex*.b.ex*sum(rab*rab)/p)/(p*sqrt(p))
+      Oxxx = prefac*Oxxx
+      Oyyy = prefac*Oyyy
+      Ozzz = prefac*Ozzz
+      Oxxy = prefac*Oxxy
+      Oxxz = prefac*Oxxz
+      Oyyx = prefac*Oyyx
+      Oyyz = prefac*Oyyz
+      Ozzx = prefac*Ozzx
+      Ozzy = prefac*Ozzy
+      Oxyz = prefac*Oxyz
+   end
+
+   make_octupole_ints(Sx,Dx,Qx,Ox,x,og,max_a,max_b)
+   ! Make the 1-D overlap integrals "Sx", dipole integrals "Dx", quadruple
+   ! integrals "Qx", and the ocupole integrals "Ox", for component "x". "og" is
+   ! the origin for the dipole terms.
+   ! If present, "max_a" and "max_b" override the l value for gaussian a or b.
+   ! Uses Gauss-Hermite quadrature.
+      Sx,Dx,Qx,Ox :: REALMAT
+       x :: INT
+      og :: REAL
+      max_a,max_b :: INT, optional
+      p,t,ax,bx,rp,wt,pt,ra,rb,rd,rd2 :: REAL
+      l_a,l_b,a,b,i,k :: INT
+      l_a = .a.l; if (present(max_a)) l_a = max_a
+      l_b = .b.l; if (present(max_b)) l_b = max_b
+      p = .a.ex + .b.ex
+      t = sqrt(p)
+      ax = .a.pos(x)
+      bx = .b.pos(x)
+      rp = (.a.ex*ax + .b.ex*bx)/p
+      Sx = ZERO
+      Dx = ZERO
+      Qx = ZERO
+      Ox = ZERO
+      do a = 1,l_a+1
+      do b = 1,l_b+1
+         i = (a+b+3)/2
+         do k = first_pt(i),last_pt(i)
+            wt = gauss_hermite_wt(k)
+            pt = gauss_hermite_pt(k)/t + rp
+            ra = pt - ax
+            rb = pt - bx
+            rd = pt - og
+            rd2 = rd*rd
+            if(a>1) wt = wt*ra**(a-1)
+            if(b>1) wt = wt*rb**(b-1)
+            Sx(a,b) = Sx(a,b) + wt
+            Dx(a,b) = Dx(a,b) + rd*wt
+            Qx(a,b) = Qx(a,b) + rd2*wt
+            Ox(a,b) = Ox(a,b) + rd2*rd*wt
+         end
+      end
+      end
+   end
+
+   make_nuclear_attraction_ints(N,c)
+   ! Make the nuclear attraction integral matrix "N" for a nucleus at position
+   ! "c".
+   ! Uses Rys decomposition of 1/r_c and Gauss-Hermite quadrature.
+       N :: REALMAT
+       c :: REALVEC(3)
+      Nx,Ny,Nz :: REALMAT*
+      ax,ay,az,bx,by,bz :: INTVEC*
+      rpc,rab :: REALVEC(3)
+      p,xx,uu,wt,prefac :: REAL
+      n_a,n_b,n_roots,k,a,b,bix,biy,biz :: INT
+      rys :: RYS*
+      n_a = (.a.l+1)*(.a.l+2)/2
+      n_b = (.b.l+1)*(.b.l+2)/2
+      ax.create(n_a); ay.create(n_a); az.create(n_a); .a.l.make_gaussian_xyz_indices(ax,ay,az)
+      bx.create(n_b); by.create(n_b); bz.create(n_b); .b.l.make_gaussian_xyz_indices(bx,by,bz)
+      Nx.create(.a.l+1,.b.l+1); Ny.create(.a.l+1,.b.l+1); Nz.create(.a.l+1,.b.l+1)
+      n_roots = (.a.l+.b.l+2)/2
+      p = .a.ex + .b.ex
+      rpc = (.a.ex*.a.pos + .b.ex*.b.pos)/p - c
+      rys.create(n_roots)
+      xx = p*sum(rpc*rpc)
+      rys.get_weights_and_u_roots(xx)
+      N = ZERO
+      do k = 1,n_roots
+         uu = p*rys.root(k)
+         wt =   rys.weight(k)
+         .make_nuclear_attraction_ints(Nx,1,uu,c(1))
+         .make_nuclear_attraction_ints(Ny,2,uu,c(2))
+         .make_nuclear_attraction_ints(Nz,3,uu,c(3))
+         Nz = Nz*wt
+!     The following loops can be simplified by the statement
+!        N = N + Nx(ax,bx)*Ny(ay,by)*Nz(az,bz)
+         do b=1,n_b
+           bix=bx(b)
+           biy=by(b)
+           biz=bz(b)
+           do a=1,n_a
+             N(a,b) = N(a,b) + Nx(ax(a),bix)*Ny(ay(a),biy)*Nz(az(a),biz)
+           end
+         end
+      end
+      rys.destroy
+      Nz.destroy; Ny.destroy; Nx.destroy
+      bz.destroy; by.destroy; bx.destroy
+      az.destroy; ay.destroy; ax.destroy
+      rab = .a.pos - .b.pos
+      prefac = exp(-.a.ex*.b.ex*sum(rab*rab)/p)*pi212/p
+      N = prefac*N
+   end
+
+   make_nuclear_attraction_ints(Nx,x,uu,cx,max_a,max_b)
+   ! Make the 1-D nuclear attraction xyz integrals "Nx", for component "x", for
+   ! a particular Rys-gaussian with exponent "uu", used in the decomposition of
+   ! 1/r_c centred at position "cx". If present, "max_a" and "max_b" override
+   ! the l value for gaussian a or b.
+   ! Uses Gauss-Hermite quadrature.
+      Nx :: REALMAT
+       x :: INT
+      uu,cx :: REAL
+      max_a,max_b :: INT, optional
+      p,t,ax,bx,r0,wt,pt,ra,rb :: REAL
+      l_a,l_b,a,b,i,k :: INT
+      l_a = .a.l; if (present(max_a)) l_a = max_a
+      l_b = .b.l; if (present(max_b)) l_b = max_b
+      p = .a.ex + .b.ex + uu
+      t = sqrt(p)
+      ax = .a.pos(x)
+      bx = .b.pos(x)
+      r0 = (.a.ex*ax + .b.ex*bx + uu*cx)/p
+      Nx = ZERO
+      do a = 1,l_a+1
+      do b = 1,l_b+1
+         i = (a+b)/2 ! should be max((a+b-1)/2,1) ?
+         do k = first_pt(i),last_pt(i)
+            wt = gauss_hermite_wt(k)
+            pt = gauss_hermite_pt(k)/t + r0
+            ra = pt - ax
+            rb = pt - bx
+            if(a>1) wt = wt*ra**(a-1)
+            if(b>1) wt = wt*rb**(b-1)
+            Nx(a,b) = Nx(a,b) + wt
+         end
+      end
+      end
+   end
+
+   make_NA_1st_deriv_ints(DAx,DAy,DAz,DBx,DBy,DBz,c)
+   ! Make the derivatives nuclear attraction integrals w.r.t. centers A and B in
+   ! "DAx", "DAy" and "DAz", and "DBx", "DBy" and "DBz" for a nucleus at position
+   ! "c". Uses Rys decomposition of 1/r_c and Gauss-Hermite quadrature
+      DAx,DAy,DAz,DBx,DBy,DBz :: REALMAT
+      c :: REALVEC(3)
+      NAx,NAy,NAz, AAx,AAy,AAz,BBx,BBy,BBz :: REALMAT*
+      ax,ay,az,bx,by,bz :: INTVEC*
+      rpc,rab :: REALVEC(3)
+      p,xx,uu,wt,prefac :: REAL
+      n_a,n_b,n_roots,k,a,b,bix,biy,biz :: INT
+      rys :: RYS*
+      n_a = (.a.l+1)*(.a.l+2)/2
+      n_b = (.b.l+1)*(.b.l+2)/2
+      ax.create(n_a); ay.create(n_a); az.create(n_a); .a.l.make_gaussian_xyz_indices(ax,ay,az)
+      bx.create(n_b); by.create(n_b); bz.create(n_b); .b.l.make_gaussian_xyz_indices(bx,by,bz)
+      NAx.create(.a.l+2,.b.l+2); NAy.create(.a.l+2,.b.l+2); NAz.create(.a.l+2,.b.l+2)
+      AAx.create(.a.l+1,.b.l+1); AAy.create(.a.l+1,.b.l+1); AAz.create(.a.l+1,.b.l+1)
+      BBx.create(.a.l+1,.b.l+1); BBy.create(.a.l+1,.b.l+1); BBz.create(.a.l+1,.b.l+1)
+    ! n_roots = (.a.l+.b.l+3)/2
+      n_roots = (.a.l+.b.l+1)/2 + 1
+      p = .a.ex + .b.ex
+      rpc = (.a.ex*.a.pos + .b.ex*.b.pos)/p - c
+      rys.create(n_roots)
+      xx = p*sum(rpc*rpc)
+      rys.get_weights_and_u_roots(xx)
+      DAx = ZERO; DAy = ZERO; DAz = ZERO
+      DBx = ZERO; DBy = ZERO; DBz = ZERO
+      do k = 1,n_roots
+         uu = p*rys.root(k)
+         wt =   rys.weight(k)
+         .make_nuclear_attraction_ints(NAx,1,uu,c(1),.a.l+1,.b.l+1)
+         .make_nuclear_attraction_ints(NAy,2,uu,c(2),.a.l+1,.b.l+1)
+         .make_nuclear_attraction_ints(NAz,3,uu,c(3),.a.l+1,.b.l+1)
+         .differentiate(NAx,"right",BBx) ! with respect to electron coordinates !
+         .differentiate(NAy,"right",BBy)
+         .differentiate(NAz,"right",BBz)
+         .differentiate(NAx,"left ",AAx) ! with respect to electron coordinates !
+         .differentiate(NAy,"left ",AAy)
+         .differentiate(NAz,"left ",AAz)
+         NAz = NAz*wt
+         AAz = AAz*wt
+         BBz = BBz*wt
+!     The following loops can be simplified by the statement:
+!     DAx = DAx - AAx(ax,bx)*NAy(ay,by)*NAz(az,bz)
+!     DAy = DAy - NAx(ax,bx)*AAy(ay,by)*NAz(az,bz)
+!     DAz = DAz - NAx(ax,bx)*NAy(ay,by)*AAz(az,bz)
+!     DBx = DBx - BBx(ax,bx)*NAy(ay,by)*NAz(az,bz)
+!     DBy = DBy - NAx(ax,bx)*BBy(ay,by)*NAz(az,bz)
+!     DBz = DBz - NAx(ax,bx)*NAy(ay,by)*BBz(az,bz)
+         do b=1,n_b
+           bix=bx(b)
+           biy=by(b)
+           biz=bz(b)
+           do a=1,n_a
+             ! Minus sign for nuclear derivative
+             DAx(a,b) = DAx(a,b) - AAx(ax(a),bix)*NAy(ay(a),biy)*NAz(az(a),biz)
+             DAy(a,b) = DAy(a,b) - NAx(ax(a),bix)*AAy(ay(a),biy)*NAz(az(a),biz)
+             DAz(a,b) = DAz(a,b) - NAx(ax(a),bix)*NAy(ay(a),biy)*AAz(az(a),biz)
+             DBx(a,b) = DBx(a,b) - BBx(ax(a),bix)*NAy(ay(a),biy)*NAz(az(a),biz)
+             DBy(a,b) = DBy(a,b) - NAx(ax(a),bix)*BBy(ay(a),biy)*NAz(az(a),biz)
+             DBz(a,b) = DBz(a,b) - NAx(ax(a),bix)*NAy(ay(a),biy)*BBz(az(a),biz)
+           end
+         end
+      end
+      rys.destroy
+      BBz.destroy; BBy.destroy; BBx.destroy
+      AAz.destroy; AAy.destroy; AAx.destroy
+      NAz.destroy; NAy.destroy; NAx.destroy
+      bz.destroy; by.destroy; bx.destroy
+      az.destroy; ay.destroy; ax.destroy
+      rab = .a.pos - .b.pos
+      prefac = exp(-.a.ex*.b.ex*sum(rab*rab)/p)*pi212/p
+      DAx = prefac*DAx; DAy = prefac*DAy; DAz = prefac*DAz
+      DBx = prefac*DBx; DBy = prefac*DBy; DBz = prefac*DBz
+   end
+
+   make_spin_orbit_ints(Lx,Ly,Lz,c)
+   ! Make the spin orbit integral matrices "Lx", "Ly", and "Lz" around nucleus
+   ! "c".
+   ! This integrals is for: (r - r_c) x nabla / |r - r_c|^3, with no minus sign
+   ! on nabla.
+   ! Uses Rys decomposition of 1/r_c and Gauss-Hermite quadrature.
+      Lx,Ly,Lz :: REALMAT
+       c :: REALVEC(3)
+      NAx,NAy,NAz,AAx,AAy,AAz,BBx,BBy,BBz :: REALMAT*
+      ax,ay,az,bx,by,bz :: INTVEC*
+      rpc,rab :: REALVEC(3)
+      p,xx,uu,wt,prefac :: REAL
+      n_a,n_b,n_roots,k,a,b,aix,aiy,aiz,bix,biy,biz :: INT
+      AAx_ab,AAy_ab,AAz_ab,BBx_ab,BBy_ab,BBz_ab :: REAL
+      rys :: RYS*
+      n_a = (.a.l+1)*(.a.l+2)/2
+      n_b = (.b.l+1)*(.b.l+2)/2
+      ax.create(n_a); ay.create(n_a); az.create(n_a); .a.l.make_gaussian_xyz_indices(ax,ay,az)
+      bx.create(n_b); by.create(n_b); bz.create(n_b); .b.l.make_gaussian_xyz_indices(bx,by,bz)
+      NAx.create(.a.l+2,.b.l+2); NAy.create(.a.l+2,.b.l+2); NAz.create(.a.l+2,.b.l+2)
+      AAx.create(.a.l+1,.b.l+1); AAy.create(.a.l+1,.b.l+1); AAz.create(.a.l+1,.b.l+1)
+      BBx.create(.a.l+1,.b.l+1); BBy.create(.a.l+1,.b.l+1); BBz.create(.a.l+1,.b.l+1)
+      n_roots = (.a.l+.b.l+3)/2
+      p = .a.ex + .b.ex
+      rpc = (.a.ex*.a.pos + .b.ex*.b.pos)/p - c
+      rys.create(n_roots)
+      xx = p*sum(rpc*rpc)
+      rys.get_weights_and_u_roots(xx)
+      Lx = ZERO
+      Ly = ZERO
+      Lz = ZERO
+      do k = 1,n_roots
+         uu = p*rys.root(k)
+         wt =   rys.weight(k)
+         .make_nuclear_attraction_ints(NAx,1,uu,c(1),.a.l+1,.b.l+1)
+         .make_nuclear_attraction_ints(NAy,2,uu,c(2),.a.l+1,.b.l+1)
+         .make_nuclear_attraction_ints(NAz,3,uu,c(3),.a.l+1,.b.l+1)
+         NAz = NAz*wt
+         .differentiate(NAx,"right",BBx) ! with respect to electron coordinates !
+         .differentiate(NAy,"right",BBy)
+         .differentiate(NAz,"right",BBz)
+         .differentiate(NAx,"left ",AAx) ! with respect to electron coordinates !
+         .differentiate(NAy,"left ",AAy)
+         .differentiate(NAz,"left ",AAz)
+!        The following loops can be simplified by the statement:
+!        Lx = Lx + NAx(ax,bx)*(AAy(ay,by)*BBz(az,bz)-BBy(ay,by)*AAz(az,bz))
+!        Ly = Ly + NAy(ay,by)*(AAz(az,bz)*BBx(ax,bx)-BBz(az,bz)*AAx(ax,bx))
+!        Lz = Lz + NAz(az,bz)*(AAx(ax,bx)*BBy(ay,by)-BBx(ax,bx)*AAy(ay,by))
+         do b=1,n_b
+           bix=bx(b)
+           biy=by(b)
+           biz=bz(b)
+           do a=1,n_a
+             aix=ax(a)
+             aiy=ay(a)
+             aiz=az(a)
+             AAx_ab = AAx(aix,bix)
+             AAy_ab = AAy(aiy,biy)
+             AAz_ab = AAz(aiz,biz)
+             BBx_ab = BBx(aix,bix)
+             BBy_ab = BBy(aiy,biy)
+             BBz_ab = BBz(aiz,biz)
+             Lx(a,b) = Lx(a,b) + NAx(aix,bix)*(AAy_ab*BBz_ab-BBy_ab*AAz_ab)
+             Ly(a,b) = Ly(a,b) + NAy(aiy,biy)*(AAz_ab*BBx_ab-BBz_ab*AAx_ab)
+             Lz(a,b) = Lz(a,b) + NAz(aiz,biz)*(AAx_ab*BBy_ab-BBx_ab*AAy_ab)
+           end
+         end
+      end
+      rys.destroy
+      BBz.destroy; BBy.destroy; BBx.destroy
+      AAz.destroy; AAy.destroy; AAx.destroy
+      NAz.destroy; NAy.destroy; NAx.destroy
+      bz.destroy; by.destroy; bx.destroy
+      az.destroy; ay.destroy; ax.destroy
+      rab = .a.pos - .b.pos
+      prefac = exp(-.a.ex*.b.ex*sum(rab*rab)/p)*pi212/p
+      Lx = prefac*Lx
+      Ly = prefac*Ly
+      Lz = prefac*Lz
+   end
+
+   make_E_field_ints(Ex,Ey,Ez,c)
+   ! Make the electric field integral matrices "Ei" at position "c". If present,
+   ! Uses Rys decomposition of 1/r_c and Gauss-Hermite quadrature.
+      Ex,Ey,Ez :: REALMAT
+       c :: REALVEC(3)
+      Sx,Sy,Sz,Fx,Fy,Fz :: REALMAT*
+      ax,ay,az,bx,by,bz :: INTVEC*
+      rpc,rab :: REALVEC(3)
+      p,xx,uu,wt,prefac :: REAL
+      l_a,l_b,n_a,n_b,n_roots,k,a,b,aix,aiy,aiz,bix,biy,biz :: INT
+      rys :: RYS*
+      l_a = .a.l
+      l_b = .b.l
+      n_a = (l_a+1)*(l_a+2)/2
+      n_b = (l_b+1)*(l_b+2)/2
+      ax.create(n_a); ay.create(n_a); az.create(n_a); l_a.make_gaussian_xyz_indices(ax,ay,az)
+      bx.create(n_b); by.create(n_b); bz.create(n_b); l_b.make_gaussian_xyz_indices(bx,by,bz)
+      Sx.create(l_a+1,l_b+1); Sy.create(l_a+1,l_b+1); Sz.create(l_a+1,l_b+1)
+      Fx.create(l_a+1,l_b+1); Fy.create(l_a+1,l_b+1); Fz.create(l_a+1,l_b+1)
+      n_roots = (l_a+l_b+1)/2 + 1
+      p = .a.ex + .b.ex
+      rpc = (.a.ex*.a.pos + .b.ex*.b.pos)/p - c
+      rys.create(n_roots)
+      xx = p*sum(rpc*rpc)
+      rys.get_weights_and_u_roots(xx)
+      Ex = ZERO; Ey = ZERO; Ez = ZERO
+      do k = 1,n_roots
+         uu = p*rys.root(k)
+         wt =   rys.weight(k)
+         .make_E_field_ints(Sx,Fx,1,uu,c(1))
+         .make_E_field_ints(Sy,Fy,2,uu,c(2))
+         .make_E_field_ints(Sz,Fz,3,uu,c(3))
+         Sz = Sz*wt
+         Fz = Fz*wt
+!        The following loops can be simplified by the statement:
+!        Ex = Ex + Fx(ax,bx)*Sy(ay,by)*Sz(az,bz)
+!        Ey = Ey + Sx(ax,bx)*Fy(ay,by)*Sz(az,bz)
+!        Ez = Ez + Sx(ax,bx)*Sy(ay,by)*Fz(az,bz)
+         do b=1,n_b
+           bix=bx(b)
+           biy=by(b)
+           biz=bz(b)
+           do a=1,n_a
+             aix=ax(a)
+             aiy=ay(a)
+             aiz=az(a)
+             Ex(a,b) = Ex(a,b) + Fx(aix,bix)*Sy(aiy,biy)*Sz(aiz,biz)
+             Ey(a,b) = Ey(a,b) + Sx(aix,bix)*Fy(aiy,biy)*Sz(aiz,biz)
+             Ez(a,b) = Ez(a,b) + Sx(aix,bix)*Sy(aiy,biy)*Fz(aiz,biz)
+           end
+         end
+      end
+      rys.destroy
+      Fz.destroy; Fy.destroy; Fx.destroy
+      Sz.destroy; Sy.destroy; Sx.destroy
+      bz.destroy; by.destroy; bx.destroy
+      az.destroy; ay.destroy; ax.destroy
+      rab = .a.pos - .b.pos
+      prefac = exp(-.a.ex*.b.ex*sum(rab*rab)/p)*pi212/p
+      Ex = prefac*Ex
+      Ey = prefac*Ey
+      Ez = prefac*Ez
+   end
+
+   make_E_field_ints(Sx,Fx,x,uu,cx,max_a,max_b)
+   ! Make the 1-D overlap integrals "Sx", and the electric field integrals "Fx"
+   ! for component "x", for a particular Rys-gaussian with exponent "uu", used
+   ! in the decomposition of (c-r)/|c-r|^3 centred at position "cx". Uses
+   ! Gauss-Hermite quadrature.
+   ! If present, "max_a" and "max_b" indicate the l value to be used for
+   ! gaussian a or b.
+      Sx,Fx :: REALMAT
+       x :: INT
+      uu,cx :: REAL
+      max_a,max_b :: INT, optional
+      p,t,ax,bx,r0,ff,pt,wt,ra,rb,ru :: REAL
+      l_a,l_b,a,b,i,k :: INT
+      l_a = .a.l; if (present(max_a)) l_a = max_a
+      l_b = .b.l; if (present(max_b)) l_b = max_b
+      p = .a.ex + .b.ex + uu
+      t = sqrt(p)
+      ax = .a.pos(x)
+      bx = .b.pos(x)
+      r0 = (.a.ex*ax + .b.ex*bx + uu*cx)/p
+      Sx = ZERO; Fx = ZERO
+      do a = 1,l_a+1
+      do b = 1,l_b+1
+         i = (a+b+1)/2 ! should be max((a+b)/2,1) ?
+         do k = first_pt(i),last_pt(i)
+            pt = gauss_hermite_pt(k)/t + r0
+            ra = pt - ax
+            rb = pt - bx
+            ru = TWO*uu*(cx-pt)
+            ff = ONE
+            if(a>1) ff = ff*ra**(a-1)
+            if(b>1) ff = ff*rb**(b-1)
+            wt = gauss_hermite_wt(k)
+            Sx(a,b) = Sx(a,b) + ff*wt
+            Fx(a,b) = Fx(a,b) + ru*ff*wt
+         end
+      end
+      end
+   end
+
+   make_E_gradient_ints(Exx,Eyy,Ezz,Exy,Exz,Eyz,c)
+   ! Make the electric field gradient integral matrices "Ei" at position "c".
+   ! This does not contain the density contribution from the delta function.
+   ! Uses Rys decomposition of 1/r_c and Gauss-Hermite quadrature.
+      Exx,Eyy,Ezz,Exy,Exz,Eyz :: REALMAT
+      c :: REALVEC(3)
+      Sx,Sy,Sz,Fx,Fy,Fz,Gx,Gy,Gz :: REALMAT*
+      ax,ay,az,bx,by,bz :: INTVEC*
+      rpc,rab :: REALVEC(3)
+      p,xx,uu,wt,prefac :: REAL
+      l_a,l_b,n_a,n_b,n_roots,k,a,b,aix,aiy,aiz,bix,biy,biz :: INT
+      rys :: RYS*
+      l_a = .a.l
+      l_b = .b.l
+      n_a = (l_a+1)*(l_a+2)/2
+      n_b = (l_b+1)*(l_b+2)/2
+      ax.create(n_a); ay.create(n_a); az.create(n_a); l_a.make_gaussian_xyz_indices(ax,ay,az)
+      bx.create(n_b); by.create(n_b); bz.create(n_b); l_b.make_gaussian_xyz_indices(bx,by,bz)
+      Sx.create(l_a+1,l_b+1); Sy.create(l_a+1,l_b+1); Sz.create(l_a+1,l_b+1)
+      Fx.create(l_a+1,l_b+1); Fy.create(l_a+1,l_b+1); Fz.create(l_a+1,l_b+1)
+      Gx.create(l_a+1,l_b+1); Gy.create(l_a+1,l_b+1); Gz.create(l_a+1,l_b+1)
+      n_roots = (l_a+l_b+3)/2
+      p = .a.ex + .b.ex
+      rpc = (.a.ex*.a.pos + .b.ex*.b.pos)/p - c
+      rys.create(n_roots)
+      xx = p*sum(rpc*rpc)
+      rys.get_weights_and_u_roots(xx)
+      Exx = ZERO; Eyy = ZERO; Ezz = ZERO
+      Exy = ZERO; Exz = ZERO; Eyz = ZERO
+      do k = 1,n_roots
+         uu = p*rys.root(k)
+         wt =   rys.weight(k)
+         .make_E_gradient_ints(Sx,Fx,Gx,1,uu,c(1))
+         .make_E_gradient_ints(Sy,Fy,Gy,2,uu,c(2))
+         .make_E_gradient_ints(Sz,Fz,Gz,3,uu,c(3))
+         Sz = Sz*wt
+         Fz = Fz*wt
+         Gz = Gz*wt
+         do b=1,n_b
+           bix=bx(b)
+           biy=by(b)
+           biz=bz(b)
+           do a=1,n_a
+             aix=ax(a)
+             aiy=ay(a)
+             aiz=az(a)
+             Exx(a,b) = Exx(a,b) + Gx(aix,bix)*Sy(aiy,biy)*Sz(aiz,biz)
+             Eyy(a,b) = Eyy(a,b) + Sx(aix,bix)*Gy(aiy,biy)*Sz(aiz,biz)
+             Ezz(a,b) = Ezz(a,b) + Sx(aix,bix)*Sy(aiy,biy)*Gz(aiz,biz)
+             Exy(a,b) = Exy(a,b) + THREE*Fx(aix,bix)*Fy(aiy,biy)*Sz(aiz,biz)
+             Exz(a,b) = Exz(a,b) + THREE*Fx(aix,bix)*Sy(aiy,biy)*Fz(aiz,biz)
+             Eyz(a,b) = Eyz(a,b) + THREE*Sx(aix,bix)*Fy(aiy,biy)*Fz(aiz,biz)
+           end
+         end
+      end
+      rys.destroy
+      Gz.destroy; Gy.destroy; Gx.destroy
+      Fz.destroy; Fy.destroy; Fx.destroy
+      Sz.destroy; Sy.destroy; Sx.destroy
+      bz.destroy; by.destroy; bx.destroy
+      az.destroy; ay.destroy; ax.destroy
+      rab = .a.pos - .b.pos
+      prefac = exp(-.a.ex*.b.ex*sum(rab*rab)/p)*pi212/p
+      Exx = prefac*Exx; Eyy = prefac*Eyy; Ezz = prefac*Ezz
+      Exy = prefac*Exy; Exz = prefac*Exz; Eyz = prefac*Eyz
+   end
+
+   make_E_gradient_ints(Sx,Fx,Gx,x,uu,cx,max_a,max_b)
+   ! Make the 1-D overlap integrals "Sx", and the electric field integrals "Fx",
+   ! and the electric field gradient integral "Gx" for component "x", for a
+   ! particular Rys-gaussian with exponent "uu", used in the decomposition of
+   ! (c-r)/|c-r|^3 centred at position "cx". Uses Gauss-Hermite quadrature.
+   ! If present, "max_a" and "max_b" indicate the l value to be used for
+   ! gaussian a or b.
+      Sx,Fx,Gx :: REALMAT
+       x :: INT
+      uu,cx :: REAL
+      max_a,max_b :: INT, optional
+      p,t,ax,bx,r0,ff,pt,ra,rb,ru,rg :: REAL
+      l_a,l_b,a,b,i,k :: INT
+      l_a = .a.l; if (present(max_a)) l_a = max_a
+      l_b = .b.l; if (present(max_b)) l_b = max_b
+      p = .a.ex + .b.ex + uu
+      t = sqrt(p)
+      ax = .a.pos(x)
+      bx = .b.pos(x)
+      r0 = (.a.ex*ax + .b.ex*bx + uu*cx)/p
+      Sx = ZERO; Fx = ZERO; Gx = ZERO
+      do a = 1,l_a+1
+      do b = 1,l_b+1
+         i = (a+b+2)/2 ! should be max((a+b)/2,1) ?
+         do k = first_pt(i),last_pt(i)
+            pt = gauss_hermite_pt(k)/t + r0
+            ra = pt - ax
+            rb = pt - bx
+            ru =  TWO*uu*(cx-pt)
+            rg = -TWO*uu*(ONE-ru*(cx-pt))
+            ff = gauss_hermite_wt(k)
+            if(a>1) ff = ff*ra**(a-1)
+            if(b>1) ff = ff*rb**(b-1) ! this is \int dx g(a;ax) g(b;bx) e^(-uu*(cx-r)^2)
+            Sx(a,b) = Sx(a,b) + ff    ! integrand = 1
+            Fx(a,b) = Fx(a,b) + ru*ff ! integrand = (cx-r)/|c-r|^3
+            Gx(a,b) = Gx(a,b) + rg*ff ! integrand = 3*(cx-r)^2/|c-r|^5 - 1/|c-r|^3
+         end
+      end
+      end
+   end
+
+   make_spin_orbit_B_ints(Qxx,Qxy,Qxz,Qyx,Qyy,Qyz,Qzx,Qzy,Qzz,c,origin)
+   ! Make gauge modified (B field) spin orbit integral matrices "Qij" around
+   ! nucleus "c".  using gauge origin "origin".  The integrals are:
+   !    Qij(a,b) = <a| (r-o)_i (r-c)_j / |r-c|^3 |b>
+   ! Uses Rys decomposition of 1/|r-c| and Gauss-Hermite quadrature.
+      Qxx,Qxy,Qxz,Qyx,Qyy,Qyz,Qzx,Qzy,Qzz :: REALMAT
+      c,origin :: REALVEC(3)
+      Sx,Sy,Sz,Dx,Dy,Dz,Fx,Fy,Fz,Qx,Qy,Qz :: REALMAT*
+      ax,ay,az,bx,by,bz :: INTVEC*
+      rpc,rab :: REALVEC(3)
+      p,xx,uu,wt,prefac :: REAL
+      n_a,n_b,n_roots,k,a,b,aix,aiy,aiz,bix,biy,biz :: INT
+      rys :: RYS*
+      n_a = (.a.l+1)*(.a.l+2)/2
+      n_b = (.b.l+1)*(.b.l+2)/2
+      ax.create(n_a); ay.create(n_a); az.create(n_a); .a.l.make_gaussian_xyz_indices(ax,ay,az)
+      bx.create(n_b); by.create(n_b); bz.create(n_b); .b.l.make_gaussian_xyz_indices(bx,by,bz)
+      Sx.create(.a.l+1,.b.l+1); Sy.create(.a.l+1,.b.l+1); Sz.create(.a.l+1,.b.l+1)
+      Dx.create(.a.l+1,.b.l+1); Dy.create(.a.l+1,.b.l+1); Dz.create(.a.l+1,.b.l+1)
+      Fx.create(.a.l+1,.b.l+1); Fy.create(.a.l+1,.b.l+1); Fz.create(.a.l+1,.b.l+1)
+      Qx.create(.a.l+1,.b.l+1); Qy.create(.a.l+1,.b.l+1); Qz.create(.a.l+1,.b.l+1)
+      n_roots = (.a.l+.b.l+3)/2
+      p = .a.ex + .b.ex
+      rpc = (.a.ex*.a.pos + .b.ex*.b.pos)/p - c
+      rys.create(n_roots)
+      xx = p*sum(rpc*rpc)
+      rys.get_weights_and_u_roots(xx)
+      Qxx = ZERO; Qyx = ZERO; Qzx = ZERO
+      Qxy = ZERO; Qyy = ZERO; Qzy = ZERO
+      Qxz = ZERO; Qyz = ZERO; Qzz = ZERO
+      do k = 1,n_roots
+         uu = p*rys.root(k)
+         wt =   rys.weight(k)
+         .make_q_field_ints(Sx,Dx,Fx,Qx,1,uu,c(1),origin(1))
+         .make_q_field_ints(Sy,Dy,Fy,Qy,2,uu,c(2),origin(2))
+         .make_q_field_ints(Sz,Dz,Fz,Qz,3,uu,c(3),origin(3))
+         Sz = Sz*wt; Dz = Dz*wt; Fz = Fz*wt; Qz = Qz*wt
+!        The following loops can be simplified by the statements:
+!        Qxx = Qxx + Qx(ax,bx)*Sy(ay,by)*Sz(az,bz)
+!        Qyx = Qyx + Fx(ax,bx)*Dy(ay,by)*Sz(az,bz)
+!        Qzx = Qzx + Fx(ax,bx)*Sy(ay,by)*Dz(az,bz)
+!        Qxy = Qxy + Dx(ax,bx)*Fy(ay,by)*Sz(az,bz)
+!        Qyy = Qyy + Sx(ax,bx)*Qy(ay,by)*Sz(az,bz)
+!        Qzy = Qzy + Sx(ax,bx)*Fy(ay,by)*Dz(az,bz)
+!        Qxz = Qxz + Dx(ax,bx)*Sy(ay,by)*Fz(az,bz)
+!        Qyz = Qyz + Sx(ax,bx)*Dy(ay,by)*Fz(az,bz)
+!        Qzz = Qzz + Sx(ax,bx)*Sy(ay,by)*Qz(az,bz)
+         do b=1,n_b
+           bix=bx(b)
+           biy=by(b)
+           biz=bz(b)
+           do a=1,n_a
+             aix=ax(a)
+             aiy=ay(a)
+             aiz=az(a)
+             Qxx(a,b) = Qxx(a,b) + Qx(aix,bix)*Sy(aiy,biy)*Sz(aiz,biz)
+             Qyx(a,b) = Qyx(a,b) + Fx(aix,bix)*Dy(aiy,biy)*Sz(aiz,biz)
+             Qzx(a,b) = Qzx(a,b) + Fx(aix,bix)*Sy(aiy,biy)*Dz(aiz,biz)
+             Qxy(a,b) = Qxy(a,b) + Dx(aix,bix)*Fy(aiy,biy)*Sz(aiz,biz)
+             Qyy(a,b) = Qyy(a,b) + Sx(aix,bix)*Qy(aiy,biy)*Sz(aiz,biz)
+             Qzy(a,b) = Qzy(a,b) + Sx(aix,bix)*Fy(aiy,biy)*Dz(aiz,biz)
+             Qxz(a,b) = Qxz(a,b) + Dx(aix,bix)*Sy(aiy,biy)*Fz(aiz,biz)
+             Qyz(a,b) = Qyz(a,b) + Sx(aix,bix)*Dy(aiy,biy)*Fz(aiz,biz)
+             Qzz(a,b) = Qzz(a,b) + Sx(aix,bix)*Sy(aiy,biy)*Qz(aiz,biz)
+           end
+         end
+      end
+      rys.destroy
+      Qz.destroy; Qy.destroy; Qx.destroy
+      Fz.destroy; Fy.destroy; Fx.destroy
+      Dz.destroy; Dy.destroy; Dx.destroy
+      Sz.destroy; Sy.destroy; Sx.destroy
+      bz.destroy; by.destroy; bx.destroy
+      az.destroy; ay.destroy; ax.destroy
+      rab = .a.pos - .b.pos
+      prefac = exp(-.a.ex*.b.ex*sum(rab*rab)/p)*pi212/p
+      Qxx = prefac*Qxx; Qyx = prefac*Qyx; Qzx = prefac*Qzx
+      Qxy = prefac*Qxy; Qyy = prefac*Qyy; Qzy = prefac*Qzy
+      Qxz = prefac*Qxz; Qyz = prefac*Qyz; Qzz = prefac*Qzz
+   end
+
+   make_q_field_ints(Sx,Dx,Fx,Qx,x,uu,cx,ox,max_a,max_b)
+   ! Make the 1-D overlap integrals "Sx", dipole integrals "Dx", electric field
+   ! integrals "Fx", and the dipole-electric field integrals "Qx" for component
+   ! "x". "uu" is the Rys-gaussian exponent used in the decomposition of
+   ! (c-r)/|c-r|^3 centred at position "cx".
+   ! "ox" is the origin for the dipole terms. If present, "max_a" and "max_b"
+   ! override the l value for gaussian a or b. Uses Gauss-Hermite quadrature.
+      Sx,Dx,Fx,Qx :: REALMAT
+       x :: INT
+      uu,cx,ox :: REAL
+      max_a,max_b :: INT, optional
+      p,t,ax,bx,r0,wt,pt,ra,rb,ru,rd :: REAL
+      l_a,l_b,a,b,i,k :: INT
+      l_a = .a.l; if (present(max_a)) l_a = max_a
+      l_b = .b.l; if (present(max_b)) l_b = max_b
+      p = .a.ex + .b.ex + uu
+      t = sqrt(p)
+      ax = .a.pos(x)
+      bx = .b.pos(x)
+      r0 = (.a.ex*ax + .b.ex*bx + uu*cx)/p
+      Sx = ZERO; Dx = ZERO; Fx = ZERO; Qx = ZERO
+      do a = 1,l_a+1
+      do b = 1,l_b+1
+         i = (a+b+2)/2 ! should be max((a+b+1)/2,1) ?
+         do k = first_pt(i),last_pt(i)
+            wt = gauss_hermite_wt(k)
+            pt = gauss_hermite_pt(k)/t + r0
+            ra = pt - ax
+            rb = pt - bx
+            ru = TWO*uu*(cx-pt)
+            rd = pt - ox
+            if(a>1) wt = wt*ra**(a-1)
+            if(b>1) wt = wt*rb**(b-1)
+            Sx(a,b) = Sx(a,b) + wt
+            Dx(a,b) = Dx(a,b) + rd*wt
+            Fx(a,b) = Fx(a,b) + ru*wt
+            Qx(a,b) = Qx(a,b) + ru*rd*wt
+         end
+      end
+      end
+   end
+
+   make_L_ints(Lx,Ly,Lz,origin)
+   ! Make the angular momentum integral matrices "Lx", "Ly", and "Lz".
+   ! The integrals are for (r x nabla) with *no* minus sign on nabla.
+   ! "origin" is the gauge origin for the integrals.
+   ! Uses Gauss-Hermite quadrature.
+      Lx,Ly,Lz :: REALMAT
+      origin :: REALVEC(3)
+      Sx,Sy,Sz,Rx,Ry,Rz,Dx,Dy,Dz :: REALMAT*
+      ax,ay,az,bx,by,bz :: INTVEC*
+      rab :: REALVEC(3)
+      p,prefac :: REAL
+      n_a,n_b,a,b,aix,aiy,aiz,bix,biy,biz :: INT
+      Dx_ab,Dy_ab,Dz_ab,Rx_ab,Ry_ab,Rz_ab :: REAL
+      n_a = (.a.l+1)*(.a.l+2)/2
+      n_b = (.b.l+1)*(.b.l+2)/2
+      ax.create(n_a); ay.create(n_a); az.create(n_a); .a.l.make_gaussian_xyz_indices(ax,ay,az)
+      bx.create(n_b); by.create(n_b); bz.create(n_b); .b.l.make_gaussian_xyz_indices(bx,by,bz)
+      Sx.create(.a.l+1,.b.l+2); Sy.create(.a.l+1,.b.l+2); Sz.create(.a.l+1,.b.l+2)
+      Rx.create(.a.l+1,.b.l+2); Ry.create(.a.l+1,.b.l+2); Rz.create(.a.l+1,.b.l+2)
+      Dx.create(.a.l+1,.b.l+1); Dy.create(.a.l+1,.b.l+1); Dz.create(.a.l+1,.b.l+1)
+      .make_dipole_ints(Sx,Rx,1,origin(1),max_b=.b.l+1)
+      .make_dipole_ints(Sy,Ry,2,origin(2),max_b=.b.l+1)
+      .make_dipole_ints(Sz,Rz,3,origin(3),max_b=.b.l+1)
+      .differentiate(Sx,"right",Dx)
+      .differentiate(Sy,"right",Dy)
+      .differentiate(Sz,"right",Dz)
+      do b=1,n_b
+        bix=bx(b)
+        biy=by(b)
+        biz=bz(b)
+        do a=1,n_a
+          aix=ax(a)
+          aiy=ay(a)
+          aiz=az(a)
+          Dx_ab = Dx(aix,bix)
+          Dy_ab = Dx(aiy,biy)
+          Dz_ab = Dx(aiz,biz)
+          Rx_ab = Rx(aix,bix)
+          Ry_ab = Rx(aiy,biy)
+          Rz_ab = Rx(aiz,biz)
+          Lx(a,b) = Sx(aix,bix)*(Ry_ab*Dz_ab-Dy_ab*Rz_ab)
+          Ly(a,b) = Sy(aiy,biy)*(Rz_ab*Dx_ab-Dz_ab*Rx_ab)
+          Lz(a,b) = Sz(aiz,biz)*(Rx_ab*Dy_ab-Dx_ab*Ry_ab)
+!      Lx = Sx(ax,bx)*(Ry(ay,by)*Dz(az,bz)-Dy(ay,by)*Rz(az,bz))
+!      Ly = Sy(ay,by)*(Rz(az,bz)*Dx(ax,bx)-Dz(az,bz)*Rx(ax,bx))
+!      Lz = Sz(az,bz)*(Rx(ax,bx)*Dy(ay,by)-Dx(ax,bx)*Ry(ay,by))
+        end
+      end
+      Dz.destroy; Dy.destroy; Dx.destroy
+      Rz.destroy; Ry.destroy; Rx.destroy
+      Sz.destroy; Sy.destroy; Sx.destroy
+      bz.destroy; by.destroy; bx.destroy
+      az.destroy; ay.destroy; ax.destroy
+      p = .a.ex + .b.ex
+      rab = .a.pos - .b.pos
+      prefac = exp(-.a.ex*.b.ex*sum(rab*rab)/p)/(p*sqrt(p))
+      Lx = prefac*Lx
+      Ly = prefac*Ly
+      Lz = prefac*Lz
+   end
+
+   differentiate(I,index,D)
+   ! Differentiate a gaussian-integral matrix "I" with respect to the
+   ! *electron* coordinate on basis function "index", which can be "left"
+   ! or "right". Place the result in "D".
+      I,D :: REALMAT
+      index :: STR(*)
+      i_a,i_b,d_a,d_b,a,b :: INT
+      a2,b2 :: REAL
+      i_a = ubound(I,1); i_b = ubound(I,2)
+      d_a = ubound(D,1); d_b = ubound(D,2)
+      D = ZERO
+      select case (index)
+         case("l","left")
+            ENSURE(i_a>1,   "I array too small to differentiate")
+            ENSURE(i_a>d_a, "I and D arrays are incompatible")
+            ENSURE(i_b>=d_b,"I and D arrays are incompatible")
+            a2 = TWO*.a.ex
+            D(1,:) = -a2*I(2  ,1:d_b)
+            do a = 2,d_a
+            D(a,:) = -a2*I(a+1,1:d_b) + (a-1)*I(a-1,1:d_b)
+            end
+         case("r","right")
+            ENSURE(i_b>1,   "I array too small to differentiate")
+            ENSURE(i_b>d_b, "I and D arrays are incompatible")
+            ENSURE(i_a>=d_a,"I and D arrays are incompatible")
+            b2 = TWO*.b.ex
+            D(:,1) = -b2*I(1:d_a,2  )
+            do b = 2,d_b
+            D(:,b) = -b2*I(1:d_a,b+1) + (b-1)*I(1:d_a,b-1)
+            end
+      end
+   end
+
+   make_magnetic_jp_ints(Jx,Jy,Jz,c)
+   ! Make the magnetic Jp integrals "Ji", evaluated at point "c",
+   !    <a|J(c)|b> = \int dr [g_a grad g_b - g_b grad g_a] x (c - r)/ |c - r|^3
+   ! These are used to get the magnetic field from the paramegnetic current
+   ! density,
+   !      B(c) = ( mu_o / 4 pi ) \int dr J(r) x (c - r)/|c - r|^3
+   ! Note: in atomic units mu_o = 4 pi / c^2.
+   ! Uses a double quadrature based on Rys method and Gauss-Hermite quadrature.
+      Jx,Jy,Jz :: REALMAT
+       c :: REALVEC(3)
+      Sx00,Sy00,Sz00,Sx10,Sy10,Sz10,Sx01,Sy01,Sz01,Sxmm,Symm,Szmm :: REALMAT*
+      Fx00,Fy00,Fz00 :: REALMAT*
+      ax,ay,az,bx,by,bz :: INTVEC*
+      rpc,rab :: REALVEC(3)
+      p,xx,uu,wt,prefac :: REAL
+      n_a,n_b,n_roots,k,a,b,aix,aiy,aiz,bix,biy,biz :: INT
+      rys :: RYS*
+      n_a = (.a.l+1)*(.a.l+2)/2
+      n_b = (.b.l+1)*(.b.l+2)/2
+      ax.create(n_a); ay.create(n_a); az.create(n_a); .a.l.make_gaussian_xyz_indices(ax,ay,az)
+      bx.create(n_b); by.create(n_b); bz.create(n_b); .b.l.make_gaussian_xyz_indices(bx,by,bz)
+      Sx00.create(.a.l+2,.b.l+2); Sy00.create(.a.l+2,.b.l+2); Sz00.create(.a.l+2,.b.l+2)
+      Sx10.create(.a.l+1,.b.l+1); Sy10.create(.a.l+1,.b.l+1); Sz10.create(.a.l+1,.b.l+1)
+      Sx01.create(.a.l+1,.b.l+1); Sy01.create(.a.l+1,.b.l+1); Sz01.create(.a.l+1,.b.l+1)
+      Sxmm.create(.a.l+1,.b.l+1); Symm.create(.a.l+1,.b.l+1); Szmm.create(.a.l+1,.b.l+1)
+      Fx00.create(.a.l+2,.b.l+2); Fy00.create(.a.l+2,.b.l+2); Fz00.create(.a.l+2,.b.l+2)
+      p = .a.ex + .b.ex
+      rpc = (.a.ex*.a.pos + .b.ex*.b.pos)/p - c
+      n_roots = (.a.l+.b.l+1)/2 + 1
+      rys.create(n_roots)
+      xx = p*sum(rpc*rpc)
+      rys.get_weights_and_u_roots(xx)
+      Jx = ZERO; Jy = ZERO; Jz = ZERO
+      do k = 1,n_roots
+         uu = p*rys.root(k)
+         wt =   rys.weight(k)
+         .make_E_field_ints(Sx00,Fx00,1,uu,c(1),.a.l+1,.b.l+1)
+         .make_E_field_ints(Sy00,Fy00,2,uu,c(2),.a.l+1,.b.l+1)
+         .make_E_field_ints(Sz00,Fz00,3,uu,c(3),.a.l+1,.b.l+1)
+         Sz00 =  Sz00*wt
+         Fz00 =  Fz00*wt
+         .differentiate(Sx00,"left",Sx10); .differentiate(Sx00,"right",Sx01)
+         .differentiate(Sy00,"left",Sy10); .differentiate(Sy00,"right",Sy01)
+         .differentiate(Sz00,"left",Sz10); .differentiate(Sz00,"right",Sz01)
+         Sxmm = Sx01 - Sx10
+         Symm = Sy01 - Sy10
+         Szmm = Sz01 - Sz10
+         do b=1,n_b
+           bix=bx(b)
+           biy=by(b)
+           biz=bz(b)
+           do a=1,n_a
+             aix=ax(a)
+             aiy=ay(a)
+             aiz=az(a)
+             Jx(a,b) = Jx(a,b) + Sx00(aix,bix) * &
+                     (Symm(aiy,biy)*Fz00(aiz,biz) - Fy00(aiy,biy)*Szmm(aiz,biz))
+             Jy(a,b) = Jy(a,b) + Sy00(aiy,biy) * &
+                     (Fx00(aix,bix)*Szmm(aiz,biz) - Sxmm(aix,bix)*Fz00(aiz,biz))
+             Jz(a,b) = Jz(a,b) + Sz00(aiz,biz) * &
+                     (Sxmm(aix,bix)*Fy00(aiy,biy) - Fx00(aix,bix)*Symm(aiy,biy))
+           end
+         end
+!         Jx = Jx + Sx00(ax,bx)*Symm(ay,by)*Fz00(az,bz) &
+!                 - Sx00(ax,bx)*Fy00(ay,by)*Szmm(az,bz)
+!         Jy = Jy + Fx00(ax,bx)*Sy00(ay,by)*Szmm(az,bz) &
+!                 - Sxmm(ax,bx)*Sy00(ay,by)*Fz00(az,bz)
+!         Jz = Jz + Sxmm(ax,bx)*Fy00(ay,by)*Sz00(az,bz) &
+!                 - Fx00(ax,bx)*Symm(ay,by)*Sz00(az,bz)
+      end
+      rys.destroy
+      Fz00.destroy; Fy00.destroy; Fx00.destroy
+      Szmm.destroy; Symm.destroy; Sxmm.destroy
+      Sz01.destroy; Sy01.destroy; Sx01.destroy
+      Sz10.destroy; Sy10.destroy; Sx10.destroy
+      Sz00.destroy; Sy00.destroy; Sx00.destroy
+      bz.destroy; by.destroy; bx.destroy
+      az.destroy; ay.destroy; ax.destroy
+      rab = .a.pos - .b.pos
+      prefac = exp(-.a.ex*.b.ex*sum(rab*rab)/p)*pi212/p
+      Jx = prefac*Jx
+      Jy = prefac*Jy
+      Jz = prefac*Jz
+   end
+
+   make_magnetic_S_ints(Mxx,Mxy,Mxz,Myx,Myy,Myz,Mzx,Mzy,Mzz,c)
+   ! Make the magnetic spin density integrals "Mij", evaluated at point "c",
+   !    <a|Mij(c)|b> = \int dr grad_i ( g_a(r) g_b(r) ) (c - r)_j/ |c - r|^3
+   ! These are used to get the magnetic field from the spin density,
+   !      B(c) = -(g mu_b mu_o / 4 pi)
+   !             \int dr curl rho_spin(r) x (c - r)/|c - r|3
+   ! Note: in atomic units mu_o = 4 pi / c^2.
+   ! Uses a double quadrature based on Rys method and Gauss-Hermite quadrature.
+      Mxx,Mxy,Mxz,Myx,Myy,Myz,Mzx,Mzy,Mzz :: REALMAT
+      c :: REALVEC(3)
+      Sx00,Sy00,Sz00,Sx10,Sy10,Sz10,Sx01,Sy01,Sz01,Sxpp,Sypp,Szpp :: REALMAT*
+      Fx00,Fy00,Fz00,Fx10,Fy10,Fz10,Fx01,Fy01,Fz01,Fxpp,Fypp,Fzpp :: REALMAT*
+      ax,ay,az,bx,by,bz :: INTVEC*
+      rpc,rab :: REALVEC(3)
+      p,xx,uu,wt,prefac :: REAL
+      n_a,n_b,n_roots,k :: INT
+      rys :: RYS*
+      n_a = (.a.l+1)*(.a.l+2)/2
+      n_b = (.b.l+1)*(.b.l+2)/2
+      ax.create(n_a); ay.create(n_a); az.create(n_a); .a.l.make_gaussian_xyz_indices(ax,ay,az)
+      bx.create(n_b); by.create(n_b); bz.create(n_b); .b.l.make_gaussian_xyz_indices(bx,by,bz)
+      Sx00.create(.a.l+2,.b.l+2); Sy00.create(.a.l+2,.b.l+2); Sz00.create(.a.l+2,.b.l+2)
+      Sx10.create(.a.l+1,.b.l+1); Sy10.create(.a.l+1,.b.l+1); Sz10.create(.a.l+1,.b.l+1)
+      Sx01.create(.a.l+1,.b.l+1); Sy01.create(.a.l+1,.b.l+1); Sz01.create(.a.l+1,.b.l+1)
+      Sxpp.create(.a.l+1,.b.l+1); Sypp.create(.a.l+1,.b.l+1); Szpp.create(.a.l+1,.b.l+1)
+      Fx00.create(.a.l+2,.b.l+2); Fy00.create(.a.l+2,.b.l+2); Fz00.create(.a.l+2,.b.l+2)
+      Fx10.create(.a.l+1,.b.l+1); Fy10.create(.a.l+1,.b.l+1); Fz10.create(.a.l+1,.b.l+1)
+      Fx01.create(.a.l+1,.b.l+1); Fy01.create(.a.l+1,.b.l+1); Fz01.create(.a.l+1,.b.l+1)
+      Fxpp.create(.a.l+1,.b.l+1); Fypp.create(.a.l+1,.b.l+1); Fzpp.create(.a.l+1,.b.l+1)
+      p = .a.ex + .b.ex
+      rpc = (.a.ex*.a.pos + .b.ex*.b.pos)/p - c
+      n_roots = (.a.l+.b.l+2)/2 + 1
+      rys.create(n_roots)
+      xx = p*sum(rpc*rpc)
+      rys.get_weights_and_u_roots(xx)
+      Mxx = ZERO; Mxy = ZERO; Mxz = ZERO
+      Myx = ZERO; Myy = ZERO; Myz = ZERO
+      Mzx = ZERO; Mzy = ZERO; Mzz = ZERO
+      do k = 1,n_roots
+         uu = p*rys.root(k)
+         wt =   rys.weight(k)
+         .make_E_field_ints(Sx00,Fx00,1,uu,c(1),.a.l+1,.b.l+1)
+         .make_E_field_ints(Sy00,Fy00,2,uu,c(2),.a.l+1,.b.l+1)
+         .make_E_field_ints(Sz00,Fz00,3,uu,c(3),.a.l+1,.b.l+1)
+         Sz00 =  Sz00*wt
+         Fz00 =  Fz00*wt
+         .differentiate(Sx00,"left",Sx10); .differentiate(Sx00,"right",Sx01)
+         .differentiate(Sy00,"left",Sy10); .differentiate(Sy00,"right",Sy01)
+         .differentiate(Sz00,"left",Sz10); .differentiate(Sz00,"right",Sz01)
+         .differentiate(Fx00,"left",Fx10); .differentiate(Fx00,"right",Fx01)
+         .differentiate(Fy00,"left",Fy10); .differentiate(Fy00,"right",Fy01)
+         .differentiate(Fz00,"left",Fz10); .differentiate(Fz00,"right",Fz01)
+         Sxpp = Sx01 + Sx10
+         Sypp = Sy01 + Sy10
+         Szpp = Sz01 + Sz10
+         Fxpp = Fx01 + Fx10
+         Fypp = Fy01 + Fy10
+         Fzpp = Fz01 + Fz10
+         Mxx = Mxx + Fxpp(ax,bx)*Sy00(ay,by)*Sz00(az,bz) ! x has pp
+         Mxy = Mxy + Sxpp(ax,bx)*Fy00(ay,by)*Sz00(az,bz)
+         Mxz = Mxz + Sxpp(ax,bx)*Sy00(ay,by)*Fz00(az,bz)
+         Myx = Myx + Fx00(ax,bx)*Sypp(ay,by)*Sz00(az,bz) ! y has pp
+         Myy = Myy + Sx00(ax,bx)*Fypp(ay,by)*Sz00(az,bz)
+         Myz = Myz + Sx00(ax,bx)*Sypp(ay,by)*Fz00(az,bz)
+         Mzx = Mzx + Fx00(ax,bx)*Sy00(ay,by)*Szpp(az,bz) ! z has pp
+         Mzy = Mzy + Sx00(ax,bx)*Fy00(ay,by)*Szpp(az,bz)
+         Mzz = Mzz + Sx00(ax,bx)*Sy00(ay,by)*Fzpp(az,bz)
+      end
+      rys.destroy
+      Fzpp.destroy; Fypp.destroy; Fxpp.destroy
+      Fz01.destroy; Fy01.destroy; Fx01.destroy
+      Fz10.destroy; Fy10.destroy; Fx10.destroy
+      Fz00.destroy; Fy00.destroy; Fx00.destroy
+      Szpp.destroy; Sypp.destroy; Sxpp.destroy
+      Sz01.destroy; Sy01.destroy; Sx01.destroy
+      Sz10.destroy; Sy10.destroy; Sx10.destroy
+      Sz00.destroy; Sy00.destroy; Sx00.destroy
+      bz.destroy; by.destroy; bx.destroy
+      az.destroy; ay.destroy; ax.destroy
+      rab = .a.pos - .b.pos
+      prefac = exp(-.a.ex*.b.ex*sum(rab*rab)/p)*pi212/p
+      Mxx = prefac*Mxx; Mxy = prefac*Mxy; Mxz = prefac*Mxz
+      Myx = prefac*Myx; Myy = prefac*Myy; Myz = prefac*Myz
+      Mzx = prefac*Mzx; Mzy = prefac*Mzy; Mzz = prefac*Mzz
+   end
+
+   make_magnetic_S_ints(M,c)
+   ! Make the magnetic spin density integrals "Mij", evaluated at point "c",
+   !    <a|Mij(c)|b> = \int dr grad_i ( g_a(r) g_b(r) ) (c - r)_j/ |c - r|^3
+   ! These are used to get the magnetic field from the spin density,
+   !      B(c) = -(g mu_b mu_o / 4 pi)
+   !             \int dr curl rho_spin(r) x (c - r)/|c - r|3
+   ! Note: in atomic units mu_o = 4 pi / c^2.
+   ! Uses a double quadrature based on Rys method and Gauss-Hermite quadrature.
+      M :: REALMAT4
+      c :: REALVEC(3)
+      Sx00,Sy00,Sz00,Sx10,Sy10,Sz10,Sx01,Sy01,Sz01,Sxpp,Sypp,Szpp :: REALMAT*
+      Fx00,Fy00,Fz00,Fx10,Fy10,Fz10,Fx01,Fy01,Fz01,Fxpp,Fypp,Fzpp :: REALMAT*
+      ax,ay,az,bx,by,bz :: INTVEC*
+      rpc,rab :: REALVEC(3)
+      p,xx,uu,wt,prefac :: REAL
+      n_a,n_b,n_roots,k :: INT
+      rys :: RYS*
+      n_a = (.a.l+1)*(.a.l+2)/2
+      n_b = (.b.l+1)*(.b.l+2)/2
+      ax.create(n_a); ay.create(n_a); az.create(n_a); .a.l.make_gaussian_xyz_indices(ax,ay,az)
+      bx.create(n_b); by.create(n_b); bz.create(n_b); .b.l.make_gaussian_xyz_indices(bx,by,bz)
+      Sx00.create(.a.l+2,.b.l+2); Sy00.create(.a.l+2,.b.l+2); Sz00.create(.a.l+2,.b.l+2)
+      Sx10.create(.a.l+1,.b.l+1); Sy10.create(.a.l+1,.b.l+1); Sz10.create(.a.l+1,.b.l+1)
+      Sx01.create(.a.l+1,.b.l+1); Sy01.create(.a.l+1,.b.l+1); Sz01.create(.a.l+1,.b.l+1)
+      Sxpp.create(.a.l+1,.b.l+1); Sypp.create(.a.l+1,.b.l+1); Szpp.create(.a.l+1,.b.l+1)
+      Fx00.create(.a.l+2,.b.l+2); Fy00.create(.a.l+2,.b.l+2); Fz00.create(.a.l+2,.b.l+2)
+      Fx10.create(.a.l+1,.b.l+1); Fy10.create(.a.l+1,.b.l+1); Fz10.create(.a.l+1,.b.l+1)
+      Fx01.create(.a.l+1,.b.l+1); Fy01.create(.a.l+1,.b.l+1); Fz01.create(.a.l+1,.b.l+1)
+      Fxpp.create(.a.l+1,.b.l+1); Fypp.create(.a.l+1,.b.l+1); Fzpp.create(.a.l+1,.b.l+1)
+      p = .a.ex + .b.ex
+      rpc = (.a.ex*.a.pos + .b.ex*.b.pos)/p - c
+      n_roots = (.a.l+.b.l+2)/2 + 1
+      rys.create(n_roots)
+      xx = p*sum(rpc*rpc)
+      rys.get_weights_and_u_roots(xx)
+      M = ZERO
+      do k = 1,n_roots
+         uu = p*rys.root(k)
+         wt =   rys.weight(k)
+         .make_E_field_ints(Sx00,Fx00,1,uu,c(1),.a.l+1,.b.l+1)
+         .make_E_field_ints(Sy00,Fy00,2,uu,c(2),.a.l+1,.b.l+1)
+         .make_E_field_ints(Sz00,Fz00,3,uu,c(3),.a.l+1,.b.l+1)
+         Sz00 =  Sz00*wt
+         Fz00 =  Fz00*wt
+         .differentiate(Sx00,"left",Sx10); .differentiate(Sx00,"right",Sx01)
+         .differentiate(Sy00,"left",Sy10); .differentiate(Sy00,"right",Sy01)
+         .differentiate(Sz00,"left",Sz10); .differentiate(Sz00,"right",Sz01)
+         .differentiate(Fx00,"left",Fx10); .differentiate(Fx00,"right",Fx01)
+         .differentiate(Fy00,"left",Fy10); .differentiate(Fy00,"right",Fy01)
+         .differentiate(Fz00,"left",Fz10); .differentiate(Fz00,"right",Fz01)
+         Sxpp = Sx01 + Sx10
+         Sypp = Sy01 + Sy10
+         Szpp = Sz01 + Sz10
+         Fxpp = Fx01 + Fx10
+         Fypp = Fy01 + Fy10
+         Fzpp = Fz01 + Fz10
+         M(:,:,1,1) = M(:,:,1,1) + Fxpp(ax,bx)*Sy00(ay,by)*Sz00(az,bz) ! x has pp
+         M(:,:,1,2) = M(:,:,1,2) + Sxpp(ax,bx)*Fy00(ay,by)*Sz00(az,bz)
+         M(:,:,1,3) = M(:,:,1,2) + Sxpp(ax,bx)*Sy00(ay,by)*Fz00(az,bz)
+         M(:,:,2,1) = M(:,:,2,1) + Fx00(ax,bx)*Sypp(ay,by)*Sz00(az,bz) ! y has pp
+         M(:,:,2,2) = M(:,:,2,2) + Sx00(ax,bx)*Fypp(ay,by)*Sz00(az,bz)
+         M(:,:,2,3) = M(:,:,2,3) + Sx00(ax,bx)*Sypp(ay,by)*Fz00(az,bz)
+         M(:,:,3,1) = M(:,:,3,1) + Fx00(ax,bx)*Sy00(ay,by)*Szpp(az,bz) ! z has pp
+         M(:,:,3,2) = M(:,:,3,2) + Sx00(ax,bx)*Fy00(ay,by)*Szpp(az,bz)
+         M(:,:,3,3) = M(:,:,3,3) + Sx00(ax,bx)*Sy00(ay,by)*Fzpp(az,bz)
+      end
+      rys.destroy
+      Fzpp.destroy; Fypp.destroy; Fxpp.destroy
+      Fz01.destroy; Fy01.destroy; Fx01.destroy
+      Fz10.destroy; Fy10.destroy; Fx10.destroy
+      Fz00.destroy; Fy00.destroy; Fx00.destroy
+      Szpp.destroy; Sypp.destroy; Sxpp.destroy
+      Sz01.destroy; Sy01.destroy; Sx01.destroy
+      Sz10.destroy; Sy10.destroy; Sx10.destroy
+      Sz00.destroy; Sy00.destroy; Sx00.destroy
+      bz.destroy; by.destroy; bx.destroy
+      az.destroy; ay.destroy; ax.destroy
+      rab = .a.pos - .b.pos
+      prefac = exp(-.a.ex*.b.ex*sum(rab*rab)/p)*pi212/p
+      M = prefac*M
+   end
+
+   make_solenoidal_jp_ints(Jx,Jy,Jz,c)
+   ! Make the solenoidal Jp integrals "Ji", evaluated at point "c",
+   !    <a|J(c)|b> = (1/8 PI) \int dr curl [g_a grad g_b - g_b grad g_a] x (c - r)/ |c - r|^3
+   ! Uses a double quadrature based on Rys method and Gauss-Hermite quadrature.
+      Jx,Jy,Jz :: REALMAT
+      c :: REALVEC(3)
+      Sx00,Sy00,Sz00,Sx10,Sy10,Sz10,Sx01,Sy01,Sz01,Sxpp,Sypp,Szpp,Sxmm,Symm,Szmm :: REALMAT*
+      Fx00,Fy00,Fz00,Fx10,Fy10,Fz10,Fx01,Fy01,Fz01,Fxpp,Fypp,Fzpp,Fxmm,Fymm,Fzmm :: REALMAT*
+      ax,ay,az,bx,by,bz :: INTVEC*
+      rpc,rab :: REALVEC(3)
+      p,xx,uu,wt,prefac :: REAL
+      n_a,n_b,n_roots,k,a,b,aix,aiy,aiz,bix,biy,biz :: INT
+      Sx00_ab,Sy00_ab,Sz00_ab,Sxpp_ab,Sypp_ab,Szpp_ab :: REAL
+      Fxpp_ab,Fypp_ab,Fzpp_ab :: REAL
+      Sxmm_ab,Symm_ab,Szmm_ab,Fxmm_ab,Fymm_ab,Fzmm_ab :: REAL
+      rys :: RYS*
+      n_a = (.a.l+1)*(.a.l+2)/2
+      n_b = (.b.l+1)*(.b.l+2)/2
+      ax.create(n_a); ay.create(n_a); az.create(n_a); .a.l.make_gaussian_xyz_indices(ax,ay,az)
+      bx.create(n_b); by.create(n_b); bz.create(n_b); .b.l.make_gaussian_xyz_indices(bx,by,bz)
+      Sx00.create(.a.l+2,.b.l+2); Sy00.create(.a.l+2,.b.l+2); Sz00.create(.a.l+2,.b.l+2)
+      Sx10.create(.a.l+1,.b.l+1); Sy10.create(.a.l+1,.b.l+1); Sz10.create(.a.l+1,.b.l+1)
+      Sx01.create(.a.l+1,.b.l+1); Sy01.create(.a.l+1,.b.l+1); Sz01.create(.a.l+1,.b.l+1)
+      Sxpp.create(.a.l+1,.b.l+1); Sypp.create(.a.l+1,.b.l+1); Szpp.create(.a.l+1,.b.l+1)
+      Sxmm.create(.a.l+1,.b.l+1); Symm.create(.a.l+1,.b.l+1); Szmm.create(.a.l+1,.b.l+1)
+      Fx00.create(.a.l+2,.b.l+2); Fy00.create(.a.l+2,.b.l+2); Fz00.create(.a.l+2,.b.l+2)
+      Fx10.create(.a.l+1,.b.l+1); Fy10.create(.a.l+1,.b.l+1); Fz10.create(.a.l+1,.b.l+1)
+      Fx01.create(.a.l+1,.b.l+1); Fy01.create(.a.l+1,.b.l+1); Fz01.create(.a.l+1,.b.l+1)
+      Fxpp.create(.a.l+1,.b.l+1); Fypp.create(.a.l+1,.b.l+1); Fzpp.create(.a.l+1,.b.l+1)
+      Fxmm.create(.a.l+1,.b.l+1); Fymm.create(.a.l+1,.b.l+1); Fzmm.create(.a.l+1,.b.l+1)
+      p = .a.ex + .b.ex
+      rpc = (.a.ex*.a.pos + .b.ex*.b.pos)/p - c
+      n_roots = (.a.l+.b.l+2)/2 + 1
+      rys.create(n_roots)
+      xx = p*sum(rpc*rpc)
+      rys.get_weights_and_u_roots(xx)
+      Jx = ZERO; Jy = ZERO; Jz = ZERO
+      do k = 1,n_roots
+         uu = p*rys.root(k)
+         wt =   rys.weight(k)
+         .make_E_field_ints(Sx00,Fx00,1,uu,c(1),.a.l+1,.b.l+1)
+         .make_E_field_ints(Sy00,Fy00,2,uu,c(2),.a.l+1,.b.l+1)
+         .make_E_field_ints(Sz00,Fz00,3,uu,c(3),.a.l+1,.b.l+1)
+         Sz00 =  Sz00*wt
+         Fz00 =  Fz00*wt
+         .differentiate(Sx00,"left",Sx10); .differentiate(Sx00,"right",Sx01)
+         .differentiate(Sy00,"left",Sy10); .differentiate(Sy00,"right",Sy01)
+         .differentiate(Sz00,"left",Sz10); .differentiate(Sz00,"right",Sz01)
+         .differentiate(Fx00,"left",Fx10); .differentiate(Fx00,"right",Fx01)
+         .differentiate(Fy00,"left",Fy10); .differentiate(Fy00,"right",Fy01)
+         .differentiate(Fz00,"left",Fz10); .differentiate(Fz00,"right",Fz01)
+         Sxpp = Sx01 + Sx10; Sxmm = Sx01 - Sx10
+         Sypp = Sy01 + Sy10; Symm = Sy01 - Sy10
+         Szpp = Sz01 + Sz10; Szmm = Sz01 - Sz10
+         Fxpp = Fx01 + Fx10; Fxmm = Fx01 - Fx10
+         Fypp = Fy01 + Fy10; Fymm = Fy01 - Fy10
+         Fzpp = Fz01 + Fz10; Fzmm = Fz01 - Fz10
+         do b=1,n_b
+           bix=bx(b)
+           biy=by(b)
+           biz=bz(b)
+           do a=1,n_a
+             aix=ax(a)
+             aiy=ay(a)
+             aiz=az(a)
+             Sx00_ab = Sx00(aix,bix)
+             Sy00_ab = Sy00(aiy,biy)
+             Sz00_ab = Sz00(aiz,biz)
+             Sxpp_ab = Sxpp(aix,bix)
+             Sypp_ab = Sypp(aiy,biy)
+             Szpp_ab = Szpp(aiz,biz)
+             Fxpp_ab = Fxpp(aix,bix)
+             Fypp_ab = Fypp(aiy,biy)
+             Fzpp_ab = Fzpp(aiz,biz)
+             Sxmm_ab = Sxmm(aix,bix)
+             Symm_ab = Symm(aiy,biy)
+             Szmm_ab = Szmm(aiz,biz)
+             Fxmm_ab = Fxmm(aix,bix)
+             Fymm_ab = Fymm(aiy,biy)
+             Fzmm_ab = Fzmm(aiz,biz)
+             Jx(a,b) = Jx(a,b) &
+                + Sxmm_ab*Sy00_ab*Fzpp_ab &
+                - Sxpp_ab*Sy00_ab*Fzmm_ab &
+                - Sxpp_ab*Fymm_ab*Sz00_ab &
+                + Sxmm_ab*Fypp_ab*Sz00_ab
+             Jy(a,b) = Jy(a,b) &
+                + Fxpp_ab*Symm_ab*Sz00_ab &
+                - Fxmm_ab*Sypp_ab*Sz00_ab &
+                - Sx00_ab*Sypp_ab*Fzmm_ab &
+                + Sx00_ab*Symm_ab*Fzpp_ab
+             Jz(a,b) = Jz(a,b) &
+                + Sx00_ab*Fypp_ab*Szmm_ab &
+                - Sx00_ab*Fymm_ab*Szpp_ab &
+                - Fxmm_ab*Sy00_ab*Szpp_ab &
+                + Fxpp_ab*Sy00_ab*Szmm_ab
+           end
+         end
+!         Jx = Jx &
+!            + Sxmm(ax,bx)*Sy00(ay,by)*Fzpp(az,bz) &
+!            - Sxpp(ax,bx)*Sy00(ay,by)*Fzmm(az,bz) &
+!            - Sxpp(ax,bx)*Fymm(ay,by)*Sz00(az,bz) &
+!            + Sxmm(ax,bx)*Fypp(ay,by)*Sz00(az,bz)
+!         Jy = Jy &
+!            + Fxpp(ax,bx)*Symm(ay,by)*Sz00(az,bz) &
+!            - Fxmm(ax,bx)*Sypp(ay,by)*Sz00(az,bz) &
+!            - Sx00(ax,bx)*Sypp(ay,by)*Fzmm(az,bz) &
+!            + Sx00(ax,bx)*Symm(ay,by)*Fzpp(az,bz)
+!         Jz = Jz &
+!            + Sx00(ax,bx)*Fypp(ay,by)*Szmm(az,bz) &
+!            - Sx00(ax,bx)*Fymm(ay,by)*Szpp(az,bz) &
+!            - Fxmm(ax,bx)*Sy00(ay,by)*Szpp(az,bz) &
+!            + Fxpp(ax,bx)*Sy00(ay,by)*Szmm(az,bz)
+      end
+      rys.destroy
+      Fzmm.destroy; Fymm.destroy; Fxmm.destroy
+      Fzpp.destroy; Fypp.destroy; Fxpp.destroy
+      Fz01.destroy; Fy01.destroy; Fx01.destroy
+      Fz10.destroy; Fy10.destroy; Fx10.destroy
+      Fz00.destroy; Fy00.destroy; Fx00.destroy
+      Szmm.destroy; Symm.destroy; Sxmm.destroy
+      Szpp.destroy; Sypp.destroy; Sxpp.destroy
+      Sz01.destroy; Sy01.destroy; Sx01.destroy
+      Sz10.destroy; Sy10.destroy; Sx10.destroy
+      Sz00.destroy; Sy00.destroy; Sx00.destroy
+      bz.destroy; by.destroy; bx.destroy
+      az.destroy; ay.destroy; ax.destroy
+      rab = .a.pos - .b.pos
+      prefac = exp(-.a.ex*.b.ex*sum(rab*rab)/p)*pi212/(8*PI*p)
+      Jx = prefac*Jx
+      Jy = prefac*Jy
+      Jz = prefac*Jz
+   end
+
+   make_solenoidal_jd_ints(Jx,Jy,Jz,B_field,origin,c)
+   ! Make the solenoidal Jd integrals "Ji", with external magnetic field
+   ! "B_field", gauge origin "origin",evaluated at point "c",
+   !    <a|J(c)|b> = (1/8 PI) \int dr (curl J^d_ab(r)) x (c - r)/ |c - r|^3
+   !     curl J^d_ab(r) = B (2 g_a(r)g_b(r) + (r-r_o).grad g_a(r)g_b(r))
+   !                      - (r-r_o)(B.grad g_a(r)g_b(r))
+   ! Uses a double quadrature based on Rys method and Gauss-Hermite quadrature.
+      Jx,Jy,Jz :: REALMAT
+      B_field,origin,c :: REALVEC(3)
+      Sx00,Sy00,Sz00,Sx10,Sy10,Sz10,Sx01,Sy01,Sz01,Sxpp,Sypp,Szpp :: REALMAT*
+      Dx00,Dy00,Dz00,Dx10,Dy10,Dz10,Dx01,Dy01,Dz01,Dxpp,Dypp,Dzpp :: REALMAT*
+      Fx00,Fy00,Fz00,Fx10,Fy10,Fz10,Fx01,Fy01,Fz01,Fxpp,Fypp,Fzpp :: REALMAT*
+      Qx00,Qy00,Qz00,Qx10,Qy10,Qz10,Qx01,Qy01,Qz01,Qxpp,Qypp,Qzpp :: REALMAT*
+      ax,ay,az,bx,by,bz :: INTVEC*
+      rpc,rab :: REALVEC(3)
+      p,xx,uu,wt,prefac,B_x,B_y,B_z :: REAL
+      n_a,n_b,n_roots,k,a,b,aix,aiy,aiz,bix,biy,biz :: INT
+      rys :: RYS*
+      Sx00_ab,Sy00_ab,Sz00_ab,Fx00_ab,Fy00_ab,Fz00_ab :: REAL
+      Dx00_ab,Dy00_ab,Dz00_ab :: REAL
+      Sxpp_ab,Sypp_ab,Szpp_ab,Fxpp_ab,Fypp_ab,Fzpp_ab :: REAL
+      Dxpp_ab,Dypp_ab,Dzpp_ab,Qxpp_ab,Qypp_ab,Qzpp_ab :: REAL
+      B_x = B_field(1)
+      B_y = B_field(2)
+      B_z = B_field(3)
+      n_a = (.a.l+1)*(.a.l+2)/2
+      n_b = (.b.l+1)*(.b.l+2)/2
+      ax.create(n_a); ay.create(n_a); az.create(n_a); .a.l.make_gaussian_xyz_indices(ax,ay,az)
+      bx.create(n_b); by.create(n_b); bz.create(n_b); .b.l.make_gaussian_xyz_indices(bx,by,bz)
+      Sx00.create(.a.l+2,.b.l+2); Sy00.create(.a.l+2,.b.l+2); Sz00.create(.a.l+2,.b.l+2)
+      Sx10.create(.a.l+1,.b.l+1); Sy10.create(.a.l+1,.b.l+1); Sz10.create(.a.l+1,.b.l+1)
+      Sx01.create(.a.l+1,.b.l+1); Sy01.create(.a.l+1,.b.l+1); Sz01.create(.a.l+1,.b.l+1)
+      Sxpp.create(.a.l+1,.b.l+1); Sypp.create(.a.l+1,.b.l+1); Szpp.create(.a.l+1,.b.l+1)
+      Dx00.create(.a.l+2,.b.l+2); Dy00.create(.a.l+2,.b.l+2); Dz00.create(.a.l+2,.b.l+2)
+      Dx10.create(.a.l+1,.b.l+1); Dy10.create(.a.l+1,.b.l+1); Dz10.create(.a.l+1,.b.l+1)
+      Dx01.create(.a.l+1,.b.l+1); Dy01.create(.a.l+1,.b.l+1); Dz01.create(.a.l+1,.b.l+1)
+      Dxpp.create(.a.l+1,.b.l+1); Dypp.create(.a.l+1,.b.l+1); Dzpp.create(.a.l+1,.b.l+1)
+      Fx00.create(.a.l+2,.b.l+2); Fy00.create(.a.l+2,.b.l+2); Fz00.create(.a.l+2,.b.l+2)
+      Fx10.create(.a.l+1,.b.l+1); Fy10.create(.a.l+1,.b.l+1); Fz10.create(.a.l+1,.b.l+1)
+      Fx01.create(.a.l+1,.b.l+1); Fy01.create(.a.l+1,.b.l+1); Fz01.create(.a.l+1,.b.l+1)
+      Fxpp.create(.a.l+1,.b.l+1); Fypp.create(.a.l+1,.b.l+1); Fzpp.create(.a.l+1,.b.l+1)
+      Qx00.create(.a.l+2,.b.l+2); Qy00.create(.a.l+2,.b.l+2); Qz00.create(.a.l+2,.b.l+2)
+      Qx10.create(.a.l+1,.b.l+1); Qy10.create(.a.l+1,.b.l+1); Qz10.create(.a.l+1,.b.l+1)
+      Qx01.create(.a.l+1,.b.l+1); Qy01.create(.a.l+1,.b.l+1); Qz01.create(.a.l+1,.b.l+1)
+      Qxpp.create(.a.l+1,.b.l+1); Qypp.create(.a.l+1,.b.l+1); Qzpp.create(.a.l+1,.b.l+1)
+      p = .a.ex + .b.ex
+      rpc = (.a.ex*.a.pos + .b.ex*.b.pos)/p - c
+      n_roots = (.a.l+.b.l+3)/2 + 1
+      rys.create(n_roots)
+      xx = p*sum(rpc*rpc)
+      rys.get_weights_and_u_roots(xx)
+      Jx = ZERO; Jy = ZERO; Jz = ZERO
+      do k = 1,n_roots
+         uu = p*rys.root(k)
+         wt =   rys.weight(k)
+         .make_q_field_ints(Sx00,Dx00,Fx00,Qx00,1,uu,c(1),origin(1),.a.l+1,.b.l+1)
+         .make_q_field_ints(Sy00,Dy00,Fy00,Qy00,2,uu,c(2),origin(2),.a.l+1,.b.l+1)
+         .make_q_field_ints(Sz00,Dz00,Fz00,Qz00,3,uu,c(3),origin(3),.a.l+1,.b.l+1)
+         Sz00 =  Sz00*wt
+         Dz00 =  Dz00*wt
+         Fx00 = -Fx00     ! minus sign to give (c-r) instead of (r-c)
+         Fy00 = -Fy00
+         Fz00 = -Fz00*wt
+         Qx00 = -Qx00
+         Qy00 = -Qy00
+         Qz00 = -Qz00*wt
+         .differentiate(Sx00,"left",Sx10); .differentiate(Sx00,"right",Sx01)
+         .differentiate(Sy00,"left",Sy10); .differentiate(Sy00,"right",Sy01)
+         .differentiate(Sz00,"left",Sz10); .differentiate(Sz00,"right",Sz01)
+         .differentiate(Dx00,"left",Dx10); .differentiate(Dx00,"right",Dx01)
+         .differentiate(Dy00,"left",Dy10); .differentiate(Dy00,"right",Dy01)
+         .differentiate(Dz00,"left",Dz10); .differentiate(Dz00,"right",Dz01)
+         .differentiate(Fx00,"left",Fx10); .differentiate(Fx00,"right",Fx01)
+         .differentiate(Fy00,"left",Fy10); .differentiate(Fy00,"right",Fy01)
+         .differentiate(Fz00,"left",Fz10); .differentiate(Fz00,"right",Fz01)
+         .differentiate(Qx00,"left",Qx10); .differentiate(Qx00,"right",Qx01)
+         .differentiate(Qy00,"left",Qy10); .differentiate(Qy00,"right",Qy01)
+         .differentiate(Qz00,"left",Qz10); .differentiate(Qz00,"right",Qz01)
+         Sxpp = Sx01 + Sx10
+         Sypp = Sy01 + Sy10
+         Szpp = Sz01 + Sz10
+         Dxpp = Dx01 + Dx10
+         Dypp = Dy01 + Dy10
+         Dzpp = Dz01 + Dz10
+         Fxpp = Fx01 + Fx10
+         Fypp = Fy01 + Fy10
+         Fzpp = Fz01 + Fz10
+         Qxpp = Qx01 + Qx10
+         Qypp = Qy01 + Qy10
+         Qzpp = Qz01 + Qz10
+         do b=1,n_b
+           bix=bx(b)
+           biy=by(b)
+           biz=bz(b)
+           do a=1,n_a
+             aix=ax(a)
+             aiy=ay(a)
+             aiz=az(a)
+             Sx00_ab = Sx00(aix,bix)
+             Sy00_ab = Sy00(aiy,biy)
+             Sz00_ab = Sz00(aiz,biz)
+             Fx00_ab = Fx00(aix,bix)
+             Fy00_ab = Fy00(aiy,biy)
+             Fz00_ab = Fz00(aiz,biz)
+             Sxpp_ab = Sxpp(aix,bix)
+             Sypp_ab = Sypp(aiy,biy)
+             Szpp_ab = Szpp(aiz,biz)
+             Fxpp_ab = Fxpp(aix,bix)
+             Fypp_ab = Fypp(aiy,biy)
+             Fzpp_ab = Fzpp(aiz,biz)
+             Dx00_ab = Dx00(aix,bix)
+             Dy00_ab = Dy00(aiy,biy)
+             Dz00_ab = Dz00(aiz,biz)
+             Dxpp_ab = Dxpp(aix,bix)
+             Dypp_ab = Dypp(aiy,biy)
+             Dzpp_ab = Dzpp(aiz,biz)
+             Qxpp_ab = Qxpp(aix,bix)
+             Qypp_ab = Qypp(aiy,biy)
+             Qzpp_ab = Qzpp(aiz,biz)
+             Jx(a,b) = Jx(a,b) &
+              + B_y*( TWO*Sx00_ab*Sy00_ab*Fz00_ab &
+              + Dxpp_ab*Sy00_ab*Fz00_ab  &
+              + Sx00_ab*Dypp_ab*Fz00_ab  &
+              + Sx00_ab*Sy00_ab*Qzpp_ab) &
+              - B_z*( TWO*Sx00_ab*Fy00_ab*Sz00_ab &
+              + Dxpp_ab*Fy00_ab*Sz00_ab  &
+              + Sx00_ab*Qypp_ab*Sz00_ab  &
+              + Sx00_ab*Fy00_ab*Dzpp_ab) &
+              - B_x*(Sxpp_ab*Dy00_ab*Fz00_ab - Sxpp_ab*Fy00_ab*Dz00_ab) &
+              - B_y*(Sx00_ab*Dypp_ab*Fz00_ab - Sx00_ab*Fypp_ab*Dz00_ab) &
+              - B_z*(Sx00_ab*Dy00_ab*Fzpp_ab - Sx00_ab*Fy00_ab*Dzpp_ab)
+             Jy(a,b) = Jy(a,b) &
+              + B_z*( TWO*Fx00_ab*Sy00_ab*Sz00_ab &
+              + Qxpp_ab*Sy00_ab*Sz00_ab  &
+              + Fx00_ab*Dypp_ab*Sz00_ab  &
+              + Fx00_ab*Sy00_ab*Dzpp_ab) &
+              - B_x*( TWO*Sx00_ab*Sy00_ab*Fz00_ab &
+              + Dxpp_ab*Sy00_ab*Fz00_ab  &
+              + Sx00_ab*Dypp_ab*Fz00_ab  &
+              + Sx00_ab*Sy00_ab*Qzpp_ab) &
+              - B_x*(Fxpp_ab*Sy00_ab*Dz00_ab - Dxpp_ab*Sy00_ab*Fz00_ab) &
+              - B_y*(Fx00_ab*Sypp_ab*Dz00_ab - Dx00_ab*Sypp_ab*Fz00_ab) &
+              - B_z*(Fx00_ab*Sy00_ab*Dzpp_ab - Dx00_ab*Sy00_ab*Fzpp_ab)
+             Jz(a,b) = Jz(a,b) &
+              + B_x*( TWO*Sx00_ab*Fy00_ab*Sz00_ab &
+              + Dxpp_ab*Fy00_ab*Sz00_ab  &
+              + Sx00_ab*Qypp_ab*Sz00_ab  &
+              + Sx00_ab*Fy00_ab*Dzpp_ab) &
+              - B_y*( TWO*Fx00_ab*Sy00_ab*Sz00_ab &
+              + Qxpp_ab*Sy00_ab*Sz00_ab  &
+              + Fx00_ab*Dypp_ab*Sz00_ab  &
+              + Fx00_ab*Sy00_ab*Dzpp_ab) &
+              - B_x*(Dxpp_ab*Fy00_ab*Sz00_ab - Fxpp_ab*Dy00_ab*Sz00_ab) &
+              - B_y*(Dx00_ab*Fypp_ab*Sz00_ab - Fx00_ab*Dypp_ab*Sz00_ab) &
+              - B_z*(Dx00_ab*Fy00_ab*Szpp_ab - Fx00_ab*Dy00_ab*Szpp_ab)
+           end
+         end
+!         Jx = Jx &
+!          + B_field(2)*( TWO*Sx00(ax,bx)*Sy00(ay,by)*Fz00(az,bz) &
+!          + Dxpp(ax,bx)*Sy00(ay,by)*Fz00(az,bz)  &
+!          + Sx00(ax,bx)*Dypp(ay,by)*Fz00(az,bz)  &
+!          + Sx00(ax,bx)*Sy00(ay,by)*Qzpp(az,bz)) &
+!          - B_field(3)*( TWO*Sx00(ax,bx)*Fy00(ay,by)*Sz00(az,bz) &
+!          + Dxpp(ax,bx)*Fy00(ay,by)*Sz00(az,bz)  &
+!          + Sx00(ax,bx)*Qypp(ay,by)*Sz00(az,bz)  &
+!          + Sx00(ax,bx)*Fy00(ay,by)*Dzpp(az,bz)) &
+!          - B_field(1)*(Sxpp(ax,bx)*Dy00(ay,by)*Fz00(az,bz) - Sxpp(ax,bx)*Fy00(ay,by)*Dz00(az,bz)) &
+!          - B_field(2)*(Sx00(ax,bx)*Dypp(ay,by)*Fz00(az,bz) - Sx00(ax,bx)*Fypp(ay,by)*Dz00(az,bz)) &
+!          - B_field(3)*(Sx00(ax,bx)*Dy00(ay,by)*Fzpp(az,bz) - Sx00(ax,bx)*Fy00(ay,by)*Dzpp(az,bz))
+!         Jy = Jy &
+!          + B_field(3)*( TWO*Fx00(ax,bx)*Sy00(ay,by)*Sz00(az,bz) &
+!          + Qxpp(ax,bx)*Sy00(ay,by)*Sz00(az,bz)  &
+!          + Fx00(ax,bx)*Dypp(ay,by)*Sz00(az,bz)  &
+!          + Fx00(ax,bx)*Sy00(ay,by)*Dzpp(az,bz)) &
+!          - B_field(1)*( TWO*Sx00(ax,bx)*Sy00(ay,by)*Fz00(az,bz) &
+!          + Dxpp(ax,bx)*Sy00(ay,by)*Fz00(az,bz)  &
+!          + Sx00(ax,bx)*Dypp(ay,by)*Fz00(az,bz)  &
+!          + Sx00(ax,bx)*Sy00(ay,by)*Qzpp(az,bz)) &
+!          - B_field(1)*(Fxpp(ax,bx)*Sy00(ay,by)*Dz00(az,bz) - Dxpp(ax,bx)*Sy00(ay,by)*Fz00(az,bz)) &
+!          - B_field(2)*(Fx00(ax,bx)*Sypp(ay,by)*Dz00(az,bz) - Dx00(ax,bx)*Sypp(ay,by)*Fz00(az,bz)) &
+!          - B_field(3)*(Fx00(ax,bx)*Sy00(ay,by)*Dzpp(az,bz) - Dx00(ax,bx)*Sy00(ay,by)*Fzpp(az,bz))
+!         Jz = Jz &
+!          + B_field(1)*( TWO*Sx00(ax,bx)*Fy00(ay,by)*Sz00(az,bz) &
+!          + Dxpp(ax,bx)*Fy00(ay,by)*Sz00(az,bz)  &
+!          + Sx00(ax,bx)*Qypp(ay,by)*Sz00(az,bz)  &
+!          + Sx00(ax,bx)*Fy00(ay,by)*Dzpp(az,bz)) &
+!          - B_field(2)*( TWO*Fx00(ax,bx)*Sy00(ay,by)*Sz00(az,bz) &
+!          + Qxpp(ax,bx)*Sy00(ay,by)*Sz00(az,bz)  &
+!          + Fx00(ax,bx)*Dypp(ay,by)*Sz00(az,bz)  &
+!          + Fx00(ax,bx)*Sy00(ay,by)*Dzpp(az,bz)) &
+!          - B_field(1)*(Dxpp(ax,bx)*Fy00(ay,by)*Sz00(az,bz) - Fxpp(ax,bx)*Dy00(ay,by)*Sz00(az,bz)) &
+!          - B_field(2)*(Dx00(ax,bx)*Fypp(ay,by)*Sz00(az,bz) - Fx00(ax,bx)*Dypp(ay,by)*Sz00(az,bz)) &
+!          - B_field(3)*(Dx00(ax,bx)*Fy00(ay,by)*Szpp(az,bz) - Fx00(ax,bx)*Dy00(ay,by)*Szpp(az,bz))
+      end
+      rys.destroy
+      Qzpp.destroy; Qypp.destroy; Qxpp.destroy
+      Qz01.destroy; Qy01.destroy; Qx01.destroy
+      Qz10.destroy; Qy10.destroy; Qx10.destroy
+      Qz00.destroy; Qy00.destroy; Qx00.destroy
+      Fzpp.destroy; Fypp.destroy; Fxpp.destroy
+      Fz01.destroy; Fy01.destroy; Fx01.destroy
+      Fz10.destroy; Fy10.destroy; Fx10.destroy
+      Fz00.destroy; Fy00.destroy; Fx00.destroy
+      Qzpp.destroy; Qypp.destroy; Qxpp.destroy
+      Qz01.destroy; Qy01.destroy; Qx01.destroy
+      Qz10.destroy; Qy10.destroy; Qx10.destroy
+      Qz00.destroy; Qy00.destroy; Qx00.destroy
+      Szpp.destroy; Sypp.destroy; Sxpp.destroy
+      Sz01.destroy; Sy01.destroy; Sx01.destroy
+      Sz10.destroy; Sy10.destroy; Sx10.destroy
+      Sz00.destroy; Sy00.destroy; Sx00.destroy
+      bz.destroy; by.destroy; bx.destroy
+      az.destroy; ay.destroy; ax.destroy
+      rab = .a.pos - .b.pos
+      prefac = exp(-.a.ex*.b.ex*sum(rab*rab)/p)*pi212/(8*PI*p)
+      Jx = prefac*Jx
+      Jy = prefac*Jy
+      Jz = prefac*Jz
+   end
+
+   make_irrotational_jp_ints(Jx,Jy,Jz,c)
+   ! Make the solenoidal Jp integrals "Ji", evaluated at point "c",
+   !    <a|J(c)|b> = (1/8 PI) \int dr curl [g_a grad g_b - g_b grad g_a] x (c - r)/ |c - r|^3
+   ! Uses a double quadrature based on Rys method and Gauss-Hermite quadrature.
+      Jx,Jy,Jz :: REALMAT
+       c :: REALVEC(3)
+      Sx00,Sy00,Sz00,Sx10,Sy10,Sz10,Sx01,Sy01,Sz01,Sxmm,Symm,Szmm :: REALMAT*
+      Fx00,Fy00,Fz00,Fx10,Fy10,Fz10,Fx01,Fy01,Fz01,Fxmm,Fymm,Fzmm :: REALMAT*
+      ax,ay,az,bx,by,bz :: INTVEC*
+      rpc,rab :: REALVEC(3)
+      p,xx,uu,wt,prefac :: REAL
+      n_a,n_b,n_roots,k,a,b,aix,aiy,aiz,bix,biy,biz :: INT
+      Sx00_ab,Sy00_ab,Sz00_ab,Fx00_ab,Fy00_ab,Fz00_ab :: REAL
+      Sxmm_ab,Symm_ab,Szmm_ab,Fxmm_ab,Fymm_ab,Fzmm_ab :: REAL
+      rys :: RYS*
+      n_a = (.a.l+1)*(.a.l+2)/2
+      n_b = (.b.l+1)*(.b.l+2)/2
+      ax.create(n_a); ay.create(n_a); az.create(n_a); .a.l.make_gaussian_xyz_indices(ax,ay,az)
+      bx.create(n_b); by.create(n_b); bz.create(n_b); .b.l.make_gaussian_xyz_indices(bx,by,bz)
+      Sx00.create(.a.l+3,.b.l+3); Sy00.create(.a.l+3,.b.l+3); Sz00.create(.a.l+3,.b.l+3)
+      Sx10.create(.a.l+2,.b.l+2); Sy10.create(.a.l+2,.b.l+2); Sz10.create(.a.l+2,.b.l+2)
+      Sx01.create(.a.l+2,.b.l+2); Sy01.create(.a.l+2,.b.l+2); Sz01.create(.a.l+2,.b.l+2)
+      Sxmm.create(.a.l+2,.b.l+2); Symm.create(.a.l+2,.b.l+2); Szmm.create(.a.l+2,.b.l+2)
+      Fx00.create(.a.l+3,.b.l+3); Fy00.create(.a.l+3,.b.l+3); Fz00.create(.a.l+3,.b.l+3)
+      Fx10.create(.a.l+2,.b.l+2); Fy10.create(.a.l+2,.b.l+2); Fz10.create(.a.l+2,.b.l+2)
+      Fx01.create(.a.l+2,.b.l+2); Fy01.create(.a.l+2,.b.l+2); Fz01.create(.a.l+2,.b.l+2)
+      Fxmm.create(.a.l+2,.b.l+2); Fymm.create(.a.l+2,.b.l+2); Fzmm.create(.a.l+2,.b.l+2)
+      p = .a.ex + .b.ex
+      rpc = (.a.ex*.a.pos + .b.ex*.b.pos)/p - c
+      n_roots = (.a.l+.b.l+3)/2 + 1
+      rys.create(n_roots)
+      xx = p*sum(rpc*rpc)
+      rys.get_weights_and_u_roots(xx)
+      Jx = ZERO; Jy = ZERO; Jz = ZERO
+      do k = 1,n_roots
+         uu = p*rys.root(k)
+         wt =   rys.weight(k)
+         .make_E_field_ints(Sx00,Fx00,1,uu,c(1),.a.l+2,.b.l+2)
+         .make_E_field_ints(Sy00,Fy00,2,uu,c(2),.a.l+2,.b.l+2)
+         .make_E_field_ints(Sz00,Fz00,3,uu,c(3),.a.l+2,.b.l+2)
+         Sz00 =  Sz00*wt
+         Fz00 =  Fz00*wt
+         .differentiate(Sx00,"right",Sx01); .differentiate(Sx01,"right",Sxmm)
+         .differentiate(Sx00,"left" ,Sx10); .differentiate(Sx10,"left" ,Sx01)
+         .differentiate(Sy00,"right",Sy01); .differentiate(Sy01,"right",Symm)
+         .differentiate(Sy00,"left" ,Sy10); .differentiate(Sy10,"left" ,Sy01)
+         .differentiate(Sz00,"right",Sz01); .differentiate(Sz01,"right",Szmm)
+         .differentiate(Sz00,"left" ,Sz10); .differentiate(Sz10,"left" ,Sz01)
+         .differentiate(Fx00,"right",Fx01); .differentiate(Fx01,"right",Fxmm)
+         .differentiate(Fx00,"left" ,Fx10); .differentiate(Fx10,"left" ,Fx01)
+         .differentiate(Fy00,"right",Fy01); .differentiate(Fy01,"right",Fymm)
+         .differentiate(Fy00,"left" ,Fy10); .differentiate(Fy10,"left" ,Fy01)
+         .differentiate(Fz00,"right",Fz01); .differentiate(Fz01,"right",Fzmm)
+         .differentiate(Fz00,"left" ,Fz10); .differentiate(Fz10,"left" ,Fz01)
+         Sxmm = Sxmm - Sx01
+         Symm = Symm - Sy01
+         Szmm = Szmm - Sz01
+         Fxmm = Fxmm - Fx01
+         Fymm = Fymm - Fy01
+         Fzmm = Fzmm - Fz01
+         do b=1,n_b
+           bix=bx(b)
+           biy=by(b)
+           biz=bz(b)
+           do a=1,n_a
+             aix=ax(a)
+             aiy=ay(a)
+             aiz=az(a)
+             Sx00_ab = Sx00(aix,bix)
+             Sy00_ab = Sy00(aiy,biy)
+             Sz00_ab = Sz00(aiz,biz)
+             Fx00_ab = Fx00(aix,bix)
+             Fy00_ab = Fy00(aiy,biy)
+             Fz00_ab = Fz00(aiz,biz)
+             Sxmm_ab = Sxmm(aix,bix)
+             Symm_ab = Symm(aiy,biy)
+             Szmm_ab = Szmm(aiz,biz)
+             Fxmm_ab = Fxmm(aix,bix)
+             Fymm_ab = Fymm(aiy,biy)
+             Fzmm_ab = Fzmm(aiz,biz)
+             Jx(a,b) = Jx(a,b) + Fxmm_ab*Sy00_ab*Sz00_ab &
+                               + Fx00_ab*Symm_ab*Sz00_ab &
+                               + Fx00_ab*Sy00_ab*Szmm_ab
+             Jy(a,b) = Jy(a,b) + Sxmm_ab*Fy00_ab*Sz00_ab &
+                               + Sx00_ab*Fymm_ab*Sz00_ab &
+                               + Sx00_ab*Fy00_ab*Szmm_ab
+             Jz(a,b) = Jz(a,b) + Sxmm_ab*Sy00_ab*Fz00_ab &
+                               + Sx00_ab*Symm_ab*Fz00_ab &
+                               + Sx00_ab*Sy00_ab*Fzmm_ab
+           end
+         end
+!         Jx = Jx + Fxmm(ax,bx)*Sy00(ay,by)*Sz00(az,bz) &
+!                 + Fx00(ax,bx)*Symm(ay,by)*Sz00(az,bz) &
+!                 + Fx00(ax,bx)*Sy00(ay,by)*Szmm(az,bz)
+!         Jy = Jy + Sxmm(ax,bx)*Fy00(ay,by)*Sz00(az,bz) &
+!                 + Sx00(ax,bx)*Fymm(ay,by)*Sz00(az,bz) &
+!                 + Sx00(ax,bx)*Fy00(ay,by)*Szmm(az,bz)
+!         Jz = Jz + Sxmm(ax,bx)*Sy00(ay,by)*Fz00(az,bz) &
+!                 + Sx00(ax,bx)*Symm(ay,by)*Fz00(az,bz) &
+!                 + Sx00(ax,bx)*Sy00(ay,by)*Fzmm(az,bz)
+      end
+      rys.destroy
+      Fzmm.destroy; Fymm.destroy; Fxmm.destroy
+      Fz01.destroy; Fy01.destroy; Fx01.destroy
+      Fz10.destroy; Fy10.destroy; Fx10.destroy
+      Fz00.destroy; Fy00.destroy; Fx00.destroy
+      Szmm.destroy; Symm.destroy; Sxmm.destroy
+      Sz01.destroy; Sy01.destroy; Sx01.destroy
+      Sz10.destroy; Sy10.destroy; Sx10.destroy
+      Sz00.destroy; Sy00.destroy; Sx00.destroy
+      bz.destroy; by.destroy; bx.destroy
+      az.destroy; ay.destroy; ax.destroy
+      rab = .a.pos - .b.pos
+      prefac = exp(-.a.ex*.b.ex*sum(rab*rab)/p)*pi212/(8*PI*p)
+      Jx = prefac*Jx
+      Jy = prefac*Jy
+      Jz = prefac*Jz
+   end
+
+   make_irrotational_jd_ints(Jx,Jy,Jz,B_field,origin,c)
+   ! Make the solenoidal Jd integrals "Ji", with external magnetic field
+   ! "B_field", gauge origin at "origin", and evaluated at point "c",
+   !    <a|J(c)|b> = (1/8 PI) \int dr (div J^d_ab(r)) (c - r)/|c - r|3
+   !     J^d_ab(r) = B (2 g_a(r)g_b(r) + (r-r_o).grad g_a(r)g_b(r))
+   !                 - (r-r_o)(B.grad g_a(r)g_b(r))
+   ! Uses a double quadrature based on Rys method and Gauss-Hermite quadrature.
+      Jx,Jy,Jz :: REALMAT
+      B_field,origin,c :: REALVEC(3)
+      Sx00,Sy00,Sz00,Sx10,Sy10,Sz10,Sx01,Sy01,Sz01 :: REALMAT*
+      Sxpp,Sypp,Szpp,Dx00,Dy00,Dz00 :: REALMAT*
+      Fx00,Fy00,Fz00,Fx10,Fy10,Fz10,Fx01,Fy01,Fz01 :: REALMAT*
+      Fxpp,Fypp,Fzpp,Qx00,Qy00,Qz00 :: REALMAT*
+      ax,ay,az,bx,by,bz :: INTVEC*
+      rpc,rab :: REALVEC(3)
+      p,xx,uu,wt,prefac,B_x,B_y,B_z :: REAL
+      n_a,n_b,n_roots,k,a,b,aix,aiy,aiz,bix,biy,biz :: INT
+      Sx00_ab,Sy00_ab,Sz00_ab,Fx00_ab,Fy00_ab,Fz00_ab :: REAL
+      Dx00_ab,Dy00_ab,Dz00_ab,Qx00_ab,Qy00_ab,Qz00_ab :: REAL
+      Sxpp_ab,Sypp_ab,Szpp_ab,Fxpp_ab,Fypp_ab,Fzpp_ab :: REAL
+      rys :: RYS*
+      B_x = B_field(1)
+      B_y = B_field(2)
+      B_z = B_field(3)
+      n_a = (.a.l+1)*(.a.l+2)/2
+      n_b = (.b.l+1)*(.b.l+2)/2
+      ax.create(n_a); ay.create(n_a); az.create(n_a); .a.l.make_gaussian_xyz_indices(ax,ay,az)
+      bx.create(n_b); by.create(n_b); bz.create(n_b); .b.l.make_gaussian_xyz_indices(bx,by,bz)
+      Sx00.create(.a.l+2,.b.l+2); Sy00.create(.a.l+2,.b.l+2); Sz00.create(.a.l+2,.b.l+2)
+      Sx10.create(.a.l+1,.b.l+1); Sy10.create(.a.l+1,.b.l+1); Sz10.create(.a.l+1,.b.l+1)
+      Sx01.create(.a.l+1,.b.l+1); Sy01.create(.a.l+1,.b.l+1); Sz01.create(.a.l+1,.b.l+1)
+      Sxpp.create(.a.l+1,.b.l+1); Sypp.create(.a.l+1,.b.l+1); Szpp.create(.a.l+1,.b.l+1)
+      Dx00.create(.a.l+2,.b.l+2); Dy00.create(.a.l+2,.b.l+2); Dz00.create(.a.l+2,.b.l+2)
+      Fx00.create(.a.l+2,.b.l+2); Fy00.create(.a.l+2,.b.l+2); Fz00.create(.a.l+2,.b.l+2)
+      Fx10.create(.a.l+1,.b.l+1); Fy10.create(.a.l+1,.b.l+1); Fz10.create(.a.l+1,.b.l+1)
+      Fx01.create(.a.l+1,.b.l+1); Fy01.create(.a.l+1,.b.l+1); Fz01.create(.a.l+1,.b.l+1)
+      Fxpp.create(.a.l+1,.b.l+1); Fypp.create(.a.l+1,.b.l+1); Fzpp.create(.a.l+1,.b.l+1)
+      Qx00.create(.a.l+2,.b.l+2); Qy00.create(.a.l+2,.b.l+2); Qz00.create(.a.l+2,.b.l+2)
+      p = .a.ex + .b.ex
+      rpc = (.a.ex*.a.pos + .b.ex*.b.pos)/p - c
+      n_roots = (.a.l+.b.l+2)/2 + 1
+      rys.create(n_roots)
+      xx = p*sum(rpc*rpc)
+      rys.get_weights_and_u_roots(xx)
+      Jx = ZERO; Jy = ZERO; Jz = ZERO
+      do k = 1,n_roots
+         uu = p*rys.root(k)
+         wt =   rys.weight(k)
+         .make_q_field_ints(Sx00,Dx00,Fx00,Qx00,1,uu,c(1),origin(1),.a.l+1,.b.l+1)
+         .make_q_field_ints(Sy00,Dy00,Fy00,Qy00,2,uu,c(2),origin(2),.a.l+1,.b.l+1)
+         .make_q_field_ints(Sz00,Dz00,Fz00,Qz00,3,uu,c(3),origin(3),.a.l+1,.b.l+1)
+         Sz00 =  Sz00*wt
+         Dz00 =  Dz00*wt
+         Fz00 =  Fz00*wt
+         Qz00 =  Qz00*wt
+         .differentiate(Sx00,"left",Sx10); .differentiate(Sx00,"right",Sx01)
+         .differentiate(Sy00,"left",Sy10); .differentiate(Sy00,"right",Sy01)
+         .differentiate(Sz00,"left",Sz10); .differentiate(Sz00,"right",Sz01)
+         .differentiate(Fx00,"left",Fx10); .differentiate(Fx00,"right",Fx01)
+         .differentiate(Fy00,"left",Fy10); .differentiate(Fy00,"right",Fy01)
+         .differentiate(Fz00,"left",Fz10); .differentiate(Fz00,"right",Fz01)
+         Sxpp = Sx01 + Sx10
+         Sypp = Sy01 + Sy10
+         Szpp = Sz01 + Sz10
+         Fxpp = Fx01 + Fx10
+         Fypp = Fy01 + Fy10
+         Fzpp = Fz01 + Fz10
+         do b=1,n_b
+           bix=bx(b)
+           biy=by(b)
+           biz=bz(b)
+           do a=1,n_a
+             aix=ax(a)
+             aiy=ay(a)
+             aiz=az(a)
+             Sx00_ab = Sx00(aix,bix)
+             Sy00_ab = Sy00(aiy,biy)
+             Sz00_ab = Sz00(aiz,biz)
+             Fx00_ab = Fx00(aix,bix)
+             Fy00_ab = Fy00(aiy,biy)
+             Fz00_ab = Fz00(aiz,biz)
+             Dx00_ab = Dx00(aix,bix)
+             Dy00_ab = Dy00(aiy,biy)
+             Dz00_ab = Dz00(aiz,biz)
+             Qx00_ab = Qx00(aix,bix)
+             Qy00_ab = Qy00(aiy,biy)
+             Qz00_ab = Qz00(aiz,biz)
+             Sxpp_ab = Sxpp(aix,bix)
+             Sypp_ab = Sypp(aiy,biy)
+             Szpp_ab = Szpp(aiz,biz)
+             Fxpp_ab = Fxpp(aix,bix)
+             Fypp_ab = Fypp(aiy,biy)
+             Fzpp_ab = Fzpp(aiz,biz)
+             Jx(a,b) = Jx(a,b) &
+                 + B_y*Fxpp_ab*Sy00_ab*Dz00_ab - B_z*Fxpp_ab*Dy00_ab*Sz00_ab &
+                 + B_z*Qx00_ab*Sypp_ab*Sz00_ab - B_x*Fx00_ab*Sypp_ab*Dz00_ab &
+                 + B_x*Fx00_ab*Dy00_ab*Szpp_ab - B_y*Qx00_ab*Sy00_ab*Szpp_ab
+             Jy(a,b) = Jy(a,b) &
+                 + B_y*Sxpp_ab*Fy00_ab*Dz00_ab - B_z*Sxpp_ab*Qy00_ab*Sz00_ab &
+                 + B_z*Dx00_ab*Fypp_ab*Sz00_ab - B_x*Sx00_ab*Fypp_ab*Dz00_ab &
+                 + B_x*Sx00_ab*Qy00_ab*Szpp_ab - B_y*Dx00_ab*Fy00_ab*Szpp_ab
+             Jz(a,b) = Jz(a,b) &
+                 + B_y*Sxpp_ab*Sy00_ab*Qz00_ab - B_z*Sxpp_ab*Dy00_ab*Fz00_ab &
+                 + B_z*Dx00_ab*Sypp_ab*Fz00_ab - B_x*Sx00_ab*Sypp_ab*Qz00_ab &
+                 + B_x*Sx00_ab*Dy00_ab*Fzpp_ab - B_y*Dx00_ab*Sy00_ab*Fzpp_ab
+           end
+         end
+!         Jx = Jx + B_field(2)*Fxpp(ax,bx)*Sy00(ay,by)*Dz00(az,bz) - B_field(3)*Fxpp(ax,bx)*Dy00(ay,by)*Sz00(az,bz) &
+!                 + B_field(3)*Qx00(ax,bx)*Sypp(ay,by)*Sz00(az,bz) - B_field(1)*Fx00(ax,bx)*Sypp(ay,by)*Dz00(az,bz) &
+!                 + B_field(1)*Fx00(ax,bx)*Dy00(ay,by)*Szpp(az,bz) - B_field(2)*Qx00(ax,bx)*Sy00(ay,by)*Szpp(az,bz)
+!         Jy = Jy + B_field(2)*Sxpp(ax,bx)*Fy00(ay,by)*Dz00(az,bz) - B_field(3)*Sxpp(ax,bx)*Qy00(ay,by)*Sz00(az,bz) &
+!                 + B_field(3)*Dx00(ax,bx)*Fypp(ay,by)*Sz00(az,bz) - B_field(1)*Sx00(ax,bx)*Fypp(ay,by)*Dz00(az,bz) &
+!                 + B_field(1)*Sx00(ax,bx)*Qy00(ay,by)*Szpp(az,bz) - B_field(2)*Dx00(ax,bx)*Fy00(ay,by)*Szpp(az,bz)
+!         Jz = Jz + B_field(2)*Sxpp(ax,bx)*Sy00(ay,by)*Qz00(az,bz) - B_field(3)*Sxpp(ax,bx)*Dy00(ay,by)*Fz00(az,bz) &
+!                 + B_field(3)*Dx00(ax,bx)*Sypp(ay,by)*Fz00(az,bz) - B_field(1)*Sx00(ax,bx)*Sypp(ay,by)*Qz00(az,bz) &
+!                 + B_field(1)*Sx00(ax,bx)*Dy00(ay,by)*Fzpp(az,bz) - B_field(2)*Dx00(ax,bx)*Sy00(ay,by)*Fzpp(az,bz)
+      end
+      rys.destroy
+      Qz00.destroy; Qy00.destroy; Qx00.destroy
+      Fzpp.destroy; Fypp.destroy; Fxpp.destroy
+      Fz01.destroy; Fy01.destroy; Fx01.destroy
+      Fz10.destroy; Fy10.destroy; Fx10.destroy
+      Fz00.destroy; Fy00.destroy; Fx00.destroy
+      Dz00.destroy; Dy00.destroy; Dx00.destroy
+      Szpp.destroy; Sypp.destroy; Sxpp.destroy
+      Sz01.destroy; Sy01.destroy; Sx01.destroy
+      Sz10.destroy; Sy10.destroy; Sx10.destroy
+      Sz00.destroy; Sy00.destroy; Sx00.destroy
+      bz.destroy; by.destroy; bx.destroy
+      az.destroy; ay.destroy; ax.destroy
+      rab = .a.pos - .b.pos
+      prefac = exp(-.a.ex*.b.ex*sum(rab*rab)/p)*pi212/(8*PI*p)
+      Jx = prefac*Jx
+      Jy = prefac*Jy
+      Jz = prefac*Jz
+   end
+
+   normalise(I)
+   ! Multiply the matrix "I" by the atomic orbital normalisation coefficients
+     self :: IN
+      I :: REALMAT
+     anorm,bnorm :: REALVEC*
+     na,nb,a,b :: INT
+     if (.a.l<2 AND .b.l<2) return
+     na = .a.n_comp
+     nb = .b.n_comp
+     anorm.create(na); anorm.normalising_factors(.a.l)
+     bnorm.create(nb); bnorm.normalising_factors(.b.l)
+     do b = 1,nb
+     do a = 1,na
+        I(a,b) = I(a,b)*anorm(a)*bnorm(b)
+     end
+     end
+     anorm.destroy; bnorm.destroy
+   end
+
+   put
+   ! Put the object to file "stdout"
+      stdout.flush
+      stdout.text("GAUSSIAN2:")
+      stdout.flush
+      stdout.show("l_a   =",.a.l,real_width=TRUE)
+      stdout.show("l_b   =",.b.l,real_width=TRUE)
+      stdout.show("pos_a =",.a.pos(1),.a.pos(2),.a.pos(3))
+      stdout.show("pos_b =",.b.pos(1),.b.pos(2),.b.pos(3))
+      stdout.show("ex_a  =",.a.ex)
+      stdout.show("ex_b  =",.b.ex)
+   end
+
+end

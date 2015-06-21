@@ -1,0 +1,312 @@
+!---------------------------------------------------------------------------
+!
+!  REALMAT3: 3 dimensional matrices
+!
+! Copyright (C) Dylan Jayatilaka, 1998
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: realmat3.foo,v 1.8.2.1 2003/11/13 05:36:07 reaper Exp $
+!---------------------------------------------------------------------------
+
+module REALMAT3
+
+   implicit none
+
+contains
+
+   create(dim1,dim2,dim3)
+   ! Create a mat3 with the given dimensions
+      self :: PTR
+      dim1,dim2,dim3 :: INT
+      nullify(self)
+      allocate(self(dim1,dim2,dim3))
+      ADD_MEMORY(dim1*dim2*dim3*REAL_SIZE)
+   end
+
+   create(lb1,ub1,lb2,ub2,lb3,ub3)
+   ! Create a mat3 with the given bounds
+      self :: PTR
+      lb1,lb2,lb3,ub1,ub2,ub3 :: INT, IN
+      nullify(self)
+      allocate(self(lb1:ub1,lb2:ub2,lb3:ub3))
+      ADD_MEMORY((ub1-lb1+1)*(ub2-lb2+1)*(ub3-lb3+1)*REAL_SIZE)
+   end
+
+   create(bounds1,bounds2,bounds3)
+   ! Create a mat3 with the given bounds for each dimension
+      self :: PTR
+      bounds1,bounds2,bounds3 :: INTVEC(2), IN
+      .create(bounds1(1),bounds1(2),bounds2(1),bounds2(2),bounds3(1),bounds3(2))
+   end
+
+   create(bounds)
+   ! Create a mat3 with the given bounds for all dimensions
+      self :: PTR
+      bounds :: INTMAT(3,2), IN
+      .create(bounds(1,1),bounds(1,2),bounds(2,1),bounds(2,2), &
+              bounds(3,1),bounds(3,2))
+   end
+
+   create_copy(m)
+   ! Create a copy of matrix "m"
+      self :: PTR
+      m :: REALMAT3*
+      .create(lbound(m,1),ubound(m,1), &
+              lbound(m,2),ubound(m,2), &
+              lbound(m,3),ubound(m,3)  )
+      self = m
+   end
+
+   destroy
+   ! Destroy at mat3 object
+      self :: PTR
+      if (.destroyed) return
+      DELETE_MEMORY(size(self)*REAL_SIZE)
+      deallocate(self)
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   dim1 result(res)
+   ! Returns the first dimension of self
+      res :: INT
+      res = size(self,1)
+   end
+
+   dim2 result(res)
+   ! Returns the second dimension of self
+      res :: INT
+      res = size(self,2)
+   end
+
+   dim3 result(res)
+   ! Returns the thirs dimension of self
+      res :: INT
+      res = size(self,3)
+   end
+
+   is_same_shape_as(b) result(res) ::: pure
+   ! Returns TRUE if the matrix "b" has the same shape as self
+      b :: REALMAT3, IN
+      self :: IN
+      res :: BIN
+      res = .dim1==b.dim1 AND .dim2==b.dim2 AND .dim3==b.dim3
+   end
+
+   set_to(b)
+   ! Set "self" to "b"
+      b :: REALMAT3
+   ENSURE(.is_same_shape_as(b),"different shapes")
+      self = b
+   end
+
+   set_to(b)
+   ! Set "self" to vector "b" in standard order
+      b :: REALVEC
+   ENSURE(size(self)==size(b),"different sizes")
+      self = reshape(b,[ .dim1,.dim2,.dim3 ])
+   end
+
+   make_symmetric
+   ! Make the upper pyramid of "self" the same as the lower pyramid
+      dim, i,j,k :: INT
+      val :: REAL
+   ENSURE(size(self,1)==size(self,2),"non-cube tensor")
+   ENSURE(size(self,1)==size(self,3),"non-cube tensor")
+      dim = size(self,1)
+      do i = 1,dim
+      do j = 1,i
+      do k = 1,j
+         val = self(i,j,k)
+         self(i,k,j) = val
+         self(j,i,k) = val
+         self(j,k,i) = val
+         self(k,i,j) = val
+         self(k,j,i) = val
+      end
+      end
+      end
+   end
+
+   transpose_12
+   ! Makes the matrix formed by the 1st and 2nd columns symmetrical.
+     k :: INT
+   ENSURE(.dim1==.dim2,"non-square matrix")
+     do k = 1,.dim3
+       self(:,:,k) = transpose(self(:,:,k))
+     end
+   end
+
+   symmetric_reflect_12
+   ! Makes the matrix formed by the 1st and 2nd columns symmetrical.
+     dim1,dim2,i,j :: INT
+   ENSURE(.dim1==.dim2,"non-square matrix")
+     dim1 = size(self,1)
+     dim2 = size(self,2)
+     do i = 1,dim1
+     do j = 1,i-1
+       self(j,i,:) = self(i,j,:)
+     end
+     end
+   end
+
+   symmetric_reflect_23
+   ! Makes the matrix formed by the 2nd and 3rd columns symmetrical.
+     dim,i,j :: INT
+     .check_square_23
+     dim = size(self,2)
+     do i = 1,dim
+     do j = 1,i-1
+       self(:,j,i) = self(:,i,j)
+     end
+     end
+   end
+
+   to_tri_23(tr)
+   ! Converts the matrix self to the lower triangle tr.
+   ! Assumes the matrix formed by columns 2 and 3 is the symmetric one.
+     self :: IN
+     tr :: REALVEC
+     dim1,dim2,h,i,j,ij :: INT
+   ENSURE(size(tr)>=.tri_size_23,"tr array too small")
+     dim1 = size(self,1)
+     dim2 = size(self,2)
+     .check_square_23
+     ij = 0
+     do h = 1,dim1
+       do i = 1,dim2
+         do j = 1,i
+           ij = ij+1
+           tr(ij) = self(h,j,i)
+         end
+       end
+     end
+   end
+
+   from_tri_23(tr)
+   ! Converts the matrix self to the lower triangle tr.
+   ! Assumes the matrix formed by columns 2 and 3 is the symmetric one.
+     tr :: REALVEC, IN
+     dim1,dim2,h,i,j,ij :: INT
+   ENSURE(size(tr)>=.tri_size_23,"tr array too small")
+     dim1 = size(self,1)
+     dim2 = size(self,2)
+     .check_square_23
+     ij = 0
+     do h = 1,dim1
+       do i = 1,dim2
+         do j = 1,i
+           ij = ij+1
+           self(h,j,i) = tr(ij)
+           self(h,i,j) = tr(ij)
+         end
+       end
+     end
+   end
+
+   tri_size_23 result (ltr)
+   ! Returns the size of the lower triangle needed to store the matrix self.
+   ! Assumes the matrix formed by columns 2 and 3 is the symmetric one.
+     self :: IN
+     ltr :: INT
+     dim1,dim2 :: INT
+     dim1 = size(self,1)
+     dim2 = size(self,2)
+     .check_square_23
+     ltr = dim1*dim2*(dim2+1)/2
+   end
+
+   check_square_23
+   ! Checks to see that the matrix formed by the 2nd and 3rd columns is square.
+     dim2,dim3 :: INT
+     dim2 = size(self,2)
+     dim3 = size(self,3)
+     ENSURE(dim2==dim3,"non-square 2nd and 3rd dimensions")
+   end
+
+   gaussian_d_xyz_matrices result (dtr) ::: leaky
+   ! Return the representation matrices for d xyz products found in
+   ! gaussian shells from the p xyz matrices.
+      dtr :: REALMAT3*
+      n,order :: INT
+   ENSURE(.dim1==3,"wrong 1st dimension, self")
+   ENSURE(.dim2==3,"wrong 1st dimension, self")
+   ENSURE(.dim3>0,"no p type matrices")
+      order = .dim3
+      dtr.create(6,6,order)
+      do n = 1,order
+         dtr(:,:,n) = self(:,:,n).gaussian_d_xyz_matrix
+      end
+   end
+
+   gaussian_f_xyz_matrices result (ftr) ::: leaky
+   ! Return the representation matrices for f xyz products found in
+   ! gaussian shells from the p xyz matrices
+      ftr :: REALMAT3*
+      n,order :: INT
+   ENSURE(.dim1==3,"wrong 1st dimension, self")
+   ENSURE(.dim2==3,"wrong 1st dimension, self")
+   ENSURE(.dim3>0,"no p type matrices")
+      order = .dim3
+      ftr.create(10,10,order)
+      do n = 1,order
+         ftr(:,:,n) = self(:,:,n).gaussian_f_xyz_matrix
+      end
+   end
+
+   gaussian_g_xyz_matrices result (gtr) ::: leaky
+   ! Return the representation matrices for g xyz products found in
+   ! gaussian shells from the p xyz matrices
+      gtr :: REALMAT3*
+      n,order :: INT
+   ENSURE(.dim1==3,"wrong 1st dimension, self")
+   ENSURE(.dim2==3,"wrong 1st dimension, self")
+   ENSURE(.dim3>0,"no p type matrices")
+      order = .dim3
+      gtr.create(15,15,order)
+      do n = 1,order
+         gtr(:,:,n) = self(:,:,n).gaussian_g_xyz_matrix
+      end
+   end
+
+   similarity_transform_12(V)
+   ! Do a similarity tranform on the first two indices of self, i.e.
+   ! self(:,:,i) -> V self(:,:,i) V^-1
+      V :: REALMAT
+      n :: INT
+   ENSURE(.dim1==.dim2, "1st two dimensions of self unequal")
+   ENSURE(.dim1==V.dim1,"incompatible transform matrix, V")
+   ENSURE(V.is_square,  "transform matrix not square")
+   ENSURE(.dim3>0,"no p type matrices")
+      do n = 1,.dim3
+         self(:,:,n).similarity_transform(V)
+      end
+   end
+
+end

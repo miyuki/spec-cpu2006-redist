@@ -1,0 +1,59 @@
+#########################################################
+!DESC "Linearized plane wave along y-line, ADM, ICN"
+#########################################################
+
+# Required thorns
+ActiveThorns = "time ADMconstraints pugh cartgrid3d einstein ADM IDLinearWaves
+ ioascii ioutil iobasic"
+
+# GENERAL 
+
+driver::global_nx  =  3     
+driver::global_ny  =  200     
+driver::global_nz  =  3     
+time::dtfac    =  0.25   
+
+grid::type         =  "byspacing"
+grid::dxyz         =  0.01
+grid::domain       =  "full"
+
+cactus::cctk_initial_time  =  0.     
+cactus::cctk_itlast        =  100      
+
+
+# Einstein 
+
+einstein::initial_data     = "planewaves"
+einstein::evolution_system = "ADM"     
+
+adm::method        =  "icn" 
+adm::bound         =  "flat"
+einstein::slicing  =  "geodesic"  
+
+# IDLinearwaves
+idlinearwaves::amplitude  = 0.001
+idlinearwaves::wavecenter = 0.0
+idlinearwaves::wavelength = 2.0
+idlinearwaves::wavepulse  = 1.0
+idlinearwaves::wavetheta  = 90.0
+idlinearwaves::wavephi    = 90.0
+idlinearwaves::wavesgoing = "both"
+
+# Output
+
+IO::outdir         = "test_pw_ADM_icn"
+IOBasic::outScalar_every =  10      
+IOBasic::outScalar_vars  = "einstein::gzz einstein::kzz 
+	admconstraints::ADMconstraints 
+	einstein::grr einstein::alp"
+IOASCII::out1D_every =  10      
+IOASCII::out1D_vars  = "einstein::gxx einstein::gxy einstein::gxz
+                        einstein::gyy einstein::gyz einstein::gzz
+                        einstein::kxx einstein::kxy einstein::kxz
+                        einstein::kyy einstein::kyz einstein::kzz"
+
+
+IOBasic::outInfo_every = 5
+IOBasic::outInfo_vars = "admconstraints::ham einstein::gzz"
+
+##################################################################

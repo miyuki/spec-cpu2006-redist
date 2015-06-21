@@ -1,0 +1,660 @@
+   private
+
+   private    put_inv_trans_symop_data_
+   interface put_inv_trans_symop_data_
+      module procedure put_inv_trans_symop_data
+   end interface
+
+   private    read_thermal_smearing_model_
+   interface read_thermal_smearing_model_
+      module procedure read_thermal_smearing_model
+   end interface
+
+   private    get_optimum_parameters_
+   interface get_optimum_parameters_
+      module procedure get_optimum_parameters
+   end interface
+
+   public    lp_factor_
+   interface lp_factor_
+      module procedure lp_factor
+   end interface
+
+   private    put_to_unit_cell_
+   interface put_to_unit_cell_
+      module procedure put_to_unit_cell
+      module procedure put_to_unit_cell_1
+   end interface
+
+   public    put_CX_
+   interface put_CX_
+      module procedure put_CX
+   end interface
+
+   public    have_F_sigma_
+   interface have_F_sigma_
+      module procedure have_F_sigma
+   end interface
+
+   public    read_kind_
+   interface read_kind_
+      module procedure read_kind
+   end interface
+
+   public    fragment_data_exists_
+   interface fragment_data_exists_
+      module procedure fragment_data_exists
+   end interface
+
+   public    destroy_reflection_data_
+   interface destroy_reflection_data_
+      module procedure destroy_reflection_data
+   end interface
+
+   private    put_reduced_symop_data_
+   interface put_reduced_symop_data_
+      module procedure put_reduced_symop_data
+   end interface
+
+   public    d_chi2_dU_
+   interface d_chi2_dU_
+      module procedure d_chi2_dU
+   end interface
+
+   public    read_keywords_
+   interface read_keywords_
+      module procedure read_keywords
+   end interface
+
+   public    have_F_exp_
+   interface have_F_exp_
+      module procedure have_F_exp
+   end interface
+
+   public    make_reduced_group_data_
+   interface make_reduced_group_data_
+      module procedure make_reduced_group_data
+   end interface
+
+   private    is_same_geometry_
+   interface is_same_geometry_
+      module procedure is_same_geometry
+   end interface
+
+   public    put_PND_sf_
+   interface put_PND_sf_
+      module procedure put_PND_sf
+   end interface
+
+   public    put_correction_data_
+   interface put_correction_data_
+      module procedure put_correction_data
+   end interface
+
+   private    read_partition_model_
+   interface read_partition_model_
+      module procedure read_partition_model
+   end interface
+
+   public    F_exp_
+   interface F_exp_
+      module procedure F_exp
+   end interface
+
+   private    extinction_angle_part_
+   interface extinction_angle_part_
+      module procedure extinction_angle_part
+   end interface
+
+   public    copy_
+   interface copy_
+      module procedure copy
+   end interface
+
+   private    make_inverted_symops_
+   interface make_inverted_symops_
+      module procedure make_inverted_symops
+   end interface
+
+   public    I_sigma_
+   interface I_sigma_
+      module procedure I_sigma
+   end interface
+
+   public    sum_ft_r_ints_
+   interface sum_ft_r_ints_
+      module procedure sum_ft_r_ints
+   end interface
+
+   public    put_reflection_data_
+   interface put_reflection_data_
+      module procedure put_reflection_data
+   end interface
+
+   public    transform_geometry_
+   interface transform_geometry_
+      module procedure transform_geometry
+   end interface
+
+   private    read_CIF_atoms_
+   interface read_CIF_atoms_
+      module procedure read_CIF_atoms
+   end interface
+
+   public    F_sigma_
+   interface F_sigma_
+      module procedure F_sigma
+   end interface
+
+   public    make_unique_SF_k_pts_
+   interface make_unique_SF_k_pts_
+      module procedure make_unique_SF_k_pts
+   end interface
+
+   public    I_weighted_r_factor_
+   interface I_weighted_r_factor_
+      module procedure I_weighted_r_factor
+   end interface
+
+   public    destroy_
+   interface destroy_
+      module procedure destroy
+   end interface
+
+   public    read_spacegroup_
+   interface read_spacegroup_
+      module procedure read_spacegroup
+   end interface
+
+   private    put_asymmetric_unit_geometry_
+   interface put_asymmetric_unit_geometry_
+      module procedure put_asymmetric_unit_geometry
+   end interface
+
+   public    chi2_
+   interface chi2_
+      module procedure chi2
+   end interface
+
+   private    read_exp_scale_factor_
+   interface read_exp_scale_factor_
+      module procedure read_exp_scale_factor
+   end interface
+
+   public    F_pred_
+   interface F_pred_
+      module procedure F_pred
+   end interface
+
+   private    read_optimise_extinction_
+   interface read_optimise_extinction_
+      module procedure read_optimise_extinction
+   end interface
+
+   public    make_F_predicted_
+   interface make_F_predicted_
+      module procedure make_F_predicted
+   end interface
+
+   private    make_phased_matrix_for_symop_
+   interface make_phased_matrix_for_symop_
+      module procedure make_phased_matrix_for_symop
+   end interface
+
+   public    read_units_
+   interface read_units_
+      module procedure read_units
+   end interface
+
+   public    put_F_calc_
+   interface put_F_calc_
+      module procedure put_F_calc
+   end interface
+
+   public    make_k_pts_
+   interface make_k_pts_
+      module procedure make_k_pts
+   end interface
+
+   public    read_CIF_
+   interface read_CIF_
+      module procedure read_CIF
+      module procedure read_CIF_1
+   end interface
+
+   public    sum_unique_sf_ints_
+   interface sum_unique_sf_ints_
+      module procedure sum_unique_sf_ints
+   end interface
+
+   public    update_
+   interface update_
+      module procedure update
+   end interface
+
+   private    make_repetition_factors_
+   interface make_repetition_factors_
+      module procedure make_repetition_factors
+   end interface
+
+   public    destroy_ptr_part_
+   interface destroy_ptr_part_
+      module procedure destroy_ptr_part
+   end interface
+
+   private    put_unique_fragment_geometry_
+   interface put_unique_fragment_geometry_
+      module procedure put_unique_fragment_geometry
+   end interface
+
+   public    d_chi2_d_ext_
+   interface d_chi2_d_ext_
+      module procedure d_chi2_d_ext
+   end interface
+
+   public    sum_unique_sf_deriv_U_
+   interface sum_unique_sf_deriv_U_
+      module procedure sum_unique_sf_deriv_U
+   end interface
+
+   public    have_F_calc_
+   interface have_F_calc_
+      module procedure have_F_calc
+   end interface
+
+   private    unique_SF_symop_mat_
+   interface unique_SF_symop_mat_
+      module procedure unique_SF_symop_mat
+   end interface
+
+   public    sum_ft_nabla_ints_
+   interface sum_ft_nabla_ints_
+      module procedure sum_ft_nabla_ints
+   end interface
+
+   public    stl_
+   interface stl_
+      module procedure stl
+   end interface
+
+   private    put_I_stats_
+   interface put_I_stats_
+      module procedure put_I_stats
+   end interface
+
+   public    put_
+   interface put_
+      module procedure put
+   end interface
+
+   private    put_fragment_cell_geometry_
+   interface put_fragment_cell_geometry_
+      module procedure put_fragment_cell_geometry
+   end interface
+
+   public    sum_ft_ints_
+   interface sum_ft_ints_
+      module procedure sum_ft_ints
+   end interface
+
+   public    cartesian_fragment_width_
+   interface cartesian_fragment_width_
+      module procedure cartesian_fragment_width
+   end interface
+
+   public    destroy_fragment_data_
+   interface destroy_fragment_data_
+      module procedure destroy_fragment_data
+   end interface
+
+   public    optimise_scale_factor_
+   interface optimise_scale_factor_
+      module procedure optimise_scale_factor
+   end interface
+
+   public    put_fcalc_plots_
+   interface put_fcalc_plots_
+      module procedure put_fcalc_plots
+   end interface
+
+   public    optimise_extinction_factor_
+   interface optimise_extinction_factor_
+      module procedure optimise_extinction_factor
+   end interface
+
+   private    put_F_stats_
+   interface put_F_stats_
+      module procedure put_F_stats
+   end interface
+
+   public    create_
+   interface create_
+      module procedure create
+   end interface
+
+   private    make_unique_fragment_atoms_
+   interface make_unique_fragment_atoms_
+      module procedure make_unique_fragment_atoms
+   end interface
+
+   public    create_copy_
+   interface create_copy_
+      module procedure create_copy
+   end interface
+
+   public    sum_ft_spin_ints_
+   interface sum_ft_spin_ints_
+      module procedure sum_ft_spin_ints
+   end interface
+
+   public    I_chi2_
+   interface I_chi2_
+      module procedure I_chi2
+   end interface
+
+   public    F_goodness_of_fit_
+   interface F_goodness_of_fit_
+      module procedure F_goodness_of_fit
+   end interface
+
+   private    make_fragment_cell_geometry_
+   interface make_fragment_cell_geometry_
+      module procedure make_fragment_cell_geometry
+   end interface
+
+   private    read_optimise_scale_
+   interface read_optimise_scale_
+      module procedure read_optimise_scale
+   end interface
+
+   public    sum_PND_spin_ints_
+   interface sum_PND_spin_ints_
+      module procedure sum_PND_spin_ints
+   end interface
+
+   private    put_fragment_data_
+   interface put_fragment_data_
+      module procedure put_fragment_data
+   end interface
+
+   public    sum_unique_sf_
+   interface sum_unique_sf_
+      module procedure sum_unique_sf
+   end interface
+
+   public    fragment_width_
+   interface fragment_width_
+      module procedure fragment_width
+   end interface
+
+   private    make_reduced_symops_
+   interface make_reduced_symops_
+      module procedure make_reduced_symops
+   end interface
+
+   public    nullify_ptr_part_
+   interface nullify_ptr_part_
+      module procedure nullify_ptr_part
+   end interface
+
+   private    put_repetition_factors_
+   interface put_repetition_factors_
+      module procedure put_repetition_factors
+   end interface
+
+   public    z_factor_
+   interface z_factor_
+      module procedure z_factor
+   end interface
+
+   public    extinction_correction_
+   interface extinction_correction_
+      module procedure extinction_correction
+      module procedure extinction_correction_1
+   end interface
+
+   private    read_repetition_factors_
+   interface read_repetition_factors_
+      module procedure read_repetition_factors
+   end interface
+
+   public    unit_cell_geometry_exists_
+   interface unit_cell_geometry_exists_
+      module procedure unit_cell_geometry_exists
+   end interface
+
+   private    put_stl_
+   interface put_stl_
+      module procedure put_stl
+   end interface
+
+   private    make_unit_cell_geometry_
+   interface make_unit_cell_geometry_
+      module procedure make_unit_cell_geometry
+   end interface
+
+   private    put_reflection_phases_
+   interface put_reflection_phases_
+      module procedure put_reflection_phases
+   end interface
+
+   private    make_cluster_symops_
+   interface make_cluster_symops_
+      module procedure make_cluster_symops
+   end interface
+
+   public    F_calc_
+   interface F_calc_
+      module procedure F_calc
+   end interface
+
+   public    I_r_factor_
+   interface I_r_factor_
+      module procedure I_r_factor
+   end interface
+
+   private    put_fragment_geometry_
+   interface put_fragment_geometry_
+      module procedure put_fragment_geometry
+   end interface
+
+   public    F_r_factor_
+   interface F_r_factor_
+      module procedure F_r_factor
+   end interface
+
+   private    make_phases_for_symop_
+   interface make_phases_for_symop_
+      module procedure make_phases_for_symop
+   end interface
+
+   public    I_goodness_of_fit_
+   interface I_goodness_of_fit_
+      module procedure I_goodness_of_fit
+   end interface
+
+   private    read_reflection_data_
+   interface read_reflection_data_
+      module procedure read_reflection_data
+   end interface
+
+   public    transposed_xyz_seitz_matrices_
+   interface transposed_xyz_seitz_matrices_
+      module procedure transposed_xyz_seitz_matrices
+   end interface
+
+   public    put_chi2_vs_angle_plot_
+   interface put_chi2_vs_angle_plot_
+      module procedure put_chi2_vs_angle_plot
+   end interface
+
+   public    d_chi2_d_scale_
+   interface d_chi2_d_scale_
+      module procedure d_chi2_d_scale
+   end interface
+
+   public    make_crystal_error_map_
+   interface make_crystal_error_map_
+      module procedure make_crystal_error_map
+   end interface
+
+   private    read_correct_dispersion_
+   interface read_correct_dispersion_
+      module procedure read_correct_dispersion
+   end interface
+
+   public    asymmetric_unit_exists_
+   interface asymmetric_unit_exists_
+      module procedure asymmetric_unit_exists
+   end interface
+
+   public    d_chi2_
+   interface d_chi2_
+      module procedure d_chi2
+   end interface
+
+   public    unit_cell_offset_
+   interface unit_cell_offset_
+      module procedure unit_cell_offset
+   end interface
+
+   public    set_F_calc_
+   interface set_F_calc_
+      module procedure set_F_calc
+   end interface
+
+   private    make_translated_symops_
+   interface make_translated_symops_
+      module procedure make_translated_symops
+   end interface
+
+   private    read_wavelength_
+   interface read_wavelength_
+      module procedure read_wavelength
+   end interface
+
+   public    F_chi2_
+   interface F_chi2_
+      module procedure F_chi2
+   end interface
+
+   private    make_unique_SF_symops_
+   interface make_unique_SF_symops_
+      module procedure make_unique_SF_symops
+   end interface
+
+   public    put_qq_plot_
+   interface put_qq_plot_
+      module procedure put_qq_plot
+   end interface
+
+   private    transform_position_
+   interface transform_position_
+      module procedure transform_position
+   end interface
+
+   public    reflection_data_exists_
+   interface reflection_data_exists_
+      module procedure reflection_data_exists
+   end interface
+
+   public    equivalence_factors_
+   interface equivalence_factors_
+      module procedure equivalence_factors
+   end interface
+
+   private    put_unit_cell_geometry_
+   interface put_unit_cell_geometry_
+      module procedure put_unit_cell_geometry
+   end interface
+
+   public    simulate_new_F_exp_
+   interface simulate_new_F_exp_
+      module procedure simulate_new_F_exp
+   end interface
+
+   private    read_synthesize_sigma_I_
+   interface read_synthesize_sigma_I_
+      module procedure read_synthesize_sigma_I
+   end interface
+
+   public    n_refl_
+   interface n_refl_
+      module procedure n_refl
+   end interface
+
+   public    F_weighted_r_factor_
+   interface F_weighted_r_factor_
+      module procedure F_weighted_r_factor
+   end interface
+
+   public    process_keyword_
+   interface process_keyword_
+      module procedure process_keyword
+   end interface
+
+   public    read_unitcell_
+   interface read_unitcell_
+      module procedure read_unitcell
+   end interface
+
+   public    set_defaults_
+   interface set_defaults_
+      module procedure set_defaults
+   end interface
+
+   public    put_labelled_qq_plot_
+   interface put_labelled_qq_plot_
+      module procedure put_labelled_qq_plot
+   end interface
+
+   public    I_pred_
+   interface I_pred_
+      module procedure I_pred
+   end interface
+
+   public    I_exp_
+   interface I_exp_
+      module procedure I_exp
+   end interface
+
+   public    make_asymmetric_geometry_
+   interface make_asymmetric_geometry_
+      module procedure make_asymmetric_geometry
+   end interface
+
+   public    have_F_pred_
+   interface have_F_pred_
+      module procedure have_F_pred
+   end interface
+
+   public    read_junk_
+   interface read_junk_
+      module procedure read_junk
+   end interface
+
+   public    move_to_unit_cell_
+   interface move_to_unit_cell_
+      module procedure move_to_unit_cell
+   end interface
+
+   public    sum_ft_j_ints_
+   interface sum_ft_j_ints_
+      module procedure sum_ft_j_ints
+   end interface
+
+   public    sum_PND_nabla_ints_
+   interface sum_PND_nabla_ints_
+      module procedure sum_PND_nabla_ints
+   end interface
+
+   private    reduced_symop_mat_
+   interface reduced_symop_mat_
+      module procedure reduced_symop_mat
+   end interface
+
+   public    n_unique_SF_k_pts_
+   interface n_unique_SF_k_pts_
+      module procedure n_unique_SF_k_pts
+   end interface
+

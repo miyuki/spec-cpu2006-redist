@@ -1,0 +1,328 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>The BUFFER module</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Examples of simple TONTO programs"
+HREF="example-programs.html"><LINK
+REL="PREVIOUS"
+TITLE="Examples of simple TONTO programs"
+HREF="example-programs.html"><LINK
+REL="NEXT"
+TITLE="The INT module"
+HREF="module-int.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="example-programs.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="module-int.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="MODULE-BUFFER"
+></A
+>The <TT
+CLASS="LITERAL"
+>BUFFER</TT
+> module</H1
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>BUFFER</TT
+> is the basic component of a
+<TT
+CLASS="LITERAL"
+>TEXTFILE</TT
+> but is is very useful for many string
+manupulations.</P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="CODE-BUFFER"
+></A
+>Code</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>program run_buffer
+
+   use TYPES
+   use SYSTEM
+   use STR
+   use BUFFER
+   use TEXTFILE
+
+#include "macros"
+
+   implicit none
+
+   BUFFER :: b
+   STR :: word 
+   REAL :: real
+   INT :: int
+
+   tonto.initialize
+
+   stdout.create_stdout
+   stdout.open
+  
+   stdout.text("I am creating a buffer below ...")
+   stdout.flush
+
+   b.set(" this is a buffer string, 0.1 0.2 10 ! comment","!")
+
+   stdout.show("buffer string =",b.string)
+   stdout.show("item start    =",b.item_start)
+   stdout.show("item end      =",b.item_end)
+   stdout.show("item index    =",b.item_index)
+   stdout.show("n_items       =",b.n_items)
+   stdout.show("analysed      =",b.analysed)
+   stdout.show("comment_chars =",b.comment_chars)
+
+   stdout.flush
+   stdout.text("Now I am extracting from this buffer ...")
+   stdout.flush
+
+   b.get(word)  
+   stdout.show("1st word =",word)
+
+   b.get(word)  
+   stdout.show("2nd word =",word)
+
+   b.get(word)  
+   stdout.show("3rd word =",word)
+
+   b.get(word)  
+   stdout.show("4th word =",word)
+
+   b.get(word)  
+   stdout.show("5th word =",word)
+
+   b.get(word)  
+   stdout.show("6th word =",word)
+
+   b.get(real)  
+   stdout.show("7th real  =",real)
+
+   b.get(int)  
+   stdout.show("8th int  =",int)
+
+   stdout.flush
+   stdout.text("Now move back to the 2nd item and get it ...")
+   stdout.flush
+
+   b.move_to_item(2)  
+   b.get(word)  
+   stdout.show("2nd word =",word)
+
+   stdout.flush
+   stdout.text("Now I will print out a cursor to the current position")
+   stdout.flush
+
+   stdout.flush
+   stdout.show("buffer string =", b.string)
+   stdout.text("Cursor---------"//b.cursor_pointer.align_left.trim)
+
+   stdout.flush
+   stdout.text('The last item I processed was "'// b.previous_item.trim //'"')
+
+end </PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RESULTS-BUFFER"
+></A
+>Results</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>I am creating a buffer below ...
+
+buffer string = this is a buffer string, 0.1 0.2 10 ! comment
+item start    =        0
+item end      =        0
+item index    =        0
+n_items       =        8
+analysed      =        T
+comment_chars =                   !
+
+Now I am extracting from this buffer ...
+
+1st word =                this
+2nd word =                  is
+3rd word =                   a
+4th word =              buffer
+5th word =             string,
+6th word =                 0.1
+7th real  =         0.200000000
+8th int  =       10
+
+Now move back to the 2nd item and get it ...
+
+2nd word =                  is
+
+Now I will print out a cursor to the current position
+
+
+buffer string = this is a buffer string, 0.1 0.2 10 ! comment
+Cursor----------------^
+
+The last item I processed was "is"</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="example-programs.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="module-int.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Examples of simple TONTO programs</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="example-programs.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>The <TT
+CLASS="LITERAL"
+>INT</TT
+> module</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

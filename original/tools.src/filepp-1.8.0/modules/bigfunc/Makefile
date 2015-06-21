@@ -1,0 +1,77 @@
+########################################################################
+#
+# filepp is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; see the file COPYING.  If not, write to
+# the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+#
+########################################################################
+########################################################################
+#
+#  Project      :  File Pre Processor - bigfunc module
+#  Filename     :  $RCSfile: Makefile.in,v $
+#  Originator   :  $Author: darren $
+#  Maintainer   :  Darren Miller: darren@cabaret.demon.co.uk
+#  File version :  $Revision: 1.10 $
+#  Last changed :  $Date: 2007/02/16 20:33:03 $
+#  Description  :  Makefile for bigfunc module
+#  Licence      :  GNU copyleft
+#
+########################################################################
+
+##############################################################################
+# Paths
+##############################################################################
+srcdir = .
+datarootdir = ${prefix}/share
+moduledir = /usr/local/share/filepp/modules
+# top level of test build directory
+TESTBUILD = ../../testbuild
+TESTFILEPP = $(TESTBUILD)/bin/filepp
+ECHO=echo
+DIFF=diff
+RM=rm -fr
+INSTALL=/usr/bin/install -c
+
+test:
+	@$(ECHO) ----------- Testing bigfunc.pm ------------
+	$(TESTFILEPP) -m bigfunc.pm $(srcdir)/test.in -o test.out
+	$(DIFF) $(srcdir)/test.good test.out
+	@$(ECHO) ----------- Done --------------------------
+
+	@$(ECHO) ----------- Testing bigfunc.pm and for.pm -
+	$(TESTFILEPP) -m bigfunc.pm -m for.pm $(srcdir)/test2.in -o test2.out
+	$(DIFF) $(srcdir)/test2.good test2.out
+	@$(ECHO) ----------- Done --------------------------
+
+	@$(ECHO) ----------- Testing bigfunc.pm and comment.pm -
+	$(TESTFILEPP) $(srcdir)/test3.in -o test3.out
+	$(DIFF) $(srcdir)/test3.good test3.out
+	@$(ECHO) ----------- Done --------------------------
+
+	@$(ECHO) ----------- Testing bigfunc.pm ------------
+	$(TESTFILEPP) -m bigfunc.pm $(srcdir)/test4.in -o test4.out
+	$(DIFF) $(srcdir)/test4.good test4.out
+	@$(ECHO) ----------- Done --------------------------
+
+install:
+	$(INSTALL) -m 644 $(srcdir)/bigfunc.pm $(moduledir)
+
+clean:
+	$(RM) test.out test2.out test3.out test4.out
+
+distclean:
+	$(RM) Makefile
+
+##############################################################################
+# End of file
+##############################################################################

@@ -1,0 +1,1083 @@
+@menu
+* Influential Concepts::        Conceptual Outline of Influence
+* Territory and Moyo::		Territory, Moyo and Area
+* Influence Usage::		Where influence gets used in the engine
+* Influence and Territory::     Influence and Territory
+* Territorial Details::		Details of the Territory Valuation
+* The Influence Core::          The Core of the Influence Function
+* The Influence Algorithm::     The algorithm of @code{accumlate_influence()}
+* Permeability::                Permeability
+* Escape::                      Escape
+* Break Ins::                   Break Ins
+* Surrounded Dragons::          Surrounded Dragons
+* Influential Patterns::	Patterns used by the Influence module
+* Influential Display::         Colored display and debugging of influence
+@end menu
+
+@node Influential Concepts
+@section Conceptual Outline of Influence
+
+We define call stones @dfn{lively} if they cannot be tactically
+attacked, or if they have a tactical defense and belong to the player
+whose turn it is. Similarly, stones that cannot be strategically attacked
+(in the sense of the life-and-death analysis), or that have a strategical
+defense and belong to the player to move, are called @dfn{alive}.
+If we want to use the influence function before deciding the strategical
+status, all lively stones count as alive.
+
+Every alive stone on the board works as an influence source, with
+influence of its color radiating outwards in all directions. The
+strength of the influence declines exponentially with the distance
+from the source.
+
+Influence can only flow unhindered if the board is empty, however. All
+lively stones (regardless of color) act as influence barriers, as do
+connections between enemy stones that can't be broken through. For
+example the one space jump counts as a barrier unless either of the
+stones can be captured. Notice that it doesn't matter much if the
+connection between the two stones can be broken, since in that case
+there would come influence from both directions anyway.
+
+From the influence of both colors we compute a territorial value between
+-1.0 and +1.0 for each intersection, which can be seen as the likely hood
+of it becoming territory for either color.
+
+In order to avoid finding bogus territory, we add extra influence
+sources at places where an invasion can be launched, e.g. at 3-3 under
+a handicap stone, in the middle of wide edge extensions and in the
+center of large open spaces anywhere. Similarly we add extra influence
+sources where intrusions can be made into what otherwise looks as
+solid territory, e.g. monkey jumps. These intrusions depend on whose
+turn we assume it to be.
+
+All these extra influence sources, as well as connections, are controlled
+by a pattern database, which consists of the two files patterns/influence.db
+and patterns/barriers.db. The details are explained in
+@ref{Influential Patterns}.
+
+@node Territory and Moyo
+@section Territory, Moyo and Area
+@cindex territory
+@cindex moyo
+@cindex area
+
+Using the influence code, empty regions of the board are partitioned
+in three ways. A vertex may be described as White or Black's 
+@dfn{territory}, @dfn{moyo} or @dfn{area}. The functions
+@code{whose_territory()}, @code{whose_moyo()} and @code{whose_area()}
+will return a color, or EMPTY if it belongs to one player or the
+other in one of these classifications.
+
+@itemize @bullet
+@item Territory
+@quotation
+Those parts of the board which are expected to materialize
+as actual points for one player or the other at the end of
+the game are considered @dfn{territory}.
+@end quotation
+@item Moyo
+@quotation
+Those parts of the board which are either already territory or more generally
+places where a territory can easily materialize if the opponent neglects to
+reduce are considered @dfn{moyo}.
+@dfn{moyo}.
+@end quotation
+@item Area
+@quotation
+Those parts of the board where one player or the other has a
+stronger influence than his opponent are considered @dfn{area}.
+@end quotation
+@end itemize
+
+Generally territory is moyo and moyo is area. To get a feeling
+for these concepts, load an sgf file in a middle game position
+with the option @option{-m 0x0180} and examine the resulting
+diagrams (@pxref{Influential Display}).
+
+@node Influence Usage
+@section Where influence gets used in the engine
+
+The information obtained from the influence computation is used in a variety
+of places in the engine, and the influence module is called several times
+in the process of the move generation. The details of the influence
+computation vary according to the needs of the calling function.
+
+After GNU Go has decided about the tactical stability of strings, the
+influence module gets called the first time. Here all lively stones act
+as an influence source of default strength 100. The result is stored in
+the variables @code{initial_influence} and @code{initial_opposite_influence},
+and it is used as an important information for guessing the strength of
+dragons. For example, a dragon that is part of a moyo of size 25 is
+immediately considered alive.  For dragons with a smaller moyo size, a
+life-and-death analysis will be done by the owl code (see @ref{Pattern Based
+Reading}). A dragon with a moyo size of only 5 will be considered weak, even
+if the owl code has decided that it cannot be killed.
+
+As a tool for both the owl code and the strength estimate of dragons,
+an "escape" influence gets computed for each dragon (@pxref{Escape}).
+
+Once all dragons have been evaluated, the influence module is called again
+and the variables @code{initial_influence} and
+@code{initial_opposite_influence} get overwritten. Of course, the dragon
+status', which are available now, are taken into account. Stones belonging
+to a dead dragon will not serve as an influence source, and the strengths of
+other stones get adjusted according to the strength of their respective
+dragon.
+
+The result of this run is the most important tool for move evaluation. All
+helper functions of patterns as explained in @ref{Patterns} that
+refer to influence results (e. g. @code{olib(*)} etc.) actually use these
+results. Further, @code{initial_influence} serves as the reference for
+computing the territorial value of a move. That is, from the influence
+strengths stored in @code{initial_influence}, a territory value is
+assigned to each intersection. This value is supposed to estimate the
+likelyhood that this intersection will become white or black territory.
+
+Then, for each move that gets considered in the function @code{value_moves},
+the influence module is called again via the function
+@code{compute_move_influence} to assess the likely territorial balance after
+this move, and the result is compared with the state before that move.
+
+An additional influence computation is done in order to compute the followup
+value of a move. Some explainations are in @ref{Territorial Details}.
+
+Some of the public functions from @file{influence.c} which are used
+throughout the engine are listed in @ref{Influence Utilities}.
+
+@node Influence and Territory
+@section Influence and Territory
+
+In this section we consider how the influence function is used to
+estimate territory in the function @code{estimate_territorial_value()}.
+
+A move like @samp{*} by @samp{O} below is worth one point:
+
+@example
+OXXX.
+OX.XX
+O*a.X
+OX.XX
+OXXX.
+@end example
+
+This is evaluated by the influence function in the following way:
+We first assign territory under the assumption that X moves first in all
+local positions in the original position;  then we reassing territory,
+again under the assumption that @samp{X} moves first in all local positions,
+but after we let @samp{O} make the move at @samp{*}. These two
+territory assignments are compared and the difference gives the
+territorial value of the move.
+
+Technically, the assumption that @samp{X} plays first everywhere is
+implemented via an asymmetric pattern database in @code{barriers.db}.
+What exactly is a safe connection that stops hostile influence from
+passing through is different for @samp{O} and @samp{X}; of course such a
+connection has to be tighter for stones with color @samp{O}. Also,
+additional intrusion influence sources are added for @samp{X} in places
+where @samp{X} stones have natural followup moves.
+
+In this specific example above, the asymmetry (before any move has been made)
+would turn out as follows: If @samp{X} is in turn to move, the white influence
+would get stopped by a barrier at @samp{*}, leaving 4 points of territory
+for @samp{X}.  However, if @samp{O} was next to move, then a followup move
+for the white stones at the left would be assumed in the form of an extra
+("intrusion") influence source at @samp{*}. This would get stopped at
+@samp{a}, leaving three points of territory.
+
+Returning to the valuation of a move by @samp{O} at @samp{*}, we get a
+value of 1 for the move at @samp{*}.
+However, of course this move is sente once it is worth playing, and should
+therefore (in miai counting) be awarded an effective value of 2. Hence we
+need to recognize the followup value of a move. GNU Go 3.0 took care of
+this by using patterns in @code{patterns.db} that enforced an explicit
+followup value. Versions 3.2 and 3.4 instead compute a seperate followup
+influence to each move considered. In the above example, an intrusion source
+will be added at @samp{a} as a followup move to @samp{*}. This destroys all of
+Black's territory and hence gives a followup value of 3.
+
+The pattern based followup value are still needed at some places, however.
+
+To give another example, consider this position where we want to
+estimate the value of an @samp{O} move at @samp{*}:
+
+@example
+OOOXXX
+..OX..
+..OX..
+...*..
+------
+@end example
+
+Before the move we assume @samp{X} moves first in the local position (and
+that @samp{O} has to connect), which gives territory like this (lower case
+letter identify territory for each player):
+
+@example
+OOOXXX
+ooOXxx
+o.OXxx
+o...xx
+------
+@end example
+
+Then we let @samp{O} make the move at @samp{*} and assume
+@samp{X} moves first again next.  The territory then becomes (@samp{X}
+is also assumed to have to connect):
+
+@example
+OOOXXX
+ooOXxx
+ooOX.x
+oo.O.x
+------
+@end example
+
+We see that this makes a difference in territory of 4, which is what
+influence_delta_territory() should report. Then again, we have followup
+value, and here also a reverse followup value. The reverse followup value,
+which in this case will be so high that the move is treated as reverse
+sente, is added by an explicit pattern. Other sources for followup or
+reverse followup values are threats to capture a rescue a string of stones.
+See the code and comments in the function @code{value_move_reaons} for how
+followup and reverse followup values are used to adjust the effective 
+move value.
+
+To give an example of territorial value where something is captured,
+consider the @samp{O} move at @samp{*} here,
+
+@example
+XXXXXXXO
+X.OOOOXO
+X.O..O*O
+--------
+@end example
+
+As before we first let the influence function determine territory
+assuming X moves first, i.e. with a captured group:
+
+@example
+XXXXXXXO
+XxyyyyXO
+Xxyxxy.O
+--------
+@end example
+
+Here @samp{y} indicates @samp{X} territory + captured stone,
+i.e. these count for two points. After the @samp{O} move at @samp{*} we
+instead get
+
+@example
+XXXXXXXO
+X.OOOOXO
+X.OooOOO
+--------
+@end example
+
+and we see that @samp{X} has 16 territory fewer and @samp{O}
+has two territory more, for a total difference of 18 points.
+
+That the influence function counts the value of captured stones was
+introduced in GNU Go 3.2.. Previously this was instead done using the
+effective_size heuristic. The effective size is the number of
+stones plus the surrounding empty spaces which are closer to
+this string or dragon than to any other stones. Here the @samp{O}
+string would thus have effective size 6 (number of stones) + 2
+(interior eye) + 2*0.5 (the two empty vertices to the left of
+the string, split half each with the surrounding X string) +
+1*0.33 (the connection point, split between three strings) =
+9.33. As noted this value was doubled, giving 18.67 which is
+reasonably close to the correct value of 18. The effective size
+heuristic is still used in certain parts of the move valuation
+where we can't easily get a more accurate value from the
+influence function (e. g. attacks depending on a ko, attack threats).
+
+Note that this section only describes the territorial valuation of a move.
+Apart from that, GNU Go uses various heuristics in assigning a strategical
+value (weakening and strengthening of other stones on the board) to a move.
+Also, the influence function isn't quite as well tuned as the examples above
+may seem to claim. But it should give a fairly good idea of how the design
+is intended.
+
+Another matter is that so far we have only considered the change in secure
+territory. GNU Go 3.2 and 3.4 use a revised heuristic, which is explained in
+the next section, to assign probable territory to each player.
+
+@node Territorial Details
+@section Details of the Territory Valuation
+
+This section explains how GNU Go assigns a territorial value to an
+intersection once the white and black influence have been computed.
+The intention is that an intersection that has a chance of xx% of
+becoming white territory is counted as 0.xx points of territory for
+white, and similar for black.
+
+The algorithm in the function @code{new_value_territory} goes roughly
+as follows:
+
+If @code{wi} is the white influence at a point, and @code{bi} the black
+influence, then @code{ value = ( (wi-bi)/ (wi+bi) )^3} (positive values
+indicates likley white territory, negative stand for black territory)
+turns out to be very simple first guess that is still far off, but
+reasonable enough to be useful.
+
+This value is then suspect a number of corrections. Assume that this first
+guess resulted in a positive value.
+
+If both @code{bi} and @code{wi} are small, it gets reduced. What exactly is
+"small" depends on whether the intersection is close to a corner or an edge
+of the board, since it is easier to claim territory in the corner than in
+the center.
+
+Then the value at each intersection is degraded to the minimum value of
+its neighbors. This can be seen as a second implementation of the proverb
+saying that there is no territory in the center of the board. This step
+substantially reduces the size of spheres of territory that are open at
+several sides.
+
+Finally, there are a number of patterns that explicitly forbid GNU Go to
+count territory at some intersections. This is used e. g. for false eyes that
+will eventually have to be filled in. Also, points for prisoners are added.
+
+To fine tune this scheme, some revisions have been made to the influence
+computations that are relevant for territorial evaluation. This includes
+a reduced default attenuation and some revised pattern handling.
+
+@node The Influence Core
+@section The Core of the Influence Function
+
+The basic influence radiation process can efficiently be implemented
+as a breadth first search for adjacent and more distant points, using
+a queue structure.
+
+Influence barriers can be found by pattern matching, assisted by
+reading through constraints and/or helpers. Wall structures, invasion
+points and intrusion points can be found by pattern matching as well.
+
+When influence is computed, the basic idea is that there are a number
+of influence sources on the board, whose contributions are summed to
+produce the influence values. For the time being we can assume that
+the living stones on the board are the influence sources, although
+this is not the whole story.
+
+The function @code{compute_influence()} contains a loop over the
+board, and for each influence source on the board, the function
+@code{accumulate_influence()} is called. This is the core of the
+influence function. Before we get into the details, this is how
+the influence field from a single isolated influence source of
+strength 100 turns out (with an attenuation of 3.0):
+
+@example
+  0  0  0  0  0  0  0  0  0  0  0
+  0  0  0  0  1  1  1  0  0  0  0
+  0  0  0  1  2  3  2  1  0  0  0
+  0  0  1  3  5 11  5  3  1  0  0
+  0  1  2  5 16 33 16  5  2  1  0
+  0  1  3 11 33  X 33 11  3  1  0
+  0  1  2  5 16 33 16  5  2  1  0
+  0  0  1  3  5 11  5  3  1  0  0
+  0  0  0  1  2  3  2  1  0  0  0
+  0  0  0  0  1  1  1  0  0  0  0
+  0  0  0  0  0  0  0  0  0  0  0
+@end example
+
+These values are in reality floating point numbers but have been
+rounded down to the nearest integer for presentation. This means that
+the influence field does not stop when the numbers become zeroes.
+
+Internally @code{accumulate_influence()} starts at the influence source and
+spreads influence outwards by means of a breadth first propagation,
+implemented in the form of a queue. The order of propagation and the
+condition that influence only is spread outwards guarantee that no
+intersection is visited more than once and that the process
+terminates. In the example above, the intersections are visited in the
+following order:
+
+@example
+  +  +  +  +  +  +  +  +  +  +  +
+  + 78 68 66 64 63 65 67 69 79  +
+  + 62 46 38 36 35 37 39 47 75  +
+  + 60 34 22 16 15 17 23 43 73  +
+  + 58 32 14  6  3  7 19 41 71  +
+  + 56 30 12  2  0  4 18 40 70  +
+  + 57 31 13  5  1  8 20 42 72  +
+  + 59 33 21 10  9 11 24 44 74  +
+  + 61 45 28 26 25 27 29 48 76  +
+  + 77 54 52 50 49 51 53 55 80  +
+  +  +  +  +  +  +  +  +  +  +  +
+@end example
+
+The visitation of intersections continues in the same way on the
+intersections marked '@samp{+} and further outwards. In a real
+position there will be stones and tight connections stopping the
+influence from spreading to certain intersections. This will
+disrupt the diagram above, but the main property of the
+propagation still remains, i.e. no intersection is visited more
+than once and after being visited no more influence will be
+propagated to the intersection.
+
+@node The Influence Algorithm
+@section The Influence Algorithm
+
+Let @code{(m, n)} be the coordinates of the influence source and
+@code{(i, j)} the coordinates of a an intersection being visited
+during propagation, using the same notation as in the
+@code{accumulate_influence()} function.  Influence is now propagated to
+its eight closest neighbors, including the diagonal ones,
+according to the follow scheme:
+
+For each of the eight directions @code{(di, dj)}, do:
+
+@enumerate 
+@item 
+Compute the scalar product @code{di*(i-m) + dj*(j-n)}
+between the vectors @code{(di,dj)} and @code{(i,j) - (m,n)}
+@item If this is negative or zero, the direction is not outwards and
+we continue with the next direction. The exception is when we
+are visiting the influence source, i.e. the first intersection,
+when we spread influence in all directions anyway.
+@item If @code{(i+di, j+dj)} is outside the board or occupied we
+also continue with the next direction.
+@item Let S be the strength of the influence at @code{(i, j)}. The influence
+propagated to @code{(i+di, j+dj)} from this intersection is given by
+@code{P*(1/A)*D*S}, where the three different kinds of damping are:
+
+@itemize @bullet
+@item The permeability @samp{P}, which is a property of the board
+intersections. Normally this is one, i.e. unrestricted
+propagation, but to stop propagation through e.g. one step
+jumps, the permeability is set to zero at such intersections
+through pattern matching. This is further discussed below.
+@item The attenuation @samp{A}, which is a property of the influence
+source and different in different directions. By default this has the
+value 3 except diagonally where the number is twice as much. By
+modifying the attenuation value it is possible to obtain influence
+sources with a larger or a smaller effective range.
+@item The directional damping @samp{D}, which is the squared cosine of the
+angle between @code{(di,dj)} and @code{(i,j) - (m,n)}. The idea is to
+stop influence from "bending" around an interfering stone and
+get a continuous behavior at the right angle cutoff. The
+choice of the squared cosine for this purpose is rather
+arbitrary, but has the advantage that it can be expressed as a
+rational function of @samp{m}, @samp{n}, @samp{i}, @samp{j},
+@samp{di}, and @samp{dj}, without involving any trigonometric or
+square root computations. When we are visiting the influence
+source we let by convention this factor be one.
+@end itemize
+@end enumerate
+
+Influence is typically contributed from up to three neighbors
+"between" this intersection and the influence source. These values are
+simply added together. As pointed out before, all contributions will
+automatically have been made before the intersection itself is
+visited.
+
+When the total influence for the whole board is computed by
+@code{compute_influence()}, @code{accumulate_influence()} is
+called once for each influence source. These invocations are
+totally independent and the influence contributions from the
+different sources are added together.
+
+@node Permeability
+@section Permeability
+
+The permeability at the different points is initially one at all empty
+intersections and zero at occupied intersections. To get a useful
+influence function we need to modify this, however. Consider the
+following position:
+
+@example
+|......
+|OOOO..
+|...O..
+|...a.X   ('a' empty intersection)
+|...O..
+|...OOO
+|.....O
++------
+@end example
+
+The corner is of course secure territory for @samp{O} and clearly
+the @samp{X} stone has negligible effect inside this position. To
+stop @samp{X} influence from leaking into the corner we use pattern
+matching (pattern Barrier1/Barrier2 in @file{barriers.db}) to modify the
+permeability for @samp{X} at this intersection to zero. @samp{O} can still
+spread influence through this connection.
+
+Another case that needs to be mentioned is how the permeability
+damping is computed for diagonal influence radiation. For horizontal
+and vertical radiation we just use the permeability (for the relevant
+color) at the intersection we are radiating from. In the diagonal case
+we additionally multiply with the maximum permeability at the two
+intersections we are trying to squeeze between. The reason for this
+can be found in the diagram below:
+
+@example
+|...X    |...X    
+|OO..    |Oda.
+|..O.    |.bc.
+|..O.    |..O.
++----    +----
+@end example
+
+We don't want @samp{X} influence to be spread from @samp{a} to
+@samp{b}, and since the permeability at both c and d is zero, the
+rule above stops this.
+
+@node Escape
+@section Escape
+
+One application of the influence code is in computing the
+@code{dragon.escape_route} field. This is computed by the function
+@code{compute_escape()} as follows.  First, every intersection is
+assigned an escape value, ranging between 0 and 4, depending on
+the influence value of the opposite color.
+
+The @code{escape_route} field is modified by the code in @file{surround.c}
+(@pxref{Surrounded Dragons}). It is divided by two for weakly surrounded
+dragons, and set to zero for surrounded ones.
+
+In addition to assiging an escape value to empty vertices,
+we also assign an escape value to friendly dragons. This
+value can range from 0 to 6 depending on the status of 
+the dragon, with live dragons having value 6.
+
+Then we sum the values of the resulting influence escape values
+over the intersections (including friendly dragons) at distance 4,
+that is, over those intersections which can be joined to the
+dragon by a path of length 4 (and no shorter path) not passing
+adjacent to any unfriendly dragon. In the following example, we
+sum the influence escape value over the four vertices labelled
+'4'.
+
+@example
+   
+   . . . . . . . . .    . . . . . . . . .
+   . . . . . X . . O    . . . . . X . . O
+   . . X . . . . . O    . . X . 2 . 4 . O
+   X . . . . . . . .    X . . 1 1 2 3 4 .
+   X O . O . . . . O    X O 1 O 1 2 3 4 O
+   X O . O . . . . .    X O 1 O 1 . 4 . .
+   X O . . . X . O O    X O 1 . . X . . O
+   . . . X . . . . .    . 1 . X . . . . .
+   X . . . . X . . .    X . . . . X . . .
+   . . . . . . . . .    . . . . . . . . .
+
+@end example
+
+Since the dragon is trying to reach safety, the reader might
+wonder why @code{compute_influence()} is called with the opposite
+color of the dragon contemplating escape.  To explain this point,
+we first remind the reader why there is a color parameter to
+@code{compute_influence()}. Consider the following example position:
+@example
+
+     ...XX...
+     OOO..OOO
+     O......O
+     O......O
+     --------
+
+@end example
+
+Whether the bottom will become O territory depends on who is in turn
+to play. This is implemented with the help of patterns in barriers.db,
+so that X influence is allowed to leak into the bottom if X is in turn
+to move but not if O is. There are also ``invade'' patterns which add
+influence sources in sufficiently open parts of the board which are
+handled differently depending on who is in turn to move.
+
+In order to decide the territorial value of an O move in the third
+line gap above, influence is first computed in the original position
+with the opponent (i.e. X) in turn to move. Then the O stone is played
+to give:
+
+@example
+
+     ...XX...
+     OOO.OOOO
+     O......O
+     O......O
+     --------
+
+@end example
+
+Now influence is computed once more, also this time with X in turn to
+move. The difference in territory (as computed from the influence
+values) gives the territorial value of the move.
+
+Exactly how influence is computed for use in the escape route
+estimation is all ad hoc. But it makes sense to assume the opponent
+color in turn to move so that the escape possibilities aren't
+overestimated. After we have made a move in the escape direction
+it is after all the opponent's turn.
+
+The current escape route mechanism seems good enough to be useful
+but is not completely reliable. Mostly it seems to err on the side of
+being too optimistic.
+
+@node Break Ins
+@section Break Ins
+
+The code in @file{breakin.c} break-ins into territories that require
+deeper tactical reading and are thus impossible to detect for the
+influence module. It gets run after the influence module and revises
+its territory valuations.
+
+The break-in code makes use of two public functions in @file{readconnect.c},
+
+@itemize @bullet
+@item int break_in(int str, const char goal[BOARDMAX], int *move)
+@findex break_in
+@quotation
+Returns WIN if @code{str} can connect to the area @code{goal[]} (which may or
+may not contain stones), if the string's owner gets the first move.
+@end quotation
+@item int block_off(int str, const char goal[BOARDMAX], int *move)
+@findex block_off
+@quotation
+Returns WIN if @code{str} cannot connect to the area @code{goal[]} (which may
+or may not contain stones), if the other color moves first.
+@end quotation
+@end itemize
+
+These functions are public front ends to their counterparts
+@code{recursive_break_in} and @code{recursive_block_off}, which
+call each other recursively.
+
+The procedure is as follows: We look at all big (>= 10) territory regions
+as detected by the influence code. Using the computation of
+connection distances from readconnect.c, we compute all nearby vertices
+of this territory. We look for the closest safe stones belonging to
+the opponent. 
+
+For each such string @code{str} we call
+
+@itemize @bullet
+@item @code{break_in(str, territory)} if the opponent is assumed to be next to move,
+@item @code{block_off(str, territory)} if the territory owner is next.
+@end itemize
+
+If the break in is successful resp. the blocking unsuccessful, we
+shrink the territory, and see whether the opponent can still break in.
+We repeat this until the territory is shrunk so much that the opponent
+can no longer reach it.
+
+To see the break in code in action run GNU Go on the file
+@file{regression/games/break_in.sgf} with the option @code{-d0x102000}. Among
+the traces you will find:
+
+@example
+  Trying to break in from D7 to:
+E9 (1)  F9 (1)  G9 (1)  E8 (1)  F8 (1)  G8 (1)  
+H8 (1)  G7 (1)  H7 (1)  J7 (1)  H6 (1)  J6 (1)
+H5 (1)  J5 (1)  H4 (1)  J4 (1)  H3 (1)  J3 (1)
+H2 (1)  J2 (1)    
+block_off D7, result 0 PASS (355, 41952 nodes, 0.73 seconds)
+E9 (1)  F9 (1)  G9 (1)  E8 (1)  F8 (1)  G8 (1)
+H8 (1)  G7 (1)  H7 (1)  J7 (1)  H6 (1)  J6 (1)
+H5 (1)  J5 (1)  H4 (1)  J4 (1)  H3 (1)  J3 (1)
+H2 (1)  J2 (1)    
+B:F4 
+  Erasing territory at E8 -b.
+  Erasing territory at G3 -b.
+  Now trying to break to smaller goal:
+F9 (1)  G9 (1)  F8 (1)  G8 (1)  H8 (1)  G7 (1)
+H7 (1)  J7 (1)  H6 (1)  J6 (1)  H5 (1)  J5 (1)
+H4 (1)  J4 (1)  H3 (1)  J3 (1)  H2 (1)  J2 (1)    
+@end example
+
+This means that the function @code{break_in} is called with the goal
+marked 'a' in the following diagram. The code attempts to find out
+whether it is possible to connect into this area from the string
+at @code{D7}.
+
+@example
+   A B C D E F G H J
+ 9 . . . . a a a . . 9
+ 8 . . . . a a a a . 8
+ 7 . . . X O O a a a 7
+ 6 . . . X X X O a a 6
+ 5 . . . . + . . a a 5
+ 4 . . . X . . O a a 4
+ 3 . . . . X . . a a 3
+ 2 . . . . . . O a a 2
+ 1 . . . . . . . . . 1
+   A B C D E F G H J
+@end example
+
+A breakin is found, so the goal is shrunk by removing
+@code{E9} and @code{J2}, then break_in is called again.
+
+In order to see what reading is actually done in order to
+do this break in, you may load GNU Go in gtp mode, then
+issue the commands:
+
+@example
+loadsgf break_in.sgf 
+= black
+
+start_sgftrace
+= 
+
+break_in D7 E9 F9 G9 E8 F8 G8 H8 G7 H7 J7 H6 J6 H5 J5 H4 J4 H3 J3 H2 J2
+= 1 E8
+
+finish_sgftrace vars.sgf
+= 
+
+start_sgftrace
+= 
+
+break_in D7 F9 G9 F8 G8 H8 G7 H7 J7 H6 J6 H5 J5 H4 J4 H3 J3 H2 J2
+= 1 G7
+
+finish_sgftrace vars1.sgf
+@end example
+
+This will produce two sgf files containing the variations caused
+by these calls to the breakin code. The second file, @file{vars1.sgf}
+will contain quite a few variations.
+
+The break in code makes a list of break ins which are found.
+When it is finished, the function @code{add_expand_territory_move}
+is called for each break in, adding a move reason.
+
+The break in code is slow, and only changes a few moves by the engine
+per game. Nevertheless we believe that it contributes substantially
+to the strength of the program. The break in code is enabled by default 
+in GNU Go 3.4 at level 10, and disabled at level 9. In fact, this is the
+@strong{only} difference between levels 9 and 10 in GNU Go 3.4.
+
+@node Surrounded Dragons
+@section Surrounded Dragons
+
+When is a dragon surrounded?
+
+As has been pointed out by Bruce Wilcox, the geometric lines connecting groups
+of the opposite color are often important. It is very hard to prevent the
+escape of this @samp{O} dragon:
+
+@example
+..........
+.....O....
+.X.......X
+.X...O...X
+..........
+..........
+----------
+@end example
+
+On the other hand, this dragon is in grave danger:
+
+@example
+..........
+..........
+.X.......X
+.....O....
+.X.......X
+.X...O...X
+..........
+..........
+----------
+@end example
+
+The difference between these two positions is that in the first, the @samp{O}
+dragon crosses the line connecting the top two @samp{X} stones.
+
+Code in @file{surround.c} implements a test for when a dragon is surrounded.
+The idea is to compute the convex hull of the @emph{surround set}, that is,
+the set stones belonging to unfriendly neighbor dragons. If the dragon is
+contained within that hull. If it is, it is said to be @emph{surrounded}.
+
+In practice this scheme is modified slightly. The implementation uses various
+algorithms to compute distances and hostile stones are discarded from the 
+surround set when a pair other hostile ones can be found which makes the
+considered one useless. For example, in the following position
+the bottom @samp{O} stone would get discarded.
+
+@example
+O.X.O  
+.....
+.O.O.
+.....
+..O..
+@end example
+
+Also, points are added to the surround set below stones on the
+second and third lines. This should account for the edge being a
+natural barrier.
+
+In order to compute distances between corners of the convex hull
+a sorting by angle algorithm has been implemented. If the distance
+between a pair enclosing stones is large, the surround status gets
+decreased to @code{WEAKLY_SURROUNDED}, or even 0 for very large ones.
+
+The sorting by angle must be explained. A small diagram will probably help :
+
+@example
+.O.O.
+O...O
+..X..
+O...O
+.O.O.
+@end example
+
+The sorting algorithm will generate this:
+
+@example
+.4.5.
+3...6
+..X..
+2...7
+.1.8.
+@end example
+
+That is, the points are sorted by ascending order of the measure of the
+angle S-G-O, where S is SOUTH, G the (approximated) gravity center of
+the goal, and O the position of the considered hostile stones.
+
+The necessity of such sorting appears when one tries to measure distances
+between enclosing stones without sorting them, just by using directly the
+existing left and right corners arrays. In some positions, the results will
+be inconsistent. Imagine, for example a position where for instance the points
+1,2,3,4,6 and 7 were in the left arrary, leaving only 5 and 8 in the right
+array. Because of the large distance between 5 and 8, the dragon would have
+declared weak surrounded or not surrounded at all. Such cases are rare but 
+frequent enough to require the angle sorting.
+
+The following position:
+
+@example
+O.X.O
+.....
+.O.O.
+@end example      
+
+This is "more" surrounded than the following position:
+
+@example
+O.XXXXXX.O
+..........
+.O......O.
+@end example
+
+In the second case, the surround status would be lowered to
+@code{WEAKLY_SURROUNDED}.
+
+The surround code is used to modify the escape_route field
+in the dragon2 data array. When a dragon is WEAKLY_SURROUNDED,
+the escape_route is divided by 2. If the dragon is SURROUNDED,
+escape_route is simply set to 0.
+
+
+@node Influential Patterns
+@section Patterns used by the Influence module
+
+This section explains the details of the pattern databases used for
+the influence computation.
+
+First, we have the patterns in @file{influence.db}, which get matched
+symmetrically for both colors.
+
+@itemize
+@item @samp{E}
+@quotation
+These patterns add extra influence sources close to some shapes like walls.
+This tries to reflect their extra strength. These patterns are not used
+in the influence computations relevant for territory valuations, but they
+are useful for getting a better estimate of strengths of groups.
+@end quotation
+@item @samp{I}
+@quotation
+These patterns add extra influence sources at typical invasion points. 
+Usually they are of small strength. If they additionally have the class
+@samp{s}, the extra influence source is added for both colors. Otherwise,
+only the player assumed to be next to move gets the benefit.
+@end quotation
+@end itemize 
+
+The patterns in @file{barriers.db} get matched only for @samp{O}
+being the player next to move.
+
+@itemize
+@item @samp{A}
+@quotation
+Connections between @samp{X} stones that stop influence of @samp{O}. They
+have to be tight enough that @samp{O} cannot break through, even though
+he is allowed to move first.
+@end quotation
+@item @samp{D}
+@quotation
+Connections between @samp{O} stones that stop influence of @samp{X}. The
+stones involved can be more loosely connected than those in @samp{A}
+patterns.
+@end quotation
+@item @samp{B}
+@quotation
+These indicate positions of followup moves for the @samp{O} stone marked
+with @samp{Q} in the pattern. They are used to reduce the territory e. g.
+where a monkey jump is possible. Also, they are used in the computation
+of the followup influence, if the @samp{Q} stone was the move played
+(or a stone saved by the move played).
+@end quotation
+@item @samp{t}
+@quotation
+These patterns indicate intersections where one color will not be able
+to get territory, for example in a false eye. The points are set with
+a call to the helper non_oterritory or non_xterritory in the action of
+the pattern.
+@end quotation
+@end itemize 
+
+The intrusion patterns (@samp{B}) are more powerful than the description
+above might suggest. They can be very helpful in identifying weak shapes
+(by adding an intrusion source for the opponent where he can break through).
+A negative inference for this is that a single bad @samp{B} pattern, e. g.
+one that has a wrong constraint, typically causes 5 to 10 @code{FAIL}s in
+the regression test suite.
+
+Influence Patterns can have autohelper constraints as usual. As for
+the constraint attributes, there are (additionally to the usual
+ones @samp{O}, @samp{o}, @samp{X} and @samp{x}),
+attributes @samp{Y} and @samp{FY}. A pattern marked with @samp{Y} will
+only be used in the influence computations relevant for the territory
+valuation, while @samp{FY} patterns only get used in the other influence
+computations.
+
+The action of an influence pattern is at the moment only used for
+non-territory patterns as mentioned above, and as a workaround for a
+problem with @samp{B} patterns in the followup influence.
+
+To see why this workaround is necessary, consider the follwoing situation:
+
+@example
+
+..XXX
+.a*.O
+.X.O.
+..XXO
+
+@end example
+
+(Imagine that there is @samp{X} territory on the left.)
+
+The move by @samp{O} at @samp{*} has a natural followup move at @samp{a}.
+So, in the computation of the followup influence for @samp{*}, there would
+be an extra influence source for @samp{O} at @samp{a} which would destroy
+a lot of black territory on the left. This would give a big followup value,
+and in effect the move @samp{*} would be treated as sente. 
+
+But of course it is gote, since @samp{X} will answer at @samp{a}, which
+both stops the possible intrusion and  threatens to capture @samp{*}. This
+situation is in fact quite common.
+
+Hence we need an additional constraint that can tell when an intrusion
+pattern can be used in followup influence. This is done by misusing the
+action line: An additional line
+
+@example
+>return <condition>;
+@end example
+
+gets added to the pattern. The @code{condition} should be true if the
+intrusion cannot be stopped in sente. In the above example, the relevant
+intrusion pattern will have an action line of the form
+
+@example
+>return (!xplay_attack(a,b));
+@end example
+
+where @samp{b} refers to the stone at @samp{*}. In fact, almost all 
+followup-specific constraints look similar to this.
+
+
+@node Influential Display
+@section Colored display and debugging of influence
+
+There are various ways to obtain detailed information about the influence
+computations. Colored diagrams showing influence are possible from
+a colored xterm or rxvt window. 
+
+There are two options controlling when to generate diagrams:
+
+@itemize @bullet
+@item @option{-m 0x08} or @option{-m 8}
+@quotation
+Show diagrams for the initial influence computation. This is done
+twice, the first time before @code{make_dragons()} is run and the second time
+after. The difference is that dead dragons are taken into account the
+second time. Tactically captured worms are taken into account both
+times. 
+@end quotation
+@item @option{--debug-influence @var{location}}
+@quotation
+Show influence diagrams after the move at the given location. An
+important limitation of this option is that it's only effective for
+moves that the move generation is considering.
+@end quotation
+@end itemize
+
+The other options control which diagrams should be generated in these
+situations. You have to specify at least one of the options above and
+at least one of the options below to generate any output.
+
+@strong{
+The options below must be combined with one of the two previous
+ones, or the diagram will not be printed. For example to print
+the influence diagram, you may combine 0x08 and 0x010, and use
+the option @option{-m 0x018}.}
+
+@itemize @bullet
+@item @option{-m 0x010} or @option{-m 16}
+@quotation
+Show colored display of territory/moyo/area regions.
+@itemize @minus
+@item territory: cyan
+@item moyo: yellow
+@item area: red
+@end itemize
+This feature is very useful to get an immediate impression of the influence
+regions as GNU Go sees them.
+@end quotation
+@item @option{-m 0x20} or @option{-m 32}
+@quotation
+Show numerical influence values for white and black. These come in
+two separate diagrams, the first one for white, the second one for
+black. Notice that the influence values are represented by floats and
+thus have been rounded in these diagrams.
+@end quotation
+@item @option{-m 0x40} or @option{-m 64}
+@quotation
+This generates two diagrams showing the permeability for black and white
+influence on the board.
+@end quotation
+@item @option{-m 0x80} or @option{-m 128}
+@quotation
+This shows the strength of the influence sources for black and white 
+across the board. You will see sources at each lively stone (with strength
+depending on the strength of this stone), and sources contributed by
+patterns.
+@end quotation
+@item @option{-m 0x100} or @option{-m 256}
+@quotation
+This shows the attenuation with which the influence sources spread
+influence across the board. Low attenuation indicates far-reaching
+influence sources.
+@end quotation
+@item @option{-m 0x200} or @option{-m 512}
+@quotation
+This shows the territory valuation of GNU Go. Each intersection is
+shown with a value between -1.0 and +1.0 (or -2 resp. +2 if there is
+a dead stone on this intersection). Positive values indicate territory
+for white. A value of -0.5 thus indicates a point where black has a
+50% chance of getting territory.
+@end quotation
+@end itemize
+
+Finally, there is the debug option @option{-d 0x1} which turns on
+on @code{DEBUG_INFLUENCE}. This gives a message for each influence pattern
+that gets matched. Unfortunately, these are way too many messages making
+it tedious to navigate the output. However, if you discover an influence
+source with @option{-m 0x80} that looks wrong, the debug output can
+help you to quickly find out the responsible pattern.
+

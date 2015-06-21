@@ -1,0 +1,277 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>Compiling TONTO</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Compiling and Installing TONTO"
+HREF="compile-install.html"><LINK
+REL="PREVIOUS"
+TITLE="Known problems installing TONTO"
+HREF="install-problems.html"><LINK
+REL="NEXT"
+TITLE="Making the TONTO html documentation"
+HREF="making-documentation.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="install-problems.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="making-documentation.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="COMPILING-TONTO"
+></A
+>Compiling TONTO</H1
+><P
+ALIGN="justify"
+>Download the latest version of TONTO from the <A
+HREF="http://www.theochem.uwa.edu.au/tonto/"
+TARGET="_top"
+>http://www.theochem.uwa.edu.au/tonto/</A
+>
+website.</P
+><P
+ALIGN="justify"
+>To unpack the archive you downloaded, type: 
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>       gunzip -c tonto.tar.gz | tar xvf -</PRE
+></TD
+></TR
+></TABLE
+>
+or
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>       bunzip2 -c tonto.tar.bz2 | tar xvf -</PRE
+></TD
+></TR
+></TABLE
+>
+if you downloaded the bz2 version.</P
+><P
+ALIGN="justify"
+>Then to compile TONTO, type: 
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>       cd tonto
+       perl -w Makefile.pl
+       make</PRE
+></TD
+></TR
+></TABLE
+></P
+><P
+ALIGN="justify"
+>If <B
+CLASS="COMMAND"
+>Makefile.pl</B
+> tells you that your system is unknown,
+you should read <A
+HREF="compile-fail.html"
+>the Section called <I
+>What to do if compiling TONTO fails</I
+></A
+>&#62;</P
+><P
+ALIGN="justify"
+>Note that on some systems you need to type <B
+CLASS="COMMAND"
+>gmake</B
+>
+instead of <B
+CLASS="COMMAND"
+>make</B
+>.  TONTO must use the GNU version of
+<SPAN
+CLASS="APPLICATION"
+>make</SPAN
+> to succesfully compile.</P
+><P
+ALIGN="justify"
+>On some systems the <SPAN
+CLASS="APPLICATION"
+>BLAS</SPAN
+> and
+<SPAN
+CLASS="APPLICATION"
+>LAPACK</SPAN
+> libraries may not be available.  If this is
+the case, you will need to read <SPAN
+CLASS="QUOTE"
+>"Compiling the BLAS and LAPACK
+libraries"</SPAN
+> section.  When you have generated those libraries and modified
+the Makefile so that they are recognised, type <B
+CLASS="COMMAND"
+>make</B
+> again to
+finish compiling TONTO.</P
+><P
+ALIGN="justify"
+>If you want to install customised versions of TONTO, you should edit
+compiler settings as described in a later chapter before typing
+<B
+CLASS="COMMAND"
+>make</B
+>.</P
+><P
+ALIGN="justify"
+>You can type <B
+CLASS="COMMAND"
+>make help</B
+> to see a list of common commands
+to pass to <B
+CLASS="COMMAND"
+>make</B
+>.</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="install-problems.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="making-documentation.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Known problems installing TONTO</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="compile-install.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Making the TONTO html documentation</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

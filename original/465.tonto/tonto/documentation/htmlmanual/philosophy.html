@@ -1,0 +1,375 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>The underlying philosophy of TONTO</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="The SHELL4 module"
+HREF="module-shell4.html"><LINK
+REL="NEXT"
+TITLE="Final word"
+HREF="final-word.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="CHAPTER"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="module-shell4.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="final-word.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="PHILOSOPHY"
+></A
+>The underlying philosophy of TONTO</H1
+><P
+ALIGN="justify"
+>Solving problems by modelling in computational chemistry is rapidly
+becoming mainly an organizational one, of joining the appropriate and different
+methodology together in flexible ways. We recognise this and it underlies the
+whole structure of TONTO.</P
+><P
+ALIGN="justify"
+>It is also our view that the great advances in computer software that have
+been made over the last decades are due mainly to the free exchange of ideas and
+information, including the availability of good free software. </P
+><P
+ALIGN="justify"
+>Theoretical chemists, and quantum chemists in particular, are noted for
+their strong ethic of <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>standardizing</I
+></SPAN
+> the quality of
+theoretical calculations for predicting experimental quantities.  Sadly, it
+seems the ethic to standardize and share the code required for computational
+chemistry is fast vanishing.  A number of reasons can be posited for this, some
+of which are discussed below.  Whatever the reason, it is clear that the lack of
+cooperation between researchers in computational chemistry has had, and will
+continue to have a deleterious effect on the important role that computation
+should be taking in chemistry.</P
+><P
+ALIGN="justify"
+>The immediate effect of this is felt by students with fresh ideas, but who
+spend endless hours doing what many other have done before them.  This is enough
+to put many people off new methods development---which is at the heart of
+computational chemistry.</P
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="COOPERATION"
+></A
+>Cooperation: naivet&eacute; or just good sense?</H1
+><P
+ALIGN="justify"
+>Some will argue that the idea of cooperation with software in science is
+naive.</P
+><P
+ALIGN="justify"
+>Let's rebutt common reasons against sharing code in a standard
+format:</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Sharing code won't work, hardly anyone writes
+code</I
+></SPAN
+>.  The bulk of new computer code  is written by students or
+post-docs.  People like you, who are reading this manual. A simple calculation
+will show that there are a large number of you who are isolated and do not
+belong to a <SPAN
+CLASS="QUOTE"
+>"famous"</SPAN
+> group with in-house codes.  Even more people
+would write code if they knew it could be easy.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>My problem is unique, no one else would write anything
+like the code that I need for my problem</I
+></SPAN
+>.  It would be hard to
+believe, given the number of people out there.  At the very least, you problem
+might be broken down into parts which have been coded already.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Sharing code won't work, no one can maintain a huge
+package without being paid</I
+></SPAN
+>.  That is not true; All that is required
+is ongoing demand for the packages features, and that comes down to you. If you
+need the package for something, then you will service it so it works for you.
+There is plenty of evidence that free packages can survive and develop. Linux
+and gcc are examples.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>It requires an expert to write computational chemistry
+codes</I
+></SPAN
+>.  Again, a fallacy. Only some parts require experts. Anyone can
+write a Hartree-Fock program if they have a routine that gives them integrals.
+And anyway, the parts that require experts (like, for example, integrals) are
+mainly written by students or post-docs who are supervised by
+experts.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>What counts is writing papers, not standardized
+share-able code</I
+></SPAN
+>.  You are being inconsistent. Papers are a standard
+way of sharing knowledge.  When the knowledge is based on new code, that should
+be shared too.  In any case, you can write more papers if you save time by using
+someone else's code.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>It would be quicker to use an existing package
+developed in our group</I
+></SPAN
+>.  Are you sure? It may take you a while to
+understand someone else's coding style, and many packages are a hotch-potch
+resulting from a number of authors work.  To write code as quickly as possible,
+it is makes sense to use something already written and well documented. Let's
+face it, you would use Mathematica if it was quick enough, but it isn't. And if
+your project changes slightly, you have more options within a large shared
+package.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Someone will scoop my publication if I share my
+code</I
+></SPAN
+>.  Wait a while before you share the code. You won't be working
+on this topic all your life. In the end, you will get <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>more</I
+></SPAN
+>
+citations if you share your code.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>I want to make money</I
+></SPAN
+>.  Unless you belong to
+Gaussian, or Wavefunction, it isn't going to happen.  The market is saturated,
+and the clients are poor and smart enough to write their own.  In any case, the
+number employees in these companies is dwarfed by the number of students and
+post-docs around the world who would share their code if they thought they could
+get something in return.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Sharing code is bad, you will never need to write code
+from scratch and thus the code will never be independently verified</I
+></SPAN
+>.
+Sharing well documented code makes it open to checking without having to
+laboriously re-do everything from scratch.  Greater scrutiny by greater numbers
+of people make ity more likely that inconsistencies will appear.  Ultintmately,
+the responsibility for code correctness rests with the author. All of us have
+used programs, even if only hand calculators, without checking the code for
+them.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Sharing code is a waste of time, I can't understand
+what others write</I
+></SPAN
+>.  It might be true, which is why its important to
+have a simple, consistent coding style, good documentation, good error checking,
+and good examples of share-able code.  I believe that TONTO is a good example
+of this. With these mechanisms in place, it becomes hard to write bad. If your
+contributed code is useful for others, it will become debugged and easier to
+understand as features are added.</P
+></LI
+></UL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="module-shell4.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="final-word.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>The <TT
+CLASS="LITERAL"
+>SHELL4</TT
+> module</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Final word</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

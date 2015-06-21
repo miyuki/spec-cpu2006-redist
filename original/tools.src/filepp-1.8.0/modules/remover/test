@@ -1,0 +1,118 @@
+#remove RM_NOTDEF 0
+#remove RM_DEFINED 1
+
+#define RM_NOTDEF test
+#define RM_DEFINED(arg) arg arg arg
+#define KEEP
+#define STAY want this
+
+#ifdef RM_NOTDEF
+#define RM_NOTDEF 10
+#define KEEP 11
+12
+#else
+#define RM_DEFINED 14
+#define STAY 15
+16
+#endif
+
+#ifdef RM_DEFINED
+#define RM_NOTDEF 20
+#define KEEP 21
+22
+#else
+#define RM_DEFINED 24
+#define STAY 25
+26
+#endif
+
+#ifdef KEEP
+#define RM_NOTDEF 30
+#define KEEP 31
+32
+#else
+#define RM_DEFINED 34
+#define STAY 35
+36
+#endif
+
+#ifdef SOMETHING_NOT_DEFINED
+#define RM_NOTDEF 30a
+#define KEEP 31a
+#ifdef RM_NOTDEF
+aaa
+#else
+bbb
+#endif
+32a
+#else
+#define RM_DEFINED 34a
+#define STAY 35a
+#ifdef RM_DEFINED
+ccc
+#else
+ddd
+#endif
+36a
+#endif
+
+#ifndef RM_DEFINED
+# ifdef KEEP
+#  define RM_NOTDEF 41
+#  define KEEP 42
+43
+# else
+#  define RM_NOTDEF 45
+#  define KEEP 46
+47
+# endif
+#else
+# ifdef STAY
+#  define RM_NOTDEF 51
+#  define KEEP 52
+53
+# else
+#  define RM_NOTDEF 35
+#  define KEEP 36
+57
+# endif
+#endif
+
+#ifndef RM_NOTDEF
+# ifdef KEEP
+#  define RM_NOTDEF 63
+#  define KEEP 64
+65
+# else
+#  define RM_NOTDEF 67
+#  define KEEP 68
+69
+# endif
+#else
+# ifdef STAY
+#  define RM_NOTDEF 73
+#  define KEEP 32
+75
+# else
+#  define RM_NOTDEF 77
+#  define KEEP 78
+79
+# endif
+#endif
+
+#if defined RM_DEFINED
+keep 84
+#elif defined ANYTHING
+delete 86
+#else
+delete 88
+#endif
+
+#if defined RM_NOTDEF
+delete 92
+#elif defined KEEP
+keep 94
+#else
+delete 96
+#endif
+

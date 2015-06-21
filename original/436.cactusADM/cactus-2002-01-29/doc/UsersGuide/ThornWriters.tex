@@ -1,0 +1,3543 @@
+% /*@@
+%   @file      ThornWriters.tex
+%   @date      27 Jan 1999
+%   @author    Gabrielle Allen, Tom Goodale, Gerd Lanfermann
+%   @desc
+%   Thorn writer's guide part of the Cactus User's Guide
+%   @enddesc
+%   @version $Header: /cactus/Cactus/doc/UsersGuide/ThornWriters.tex,v 1.102 2002/01/02 18:35:15 allen Exp $
+% @@*/
+
+\begin{cactuspart}{2}{Application thorn writing}{$RCSfile: ThornWriters.tex,v $}{$Revision: 1.102 $}
+
+\renewcommand{\thepage}{\Alph{part}\arabic{page}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\chapter{Overview}
+
+This chapter goes into the nitty-gritty of writing a thorn.
+It introduces key concepts for thorns, then goes on to give
+a brief outline of how to configure a thorn.
+There is then some detail about concepts introduced by the configuration
+step, followed by discussion of code which you must put into your files
+in order to use Cactus functionality, and details of utility functions
+you may use to gain extra functionality.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Thorn concepts}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Thorns}
+
+A thorn is the basic working module within Cactus.  All user-supplied
+code goes into thorns, which are, by and large, independent of each other.
+Thorns communicate with each other via calls to the flesh API, plus, more
+rarely, custom APIs of other thorns.
+
+The connection from a thorn to the flesh or to other thorns is specified in
+configuration files which are parsed at compile time and used to generate
+glue code which encapsulates the external appearence of a thorn.
+
+Thorn names must be (case independently) unique, must start with a letter,
+and can only contain
+letters, numbers or underscores.
+In addition, a thorn cannot have the name {\t doc}, this is reserved
+for arrangement documentation. Arrangement names which start with a
+`\#', or finish with `\~{}' or `.bak' will be ignored.
+
+
+
+\section{Arrangements}
+
+Thorns are grouped into {\em arrangements}.  This is a logical grouping of
+thorns which is purely for organisational purposes. For example,
+you might wish to keep all your initial data thorns in one arrangement,
+and all your evolution thorns in another arrangement, or you may want
+to have separate arrangements for your developments, private and shared
+thorns.
+
+The arrangements live in the {\tt arrangements} directory off the main
+Cactus directory.  Arrangement names must be (case independently) unique,
+must start with a letter,
+and can only contain
+letters, numbers or underscores. Arrangement names which start with a
+`\#', or finish with `\~{}' or `.bak' will be ignored.
+
+Inside an arrangement directory there are directories for each thorn
+belonging to the arrangement.
+
+\section{Implementations}
+
+\label{sec:im}
+
+One of the key concepts for thorns is the concept of the {\bf implementation}.
+Relationships among thorns are all based upon relationships among the
+{\bf implementations} they provide.
+In principle it should be possible to swap one thorn providing an
+implementation with another thorn providing that implementation,
+without affecting any other thorn.
+
+An {\bf implementation} defines a group of variables and parameters which
+are used to implement some functionality.  For example the thorn
+{\tt CactusPUGH/PUGH} provides the implementation {\it driver}.  This
+implementation is responsible for providing memory for grid variables and
+for communication.  Another thorn can also implement {\tt driver},
+and both thorns can be compiled in {\em at the same time}.
+At runtime, the user can decide which thorn providing {\tt driver} is used.
+No other thorn should be affected by this choice.
+
+When a thorn decides it needs access to a variable or a parameter provided by
+another thorn, it defines a relationship between itself and the other thorn's
+{\bf implementation}, not explicitly with the other {\bf thorn}.
+This allows the transparent replacement, at compile or runtime, of one
+thorn with another thorn providing the same functionality as seen by
+the other thorns.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\chapter{Anatomy of a thorn}
+\label{sec:anofath}
+
+\section{Thorns}
+\label{sec:th}
+
+A thorn consists of a subdirectory of an arrangement containing three
+administrative files
+
+\begin{Lentry}
+\item[{\tt interface.ccl}] the cactus interface, which defines the grid
+functions, variables, etc. See \ref{sec:in}.
+\item[{\tt param.ccl}] the parameters introduced by this thorn, and the
+parameters needed from other thorns. See
+\ref{sec:pa}.
+\item[{\tt schedule.ccl}] scheduling information for routines called by
+the flesh. See \ref{sec:sc}.
+\end{Lentry}
+
+Thorns can also contain
+\begin{itemize}
+\item a subdirectory called {\tt src}, which should hold source files
+        and compilation instructions for the thorn
+\item a subdirectory {\tt src/include} for include files
+\item a {\tt README} containing a brief description of the thorn
+\item a {\tt doc} directory for documentation
+\item a {\tt par} directory for example parameter files
+\item a {\tt test} subdirectory may also be added, to hold the thorn's
+    testsuite. See \ref{sec:adatesu} for details.
+\end{itemize}
+
+\section{Creating a thorn}
+
+
+To simplify the creation of a thorn, a make target {\tt
+gmake newthorn} has been provided. When this is run:
+
+\begin{enumerate}
+\item{} You will be prompted for the name of the new thorn.
+\item{} You will be prompted for the name of the arrangement you would
+like to include your thorn in. Either enter a new arrangement name or pick
+one from the list of available arrangements that are shown.
+\end{enumerate}
+
+
+\section{Configuring your thorn}
+
+The interaction of a thorn with the flesh and other thorns is controlled
+by various configuration files.
+
+These consist of:
+
+\begin{Lentry}
+
+\item [{\tt interface.ccl}]
+This defines the {\bf implementation} (Section~\ref{sec:im}) the thorn
+provides, and the variables the thorn needs, along with their
+visibility to other implementations.
+
+\item [{\tt param.ccl}]
+This defines the parameters that are used to control the thorn, along
+with their visibility to other implementations.
+
+\item [{\tt schedule.ccl}]
+This defines which functions from the thorn are called and when they are
+called. It also handles memory and communication assignment for grid variables.
+
+\end{Lentry}
+
+\subsection{General syntax of CCL files}
+
+{\bf Cactus Configuration Language} (CCL) files are simple text files
+used to define configuration information for a thorn.  CCL files are
+case independent, and may contain comments introduced by the `\#' character,
+which indicates that the rest of the line is a comment. If the last non-blank character of a line in a CCL file is a backslash {\tt $\backslash$}, the following line is treated as a continuation of the current line.
+
+\subsection{The {\tt interface.ccl}}
+
+The {\tt interface.ccl} file is used to declare
+
+\begin{itemize}
+\item the implementation provided by the thorn,
+\item the variables provided by the thorn
+\item the include files provided by the thorn
+\item the functions provided by the thorn (in development)
+\end{itemize}
+
+
+The implementation is declared by a single line at the top of the file
+\begin{verbatim}
+implements: <name>
+\end{verbatim}
+Where {\tt <name>} can be any combination of alphanumeric
+characters and underscores, and is case independent.
+There are three different access levels available for variables
+
+\begin{Lentry}
+\item[{\tt Public}]
+Can be `inherited' by other implementations (see below).
+\item[{\tt Protected}]
+Can be shared with other implementations which declare themselves to
+be friends of this one (see below).
+\item[{\tt Private}]
+Can only be seen by this thorn.
+\end{Lentry}
+
+Corresponding to the first two access levels there are two relationship
+statements that can be used to get variables from other thorns.
+
+\begin{Lentry}
+\item [{\tt Inherits: <name>}]
+This gets all {\tt Public} variables from implementation {\tt <name>}, and all
+variables that {\tt <name>} has in turn inherited.
+An implementation may inherit from any number of other implementations.
+\item [{\tt Friend: <name>}]
+This gets all {\tt Protected} variables from implementation {\tt <name>}, but,
+unlike {\tt inherits}, it is symmetric and also defines a transitive relation by
+pushing its own implementations {\tt Protected} variables onto implementation
+{\tt <name>}.  This keyword is used define to a group of implementations which
+all end up with the same {\tt Protected} variables.
+\end{Lentry}
+
+So, for example, an {\tt interface.ccl} starting
+\begin{verbatim}
+implements: wavetoy
+inherits:   grid
+friend:     wave_extract
+\end{verbatim}
+declares that the thorn provides an implementation called `wavetoy', gets
+all the {\tt public} variables declared by an implementation called `grid', and
+shares all {\tt protected} variables with {\tt wave\_extract} and its friends.
+
+Cactus variables, described in Section~\ref{sec:cava} are placed
+in groups with homogeneous attributes, where
+the attributes describe properties such as the data type, group type,
+dimenension, ghostsize, number of timelevels, type of staggering and
+distribution.
+
+For example, a group, called {\tt realfields} of 5 real grid
+functions ({\tt phi}, {\tt a},
+{\tt b}, {\tt c}, {\tt d}), on a 3D grid, would be defined by
+\begin{verbatim}
+CCTK_REAL realfields type=GF TimeLevels=3 Dim=3
+{
+  phi
+  a,b,c,d
+} "Example grid functions"\end{verbatim}
+or, for a group called {\tt intfields} consisting of just one
+distributed 2D array of integers,
+\begin{verbatim}
+CCTK_INT intfields type=ARRAY size=xsize,ysize ghostsize=gxsize,gysize
+{
+ anarray
+} "My 2D arrays"
+\end{verbatim}
+where {\tt xsize}, {\tt ysize}, {\tt gxsize}, {\tt gysize} are all
+parameters defined in the thorns {\tt param.ccl}.
+
+
+By default all groups are {\tt private}, to change this an access
+specification of the form {\tt public:} or {\tt protected:} (or
+{\tt private:} to change it back) may be placed on a line by itself.  This
+changes the access level for any group defined in the file from that point on.
+
+All variables seen by any one thorn must have distinct names.
+
+\subsection{The {\tt param.ccl}}
+
+Users control the operation of thorns via parameters given in a file
+at runtime.  The {\tt param.ccl}
+is used to specify the parameters used to control an individual thorn, and
+to specify the values these parameters are allowed to take.  When the code
+is run it reads a parameter file and sets the parameters if they fall
+within the allowed values. If a parameter is not assigned in a parameter
+file, it is given its default value.
+
+There are three access levels available for parameters:
+
+\begin{Lentry}
+\item [{\tt Global}]
+These parameters are seen by all thorns.
+\item [{\tt Restricted}]
+These parameters may be used by other implementations if they so desire.
+\item [{\tt Private}]
+These are only seen by this thorn.
+\end {Lentry}
+
+A parameter specification consists of:
+\begin{itemize}
+
+\item the parameter type (each may have an optional {\t CCTK\_} in front)
+\begin{Lentry}
+\item [{\tt REAL}]
+\item [{\tt INT}]
+\item [{\tt KEYWORD}]
+A distinct string with only a few known allowed values.
+\item [{\tt STRING}]
+An arbitrary string, which must conform to a given regular expression.
+\item [{\tt BOOLEAN}]
+A boolean type which can take values 1, `t', `true', `yes' or
+0, `f', `false', `no'.
+\end{Lentry}
+
+\item the parameter name
+
+\item a {\tt description} of the parameter
+
+\item an allowed value block --- This consists of a brace delimited
+block of lines\footnote{The begining brace (\{) must sit on a line by
+itself; the ending brace (\}) must be preceeded by a carriage return.}
+describing the allowed values of the parameter.  Each range may have a
+description associated with it by placing a :: on the line and putting
+the description afterwards.
+
+\item the default value ---
+This must be one of the allowed values.
+
+\end{itemize}
+
+For the numeric types {\tt INT} and {\tt REAL}, a range consists
+of a string of the
+forms lower-bound:upper-bound:step where a missing number or a * denotes
+anything (i.e. infinite bounds or an infinitesimal step).
+
+For example
+\begin{verbatim}
+REAL Coeff "Important coefficient"
+{
+0:3.14 :: "Range has to be from zero to Pi, default is zero"
+} 0.0
+
+#No need to define a range for BOOLEAN
+BOOLEAN nice "Nice weather ?"
+{
+}"yes"
+
+# A example for a set of keywords and its default (which has to be
+# defined in the body)
+KEYWORD confused "Are we getting confused ?"
+{
+  "yes"    :: "absolutely positively"
+  "perhaps" :: "we are not sure"
+  "never"   :: "never"
+} "never"
+\end{verbatim}
+defines a REAL parameter, a BOOLEAN parameter, and a KEYWORD.
+
+By default all parameters are {\tt private}, to change this an access
+specification of the form {\tt global:} or {\tt restricted:} (or
+{\tt private:} to change it back) may be placed on a line by itself.  This
+changes the access level for any parameter defined in the file from that point on.
+
+To access {\tt restricted} parameters from another implementation, a line
+containing {\tt shares: <name>} declares that all parameters mentioned in
+the file from now until the next access specification originate in
+implementation {\tt <name>}. Each of these parameters must be qualified by the initial token {\tt USES} or {\tt EXTENDS}, where
+\begin{Lentry}
+\item[{\tt USES}] indicates that the parameters range remains unchanged.
+\item[{\tt EXTENDS}] indicates that the parameters range is going to be extended.
+\end{Lentry}
+
+In contrast to parameter declarations in other access blocks, the default
+value must be omitted - it is impossible to set the default value of any
+parameter not originating in this thorn.
+For example, the following block adds possible values to the keyword
+{\tt initial\_data} originally defined in the implementation {\tt einstein},
+and uses the real parameter {\tt speed}.
+
+\begin{verbatim}
+shares:einstein
+
+EXTENDS KEYWORD initial_data
+{
+  "bl_bh"         :: "Brill Lindquist black holes"
+  "misner_bh"     :: "Misner black holes"
+  "schwarzschild" :: "One Schwarzschild black hole"
+}
+
+USES CCTK_REAL speed
+
+\end{verbatim}
+
+Note that you must compile at least one thorn which implements {\tt einstein}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{The {\tt schedule.ccl}}
+\label{subsec:schedule_ccl}
+By default no routine of a thorn will be run.  The {\tt schedule.ccl} file
+defines those that should be run and when they should be run.
+
+The specification of this is via a schedule block which consists of
+ lines of the form
+
+\begin{verbatim}
+schedule <name> at <time bin> [other options]
+{
+  LANG:     <FORTRAN|C>
+  STORAGE:  [group list]
+  TRIGGERS: [group list]
+  SYNC:     [group list]
+} "A description"
+\end{verbatim}
+where {\tt <name>} is the name of the routine, and
+
+\begin{Lentry}
+
+\item[{\tt <time bin>}] is one of
+(in the following the initial {\tt CCTK\_} is optional):
+
+\begin{Lentry}
+
+\item [{\tt CCTK\_STARTUP}]
+For routines run before the grid hierachy is set up, for example function
+registration.
+
+\item [{\tt CCTK\_PARAMCHECK}]
+For routines which check parameter combinations, routines registered here
+only have access to the grid size and the parameters.
+
+\item [{\tt CCTK\_BASEGRID}]
+Responsible for setting up coordinates etc.
+
+\item [{\tt CCTK\_INITIAL}]
+For generating initial data.
+
+\item [{\tt CCTK\_POSTINITIAL}]
+Tasks which must be applied after initial data is created.
+
+\item [{\tt CCTK\_RECOVER\_VARIABLES}]
+For recovery of grid variables from a checkpoint.
+
+\item [{\tt CCTK\_CPINITIAL}]
+For checkpointing initial data.
+
+\item [{\tt CCTK\_PRESTEP}]
+Stuff done before the evolution step.
+
+\item [{\tt CCTK\_EVOL}]
+The evolution step.
+
+\item [{\tt CCTK\_POSTSTEP}]
+Stuff done after the evolution step.
+
+\item [{\tt CCTK\_CHECKPOINT}]
+For checkpointing evolution data.
+
+\item [{\tt CCTK\_ANALYSIS}]
+For analysing data.
+
+\item [{\tt CCTK\_TERMINATE}]
+Called when Cactus terminates.
+
+\item [{\tt CCTK\_SHUTDOWN}]
+Cactus final shutdown routines.
+
+%\item [{\tt CCTK\_CONVERGENCE}]
+%Convergence stuff.
+%
+\end{Lentry}
+
+
+\item[{\tt STORAGE}] The {\tt STORAGE} keyword specifies any groups for
+which  memory should be
+allocated for the duration of the routine.
+The storage status reverts to its previous status after the
+routine returns.
+
+\item[{\tt TRIGGERS}] {\tt TRIGGERS} is used when the routine is registered at {\tt ANALYSIS} ---
+this is a
+special time bin, a routine registered here will only be called if one of
+the variables from a group in {\tt TRIGGERS} is due for output.
+
+\item[{\tt SYNC}]
+The keyword {\tt SYNC} specifies groups of variables which should be
+synchronised (that is, their ghostzones should be exchanged between
+processors) on exit from the routine. Specifying synchonisation of
+grid variables in {\tt schedule.ccl} is an alternative to calling the
+function {\tt CCTK\_SyncGroup()} from inside a routine. Using the {\tt SYNC}
+keyword in the {\tt schedule.ccl} is the preferred method, since it
+provides the Flesh with more information about the behaviour of your code,
+and in particular is a requirement for using a driver with adaptive mesh
+refinement.
+
+\item[{\tt other options}]
+The `other options' allow finer grained control of the scheduling.  It is
+possible to state that the routine must run {\tt BEFORE} or {\tt AFTER}
+another routine. It is also possible to schedule the routine under an
+alias name by using {\tt AS <alias\_name>}.
+
+\end{Lentry}
+
+The {\tt LANG} keyword specifies the linkage of the scheduled routine
+which determines how to call it from the scheduler.
+C and Fortran linkage are possible here. C++ routines should be defined as
+{\tt extern "C"} and registered as {\tt LANG: C}.
+
+As well as schedule blocks it's possible to embed C style {\tt if/else}
+statements in the schedule.ccl.
+These can be used to schedule things based upon the value of a parameter.
+
+\vskip .5cm
+{\bf Example I:}
+
+The routine {\tt hydro\_predictor} is scheduled at {\em evolution}, after the
+routine {\tt metric\_predictor} and before {\tt metric\_corrector}, if
+the parameter {\tt evolve\_hydro} has been set.
+\begin{verbatim}
+
+if(CCTK_Equals(evolve_hydro,"yes"))
+{
+  SCHEDULE hydro_predictor AT evol AFTER metric_predictor BEFORE metric_corrector
+  {
+    LANG:     FORTRAN
+    STORAGE:  hydro_variables
+  } "Do a predictor step on the hydro variables"
+}
+\end{verbatim}
+
+\vskip .5cm
+{\bf Example II:}
+
+The thorns {\tt WaveToy77} and {\tt WaveToyC} each provide a
+routine to evolve the 3D wave equation: {\tt WaveToyF77\_Evolution} and
+{\tt WaveToyC\_Evolution}. The routine names have to be different, so
+that both thorns can be compiled at the same time, their functionlity
+is identical though. Either one of them can then be activated at run
+time  in the parameter file via {\tt ActiveThorns}.
+
+Since each evolution routine provides the same
+functionality, it makes sense to schedule them under the common alias {\tt
+WaveToy\_Evolution} to allow relative scheduling ({\tt
+BEFORE/AFTER}) independent of the actual routine name (which may
+change depending on the activation in the parameter file).
+
+In both cases the group of variables {\tt scalarfield} are synchronised
+across processes when the routine is exited.
+
+\begin{verbatim}
+schedule WaveToyF77_Evolution AS WaveToy\_Evolution AT evol
+{
+  LANG: Fortran
+  STORAGE: scalartmps
+  SYNC: scalarfield
+} "Evolution of 3D wave equation"
+
+schedule WaveToyC_Evolution AS WaveToy_Evolution AT evol
+{
+  LANG: C
+  STORAGE: scalartmps
+  SYNC: scalarfield
+} "Evolution of 3D wave equation"
+\end{verbatim}
+
+The thorn {\tt IDScalarWave} schedules the routine {\tt WaveBinary}
+after the alias {\em WaveToy\_Evolution}. It is scheduled independently of
+the C or Fortran routine name.
+
+\begin{verbatim}
+schedule WaveBinary AT evol AFTER WaveToy_Evolution
+{
+  STORAGE: wavetoy::scalarevolve
+  LANG:    Fortran
+} "Provide binary source during evolution"
+\end{verbatim}
+
+\subsubsection{Storage Outside of Schedule Blocks}
+
+The keyword {\tt STORAGE} can also be used outside
+of the schedule blocks to indicate that storage for these
+groups should be switched on at the start of the run. Note that
+the storage is only allocated in this way at the start,
+a thorn could explicitly switch the storage off.
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Naming Conventions for Source Files}
+\label{nacofosofi}
+
+The make system uses file extensions
+to designate coding language. The following extensions can be handled:
+
+\begin{center}
+\begin{tabular}{|c|c|}
+\hline
+Extension & Coding Language \\
+\hline
+{\t .F} & Fortran90 fixed form \\
+{\t .f} & (no preprocessing) Fortran90 fixed form\\
+{\t .F90} & Fortran90 free form\\
+{\t .f90} & (no preprocessing) Fortran90 free form\\
+{\t .F77} & Fortran77 \\
+{\t .f77} & (no preprocessing) Fortran77\\
+{\t .c} & C \\
+{\t .cc} or {\t .C} & C++ \\
+\hline
+\end{tabular}
+\end{center}
+
+The following restrictions apply to file names:
+\begin{itemize}
+\item Currently all source files in different subroutines within a
+thorn must have distinct names.  We hope
+to relax this in future.  Different thorns can have files with the same names.
+\end{itemize}
+
+\section{Adding source files}
+
+By default the CCTK looks in the {\tt src} directory of the thorn for source
+files.
+
+There are two ways in which to specify the sources.  The easiest is to use the
+{\tt make.code.defn} based method in which the CCTK does all the work, but you
+may instead put a {\tt Makefile} in the {\tt src} directory and do everything
+yourself.
+
+\subsection{{\tt make.code.defn} based thorn building}
+\label{sec:mabathbu}
+
+This is the standard way to compile your thorn's source files.
+The Cactus make system looks for a file called {\tt make.code.defn} in that
+directory (if there is no file called {\tt Makefile} in the {\tt src} directory).  At its simplest, this file contains two lines
+
+\begin{itemize}
+\item {\t SRCS = <list of all source files in this directory>}
+
+\item {\t SUBDIRS = <list of all subdirectories, including subdirectories of subdirectories>}
+
+\end{itemize}
+
+Each subdirectory listed should then have a {\tt make.code.defn} file
+containing just a {\tt SRCS = } line, a {\tt SUBDIRS = } line will
+be ignored.
+
+In addition, each directory can have a {\tt make.code.deps} file, which,
+for files in that directory, can contain additional make rules and dependencies
+for files in that directory.  See the GNU Make documentation for complete details of the
+syntax.
+
+\subsection{{\tt Makefile} based thorn building}
+
+This method gives you the ultimate responsibility.
+The only requirement is that
+a library called {\tt \$NAME} be created by the {\tt Makefile}.
+
+The makefile is passed the following variables
+\begin{Lentry}
+
+\item [{\tt \$(CCTK\_HOME)}]  the main Cactus directory
+
+\item [{\tt \$(TOP)}] the configuration directory
+
+\item [{\tt \$(SRCDIR)}] the directory in which the source files can be found
+
+\item [{\tt \$(CONFIG)}]  the directory containing the configuration files
+
+\item [{\tt \$(THORN)}]   the thorn name
+
+\item [{\tt \$(SCRATCH\_BUILD)}]  the scratch directory where Fortran90 module
+files should end up if they need to be seen by other thorns.
+
+\item [{\tt \$(NAME)}] the name of the library to be built
+
+\end{Lentry}
+
+and has a working directory of {\tt <config>/build/<thorn\_name>} .
+
+\subsection{Other makefile variables}
+
+\begin{itemize}
+\item CC
+\item CXX
+\item F90
+\item F77
+\item CFLAGS
+\item CXXFLAGS
+\item F90FLAGS
+\item F77FLAGS
+\item LD
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Cactus Variables}
+\label{sec:cava}
+
+Cactus variables are sorted into {\tt groups}.  All variables in a group
+are of the same type, and have
+the same attributes, and most Cactus operations act on a group as a whole.
+
+Cactus variables are used instead of local variables for a number of reasons:
+\begin{itemize}
+\item Cactus variables can be made visable to other thorns, allowing
+thorns to communicate and share data,
+\item Cactus  variables can be distributed and communicated
+        among processors, allowing parallel computation,
+\item A database of Cactus variables, and their attributes, is held by
+      the Flesh, and this information is used by thorns, for example for
+      obtaining a list of variables for checkpointing,
+\item Many Cactus APIs and tools can only be used with Cactus variables,
+\item Cactus provides features for error checking based on Cactus variables
+      and their attributes.
+\end{itemize}
+
+The specification for a group declaration
+(fully described in Section~\ref{sec:in}) is,
+
+\begin{verbatim}
+<data_type> <group_name> [TYPE=<group_type>] [DIM=<dim>] [TIMELEVELS=<num>] \
+   [SIZE=<size in each direction>] [DISTRIB=<distribution_type>] \
+   [GHOSTSIZE=<ghostsize>] [STAGGER=<stagger-specification>]
+[{
+   <variable_name>[,]<variable_name>
+   <variable_name>
+}] ["<group_description>"]
+\end{verbatim}
+
+Currently, the names of groups and variables must be distinct.
+
+\section{Data Type}
+
+Cactus supports integer, real, complex and character variables, in
+various different sizes.  (Sizes in the following refer to the number of
+bytes the type takes).
+
+\begin{Lentry}
+\item[INTEGER]
+CCTK\_INT, CCTK\_INT2, CCTK\_INT4, CCTK\_INT8.  (CCTK\_INT defaults to being CCTK\_INT4).
+\item[REAL]
+CCTK\_REAL, CCTK\_REAL4, CCTK\_REAL8, CCTK\_INT16.  (CCTK\_REAL defaults to being CCTK\_REAL8).
+\item[COMPLEX]
+CCTK\_COMPLEX, CCTK\_COMPLEX8, CCTK\_COMPLEX16, CCTK\_COMPLEX32.
+(CCTK\_COMPLEX defaults to being CCTK\_COMPLEX16).
+\item[BYTE]
+This is a 1 byte data type.
+\end{Lentry}
+
+Normally a thorn should use the default types ---
+CCTK\_INT, CCTK\_REAL, CCTK\_COMPLEX --- rather than explicitly setting the size, as this gives maximum
+portability. Also, the defaults can be changed at configuration time (see
+\ref{Compilation-Available_Options}), and this allows people to compile the
+code with different precisions to test for round-off effects, or to run more
+quickly with a lower accuracy.
+
+\section{Group Types}
+
+Groups can be either {\tt scalars}, {\tt grid functions (GFs)}, or {\tt grid arrays}. Different attributes are relevant for the different group types.
+
+\begin{Lentry}
+\item[SCALAR]
+This is just a single number, e.g. the total energy of some field.  These
+variables aren't communicated between processors --- what would be the
+result of such communication?
+\item[GF]
+This is the most common group type.  A GF is a an array with a
+specific size, set at run-time in the parameter file, which is distributed
+across processors.  All GFs have the same size, and the same number of
+ghostzones. Groups of GFs can also specify a dimension,
+number of timelevels, and stagger type.
+\item[ARRAY]
+This is a more general form of the GF.  Each group of arrays can have
+a distinct size and number of ghostzones, in addition to dimension,
+number of timelevels and stagger type.
+The drawback of using an array over a GF is that a lot of data about the
+array can only be determined by function calls, rather than the
+quicker methods available for GFs.
+\end{Lentry}
+
+\section{Timelevels}
+
+These are best introduced by an example using finite differencing.
+Consider the 1-D wave equation
+\begin{equation}
+\frac{\partial^2 \phi}{\partial t^2} = \frac{\partial^2 \phi}{\partial x^2}
+\end{equation}
+To solve this by partial differences, one discretises the derivatives, to get
+an equation relating the solution at different times.  There are many ways
+to do this, one of which produces the following difference equation
+\begin{equation}
+\label{equation:difference}
+\phi(t+\Delta t,x) -2\phi(t,x) +\phi(t-\Delta t,x) = \frac{\Delta t^2}{\Delta x^2} \lbrace{\phi(t,x+\Delta x) -2\phi(t,x) +\phi(t,x-\Delta x)}\rbrace
+\end{equation}
+which relates the three timelevels $t+\Delta t$, $t$, and $t-\Delta t$.
+
+Obviously the code could just use three variables, one for each timelevel.
+This turns out, however, to be inefficient, because as soon as the time is
+incremented to $t+\Delta t$, it would be necessary to copy data from the
+$t$ variable to the $t-\Delta t$ variable and from the $t+\Delta t$ variable
+to the $t$ variable.
+
+To remove this extraneous copy, Cactus allows you to specify the number
+of timelevels used by your numerical scheme.  It then generates variables
+with the base name (e.g. {\tt phi}) suffixed by a qualifier for
+which timelevel is being referred to --- no suffix for the
+next timelevel, and {\tt \_p} for each previous timelevel.
+
+The timelevels are rotated (by the driver thorn) at the start
+of each evolution step, that is:
+\begin{verbatim}
+initial
+poststep
+analysis
+
+loop:
+  rotate timelevels
+  t = t + dt
+  it = it + 1
+  prestep
+  evolve
+  poststep
+  analysis
+\end{verbatim}
+
+Timelevel rotation means that, for example,
+{\tt phi\_p} now holds the values of the former {\tt phi},
+and {\tt phi\_p\_p} the values of the former {\tt phi\_p}, etc.
+Note that after rotation {\tt phi} is  undefined, and it's values should
+not be used until they have been updated.
+
+All timelevels, except the current level, should be considered {\bf read-only} during evolution, that is their values should not be changed by thorns.
+The exception to this rule is for function initialisation, when the
+values at the previous timelevels do need to be explicitly filled out.
+
+
+
+\section{Size and Distrib}
+
+A Cactus grid function or array has a size set at runtime by parameters.
+This size can either be the global size of the array across all processors
+({\tt DISTRIB=DEFAULT}),
+or, if {\tt DISTRIB=CONSTANT} the specified
+size on {\bf each} processor.
+If the size is split across processors, the driver thorn is
+responsible for assigning the size on each processor.
+
+\section{Ghost Size}
+
+Cactus is based upon a {\tt distributed computing} paradigm.  That is,
+the problem domain is split into blocks, each of which is assigned to
+a processor.  For hyperbolic and parabolic problems the blocks only
+need to communicate at the edges.
+
+To illustrate this, take the example of the wave equation again.
+Equation \ref{equation:difference} describes a possible time-evolution
+scheme.  On examination you can see that to generate the data at the
+point ($t+\Delta t$, $x$) we need data from the four points ($t$,
+$x$), ($t-\Delta t$, $x$), ($t$, $x+\Delta x$) and ($t$, $x-\Delta x$)
+only.  Ignoring the points at $x$, which are obviously always
+available on a given processor, you can see that the algorithm
+requires a point on either side of the point $x$, i.e. this algorithm
+has {\tt stencil size} 1.  Similarly algorithms requiring two points
+on either side have stencil size 2, etc.
+
+Now, if you evolve the above scheme, it becomes apparent that at each
+iteration the number of grid points you can evolve decreases by one at
+each edge (see figure \ref{fig:noghost}).
+
+\begin{figure}[ht]
+\begin{center}
+\ifpdf
+\else
+\includegraphics[angle=0,width=8cm]{1dnoghost.eps}
+\fi
+\end{center}
+\caption{Distributed wave equation with no ghostzones}
+\label{fig:noghost}
+\end{figure}
+
+At the outer boundary of the physical domain the data for the boundary
+point can be generated by the boundary conditions, however at internal
+boundaries the data has to be copied from the adjacent processor.  It
+would be inefficient to copy each point individually, so instead, a
+number of {\bf ghostzones} are created at the internal boundaries.  A
+ghostzone consists of a copy of the whole plane (in 3d, line in 2d,
+point in 1d) of the data from the adjacent processor.  I.e. the array
+on each processor is augmented with copies of points from the adjacent
+processors, thus allowing the algorithm to proceed {\bf on the points
+owned by this processor} without having to worry about copying data.
+Once the data has been evolved one step, the data in the ghostzones
+can be exchanged (or {\bf synchronised}) between processors in one
+fell swoop before the next evolution step.  (See figure
+\ref{fig:withghost}.)  Note that you should have at least as many
+ghostzones as your stencil-size requires.
+
+\begin{figure}[ht]
+\begin{center}
+\ifpdf
+\else
+\includegraphics[angle=0,width=8cm]{withghost.eps}
+\fi
+\end{center}
+\caption{Distributed wave equation with ghostzones}
+\label{fig:withghost}
+\end{figure}
+
+\section{Staggering}
+
+The staggering of a gridfunction or array describes the {\em physical}
+placement of that gridfunction relative to the supporting grid
+structure. For example, a gridfunction does not have to
+be placed at the intersection
+of the ``grid lines''. It can be moved by half a grid spacing in
+any or all dimensions. In the latter case, it will be placed in
+the center of a cell.
+
+The staggering of grid function is a pure {\em physical} property:
+the values will be calculated at a different position in physical
+space. Still the indexing (or bookeeping)  is kept the same for all
+types of staggerings: the indexing of the default unstaggered grids is
+used.
+
+\vskip .25cm
+
+{\bf Specifying the staggertype}
+
+The type of staggering applied to a gridfunction can be specified in
+the {\tt interface.ccl} file by the attribute {\tt stagger} (see
+\ref{sec:in}). Cactus supports three kinds of staggering
+per dimension. The physical location of a gridfunction is shifted
+relative to the default position by adding the following values to the
+stagger attribute:
+\begin{Lentry}
+\item[{\tt M}] no staggering, default. Refers to the ``minus'' face
+relative to  the default gridpoint.
+\item[{\tt C}] centre staggering. The physical location is offset by
+half of the grid spacing in the positive direction (or to the right).
+\item[{\tt P}] full staggered. P refers to plus. The physical location
+is offset by a full gridspacing in the positive direction (or the
+right).
+\end{Lentry}
+For multi dimensional gridfunctions you concatenate the code
+characters in xyz order. In Figure \ref{fig:stagger1} we show four different
+staggerings of a two dimensional grid function. The solid black grid
+circles show the default location of the grid function at the
+intersections of the grid lines. In (A) we show an additional grid
+function of type {\tt stagger=MC}: no staggering in x direction,
+center staggered in y direction. In (B) we have  {\tt stagger=CM} and
+staggering each direction ({\tt stagger=CC}) is shown in (C). The full
+staggering in (D) ({\tt stagger=PP}) obeys the same rules, but is
+rather unusual; it is included here for completeness.
+
+\begin{figure}[ht]
+  \def\epsfsize#1#2{0.45#1}
+\begin{center}
+\ifpdf
+\else
+\includegraphics[angle=0,width=8cm]{staggering1.eps}
+\fi
+%  \centerline{\epsfbox{./staggering1.eps}}
+\end{center}
+\caption[]{\small {\bf Staggered gridpoints in 2D} for several
+staggerings. (a) : {\tt MC}, (b): {\tt CM}, (c): {\tt CC}, (d): {\tt
+PP}. Note that the staggering of gridfunctions does not change its
+index. The staggered gridpoints and the corresponding unstaggered
+points (arrows) are accessed by the same indices.}
+\label{fig:stagger1}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Cactus Parameters}
+
+Parameters are the means by which the user specifies the run-time behaviour of
+the code.  The user specifies values for parameters in the parameter file, and
+then the flesh validates these values against the ranges the thorn writers have
+specified to be valid.  Once validated, parameter values are fixed, and cannot
+be changed (unless the parameter is specified to be steerable, see below).
+
+The full specification for a parameter decalaration is
+\begin{verbatim}
+[EXTENDS|USES] <parameter_type> <parameter name> "<parameter description>"
+{
+  <PARAMETER_RANGES>
+} <default value>
+\end{verbatim}
+
+\section{Types and Ranges}
+
+Parameters can be of several types:
+
+\begin{Lentry}
+\item[Integer]  Can take any integral value
+\item[Real] Can take any floating point value
+\item[Keyword] Can have a value consisting of one of a choice of strings
+\item[Boolean] Can be true or false (1, `t', `true', or 0, `f', `false').
+\item[String] Can have any string value
+\end{Lentry}
+
+Each parameter can be validated against a set of allowed values or
+ranges, each of which has a description associated with it.  The type
+of range is determined by the type of parameter.
+
+\subsection{Integer}
+
+The range specification is of the form
+
+\begin{verbatim}
+
+lower:upper:stride
+
+\end{verbatim}
+
+where {\em lower} and {\em upper} specify the lower and upper allowed
+range, and {\em stride} allows numbers to be be missed out.  e.g.
+\begin{verbatim}
+1:21:2
+\end{verbatim}
+means the value must be an odd number between one and twenty-one
+(inclusive).
+
+A missing end of range (or a `*') implies negative or positive
+infinity, and the default stride is one.
+
+\subsection{Real}
+
+The range specification is of the form
+\begin{verbatim}
+lower:upper
+\end{verbatim}
+where {\em lower} and {\em upper} specify the lower and upper allowed
+range.  A missing end of range (or a `*') implies negative or positive
+infinity.  The above is inclusive of the end-points.  A '(' (or ')')
+before (or after) the lower (or upper) range specifies an open end-point.
+
+\subsection{Keyword}
+
+The range specification consists of a string, which will be matched in
+a case-insensitive manner.
+
+\subsection{Boolean}
+
+There is no range specification for this type of parameter.
+
+\subsection{String}
+
+The range is a POSIX regular expression.  On some machines you may be
+able to use extended regular expressions, but this is not guaranteed
+to be portable.
+
+\section{Scope}
+
+Parameters can be {\em GLOBAL}, {\em RESTRICTED}, or {\em PRIVATE}.
+Global parameters are visible to all thorns.  Restricted parameters
+are visible to any thorn which chooses to {\em USE} or {\em EXTEND}
+it.  A private parameter is only visible to the thorn which declares
+it.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Scheduling}
+\label{chap:scheduling}
+
+Cactus contains a rule-based scheduling system, which determines which
+routines from which thorn are run in which order.  The scheduler
+determines if the specifications are inconsistent, but does allow the
+user to schedule a routine with respect to another routine which may not
+exist.
+
+The full specification for a schedule declaration is
+\begin{verbatim}
+schedule [GROUP] <function|schedule group name> AT|IN <time|schedule group name> \
+                 [BEFORE|AFTER <item>] [WHILE <variable>] [AS <alias>]
+{
+  LANG: <language>
+  [STORAGE:       <group>,<group>...]
+  [TRIGGER:       <group>,<group>...]
+  [SYNC:          <group>,<group>...]
+  [OPTIONS:       <option>,<option>...]
+} "Description of function| schedule group"
+\end{verbatim}
+
+This consists of a mandatory part, a set of options, and the main
+body, referred to as the {\tt schedule block}.
+
+Each schedule item is scheduled either {\em AT} a particular {\em
+scheduling bin}, or {\em IN} a schedule {\em group}.
+
+\section{Schedule Bins}
+\label{scheduling:schedule_bins}
+
+These are the main points at which scheduled functions are run.
+These are listed in \ref{subsec:schedule_ccl}.
+
+\section{Groups}
+\label{scheduling:groups}
+
+If the optional {\tt GROUP} specifier is used, the item is a schedule
+group rather than a normal function.  Schedule groups are effectively
+new, user-defined, schedule bins.  Functions or groups may be
+scheduled {\em IN} these in the same way as they are scheduled {\em
+AT} the main schedule bins.  (I.e. groups may be nested.)
+
+\section{Schedule Options}
+\label{scheduling:schedule_options}
+The options define various charactertics of the schedule item.
+
+\begin{Lentry}
+\item[{\tt BEFORE or AFTER}]
+These specify a function or group before or after which this item will
+be scheduled.
+\item[{\tt WHILE}]
+This specifies a {\em CCTK\_INT} grid scalar which is used to control
+the execution of this item.  If the grid scalar has a non-zero value
+the schedule item will be executed, otherwise the item will be
+ignored.  This allows iteration within the scheduler.
+\item[{\tt AS}]
+This assigns a new name to a function for scheduling purposes.  This
+is used, for instance, to allow a thorn to schedule something before
+or after a routine from another implementation;  two thorns providing this
+implementation can schedule a routine {\em AS} the same thing, thus
+allowing other thorns to operate independently of which one is active.
+\end{Lentry}
+
+\section{The Schedule Block}
+\label{scheduling:schedule_block}
+
+The schedule block specifies further details of the scheduled function
+or group.
+
+\begin{Lentry}
+\item[\texttt{LANG}]
+This specifies the language of the routine.  Currently this is either
+C or Fortran.
+\item[\texttt{STORAGE}] The {\tt STORAGE} keyword specifies groups for
+which memory should be allocated for the duration of the routine or
+schedule group.  The storage status reverts to its previous status
+after completion of the routine or schedule group.
+\item[\texttt{TRIGGER}]
+This is only used for items scheduled at {\em CCTK\_ANALYSIS}.  The
+item will only be executed if output is due for at least one
+variable in one of the listed groups.
+\item[\texttt{SYNC}]
+On exit from this item the ghost zones of the listed groups will be
+exchanged.
+\item[\texttt{OPTIONS}]
+This is for miscellaneous options.  The only currently supported
+option is {\em GLOBAL} which tells the driver that this routine does
+not use a local grid, but instead uses global operations to process
+data;  such a routine should only be called once however many
+sub-grids the driver may have broken the problem into.
+\end{Lentry}
+
+\section{How Cactus Calls Scheduled Functions}
+\label{scheduling:calling_scheduled_functions}
+
+For each scheduled function called, the flesh performs a variety of jobs at entry and exit.
+
+On entry to a scheduled routine, if the routine is being called at the ANALYSIS timebin first a check is made to see if the routine should actually be called on this timestep. For this, all grid variables in the trigger groups for the routine are checked with all registered output methods to determine if it is time to output any triggers. The routine will only be called if at least one is due to be output. Routines from all other timebins are always called.
+
+Next storage is assigned for any required variables, remembering the original state of storage.
+
+The routine is then called, and on exit, any required grid variables are
+first synchronised. Following synchronization, any required output methods are called for the triggers. Finally, the storage of grid variables is returned to the original state.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Writing a Thorn}
+
+\section{Thorn Programming Languages}
+
+When you start writing a new thorn, the first decision to make is
+which programming language to use? The source code in Cactus thorns
+can be written in any mixture of {\tt FORTRAN77}, {\tt FORTRAN90},
+{\tt C} or {\tt C++}. The following points should be considered when
+choosing a language to work in
+\begin{itemize}
+
+\item All functions designed for application thorn writers are available
+      in all languages, however some interfaces for infrastructure
+      thorn writing are only available from {\tt C} or {\tt C++}.
+
+% This is no longer relevant?
+%\item If you are writing in {\tt FORTRAN}, use {\tt F77} if you want
+%      to distribute your code to people who may not be able to afford
+%      to buy proprietory {\tt F90} compilers.
+
+\item Stick to {\tt C} rather than {\tt C++}, unless you really need
+      features from {\tt C++}, this will help you with portability.
+
+\end{itemize}
+
+Whatever language you choose, if you want your thorn to be portable, and
+compile and run on multiple platforms, stick to the standards and don't
+use machine dependent extensions.
+
+
+\section{What the Flesh provides}
+
+The flesh provides for thorns:
+\begin{Lentry}
+\item [{\tt Variables}]
+\item [{\tt Parameters}]
+\item [{\tt Cactus Functions}]
+
+\begin{itemize}
+  \item{} driver (parallelisation) utilities
+  \item{} IO utilities
+  \item{} Coordinates utilities
+  \item{} Reduction utilities
+  \item{} Interpolation utilities
+  \item{} Information utilities
+\end{itemize}
+\end{Lentry}
+
+
+\subsection{Fortran Routines}
+
+Any source file using Cactus infrastructure should include
+the header file {\tt cctk.h} using the line
+\begin{verbatim}
+#include "cctk.h"
+\end{verbatim}
+(Fortran programmers should not be put of by this being a C style
+header file, most Cactus files are run through a C preprocessor
+before compilation).
+
+\subsubsection{Variables}
+
+Any routine using Cactus argument lists (for example all
+routines called from the scheduler) should include at the
+top of the file the header
+\begin{verbatim}
+#include "cctk_Arguments.h"
+\end{verbatim}
+
+A Cactus macro {\tt CCTK\_ARGUMENTS} is defined for each thorn
+to contain:
+\begin{itemize}
+\item General information about the grid hierarchy, for example
+      the number of grid points used. See Section \ref{sec:cava2} for a
+      complete list.
+\item All the grid variables defined in the thorn's {\tt interface.ccl}
+\item All the grid variables required from other thorns as requested by
+      the {\tt inherits} and {\tt friend} lines in the {\tt interface.ccl}
+\end{itemize}
+These variables must be declared at the start of the routine using
+the macro {\tt DECLARE\_CCTK\_ARGUMENTS}.
+
+To pass the arguments to another routine in the same thorn use the macro
+{\tt CCTK\_PASS\_FTOF} in the calling routine, and again the macro
+{\tt CCTK\_ARGUMENTS} in the receiving routine.
+
+
+\subsubsection{Parameters}
+
+All parameters defined in a thorn's {\tt param.ccl} and all {\tt global}
+parameters appear as local variables of the corresponding CCTK datatype
+in Fortran source code, ie. Booleans and Integers appear as CCTK\_INT types
+(with non-zero/zero values for boolean {\t yes/no}),
+Reals as CCTK\_REAL, and Keywords and String parameters as CCTK\_POINTER (see
+also note below). These variables are {\tt read only} and {\em changes should
+not be made to them}. The effect of changing a parameter is undefined (at best).
+
+Any routine using Cactus parameters should include at
+the top of the file the header
+\begin{verbatim}
+#include "cctk_Parameters.h"
+\end{verbatim}
+
+The parameters should be declared at the start of the routine
+using them with the macro {\tt DECLARE\_CCTK\_PARAMETERS}.
+
+In Fortran, special care should be taken with string valued parameters.
+These parameters are passed as C pointers, and can not be treated as
+normal Fortran strings. 
+To compare a string valued parameter and Fortran
+string use the macro {\tt CCTK\_EQUALS()} or the function {\tt CCTK\_Equals()}.
+To print the value of a string valued parameter to screen, use the subroutine
+{\tt CCTK\_PrintString()}. A further function {\tt CCTK\_FortranString} 
+provides a mechanism for converting a string parameter to a Fortran string. 
+For example, if {\tt operator} is a Cactus string parameter holding the name of a reduction operator whose handle you need to find, you cannot pass it 
+directly into the subroutine {\tt CCTK\_ReductionHandle} which is expecting 
+a Fortran string. Instead, the following is needed:
+{\tt
+\begin{verbatim}
+      character*200 fortran_operator
+      CCTK_INT      fortran_operator_len
+      integer       handle
+
+      call CCTK_FortranString(fortran_operator_len,operator,fortran_operator)
+      call CCTK_ReductionHandle(handle,fortran_operator(1:fortran_operator_len))
+\end{verbatim}
+}
+
+
+
+\subsubsection{Fortran Example}
+
+The Fortran routine {\tt MyFRoutine} is scheduled in the {\tt schedule.ccl} file,
+doesn't use Cactus parameters, and calls another routine, in the same thorn,
+{\tt MyNewRoutine} which does use parameters.
+This routine needs to be passed an integer flag as
+well as the standard Cactus variables. The source file should look like
+
+\begin{verbatim}
+#include "cctk.h"
+#include "cctk_Arguments.h"
+#include "cctk_Parameters.h"
+
+      subroutine MyFRoutine(CCTK_ARGUMENTS)
+
+c     I'm very cautious, so I want to declare all variables
+      implicit none
+
+      DECLARE_CCTK_ARGUMENTS
+
+      integer flag
+
+      flag = 1
+      call MyNewRoutine(CCTK_PASS_FTOF,flag)
+
+      return
+      end
+
+      subroutine MyNewRoutine(CCTK_ARGUMENTS,flag)
+
+      implicit none
+
+      DECLARE_CCTK_ARGUMENTS
+      DECLARE_CCTK_PARAMETERS
+      integer flag
+
+c     Main code goes here
+
+      return
+      end
+
+\end{verbatim}
+
+\subsubsection{Cactus Fortran Functions}
+
+Cactus Fortran functions, for example {\tt CCTK\_MyProc()} and {\tt
+CCTK\_Equals}, can all be declared by adding before any executable code, the
+declaration
+
+\begin{verbatim}
+DECLARE_CCTK_FUNCTIONS
+\end{verbatim}
+
+\subsubsection{Fortran 90 Modules}
+
+Fortran 90 modules should be included in a thorn's {\tt make.code.deps} file
+(\ref{sec:mabathbu}) to ensure they are compiled before the
+routines which use them. This is especially important for parallel
+building. For example, if a routine in {\tt MyRoutine.F} uses a module
+in {\tt MyModule.F} add the line:
+{\tt
+\begin{verbatim}
+$(SYS_OBJD)/MyRoutine.F.o:         $(SYS_OBJD)/MyModule.F.o
+\end{verbatim}
+}
+
+\subsubsection{The {\tt MOD} function}
+
+The intrinsic function {\tt MOD} in Fortran takes two integer
+arguments, which should both be of the same type. This means
+that it may be necessary to cast the arguements to {\it e.g}
+{\tt INT} for some architectures. This can occur in particular
+when a {\tt CCTK\_INT} parameter and the Cactus variable {\tt cctk\_iteration}
+(which is declared to be {\tt INTEGER}) are used,
+in which case the correct code is
+\begin{verbatim}
+MOD(cctk_iteration,INT(MyParameter))
+\end{verbatim}
+
+
+\subsection{C Routines}
+
+Any source file using Cactus infrastructure should include
+the header file {\tt cctk.h} using the line
+\begin{verbatim}
+#include "cctk.h"
+\end{verbatim}
+
+\subsubsection{Variables}
+
+Any routine using Cactus argument lists (for example all
+routines called from the scheduler) should include at the
+top of the file the header
+\begin{verbatim}
+#include "cctk_Arguments.h"
+\end{verbatim}
+
+A Cactus macro {\tt CCTK\_ARGUMENTS} is defined for each thorn
+to contain
+\begin{itemize}
+\item General information about the grid hierachy, for example the
+number of grid points on the processor. See Section \ref{sec:cava2}
+for a complete list.
+\item All the grid variables defined in the thorn's {\tt interface.ccl}
+\item All the grid variables required from other thorns as requested by
+      the {\tt inherits} and {\tt friend} lines in the {\tt interface.ccl}
+\end{itemize}
+These variables must be declared at the start of the routine using
+the macro {\tt DECLARE\_CCTK\_ARGUMENTS}. This macro should always be the
+first line of the routine.
+
+To pass the arguments to another routine in the same thorn use the macro
+{\tt CCTK\_PASS\_CTOC} in the calling routine, and again the macro
+{\tt CCTK\_ARGUMENTS} in the receiving routine.
+
+
+\subsubsection{Parameters}
+
+All parameters defined in a thorn's {\tt param.ccl} and all {\tt global}
+parameters appear as local variables of the corresponding CCTK datatype
+in C source code, ie. Integers and Booleans appear as CCTK\_INT types (with
+non-zero/zero values for boolean {\t yes/no)}, Reals as
+CCTK\_REAL, and Keywords and String parameters as CCTK\_STRING.
+These variables are {\tt read only} and {\em changes should not be made to
+them}.  The effect of changing a parameter is undefined (at best).
+
+Any routine using Cactus parameters should include at
+the top of the file the header
+\begin{verbatim}
+#include "cctk_Parameters.h"
+\end{verbatim}
+
+The parameters should be declared as the last statement in the declaration part
+of the routine using them with the macro {\tt DECLARE\_CCTK\_PARAMETERS}.
+
+\subsubsection{Example}
+
+The C routine ``MyCRoutine'' is scheduled in the {\tt schedule.ccl} file,
+and uses Cactus parameters. The source file should look like
+\begin{verbatim}
+#include "cctk.h"
+#include "cctk_Arguments.h"
+#include "cctk_Parameters.h"
+
+void MyCRoutine(CCTK_ARGUMENTS)
+{
+  DECLARE_CCTK_ARGUMENTS
+  DECLARE_CCTK_PARAMETERS
+
+  /* Here goes your code */
+}
+\end{verbatim}
+
+\subsubsection{Complex variables}
+
+Cactus supports complex grid variables, and since there is no
+complex data type in C, Cactus provides a number
+of functions for manipulating complex numbers to mirror the
+functionality available in Fortran. These functions are {\tt CCTK\_Cmplx},
+{\tt CCTK\_CmplxReal}, {\tt CCTK\_CmplxImag}, {\tt CCTK\_CmplxConjg},
+{\tt CCTK\_CmplxAdd}, {\tt CCTK\_CmplxSub}, {\tt CCTK\_CmplxMul},
+{\tt CCTK\_CmplxDiv}, {\tt CCTK\_CmplxExp}, {\tt CCTK\_CmplSin},
+{\tt CCTK\_CmplxAbs}, {\tt CCTK\_CmplxLog}, and {\tt CCTK\_CmplSqrt}.
+
+
+\subsubsection{Specifically for C Programmers}
+
+Grid functions are held in memory as 1D C arrays. These are laid
+out in memory as in Fortran. This means that the first index should
+be incremented through most rapidly.  This is illustrated in the example
+below.
+
+Cactus provides
+macros to find the 1D index which is needed from the multidimensional
+indices which are usually used. There is a macro for each dimension of
+grid function.  Below is an articifial example to demonstrate this
+using the 3D macro {\tt CCTK\_GFINDEX3D}:
+\begin{verbatim}
+for (k=0; k<cctk_lsh[2]; k++)
+{
+  for (j=0; j<cctk_lsh[1]; j++)
+  {
+    for (i=0; i<cctk_lsh[0]; i++)
+    {
+      My3D_GF[CCTK_GFINDEX3D(cctkGH,i,j,k)] = i*j*k;
+    }
+  }
+}
+\end{verbatim}
+%
+Here, {\tt CCTK\_GFINDEX3D(cctkGH,i,j,k)]} expands to
+\begin{verbatim}
+((i) + cctkGH->cctk_lsh[0]*((j)+cctkGH->cctk_lsh[1]*(k)))
+\end{verbatim}
+
+\subsection{Cactus Variables}
+\label{sec:cava2}
+
+The Cactus variables which are passed through the macro
+{\tt CCTK\_ARGUMENTS} are
+\begin{Lentry}
+\item [{\tt cctk\_dim}] An integer with the number of dimensions
+      used for this grid hierarchy.
+\item [{\tt cctk\_lsh}] An array of {\tt cctk\_dim} integers
+      with the local grid size on this processor.
+\item [{\tt cctk\_gsh}] An array of {\tt cctk\_dim} integers
+      with the {\it global} grid size.
+\item [\texttt{cctk\_iteration}] The current iteration number.
+\item [{\tt cctk\_delta\_time}] A {\tt CCTK\_REAL} with the timestep.
+\item [{\tt cctk\_time}] A {\tt CCTK\_REAL} with the current time.
+\item [{\tt cctk\_delta\_space}] An array of {\tt cctk\_dim} {\tt
+CCTK\_REAL}s with the grid spacing in each direction.
+\item [{\tt cctk\_nghostzones}] An array of {\tt cctk\_dim} integers with
+         the number of ghostzones used in each direction.
+\item [{\tt cctkGH}] A C pointer identifying the grid hierachy.
+%\item [{\tt cctk\_from}] The index value from which the user should start loops.
+%\item [{\tt cctk\_to}] ... end loops.
+%\item [{\tt cctk\_origin\_space}]  The coordinates of the spatial origin?
+%\item [{\tt cctk\_lssh}]  This is an internal array used to hold array extents for staggering.  One should use the macro CCTK_LSSH(,) to access its elements.
+\end{Lentry}
+
+The following variables describe the location of the local
+grid (e.g. the grid treated on a given processor) within
+the global grid.
+\begin{itemize}
+\item {\tt cctk\_lbnd}
+      An array of {\tt cctk\_dim} integers
+      containing the lowest index (in each direction)
+      of the local grid, as seen on the global grid. Note that these indices
+      start from zero, so you need to add one when using them in
+      Fortran thorns.
+\item {\tt cctk\_ubnd}
+      An array of {\tt cctk\_dim} integers
+      containing the largest index (in each direction)
+      of the local grid, as seen on the global grid.  Note that these indices
+      start from zero, so you need to add one when using them in
+      Fortran thorns.
+\item {\tt cctk\_bbox}
+      An array of 2*{\tt cctk\_dim} integers (in the order
+	$[{\mbox{dim}}_0^{\mbox{min}}, \mbox{dim}_0^{\mbox{max}},
+	{\mbox dim}_1^{\mbox{min}}, {\mbox dim}_1^{\mbox{max}}, \ldots]$),
+      which indicate whether the boundaries are internal boundaries
+      (e.g. between processors), or physical boundaries. A value of 1 indicates
+      a physical (outer) boundary at the edge of the computational grid,
+      and 0 indicates an internal boundary.
+\end{itemize}
+
+The following variable is needed for grid refinement methods
+\begin{itemize}
+\item {\tt cctk\_levfac} The factor by which the local grid is refined
+        with respect to the base grid.
+\end{itemize}
+
+The following variable is used for identifing convergence levels. {\tt NOTE:} Convergence is not currently implemented by Cactus, so that {\tt cctk\_convlevel} is currently always 0.
+\begin{itemize}
+\item {\tt cctk\_convlevel} The convergence level of this grid hierachy.
+ 	The base level is 0, and every level above that is currently coarsened 	       by a factor of 2.
+\end{itemize}
+
+The variables {\tt cctk\_delta\_space} and {\tt cctk\_delta\_time}
+denote the grid spacings on the {\em base} grid. If you are using
+a grid refinement method, you need to calculate the grid spacings
+on the grid you are on. There are Cactus macros provided for this,
+with the syntax {\tt CCTK\_DELTA\_SPACE(dir)} and {\tt CCTK\_DELTA\_TIME}
+for both C and Fortran. It is recommended that these macros are
+always used to provide the grid spacings in your thorns.
+
+\subsection{Cactus Data Types}
+
+The Cactus grid variables and parameters are defined and
+declared using Cactus data types, to provide portability
+across platforms. The most important of
+these data types are described below, for a full description
+see Section~\ref{sec:datyansi}. These data types should
+be used to declare local variables where needed, and to
+declare Cactus grid variables or parameters that need
+declarations.
+
+\begin{Lentry}
+
+\item[{\tt CCTK\_INT}] default size 4 bytes
+\item[{\tt CCTK\_REAL}] default size 8 bytes
+
+\end{Lentry}
+
+\subsubsection{Example}
+
+In the following example {\tt MyScalar} is a grid scalar which
+is declared in the {\tt interface.ccl} as {\tt CCTK\_REAL}.
+
+\begin{verbatim}
+      subroutine InitialData(CCTK_ARGUMENTS)
+
+      DECLARE_CCTK_ARGUMENTS
+
+      CCTK_REAL local_var
+
+      local_var = 1.0/3.0
+      MyScalar = local_var
+
+      return
+      end
+\end{verbatim}
+
+Declaring {\tt local\_var} to have a non-Cactus data type, e.g.
+{\tt REAL*4}, or using one of the other Cactus real data types
+described in Section~\ref{sec:datyansi} could give problems for
+different architectures or configurations.
+
+\subsection{Staggering}
+\label{sec:st}
+
+{\bf Indexing, ghostzones, etc.}
+Note that staggering does not make any changes to the indexing of a
+gridfunction: the black solid circles in diagram \ref{fig:stagger2} and their
+associated staggered gridfunctions (connected by arrows) have the same index!
+
+Since the gridfunction does not ``know'' anything about the physical
+location (it's only addressed by indices) why add staggering if the
+indexing is the same?
+
+Indeed, you could roll your own, but there compelling reasons:
+Readabilty and the fact that you are able to query the staggertype of a
+gridfunction. More important: in the way the grid is laid out, there is one grid
+point {\em less} for {\tt M} and {\tt P} staggered grid functions. This is
+illustrated in picture \ref{fig:stagger2}, which shows 15 gridpoints distributed
+across 3 processors. The solid black circles show the default
+location of the gridfunctions, the grey circles depict the ghostzones.
+Note that the number of center staggered gridpoints (fat crosses)
+corresponds to the number of default gridpoints on all processors but
+the last one. (The same is true for full staggered gridpoints).
+
+{\bf Staggertypes}
+The string specifying the staggering is encoded in a number called
+the {\em staggerindex}. With the 3 supported staggerings, the string
+is converted into a base-3 number. Several routines exist, to extract the
+staggering in a specific direction, called {\em directional
+staggerindex}. E.g. {\tt stagger = MCM}: {\em staggerindex} = 3, in the
+x-direction: {\em directional staggerindex} = CCTK\_STAGGER\_M (value 0),  in the
+x-direction: {\em directional staggerindex} = CCTK\_STAGGER\_C (value 1).
+
+\begin{Lentry}
+\item[{\tt CCTK\_STAGGER\_M}]  value used for M-type staggering
+\item[{\tt CCTK\_STAGGER\_C}]  value used for C-type staggering
+\item[{\tt CCTK\_STAGGER\_P}]  value used for P-type staggering
+\item[{\tt CCTK\_NO\_STAGGER}] value to indicate no staggering
+\item[{\tt CCTK\_STAGGER}]    value to indicate staggering
+\item[{\tt CCTK\_NSTAGGER}]   number of coded staggerings (3)
+%\item[{\tt CCTK\_STAGGER\_ERROR}] failed stagger operation, negative
+\end{Lentry}
+
+
+\begin{figure}[ht]
+  \def\epsfsize#1#2{0.45#1}
+\begin{center}
+\ifpdf
+\else
+\includegraphics[angle=0,width=10cm]{staggering2.eps}
+\fi
+%  \centerline{\epsfbox{./staggering2.eps}}
+\end{center}
+\caption[]{\small {\bf Unstaggered and center-staggered gridpoints} with
+ghostzone size of one (above) and two (below). The points are
+distributed across three processors. Note that the number of
+center staggered gridpoints (fat crosses) is one less on the outermost grid. How to
+treat this case in a easy way is explained below. }
+\label{fig:stagger2}
+\end{figure}
+
+When a thorn programmer uses staggered gridpoints, he has to be aware
+of this gridpoint anomaly. This can be done most easily by using the {\tt
+CCTK\_LSSH(<dir\_staggertype>,<direction>)} macro. For a given staggertype
+and direction, this 2d array returns the local number of gridpoints,
+including  ghostzones and the necessary change for the staggering on
+the outermost processor.
+
+\begin{Lentry}
+\item[{\tt CCTL\_LSSH(<dir\_staggertype>,<direction>)}]
+for a given staggertype and a direction this macro returns the number
+of processor local gridpoints, including ghostzones.
+
+\begin{itemize}
+\item{macro has to be in capital letters}
+\item{This macro is C/Fortran indexing aware:
+can specify the dimension in C ranging from $0 \ldots$ and in Fortan
+ranging from $1 \ldots$.}
+\end{itemize}
+\end{Lentry}
+
+\vskip .25cm
+
+Several functions exist to derive the staggertype for a given group
+and for a certain direction.
+\begin{Lentry}
+\item[{\tt int CCTK\_GroupStaggerIndexGI(int group\_index)}] %returns the
+%{\em staggerindex} for a given group index.
+\item[{\tt call CCTK\_GroupStaggerIndexGI(int staggerindex, int
+group\_index)}]  returns the {\em staggerindex} for a given group index.
+\end{Lentry}
+\vskip .45cm
+
+\begin{Lentry}
+\item[{\tt int CCTK\_GroupStaggerIndexGN(char *group\_name)}] %returns the
+%{\em staggerindex} for a given group name.
+\item[{\tt call CCTK\_GroupStaggerIndexGN(int staggerindex, char *group\_name)}] returns the
+{\em staggerindex} for a given group name. \vskip .25cm
+\end{Lentry}
+\vskip .45cm
+
+\begin{Lentry}
+\item[{\tt int CCTK\_GroupStaggerIndexVI(int variable\_index)}] %returns the
+%{\em staggerindex} for a given variable index.
+\item[{\tt call CCTK\_GroupStaggerIndexVI(int staggerindex, int variable\_index)}] returns the
+{\em staggerindex} for a given variable index.
+\end{Lentry}
+\vskip .45cm
+
+\begin{Lentry}
+\item[{\tt int CCTK\_GroupStaggerIndexVN(char *variable\_name)}] %returns the
+%{\em staggerindex} for a given variable name.
+\item[{\tt call CCTK\_GroupStaggerIndexVN(int staggerindex, char *variable\_name)}] returns the
+{\em staggerindex} for a given variable name.
+\end{Lentry}
+\vskip .45cm
+
+\begin{Lentry}
+\item[{\tt int CCTK\_StaggerIndex(char *stagger\_string)}] %return the {\em
+%staggerindex} for a given stagger string.
+\item[{\tt call CCTK\_StaggerIndex(int staggerindex, char *stagger\_string)}] return the {\em
+staggerindex} for a given stagger string.
+\end{Lentry}
+\vskip .45cm
+
+\begin{Lentry}
+\item[{\tt int CCTK\_DirStaggerIndex(int direction, char *stagger\_string)}]
+%returns the {\em directional staggerindex} for a given direction and
+%stagger string.
+\item[{\tt call CCTK\_DirStaggerIndex(int dir\_staggerindex, int direction, char *stagger\_string)}]
+returns the {\em directional staggerindex} for a given direction and
+stagger string.
+\end{Lentry}
+\vskip .45cm
+
+\begin{Lentry}
+\item[{\tt int CCTK\_DirStaggerIndexI(int direction, char *stagger\_type)}]
+%returns the {\em directional staggerindex} for a given direction and
+%staggerindex.
+\item[{\tt call CCTK\_DirStaggerIndexI(int dir\_direction, char *stagger\_type)}]
+returns the {\em directional staggerindex} for a given direction and
+staggerindex.
+
+\end{Lentry}
+
+
+\section{Parallelisation}
+\label{seap}
+
+The flesh itself does not actually set up grid variables. This
+is done by a {\it driver} thorn. To allow the distribution of
+a grid over a number of processors, the driver thorn must
+also provide the grid decomposition, and routines to enable
+parallelisation. The method used to provide this parallelisation
+(e.g. MPI, PVM) is not usually important for the thorn writer since
+the driver thorn provides routines which are called by standard interfaces
+from the flesh. Here we describe briefly the most important of these routines
+for the application thorn writer. A more detailed description
+of these interfaces with their arguments, is given in the Function Reference
+Guide.
+A complete description of the
+routines a driver thorn must provide will be provided in the
+Interface Thorn Writers guide. The standard driver thorn is
+currently {\tt PUGH} in the {\tt CactusPUGH} package, which
+is a parallel unigrid driver.
+
+\begin{Lentry}
+\item[{\tt CCTK\_nProcs}] Returns the number of processors being used
+\item[{\tt CCTK\_MyProc}] Returns the processor number (this starts at
+  processor number zero)
+\item[{\tt CCTK\_SyncGroup}] Synchronises a group of variables by
+  exchanging the values held in each processor ghostzones with the
+  physical values of their neighbours
+\item[{\tt CCTK\_Barrier}] Waits for all processors to reach this point
+  before proceeding
+\end{Lentry}
+
+\chapter{Cactus Application Interfaces}
+
+
+\section{Coordinates}
+\label{sec:co}
+
+The flesh provides utility routines for registering and querying
+coordinate information. The flesh does not provide any coordinates
+itself, these must be supplied by a thorn. Thorns are not required to
+register coordinates to the flesh, but registering coordinates
+provides a means for infrastructure thorns to make use of coordinate
+information.
+
+Coordinate support is still being developed in the Cactus flesh. At
+the moment, it is assumed that coordinates will usually be grid
+functions.
+
+Coordinates are grouped into {\it coordinate systems}, which have a
+specified dimension. Any number of coordinate systems can be
+registered with the flesh, and a coordinate system must be registered
+before any coordinates can be registered, since they must be
+associated with their corresponding system.  Coordinates can be
+registered, with any chosen name, with an existing coordinate system,
+along with their direction or index in the coordinate system.
+Optionally, the coordinate can also be associated with a given grid
+variable.  A separate call can register the global range for a
+coordinate on a given grid hierarchy.
+
+Following conventions for coordinate system and coordinate names
+provides a means for other thorns to use the physical properties of
+coordinate systems, without being tied to a particular thorn.
+
+A registered coordinate system can be refered to by both its name and
+an associated handle. Passing such an integer handle instead of the
+name string may be necessary for calling C routines from Fortran.
+
+\subsection{Registering Coordinates and Coordinate Properties}
+
+Coordinate systems and their properties can be registered at any time with the Flesh.
+The registration utilities for thorns providing coordinates are:
+\begin{Lentry}
+
+\item[{\tt CCTK\_CoordRegisterSystem}]
+
+Assigns a coordinate system with a chosen name and dimension. For example,
+a 3-dimensional Cartesian coordinate system could be registered with the
+name {\tt cart3d} using the call from C
+
+{\tt
+int ierr;\\
+int dim=3;\\
+ierr = CCTK\_CoordRegisterSystem(dim,"cart3d");
+}
+
+\item[{\tt CCTK\_CoordRegisterData}]
+
+Defines a coordinate in a given coordinate system, with a given
+	direction and name, and optionally associates it to a grid variable.
+The directions of the coordinates range from 1 to the dimension of the
+coordinate system. For example, to register the grid variable {\it grid::y3d}
+to have the coordinate name {\tt y} in the {\tt cart3d} system
+
+{\tt
+int ierr;\\
+int dir=2;\\
+ierr = CCTK\_CoordRegisterData(dir,"grid::y3d","y","cart3d");
+}
+
+\item[{\tt CCTK\_CoordRegisterRange}]
+
+Assigns the global computational maximum and minimum for a coordinate
+on a grid hierachy, that is in a {\tt cctkGH}. At this time the
+maximum and minimum values have to be of type {\tt CCTK\_REAL}. For
+example, if the {\tt y} coordinate for the {\tt cart3d} system ranges
+between zero and one
+
+{\tt
+CCTK\_REAL lower=0;\\
+CCTK\_REAL upper=1;\\
+int ierr;\\
+ierr = CCTK\_CoordRegisterRange(cctkGH, lower, upper, -1, "y", "cart3d");
+}
+
+Note that the API allows either the coordinate name or the direction to
+be used, so that the following is also valid
+
+{\tt
+CCTK\_REAL lower=0;\\
+CCTK\_REAL upper=1;\\
+int ierr;\\
+ierr = CCTK\_CoordRegisterRange(cctkGH, lower, upper, 2, NULL, "cart3d");
+}
+
+\item[{\tt CCTK\_CoordRegisterPhysIndex}]
+
+Implementing such things as symmetry properties for a grid leads to
+the need to know the details of the {\it physical} section of a grid.
+Such information is typically needed by IO thorns. The following call
+illustrates how To register the
+indices 3 and 25 as supplying the physical range of the {\tt y}
+coordinate in the {\tt cart3d} system
+
+{\tt
+int loweri=3;\\
+int upperi=25;\\
+int ierr;\\
+ierr = CCTK\_CoordRegisterPhysIndex(cctkGH, loweri, upperi, -1, "y", "cart3d");
+}
+
+
+
+\end{Lentry}
+
+\subsection{Using Coordinates}
+
+The utilities for thorns using coordinates are:
+
+\begin{Lentry}
+
+\item[{\tt CCTK\_NumCoordSystems}]
+
+Returns the number of coordinate systems registered with the Flesh. For example,
+
+{\tt int num;\\
+num = CCTK\_NumCoordSystems();
+}
+
+\item[{\tt CCTK\_CoordSystemName}]
+
+Provides the name of a registered coordinate system, given the integer
+handle (or index) for the system in the Flesh's coordinate data base.
+Note that the handle ranges between zero and the number of coordinate systems minus one: $0 \le \mbox{handle} \le \mbox{\tt CCTK\_NumCoordSystems()}-1$.
+It is important to remember that the handle given to a coordinate system
+depends on the order in which systems are registered, and can be different
+from one simulation to the next.
+
+For example, to print the names of all registered coordinate systems:
+
+{\tt for (i=0; i<CCTK\_NumCoordSystems(); i++) \\
+ printf("\%s ",CCTK\_CoordSystemNName(i));}
+
+\item[{\tt CCTK\_CoordSystemDim}]
+
+Provides the dimension of a coordinate system. For example, if
+the {\tt cart3d} system was registered as having 3 dimensions, the
+variable {\tt dim} below will now be set to 3,
+
+{\tt int dim;\\
+dim = CCTK\_CoordSystemDim("cart3d");
+}
+
+\item[{\tt CCTK\_CoordSystemHandle}]
+
+Provides the integer handle for a given coordinate system name. The handle describes
+the index for the coordinate system in the Flesh coordinate database, and its value
+will range between zero and the number of registered systems minus one. For example,
+the handle for the {\tt cart3d} coordinate system can be found using
+
+{\tt int handle;\\
+handle = CCTK\_CoordSystemHandle("cart3d");}
+
+\item[{\tt CCTK\_CoordSystemName}]
+
+The inverse to the previous function call, this provides the name for a given coordinate system handle.
+For example to find the first coordinate system in the Flesh database
+
+{\tt int handle = 0;\\
+const char *name = CCTK\_CoordSystemName(handle);
+}
+
+\item[{\tt CCTK\_CoordIndex}]
+
+Provides the grid variable index for a given coordinate. Notethat it is
+not necessary for a registered coordinate to have an associated grid variable,
+and if no such grid variable is found a negative integer will be returned.
+For example, to find the grid variable index associated with the {\tt y}
+coordinate of the {\tt cart3d} system, either of the two following
+calls could be made
+
+{\tt int index;\\
+index = CCTK\_CoordIndex(2,NULL,"cart3d");}
+
+{\tt int index;\\
+index = CCTK\_CoordIndex(-1,"y","cart3d");}
+
+
+\item[{\tt CCTK\_CoordDir}]
+
+Provides the direction for a given coordinate. Directions are integers
+ranging from one to the number of dimensions for the coordinate system.
+For example, to return the direction of the {\tt y} coordinate in
+the {\tt cart3d} system
+
+{\tt int dir;\\
+dir = CCTK\_CoordDir("y","cart3d");
+}
+
+The return of a negative integer indicates that the coordinate direction
+could not be found.
+
+\item[{\tt CCTK\_CoordRange}]
+
+Provides the global range (that is, the minumum and maximum values across
+the complete grid) of a coordinate on a given grid hierachy. Currently
+the minumum and maximum values must be of type {\tt CCTK\_REAL}. The
+coordinate can be specified either by name or by its direction. Note that
+this call returns the {\tt addresses} or the minumum and maximum values.
+For example, the range of the {\tt y} coordinate of the {\tt cart3d}
+coordinate system can be found using
+
+{\tt
+CCTK\_REAL lower, upper;\\
+int ierr;\\
+ierr = CCTK\_CoordRange(cctkGH, \&lower, \&upper, -1, "y", "cart3d");
+}
+or alternatively, using the direction
+
+{\tt
+CCTK\_REAL lower, upper;\\
+int ierr;\\
+ierr = CCTK\_CoordRange(cctkGH, \&lower, \&upper, 2, NULL, "cart3d");
+}
+
+
+\item[{\tt CCTK\_CoordLocalRange}]
+
+Provides the local range of a coordinate on a processor for a given
+grid hierachy. WARNING: This utility only currently works for regular
+cartesian grids. For example, the local processor range of the
+{\tt y} coordinate of the {\tt cart3d} coordinate system can be found using
+
+{\tt
+CCTK\_REAL lower, upper;\\
+int ierr;\\
+ierr = CCTK\_CoordLocalRange(cctkGH, \&lower, \&upper, -1, "y", "cart3d");}
+or alternatively, using the direction
+
+{\tt
+CCTK\_REAL lower, upper;\\
+int ierr;\\
+ierr = CCTK\_CoordLocalRange(cctkGH, \&lower, \&upper, 2, NULL, "cart3d");
+}
+
+\item[{\tt CCTK\_CoordRangePhysIndex}]
+
+For a given coordinate, provides the indices describing the {\it physical}
+range of the coordinate. A negative return value signifies that no such range
+was registered for the coordinate.
+
+This index range provides a mechanism for describing
+grid points which should not be considered part of the simulation results (for example,
+grid points used for different boundary conditions). The physical range of the
+{\tt y} coordinate of the {\tt cart3d} system can be found using
+
+{\tt
+int ilower, iupper;\\
+int ierr;\\
+ierr = CCTK\_CoordRangePhysIndex(cctkGH,\&ilower,\&iupper, -1, "y", "cart3d");}
+or using the coordinate direction
+{\tt
+int ilower, iupper;\\
+int ierr;\\
+ierr = CCTK\_CoordRangePhysIndex(cctkGH,\&ilower,\&iupper, 2, NULL, "cart3d");}
+
+\item[{\tt CCTK\_CoordSystemImplementation}]
+
+This call returns the name of the implementation which registered a coordinate system.
+Note that there is no guarantee that a thorn which registered a coordinate system is
+the same thorn which registers each of the coordinates in the system, although this
+should usually be the case.
+
+\end{Lentry}
+
+
+\section{IO}
+\label{sec:io}
+
+To allow flexible IO, the flesh itself does not provide any output
+routines, however it provides a mechanism for thorns to register
+different routines as IO methods (see chapter \ref{chap:io_methods}).
+Application thorns can interact with the different IO methods through
+the following function calls:
+
+\begin{Lentry}
+
+\item[{\tt CCTK\_OutputGH (const cGH *GH)}]
+
+This call loops over all registered IO methods, calling the routine
+that each method has registered for {\t OutputGH}.  The expected
+behaviour of any {\t OutputGH} routine is to loop over all GH
+variables outputting them if the IO method contains appropriate
+routines (that is, not all methods will supply routines to output all
+different types of variables) and if the method decides it is an
+appropriate time to output.
+
+\item[{\tt CCTK\_OutputVar (const cGH *GH, const char *varname)}]
+
+Output a variable {\t varname} looping over all registered IO methods.
+The output should take place if at all possible.  If output goes into
+a file and the appropriate file exists the data is appended, otherwise
+a new file is created.
+
+\item[{\tt CCTK\_OutputVarAs (const cGH *GH, const char *varname, const char *alias)}]
+
+Output a variable {\t varname} looping over all registered IO methods.
+The output should take place if at all possible.  If output goes into
+a file and the appropriate file exists the data is appended, otherwise
+a new file is created.  Uses {\t alias} as the name of the variable
+for the purpose of constructing a filename.
+
+\item[{\tt CCTK\_OutputVarByMethod (const cGH *GH, const char *varname, const char *methodname)}]
+
+Output a variable {\t varname} using the IO method {\t methodname} if
+it is registered. The output should take place if at all possible.  If
+output goes into a file and the appropriate file exists the data is
+appended, otherwise a new file is created.
+
+\item[{\tt CCTK\_OutputVarAsByMethod (const cGH *GH,
+                                     const char *varname,
+                                     const char *methodname,
+                                     const char *alias)}]
+
+Output a variable {\t varname} using the IO method {\t methodname} if
+it is registered.  The output should take place if at all possible.
+If output goes into a file and the appropriate file exists the data is
+appended, otherwise a new file is created.  Uses {\t alias} as the
+name of the variable for the purpose of constructing a filename.
+
+\end{Lentry}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Interpolation Operators}
+\label{sec:inop}
+
+The flesh does not provide interpolation routines by itself. Instead
+it offers a general function API to thorns for the registration and
+invocation of interpolation operators.
+
+Interpolation is done on arrays which can be either processor-local or
+distributed among all processors in the computational domain. Thorns
+can register an interpolation operator under a unique name as a set of
+2 routines -- one for each array type. If an operator cannot handle
+both types, the corresponding routine may be left unregistered. At
+registration every interpolation operator gets assigned a unique
+integer number which is used as a handle to refer to the operator
+later on.
+
+Separate flesh routines exist to invoke an interpolation operator for
+either one of these types. The number of points to interpolate along
+with their coordinates are passed in as well as necessary information
+about the coordinate system to use for interpolation.  The flesh
+routines take a variable list of input and output arrays as arguments
+thus allowing operators to be optimized for interpolating multiple
+arrays at the same coordinate points.\\
+
+The flesh registration routines for interpolation operators are:
+\begin{Lentry}
+  \item[{\tt CCTK\_InterpRegisterOperatorGV}]
+    Registers a user-supplied routine as an interpolation operator for
+    distributed CCTK variables
+  \item[{\tt CCTK\_InterpRegisterOperatorLocal}]
+    Registers a user-supplied routine as an interpolation operator for
+    processor-local arrays
+\end{Lentry}
+
+The flesh routines for invoking an interpolation operator are:
+\begin{Lentry}
+  \item[{\tt CCTK\_InterpHandle}]
+    Provides the handle for a given interpolation operator
+  \item[{\tt CCTK\_InterpGV}]
+    Calls the operator associated with the given handle
+    for interpolating a list of distributed CCTK variables
+  \item[{\tt CCTK\_InterpLocal}]
+    Calls the operator associated with the given handle
+    for interpolating a list of processor-local arrays
+\end{Lentry}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Reduction Operators}
+\label{sec:reop}
+
+A reduction operation can be defined as an operation on variables
+distributed across multiple processors resulting in a single number.
+Typical reduction operations are sum, minimum/maximum value, and boolean
+operations.  A typical application is, for example,
+sending to each processor the maximum value of the grid function holding the
+truncation error.
+
+The exchange of
+information across processors needs the functionality of a
+communication layer e.g. {\tt CactusPUGH/PUGH}. For this reason, the
+reduction operation itself is not part of the flesh, instead Cactus (again)
+provides a registration mechanism for thorns to register routines they
+provide as reduction operators. The different operators are
+identified by their name and/or a unique number, called a {\em handle}.
+The registration mechanism gives the advantage of a common
+interface while hiding the individual communication calls in the
+layer.
+
+In Cactus, reduction operators can in principle be applied to
+grid functions, arrays, and scalars, as well as to local (non CCTK-) arrays. Note that
+different implementations of reduction operators may be limited in
+the types of objects to which they can be applied.
+There is a fundamental difference between a reduction operation on
+CCTK variables (grid functions, arrays, scalars) and arbitrary
+(non-CCTK, local) arrays (which includes a single variable as a special case
+of a one element array).
+
+The reduction interface is currently under revision, and in the future
+should closely resemble that of the new interpolator interface.  See
+e.g. \ref{CTK-InterpLocalArrays} or \ref{CCTK-InterpGridArrays}.
+
+\vskip .24cm
+{\bf Obtaining the reduction handle}
+
+Before calling the routine which performs the reduction operation,
+the handle, which indentifies the operation, must be derived from its
+registered name.  To obtain a handle for the reduction of a CCTK variable, use
+%
+\begin{verbatim}
+int CCTK_ReductionHandle(const char *reduction_name);
+
+call CCTK_ReductionHandle(reduction_handle, reduction_name)
+integer       reduction_handle
+character*(*) reduction_name
+\end{verbatim}
+%
+(for C or Fortran respectively), while for a local, non-CCTK-array, use
+%
+\begin{verbatim}
+int CCTK_ReductionArrayHandle(const char *reduction_name);
+
+call CCTK_ReductionArrayHandle(reduction_handle, reduction_name)
+integer       reduction_handle
+character*(*) reduction_name
+\end{verbatim}
+
+\begin{Lentry}
+\item[{\tt reduction\_handle}] Each function returns a reduction
+handle.  In Fortran the result will be stored in this parameter.
+A negative handle value indicates failure to
+identify the correct operator.
+
+\item[{\tt reduction\_name}]
+is the name under which the operator has
+been registered by the providing thorn. The only thorn in the standard
+Computational Toolkit release which provides reduction operators is
+{\tt CactusPUGH/PUGHReduce}.
+\end{Lentry}
+
+(Note that although it would appear to be far more convenient to
+pass the name of the reduction operator directly to the following
+function call to {\t CCTK\_Reduce} this causes problems with the
+translation of strings from {\t FORTRAN} to {\t C} with variable
+argument lists).
+
+
+\vskip 0.24cm
+{\bf The general reduction interface}
+
+The main interfaces for reduction operations described here are quite
+powerful (and hence rather complicated).  To ease the use of these
+main interfaces, wrappers designed for specific and more restricted
+use are described in the next section.  If uncertain, you should use
+those simpler interfaces.
+
+To reduce any CCTK variable, use
+\begin{verbatim}
+int CCTK_Reduce(  cGH *GH,
+                  int processor,
+                  int operation_handle,
+                  int num_out_vals,
+                  int type_out_vals,
+                  void *out_vals,
+                  int num_in_fields,
+                  ...);
+
+call CCTK_Reduce( integer returnvalue,
+                  CCTK_POINTER cctkGH,
+                  integer processor,
+                  integer operation_handle,
+                  integer num_out_vals,
+                  integer type_out_vals,
+                  CCTK_POINTER out_vals,
+                  integer num_in_fields,
+                  ... )
+\end{verbatim}
+(for C or Fortran respectively).
+To reduce any non-CCTK (local) variable, use
+\begin{verbatim}
+int CCTK_ReduceArray(  cGH *GH,
+                       int processor,
+                       int operation_handle,
+                       int num_out_vals,
+                       int type_out_vals,
+                       void *out_vals,
+                       int num_dims,
+                       int num_in_arrays,
+                       int type_in_arrays,
+                       ... )
+
+call CCTK_ReduceArray( integer returnvalue,
+                       CCTK_POINTER cctkGH,
+                       integer processor,
+                       integer operation_handle,
+                       integer num_out_vals,
+                       integer type_out_arrays,
+                       CCTK_POINTER out_vals,
+                       integer num_dims,
+                       integer num_in_arrays,
+                       integer type_in_arrays,
+                       ... )
+\end{verbatim}
+
+\begin{Lentry}
+\item[{\tt returnvalue}] the return value of the operation.  A
+negative value indicates a failure to perform the reduction.  A zero
+indicates successfull operation.
+
+\item[{\tt GH} or {\tt cctkGH}] the pointer to the grid hierachy
+structure.
+
+\item[{\tt processor}] the processor which collects the
+information; a negative value will distribute the data to all
+processors.
+
+\item[{\tt operation\_handle}] the reduction operation handle
+(integer).  This is obtained by calling {\tt CCTK\_ReductionHandle} or
+{\tt CCTK\_ReductionArrayHandle}.
+
+\item[{\tt num\_out\_vals}] the number of values which define the
+result of the reduction operation.  If reducing to an array, this
+would be the number of elements in the array.  If reducing to a single
+number, this would be one.
+
+\item[{\tt type\_out\_arrays}, {\tt type\_in\_arrays}]
+specifies the type of the data
+you are communicating.  Use the values as specified in
+\ref{sec:datyansi}. Note: Do not {\em mix} datatypes.  For example, in
+Fortran do not declare a variable as {\tt integer} and then specify
+the type {\tt CCTK\_VARIABLE\_INT} in the reduction command. These
+types may not be the same on some architectures and will conflict.
+
+\item[{\tt out\_vals}] a pointer to the buffer which will hold the
+output values.
+
+\item[{\tt num\_dims}] (CCTK\_ReduceArray only) the number of dimensions of the input and output arrays.
+
+\item[{\tt num\_in\_fields}] (CCTK\_Reduce only) specifies the number of input CCTK
+variables which will be specified in the variable argument list $<$...$>$.
+
+\item[{\tt num\_in\_arrays}] (CCTK\_ReduceArray only) specifies the
+number of imput \emph{arrays} (not the number of input \emph{fields},
+which would be $\mathrm{num\_in\_arrays}*(\mathrm{num\_dims}+1)$, see below) which
+will be specified in the variable argument list $<$...$>$.
+
+\item[{\tt ...}] indicates a varible argument list:\\
+%
+\textbf{for CCTK\_Reduce:} Specify a list of CCTK variable indicies,
+one for each variable that is to be reduced.  The number of specified
+variables must be the same as the value of the {\tt num\_in\_fields}
+variable.\\
+%
+\textbf{for CCTK\_ReduceArray:} For each input array that is to be
+reduced, first specify the size of the array in each dimension,
+followed by (a pointer to) the array itself.  The number of specified
+arrays must be the same as the value of the {\tt num\_in\_arrays}
+variable.
+
+\end{Lentry}
+
+
+\vskip 0.24cm
+{\bf Special reduction interfaces}
+
+These routines are designed for the purpose of reducing scalars,
+arrays and grid functions; they will work on CCTK variables as well as
+local arrays. They hide many of the options of the generic interface
+described above.
+
+{\bf Reduction of scalars}  Use these routines to reduce a single
+variable across multiple processors.  The result of the reduction
+operation can be placed on the specified processor or on all
+processors.
+
+{\t
+\begin{verbatim}
+int CCTK_ReduceLocScalar (cGH *GH,
+                          int processor,
+                          int operation_handle,
+                          void *in_scalar,
+                          void *out_scalar,
+                          int data_type)
+
+call CCTK_ReduceLocScalar(integer returnvalue,
+                          CCTK_POINTER cctkGH,
+                          integer processor,
+                          integer operation_handle,
+                          in_scalar,
+                          out_scalar,
+                          integer data_type)
+\end{verbatim}
+}
+\begin{Lentry}
+\item[{\tt returnvalue}] the return value of the operation.  A
+negative value indicates a failure to perform the reduction.  A zero
+indicates successfull operation.
+\item[{\tt GH} or {\tt cctkGH}] the pointer to the grid hierachy
+structure.
+\item[{\tt processor}] the processor which collects the
+information; a negative value will distribute the data to all
+processors.
+\item[{\tt operation\_handle}] the reduction operation handle
+(integer).  This is obtained by calling {\tt CCTK\_ReductionHandle} or
+{\tt CCTK\_ReductionArrayHandle}.
+
+\item[{\tt in\_scalar}] the processor local variable with local value
+to be reduced.  In Fortran, this can be of any (scalar) data type.
+
+\item[{\tt out\_scalar}] the reduction result: a processor local variable
+with the global value (same on all processors) if {\tt processor} has been
+set to $-1$.  Otherwise processor {\tt processor} will hold the reduction result.
+
+\item[{\tt data\_type}] specifies the type of the gridfunction you are
+communicating. Use the values as specified in \ref{sec:datyansi}.
+\end{Lentry}
+
+\vskip 0.24cm
+{\bf Reduction of 1d arrays}  Use these routines to
+reduce a 1d array on all processors to a 1d array.  This reduction is carried
+out element by element. The arrays need to have the same size on all
+processors.
+{\t
+\begin{verbatim}
+int CCTK_ReduceLocArrayToArray1D( cGH *GH,
+                                  int processor,
+                                  int operation_handle,
+                                  void *in_array1d,
+                                  void *out_array1d,
+                                  int xsize)
+                                  int data_type)
+
+call CCTK_ReduceLocArrayToArray1D( integer returnvalue
+                                  CCTK_POINTER cctkGH,
+                                  integer processor,
+                                  integer operation_handle,
+                                  in_array1d,
+                                  out_array1d,
+                                  integer xsize,
+                                  integer data_type)
+\end{verbatim}
+}
+
+\begin{Lentry}
+\item[{\tt returnvalue}] the return value of the operation.  A
+negative value indicates a failure to perform the reduction.  A zero
+indicates successfull operation.
+\item[{\tt GH} or {\tt cctkGH}] the pointer to the grid hierachy
+structure.
+\item[{\tt processor}] the processor which collects the
+information; a negative value will distribute the data to all
+processors.
+\item[{\tt operation\_handle}] the reduction operation handle
+(integer).  This is obtained by calling {\tt CCTK\_ReductionHandle} or
+{\tt CCTK\_ReductionArrayHandle}.
+
+\item[{\tt in\_array1d}] the one dimensional array to be reduced
+across all processors, element by element.
+\item[{\tt out\_array1d}] the array holding the reduction result. out\_array1d[1]
+= Reduction(in\_array[1]).
+\item[{\tt xsize}] the size of the one dimensional array.
+
+\item[{\tt data\_type}] specifies the type of the gridfunction you are
+communicating. Use the values as specified in \ref{sec:datyansi}.
+\end{Lentry}
+
+\vskip 0.24cm
+{\bf Reduction of 2d arrays} Use these routines to reduce a 2d array, element by element. The arrays need to have the same size on all
+processors.
+{\t
+\begin{verbatim}
+int CCTK_ReduceLocArrayToArrayD( cGH *GH,
+                                 int processor,
+                                 int opertaion_handle,
+                                 in_array_2d,
+                                 out_array2d,
+                                 int xsize,
+                                 int ysize,
+                                 int data_type)
+
+
+call CCTK_ReduceLocArrayToArray2D( integer returnvalue
+                                   CCTK_POINTER cctkGH,
+                                   integer processor,
+                                   integer operation_handle,
+                                   in_array2d,
+                                   out_array2d,
+                                   integer xsize,
+                                   integer ysize,
+                                   integer data_type)
+\end{verbatim}
+}
+
+\begin{Lentry}
+\item[{\tt returnvalue}] the return value of the operation.  A
+negative value indicates a failure to perform the reduction.  A zero
+indicates successfull operation.
+\item[{\tt GH} or {\tt cctkGH}] the pointer to the grid hierachy
+structure.
+\item[{\tt processor}] the processor which collects the
+information; a negative value will distribute the data to all
+processors.
+\item[{\tt operation\_handle}] the reduction operation handle
+(integer).  This is obtained by calling {\tt CCTK\_ReductionHandle} or
+{\tt CCTK\_ReductionArrayHandle}.
+
+\item[{\tt in\_array2d}] two dimensional array, to be reduced across all
+processors, element by element.
+\item[{\tt out\_array2d}] two dimensional array to hold the reduction
+result. out\_array2d[i,j]= Reduction(in\_array2d[i,j]).
+\item[{\tt xsize}] the size of the two dimensional array in x direction.
+\item[{\tt ysize}] the size of the two dimensional array in y
+direction.
+
+\item[{\tt data\_type}] specifies the type of the gridfunction you are
+communicating. Use the values as specified in \ref{sec:datyansi}.
+\end{Lentry}
+
+\vskip 0.24cm
+{\bf Reduction of 3d arrays} Use these routines to reduce a 3d array, element by element. The arrays need to have the same size on all
+processors.
+{\t
+\begin{verbatim}
+int CCTK_ReduceLocArrayToArray3D(cGH *GH,
+                                 int processor,
+                                 int opertaion_handle,
+                                 in_array_3d,
+                                 out_array3d,
+                                 int xsize,
+                                 int ysize,
+                                 int zsize,
+                                 int data_type)
+
+call CCTK_ReduceLocArrayToArray3D(integer returnvalue
+                                 CCTK_POINTER cctkGH,
+                                 integer processor,
+                                 integer operation_handle,
+                                 in_array3d,
+                                 out_array3d,
+                                 integer xsize,
+                                 integer ysize,
+                                 integer zsize,
+                                 integer data_type)
+\end{verbatim}
+}
+
+\begin{Lentry}
+\item[{\tt returnvalue}] the return value of the operation.  A
+negative value indicates a failure to perform the reduction.  A zero
+indicates successfull operation.
+\item[{\tt GH} or {\tt cctkGH}] the pointer to the grid hierachy
+structure.
+\item[{\tt processor}] the processor which collects the
+information; a negative value will distribute the data to all
+processors.
+\item[{\tt operation\_handle}] the reduction operation handle
+(integer).  This is obtained by calling {\tt CCTK\_ReductionHandle} or
+{\tt CCTK\_ReductionArrayHandle}.
+
+\item[{\tt in\_array3d}] the three dimensional array, to be reduced across all
+processors, element by element.
+\item[{\tt out\_array3d}] three dimensional array holding the reduction
+result. out\_array3d[i,j,k]= Reduction(in\_array3d[i,j,k]).
+\item[{\tt xsize}] the size of the three dimensional array in x direction.
+\item[{\tt ysize}] the size of the three dimensional array in y direction.
+\item[{\tt ysize}] the size of the three dimensional array in z
+direction.
+
+\item[{\tt data\_type}] specifies the type of the gridfunction you are
+communicating. Use the values as specified in \ref{sec:datyansi}.
+\end{Lentry}
+
+\vskip .24cm
+{\bf Some brief examples:}
+
+{\bf Reduction of a scalar:}  A local error is reduced across all
+processors with the maximum operation. The variable {\tt tmp} will
+hold the maximum of the error and  is the same on all
+processors. This quantity can then be reassigned to {\tt normerr}.
+\begin{verbatim}
+         CCTK_REAL normerr, tmp
+         integer   ierr, reduction_handle
+
+         call CCTK_ReductionArrayHandle(reduction_handle,"maximum")
+
+         if (reduction_handle.lt.0) then
+            call CCTK_WARN(1,"Cannot get reduction handle for maximum operation.")
+         endif
+
+         call CCTK_ReduceLocScalar(ierr, cctkGH, -1,
+     .             reduction_handle,
+     .             normerr, tmp, CCTK_VARIABLE_REAL)
+         if (ierr.ne.0) then
+            call CCTK_WARN(1,"Reduction of norm failed!");
+         endif
+         normerr = tmp
+\end{verbatim}
+
+
+{\bf Reduction of a 2d array:}  A two dimensional $(2x3)$ array is
+reduced; the reduction result (array of same size: {\tt bla\_tmp}) is seen
+on all processors ($-1$ entry as the thid argument).  This example also demonstrates
+some simple error checking with the {\tt CCTKi\_EXPECTOK} macro.
+\begin{verbatim}
+      CCTK_REAL bla(2,3),bla_tmp(2,3);
+      integer   ierr, sum_handle
+
+      call CCTK_ReductionArrayHandle(sum_handle,"sum")
+      bla         =  1.0d0
+      write (*,*) "BLA ",bla
+
+      call CCTK_ReduceLocArrayToArray2D(ierr, cctkGH, -1, sum_handle,
+     .     bla, bla_tmp, 2, 3, CCTK_VARIABLE_REAL)
+      call CCTKi_EXPECTOK(ierr, 0, 1, "2D Reduction failed")
+
+      bla = bla_tmp
+      write (*,*) "BLA ",bla
+\end{verbatim}
+
+Note that the memory for the returned values must be allocated before
+the reduction call is made.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Completing a Thorn}
+
+\section{Commenting Source Code}
+
+Note that since most source files (see Section~\ref{nacofosofi} for
+exceptions) pass through a C preprocessor, C style comments can be
+used in Fortran code. (Note that C++ comments (that is //),
+should only be used in C++ source code).
+
+The Flesh and the Cactus thorns use the {\tt grdoc} Code Documenting
+System\\(\texttt{http://jean-luc.aei.mpg.de/Codes/grdoc/}) to document
+source code.
+
+
+\section{Providing Runtime Information}
+\label{sec:prrutiin}
+
+To write from thorns to standard output ({\it i.e.} the screen)
+at runtime, use the function {\tt CCTK\_INFO}.
+For example, from the Fortran thorn {\tt MyThorn},
+
+{\tt
+call CCTK\_INFO("Starting Tricky Calculation")
+}
+
+will write the line:
+
+{\tt
+INFO (MyThorn): Starting Tricky Calculation
+}
+
+For a multiprocessor run, only information from processor zero
+will appear, unless the ``{\tt -r}'' command line option is used
+(Section~\ref{sec:coliop}).
+
+Outputing a variable using {\tt CCTK\_INFO} is currently more tricky,
+since you need to build the string to be output. For example, from Fortran,
+
+{\tt
+character*200 infoline\\
+write(infoline,'(A,1X,I)') 'The integer was ',inum\\
+call CCTK\_INFO(infoline)
+}
+
+and from C
+
+{\tt
+char *infoline;\\
+infoline = (char *)malloc(18*sizeof(char));\\
+sprintf(infoline,'The integer was \%d',inum);\\
+CCTK\_INFO(infoline);\\
+free(infoline);
+}
+
+Note that:
+\begin{itemize}
+\item{} {\tt CCTK\_INFO} is actually a macro for the function
+        {\tt CCTK\_Info(<thorn name>,<message>)} which automatically
+        includes the thorn name.
+
+\item{} {\tt CCTK\_INFO} should be used rather than print statements,
+       since it will give consistent behaviour on multiprocessors, and
+       also provides a mechanism for switching the output to screen on
+       and off, even on a thorn-by-thorn basis. (Although this is
+       not yet implemented).
+
+\item{}  The function {\tt CCTK\_VInfo}, available in C only,
+         can be used to output a list of variables, using a C format string.
+         For example, the above example becomes
+
+{\tt
+CCTK\_VInfo(CCTK\_THORNSTRING,"The integer was \%d",inum);
+}
+
+\end{itemize}
+
+
+
+\section{Error handling, warnings and code termination}
+\label{sec:erhawancote}
+The Cactus function {\tt CCTK\_WARN} should be used to provide
+warning messages during code execution. Along with the
+warning message, an integer is given to indicate the severity
+of the warning. The warning severity indicates whether the
+message is printed to standard output and whether the code
+should be stopped. A level 0 warning indicates the highest
+severity, with higher numbers indicating lower severity.
+
+By default, a Cactus run will abort on a level 0 warning
+and will report level 1 and severer warnings to screen.
+This behaviour can be amended using command line arguments,
+as described in Section~\ref{sec:coliop}.
+
+For example, to provide a warning which will be printed to standard
+output but which will not terminate the code for a run with default
+options, a level 1 warning should be used. The syntax from Fortran is
+{\tt
+\begin{verbatim}
+call CCTK_WARN(1,"Your warning message")
+\end{verbatim}
+}
+or from C,
+{\tt
+\begin{verbatim}
+CCTK_WARN(1,"Your warning message");
+\end{verbatim}
+}
+
+Note that {\tt CCTK\_WARN} is actually a macro which automatically
+expands to include the name of the thorn, the source file name and line
+number of the error. (For this reason it is important that capital letters are
+always used for the function). If the flesh parameter {\tt cctk\_full\_warnings} is
+set to true, then the source file name and line number will be printed to
+standard output along with the thorn name and warning.
+
+To include variables in warning messages is more troublesome. From C, the
+variable argument list
+function {\tt CCTK\_VWarn} can be used to include variables using standard printf format strings. Unfortunately, a macro can no
+longer be provided to automatically include the origin details of the warning,
+and the syntax is for example,
+{\tt
+\begin{verbatim}
+CCTK_VWarn(1,__LINE__,__FILE__,CCTK_THORNNAME,
+  "Your warning message, including %f and %d",
+  myreal,myint);
+\end{verbatim}
+}
+To include variables from Fortran, a string must be constructed and passed
+to the standard function {\tt CCTK\_WARN}, for example
+{\tt
+\begin{verbatim}
+ character*200 warnline
+ write(warnline,'(A32,G12.7,A5,I8)')
+&  'Your warning message, including ',myreal,' and ',myint
+ call CCTK_WARN(1,warnline)
+\end{verbatim}
+}
+
+The flesh will be implementing standard error return codes
+which can be used by the thorns, although this is not
+yet ready. In general, thorns should attempt to handle errors
+without terminating, and warning messages should be liberally
+used.
+
+
+
+
+\section{Adding documentation}
+
+To include documentation from your thorn into the {\tt ThornGuide}
+(obtained from using {\tt gmake <config>-ThornGuide} or
+{\tt gmake ThornGuide}), include a {\tt LaTeX} file called {\tt documentation.tex}
+in the {\tt doc} directory of your thorn. Your thorn configuration
+files will be automatically parsed to create documentation for
+Cactus parameters, variables and scheduling. The format
+for the thorn documentation isn't standardized yet, for now please use
+the following format:
+\begin{verbatim}
+\documentclass{article}
+
+\begin{document}
+
+\title{<Thorn Name>}
+\author{<Authors>}
+\date{<Date>}
+\maketitle
+
+\abstract{<The Abstract>}
+
+\section{Purpose}
+
+\section{<Whatever You Want}
+
+<Thorn Documentation>
+
+% Automatically created from the ccl files by using gmake ThornGuide
+\include{interface}
+\include{param}
+\include{schedule}
+
+\end{document}
+\end{verbatim}
+
+\section{Adding a test suite}
+\label{sec:adatesu}
+
+To add a test suite to your thorn, devise a series of parameter
+files which use as many aspects of your thorn as possible.
+Make sure that the parameter files produce ascii output to files,
+and that these files are in the directory
+{\tt ./<parameter file base name>}.
+
+Run Cactus on each of the parameter files, and move the parameter files,
+and the output directories they produced, to the {\tt test} directory
+in your thorn.
+
+Document carefully any situations or architectures in which your test
+suite does not give the correct answers.
+
+For details on running the test suites, see Section~\ref{sec:te}.
+
+
+
+
+\chapter{Advanced Thorn Writing}
+
+\section{Using Cactus Timers}
+
+\subsection{What are timers?}
+
+Cactus Timers can only currently be used in C or C++ source code,
+although the API's for Fortran code are currently being added [FIXME].
+
+%The standard timing information available during a simulation was
+%described in Section~\ref{????}.
+%[FIXME: This isn't filled in yet because it is being reworked]
+Cactus provides a flexible mechanism for
+timing different sections of your thorns using various clocks which
+have been registered with the Flesh.  By default, the Flesh provides a
+set of clocks (if they are available), measuring for
+example wall clock time and CPU time. Additional clocks can be
+implemented by thorns and registered with the Flesh
+%(see
+%Section~\ref{????} [FIXME: clock registration to be added]
+%on how to write and register your own clock).
+
+You can add any number of timers to your thorn source code, providing
+each with a chosen name, for example {\tt TimeMyRoutine}, {\tt TimeNextCalculation}, and then use Cactus functions to switch on the
+timers, stop or reset them, and recover timing information.
+
+Note that we use the word {\it Clock} to describe the timing instrument
+itself, for example the hardware counters on a machine, and the word
+{\it Timer} to describe the calls in your code which collect results
+from the different {\it Clocks}.
+
+\subsection{Timing calls}
+
+\begin{Lentry}
+
+\item[{\t CCTK\_TimerCreate}, {\t CCTK\_TimerCreateI}]
+
+Create a timer with a given name ({\t CCTK\_TimerCreate}), or with no name
+({\tt CCTK\_TimerCreateI})  and give back a timer index.
+If no name is provided for the timer, future calls
+should be made using the returned timer index.
+
+\item[{\t CCTK\_TimerDestroy}, {\t CCTK\_TimerDestroyI}]
+
+Destroy a timer using either the timer name or timer index.
+
+\item[{\t CCTK\_TimerStart}, {\t CCTK\_TimerStartI}]
+
+Start the given timer (identified by name or index), using all registered
+clocks.
+
+\item[{\t CCTK\_TimerStop}, {\t CCTK\_TimerStopI}]
+
+Stop the given timer (identified by name or index) on all registered clocks.
+
+\item[{\t CCTK\_TimerReset}, {\t CCTK\_TimerResetI}]
+
+Reset the given timer on all registered clocks.
+
+\item[{\t CCTK\_TimerCreateData}, {\t CCTK\_Timer}, {\t CCTK\_TimerI}, {\t CCTK\_TimerDestroyData}]
+
+Access the actual timing results, which are passed back as a
+structure, {\t cTimerData} described below, in {\t CCTK\_Timer}.
+Since the timing data is dynamic, before it can be assessed, the structure
+must be allocated with a call to {\t CCTK\_TimerCreateData}. A similar function
+is provided to destroy the stucture
+
+\item[{\t CCTK\_NumTimers}]
+
+Return the number of created timers
+
+\item[{\t CCTK\_TimerName}]
+
+Provide the name of the timer for a given timer index
+
+\end{Lentry}
+
+\subsection{The {\tt cTimerData} Structure}
+
+The structure holding the timing data, {\tt cTimerData}, contains
+the number of collected times (one measurement for each registered clock),
+and the measured time for each clock. The measured time is held in
+a structure of type {\tt cTimerVal} which contains the data type
+of the measured value, a description of the clock, and the units used
+for the measurements. Hopefully additional interfaces will soon be added
+to avoid detailed knowledge of these structures, but for now here are
+the gory details:
+
+{\tt
+\begin{verbatim}
+typedef enum {val_none, val_int, val_long, val_double} cTimerValType;
+
+typedef struct
+{
+  cTimerValType type;
+  const char *heading;
+  const char *units;
+  union
+  {
+    int        i;
+    long int   l;
+    double     d;
+  } val;
+} cTimerVal;
+
+typedef struct
+{
+  int n_vals;
+  cTimerVal *vals;
+} cTimerData;
+\end{verbatim}
+}
+
+\subsection{How to insert timers in your code}
+
+The function prototypes and structure definitions are contained in the
+include file {\tt cctk\_Timers.h}, which is included in the standard
+thorn header file {\tt cctk.h}. At the moment the timer calls are only
+available from C.
+
+The following example, which uses a timer called {\t TimeMyStuff} to
+instrument a section of code, illustrates how timers are used by
+application thorns. A working example is available in the thorn {\tt
+CactusTest/TestTimers}.
+
+{\bf Creating the {\t TimeMyStuff} timer}
+
+The first action for any timer is to create it, using {\t
+CCTK\_TimerCreate}.  This can be performed at any time, as long as it
+precedes using the timer:
+{\tt
+\begin{verbatim}
+#include "cctk_Timers.h"
+ierr = CCTK_TimerCreate(`TimeMyStuff`);
+\end{verbatim}
+}
+
+{\bf Instrumenting a section of code}
+
+Code sections are instrumented using the Start, Stop and Reset functions. These
+functions are applied to the chosen timer using all the registered clocks.
+{\tt
+\begin{verbatim}
+#include "cctk_Timers.h"
+ierr = CCTK_TimerStart(`TimeMyStuff`);
+\* Piece of code to time *\
+y = CalculateNewValue(y);
+ierr = CCTK_TimerStop(`TimeMyStuff`);
+\end{verbatim}
+}
+
+{\bf Accessing the timer results}
+
+This is a little bit cumbersome at the moment, since the timer data can be
+of different types.
+
+{\tt
+\begin{verbatim}
+#include "cctk_Timers.h"
+cTimerData *info;
+
+info = CCTK_TimerCreateData();
+ierr = CCTK_Timer('TimeMyStuff',info);
+
+for (i = 0; i < info->n_vals; i++)
+{
+  switch (info->vals[i].type)
+  {
+    case val_int:
+    printf("%s: %d %s", info->vals[i].heading,info->vals[i].val.i,
+                        info->vals[i].units);
+    break;
+
+    case val_long:
+    printf("%s: %d %s", info->vals[i].heading,(int) info->vals[i].val.l,
+                        info->vals[i].units);
+    break;
+
+    case val_double:
+    printf("%s: %.3f %s", info->vals[i].heading,info->vals[i].val.d,
+                          info->vals[i].units);
+    break;
+
+    default:
+    CCTK_WARN(1, "Unknown data type for timer info");
+    break;
+  }
+}
+ierr = CCTK_TimerDestroyData(info);
+\end{verbatim}
+}
+
+
+\section{Include Files}
+
+Cactus provides a mechanism for thorns to add code to
+include files which can be used by any other thorn.
+Such include files can contain executable source code, or header/declaration
+information. A difference is made between these two cases, since included
+executable code is protected from being run if a thorn is compiled but
+not active by being wrapped by a call to {\tt CCTK\_IsThornActive}.
+
+
+Any thorn
+which uses the include file must declare this in its
+{\tt interface.ccl} with the line
+
+\begin{verbatim}
+USES INCLUDE [SOURCE|HEADER]: <file_name>
+\end{verbatim}
+
+Any thorn which wishes to add to this include file,
+declares in its own {\tt interface.ccl}
+
+\begin{verbatim}
+INCLUDE [SOURCE|HEADER]: <file_to_include> in <file_name>
+\end{verbatim}
+
+\subsubsection{Example}
+
+For an example of this in practice, for the case of Fortran code,
+consider thorn A which
+wants to gather terms for a calculation from any thorn
+which wishes to provide them. Thorn A could have
+the lines in its source code
+
+\begin{verbatim}
+c Get source code from other thorns
+      allterms = 0d0
+#include "AllSources.inc"
+\end{verbatim}
+and would then add to {\tt interface.ccl} the line
+\begin{verbatim}
+USES INCLUDE SOURCE: AllSources.inc
+\end{verbatim}
+
+If thorn B wants to add terms for the calculation, it would
+create a file, say {\tt Bterms.inc} with the lines
+\begin{verbatim}
+c Add this to AllSources.inc
+      allterms = allterms + 1d0
+\end{verbatim}
+and would add to its own {\tt interface.ccl}
+
+\begin{verbatim}
+INCLUDE SOURCE: Bterms.inc in AllSources.inc
+\end{verbatim}
+
+The final file for thorn A  which is compiled will contain the code
+\begin{verbatim}
+c Get source code from other thorns
+      allterms = 0d0
+      if (CCTK_IsThornActive("B").eq.0) then
+c Add this to AllSources.inc
+        allterms = allterms + 1d0
+      end if
+\end{verbatim}
+
+Any Fortran thorn routines which include source code must include
+the declaration {\tt DECLARE\_CCTK\_FUNCTIONS}.
+
+
+\section{Memory Tracing}
+\label{sec:metr}
+
+Cactus provides a mechanism for overriding the standard C memory
+allocation routines ({\tt malloc, free,} \ldots) with Cactus specific
+routines, that track the amount of memory allocated and from where the
+allocation call was made. This information can be accessed by the user
+to provide an understanding of the memory consumption between two
+instances and to track down possible memory leaks. This feature is
+available in C only.
+
+\subsection{Activating Memory Tracing}
+\label{sec:acmetr}
+
+Memory tracing has to be activated at configure time. The standard
+malloc statements are overriden with macros ({\tt CCTK\_MALLOC}).  To
+activate memory tracing use either
+
+\begin{Lentry}
+\item[{\tt DEBUG=all}]  Enables all debug options (compiler debug
+flags, redefines malloc)
+\item[{\tt DEBUG=memory}] Redefine malloc only.
+\end{Lentry}
+
+The {\tt CCTK\_MALLOC} statements can also be used directly in the C
+code. But by employing them this way, only a fraction of the total
+memory consumption is traced. Also, they cannot be turned off at
+configure time. (this behavior might change). For example:
+\begin{verbatim}
+machine> gmake bigbuild DEBUG=yes
+
+machine> gmake bigbuild-config DEBUG=memory
+\end{verbatim}
+The new configuration {\tt bigbuild} is configured with all debugging
+features turned on. The already existing configuration {\tt bigbuild}
+is reconfigured with memory tracing only.
+
+\subsection{Using Memory Tracing}
+\label{sec:usmetr}
+
+You can  request Cactus to store the memory consumption at a certain
+instance in the program flow and return the difference in memory
+allocation some time later.
+
+\begin{Lentry}
+\item[{\tt int CCTK\_MemTicketRequest(void)}]
+	Request a ticket: save the current total memory to a database.
+	Return an integer (ticket). Use the ticket to calculate the
+	difference in memory allocation between the two instances in
+ 	CCTK\_MemTicketCash.	
+
+\item[{\tt long int CCTK\_MemTicketCash(int your\_ticket)}]
+	Cash in your ticket: return the memory difference between now and the
+     	time the ticket was requested. Tickets can be cashed in
+	several times. See Example below.
+     	This only tracks the real data memory, which is the same as in
+     	undebug mode. It does not keep track of the internal allocations
+     	done to provide the database, motivation is that this is not
+ 	allocated either if you compile undebugged.
+
+\item[{\tt int CCTK\_MemTicketDelete(int your\_ticket)}]
+	Delete the memory ticket. The ticket-id will not be reused, since
+        it's incremented with every ticket request, but the memory of
+	the memory datastructure is deallocated.
+
+\item[{\tt unsigned long int CCTK\_TotalMemory(void)}]
+	Returns the total allocated memory (not including the tracing
+        data structures).
+
+\item[{\tt void CCTK\_MemStat}] Prints an info string, stating the current,
+ 	past and total memory (in bytes) allocation between two
+	successive calls to this routine, as well as the difference.
+\end{Lentry}
+
+Sample C Code demonstrating the ticket handling. Two tickets are
+requested during malloc operations. The {\tt CCTK\_MALLOC} statement is
+used directly. They are cashed in and the memory
+difference is printed. Ticket 1 is cashed twice. The tickets are
+deleted at the end.
+\begin{verbatim}
+
+int ticket1;
+int ticket2;
+
+/* store current memstate, ticket: t1*/
+t1 = CCTK_MemTicketRequest();
+
+/* allocate data */	
+hi = (int*) CCTK_MALLOC(10*sizeof(int));
+
+/* store current memstate, ticket: t2*/
+t2 = CCTK_MemTicketRequest();
+	
+/* cash ticket t1, print mem difference */	
+printf("NOW1a: %+d \n",CCTK_MemTicketCash(t1));
+
+/* allocte some more data */
+wo = (CCTK_REAL*)CCTK_MALLOC(10*sizeof(CCTK_REAL));
+	
+/* cash ticket t1 and t2, print mem difference */	
+printf("NOW1b: %+d \n",CCTK_MemTicketCash(t1));
+printf("NOW2 : %+d \n",CCTK_MemTicketCash(t2));
+
+/* delete the tickets from the database */
+CCTK_MemTicketDelete(t1);
+CCTK_MemTicketDelete(t2);
+
+\end{verbatim}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section[Calls to different language]{Calls between different programming languages}
+%\pagestyle{empty}
+
+\subsection{Calling C routines from FORTRAN}
+\label{sec:cacrofr}
+
+To make the following C routine,
+
+{\tt
+int <routine name>(<argument list>)\\
+{\\
+...\\
+}
+}
+
+also callable from Fortran, a new routine must added, which is
+declared using the {\tt CCTK\_FCALL} and {\tt CCTK\_FNAME} macros:
+
+{\tt
+void CCTK\_FCALL CCTK\_FNAME(<routine name>)(int *ierr, <argument list>)\\
+<rewrite routine code, or call C routine itself>
+}
+
+The convention used in Cactus is that {\tt <routine name>} be the same as any
+C-callable routine name, and that this is mixed-case.  The macros change
+the case and number of underscores of the routine name to match that expected
+by Fortran.
+
+All arguments passed by Fortran to the routine (except strings) are
+pointers in C, e.g. a call from Fortran
+
+\begin{verbatim}
+CCTK_INT arg1
+CCTK_REAL arg2
+CCTK_REAL arg3(30,30,30)
+
+...
+
+call MyCRoutine(arg1,arg2,arg3)
+\end{verbatim}
+
+should appear in C as
+
+\begin{verbatim}
+void CCTK_FCALL CCTK_FNAME(MyCRoutine)(CCTK_INT *arg1,
+                                       CCTK_REAL *arg2,
+                                       CCTK_REAL *arg3)
+{
+...
+}
+\end{verbatim}
+
+\subsection{String Arguments from Fortran}
+
+Fortran passes string arguments in a special, compiler-dependent, way.
+To facilitate this, the CCTK provides a set of macros to enable the
+translation to C strings.
+The macros are defined in {\tt cctk\_FortranString.h} which
+should be included in your C file.
+
+String arguments {\em must always come last} in the argument list for
+these macros to be effective (some Fortran compilers automatically
+migrate the strings to the end so there is no portable workaround).
+
+The macros to use depends upon the number of string arguments -- we
+currently support up to three.  The macros are
+{\tt <ONE|TWO|THREE>\_FORTSTRING\_ARG}.
+Corresponding to each of these are two macros
+{\tt <ONE|TWO|THREE>\_FORTSTRING\_CREATE} and
+{\tt <ONE|TWO|THREE>\_FORTSTRING\_PTR}
+which take one,two,or three arguments depending on the number of strings.
+The latter set is only necessary if a string is to be modified.
+In more detail:
+
+\begin{Lentry}
+
+\item[{\tt <ONE|TWO|THREE>\_FORTSTRING\_ARG}]
+	Used in the argument list of the C routine to which the Fortran
+	strings are passed.
+
+\item[{\tt <ONE|TWO|THREE>\_FORTSTRING\_CREATE}]
+	Used in the declaration section of the C routine to which the Fortran
+	strings are passed. These macros have one, two or three arguments
+	which are the variable names you choose to use for the strings in
+	the C routine, created
+	by null-terminating the passed-in Fortran strings. The {\tt CREATE}
+	macros create new strings with the names you provide, and thus should
+	be treated as read-only and freed after use.
+
+\item[{\tt <ONE|TWO|THREE>\_FORTSTRING\_PTR}]
+	These macros, used in the declaration section of the C routine
+	{\em after} the {\tt CREATE} macro,
+	should be used if you need to modify one of the passed-in strings.
+	They declare and define pointers to the passed-in strings.
+	
+\item[{\tt cctk\_strlen<1|2|3>}] these integer variables,
+	automatically defined by
+	the {\tt CREATE} macro, hold the lengths of the passed in
+	Fortran strings.
+\end{Lentry}
+
+The use of the macros is probably best explained with examples.
+For read-only access to the strings, only the first two macros are needed,
+the following example compares two strings passed in from Fortran.
+
+\begin{verbatim}
+#include <stdlib.h>
+#include <string.h>
+#include <cctk_FortranString.h>
+
+int CCTK_FCALL CCTK_FNAME(CompareStrings)(TWO_FORTSTRING_ARG)
+{
+  int retval;
+
+  /* Allocate and create C strings with \0 at end. */
+  /* This makes variable declarations so must be before
+     any executable statements.*/
+
+  TWO_FORTSTRING_CREATE(arg1,arg2)
+
+  /* Do some work with the strings */
+  retval = strcmp(arg1,arg2);
+
+  /* Important, these must be freed after use */
+  free(arg1);
+  free(arg2);
+
+  return retval;
+}
+
+\end{verbatim}
+
+Since the null terminated strings may be copies of the strings passed
+from Fortran, they should be treated as read-only.
+
+To change the data in a string passed from Fortran, you need to use
+the {\tt FORTSTRING\_PTR} macros, which declare and set up pointers
+to the strings passed from C. Note that this macro must be used
+{\em after} the {\tt FORTSTRING\_CREATE} macro. For example, the
+following routine copies the contents of the second string to the
+first string.
+
+\begin{verbatim}
+#include <stdlib.h>
+#include <string.h>
+#include <cctk_FortranString.h>
+
+int CCTK_FCALL CCTK_FNAME(CopyStrings)(TWO_FORTSTRING_ARG)
+{
+  int retval;
+
+  /* Allocate and create C strings with \0 at end. */
+  /* This makes variable declarations so must be before
+     any executable statements. */
+
+  TWO_FORTSTRING_CREATE(arg1,arg2)
+  TWO_FORTSTRING_PTR(farg1,farg2)
+
+  /* Do some work with the strings */
+
+  retval = strncpy(farg1,arg2,cctk_strlen1);
+
+  /* Important, these must be freed after use */
+  free(arg1);
+  free(arg2);
+
+  return retval;
+}
+
+\end{verbatim}
+
+Note that in the example above two new variables, pointers to the
+Fortran strings, were created.  These are just pointers and {\em
+should not be freed}.  The example also illustrates the
+automatically-created variables (e.g. {\tt cctk\_strlen1}
+which hold the sizes of original Fortran strings.
+When writing to a string its length should never be exceeded.
+
+\subsection{Calling FORTRAN routines from C}
+\label{sec:caforofr}
+
+To call a utility Fortran routine from C use
+
+{\tt
+void CCTK\_FCALL CCTK\_FNAME(<Fortran routine name>)(<argument list>)
+}
+
+Note that Fortran expects all arguments (apart from strings) to be
+pointers, so any non-array data should be passed by address.
+
+Currently we have no support for calling Fortran routines which expect
+strings from C.
+
+
+\section{Naming conventions}
+
+\begin{itemize}
+
+\item{} Thorn names must not start with the word ``Cactus'' (in
+        any case).
+\item{} Arrangements will be ignored if their names start with \# or .
+        or end in \~{} .bak or .BAK.
+\item{} Thorns will be ignored if they are called doc or start with
+        \# or . or end in \~{} .bak or .BAK.
+\item{} Routine names have to be unique among all thorns.
+
+\end{itemize}
+
+
+\section{General Naming Conventions}
+
+The following naming conventions are followed by the flesh and the
+supported Cactus arrangements. They are not compulsory, but if followed
+allow for a homogeneous code.
+
+\begin{itemize}
+
+\item Parameters: lower case (except for acronyms) with words separated
+  by an underscore. Examples: {\tt my\_first\_parameter},
+  {\tt solve\_PDE\_equation}.
+
+\item Filenames and routine names: Prefixed by thorn name with an underscore, then capitalised words, with no spaces.
+    Examples: {\tt MyThorn\_StartUpRoutine}, {\tt BestSolver\_InitialDataForPDE}.
+
+\end{itemize}
+
+\section{Data Types and Sizes}
+\label{sect-ThornWriting/DataTypes}
+\label{sec:datyansi}
+
+Cactus supports the following fixed size data types:
+
+\begin{center}
+\begin{tabular}{|l|l|l|l|}
+\hline
+Data Type & Size (bytes) & Variable Type & Fortran Equivalent\\
+\hline
+{\t CCTK\_INT2}      & 2  & {\t CCTK\_VARIABLE\_INT2}      & {\t integer*2}\\
+{\t CCTK\_INT4}      & 4  & {\t CCTK\_VARIABLE\_INT4}      & {\t integer*4}\\
+{\t CCTK\_INT8}      & 8  & {\t CCTK\_VARIABLE\_INT8}      & {\t integer*8}\\
+{\t CCTK\_REAL4}     & 4  & {\t CCTK\_VARIABLE\_REAL4}     & {\t real*4}\\
+{\t CCTK\_REAL8}     & 8  & {\t CCTK\_VARIABLE\_REAL8}     & {\t real*8}\\
+{\t CCTK\_REAL16}    & 16 & {\t CCTK\_VARIABLE\_REAL16}    & {\t real*16}\\
+{\t CCTK\_COMPLEX8}  & 8  & {\t CCTK\_VARIABLE\_COMPLEX8}  & {\t complex*8}\\
+{\t CCTK\_COMPLEX16} & 16 & {\t CCTK\_VARIABLE\_COMPLEX16} & {\t complex*16}\\
+{\t CCTK\_COMPLEX32} & 32 & {\t CCTK\_VARIABLE\_COMPLEX32} & {\t complex*32}\\
+{\t CCTK\_CHAR}      & 1  & {\t CCTK\_VARIABLE\_CHAR}      & {\t character} \\ \hline
+\end{tabular}
+\end{center}
+
+In addition Cactus provides three generic numeric data types which map onto
+the compilers' native data types used to represent integer, real, and complex
+values. The size for these generic types can be chosen at configuration time
+(see \ref{Compilation-Available_Options}). This is to allow the code to be
+easily run at different precisions. Note that the effectiveness of running the
+code at a lower or higher precision depends crucially on all thorns being used
+making consistent use of the these generic data types:
+
+\begin{center}
+\begin{tabular}{|l|l|l|l|}
+\hline
+Data Type          & Variable Type & Configuration Option\\
+\hline
+{\t CCTK\_INT}     & {\t CCTK\_VARIABLE\_INT} & {\t INTEGER\_PRECISION}\\
+{\t CCTK\_REAL}    & {\t CCTK\_VARIABLE\_REAL} & {\t REAL\_PRECISION}\\
+{\t CCTK\_COMPLEX} & {\t CCTK\_VARIABLE\_COMPLEX} & Same as real precision\\
+\hline
+\end{tabular}
+\end{center}
+
+
+These variable types must be used by thorn writers to declare variables
+ in the thorn interface files, and may be used to declare
+variables in the thorn routines. Note that variable declarations in
+thorns should obviously match with definitions in the interface files
+where appropriate.
+
+Cactus also provides generic data and function pointers, which can
+be used from either C or Fortran (these may not work yet for thorn interface
+files):
+
+\begin{center}
+\begin{tabular}{|l|l|l|}
+\hline
+Data Type          	& Variable Type & C equivalent			\\
+\hline
+{\t CCTK\_POINTER}	& {\t CCTK\_VARIABLE\_POINTER}
+					& {\t void *data\_ptr}		\\
+{\t CCTK\_FN\_POINTER}	& {\t CCTK\_VARIABLE\_FN\_POINTER}
+					& {\t void (*fn\_ptr)(void)}	\\
+\hline
+\end{tabular}
+\end{center}
+
+Also provided, are a set of macros which
+are interpreted by the preprocessor at compile time to signify which
+data size is being used:
+
+\begin{center}
+\begin{tabular}{|l|l|}
+\hline
+Data Type & {\t \#define}\\
+\hline
+{\t CCTK\_INT2}      & {\t CCTK\_INT\_PRECISION\_2}      \\
+{\t CCTK\_INT4}      & {\t CCTK\_INT\_PRECISION\_4}      \\
+{\t CCTK\_INT8}      & {\t CCTK\_INT\_PRECISION\_8}      \\
+{\t CCTK\_REAL4}     & {\t CCTK\_REAL\_PRECISION\_4}     \\
+{\t CCTK\_REAL8}     & {\t CCTK\_REAL\_PRECISION\_8}     \\
+{\t CCTK\_REAL16}    & {\t CCTK\_REAL\_PRECISION\_16}    \\
+{\t CCTK\_COMPLEX8}  & {\t CCTK\_COMPLEX\_PRECISION\_8}  \\
+{\t CCTK\_COMPLEX16} & {\t CCTK\_COMPLEX\_PRECISION\_16} \\
+{\t CCTK\_COMPLEX32} & {\t CCTK\_COMPLEX\_PRECISION\_32} \\
+\hline
+\end{tabular}
+\end{center}
+
+Note that the availability of these types, and the corresponding
+C data types are platform dependent.
+
+\subsection{Fortran Thorn Writers}
+
+Cactus provides a further data type {\tt CCTK\_POINTER}
+for use in Fortran code to declare a pointer passed from C.
+For example, the variable {\tt cctkGH} is of this type.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Telling the makesystem what to do}
+
+\section{Basic Recipe}
+
+\section{Make Concepts}
+
+\section{The Four Files}
+
+\section{How your code is built}
+
+\end{cactuspart}

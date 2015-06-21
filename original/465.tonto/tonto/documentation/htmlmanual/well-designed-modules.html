@@ -1,0 +1,366 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>Principles for well designed modules</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Writing foo modules for TONTO"
+HREF="foo-modules.html"><LINK
+REL="PREVIOUS"
+TITLE="The conventional routines"
+HREF="write-conventional-routines.html"><LINK
+REL="NEXT"
+TITLE="Large modules"
+HREF="large-modules.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="write-conventional-routines.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="large-modules.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="WELL-DESIGNED-MODULES"
+></A
+>Principles for well designed modules</H1
+><P
+ALIGN="justify"
+>Here are some golden rules for designing a module in the TONTO
+style.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Document before writing</I
+></SPAN
+>. It is highly
+recommended that you fully document the functions and routines that you want to
+include in your module, including their arguments, <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>before</I
+></SPAN
+>
+you start any coding.  Often, if the plan of attack is clearly specified before
+any coding proper is completed, bugs are less prevalent.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Insert the type definition (commented out) at the
+start of the module</I
+></SPAN
+>.  This is required for documentation purposes.
+The reason the type does not appear in the module itself is because we wish
+<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>all</I
+></SPAN
+> modules to have access to the internals of a type. In
+C++ parlance, all TONTO modules are friendly.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Use long decriptive names</I
+></SPAN
+>. Most of the
+effort in documentation can be made easier if you use descriptive names for
+routines and variables. Please, spend some time on this.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Ensure routines have few arguments</I
+></SPAN
+>.
+Routines that have few, if any, arguments are easier to remember and easier to
+use.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Write simple routines</I
+></SPAN
+>. Is there more to be
+said?</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Write short routines</I
+></SPAN
+>. There isn't really
+any reason to write a long routine; a long routine can be separated into
+separate tasks for the current module, or farmed out to tasks belonging to other
+modules.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Use preconditions liberally</I
+></SPAN
+>. When
+developing, it is highly recomended that you use the
+<TT
+CLASS="LITERAL"
+>-DUSE_PER_AND_POST_CONDITIONS</TT
+> switch and the
+<TT
+CLASS="LITERAL"
+>-DUSE_CALL_STACK_MANAGEMENT</TT
+>
+switch. By the same token, make sure you include before the start of a routine a 
+a set of <TT
+CLASS="LITERAL"
+>ENSURE</TT
+> commands which will detect any missing data
+or incorrect conditions required for the routine to perform its task. Remember,
+these can eventually be switched off and you will pay no performance penalty,
+but you will get the productivity gain in fewer bugs.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Mark routines <TT
+CLASS="LITERAL"
+>[leaky]</TT
+></I
+></SPAN
+>.
+It is useful to keep track of where your memory is going. Spend some time to
+reduce the number of routines which deliberately have memory leaks, and for
+those where leaks are unavoidable, mark them as
+<TT
+CLASS="LITERAL"
+>[leaky]</TT
+>.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Add functionality to low-level modules where
+possible</I
+></SPAN
+>. Try not to make your top-level routines too heavy. The more
+you can place in lower level modules which are well decoupled, the faster will
+be your compile times, and the quicker will your program be debugged, since
+lower level routines are more exhaustively used.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Do not remove your initial code; provide
+redundancy</I
+></SPAN
+>. Often your initial code is very sinmple and clear. Then
+it becomes wrecked asyou make it more efficient.  Please do not delete your
+initial simple code. Routine names can be overloaded, and when bugs are detected
+your simple code will be invaulable in testing.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Provide all the conventional routines</I
+></SPAN
+>. They
+will usually be needed at some stage.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>When using string case statements, use alphabetical
+order</I
+></SPAN
+>. You should also use the <TT
+CLASS="LITERAL"
+>UNKNOWN(word)</TT
+> so
+that when there is an error, and alphabetical list of allowed options is echoed
+to the user.</P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="write-conventional-routines.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="large-modules.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>The conventional routines</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="foo-modules.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Large modules</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,376 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>Code dependencies in TONTO</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="How TONTO builds executables"
+HREF="building-executables.html"><LINK
+REL="PREVIOUS"
+TITLE="Machine specific code in TONTO"
+HREF="code-portability.html"><LINK
+REL="NEXT"
+TITLE="The problem of unnecessary recompilation of Fortran90 modules"
+HREF="module-recompilation.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="code-portability.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="module-recompilation.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="MAKE-DEPENDENCIES"
+></A
+>Code dependencies in TONTO</H1
+><P
+ALIGN="justify"
+>It is often the case that when a certain program file is compiled, other
+<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>dependent</I
+></SPAN
+> files must also be compiled.</P
+><P
+ALIGN="justify"
+>There are two ways to tell <B
+CLASS="COMMAND"
+>make</B
+> about dependencies;
+either hard code them into the makefile or an included file, or have a script
+automatically extract them from the source code.  TONTO uses the latter
+method.</P
+><P
+ALIGN="justify"
+>The <B
+CLASS="COMMAND"
+>perl</B
+> script
+<B
+CLASS="COMMAND"
+>make_dependencies.perl</B
+> extracts all the
+<TT
+CLASS="LITERAL"
+>USE</TT
+> statements out of the source files, to build a dependency
+list. (Note however that the script does not look at <TT
+CLASS="LITERAL"
+>#include</TT
+>
+statements.) These are then concatenated together to form a single file
+containing all <TT
+CLASS="LITERAL"
+>USE</TT
+> dependencies, which is then
+<TT
+CLASS="LITERAL"
+>include</TT
+>-ed in the <TT
+CLASS="LITERAL"
+>Makefile</TT
+>.  Also, TONTO
+makes use of a <TT
+CLASS="LITERAL"
+>make</TT
+> pattern rules to summarise the common
+mode of compilation for all its modules.</P
+><P
+ALIGN="justify"
+>In the stylised example  below the source, object, script and module
+information files have all been separated into their own directories; this
+makies it tidy for large projects.  The <TT
+CLASS="LITERAL"
+>VPATH</TT
+> variable in the
+<TT
+CLASS="LITERAL"
+>Makefile</TT
+> tells <TT
+CLASS="LITERAL"
+>make</TT
+> to search in these
+separate directories for dependencies.</P
+><DIV
+CLASS="INFORMALEXAMPLE"
+><A
+NAME="AEN6292"
+></A
+><P
+></P
+><P
+ALIGN="justify"
+>Say we have modules <TT
+CLASS="LITERAL"
+>a</TT
+>, <TT
+CLASS="LITERAL"
+>b</TT
+>,
+<TT
+CLASS="LITERAL"
+>c</TT
+> which are used to construct program <TT
+CLASS="LITERAL"
+>z</TT
+>,
+and <TT
+CLASS="LITERAL"
+>b</TT
+> uses <TT
+CLASS="LITERAL"
+>a</TT
+>, <TT
+CLASS="LITERAL"
+>c</TT
+> uses
+<TT
+CLASS="LITERAL"
+>b</TT
+>, and <TT
+CLASS="LITERAL"
+>z</TT
+> uses <TT
+CLASS="LITERAL"
+>c</TT
+>. (i.e.
+a simple linear hierarchy). Also presume each module resides in its own
+file.</P
+><P
+ALIGN="justify"
+>Normally in the Makefile, we just have
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>b.o : a.o
+c.o : b.o
+z.x : a.o b.o c.o</PRE
+></TD
+></TR
+></TABLE
+>
+where <TT
+CLASS="LITERAL"
+>z.x</TT
+> is the executable, and the <TT
+CLASS="LITERAL"
+>.o</TT
+>
+files are the object files.</P
+><P
+ALIGN="justify"
+>In our Makefiles, we have
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>b.o : a.mod
+c.o : b.mod
+a.mod :
+    make a.o
+b.mod :
+    make b.o
+z.x : a.o b.o c.o</PRE
+></TD
+></TR
+></TABLE
+>
+where <TT
+CLASS="LITERAL"
+>z.x</TT
+> is the executable, and the <TT
+CLASS="LITERAL"
+>.o</TT
+>
+files are the object files, and the <TT
+CLASS="LITERAL"
+>.mod</TT
+> files are the module
+information files.</P
+><P
+ALIGN="justify"
+>If the interface to module <TT
+CLASS="LITERAL"
+>b</TT
+> stays constant, then
+modules <TT
+CLASS="LITERAL"
+>a</TT
+> and <TT
+CLASS="LITERAL"
+>c</TT
+> do not need recompiling,
+and only module <TT
+CLASS="LITERAL"
+>b</TT
+> and program <TT
+CLASS="LITERAL"
+>z</TT
+> need
+recompiling.</P
+><P
+ALIGN="justify"
+>If the interface to module <TT
+CLASS="LITERAL"
+>b</TT
+> changes, then module
+<TT
+CLASS="LITERAL"
+>a</TT
+> does not need recompiling, and modules <TT
+CLASS="LITERAL"
+>b</TT
+>
+and <TT
+CLASS="LITERAL"
+>c</TT
+> and program <TT
+CLASS="LITERAL"
+>z</TT
+> need
+recompiling.</P
+><P
+></P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="code-portability.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="module-recompilation.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Machine specific code in TONTO</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="building-executables.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>The problem of unnecessary recompilation of Fortran90 modules</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,104 @@
+!---------------------------------------------------------------------------
+!
+! UNITNUMBER:  Keeps a list of the unit numbers used for I/O.
+!
+! Whenever you use a new unit, use "get" to get a unique number for it.
+! When finished with the unit, use "free" so that the number becomes
+! available for later use.
+!
+! The numbers start at UNITNUMBER_STARTING_UNIT, not one.
+!
+! Copyright (C) Daniel Grimwood, 1998
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: unitnumber.foo,v 1.10.2.1 2003/11/13 05:33:02 reaper Exp $
+!
+!---------------------------------------------------------------------------
+
+module UNITNUMBER
+
+   implicit none
+
+   unitlist :: INTVEC*
+
+contains
+
+   get(unit) ::: leaky
+   ! Returns the next unused unit number, and updates the unitlist.
+     unit :: INT, OUT
+     old :: INTVEC*
+     oldlength :: INT
+     if (associated(unitlist)) then
+       oldlength=size(unitlist)
+       unit=UNITNUMBER_STARTING_UNIT-1
+       do
+         unit=unit+1
+         if (any(unitlist == unit)) then
+           cycle
+         else
+           exit
+         end
+       end
+       ! expand the array by one.
+       old => unitlist
+       nullify(unitlist)
+       allocate(unitlist(oldlength+1))
+       unitlist(1:oldlength) = old
+       unitlist(oldlength+1) = unit
+     else
+       allocate(unitlist(1))
+       unit=UNITNUMBER_STARTING_UNIT
+       unitlist(1)=unit
+     end
+   end
+
+   free(unit) ::: leaky
+   ! Removes the unit number from the unitlist.
+     unit :: INT, IN
+     old :: INTVEC*
+     oldlength,position,i :: INT
+     if (unit<UNITNUMBER_STARTING_UNIT) return
+     oldlength=size(unitlist)
+     ENSURE(oldlength>0,"no unitnumber array")
+     if (oldlength==1) then
+       deallocate(unitlist)
+     else
+       do i=1,oldlength
+         if (unitlist(i)==unit) then
+           position=i
+           exit
+         else
+           cycle
+         end
+       end
+       do i=position,oldlength-1
+         unitlist(i)=unitlist(i+1)
+       end
+       ! shrink the array by 1.
+       old => unitlist
+       nullify(unitlist)
+       allocate(unitlist(oldlength-1))
+       unitlist = old(1:oldlength-1)
+     end
+   end
+
+   flush_buffer
+   ! Flush the buffer if need be.
+     tonto.flush_buffer(.unit)
+   end
+
+end

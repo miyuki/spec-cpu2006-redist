@@ -1,0 +1,478 @@
+!---------------------------------------------------------------------------
+!
+!  DIIS:  DIIS Extrapolation technique for vectors
+!
+! Copyright (C) Dylan Jayatilaka, 1997
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: diis.foo,v 1.2.2.4 2003/10/13 04:13:10 reaper Exp $
+!---------------------------------------------------------------------------
+
+module DIIS
+
+   implicit none
+
+contains
+
+   create(root_name,name,diis_kind,format,keep)
+   ! Create the DIIS object, but no archive name
+      self :: PTR
+      root_name,name :: STR, optional
+      diis_kind,format :: STR, optional
+      keep :: INT, IN, optional
+      nullify(self)
+      allocate(self)
+      ADD_MEMORY(DIIS_SIZE)
+      .nullify_ptr_part
+      .set_defaults
+      .archive.set(root_name,name,diis_kind,format)
+      .set_keep(keep)
+   end
+
+   destroy
+   ! Destroy the DIIS object
+      self :: PTR
+      if (.destroyed) return
+      .delete_archives
+      .destroy_ptr_part
+      DELETE_MEMORY(DIIS_SIZE)
+      deallocate(self)
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   nullify_ptr_part
+   ! Nullify the pointer parts of self
+      nullify(.coeff)
+      .archive.nullify_ptr_part
+   end
+
+   destroy_ptr_part
+   ! Destroy the pointer parts of self
+      .coeff.destroy
+      .archive.destroy_ptr_part
+   end
+
+   create_copy(diis)
+   ! Make a copy of the diis object
+      self :: PTR
+      diis :: DIIS
+      .create
+      .copy(diis)
+   end
+
+   copy(diis) ::: leaky
+   ! Make a copy of the diis object
+      diis :: DIIS
+      self = diis
+      .archive.copy(diis.archive)
+      if (diis.coeff.created) .coeff.create_copy(diis.coeff)
+   end
+
+   delete_archives
+   ! Delete the archive files on disk.
+     i :: INT
+     name :: STR
+     name = .archive.name
+     .archive.set_name( trim(name) // ",mat" )
+     if (.archive.exists)  .archive.delete
+     do i=1, .n_vec
+       .archive.set_name(trim(name) // ",p" // trim(i.to_str))
+       if (.archive.exists)  .archive.delete
+       .archive.set_name(trim(name) // ",e" // trim(i.to_str))
+       if (.archive.exists)  .archive.delete
+     end
+     .archive.set_name(trim(name))
+     .new=0
+     .n_vec = 0
+     .error_length = ZERO
+   end
+
+   cleanup
+   ! Cleanup the DIIS files and matrices, but don't resort back to default
+   ! parameters.
+     .delete_archives
+     .destroy_ptr_part
+     .n_vec = 0
+     .new = 0
+     .error_length = ZERO
+     .coeff.destroy
+   end
+
+   set_defaults
+   ! Set up the default settings
+      .keep  = DIIS_KEEP
+      .n_vec = 0
+      .new = 0
+      .error_length = ZERO
+      .archive.set_defaults
+      .destroy_ptr_part ! ensure ptr parts are nullified first !
+   end
+
+   set_keep(keep)
+   ! Set the number of DIIS objects to keep
+      keep :: INT, IN
+      .keep = keep
+   end
+
+   set_archive_root_name(root_name)
+   ! Set the DIIS archive to have root name "root_name".
+      root_name :: STR(*)
+      .archive.set_root_name(root_name)
+   end
+
+   set_archive_name(name)
+   ! Set the DIIS archive name.
+      name :: STR(*)
+      .archive.set_name(name)
+   end
+
+   set_archive_format(format)
+   ! Set the DIIS archive format.
+      format :: STR(*)
+      .archive.set_format(format)
+   end
+
+!*************************************************************************
+
+
+   worst_item result(res) ::: private
+   ! Return the index of the item with the worst error in the DIIS archive
+      res :: INT
+      mat1 :: REALMAT*
+      diag :: REALVEC*
+      dim :: INT
+      dim = .dimension
+      diag.create(dim)
+      mat1.create(dim,dim)
+      .get_old_diis_matrix(mat1)
+      mat1.get_diagonal(diag)             ! the error vector lengths^2
+      res = diag.index_of_largest_value   ! Worst item has the largest error
+      mat1.destroy
+      diag.destroy
+   end
+
+   next_replacement result(res) ::: private
+   ! Return the index of the next item in the DIIS expansion
+   ! which is to be replaced/saved
+      res :: INT
+      if (.n_vec<=.keep) then
+         res = .n_vec
+      else
+         res = .worst_item
+      end
+   end
+
+   save_pair(par,err,item)
+   ! Save/replace the current vectors on an archive with item number "item",
+   ! or item number ".new" if "item" is not present.
+      par,err :: REALVEC
+      item :: INT, optional
+      i :: INT
+      i = .new
+      if (present(item)) i = item
+      .save_item(err,"e",i)
+      .save_item(par,"p",i)
+   end
+
+   save_item(mat,name,i)
+   ! Save "mat" with "name" and number "i" to disk.
+     mat :: REALMAT
+     name :: STR(*)
+     i :: INT, optional, IN
+     old_name :: STR
+     old_name = .archive.name
+     if (present(i)) then
+       .archive.set_name(trim(old_name) // "," // name.trim // trim(i.to_str))
+     else
+       .archive.set_name(trim(old_name) // "," // name.trim)
+     end
+     .archive.write(mat)
+     .archive.set_name(old_name)
+   end
+
+   save_item(vec,name,i)
+   ! Save "mat" with "name" and number "i" to disk.
+     vec :: REALVEC
+     name :: STR(*)
+     i :: INT, optional, IN
+     old_name :: STR
+     old_name = .archive.name
+     if (present(i)) then
+       .archive.set_name(trim(old_name) // "," // name.trim // trim(i.to_str))
+     else
+       .archive.set_name(trim(old_name) // "," // name.trim)
+     end
+     .archive.write(vec)
+     .archive.set_name(old_name)
+   end
+
+   save_item(mat,name,i)
+   ! Save "mat" with "name" and number "i" to disk.
+     mat :: OPMATRIX
+     name :: STR(*)
+     i :: INT, optional, IN
+     old_name :: STR
+     old_name = .archive.name
+     if (present(i)) then
+       .archive.set_name(trim(old_name) // "," // name.trim // trim(i.to_str))
+     else
+       .archive.set_name(trim(old_name) // "," // name.trim)
+     end
+     .archive.write(mat)
+     .archive.set_name(old_name)
+   end
+
+   get_item(mat,name,i)
+   ! Read "mat" with "name" and number "i" to disk.
+     mat :: REALMAT
+     name :: STR(*)
+     i :: INT, optional, IN
+     old_name :: STR
+     old_name = .archive.name
+     if (present(i)) then
+       .archive.set_name(trim(old_name) // "," // name.trim // trim(i.to_str))
+     else
+       .archive.set_name(trim(old_name) // "," // name.trim)
+     end
+     .archive.read(mat)
+     .archive.set_name(old_name)
+   end
+
+   get_item(vec,name,i)
+   ! Read "mat" with "name" and number "i" to disk.
+     vec :: REALVEC
+     name :: STR(*)
+     i :: INT, optional, IN
+     old_name :: STR
+     old_name = .archive.name
+     if (present(i)) then
+       .archive.set_name(trim(old_name) // "," // name.trim // trim(i.to_str))
+     else
+       .archive.set_name(trim(old_name) // "," // name.trim)
+     end
+     .archive.read(vec)
+     .archive.set_name(old_name)
+   end
+
+   get_item(mat,name,i)
+   ! Read "mat" with "name" and number "i" to disk.
+     mat :: OPMATRIX
+     name :: STR(*)
+     i :: INT, optional, IN
+     old_name :: STR
+     old_name = .archive.name
+     if (present(i)) then
+       .archive.set_name(trim(old_name) // "," // name.trim // trim(i.to_str))
+     else
+       .archive.set_name(trim(old_name) // "," // name.trim)
+     end
+     .archive.read(mat)
+     .archive.set_name(old_name)
+   end
+
+   get_error_item(i,err)
+   ! Get the error item "i" in vector "err"
+      i :: INT
+      err :: REALVEC
+      .get_item(err,"e",i)
+   end
+
+   get_parameter_item(i,par)
+   ! Get the error item "i" in vector "err"
+      i :: INT
+      par :: REALVEC
+      .get_item(par,"p",i)
+   end
+
+   save_diis_mat(mat) ::: private
+   ! Save the DIIS matrix to disk
+      mat :: REALMAT
+      .save_item(mat,"mat")
+   end
+
+   get_diis_mat(mat) ::: private
+   ! Get the DIIS matrix from disk
+      mat :: REALMAT
+      .get_item(mat,"mat")
+   end
+
+   get_old_diis_matrix(mat) ::: private
+   ! Get the old DIIS matrix to "mat", if it is smaller
+      mat :: REALMAT
+      if (.n_vec==1) then
+         mat = ZERO
+      else if (.n_vec<=.keep) then
+         .get_diis_mat(mat(1:.n_vec,1:.n_vec))
+      else
+        .get_diis_mat(mat)
+      end
+   end
+
+   make_diis_matrix(mat,err,old_err) ::: private
+   ! Make the current diis matrix "mat" using "err" as the current error vector
+   ! for item ".new". "old_err" is used to hold the old error vectors.
+      mat :: REALMAT
+      err,old_err :: REALVEC
+      dim,old :: INT
+      .get_old_diis_matrix(mat)
+      dim = .dimension
+      do old = 1,dim-1                         ! Calculate the DIIS matrix
+         .get_error_item(old,old_err)
+         ! max and min are because we are doing only the upper triangle -
+         ! symmetric reflect later....
+         mat(max(.new,old),min(.new,old)) = dot_product(err,old_err)
+         mat(dim,old) = ONE
+      end
+      mat(dim,dim) = ZERO
+      mat.symmetric_reflect
+      .save_diis_mat(mat)
+      .error_length = sqrt(mat(.new,.new))
+   end
+
+   remake_diis_matrix(err_vec_dim)
+   ! Rebuild the DIIS matrix using the error vectors on disk.  Also resets ".new".
+   ! "dimension" is the length of an error vector.
+      err_vec_dim :: INT, IN
+      err_i,err_j :: REALVEC*
+      mat :: REALMAT*
+      dim,i,j :: INT
+      dim = .dimension
+      err_i.create(err_vec_dim)
+      err_j.create(err_vec_dim)
+      mat.create(dim,dim)
+      mat = ZERO
+      do i=1,dim-1
+        .get_error_item(i,err_i)
+        do j=1,i
+          .get_error_item(j,err_j)
+          mat(i,j) = dot_product(err_i,err_j)
+        end
+        mat(dim,i) = ONE
+      end
+      mat(dim,dim) = ZERO
+      mat.symmetric_reflect
+      .new   = .next_replacement
+      .save_diis_mat(mat)
+      .error_length = sqrt(mat(.new,.new))
+      err_j.destroy
+      err_i.destroy
+      mat.destroy
+   end
+
+   update(par,old_par,coeff) ::: private
+   ! Update the parameter vector "par", using "old_par" as space
+      par,old_par,coeff :: REALVEC
+      old,dim :: INT
+      dim = .dimension
+      par = ZERO
+      do old = 1,dim-1                         ! Form revised parameter vector
+         .get_parameter_item(old,old_par)
+         par = par + coeff(old)*old_par
+      end
+   end
+
+   dimension result(res)
+   ! Return the dimension of the DIIS matrix
+      res :: INT
+      res = min(.n_vec,.keep)+1
+   end
+
+   extrapolate(par,err)
+   ! DIIS extrapolation of "par", using "err" as the error vector.
+      par,err :: REALVEC
+      dim,j :: INT
+      rhs,coeff,diag :: REALVEC*
+      mat1 :: REALMAT*
+      ENSURE(.archive.file_name/=" ","no archive name specified")
+      .n_vec = .n_vec+1
+      dim    = .dimension
+      .new   = .next_replacement
+      .save_pair(par,err,item=.new)
+      mat1.create(dim,dim)
+      .make_diis_matrix(mat1,err,par)  ! Calculate the new diis matrix
+      mat1(.new,.new).times(1.02d0)    ! Weight the last vector a bit more
+      .get_parameter_item(.new,par)
+      if (.n_vec>1) then
+         coeff.create(dim)
+         rhs.create(dim)
+         coeff = ZERO                  ! the diis coefficients
+         rhs = ZERO                    ! right hand side of the linear equations
+         rhs(dim) = ONE
+
+         ! Rescale using the diagonals to make solution more numerically stable.
+         diag.create(dim-1)
+         mat1(1:dim-1,1:dim-1).get_diagonal(diag)
+         forall (j=1:dim-1)
+           mat1(1:dim-1,j) = mat1(1:dim-1,j)/diag(:)
+         end
+         mat1(1:dim-1,dim) = TOL(8)/diag(:)
+         diag.destroy
+
+         mat1(dim,:) = ONE
+         mat1(dim,dim) = ZERO
+
+         mat1.solve_linear_equation(rhs,coeff)      ! Solve diis equations
+
+         rhs.destroy
+         .update(par,err,coeff)
+         .get_error_item(.new,err)                   ! Put back old error item
+         coeff.destroy
+      end
+      mat1.destroy
+   end
+
+   extrapolate(par,err)
+   ! DIIS extrapolation of "par", using "err" as the error vector.
+      par,err :: REALMAT
+      par_vec,err_vec :: REALVEC*
+      par_vec.create(size(par))
+      err_vec.create(size(err))
+      par_vec = reshape(par,[size(par)])
+      err_vec = reshape(err,[size(err)])
+      .extrapolate(par_vec,err_vec)
+      par = reshape(par_vec,[par.dim1,par.dim2])
+      err = reshape(err_vec,[err.dim1,err.dim2])
+      err_vec.destroy
+      par_vec.destroy
+   end
+
+!***************************************************************************
+
+   put(out)
+   ! Prints out the DIIS data to file "out"
+     out :: TEXTFILE
+     out.flush
+     out.text("DIIS data: ")
+     out.show("Archive root name         = ", .archive.root_name)
+     out.show("No to keep                = ", .keep,real_width=TRUE)
+     out.flush
+   end
+
+end

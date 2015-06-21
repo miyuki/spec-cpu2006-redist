@@ -1,0 +1,208 @@
+2007-02-27  Darren Miller <darren@cabaret.demon.co.uk>
+
+	* Version 1.8.0 released
+	* Fixed problems with loops in bigfunc
+
+2007-01-14  Darren Miller <darren@cabaret.demon.co.uk>
+
+	* Rewrote processing chain - macros within macros now work properly
+	
+2005-09-01  Darren Miller <darren@cabaret.demon.co.uk>
+
+	* Added -U option for undefining macros
+
+2004-01-13  Darren Miller <darren@cabaret.demon.co.uk>
+
+	* Version 1.7.2 released (unofficial - not on website)
+	* Fixed bug with full paths in include lines
+
+2003-08-10  Darren Miller <darren@cabaret.demon.co.uk>
+
+	* Modified for.pm, foreach.pm and bigfunc.pm to use grab module
+	* Added grab module - allows grabbing of all input for
+	delayed/optional/multiple processing
+	* Modified Parse function so it can also read from variables
+	* Fixed problems with brackets of form (a(b)) in blc.pm
+
+2003-07-14  Darren Miller <darren@cabaret.demon.co.uk>
+
+	* Version 1.7.1 released
+	* Fixed Makefile problems for none GNU systems
+
+2003-07-13  Darren Miller <darren@cabaret.demon.co.uk>
+
+	* Version 1.7.0 released
+	* Added options for dealing with multiple input and output files
+	at once
+	* Added testsuite for all modules and filepp features
+	* Added "bigfunc" module - similar to bigdef module except
+	keywords in the definition are evaluated when the macro is
+	REPLACED rather than when the macro is DEFINED
+	* Added AddProcessorBefore and AddProcessorAfter functions to
+	allow greater control over processing chain
+	* Modified comment modules to allow comments to be removed before
+	keyword processing takes place, fixes problems caused when
+	keywords have comments after them (thanks to Stefan Becker for
+	reporting this)
+	* Converted keyword processing function into part of processing chain
+	* Merged function.pm processor into ReplaceDefines so functions are
+	processed the same time as macros, this makes macro prefixes also
+	work with functions
+	* Fixed bug which broke macros with arguments using -D (thanks
+	to Jeremy Rand for reporting this)
+	* Added cpp style ## concatenation (thanks to Andy Thaller for this)
+	* Remove erroenous error message from foreach and for
+	* Changed literal module so in_string flag is reset for each call
+	(thanks to Daniel Grimwood for this)
+	* Added "use bytes;" so filepp works with all character sets
+	
+2002-11-17  Darren Miller <darren@cabaret.demon.co.uk>
+
+	* Version 1.6.0 released
+	* Added defplus module - allows existing macros to be appended to
+	(thanks to John Lombardo for the suggestion)
+	* Added foreach module - implements a foreach loop (thanks to John
+	Lombardo for suggesting this)
+	* Added blc module - with this module lines are continued if the
+	number of open brackets "(" on the line is greater than the number
+	of close brackets ")" (thanks to Zousar Shaker for this)
+	* Added SetParseLineEnd function - allows different functions to
+	be used to determine if line continuation is done
+	* Added -imacros option to read in macros from a file
+	* Added any number of arguments to macros using:
+	macro(arg1, arg2, arg3...), also allows removal of preceding ,
+	using ##, ie: macro(string, arg...) printf("string, ##arg)
+	* Added AddOpenInputFunc, AddCloseInputFunc, AddOpenOutputFunc
+	and AddCloseOutputFunc funcitons, - allows any function to be
+	run each time a new base input or output file is opened or closed
+	* Added macro prefix option (-mp) which prefixes all macros with
+	a character (thanks to Roger Yip for suggesting this)
+	* Added more control over debug info and option to send it to stdout
+	* Modified literal module to work with macros with arguments
+	* Fixed bug which caused arguments of macros to be replaced too
+	many times (thanks to Daniel Grimwood for help with this)
+	* Fixed problem with "include" files not being found in
+	subdirectories (thanks to Zousar Shaker for reporting this)
+	* Fixed bug in comment modules: hash and C comments appearing in
+	quotes are now ignored 
+	* Fixed bug in regexp module: \1 and $1 in regexps now work
+	properly (thanks to Roger Yip for this)
+	
+2002-07-08  Darren Miller <darren@cabaret.demon.co.uk>
+
+	* Version 1.5.0 released
+	* Added optional character(s) at end of keyword line to allow
+	neater embedding of keywords in HTML/C style comments (thanks to
+	Zousar Shaker for this)
+	* Added regexp module - allows Perl regular expression
+	replacements to be done with filepp
+	* #if keyword now prints out any errors from Perl's eval()
+	* Added check to make sure #if blocks are closed
+	* Added Output function (thanks to Chris Drexler for suggesting this)
+	
+2002-02-06  Darren Miller <darren@cabaret.demon.co.uk>
+
+	* Version 1.4.2 released
+	* Changed AddProcessors to allow specifiation of a processor type
+	* #if, #include and #for keywords now run current list of
+	processors on their input rather than just ReplaceDefines
+	* Fixed bug in GetNextWordEnd when macros are followed by tabs
+	(thanks to Bill Roberson for this)
+
+2002-01-08  Darren Miller <darren@cabaret.demon.co.uk>
+
+	* Version 1.4.1 released
+	* Added "bigdef" module - allows easy definition of multi-line macros
+	* Changed AddProcessors to allow processors to be added to start
+	or end of processing chain
+	* Fixed ParseArgs so "(" or "'" work as would be expected
+	* Removed annoying message when processing empty file
+	
+2001-10-07  Darren Miller <darren@cabaret.demon.co.uk>
+
+	* Version 1.4.0 released
+	* Added "format" module - provides "printf" style function for
+	text and number formatting along with other text formatting
+	functions
+	* Added "maths" module - implements simple math routines
+	* Added "function" module - allows macros to call Perl functions
+	
+2001-06-07  Darren Miller <darren@cabaret.demon.co.uk>
+
+	* Version 1.3.0 released
+	* Added "for" module - implements simple loops via #for keyword
+	* Added "toupper" and "tolower" modules
+	* Added "c-comment" and "hash-comment" modules
+	* Added "literal" module
+	* Added AddProcessor function which allows user definable
+	processing functions (thanks to James Yolkowski for this)
+	* Added EatTrail functions (thanks again to Terry R. Friedrichsen
+	for help with this) 
+	* Keyword prefix and line continuation characters no longer
+	treated as Perl regular expressions by default, but option exists
+	to revert to old behaviour
+	* Added -b option to suppress blank lines from include files
+	(thanks to Terry R. Friedrichsen for help with this)
+	* Changed behaviour of Endifwords - now return true of false
+	in same way as Ifwords and Elsewords
+	* Added AddModulePath and -M option to specify modules search paths
+	* Added AddInputPath and AddInputFile functions
+	* Added OpenOutputFile and ChangeOutputFile functions
+	* Added option to define environment variables as macros
+	* Added rudimentary "shebang" support, filepp can be started as:
+	  #!/usr/bin/perl /usr/local/bin/filepp
+	
+2001-03-25  Darren Miller <darren@cabaret.demon.co.uk>
+
+	* Version 1.2.2 released
+	* Added {Add,Remove}{If,Else,Endif}word functions to module API
+	* Added SetOuput function to module API
+	* Made GetNextLine function consistent with documentation
+	* Fixed another nested #if block bug
+	
+2001-03-11  Darren Miller <darren@cabaret.demon.co.uk>
+
+	* Version 1.2.1 released
+	* Fixed bug preventing a macro definition being '0'
+	* Added __NEWLINE__ macro
+	* Changed behaviour so macros with args cannot have space between
+	macro and initial "(" on #define line (cpp like) (thanks to Thomas
+	Link for reporting this)
+	* Fixed nested #elif/#else bug
+	* Added loop counter to try and detect recursive macros and includes
+	* Added -w option which only replaces macros if they appear in the
+	text as words (thanks to Steve Hancock for help with this)
+	* Reduced amount of debugging info shown with -d
+	* Added -dd option which shows old style verbose debugging
+	* Changed #include "file.h" so the directory first searched for
+	"file.h" is the directory the base file is in
+	* Speeded up macro replacement
+
+2001-02-18  Darren Miller <darren@cabaret.demon.co.uk>
+
+	* Version 1.2.0 released
+	* Added module support (thanks to James Yolkowski for help with this)
+	* Added option to customise line continuation (defaults to cpp style)
+	* Added option to customise keyword prefix character
+	* Added pragma keyword to allow arbitrary functions to be run
+	* Added safe mode command line option to optionally turn pragma
+	keyword off (for the paranoid)
+	* Improved handling of macros with arguments, now more cpp like
+	
+2000-12-12  Darren Miller <darren@cabaret.demon.co.uk>
+
+	* Version 1.1.1 released
+	* Fixed nested if bug
+	* Added testsuite (thanks to Stephen Brooks again)
+	* Added __ISO_DATE__ macro
+
+2000-12-10  Darren Miller <darren@cabaret.demon.co.uk>
+
+	* Version 1.1.0 released
+	* Added support for macros with arguments
+	* Added support for #if keyword (thanks to Stephen Brooks for help
+	with this)
+
+2000-12-06  Darren Miller <darren@cabaret.demon.co.uk>
+
+	* Version 1.0.0  First public release

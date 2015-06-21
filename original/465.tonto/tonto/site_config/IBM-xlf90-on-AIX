@@ -1,0 +1,14 @@
+FOPTNS   = $(FFAST)
+FFLAGS   = -I$(srcdir) -I$(moddir) -qmoddir=$(moddir) \
+           -qsuffix=cpp=f90 -qfullpath -qmaxmem=8192 \
+           -qddim -qalign=4k -qdpc=e -qflag=I:I -qfree=f90 -qinit=f90ptr \
+           -qinitauto -qnosave -qnozerosize -u -v -qfloat=maf:norndsngl \
+           -WF,-I. -WF,-I./interfaces
+FPROF    = -pg
+FDEBUG   = -g -O 
+FFAST    = -O -qfloat=fltint:rsqrt 
+FSUFFIX  = f90
+
+LIBS     = -lblas -lessl
+DEFS     = -DESSL -DLANGUAGE_FORTRAN_90 -DUSE_PRE_AND_POST_CONDITIONS
+MODCASE  = -uc

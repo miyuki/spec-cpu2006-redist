@@ -1,0 +1,39 @@
+Cactus Code Thorn Boundary
+Authors: Gabrielle Allen, Gerd Lanfermann, Miguel Alcubierre
+CVS info   : $Header: /cactus/CactusBase/Boundary/README,v 1.6 2001/06/12 10:41:26 tradke Exp $
+--------------------------------------------------------------------------
+
+1. Purpose of the thorn
+
+This thorn provides some standard outer boundary conditions, and contains
+interfaces for applying boundary conditions either in all coordinate
+directions, or individual coordinate directions.
+
+Currently:
+
+  - scalar boundary conditions
+
+  - flat boundary conditions (a copy of the point just inside the
+    boundary)
+ 
+  - copy boundary conditions 
+
+  - radiation boundary conditions
+
+  - Robin boundary conditions
+
+
+2. Additional information
+
+This thorn only currently works with a 3D Cartesian Grid.
+
+The boundary conditions can be called from Fortran or C, 
+and can be passed either groups of grid functions, or single
+grid variables.
+
+All the boundary conditions work with an arbitrarily size stencil width, 
+except for the radiation and Robin boundary conditions which currently only
+work with a stencil width of one.
+
+Radiation and Robin boundary conditions are only implemented for 3D grid
+functions currently.

@@ -1,0 +1,51 @@
+% Thorn documentation template
+\documentclass{article}
+\begin{document}
+
+\title{IDLinearWaves}
+\author{Gabrielle Allen, Tom Goodale, Gerd Lanfermann, Joan Masso, \\
+Mark Miller, Malcolm Tobias, Paul Walker}
+\date{1997-present}
+\maketitle
+
+\abstract{Provides gravitational wave solutions to the linearized Einstein equations}
+
+\section{Purpose}
+
+There are two different linearized initial data sets provided:
+
+\begin{enumerate}
+\item	plane waves \\
+Plane waves cane be specified to be travelling in an arbitrary direction.
+The form of the wave packet is: 
+\begin{equation}
+ A*exp\left[-(kp_ix^i-\omega_p (time-ra))^2\right]
+ cos(k_ix^i-\omega \ time),
+\end{equation}
+where:\\
+A = amplitude of the wave  \\
+k  = the wave number of the sine wave \\
+$\omega$ = the frequency of the sine wave  \\
+kp = the wave number of the gaussian modulating the sine wave \\
+$\omega_p$ = the frequency of the gaussian \\
+ra = the initial position of the packet(s). \\
+
+
+\item	Teukolsky waves \\
+Teukolsky waves are quadrupole wave solutions to the linearized
+Einstein equations.  For a full description, see: PRD 26:745 (1982).
+
+
+\end{enumerate}
+
+\section{Comments}
+The extrinsic curvature is initialized assuming the initial lapse is one.
+
+
+% Automatically created from the ccl files 
+% Do not worry for now.
+\include{interface}
+\include{param}
+\include{schedule}
+
+\end{document}

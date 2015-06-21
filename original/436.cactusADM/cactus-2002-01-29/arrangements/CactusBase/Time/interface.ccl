@@ -1,0 +1,19 @@
+# Interface definition for thorn Time
+# $Header: /cactus/CactusBase/Time/interface.ccl,v 1.5 2001/05/07 11:59:10 goodale Exp $
+
+implements: time
+
+public:
+
+REAL speedvars type=SCALAR
+{
+  courant_wave_speed
+  courant_min_time
+} "Speed to use for Courant condition"
+
+private:
+
+REAL couranttemps type=SCALAR
+{
+  courant_dt
+} "Variable just for output"

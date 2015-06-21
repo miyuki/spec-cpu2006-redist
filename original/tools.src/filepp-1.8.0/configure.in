@@ -1,0 +1,40 @@
+dnl Process this file with autoconf to produce a configure script.
+
+AC_INIT(filepp.in)
+dnl This is the only place where the package version appears
+VERSION="1.8.0"
+AC_SUBST(VERSION)
+
+dnl default module directory
+moduledir="$datadir/filepp/modules"
+AC_ARG_WITH(moduledir,
+[  --with-moduledir=DIR    Filepp modules installed in directory DIR],
+moduledir="$withval")
+dnl get rid of ${datarootdir}
+if test "$moduledir" = '${datarootdir}/filepp/modules'; then
+  if test "$datarootdir" = 'NONE'; then
+   moduledir=/usr/local/share/filepp/modules
+  else
+   moduledir=$datarootdir/filepp/modules
+  fi
+fi
+dnl get rid of ${prefix}
+if test "$moduledir" = '${prefix}/share/filepp/modules'; then
+  if test "$prefix" = 'NONE'; then
+   moduledir=/usr/local/share/filepp/modules
+  else
+   moduledir=$prefix/share/filepp/modules
+  fi
+fi
+AC_SUBST(moduledir)
+
+dnl Checks for programs.
+AC_PATH_PROG(PERL, perl)
+AC_PROG_INSTALL
+
+AC_SUBST(rm, "rm -fr")
+AC_SUBST(echo, "echo")
+AC_SUBST(diff, diff)
+AC_SUBST(module_subdirs, "modules/bigdef modules/bigfunc modules/blc modules/case modules/cmacros modules/comment modules/cpp modules/defplus modules/for modules/foreach modules/format modules/function modules/grab modules/literal modules/maths modules/regexp")
+
+AC_OUTPUT(Makefile filepp tests/Makefile modules/bigdef/Makefile modules/bigfunc/Makefile modules/blc/Makefile modules/case/Makefile modules/cmacros/Makefile modules/comment/Makefile modules/cpp/Makefile modules/defplus/Makefile modules/for/Makefile modules/foreach/Makefile modules/format/Makefile modules/function/Makefile modules/grab/Makefile modules/literal/Makefile modules/maths/Makefile modules/regexp/Makefile, chmod 755 filepp)

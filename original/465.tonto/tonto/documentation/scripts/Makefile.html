@@ -1,0 +1,42 @@
+<HTML>
+<HEAD>
+  <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+  <META name="robots" content="noindex, nofollow">
+  <TITLE>TONTO: Makefile</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFBF0">
+
+<H4 ALIGN="CENTER">Makefile</H4>
+
+The Makefile controls the building of Tonto.  To configure the Makefile, run
+the <A HREF="configure.html">configure</A> script.  The Makefile requires GNU
+make to work correctly, most other make programs will fail.  The configure
+script checks for GNU make on your system.  <BR><BR>
+
+Common options for make:<BR>
+<TABLE COLS=2>
+<TR><TD WIDTH=100>run_mol.x</TD><TD>make the main executable, run_mol.x</TD></TR>
+<TR><TD>install</TD><TD>makes and installs run_mol.x</TD></TR>
+<TR><TD>bla.o</TD><TD>builds the object file bla.o from bla.foo, useful for developers</TD></TR>
+<TR><TD>clean</TD><TD>removes built program files</TD></TR>
+<TR><TD>docsclean</TD><TD>removes built documentation files</TD></TR>
+<TR><TD>distclean</TD><TD>removes all built files</TD></TR>
+</TABLE><BR>
+
+eg, "make install" will build and install run_mol.x.<BR><BR><BR><BR>
+
+<B>Changing the Makefile</B><BR><BR>
+
+You shouldn't have to normally edit the Makefile, although there may be some
+things that need changing.  In particular, the F90 variable can take a few
+options, FFAST for faster programs, FDEBUG to insert debugging code in
+programs, and FPROF for timing programs.  eg,<BR>
+F90 = $(FFAST) $(FPROF)<BR>
+Usually the FFAST on its own is best, as it produces the fastest code.<BR><BR>
+
+If you want to change the command line arguments to the Fortran compiler, then
+it is safest to edit the appropriate file in the site_config directory, as if
+you run configure again, the Makefile will get overwritten.
+
+</BODY>
+</HTML>

@@ -1,0 +1,407 @@
+module PARALLEL
+
+  implicit none
+
+#ifdef MPI
+#include "mpif.h"
+#endif
+
+contains
+
+  initialise
+  ! Initialise the parallel environment.
+#ifdef MPI
+    .mpi_status.create(MPI_STATUS_SIZE)
+    .mpi_status = 0
+    call MPI_init(.mpi_status)
+    call MPI_comm_size(MPI_COMM_WORLD,.nprocs,.mpi_status)
+    call MPI_comm_rank(MPI_COMM_WORLD,.rank,.mpi_status)
+    .do_parallel = TRUE
+#else
+    .nprocs = 1
+    .rank = 0
+    .do_parallel = FALSE
+#endif
+  end
+
+  finalise
+  ! Finalise the parallel environment.
+#ifdef MPI
+    call MPI_finalize(.mpi_status)
+    .mpi_status.destroy
+#endif
+    .do_parallel = FALSE
+  end
+
+!*******************************************************************************
+! Inquiry routines.
+!*******************************************************************************
+
+  n_proc result (res) ::: pure
+  ! Return the number of processors available.
+    self :: IN
+    res :: INT
+    if (.do_parallel) then
+      res = .nprocs
+    else
+      res = 1
+    end
+  end
+
+  this_proc result (res) ::: pure
+  ! Return the index of this processor.  First index is zero!
+    self :: IN
+    res :: INT
+    if (.do_parallel) then
+      res = .rank
+    else
+      res = 0
+    end
+  end
+
+!*******************************************************************************
+! Summation routines.
+!*******************************************************************************
+
+  sum_symmetric_matrices(mat)
+  ! This routine adds the versions of "mat" from all processors, and gives the
+  ! result to all processors.  The lower triangle of the resultant symmetric
+  ! matrix is forced to be the same as the upper triangle.
+    mat :: REALMAT, INOUT
+    invec,outvec :: REALVEC*
+    tri_size :: INT
+    if (.do_parallel) then
+      .mpi_status = 0
+      tri_size = mat.tri_size
+      invec.create(tri_size)
+      outvec.create(tri_size)
+      mat.compress_to_triangle(invec)
+#ifdef MPI
+      call MPI_ALLREDUCE(invec,outvec,tri_size,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,.mpi_status)
+#else
+      DIE("wtf?")
+#endif
+      mat.uncompress_from_triangle(outvec)
+      outvec.destroy
+      invec.destroy
+    else
+      ! do nothing, just return what we were given.
+    end
+  end
+
+  sum_matrices(mat)
+  ! This routine adds the versions of "mat" from all processors, and gives the
+  ! result to all processors.
+    mat :: REALMAT, INOUT
+    tempmat :: REALMAT*
+    if (.do_parallel) then
+      .mpi_status = 0
+      tempmat.create(mat.dim1,mat.dim2)
+#ifdef MPI
+      call MPI_ALLREDUCE(mat,tempmat,mat.dim,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,.mpi_status)
+      mat = tempmat
+#else
+      DIE("wtf?")
+#endif
+      tempmat.destroy
+    else
+      ! do nothing, just return what we were given.
+    end
+  end
+
+  sum_vectors(vec)
+  ! This routine adds the versions of "vec" from all processors, and gives the
+  ! result to all processors.
+    vec :: REALVEC, INOUT
+    tempvec :: REALVEC*
+    if (.do_parallel) then
+      .mpi_status = 0
+      tempvec.create(vec.dim)
+#ifdef MPI
+      call MPI_ALLREDUCE(vec,tempvec,vec.dim,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,.mpi_status)
+      vec = tempvec
+#else
+      DIE("wtf?")
+#endif
+      tempvec.destroy
+    else
+      ! do nothing, just return what we were given.
+    end
+  end
+
+  sum_vectors(vec)
+  ! This routine adds the versions of "vec" from all processors, and gives the
+  ! result to all processors.
+    vec :: CPXVEC, INOUT
+    tempvec :: CPXVEC*
+    if (.do_parallel) then
+      .mpi_status = 0
+      tempvec.create(vec.dim)
+#ifdef MPI
+      call MPI_ALLREDUCE(vec,tempvec,vec.dim,MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,.mpi_status)
+      vec = tempvec
+#else
+      DIE("wtf?")
+#endif
+      tempvec.destroy
+    else
+      ! do nothing, just return what we were given.
+    end
+  end
+
+!*******************************************************************************
+! Broadcast variables to all processors.
+!*******************************************************************************
+
+  broadcast(var,proc)
+  ! Broadcast variable "var" from processor "proc" to all the other processors.
+    var :: INT
+    proc :: INT, IN
+    if (.do_parallel) then
+      .mpi_status = 0
+#ifdef MPI
+      call MPI_BCAST(var,1,MPI_INTEGER,proc,MPI_COMM_WORLD,.mpi_status)
+#else
+      DIE("wtf?")
+#endif
+    end
+  end
+
+  broadcast(var,proc)
+  ! Broadcast variable "var" from processor "proc" to all the other processors.
+    var :: STR(*)
+    proc :: INT, IN
+    if (.do_parallel) then
+      .mpi_status = 0
+#ifdef MPI
+      call MPI_BCAST(var,len(var),MPI_CHARACTER,proc,MPI_COMM_WORLD,.mpi_status)
+#else
+      DIE("wtf?")
+#endif
+    end
+  end
+
+  broadcast(var,proc)
+  ! Broadcast variable "var" from processor "proc" to all the other processors.
+    var :: REAL
+    proc :: INT, IN
+    if (.do_parallel) then
+      .mpi_status = 0
+#ifdef MPI
+      call MPI_BCAST(var,1,MPI_DOUBLE_PRECISION,proc,MPI_COMM_WORLD,.mpi_status)
+#else
+      DIE("wtf?")
+#endif
+    end
+  end
+
+  broadcast(var,proc)
+  ! Broadcast variable "var" from processor "proc" to all the other processors.
+    var :: CPX
+    proc :: INT, IN
+    if (.do_parallel) then
+      .mpi_status = 0
+#ifdef MPI
+      call MPI_BCAST(var,1,MPI_DOUBLE_COMPLEX,proc,MPI_COMM_WORLD,.mpi_status)
+#else
+      DIE("wtf?")
+#endif
+    end
+  end
+
+  broadcast(var,proc)
+  ! Broadcast variable "var" from processor "proc" to all the other processors.
+    var :: BIN
+    proc :: INT, IN
+    if (.do_parallel) then
+      .mpi_status = 0
+#ifdef MPI
+      call MPI_BCAST(var,1,MPI_LOGICAL,proc,MPI_COMM_WORLD,.mpi_status)
+#else
+      DIE("wtf?")
+#endif
+    end
+  end
+
+  broadcast(var,proc)
+  ! Broadcast variable "var" from processor "proc" to all the other processors.
+    var :: REALVEC
+    proc :: INT, IN
+    if (.do_parallel) then
+      .mpi_status = 0
+#ifdef MPI
+      call MPI_BCAST(var,size(var),MPI_DOUBLE_PRECISION,proc,MPI_COMM_WORLD,.mpi_status)
+#else
+      DIE("wtf?")
+#endif
+    end
+  end
+
+  broadcast(var,proc)
+  ! Broadcast variable "var" from processor "proc" to all the other processors.
+    var :: INTVEC
+    proc :: INT, IN
+    if (.do_parallel) then
+      .mpi_status = 0
+#ifdef MPI
+      call MPI_BCAST(var,size(var),MPI_INTEGER,proc,MPI_COMM_WORLD,.mpi_status)
+#else
+      DIE("wtf?")
+#endif
+    end
+  end
+
+  broadcast(var,proc)
+  ! Broadcast variable "var" from processor "proc" to all the other processors.
+    var :: CPXVEC
+    proc :: INT, IN
+    if (.do_parallel) then
+      .mpi_status = 0
+#ifdef MPI
+      call MPI_BCAST(var,size(var),MPI_DOUBLE_COMPLEX,proc,MPI_COMM_WORLD,.mpi_status)
+#else
+      DIE("wtf?")
+#endif
+    end
+  end
+
+  broadcast(var,proc)
+  ! Broadcast variable "var" from processor "proc" to all the other processors.
+    var :: REALMAT
+    proc :: INT, IN
+    if (.do_parallel) then
+      .mpi_status = 0
+#ifdef MPI
+      call MPI_BCAST(var,size(var),MPI_DOUBLE_PRECISION,proc,MPI_COMM_WORLD,.mpi_status)
+#else
+      DIE("wtf?")
+#endif
+    end
+  end
+
+  broadcast(var,proc)
+  ! Broadcast variable "var" from processor "proc" to all the other processors.
+    var :: INTMAT
+    proc :: INT, IN
+    if (.do_parallel) then
+      .mpi_status = 0
+#ifdef MPI
+      call MPI_BCAST(var,size(var),MPI_INTEGER,proc,MPI_COMM_WORLD,.mpi_status)
+#else
+      DIE("wtf?")
+#endif
+    end
+  end
+
+  broadcast(var,proc)
+  ! Broadcast variable "var" from processor "proc" to all the other processors.
+    var :: CPXMAT
+    proc :: INT, IN
+    if (.do_parallel) then
+      .mpi_status = 0
+#ifdef MPI
+      call MPI_BCAST(var,size(var),MPI_DOUBLE_COMPLEX,proc,MPI_COMM_WORLD,.mpi_status)
+#else
+      DIE("wtf?")
+#endif
+    end
+  end
+
+  broadcast(var,proc)
+  ! Broadcast variable "var" from processor "proc" to all the other processors.
+    var :: REALMAT3
+    proc :: INT, IN
+    if (.do_parallel) then
+      .mpi_status = 0
+#ifdef MPI
+      call MPI_BCAST(var,size(var),MPI_DOUBLE_PRECISION,proc,MPI_COMM_WORLD,.mpi_status)
+#else
+      DIE("wtf?")
+#endif
+    end
+  end
+
+  broadcast(var,proc)
+  ! Broadcast variable "var" from processor "proc" to all the other processors.
+    var :: INTMAT3
+    proc :: INT, IN
+    if (.do_parallel) then
+      .mpi_status = 0
+#ifdef MPI
+      call MPI_BCAST(var,size(var),MPI_INTEGER,proc,MPI_COMM_WORLD,.mpi_status)
+#else
+      DIE("wtf?")
+#endif
+    end
+  end
+
+  broadcast(var,proc)
+  ! Broadcast variable "var" from processor "proc" to all the other processors.
+    var :: CPXMAT3
+    proc :: INT, IN
+    if (.do_parallel) then
+      .mpi_status = 0
+#ifdef MPI
+      call MPI_BCAST(var,size(var),MPI_DOUBLE_COMPLEX,proc,MPI_COMM_WORLD,.mpi_status)
+#else
+      DIE("wtf?")
+#endif
+    end
+  end
+
+  broadcast(var,proc)
+  ! Broadcast variable "var" from processor "proc" to all the other processors.
+    var :: REALMAT4
+    proc :: INT, IN
+    if (.do_parallel) then
+      .mpi_status = 0
+#ifdef MPI
+      call MPI_BCAST(var,size(var),MPI_DOUBLE_PRECISION,proc,MPI_COMM_WORLD,.mpi_status)
+#else
+      DIE("wtf?")
+#endif
+    end
+  end
+
+  broadcast(var,proc)
+  ! Broadcast variable "var" from processor "proc" to all the other processors.
+    var :: CPXMAT4
+    proc :: INT, IN
+    if (.do_parallel) then
+      .mpi_status = 0
+#ifdef MPI
+      call MPI_BCAST(var,size(var),MPI_DOUBLE_COMPLEX,proc,MPI_COMM_WORLD,.mpi_status)
+#else
+      DIE("wtf?")
+#endif
+    end
+  end
+
+  broadcast(var,proc)
+  ! Broadcast variable "var" from processor "proc" to all the other processors.
+    var :: CPXMAT5
+    proc :: INT, IN
+    if (.do_parallel) then
+      .mpi_status = 0
+#ifdef MPI
+      call MPI_BCAST(var,size(var),MPI_DOUBLE_COMPLEX,proc,MPI_COMM_WORLD,.mpi_status)
+#else
+      DIE("wtf?")
+#endif
+    end
+  end
+
+  do_io result (res)
+  ! Return whether or not this processor should do the I/O operation.
+    res :: BIN
+    res = .rank == 0 OR (NOT .do_parallel)
+  end
+
+  synchronise_processors
+  ! Synchronise all processors at this point.
+#ifdef MPI
+    call MPI_BARRIER(MPI_COMM_WORLD,.mpi_status)
+#endif
+  end
+
+end

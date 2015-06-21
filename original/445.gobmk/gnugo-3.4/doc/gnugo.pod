@@ -1,0 +1,263 @@
+
+=head1 NAME
+
+gnugo - The GNU program to play the game of Go
+
+=head1 SYNOPSIS
+
+B<gnugo>
+[B<--boardsize <num>>]
+[B<--color <color>>]
+[B<--handicap <num>>]
+[B<--komi <num>>]
+[B<--quiet>]
+[B<-v, --version>]
+[B<-h, --help>]
+[B<--help debug>]
+[B<--copyright>]
+[B<--mode <mode>>]
+[B<--replay <color>>]
+[B<-l, --infile <filename>>]
+[B<-L, --until <move>>]
+[B<-o, --outfile <filename>>]
+[B<--printsgf <filename>>]
+[B<-D, --depth <num>>]
+[B<-B, --backfill_depth <num>>]
+[B<--score [estimate|finish|aftermath]> ]
+[B<-a, --allpats>]
+[B<-T, --printboard>]
+[B<-d, --debug <level>>]
+[B<-w, --worms>]
+[B<-m, --moyo <level>>]
+[B<-b, --benchmark num>]
+[B<-t, --trace>]
+[B<-r, --seed num>]
+
+=head1 DESCRIPTION
+
+GNU Go plays a game of Go against the user. It has many other features: it 
+can play against itself or another program, analyse and score a recorded 
+game. GNU Go is compliant with Go modem protocol, load and save game in
+the Smart Go format. 
+
+GNU Go default is a simple alpha-numeric board display, but you can use
+a client such as B<CGoban>.
+
+=head2 The game of Go
+
+Go is a game of strategy between two players usually played on a
+19x19 grid called B<goban>. The two players put black and white B<stones> on
+the goban to enclose B<territory>. Go was invented about 4000 years ago in
+ancient China. Other names for this game are (Chinese) B<Wei Chi>, (Korean)
+B<Baduk> and (Ing) B<Goe>.
+
+=head2 Playing a game in ASCII mode
+
+To start a game with default options, just invoke "gnugo". The board will be
+drawn at your terminal using ASCII letters.  In this mode, you can get help on
+available commands by the B<h> key.  To play as Black with 4 stones handicap,
+with a 0.5 komi, recording the game in the file record.sgf:
+
+ gnugo --color black --handicap 4 --komi 0.5 -o record.sgf
+
+=head2 Playing a game with CGoban
+
+CGoban is a general purpose client program by Bill Shubert for
+playing Go. It runs under X-Windows with a beautiful resizeable
+graphic display. To use GNU Go under X-windows, obtain the most recent 
+version of CGoban from Bill Shubert's web site
+
+http://www.igoweb.org/~wms/comp/cgoban/index.html
+
+Start CGoban. When the CGoban Control panel comes up, select `Go Modem.'
+You will get the Go Modem Protocol Setup. Choose one (or both) of the
+players to be ``Program,'' and fill out the box to the path to
+gnugo. After clicking OK, you get the Game Setup window. Choose
+``Rules Set'' to be Japanese (otherwise handicaps won't work). Set the
+board size and handicap if you want. Click OK and you are ready to go.
+
+In the Go Modem Protocol Setup window, when you specify the path
+to GNU Go, you can give it command line options, such as --quiet
+to suppress most messages. Since the Go Modem Protocol preempts
+standard I/O, other messages are sent to stderr, even if they are
+not error messages. These will appear in the terminal from which
+you started CGoban. 
+
+=head2 Scoring system
+
+The game stops when both players pass. GNU Go will attempt to
+compute and report the score to you. It may occasionally make
+mistakes due to wrong evaluation of the status of a group. You
+can check the score as follows. In ASCII mode, at the end of
+the game, stones believed dead are marked in lower case letters,
+and you have the option of toggling their status before counting.
+Using CGoban, you may use CGoban's counting facility to count
+the game using either Japanese or Chinese rules.
+
+=head2 Viewing a stored game
+
+gnugo B<-l> filename.sgf --mode ascii
+
+loads filename.sgf and lets you navigate through the game by using the
+commands I<forward>, I<back>, I<goto> and I<last>.
+It is not possible to navigate through variations in ascii mode.
+You may also use CGoban to view stored games. CGoban can navigate
+variations.
+
+=head2 Documentation
+
+The files in the F<doc> directory contain detailed documentation about
+debugging options and internal program structure. Other documentation may
+be found in comments throughout the source code.
+
+=head2 Go Modem Protocol
+
+The Go Modem Protocol is a standard interface between Go programs and
+graphical display. 
+
+The Go Modem Protocol was developed by Bruce Wilcox with input from
+David Fotland, Anders Kierulf and others. Any Go program *should*
+use this protocol since it is standard. Since CGoban supports this
+protocol, the user interface for any Go program can be done
+entirely through CGoban. Using the Go Modem Protocol, you can play
+with another computer running a different program (even on a
+different operating system) using a modem, a serial cable or over
+the internet if the other program also supports the protocol. You
+can also communicate with the Go servers using CGoban.
+
+=head2 Smart Go Format
+
+Games (with comments, variations and other features) can be
+stored in the Smart Go Format (SGF). This format originated in
+Anders Kierulf's program Smart Go. Martin Muller and Arno
+Hollosi developed the current standard, which may be found
+at 
+
+http://www.red-bean.com/sgf/
+
+GNU Go supports the Smart Go Format.
+
+=head1 OPTIONS
+
+=head2 Main options
+
+B<--mode I<mode>>
+
+force the playing mode (I<ascii'>, I<gtp> or I<gmp>). Default is 
+ASCII. If no terminal is detected GMP (Go Modem Protocol) will be assumed.
+
+B<--replay I<color>>
+
+replay the game generating moves for color, where color is I<white>,
+I<black>, or I<both>. (requires B<-l>)
+
+B<--quiet>
+
+Don't print copyright and other informational messages.
+
+B<-l, --infile I<file>>
+
+Load the SGF file (to score or analyze a recorded game).
+
+B<-L, --until I<move>>
+
+Stop loading just before I<move> is played (e.g. 154 or L10).
+
+B<-o, --outfile I<file>>
+
+Save the played game to I<file> in SGF format.
+
+=head2 Game Options: 
+
+B<--boardsize I<num>>
+
+Set the board size to use (5-21). Default is 19, other common formats are
+13 and 9.
+
+B<--color I<color>>
+
+Choose your color (I<black> or I<white>). Black plays first, White gets
+the komi compensation.
+
+B<--handicap I<num>>
+
+Set the number of handicap stones.
+
+B<--komi I<num>>
+
+Set the komi (points given to white player to compensate advantage of the 
+first move, usually 5.5 or 0.5). Default is 5.5.
+
+=head2 Informative Output:
+
+B<-v, --version>
+
+Display the version of GNU Go. 
+
+B<-h, --help>
+
+Display help message.
+
+B<--help debug>
+
+Display help about debugging options. 
+
+B<--copyright>
+
+Display copyright notice.
+
+=head2 Debugging and advanced options:
+
+B<-T, --printboard>
+
+Show board each move.
+
+B<--level I<num>>
+
+Level of play. (default 10; smaller=faster, weaker).
+
+B<-b, --benchmark I<num>>
+
+Benchmarking mode - can be used with B<-l>.
+
+B<-t, --trace>
+
+Verbose tracing (use twice or more to trace reading).
+
+B<-r, --seed I<num>>
+
+Set random number seed.
+
+B<--score [I<estimate|finish|aftermath>]>
+
+Count or estimate territory of the input file. Usage:
+
+B<gnugo --score estimate -l filename>
+
+Loads the SGF file and estimates the score by measuring the
+influence. Use with B<-L> if you want the estimate somewhere else than
+at the end of the file.
+
+B<gnugo --score finish -l filename>
+
+Loads the SGF file and gnugo continues to play by itself up to the
+very end. Then the winner is determined by counting the territory.
+
+B<gnugo --score aftermath -l filename>
+
+Similar to B<--score finish> except that a more accurate but slower
+algorithm is used to determine the final status of the groups.
+
+If the option B<-o outputfilename> is provided, 
+the results will also be written as comment at the end of the output file.
+
+B<--printsgf I<outfile>>
+
+Load SGF file, output final position (requires B<-l>).
+
+=head1 BUGS
+
+If you find a bug, please send the SGF output file to gnugo@gnu.org
+together with a description of the bug.
+
+=cut

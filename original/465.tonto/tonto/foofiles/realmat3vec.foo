@@ -1,0 +1,112 @@
+!---------------------------------------------------------------------------
+!
+!  REALMAT3VEC: Vector of REALMAT3 matrices
+!
+! Copyright (C) Daniel Grimwood, 1999
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: realmat3vec.foo,v 1.4.2.1 2003/10/13 06:22:46 reaper Exp $
+!---------------------------------------------------------------------------
+
+module REALMAT3VEC
+
+   implicit none
+
+contains
+
+   create(dim)
+   ! Create a mat3vec
+      self :: PTR
+      dim :: INT
+      allocate(self(dim))
+      ADD_MEMORY(dim*PTR_SIZE)
+      .nullify_ptr_part
+   end
+
+   create(lb,ub)
+   ! Create a mat3vec
+      self :: PTR
+      lb,ub :: INT
+      ENSURE(ub>=lb,"upper bound must be greater than or equal to lower bound")
+      allocate(self(lb:ub))
+      ADD_MEMORY((ub-lb+1)*PTR_SIZE)
+      .nullify_ptr_part
+   end
+
+   destroy
+   ! Destroy a mat3vec
+      self :: PTR
+      if (.destroyed) return
+      .destroy_ptr_part
+      DELETE_MEMORY(size(self)*PTR_SIZE)
+      deallocate(self)
+   end
+
+   nullify_ptr_part
+   ! Nullify the pointer parts of a mat3vec
+       i :: INT
+      do i = 1,.dim1
+         nullify(self(i).element)
+      end
+   end
+
+   destroy_ptr_part
+   ! Destroy the pointer parts of a mat3vec
+       i :: INT
+      do i = 1,.dim1
+         self(i).element.destroy
+      end
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   make_gaussian_xyz_matrices(ptr) ::: leaky
+   ! Return representation matrices for the s, p, d, f, and g (l = 0 ... 4)
+   ! xyz cartesian gaussian shell components from a list of the p xyz
+   ! representation matrices.
+   ! NOTE: nothing in self in pointer assigned, so it can be destroyed safely.
+      self :: PTR
+      ptr :: REALMAT3
+      order :: INT
+      ENSURE(ptr.dim1==3,"wrong 1st dimension, self")
+      ENSURE(ptr.dim2==3,"wrong 1st dimension, self")
+      ENSURE(ptr.dim3>0,"no p-type representation matrices")
+      order = ptr.dim3
+      self.create(0,4)
+      self(0).element.create(1,1,order)
+      self(1).element.create(3,3,order)
+      ! Now assign the transformation matrices
+      self(0).element = ONE
+      self(1).element = ptr
+      self(2).element => ptr.gaussian_d_xyz_matrices
+      self(3).element => ptr.gaussian_f_xyz_matrices
+      self(4).element => ptr.gaussian_g_xyz_matrices
+   end
+
+end

@@ -1,0 +1,85 @@
+# Parameter definitions for flesh
+# $Header: /cactus/Cactus/src/param.ccl,v 1.23 2001/07/10 10:33:24 allen Exp $
+
+ 
+private:
+
+STRING cctk_run_title "Description of this simulation" 
+{
+  ".*" :: "Any string"
+} ""
+
+KEYWORD cctk_timer_output  "Provide output from timers"
+{
+ "off"  :: "No timer output"
+ "full" :: "Detailed timer output"
+} "off"
+
+BOOLEAN cctk_full_warnings "Give detailed information for each warning statement" STEERABLE=ALWAYS
+{
+} "no"
+
+BOOLEAN cctk_strong_param_check "Die on parameter errors in CCTK_PARAMCHECK"
+{
+} "yes"
+
+BOOLEAN cctk_show_schedule "Print the scheduling tree to standard output"
+{
+} "yes"
+
+BOOLEAN cctk_show_banners "Show any registered banners for the different thorns"
+{
+} "yes"
+ 
+BOOLEAN cctk_brief_output "Give only brief output"
+{
+} "no"
+
+BOOLEAN manual_cache_setup "Set the cache size manually"
+{
+} "no"
+
+INT manual_cache_size "The size to set the cache to if not done automatically (bytes)"
+{
+  0: :: "Any whole number"
+} 0
+
+INT manual_cacheline_bytes "The size of a cacheline if not set automatically (bytes)"
+{
+  0: :: "Any whole number"
+} 0
+
+BOOLEAN allow_mixeddim_gfs "Allow use of GFs from different dimensions"
+{
+} "no"
+
+restricted:
+
+BOOLEAN terminate_next "Terminate on next iteration?" STEERABLE=ALWAYS
+{
+} "no"
+
+KEYWORD terminate "Condition on which to terminate evolution loop" STEERABLE=ALWAYS
+{
+  "never" :: "Never terminate"
+  "iteration" :: "Take termination condition from iteration number"
+  "time" :: "Take termination condition from coordinate time"
+  "either" :: "Take termination condition from either iteration number or coordinate time"
+  "both" :: "Take termination condition from both iteration number and coordinate time"
+} "iteration"
+
+REAL cctk_initial_time "Initial time for evolution"
+{
+ : :: "Anything"
+} 0.0
+ 
+REAL cctk_final_time "Final time for evolution" STEERABLE=ALWAYS
+{
+ : :: "Anything"
+} -1.0
+ 
+INT cctk_itlast "Final iteration number" STEERABLE = ALWAYS
+{
+: :: "Any integer"
+} 10
+

@@ -1,0 +1,126 @@
+!---------------------------------------------------------------------------
+!
+! MARCHINGCUBEVEC: MARCHINGCUBE vectors
+!
+! Copyright (C) Dylan Jayatilaka, 2002
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+! 
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+! 
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: marchingcubevec.foo,v 1.2.2.2 2003/03/24 01:28:52 dylan Exp $
+!---------------------------------------------------------------------------
+
+module MARCHINGCUBEVEC
+
+   implicit none
+
+contains
+
+!  ******************
+!  Allocation methods
+!  ******************
+
+   create(dim) ::: get_from(OBJECTVEC)
+   ! Create space for object
+      self :: PTR
+      dim :: INT
+   end
+
+   destroy ::: get_from(OBJECTVEC)
+   ! Destroy space for object
+      self :: PTR
+   end
+
+   create_copy(vec) ::: get_from(OBJECTVEC)
+   ! Create a replica copy of "vec".
+      vec :: SELF_TYPE, IN
+      self :: PTR
+   end
+
+   copy(vec) ::: get_from(OBJECTVEC), leaky
+   ! Copy "vec".
+      vec :: SELF_TYPE, IN
+   end
+
+   nullify_ptr_part ::: get_from(OBJECTVEC)
+   ! Nullify the pointer parts of self
+   end
+
+   destroy_ptr_part ::: get_from(OBJECTVEC)
+   ! Destroy the pointer parts of self
+   end
+
+!   created result(res) ::: get_from(OBJECTVEC)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!   end
+
+!   destroyed result(res) ::: get_from(OBJECTVEC)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!   end
+
+   set_defaults ::: get_from(OBJECTVEC)
+   ! Set default values
+   end
+
+! ***************************
+! Non-list based I/O routines
+! ***************************
+
+   read_keywords
+   ! Read in and process normal (non list-type) keywords from "stdin".
+     self :: PTR
+     word :: STR
+     ENSURE(stdin.next_item=="{","expecting open bracket symbol, {")
+     stdin.read(word)
+     do                 ! Loop over input keywords
+       stdin.read(word)
+       word.to_lower_case
+       if (word=="}")      exit
+       if (stdin.reverted) exit
+       .process_keyword(word)
+     end
+   end
+
+   process_keyword(keyword) 
+   ! Process a normal (non list-type) "keyword".
+     self :: PTR
+     keyword :: STR
+     word :: STR
+     word = keyword
+     word.to_lower_case
+     select case (word)
+       case("}") ! do nothing.
+       case("put               "); .put
+       case("redirect          "); .redirect
+       case("revert            "); .revert
+       case default;               UNKNOWN(word)
+     end
+   end
+
+   redirect ::: get_from(OBJECT), leaky
+   ! Redirect input
+     self :: PTR
+   end
+
+   revert ::: get_from(OBJECT), leaky
+   ! Revert back to previous stdin file
+     self :: PTR
+   end
+
+end

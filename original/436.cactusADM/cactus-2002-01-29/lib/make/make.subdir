@@ -1,0 +1,45 @@
+# /*@@
+#   @file      make.subdir
+#   @date      Mon Jan 18 19:12:31 1999
+#   @author    Tom Goodale
+#   @desc 
+#   Makes the object files in a subdirectory
+#   @enddesc 
+#   @version $Id: make.subdir,v 1.10 2001/06/13 09:43:35 goodale Exp $
+# @@*/
+
+# Silence all but designated output
+#.SILENT:
+
+# Include the main make definitions for this configuration
+include $(CONFIG)/make.config.defn
+
+# Add appropriate include lines
+INC_DIRS += $(SRCDIR) $(SRCDIR)/include 
+
+EXTRA_DEFINES += THORN_IS_$(THORN) 
+
+# Include the subdirectory's local include data
+-include $(SRCDIR)/make.code.defn
+
+# Turn source file names into object file names
+OBJS = $(SRCS:%=%.o)
+
+# Build all the object files
+
+$(CCTK_TARGET): $(OBJS)
+	touch make.checked
+
+# Rules to make the object files
+include $(CONFIG)/make.config.rules
+
+# Extra subdir-specific dependencies
+# This file isn't strictly necessary, so use -include to prevent 
+# warnings if it is missing.
+-include $(SRCDIR)/make.code.deps
+
+# Dependency stuff
+
+ifneq ($(strip $(SRCS)),)
+-include $(SRCS:%=%.d)
+endif

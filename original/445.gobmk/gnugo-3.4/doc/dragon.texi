@@ -1,0 +1,909 @@
+@menu
+* Worms::                             Worms
+* Amalgamation::                      How two Worms are amalgamated.
+* Connection::                        Connections.
+* Half Eyes::                         Half Eyes and False Eyes.
+* Dragons::                           Union of WORMS.
+* Dragons in Color::                  Colored display of DRAGONS.
+@end menu
+
+Before considering its move, GNU Go collects some data in several
+arrays. Two of these arrays, called @code{worm} and @code{dragon}, are
+discussed in this document. Others are discussed in @xref{Eyes}.
+
+This information is intended to help evaluate the connectedness, eye
+shape, escape potential and life status of each group.
+
+Later routines called by @code{genmove()} will then have access to this
+information. This document attempts to explain the philosophy and
+algorithms of this preliminary analysis, which is carried out by the
+two routines @code{make_worm()} and @code{make_dragon()} in 
+@file{dragon.c}.
+
+@cindex dragon
+@cindex worm
+@cindex string
+A @dfn{worm} is a maximal set of stones on the board which are connected
+along the horizontal and vertical lines, and are of the same color.
+We often say @dfn{string} instead of worm.
+
+A @dfn{dragon} is a union of strings of the same color which will be
+treated as a unit. The dragons are generated anew at each move. If two strings
+are in the dragon, it is the computer's working hypothesis that they will live
+or die together and are effectively connected.
+
+The purpose of the dragon code is to allow the computer to formulate
+meaningful statements about life and death.  To give one example,
+consider the following situation:
+@example
+
+      OOOOO
+     OOXXXOO
+     OX...XO
+     OXXXXXO
+      OOOOO
+
+@end example
+
+The X's here should be considered a single group with one three-space
+eye, but they consist of two separate strings.  Thus we must
+amalgamate these two strings into a single dragon. Then the assertion
+makes sense, that playing at the center will kill or save the dragon,
+and is a vital point for both players. It would be difficult to
+formulate this statement if the X's are not perceived as a unit.
+
+The present implementation of the dragon code involves simplifying
+assumptions which can be refined in later implementations.
+
+@node Worms
+@section Worms
+@cindex worm
+
+The array @code{struct worm_data worm[MAX_BOARD]} collects information about
+the worms. We will give definitions of the various fields. Each field has
+constant value at each vertex of the worm. We will define each field.
+
+@example
+
+struct worm_data @{
+  int color;
+  int size;
+  float effective_size;
+  int origin;
+  int liberties;
+  int liberties2;
+  int liberties3;
+  int liberties4;
+  int lunch;
+  int cutstone;
+  int cutstone2;
+  int genus;
+  int inessential;
+  int invincible;
+  int unconditional_status;
+  int attack_points[MAX_TACTICAL_POINTS];
+  int attack_codes[MAX_TACTICAL_POINTS];
+  int defense_points[MAX_TACTICAL_POINTS];
+  int defend_codes[MAX_TACTICAL_POINTS];
+  int attack_threat_points[MAX_TACTICAL_POINTS];
+  int attack_threat_codes[MAX_TACTICAL_POINTS]; 
+  int defense_threat_points[MAX_TACTICAL_POINTS];
+  int defense_threat_codes[MAX_TACTICAL_POINTS];
+@};
+@end example
+
+@itemize @bullet
+@item @code{color}
+@quotation
+@cindex border color
+If the worm is @code{BLACK} or @code{WHITE}, that is its color.
+Cavities (empty worms) have an additional attribute which we call
+@dfn{bordercolor}. This will be one of @code{BLACK_BORDER},
+@code{WHITE_BORDER} or @code{GRAY_BORDER}. Specifically, if all the worms
+adjacent to a given empty worm have the same color (black or white) then we
+define that to be the bordercolor. Otherwise the bordercolor is gray.
+
+Rather than define a new field, we keep this data in the
+field color. Thus for every worm, the color field will
+have one of the following values: @code{BLACK}, @code{WHITE},
+@code{GRAY_BORDER}, @code{BLACK_BORDER} or @code{WHITE_BORDER}. 
+The last three categories are empty worms classified by bordercolor.
+@end quotation
+@item @code{size}
+@quotation
+This field contains the cardinality of the worm.
+@end quotation
+@item @code{effective_size}
+@quotation
+@cindex effective size (worm)
+This is the number of stones in a worm plus the number
+of empty intersections that are at least as close to this worm as to any
+other worm. Intersections that are shared are counted with equal
+fractional values for each worm. This measures the direct territorial
+value of capturing a worm. @dfn{effective_size} is a floating point number.
+Only intersections at a distance of 4 or less are counted.
+@end quotation
+@item @code{origin}
+@quotation
+@cindex origin (worm)
+Each worm has a distinguished member, called its @dfn{origin}.
+The purpose of this field is to make it easy to determine when two vertices
+lie in the same worm: we compare their origin. Also if we wish to perform some
+test once for each worm, we simply perform it at the origin and ignore the
+other vertices. The origin is characterized by the test:
+@example
+worm[pos].origin == pos.
+@end example
+@end quotation
+@item @code{liberties}
+@item @code{liberties2}
+@item @code{liberties3}
+@item @code{liberties4}
+@quotation
+@cindex liberties (worm)
+@cindex liberties, higher order (worm)
+For a nonempty worm the field liberties is the number of liberties of the
+string. This is supplemented by @code{LIBERTIES2}, @code{LIBERTIES3} and
+@code{LIBERTIES4}, which are the number of second order, third order, and
+fourth order liberties, respectively.
+The definition of liberties of order >1 is adapted to the
+problem of detecting the shape of the surrounding
+cavity. In particular we want to be able to see if a group
+is loosely surrounded. @dfn{a liberty of order n} is an empty
+vertex which may be connected to the string by placing n
+stones of the same color on the board, but no fewer. The
+path of connection may pass through an intervening group
+of the same color. The stones placed at distance >1 may
+not touch a group of the opposite color. Connections through
+ko are not permitted. Thus in the following configuration:
+@example
+
+          .XX...    We label the     .XX.4.
+          XO....    liberties of     XO1234
+          XO....    order < 5 of     XO1234
+          ......    the O group:     .12.4.
+          .X.X..                     .X.X..
+
+@end example
+
+The convention that liberties of order >1 may not touch a
+group of the opposite color means that knight's moves and
+one space jumps are perceived as impenetrable barriers.
+This is useful in determining when the string is becoming
+surrounded.
+
+The path may also not pass through a liberty at distance
+1 if that liberty is flanked by two stones of the opposing color. This
+reflects the fact that the O stone is blocked from expansion to the
+left by the two X stones in the following situation:
+@example
+
+          X.
+          .O
+          X.
+
+@end example
+@cindex distance from liberty to dragon
+We say that n is the @dfn{distance} of the liberty of order n from the dragon.
+@end quotation
+@item @code{lunch}
+@quotation
+@cindex lunch (worm)
+If nonzero, @code{lunch} points to a boundary worm which can be easily
+captured.  (It does not matter whether or not the string can be
+defended.)
+@end quotation
+@end itemize
+
+We have two distinct notions of cutting stone, which we keep track
+of in the separate fields @code{worm.cutstone} and @code{worm.cutstone2}.
+We use currently use both concepts in parallel.
+
+@itemize
+@item @code{cutstone} 
+@quotation
+@cindex cutting stone
+This field is equal to 2 for cutting stones, 1 for potential cutting
+stones. Otherwise it is zero.  Definitions for this field: a @dfn{cutting
+stone} is one adjacent to two enemy strings, which do not have a liberty in
+common. The most common type of cutting string is in this situation:
+
+@example
+
+          XO
+          OX
+
+@end example
+@cindex cutting stone, potential
+@cindex potential cutting stone
+
+A @dfn{potential cutting stone} is adjacent to two enemy strings which do
+share a liberty. For example, X in:
+
+@example
+
+          XO
+          O.
+
+@end example
+
+For cutting strings we set @code{worm[].cutstone=2}. For
+potential cutting strings we set @code{worm[].cutstone=1}.
+@end quotation
+@item @code{cutstone2} 
+@quotation
+Cutting points are identified by the patterns in the connections
+database. Proper cuts are handled by the fact that attacking and
+defending moves also count as moves cutting or connecting the
+surrounding dragons.  The @code{cutstone2} field is set during 
+@code{find_cuts()}, called from @code{make_domains()}.
+@end quotation
+@findex find_cuts
+@findex make_domains
+@item @code{genus} 
+@quotation
+@cindex genus (worm)
+There are two separate notions of @dfn{genus} for worms and
+dragons. The dragon notion is more important, so
+@code{dragon[pos].genus} is a far more useful field than
+@code{worm[pos].genus}. Both fields are intended as approximations
+to the number of eyes. The @dfn{genus} of a string is the number
+of connected components of its complement, minus one. It is
+an approximation to the number of eyes of the string.
+@end quotation
+@item @code{inessential} 
+@quotation
+@cindex inessential string
+An @dfn{inessential} string is one which meets a
+criterion designed to guarantee that it has no life
+potential unless a particular surrounding string of the
+opposite color can be killed. More precisely an
+@dfn{inessential string} is a string S of genus zero,
+not adjacent to any opponent string which can be easily
+captured, and which has no edge liberties or second
+order liberties, and which satisfies the following
+further property: If the string is removed from the
+board, then the remaining cavity only borders worms of the
+opposite color.
+
+@end quotation
+@findex unconditional_life
+@item @code{invincible} 
+@quotation
+@cindex invincible worm
+An @dfn{invincible} worm is one which GNU Go thinks
+cannot be captured. Invincible worms are computed by the
+function @code{unconditional_life()} which tries to
+find those worms of the given color that can never be captured,
+even if the opponent is allowed an arbitrary number of consecutive
+moves.
+@end quotation
+@item unconditional_status
+@quotation
+Unconditional status is also set by the function
+@code{unconditional_life}. This is set ALIVE for stones which are
+invincible. Stones which can not be turned invincible even if the
+defender is allowed an arbitrary number of consecutive moves are given
+an unconditional status of DEAD. Empty points where the opponent cannot
+form an invincible worm are called unconditional territory. The
+unconditional status is set to @code{WHITE_BORDER} or @code{BLACK_BORDER}
+depending on who owns the territory. Finally, if a stone can be captured but
+is adjacent to unconditional territory of its own color, it is also given the
+unconditional status @code{ALIVE}. In all other cases the unconditional status is
+@code{UNKNOWN}.
+
+To make sense of these definitions it is important to notice that any
+stone which is alive in the ordinary sense (even if only in seki) can be
+transformed into an invincible group by some number of consecutive
+moves. Well, this is not entirely true because there is a rare class of
+seki groups not satisfying this condition. Exactly which these are is
+left as an exercise for the reader. Currently @code{unconditional_life},
+which strictly follows the definitions above, calls such seki groups
+unconditionally dead, which of course is a misfeature. It is possible to
+avoid this problem by making the algorithm slightly more complex, but
+this is left for a later revision.
+@end quotation
+@item @code{int attack_points[MAX_TACTICAL_POINTS]}
+@item @code{attack_codes[MAX_TACTICAL_POINTS]}
+@item @code{int defense_points[MAX_TACTICAL_POINTS];}
+@item @code{int defend_codes[MAX_TACTICAL_POINTS];}
+@quotation
+If the tactical reading code (@pxref{Tactical Reading}) finds that the
+worm can be attacked, @code{attack_points[0]} is a point of attack, and
+@code{attack_codes[0]} is the attack code, @code{WIN}, @code{KO_A} or 
+@code{KO_B}. If multiple attacks are known, @code{attack_points[k]} and
+@code{attack_codes[k]} are used. Similarly with the defense
+codes and defense points.
+@end quotation
+@item @code{int attack_threat_points[MAX_TACTICAL_POINTS];}
+@item @code{int attack_threat_codes[MAX_TACTICAL_POINTS];}
+@item @code{int defense_threat_points[MAX_TACTICAL_POINTS];}
+@item @code{int defense_threat_codes[MAX_TACTICAL_POINTS];}
+@quotation
+These are points that threaten to attack or defend a worm.
+@end quotation
+@end itemize
+
+The function @code{makeworms()} will generate data for all worms.
+
+@node  Amalgamation
+@section Amalgamation
+@cindex amalgamation of worms into dragons
+
+A dragon, we have said, is a group of stones which are treated as a
+unit. It is a working hypothesis that these stones will live or die
+together. Thus the program will not expect to disconnect an opponent's
+strings if they have been amalgamated into a single dragon.
+
+The function @code{make_dragons()} will amalgamate worms into dragons by
+maintaining separate arrays @code{worm[]} and @code{dragon[]} containing
+similar data. Each dragon is a union of worms. Just as the data maintained in
+@code{worm[]} is constant on each worm, the data in
+@code{dragon[]} is constant on each dragon.
+
+Amalgamation of worms in GNU Go 3.0 proceeds as follows.
+First we amalgamate all boundary components of an eyeshape. Thus in
+the following example:
+
+@example
+
+.OOOO.       The four X strings are amalgamated into a 
+OOXXO.       single dragon because they are the boundary
+OX..XO       components of a blackbordered cave. The
+OX..XO       cave could contain an inessential string
+OOXXO.       with no effect on this amalgamation.
+XXX...       
+
+@end example
+@findex dragon_eye
+
+The code for this type of amalgamation is in the routine
+@code{dragon_eye()}, discussed further in EYES.
+
+Next, we amalgamate strings which seem uncuttable. We amalgamate dragons
+which either share two or more common liberties, or share one liberty
+into the which the opponent cannot play without being
+captured. (ignores ko rule).
+
+@example
+
+   X.    X.X     XXXX.XXX         X.O
+   .X    X.X     X......X         X.X
+                 XXXXXX.X         OXX
+
+@end example
+
+A database of connection patterns may be found in @file{patterns/conn.db}.
+
+@node  Connection
+@section Connection
+@cindex connections
+
+The fields @code{black_eye.cut} and @code{white_eye.cut} are set where the
+opponent can cut, and this is done by the B (break) class patterns in
+@file{conn.db}.  There are two important uses for this field, which can be
+accessed by the autohelper functions @code{xcut()} and @code{ocut()}. The
+first use is to stop amalgamation in positions like
+
+@example
+
+..X..
+OO*OO
+X.O.X
+..O..
+
+@end example
+
+@noindent
+where X can play at * to cut off either branch. What happens
+here is that first connection pattern CB1 finds the double cut
+and marks * as a cutting point. Later the C (connection) class
+patterns in conn.db are searched to find secure connections
+over which to amalgamate dragons.  Normally a diagonal
+connection would be deemed secure and amalgamated by connection
+pattern CC101, but there is a constraint requiring that neither of
+the empty intersections is a cutting point.
+@findex amalgamate_most_valuable_helper
+
+A weakness with this scheme is that X can only cut one connection, not
+both, so we should be allowed to amalgamate over one of the connections.
+This is performed by connection pattern CC401, which with the help of
+@code{amalgamate_most_valuable_helper()} decides which connection to
+prefer. 
+
+The other use is to simplify making alternative connection patterns to
+the solid connection. Positions where the diag_miai helper thinks a
+connection is necessary are marked as cutting points by connection
+pattern 12. Thus we can write a connection pattern like @code{CC6}:
+
+@example
+
+?xxx?     straight extension to connect
+XOO*?
+O...?
+
+:8,C,NULL
+
+?xxx?
+XOOb?
+Oa..?
+
+;xcut(a) && odefend_against(b,a)
+
+@end example
+
+@noindent
+where we verify that a move at @code{*} would stop the enemy from safely
+playing at the cutting point, thus defending against the cut.
+
+@node  Half Eyes
+@section Half Eyes and False Eyes
+@cindex half eye
+@cindex false eye
+
+A @dfn{half eye} is a place where, if the defender plays first, an eye
+will materialize, but where if the attacker plays first, no eye will
+materialize. A @dfn{false eye} is a vertex which is surrounded by a
+dragon yet is not an eye. Here is a half eye:
+
+@example
+@group
+
+XXXXX
+OO..X
+O.O.X
+OOXXX
+
+@end group
+@end example
+
+Here is a false eye:
+
+@example
+@group
+
+XXXXX
+XOO.X
+O.O.X
+OOXXX
+
+@end group
+@end example
+
+The "topological" algorithm for determining half and false eyes
+is described elsewhere (@pxref{Eye Topology}).
+
+The half eye data is collected in the dragon array. Before this is done,
+however, an auxiliary array called half_eye_data is filled with
+information. The field @code{type} is 0, or else @code{HALF_EYE} or 
+@code{FALSE_EYE} depending on which type is found; the fields
+@code{attack_point[]} point to up to 4 points to attack
+the half eye, and similarly @code{defense_point[]} gives points
+to defend the half eye.
+
+@example
+@group
+
+struct half_eye_data half_eye[MAX_BOARD];
+
+struct half_eye_data @{
+  float value;          /* Topological eye value */
+  int type;             /* HALF_EYE or FALSE_EYE */
+  int num_attacks;      /* Number of attacking points */
+  int attack_point[4];  /* The moves to attack a topological halfeye */
+  int num_defends;      /* Number of defending points */
+  int defense_point[4]; /* The moves to defend a topological halfeye */
+@};
+
+@end group
+@end example
+
+The array @code{struct half_eye_data half_eye[MAX_BOARD]} 
+contains information about half and false eyes.  If the type is
+@code{HALF_EYE} then up to four moves are recorded which can
+either attack or defend the eye. In rare cases the attack points
+could be different from the defense points.
+
+@node  Dragons
+@section Dragons
+@cindex dragons
+
+The array @code{struct dragon_data dragon[MAX_BOARD]}
+collects information about the dragons. We will give definitions of the
+various fields. Each field has constant value at each vertex of the
+dragon. (Fields will be discussed below.)
+
+@example
+
+struct dragon_data @{
+  int color;    /* its color                               */
+  int id;       /* the index into the dragon2 array        */
+  int origin;   /* the origin of the dragon. Two vertices  */
+                /* are in the same dragon iff they have    */
+                /* same origin.                            */
+  int size;     /* size of the dragon                      */
+  float effective_size; /* stones and surrounding spaces   */
+  int crude_status;     /* (ALIVE, DEAD, UNKNOWN, CRITICAL)*/
+  int status;           /* best trusted status             */
+@};
+
+extern struct dragon_data dragon[BOARDMAX];
+
+@end example
+
+Other fields attached to the dragon are contained in the @code{dragon_data2}
+struct array. (Fields will be discussed below.)
+
+@example
+
+struct dragon_data2 @{
+  int origin;
+  int adjacent[MAX_NEIGHBOR_DRAGONS];
+  int neighbors;
+  int hostile_neighbors;
+  int moyo_size;
+  float moyo_territorial_value;
+  int safety;
+  float weakness;
+  float weakness_pre_owl;
+  int escape_route;
+  struct eyevalue genus;
+  int heye;
+  int lunch;
+  int surround_status;
+  int surround_size;
+  int semeai;
+  int semeai_margin_of_safety;
+  int semeai_defense_point;
+  int semeai_defense_certain;  
+  int semeai_attack_point;
+  int semeai_attack_certain;
+  int owl_threat_status;
+  int owl_status;
+  int owl_attack_point;
+  int owl_attack_code;
+  int owl_attack_certain;
+  int owl_second_attack_point;
+  int owl_defense_point;
+  int owl_defense_code;
+  int owl_defense_certain;
+  int owl_second_defense_point;
+  int owl_attack_kworm;
+  int owl_defense_kworm;
+@};
+
+extern struct dragon_data2 *dragon2;
+
+@end example
+
+The difference between the two arrays is that the @code{dragon} array 
+is indexed by the board, and there is a copy of the dragon data 
+at every stone in the dragon, while there is only one copy of
+the dragon2 data. The dragons are numbered, and the @code{id} field
+of the dragon is a key into the dragon2 array. Two macros DRAGON
+and DRAGON2 are provided for gaining access to the two arrays.
+
+@example
+#define DRAGON2(pos) dragon2[dragon[pos].id]
+#define DRAGON(d) dragon[dragon2[d].origin]
+@end example
+
+Thus if you know the position @code{pos} of a stone in the dragon
+you can access the dragon array directly, for example accessing the
+origin with @code{dragon[pos].origin}. However if you need a field
+from the dragon2 array, you can access it using the DRAGON2 macro,
+for example you can access its neighor dragons by
+
+@example
+for (k = 0; k < DRAGON2(pos).neighbors; k++) @{
+  int d = DRAGON2(pos).adjacent[k];
+  int apos = dragon2[d].origin;
+  do_something(apos);
+@}
+@end example
+
+Similarly if you know the dragon number (which is @code{dragon[pos].id})
+then you can access the @code{dragon2} array directly, or you can
+access the @code{dragon} array using the DRAGON macro.
+
+Here are the definitions of each field in the @code{dragon} arrray.
+
+@itemize @bullet
+@item @code{color} 
+@quotation
+@cindex color (dragon)
+For strings, this is @code{BLACK} or @code{WHITE}. 
+For caves, it is @code{BLACK_BORDER}, @code{WHITE_BORDER} or 
+@code{GRAY_BORDER}. The meaning of these concepts is the same as for worms.
+@end quotation
+@item @code{id}
+@cindex dragon number
+@quotation
+The dragon number, used as a key into the @code{dragon2} array.
+@end quotation
+@item origin
+@cindex dragon origin
+@quotation
+The origin of the dragon is a unique particular vertex
+of the dragon, useful for determining when two vertices belong
+to the same dragon. Before amalgamation the worm origins are
+copied to the dragon origins. Amalgamation of two dragons
+amounts to changing the origin of one.
+@end quotation
+@item size
+@cindex dragon size
+@quotation
+The number of stones in the dragon.
+@end quotation
+@item effective size
+@cindex effective size
+@quotation
+The sum of the effective sizes of the constituent worms.
+Remembering that vertices equidistant between two or more worms are
+counted fractionally in @code{worm.effective_size}, this equals the
+cardinality of the dragon plus the number of empty vertices which are
+nearer this dragon than any other.
+@end quotation
+@item crude_status
+@quotation
+(ALIVE, DEAD, UNKNOWN, CRITICAL). An early measure of the life
+potential of the dragon. It is computed before the owl code is
+run and is superceded by the status as soon as that becomes
+available.
+@end quotation
+@item status
+@cindex dragon status
+@quotation
+The dragon status is the best measure of the dragon's health.
+It is computed after the owl code is run, then revised again
+when the semeai code is run.
+@end quotation
+@end itemize
+
+Here are definitions of the fields in the @code{dragon2} array.
+
+@itemize @bullet
+@item origin
+@quotation
+The origin field is duplicated here.
+@end quotation
+@item adjacent
+@item @code{adjacent[MAX_NEIGHBOR_DRAGONS]}
+@cindex neighbor dragons
+@cindex adjacent dragons
+@findex find_neighbor_dragons
+@quotation
+Dragons of either color near the given one are called @dfn{neighbors}.
+They are computed by the function @code{find_neighbor_dragons()}.
+The @code{dragon2.adjacent} array gives the dragon numbers of
+these dragons.
+@end quotation
+@item @code{neighbors}
+@cindex neighbor dragons
+@cindex adjacent dragons
+@findex find_neighbor_dragons
+@quotation
+Dragons of either color near the given one are called @dfn{neighbors}.
+They are computed by the function @code{find_neighbor_dragons()}.
+The @code{dragon2.adjacent} array gives the dragon numbers of
+these dragons.
+@end quotation
+@item neighbors
+@quotation
+The number of neighbor dragons.
+@end quotation
+@item hostile_neighbors
+@quotation
+The number of neighbor dragons of the opposite color.
+@end quotation
+@item moyo_size
+@item float moyo_territorial_value
+@findex compute_surrounding_moyo_sizes
+@quotation
+The function @code{compute_surrounding_moyo_sizes()} assigns
+a size and a territorial value to the moyo around
+each dragon (@pxref{Territory and Moyo}). This is the 
+moyo size. They are recorded in these fields.
+@end quotation
+@item safety
+@cindex dragon safety
+@quotation
+The dragon safety can take on one of the values
+@itemize @minus
+@item TACTICALLY_DEAD - a dragon consisting of a single worm found dead by the
+reading code (very reliable)
+@item ALIVE - found alive by the owl or semeai code
+@item STRONGLY_ALIVE - alive without much question
+@item INVINCIBLE - definitively alive even after many tenukis
+@item ALIVE_IN_SEKI - determined to be seki by the semeai code
+@item CRITICAL - lives or dies depending on who moves first
+@item DEAD - found to be dead by the owl code
+@item INESSENTIAL - the dragon is unimportant (e.g. nakade stones) and dead
+@end itemize
+@end quotation
+@item weakness
+@item weakness_pre_owl
+@cindex dragon weakness
+@cindex weakness
+@quotation
+A floating point measure of the safety of a dragon. The dragon
+weakness is a number between 0. and 1., higher numbers for
+dragons in greater need of safety. The field @code{weakness_pre_owl}
+is a preliminary computation before the owl code is run.
+@end quotation
+@item escape_route
+@cindex dragon escape_route
+@cindex escape_route
+@findex compute_escape
+@quotation
+A measure of the dragon's potential to escape towards safety,
+in case it cannot make two eyes locally. Documentation
+may be found in @ref{Escape}.
+@end quotation
+@item struct eyevalue genus
+@cindex dragon genus
+@cindex genus
+@quotation
+The approximate number of eyes the dragon can be expected to
+get. Not guaranteed to be accurate. The eyevalue struct, which
+is used throughout the engine, is declared thus:
+@example
+
+struct eyevalue @{
+  unsigned char a; /* # of eyes if attacker plays twice */
+  unsigned char b; /* # of eyes if attacker plays first */
+  unsigned char c; /* # of eyes if defender plays first */
+  unsigned char d; /* # of eyes if defender plays twice */
+@};
+
+@end example
+@end quotation
+@item heye
+@quotation
+Location of a half eye attached to the dragon.
+@end quotation
+@item lunch
+@cindex dragon lunch
+@cindex lunch
+@quotation
+If nonzero, this is the location of a boundary string which
+can be captured. In contrast with worm lunches, a dragon
+lunch must be able to defend itself.
+@end quotation
+@item surround_status
+@item surround_size
+@cindex surround_status
+@cindex surround_size
+@cindex surround
+@quotation
+In estimating the safety of a dragon it is useful to know if
+it is @dfn{surrounded}. See @ref{Surrounded Dragons} and
+the comments in @file{surround.c} for more information about the
+algorithm.  Used in computing the escape_route, and also callable
+from patterns (currently used by CB258).  
+@end quotation
+@item semeai
+@item semeai_margin_of_safety
+@item semeai_defense_point
+@item semeai_defense_certain
+@item semeai_attack_point
+@item semeai_attack_certain
+@cindex semeai
+@cindex semeai_margin_of_safety
+@cindex semeai_defense_point
+@cindex semeai_defense_certain
+@cindex semeai_attack_point
+@cindex semeai_attack_certain
+@quotation
+If two dragons of opposite color both have the status CRITICAL
+or DEAD they are in a @dfn{semeai} (capturing race), and their
+status must be adjudicated by the function
+@code{owl_analyze_semeai()} in @file{owl.c}, which attempts to
+determine which is alive, which dead, or if the result is
+seki, and whether it is important who moves first. The
+function @file{new_semeai()} in @file{semeai.c} attempts
+to revise the statuses and to generate move reasons based
+on these results. The field @code{dragon2.semeai} is nonzero
+if the dragon is an element of a semeai. The semeai defense
+and attack points are locations the defender or attacker
+must move to win the semeai. The field @code{semeai_margin_of_safety}
+is intended to indicate whether the semeai is close or not
+but currently this field is not maintained. The fields
+@code{semeai_defense_certain} and @code{semeai_attack_certain}
+indicate that the semeai code was able to finish analysis
+without running out of nodes.
+@end quotation
+@item owl_status
+@quotation
+This is a classification similar to @code{dragon.crude_status}, but
+based on the life and death reading in @file{owl.c}.
+The owl code (@pxref{The Owl Code}) is skipped for dragons
+which appear safe by certain heuristics. If the owl code
+is not run, the owl status is @code{UNCHECKED}.
+If @code{owl_attack()} determines that the dragon cannot be
+attacked, it is classified as @code{ALIVE}. Otherwise,
+@code{owl_defend()} is run, and if it can be defended it
+is classified as @code{CRITICAL}, and if not, as @code{DEAD}.
+@end quotation
+@item owl_attack_point
+@cindex owl_attack_point
+@quotation
+If the dragon can be attacked this is the point to attack the dragon.
+@end quotation
+@item owl_attack_code
+@cindex owl_attack_code
+@quotation
+The owl attack code, It can be WIN, KO_A, KO_B or 0 (@pxref{Return Codes}).
+@end quotation
+@item owl_attack_certain
+@cindex owl_attack_certain
+@quotation
+The owl reading is able to finish analyzing the attack
+without running out of nodes.
+@end quotation
+@item owl_second_attack_point
+@cindex owl_second_attack_point
+@quotation
+A second attack point.
+@end quotation
+@item owl_defense_point
+@cindex owl_defense_point
+@quotation
+If the dragon can be defended, this is the place to play.
+@end quotation
+@item owl_defense_code
+@cindex owl_defense_code
+@quotation
+The owl defense code, It can be WIN, KO_A, KO_B or 0 (@pxref{Return Codes}).
+@end quotation
+@item owl_defense_certain
+@cindex owl_defense_certain
+@quotation
+The owl code is able to finish analyzing the defense without
+running out of nodes.
+@end quotation
+@item owl_second_defense_point
+@cindex owl_second_defense_point
+@quotation
+A second owl defense point.
+@end quotation
+@end itemize
+
+@node Dragons in Color
+@section Colored Dragon Display
+@cindex colored display
+
+You can get a colored ASCII display of the board in which each dragon
+is assigned a different letter; and the different values of
+@code{dragon.status} values (@code{ALIVE}, @code{DEAD}, @code{UNKNOWN},
+@code{CRITICAL}) have different colors. This is very handy for debugging.
+A second diagram shows the values of @code{owl.status}. If this
+is @code{UNCHECKED} the dragon is displayed in White.
+
+Save a game in sgf format using CGoban, or using the @option{-o} option with
+GNU Go itself.
+
+Open an @command{xterm} or @command{rxvt} window. You may also use the Linux
+console.  Using the console, you may need to use ``SHIFT-PAGE UP'' to see the
+first diagram. Xterm will only work if it is compiled with color support---if
+you do not see the colors try @command{rxvt}. Make the background color black
+and the foreground color white.
+
+Execute:
+
+@command{gnugo -l [filename] -L [movenum] -T} to get the colored display.
+
+The color scheme: Green = @code{ALIVE}; Yellow = @code{UNKNOWN}; 
+Cyan = @code{DEAD} and Red = @code{CRITICAL}. Worms which have been
+amalgamated into the same dragon are labelled with the same letter.
+
+Other useful colored displays may be obtained by using instead:
+
+@itemize @bullet
+@item the option -E to display eye spaces (@pxref{Eyes}).
+@item the option -m 0x0180 to display territory, moyo and area 
+(@pxref{Territory and Moyo}).
+@end itemize
+
+The colored displays are documented elsewhere (@pxref{Colored Display}).
+

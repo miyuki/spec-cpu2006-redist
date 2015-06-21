@@ -1,0 +1,655 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>Rules for valid foo preprocessor code</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="The foo preprocessor"
+HREF="foo-chap.html"><LINK
+REL="PREVIOUS"
+TITLE="How foo works"
+HREF="how-foo-works.html"><LINK
+REL="NEXT"
+TITLE="What foo does to produce Fortran95 code"
+HREF="foo-to-f95.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="how-foo-works.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="foo-to-f95.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="FOO-RULES"
+></A
+>Rules for valid <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> preprocessor code</H1
+><P
+ALIGN="justify"
+>There are only a few extra rules to write valid <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> code for use in
+TONTO, in addition or contradiction to the usual rules of Fortran95.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Lower case letters must be used for all Fortran95
+keywords.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>All C-preprocessor macros must be placed in the file called
+<TT
+CLASS="LITERAL"
+>macros</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>All derived type definitions used must be placed in the file
+<TT
+CLASS="LITERAL"
+>types.foo</TT
+>.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Capital letters must be used for every module name, and for
+every macro definition. Capitalised names are only allowed if their intended
+meaning does not clash with any C-preprocessor macros.</P
+><DIV
+CLASS="INFORMALEXAMPLE"
+><A
+NAME="AEN6847"
+></A
+><P
+></P
+><P
+ALIGN="justify"
+>Although it is allowed, it is best to avoid using capitalised names,
+except for module names and C-preprocessor macros.</P
+><P
+></P
+></DIV
+></LI
+><LI
+><P
+ALIGN="justify"
+>Every <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> module <TT
+CLASS="LITERAL"
+>XXXX</TT
+> must consist of a set
+of routines concerned with actions on a Fortran95 type <TT
+CLASS="LITERAL"
+>XXXX</TT
+>.
+The name <TT
+CLASS="LITERAL"
+>XXXX</TT
+> stand for a C-preprocessor macro which defines
+the type.  If the types is a Fortran95 derived type, then the name of the
+derived type must be <TT
+CLASS="LITERAL"
+>xxxx_type</TT
+>.</P
+><DIV
+CLASS="INFORMALEXAMPLE"
+><A
+NAME="AEN6856"
+></A
+><P
+></P
+><P
+ALIGN="justify"
+>The module <TT
+CLASS="LITERAL"
+>GAUSSIAN</TT
+>, contained in file
+<TT
+CLASS="LITERAL"
+>gaussian.foo</TT
+>, is concerned with actions of gaussian
+functions. These functions are represented by a type
+<TT
+CLASS="LITERAL"
+>gaussian_type</TT
+>, defined in file <TT
+CLASS="LITERAL"
+>types.foo</TT
+>
+as follows:
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="90%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>type gaussian_type
+   INT :: l 
+   REALVEC(3) :: pos
+   REAL :: ex
+end </PRE
+></TD
+></TR
+></TABLE
+>
+In the file <TT
+CLASS="LITERAL"
+>macros</TT
+>, the following definition appears
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="90%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>#define GAUSSIAN  type(gaussian_type)</PRE
+></TD
+></TR
+></TABLE
+>
+NOTE: the types <TT
+CLASS="LITERAL"
+>INT</TT
+>, <TT
+CLASS="LITERAL"
+>REAL</TT
+>, and
+<TT
+CLASS="LITERAL"
+>REALVEC(3)</TT
+> used in the definition of
+<TT
+CLASS="LITERAL"
+>gaussian_type</TT
+> are macros for other (previously defined)
+types.  In this specific case, the stand (respectively) for the
+<SPAN
+CLASS="QUOTE"
+>"integer"</SPAN
+> type, the <SPAN
+CLASS="QUOTE"
+>"double precision"</SPAN
+> type, and a
+<SPAN
+CLASS="QUOTE"
+>"three-dimensional vector"</SPAN
+> type.</P
+><P
+></P
+></DIV
+></LI
+><LI
+><P
+ALIGN="justify"
+>For any <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> module <TT
+CLASS="LITERAL"
+>XXXX</TT
+>, the
+<TT
+CLASS="LITERAL"
+>macros</TT
+> file and the automatically generated interface file
+<TT
+CLASS="LITERAL"
+>xxxx.int</TT
+> must be included, using the C-preprocessor, after
+any <TT
+CLASS="LITERAL"
+>use</TT
+> and <TT
+CLASS="LITERAL"
+>implicit</TT
+> statements
+
+<DIV
+CLASS="INFORMALEXAMPLE"
+><A
+NAME="AEN6880"
+></A
+><P
+></P
+><P
+ALIGN="justify"
+>The following is an extract of the code in file
+<TT
+CLASS="LITERAL"
+>gaussian.foo</TT
+> that illustrates this rule.
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="90%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>module GAUSSIAN
+
+   use TYPES
+   use ERROR
+   use MM
+   use OUTPUT
+
+   implicit none         
+
+#  include "macros"
+#  include "gaussian.int"</PRE
+></TD
+></TR
+></TABLE
+></P
+><P
+></P
+></DIV
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>It is illegal to use any routine name which ends in the
+characters <TT
+CLASS="LITERAL"
+>_n</TT
+>, where <TT
+CLASS="LITERAL"
+>n</TT
+> is an integer
+greater than 0.
+<DIV
+CLASS="INFORMALEXAMPLE"
+><A
+NAME="AEN6888"
+></A
+><P
+></P
+><P
+ALIGN="justify"
+>The reason is that these names which end like this may be used by <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+>
+for overloading purposes to define generic interfaces in the interface file
+<TT
+CLASS="LITERAL"
+>xxxx.int</TT
+>.</P
+><P
+></P
+></DIV
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The arguments to a <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> routine must be on one single
+line.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The Fortran95 keywords: <TT
+CLASS="LITERAL"
+>subroutine</TT
+>,
+<TT
+CLASS="LITERAL"
+>function</TT
+>, and <TT
+CLASS="LITERAL"
+>module procedure</TT
+> are not
+allowed. 
+<DIV
+CLASS="INFORMALEXAMPLE"
+><A
+NAME="AEN6900"
+></A
+><P
+></P
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> automatically inserts the appropriate keywords. </P
+><P
+></P
+></DIV
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>result</TT
+> syntax must always be used to
+define functions
+<DIV
+CLASS="INFORMALEXAMPLE"
+><A
+NAME="AEN6906"
+></A
+><P
+></P
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> determined which routines are functions using this syntax.</P
+><P
+></P
+></DIV
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The Fortran95 syntax for declaring <TT
+CLASS="LITERAL"
+>recursive</TT
+>,
+<TT
+CLASS="LITERAL"
+>pure</TT
+>, and <TT
+CLASS="LITERAL"
+>elemental</TT
+> routines is modified
+by placing the strings <TT
+CLASS="LITERAL"
+>[recursive]</TT
+>,
+<TT
+CLASS="LITERAL"
+>[pure]</TT
+>, and <TT
+CLASS="LITERAL"
+>[elemental]</TT
+> after the routine
+name</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The Fortran95 keywords: <TT
+CLASS="LITERAL"
+>program</TT
+>,
+<TT
+CLASS="LITERAL"
+>module</TT
+>, <TT
+CLASS="LITERAL"
+>interface</TT
+>,
+<TT
+CLASS="LITERAL"
+>select</TT
+>, <TT
+CLASS="LITERAL"
+>type</TT
+>, <TT
+CLASS="LITERAL"
+>else</TT
+>,
+<TT
+CLASS="LITERAL"
+>do</TT
+>, <TT
+CLASS="LITERAL"
+>contains</TT
+>, <TT
+CLASS="LITERAL"
+>if</TT
+>,
+<TT
+CLASS="LITERAL"
+>then</TT
+>, must not be used on a line with multiple statement,
+involving the character <TT
+CLASS="LITERAL"
+>;</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Expressions involving the dot character <TT
+CLASS="LITERAL"
+>.</TT
+> are
+banned except for real number constants. In particular, C-preprocessor macros
+<TT
+CLASS="LITERAL"
+>TRUE</TT
+>, <TT
+CLASS="LITERAL"
+>FALSE</TT
+>, <TT
+CLASS="LITERAL"
+>NOT</TT
+>,
+<TT
+CLASS="LITERAL"
+>AND</TT
+>, and <TT
+CLASS="LITERAL"
+>OR</TT
+> must be used for the logicals
+<TT
+CLASS="LITERAL"
+>.true.</TT
+> , <TT
+CLASS="LITERAL"
+>.false.</TT
+>,
+<TT
+CLASS="LITERAL"
+>.not.</TT
+> and <TT
+CLASS="LITERAL"
+>.or.</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Procedures which are <TT
+CLASS="LITERAL"
+>contain</TT
+>ed within another
+procedure are not allowed.</P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="how-foo-works.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="foo-to-f95.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>How <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> works</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="foo-chap.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>What <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> does to produce Fortran95 code</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

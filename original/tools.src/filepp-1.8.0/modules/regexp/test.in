@@ -1,0 +1,54 @@
+Tests for regexp module:
+
+#regexp /\s//
+Get rid of all whitespace on a line 
+including newline
+#regexp /$/__NEWLINE__/
+Get rid of all whitespace on a line but keep newline
+#regexp /g/G/
+Change all lowercase g's to uppercase and remove whitespace
+#rmregexp /\s//
+#rmregexp /$/__NEWLINE__/
+#rmregexp /g/G/
+#regexp /\s{2,}/ /
+Change     all    multiple    whitespace   to single    whitespace
+#rmregexp /\s{2,}/ /
+#regexp /^\s+//
+   Remove all whitespace from start of line  
+#regexp /\s+$/__NEWLINE__/
+   Remove all whitespace from end of line   
+#define MACRO test
+   MACRO   
+#regexp /inside/MACRO/
+Test of macros inside regexps
+#define MACARGS(ARG) "Macro with ARG"
+#regexp /MACARGS(foo)/bar/
+"Macro with foo" MACARGS(foo)
+
+Reminder - regexps also work with normal #if keyword (regexp module not needed)
+#if ("MACRO" =~ /\d/)
+ WRONG
+#endif
+#define MACRO 123
+#if ("MACRO" =~ /\d/)
+ RIGHT
+#endif
+
+#regexp /\/\/\s+(keyword|test|result)/In comment: <$1>/
+
+// keyword and other stuff
+// no change
+// test
+
+// result
+
+#regexp /\s\/a/b/
+#regexp /\s\/a/b/
+this is a testa
+this is a test /a
+#rmregexp /\s\/a/b/
+this is a testa
+this is a test /a
+#rmregexp /\s\/a/b/
+this is a testa
+this is a test /a

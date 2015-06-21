@@ -1,0 +1,222 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>Input from a gaussian checkpoint file</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Examples of TONTO input files"
+HREF="example-input-files.html"><LINK
+REL="PREVIOUS"
+TITLE="Using the library basis sets"
+HREF="library-basis-sets.html"><LINK
+REL="NEXT"
+TITLE="Outputting a MORPHY input file"
+HREF="output-morphy.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="library-basis-sets.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="output-morphy.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="GAUSSIAN-CHECKPOINT-INPUT"
+></A
+>Input from a gaussian checkpoint file</H1
+><P
+ALIGN="justify"
+>Gaussian is a well known <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>ab initio</I
+></SPAN
+> program used for
+calculating wavefunctiond and properties in the gaussian basis set expansion
+formalism.</P
+><P
+ALIGN="justify"
+>Before you can run this calculation, you must run Gaussian using the FChk
+option to produce an ASCII checkpoint file called <TT
+CLASS="FILENAME"
+>Test.FChk</TT
+>
+by default. You can rename this file to anyuthing you like, but in the example
+below which merely reads the information, we used the original name.</P
+><P
+ALIGN="justify"
+>We have only performed a <TT
+CLASS="LITERAL"
+>put</TT
+> operation, but many other
+operations can be performed, as if the calculations done in Gaussian had been
+run in TONTO.</P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>Note: </B
+>Since TONTO can only hold one density matrix in its memory at any
+given time, at the moment only the SCF density matrix is inputted into TONTO
+from the <TT
+CLASS="LITERAL"
+>Test.Fchk</TT
+> file.  If you want to inpu other density
+matrices, you may have to manually alter the <TT
+CLASS="LITERAL"
+>Test.Fchk</TT
+> file
+by over-writing the SCF density matrix with the one you actually need, e.g. the
+MP2 relaxed density matrix or the QCISD relaxed density matrix.</P
+></BLOCKQUOTE
+></DIV
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>&lcub;&#13;
+   read_g94_checkpoint_file Test.FChk
+
+   put
+   
+&rcub;</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="library-basis-sets.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="output-morphy.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Using the library basis sets</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="example-input-files.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Outputting a MORPHY input file</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,118 @@
+\documentclass{article}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MANPAGE like description setting for options, use as 
+% \begin{Lentry} \item[text] text  \end{Lentry}
+
+\usepackage{ifthen,calc}
+
+\newcommand{\entrylabel}[1]{\mbox{\textsf{#1}}\hfil}
+\newenvironment{entry}
+  {\begin{list}{}
+    {\renewcommand{\makelabel}{\entrylabel}
+      \setlength{\labelwidth}{90pt}
+      \setlength{\leftmargin}{\labelwidth+\labelsep}
+    }
+  }
+  {\end{list}}
+
+\newlength{\Mylen}
+\newcommand{\Lentrylabel}[1]{%
+  \settowidth{\Mylen}{\textsf{#1}}%
+  \ifthenelse{\lengthtest{\Mylen > \labelwidth}}%
+    {\parbox[b]{\labelwidth} %  term > labelwidth
+      {\makebox[0pt][l]{\textsf{#1}}\\}} %
+    {\textsf{#1}} %
+
+  \hfil\relax}
+\newenvironment{Lentry}
+  {\renewcommand{\entrylabel}{\Lentrylabel}
+   \begin{entry}}
+  {\end{entry}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\begin{document}
+
+\title{PUGHReduce}
+\author{Gabrielle Allen, Thomas Radke}
+\date{2000}
+\maketitle
+
+\abstract{Reductions operations which are performed using the PUGH driver}
+
+\section{Purpose}
+
+This thorn registers a number of reduction operators with the flesh. The 
+reductions are performed using internals of the PUGH driver, so that this
+thorn can only be used when {\tt CactusPUGH/PUGH} is active.
+
+The reduction operations this thorn registers are
+
+\begin{Lentry}
+\item[maximum]
+	Calculates the maximum of a grid variable
+\item[minimum]
+	Calculates the minimum of a grid variable
+\item[sum]
+	Calculates the sum of the elements of a grid variable
+\item[norm1]
+	Calculates the norm of a grid variable
+	$$
+	\left(\Sigma | GV | \right)/n
+	$$
+	where $n$ is the number of elements
+	
+\item[norm2]
+	Calculates the norm of a grid variable
+	$$
+	\sqrt{\Sigma GV^2}/n
+	$$
+	where $n$ is the number of elements
+	
+\end{Lentry}
+
+\section{Examples}
+
+\begin{itemize}
+
+\item{} Maximum Value of a Grid Function
+
+{\tt
+\begin{verbatim}
+    int ierr;
+    int handle;         /* handle for reduction operator */
+    int index; 	        /* grid variable index */
+    CCTK_REAL *value;   /* value returned from reduction */
+    const char *reduction_name = "maximum";
+                        /* reduction operation to use */
+
+    handle = CCTK_ReductionHandle (reduction_name);
+    if (handle >= 0) 
+    {
+      if ( CCTK_Reduce (cctkGH, 0, handle, 
+                        1, CCTK_VARIABLE_REAL,
+                        &value, 1, index) == 0 
+           && CCTK_MyProc(cctkGH) == 0)
+      {
+        printf("Reduction (%s) value is %f\n",reduction_name,value);
+      }
+    }
+    else
+    {
+      CCTK_WARN(1,"Invalid reduction operator"); 
+    }
+\end{verbatim}
+}
+
+\end{itemize}
+
+
+% Automatically created from the ccl files by using gmake thorndoc
+\include{interface}
+\include{param}
+\include{schedule}
+
+\end{document}

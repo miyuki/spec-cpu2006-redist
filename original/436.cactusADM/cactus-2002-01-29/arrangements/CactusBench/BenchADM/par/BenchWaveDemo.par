@@ -1,0 +1,69 @@
+#------------------------------------------------------------------------------
+#
+# Parameter file for evolutions of gravitational waves (Teukolsky Waves)
+#
+# For use with Cactus 4.0 (Beta 8) benchmark ADM application
+#
+# For help on running Cactus, either run the Cactus exectuable with the 
+#   command line option -help, or consult the documentation at
+#   www.cactuscode.org
+#
+# Max Planck Institute for Gravitational Physics, Potsdam, Germany, 2000
+#
+#------------------------------------------------------------------------------
+
+!DESC "Evolution of Gravitation Waves: Demo"
+
+# These thorns must be compiled
+
+ActiveThorns = "einstein time benchadm iobasic ioutil ioascii pugh pughreduce pughslab cartgrid3d idlinearwaves"
+
+#------------------------------------------------------------------------------
+
+# Number of grid points in each direction
+
+driver::global_nsize       = 40
+
+# How many iterations
+
+cactus::cctk_final_time    = 40.0
+
+# What to output and when
+
+iobasic::outinfo_every     = 10
+iobasic::outinfo_vars      = "benchadm::ADM_gxx"
+ioascii::out1d_every       = 10
+ioascii::out1d_vars        = "benchadm::ADM_gxx"
+
+#------------------------------------------------------------------------------
+# 
+# Evolution and initial data
+#
+#------------------------------------------------------------------------------
+
+grid::type                 = "byrange"
+grid::domain               = "full"  
+grid::xyzmin               = -5.0
+grid::xyzmax               =  5.0     
+
+time::dtfac                = 0.25 
+
+einstein::evolution_system = "ADM"
+
+benchadm::method                = "stagleap"
+benchadm::bound                 = "none"
+
+einstein::slicing          = "geodesic"     
+einstein::initial_data     = "teukwaves"
+einstein::use_conformal    = "no"
+
+idlinearwaves::mvalue      = 2          
+idlinearwaves::parity      = "even"     
+idlinearwaves::packet      = "eppley"   
+idlinearwaves::wavesgoing  = "both"       
+idlinearwaves::wavecenter  = 0.
+idlinearwaves::wavelength  = 2.
+
+io::outdir                 = "WaveDemo"
+
+

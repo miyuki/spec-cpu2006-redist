@@ -1,0 +1,3151 @@
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# This is GNU Go, a Go program. Contact gnugo@gnu.org, or see       #
+# http://www.gnu.org/software/gnugo/ for more information.          #
+#                                                                   #
+# Copyright 1999, 2000, 2001, 2002 and 2003                         #
+# by the Free Software Foundation.                                  #
+#                                                                   #
+# This program is free software; you can redistribute it and/or     #
+# modify it under the terms of the GNU General Public License       #
+# as published by the Free Software Foundation - version 2.         #
+#                                                                   #
+# This program is distributed in the hope that it will be useful,   #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of    #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU #
+# General Public License in file COPYING for more details.          #
+#                                                                   #
+# You should have received a copy of the GNU General Public License #
+# along with this program; if not, write to the Free Software       #
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111,  #
+# USA.                                                              #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#
+# Database of influence patterns.
+#
+#  ? - don't care
+#  . - empty
+#  O - color to move
+#  Q - same as O, plus sets the pattern anchor
+#  X - opposite color of O
+#  o - O or empty
+#  x - X or empty
+#  , - point which influence can't pass through
+# A/D patterns:
+#  ! - point where influence gets weakened when passing through
+#      (permeability multiplied by 0.7) 
+# B patterns:
+#  ! - marks an intrusion for the anchor stone with indicated value
+#
+#
+# Four different classes of patterns are used here.
+#
+#  A - Patterns stopping O influence
+#  D - Patterns stopping X influence
+#  B - Intrusions (where O can intrude into X'x territory)
+#  t - Nonterritory patterns indicating points where one color cannot
+#      get territory
+#
+# Constraints are as usual.
+# B patterns are matched for the color to move, and for the color having
+# made a move in followup influence, in order to compute the followup
+# value of this move. (Only patterns including the played move or any
+# stone saved by this move are taken into account.)
+# For the followup influence, a pattern is used if the usual constraint
+# is satisfied, and if the action returns true. See the influence
+# documentation for explanation and influence.c for details.
+
+
+goal_elements none
+callback_data XO,!
+
+
+Pattern Barrier1
+
+O,O
+
+:+,D
+
+
+Pattern Barrier1b
+# gf Corrected symmetry. (3.1.23)
+
+o,o
+O,O
+
+:|,D
+
+
+Pattern Barrier2
+
+xxx
+X,X
+xxx
+
+:+,A
+
+
+Pattern Barrier3
+
+.,.
+X,X
+
+:|,A
+
+.b.
+cad
+
+;!(oplay_break_through(a,b,c,b,d)==WIN)
+
+
+Pattern Barrier4a
+
+|,O
+
+:-,D
+
+|aO
+
+;!oplay_attack(a,a)
+
+
+Pattern Barrier4b
+
+|,o?
+|.OX
+
+:8,OD
+
+|ao?
+|.OX
+
+;!oplay_attack(a,a)
+
+
+Pattern Barrier5
+
+xXx
+x,x
+---
+
+:|,A
+
+
+Pattern Barrier6
+
+,X
+,.
+--
+
+:8,A
+
+cd
+ba
+--
+
+;oplay_attack_either(a,b,c,a,c) || !oplay_attack_either(a,b,b,d)
+
+
+Pattern Barrier6b
+# gf New pattern. (3.3.10)
+# See century2002:85.
+
+OX
+,.
+--
+
+:8,A
+
+aX
+,.
+--
+
+;!defend(a)
+
+
+Pattern Barrier7
+
+XX
+,,
+--
+
+:|,A
+
+
+Pattern Barrier8
+
+,O
+O,
+
+:X,D
+
+
+Pattern Barrier9
+
+,X
+X,
+
+:X,A
+
+
+Pattern Barrier10
+
+XO
+O,
+
+:\,D
+
+
+Pattern Barrier11
+
+OX
+X,
+
+:\,A
+
+Oc
+ba
+
+;!safe_omove(a) || oplay_defend_both(a,b,c)
+
+
+Pattern Barrier12
+
+O,.
+?,O
+
+:8,D
+
+
+Pattern Barrier13
+
+X,X
+X,X
+
+:+,A
+
+
+Pattern Barrier14
+
+X,o
+X,X
+
+:8,A
+
+Xbo
+Xac
+
+;!oplay_attack_either(a,b,b,c)
+
+
+Pattern Barrier15
+
+xxx
+X,x
+x,X
+xxx
+
+:8,A
+
+
+Pattern Barrier16
+
+X,.
+.,X
+
+:O,A
+
+cae
+fbd
+
+;(oplay_attack_either(a,b,f,a,f) || !oplay_attack_either(a,b,c,d))
+;&& (oplay_attack_either(b,a,e,b,e) || !oplay_attack_either(b,a,c,d))
+
+
+Pattern Barrier16b
+
+X,X
+.,X
+
+:8,A
+
+cad
+fbd
+
+;(oplay_attack_either(a,b,f,a,f) || !oplay_attack_either(a,b,c,d))
+;&& !oplay_attack(b,a,c)
+
+
+Pattern Barrier17
+
+X,.
+O,X
+
+:8,A
+
+cae
+Obd
+
+;!oplay_attack_either(a,b,c,d)
+;&& (oplay_attack_either(b,a,e,b,e) || !oplay_attack_either(b,a,c,d))
+
+
+Pattern Barrier18
+
+X,O
+O,X
+
+:8,A
+
+caO
+Obd
+
+;!oplay_attack_either(a,b,c,d) && !oplay_attack_either(b,a,c,d)
+
+
+Pattern Barrier19
+
+O,,O
+...o
+
+:8,D
+
+dbaO
+.c.o
+
+;!oplay_break_through(a,b,c,a,c,d)
+
+
+Pattern Barrier20
+# gf Corrected symmetry. (3.1.23)
+
+O,,O
+O..o
+
+:8,D
+
+Obae
+Ocdo
+
+;!oplay_attack_either(a,b,c,a,c) || !oplay_attack_either(b,a,d,d,e)
+
+
+Pattern Barrier21
+
+?xx?
+xxxx
+X,,X
+xxxx
+?xx?
+
+:+,A
+
+
+Pattern Barrier22
+
+x..x
+X,,X
+x..x
+
+:|,A
+
+x..x
+XdaX
+xcbx
+
+;!oplay_attack_either(a,b,c,d,b,d) && !oplay_attack_either(d,c,b,a,c,a)
+
+
+Pattern Barrier22a
+# This pattern could have '|' symmetry, but to improve the chances
+# that it's matched before the expensive next one, we let it have
+# '8' symmetry.
+
+?xxxx?
+xxxxxx
+xX,,Xx
+xx,,xx
+xxxxxx
+------
+
+:8,A
+
+
+Pattern Barrier22b
+
+X..X
+x,,x
+xxxx
+
+:|,A
+
+XdaX
+xcbx
+xxxx
+
+;!oplay_attack_either(a,b,c,d,b,d) && !oplay_attack_either(d,c,b,a,c,a)
+
+
+Pattern Barrier23
+# gf Revised. (3.3.17)
+
+O,,.
+.,,O
+
+:O,D
+
+Oab.
+.dcO
+
+;oplay_attack_either(a,b,c,d,b,d) || oplay_defend_both(a,b,c,d,a,c)
+
+
+Pattern Barrier24
+
+?O...
+oo,,O
+?O...
+
+:-,D
+
+
+Pattern Barrier25
+
+?xx?
+xxxx
+X,.x
+x.,X
+xxxx
+?xx?
+
+:8,A
+
+
+Pattern Barrier26
+
+X,.x
+x.,X
+
+:O,A
+
+Xdax
+xcbX
+
+;!oplay_attack_either(a,b,c,d,b,d) && !oplay_attack_either(d,c,b,a,c,a)
+
+
+Pattern Barrier27
+
+oOo
+o,o
+o,o
+---
+
+:|,D
+
+
+Pattern Barrier28
+
+xXx
+x,x
+x,x
+---
+
+:|,A
+
+
+Pattern Barrier29
+
+,O
+,X
+--
+
+:8,D
+
+,b
+aX
+--
+
+;!oplay_attack_either(a,a,b)
+
+
+Pattern Barrier30
+
+OO
+,X
+--
+
+:8,D
+
+OO
+aX
+--
+
+;!oplay_attack(a,a)
+
+
+Pattern Barrier31
+
+?.O,o
+?.X,o
+o..,o
+-----
+
+:8,D
+
+
+Pattern Barrier32
+
+?Ooo
+X,,o
+..,o
+----
+
+:8,D
+
+
+Pattern Barrier33
+
+XOoo
+.X,o
+..,o
+----
+
+:8,D
+
+XOoo
+.Bao
+..,o
+----
+
+;oplay_attack(a,B)
+
+
+Pattern Barrier34
+
+XOo
+.,o
+.,o
+---
+
+:8,D
+
+
+Pattern Barrier34b
+
+XOO
+.,X
+.,?
+---
+
+:8,D
+
+XOO
+.,A
+.,?
+---
+
+;attack(A)
+
+
+Pattern Barrier35
+
+oOoOo
+o,,,o
+o,,,o
+-----
+
+:|,D
+
+
+Pattern Barrier36
+
+xXxXx
+x,,,x
+x,,,x
+-----
+
+:|,A
+
+
+Pattern Barrier37
+
+OXxx
+.,,x
+..,x
+----
+
+:8,A
+
+OAbx
+.cdx
+..,x
+----
+
+;lib(A)>3 || (!legal_omove(b))
+;|| (lib(A)>2 && (olib(b) <= 2 || oplay_attack_either(c,d,b,b,c)))
+
+
+Pattern Barrier38
+
+OXO
+,,?
+---
+
+:8,D
+
+OAO
+,,?
+---
+
+;lib(A)==1
+
+
+Pattern Barrier39
+
+oooO?
+oO..o
+o.,,o
+o.,,o
+-----
+
+:8,D
+
+
+Pattern Barrier40
+
+xxxX?
+xX..x
+x.,,x
+x.,,x
+-----
+
+:8,A
+
+
+Pattern Barrier41a
+
+O.XO
+.,,O
+
+:8,D
+
+OcXO
+.baO
+
+;!oplay_attack_either(a,b,c,a,c)
+
+
+Pattern Barrier41b
+
+O.XO
+.,,.
+
+:8,D
+
+OcXe
+.bad
+
+;oplay_defend_both(a,b,c,d,a,e)
+
+
+Pattern Barrier42
+
+OX?
+.,O
+
+:8,D
+
+cD?
+baO
+
+;oplay_attack_either(a,b,b,D) || oplay_defend_both(a,b,a,c)
+
+
+Pattern Barrier43
+
+?X..O
+oO,,o
+o..,o
+-----
+
+:8,D
+
+
+Pattern Barrier44
+
+?X.O
+O,,.
+..,o
+----
+
+:8,D
+
+?EbO
+Oacd
+..,o
+----
+
+;oplay_attack_either(a,b,c,d,d,b) && !oplay_defend_both(a,c,b,c,E)
+
+
+Pattern Barrier45
+
+X.XX
+X,,.
+.,,.
+----
+
+:8,A
+
+
+Pattern Barrier46
+
+.X.O
+O..,
+.,,o
+
+:8,D
+
+
+Pattern Barrier47
+
+ooOoOoo
+oo,,,oo
+oo,,,oo
+oo,,,oo
+-------
+
+:|,D
+
+
+Pattern Barrier48
+
+xxxxxxx
+xxXxXxx
+xx,,,xx
+xx,,,xx
+xx,,,xx
+-------
+
+:|,A
+
+
+Pattern Barrier49
+
+O.?
+,,.
+.,O
+
+:/,D
+
+
+Pattern Barrier50
+
+O??
+,,?
+.,O
+
+:/,D
+
+
+Pattern Barrier51
+
+o.??
+O,,O
+
+:8,D
+
+
+Pattern Barrier52
+
+o.O.?
+o,X..
+.,...
+-----
+
+:8,sD
+
+o.b.?
+oaX..
+.,...
+-----
+
+;!oplay_attack(a,b)
+
+
+Pattern Barrier53
+
+?O?
+OXO
+.,x
+---
+
+:8,sD
+
+
+Pattern Barrier54
+
+xx.xx
+xXOXx
+x,,,x
+.....
+-----
+
+:|,A
+
+xx.xx
+xXOXx
+x,a,x
+.....
+-----
+
+;oplay_attack(a,a)
+
+
+Pattern Barrier55
+
+OX.O
+.,,.
+
+:8,sD
+
+bA.c
+.,,.
+
+;lib(A)<=3 && lib(b)>=3 && lib(c)>=3
+
+
+Pattern Barrier56
+
+xXOo
+XOX,
+...,
+----
+
+:8,sD
+
+xXbo
+XOXa
+...,
+----
+
+;!oplay_attack(a,b)
+
+
+Pattern Barrier56b
+
+xXOo
+XO.,
+.X.,
+----
+
+:8,sD
+
+xXOo
+XOa,
+.X.,
+----
+
+;safe_omove(a)
+
+
+Pattern Barrier57
+
+X,
+O?
+
+:8,sD
+
+A,
+O?
+
+;lib(A)==1
+
+
+Pattern Barrier58
+
+o,o
+OXO
+
+:8,sD
+
+o,o
+bAc
+
+;lib(A)<=2 && lib(b)>1 && lib(c)>1
+
+
+Pattern Barrier59
+
+,.
+XO
+
+:8,sD
+
+ab
+XO
+
+;oplay_attack(a,b,b)
+
+
+Pattern Barrier60a
+
+.X.
+...
+.!.
+.!.
+---
+
+:|,XA
+
+
+Pattern Barrier60b
+
+.O.
+.,.
+.!.
+.!.
+---
+
+:|,OD
+
+
+Pattern Barrier61
+
+|oooooo
+|!!...o
+|...O.o
+|..X..o
+|....!o
+|....!o
++------
+
+:/,D
+
+
+Pattern Barrier62
+
+?xX?
+...O
+.!..
+
+:8,OXD
+
+
+Pattern Barrier63
+# gf New pattern. (3.3.10)
+
+oX..
+O,..
+.,,.
+....
+----
+
+:8,D
+
+
+Pattern Barrier64
+# gf New pattern. (3.3.10)
+
+oX..
+O,,.
+..,,
+....
+----
+
+:8,D
+
+oXc.
+Oab.
+..,,
+....
+----
+
+;!oplay_attack(a,b,c,c)
+
+
+Pattern Barrier65
+# ab New (3.3.10)
+
+?O.
+X,.
+x,.
+---
+
+:8,OD
+
+?O.
+Ca.
+xb.
+---
+
+;oplay_attack(a,b,C)
+
+
+Pattern Barrier66
+# gf New pattern. (3.3.13)
+
+|..X...
+|......
+|..XO..
+|..,,..
+|..,...
+|......
++------
+
+:8,D
+
+
+Pattern Intrusion1
+
+???x
+...X
+!!.Q
+----
+
+:8,B,value(30)
+
+???x
+..cX
+!!ba
+----
+
+>return (lib(a)>2 || (lib(a) == 2 && connect_and_cut_helper(a,b,c)));
+
+
+Pattern Intrusion1a
+
+|??x
+|!!X
+|..Q
++---
+
+:8,B,value(30)
+
+|??x
+|.cX
+|.ba
++---
+
+;safe_omove(c)
+>return (lib(a)>2 || (lib(a) == 2 && connect_and_cut_helper(a,b,c)));
+
+
+Pattern Intrusion1b
+
+xxxx
+X..X
+..!Q
+----
+
+:8,B,value(30)
+
+xxxx
+X.cX
+..ba
+----
+
+>return (lib(a)>2 || (lib(a) == 2 && connect_and_cut_helper(a,b,c)));
+
+
+Pattern Intrusion1c
+
+xxxx
+X..X
+.!.Q
+----
+
+:8,B,value(30)
+
+xxxx
+X.dX
+.acb
+----
+
+;safe_omove(a)
+>return (lib(b)>2 || (lib(b) == 2 && connect_and_cut_helper(b,c,d)));
+
+
+Pattern Intrusion1d
+# ab New pattern (3.1.24).
+
+xxxx
+!!.X
+...Q
+----
+
+:8,B,value(30)
+
+xxxx
+a!cX
+..bQ
+----
+
+;!oplay_defend(a,b,c,b)
+
+
+Pattern Intrusion2
+
+xXx?
+...Q
+!!..
+----
+
+:8,B,value(30)
+
+xXx?
+..bd
+a!c.
+----
+
+;!oplay_attack(a,b,c,d)
+>return (!xplay_attack(b,d));
+
+
+Pattern Intrusion3
+# ab 3.1.22 Constraint added (see 13x13:52)
+
+xxX?
+...Q
+!!..
+----
+
+:8,B,value(30)
+
+xxX?
+..bd
+a!c.
+----
+
+;!oplay_attack(a,b,c,d)
+>return (!xplay_attack(b,d));
+
+
+Pattern Intrusion4
+
+XQOX
+!!X.
+!...
+----
+
+:8,B,value(30)
+
+XdOX
+baC.
+!...
+----
+
+;oplay_attack(a,b,C)
+>return (!xplay_attack(a,d));
+
+
+Pattern Intrusion5a
+
+X.QX
+.!X.
+.!..
+----
+
+:8,B,value(30)
+
+XbdX
+.aC.
+.!..
+----
+
+;oplay_attack(a,b,C)
+>return (!xplay_attack(b,d));
+
+
+Pattern Intrusion5b
+
+.QX
+!X.
+
+:8,BT,value(30)
+
+bfE
+aDc
+
+;!oplay_defend_both(a,b,c,D,E)
+>return (!xplay_attack(b,f));
+
+
+Pattern Intrusion6
+
+?QX
+X!!
+x..
+
+:8,B,value(30)
+
+?aX
+Xb!
+x..
+
+>return (!xplay_attack(b,a));
+
+
+Pattern Intrusion7a
+
+QX.
+.!!
+X.x
+
+:8,BW,value(30)
+
+cA.
+b!!
+X.x
+
+;lib(A)==2
+>return (!xplay_attack(b,c));
+
+
+Pattern Intrusion7b
+
+QX
+!!
+
+:8,BT,value(30)
+
+cC
+ba
+
+;oplay_attack_either(a,b,C,b);
+>return (!xplay_attack(b,c));
+
+
+Pattern Intrusion8a
+# ab 3.1.22 revised constraint (see territory valuation in 13x13:2)
+
+X.X
+Q!!
+?X.
+
+:8,B,value(30)
+
+B.X
+ca!
+?X.
+
+;oplay_attack(a,B) && !attack(B)
+>return (!xplay_attack(a,c));
+
+
+Pattern Intrusion8b
+# ab New (3.3.18)
+
+?X
+Q!
+X!
+
+:8,B,value(30)
+
+?B
+ca
+X!
+
+;oplay_attack(a,B) && !attack(B)
+>return (!xplay_attack(a,c));
+
+
+Pattern Intrusion9
+
+X.
+QX
+.!
+
+:8,B,value(30)
+
+X.
+QC
+ba
+
+;oplay_attack(a,b,C)
+
+
+Pattern Intrusion10
+# ab Modified action constraint. (3.3.20)
+
+xxx??
+..XO?
+!!.Q?
+-----
+
+:8,B,value(30)
+
+xxxef
+..COg
+!badh
+-----
+
+;oplay_attack_either(a,b,b,C)
+>return (!xplay_attack(a,d) && o_somewhere(g,e,f,h));
+
+
+Pattern Intrusion11
+# O can intrude on either side. The position of the influence source
+# here isn't entirely accurate.
+
+.Q.
+.X.
+.!.
+...
+---
+
+:|,B,value(30)
+
+dQb
+cXa
+.!.
+...
+---
+
+;oplay_attack(a,b,b) && oplay_attack(c,d,d)
+
+
+Pattern Intrusion12a
+# O can intrude on either side. The position of the influence source
+# here isn't entirely accurate.
+
+!Q!
+!X!
+...
+...
+---
+
+:|,B,value(30)
+
+dQb
+cXa
+...
+...
+---
+
+;oplay_attack(a,b,b) || oplay_attack(c,d,d)
+
+
+Pattern Intrusion12b
+
+oQo
+.X!
+...
+
+:8,OBT,value(30)
+
+odb
+.Ca
+...
+
+;o_somewhere(b) || oplay_attack_either(a,b,b,C)
+>return (!xplay_attack(b,d));
+
+
+# Pattern Intrusion12c
+# 
+# O!
+# X.
+# 
+# :8,OB,value(5)
+#   
+# ab
+# X.
+# 
+# >return (!xplay_attack(b,a));
+# 
+
+Pattern Intrusion13
+
+?OoQ?
+X.!X.
+X.!..
+.....
+-----
+
+:8,B,value(30)
+
+?boa?
+X.!X.
+X.!..
+.....
+-----
+
+;lib(a)>=2 && lib(b)>=2
+
+
+Pattern Intrusion14
+
+?QO?
+X!X.
+.!..
+.!..
+----
+
+:8,B,value(30)
+
+?QO?
+XaXd
+.bc.
+.!..
+----
+
+;oplay_attack_either(a,b,c,d,b,d)
+
+
+Pattern Intrusion15
+
+oQo
+.XO
+!.X
+
+:8,B,value(30)
+
+oeo
+aXd
+cbX
+
+;!oplay_attack(a,b,c,a)
+>return (lib(d)>2 && lib(e)>2 && !xplay_attack(a,e));
+
+
+Pattern Intrusion16
+# ab value decreased (3.1.24)
+
+Q!.
+!!.
+.xX
+
+:8,B,value(20)
+
+
+Pattern Intrusion17
+# ab value decreased (3.1.24)
+
+Q!.
+.!.
+XxX
+
+:8,B,value(20)
+
+
+Pattern Intrusion18
+
+xXx
+o..
+Q!!
+o..
+xXx
+
+:8,B,value(30)
+
+
+Pattern Intrusion19
+
+X..
+Q!.
+o..
+xXx
+
+:8,B,value(30)
+
+X..
+ba.
+o..
+xXx
+
+>return (!xplay_attack(a,b));
+
+
+Pattern Intrusion20
+
+oQ!
+OX!
+
+:8,B,value(30)
+
+edc
+fAb
+
+;lib(A)==2 && !oplay_attack(b,b)
+>return (!xplay_attack(c,d) && xplay_defend_both(e,d,f));
+
+
+Pattern Intrusion21
+
+Q.X
+.!.
+x..
+
+:8,B,value(30)
+
+b.X
+a!.
+x..
+
+>return (!xplay_attack(a,b));
+
+
+Pattern Intrusion21b
+
+ooX
+Q!.
+x..
+
+:8,B,value(30)
+
+ooX
+ba.
+x..
+
+>return (!xplay_attack(a,b));
+
+
+Pattern Intrusion22
+
+Q.X
+...
+.!.
+
+:8,B,value(10)
+
+b.X
+a..
+.!.
+
+>return (!xplay_attack(a,b));
+
+
+Pattern Intrusion23
+
+Q..
+.!!
+---
+
+:8,B,value(10)
+
+eb.
+dca
+---
+
+;oplay_attack_either(a,b,c,d,b,d)
+>return (!xplay_attack(b,e));
+
+
+Pattern Intrusion24
+
+O..
+Q!!
+---
+
+:8,B,value(30)
+
+ba.
+Q!!
+---
+
+>return (!xplay_attack(a,b));
+
+
+Pattern Intrusion25
+
+!!.O
+!XQ.
+....
+....
+----
+
+:8,B,value(30)
+
+
+Pattern Intrusion26
+
+!!.O
+.XQ.
+..X!
+....
+----
+
+:8,B,value(30)
+
+
+Pattern Intrusion27
+
+Q..
+.!.
+.!.
+...
+
+:8,B,value(30)
+
+
+Pattern Intrusion28
+
+??Q?
+x.!X
+..!.
+....
+----
+
+:8,B,value(30)
+
+??Q?
+xdaX
+.cb.
+....
+----
+
+;oplay_attack_either(a,b,c,d,b,d)
+
+
+Pattern Intrusion29
+
+oooo
+oooo
+.Q.o
+....
+.!!.
+.!..
+
+:8,B,value(30)
+
+
+Pattern Intrusion30
+
+oooo
+oooo
+XQ.o
+....
+.!!.
+.!..
+
+:8,B,value(30)
+
+oooo
+oooo
+XQfo
+dbc.
+.ae.
+.!..
+
+;oplay_attack(a,b,c,d,e,f,f)
+
+
+Pattern Intrusion31
+
+ooo
+XQ.
+.!!
+.!.
+?.?
+
+:8,B,value(30)
+
+ooo
+Xb.
+.a!
+.!.
+?.?
+
+>return (!xplay_attack(a,b));
+
+
+Pattern Intrusion32
+
+ooo
+XQ.
+.!.
+?.?
+
+:8,B,value(30)
+
+ooo
+Xb.
+.a.
+?.?
+
+>return (!xplay_attack(a,b));
+
+
+Pattern Intrusion33
+
+oOo
+XQX
+.!.
+?.?
+
+:8,B,value(30)
+
+
+Pattern Intrusion34
+
+o.o
+XQX
+.!.
+?.?
+
+:8,B,value(30)
+
+obo
+XQX
+.a.
+?.?
+
+;oplay_attack(a,b,b)
+>return 0;
+
+
+Pattern Intrusion35
+
+|..X??
+|...Q?
+|..X!X
+|...!.
+|...!.
++-----
+
+:8,B,value(30)
+
+|..X??
+|.baQ?
+|.fXcX
+|..ed.
+|...!.
++-----
+
+;oplay_attack(a,b,c,d,e,f,d)
+
+
+Pattern Intrusion36
+
+?X
+Q!
+Xx
+
+:8,B,value(30)
+
+?X
+ba
+Xx
+
+;safe_omove(a)
+>return (!xplay_attack(a,b));
+
+
+Pattern Intrusion37
+
+?X
+Q!
+oX
+
+:8,B,value(30)
+
+?X
+ba
+oX
+
+;safe_omove(a)
+> return (!xplay_attack(a,b));
+
+
+Pattern Intrusion38
+
+X?
+!Q
+--
+
+:8,B,value(5)
+
+X?
+ab
+--
+
+;safe_omove(a)
+> return (!xplay_attack(a,b));
+
+
+Pattern Intrusion39
+
+?Xx
+Q!.
+o!X
+
+:8,B,value(30)
+
+?Xx
+ba.
+o!X
+
+;safe_omove(a)
+>return (!xplay_attack(a,b));
+
+
+Pattern Intrusion40
+# gf Revised constraint. (3.3.10)
+
+X!
+Q?
+
+:8,B,value(30)
+
+A!
+Q?
+
+;lib(A)==1 && attack(A)
+
+
+Pattern Intrusion41
+
+X!
+Q!
+
+:8,B,value(30)
+
+A!
+Q!
+
+;lib(A)==1
+
+
+Pattern Intrusion42
+
+?Ooo
+.XQo
+.!X.
+....
+----
+
+:8,B,value(30)
+
+?Oeo
+bXQo
+.aDc
+....
+----
+
+;(o_somewhere(e) || !safe_xmove(e)) && !oplay_defend(a,b,c,D)
+
+
+Pattern Intrusion43
+
+??XO
+..XQ
+?!!o
+
+:8,B,value(50)
+
+??AO
+.cAQ
+?dbo
+
+;lib(A)==2 && !attack(A) && !oplay_attack(b,c,d,d)
+
+
+Pattern Intrusion44a
+# gf New pattern. (3.1.20)
+
+.XQ
+!!o
+
+:8,B,value(30)
+
+cDf
+bae
+
+;safe_omove(a)
+;&& (o_somewhere(e) || oplay_attack(a,e,e))
+;&& !oplay_defend_both(a,b,c,b,D)
+>return (!xplay_attack(a,f) && (o_somewhere(e) || (!xplay_attack(e,f))));
+
+
+Pattern Intrusion44b
+# ab New pattern. (3.3.5)
+
+..X?
+.XQo
+!!o?
+
+:8,B,value(30)
+
+.dG?
+eFho
+cab?
+
+;safe_omove(a)
+;&& (o_somewhere(b) || oplay_attack(a,b,b))
+;&& !oplay_defend_both(a,c,d,e,F,G)
+>return (!xplay_attack(a,h));
+
+
+Pattern Intrusion45
+# gf New pattern. (3.1.20)
+
+X.Qo
+.!X.
+....
+----
+
+:8,B,value(30)
+
+XbQo
+.aC.
+....
+----
+
+;safe_omove(a) && oplay_attack(a,b,C)
+
+
+Pattern Intrusion46
+# gf New pattern. (3.1.22)
+# gf Fixed diagram inconsistency. (3.1.23)
+# FIXME: This pattern exaggerates the intrusion since X can stop it
+#        on one of the sides, but we don't know which one he will
+#        choose. This may or may not be a problem in practice.
+
+x.Q.x
+.!X!.
+x...x
+x...x
+-----
+
+:|,B,value(10)
+
+x.dbx
+.cXa.
+x...x
+x...x
+-----
+
+;!oplay_attack(a,b,c,d)
+
+
+Pattern Intrusion47
+# gf New pattern. (3.1.23)
+
+??X.?
+o..!.
+Q....
+-----
+
+:8,B,value(20)
+
+??X.?
+o..!.
+a....
+-----
+
+;lib(a)>2
+
+
+Pattern Intrusion48
+# ab New pattern. (3.1.23)
+# FIXME: This would need a constraint. The one below did not work.
+
+?X.
+...
+Q.!
+..X
+
+:8,B,value(20)
+
+# .X.
+# fce
+# Oba
+# .dX
+# 
+# ;oplay_attack(a,b,c,d,e,f,f)
+
+
+Pattern Intrusion49
+# ab added (3.1.24)
+
+XQX
+.!!
+
+:8,B,value(30)
+
+bcX
+.a!
+
+;oplay_attack(a,b) && ! attack(b)
+>return (!xplay_attack(a,c));
+
+
+Pattern Intrusion50
+# ab added (3.1.25)
+
+?..
+QX!
+...
+---
+
+:8,OB,value(30)
+
+?c.
+dXa
+.b.
+---
+
+;!oplay_attack_either(a,b,c,c,d)
+
+
+Pattern Intrusion51a
+
+?Q?
+X.X
+.!.
+
+:|,B,value(30)
+
+?e?
+CaD
+.b.
+
+;oplay_break_through(a,b,C,b,D)
+>return(!xplay_attack(a,e));
+
+
+Pattern Intrusion51b
+# ab New pattern. (3.3.5)
+# This is a bit incorrect, as usually X can choose on which side the
+# intrusion is allowed to happen.
+# Due to reading depth limitations, oplay_break_through == CUT is not
+# sufficient (see nngs1:40).
+
+?O?
+XQX
+!X!
+
+:|,BX,value(20)
+
+?O?
+aQc
+!b!
+
+;(oplay_break_through(a,b,c)==WIN)
+
+
+Pattern Intrusion52
+# gf New pattern. (3.3.3)
+
+X.x
+Q!.
+.X.
+
+:8,B,value(30)
+
+X.x
+ba.
+.X.
+
+>return (!xplay_attack(a,b));
+
+
+Pattern Intrusion53
+# gf New pattern. (3.3.3)
+
+X!.
+QX!
+
+:8,B,value(50)
+
+Xa.
+QB!
+
+;!oplay_defend(a,B)
+
+
+Pattern Intrusion54
+# ab New pattern (3.3.10)
+# X cannot play double hane.
+
+..X?
+.XQo
+!.oo
+
+:8,B,value(40)
+
+.eG?
+fXQb
+!dac
+
+;(o_somewhere(a) || o_somewhere(b) || o_somewhere(c))
+;&& (o_somewhere(a) || oplay_attack(d,a,a)) && oplay_attack(e,f,G)
+
+
+Pattern Intrusion55
+# gf New pattern (3.3.16)
+
+????
+xxx?
+.!.o
+.!.Q
+----
+
+:8,B,value(30)
+
+efg?
+bcd?
+...o
+.a.Q
+----
+
+;x_somewhere(b,c,d,e,f,g) && safe_omove(a)
+
+
+Pattern Intrusion56
+# gf New pattern (3.3.16)
+
+????
+xxx?
+!..o
+!..Q
+----
+
+:8,B,value(30)
+
+fgh?
+cde?
+a..o
+...b
+----
+
+;x_somewhere(c,d,e,f,g,h) && !oplay_disconnect(a,a,b)
+
+
+Pattern Intrusion57
+# gf New pattern (3.3.16)
+
+xX
+!Q
+X?
+
+:8,B,value(30)
+
+xX
+ab
+X?
+
+;safe_omove(a)
+
+>return !xplay_attack(a,b);
+
+
+Pattern Intrusion58
+# gf New pattern (3.3.17)
+
+XOoo
+.XQo
+..X!
+?..!
+
+:8,B,value(30)
+
+Xgoo
+bXfo
+.aXc
+?.de
+
+;!oplay_disconnect(f,g) && !oplay_disconnect(a,b,c,d,e,c,f)
+
+
+Pattern Intrusion59
+# New pattern (3.3.20)
+# It is a little drastic, but see arend2:120 for where it is necessary.
+
+|x!xx
+|.!.x
+|.X.X
+|XQO?
+|.oo?
+
+:8,B,value(30)
+
+|x!xx
+|.!.x
+|.X.B
+|AQO?
+|.oo?
+
+;!attack(A) && oplay_disconnect(A,B) && !attack(B)
+
+
+Pattern Nonterritory1
+# gf Revised constraint. (3.3.10)
+
+OxO
+XoX
+
+:|,t
+
+OaO
+XbX
+
+>if (!false_eye_territory(a)) non_oterritory(a);
+>if (!false_eye_territory(b)) non_xterritory(b);
+
+
+Pattern Nonterritory1b
+# gf Revised constraint. (3.3.10)
+# gf Revised constraint. (3.3.17)
+
+Ox.
+XoX
+
+:8,t
+
+Oxb
+XaX
+
+>if ((halfeye(a) || false_eye(a)) && safe_omove(b)
+>    && !false_eye_territory(a)) non_xterritory(a);
+
+
+Pattern Nonterritory1c
+# gf Revised constraint. (3.3.10)
+
+Xo.
+OxO
+
+:8,t
+
+Xo.
+OaO
+
+>if (false_eye(a)
+>    && !false_eye_territory(a)) non_oterritory(a);
+
+
+Pattern Nonterritory2
+# gf Revised constraint. (3.3.10)
+
+?xO
+x.X
+Ox?
+
+:8,t
+
+?xO
+xaX
+Ox?
+
+>if (!false_eye_territory(a)) non_xterritory(a);
+
+
+Pattern Nonterritory3
+# gf Revised constraint. (3.3.10)
+
+?oX
+o.O
+Xo?
+
+:8,t
+
+?oX
+oaO
+Xo?
+
+>if (!false_eye_territory(a)) non_oterritory(a);
+
+
+Pattern Nonterritory4
+# gf Revised constraint. (3.3.10)
+
+|xO
+|oX
+
+:8,t
+
+|aO
+|bX
+
+>if (!false_eye_territory(a)) non_oterritory(a);
+>if (!false_eye_territory(b)) non_xterritory(b);
+
+
+Pattern Nonterritory5
+
+|?O
+|..
+|xX
+
+:8,t
+
+|?O
+|ab
+|xX
+
+>non_xterritory(a);
+>non_xterritory(b);
+
+
+Pattern Nonterritory6
+
+|?X
+|..
+|oO
+
+:8,t
+
+|?X
+|ab
+|oO
+
+>non_oterritory(a);
+>non_oterritory(b);
+
+
+Pattern Nonterritory7
+
+.X?
+..O
+---
+
+:8,t
+
+.X?
+baO
+---
+
+;safe_omove(a)
+
+>non_xterritory(a);
+>non_xterritory(b);
+
+
+Pattern Nonterritory7b
+# gf The old constraint was no good, as can be seen in nngs1:40. After
+#    black R6 this pattern declared S5 non-territory. (3.1.30)
+
+.X?
+..O
+---
+
+:8,t
+
+cX?
+baO
+---
+
+;safe_omove(a) && oplay_attack(a,b,c,a) && connect_and_cut_helper2(a,b,c)
+
+>non_xterritory(c);
+
+
+Pattern Nonterritory7c
+
+..X?
+...O
+----
+
+:8,t
+
+.cD?
+ebaO
+----
+
+;!oplay_defend_both(a,b,c,b,D)
+
+>non_xterritory(b);
+>non_xterritory(c);
+>non_xterritory(e);
+
+
+Pattern Nonterritory8
+
+xXO
+..o
+---
+
+:8,t
+
+xXO
+bao
+---
+
+;safe_omove(a)
+
+>non_xterritory(a);
+>non_xterritory(b);
+
+
+Pattern Nonterritory8b
+# gf New pattern. (3.3.7)
+
+.XO
+...
+---
+
+:8,t
+
+dEO
+bac
+---
+
+;safe_omove(a) && !oplay_defend_both(a,b,c,?,d,b,E)
+
+>non_xterritory(d);
+
+
+Pattern Nonterritory9
+
+...X
+X..?
+?oO?
+
+:8,t
+
+.cbX
+X.a?
+?oO?
+
+;safe_omove(a)
+
+>non_xterritory(b);
+>non_xterritory(c);
+
+
+Pattern Nonterritory10
+
+..x
+...
+XOX
+
+:8,t
+
+edx
+cab
+XOX
+
+;safe_omove(a)
+
+>non_xterritory(b);
+>non_xterritory(c);
+>non_xterritory(d);
+>non_xterritory(e);
+
+
+Pattern Nonterritory11
+
+oOX
+OX.
+.X.
+---
+
+:8,t
+
+oOX
+OBc
+aB.
+---
+
+;safe_omove(a) && oplay_attack(a,B)
+
+>non_xterritory(c);
+
+
+Pattern Nonterritory12
+
+.?
+O.
+
+:/,t
+
+bc
+Oa
+
+>non_xterritory(a);
+>non_xterritory(b);
+>non_xterritory(c);
+
+
+Pattern Nonterritory13
+
+.?
+X.
+
+:/,t
+
+a?
+Xb
+
+>non_oterritory(a);
+>non_oterritory(b);
+
+
+Pattern Nonterritory14
+
+.?
+..
+OX
+
+:8,t
+
+c?
+ab
+OX
+
+;safe_omove(a)
+
+>non_xterritory(a);
+>non_xterritory(b);
+>non_xterritory(c);
+
+
+Pattern Nonterritory15
+
+|.?
+|..
+|..
+|OX
+
+:8,t
+
+|ef
+|cd
+|ab
+|OX
+
+;safe_omove(a)
+
+>non_xterritory(a);
+>non_xterritory(b);
+>non_xterritory(c);
+>non_xterritory(d);
+>non_xterritory(e);
+>non_xterritory(f);
+
+
+Pattern Nonterritory16
+
+|.?
+|.X
+|..
+|OX
+
+:8,t
+
+|e?
+|cd
+|ab
+|OX
+
+;safe_omove(a)
+
+>non_xterritory(a);
+>non_xterritory(b);
+>non_xterritory(c);
+>non_xterritory(d);
+>non_xterritory(e);
+
+
+Pattern Nonterritory17
+
+|..
+|XO
+|.X
+
+:8,t
+
+|ac
+|Xd
+|bX
+
+;!oplay_defend_both(a,b,?,c,a,d)
+
+>non_oterritory(a);
+>non_oterritory(c);
+
+
+Pattern Nonterritory17b
+# gf New pattern. (3.3.7)
+
+|O.
+|XO
+
+:8,t
+
+|ba
+|Xc
+
+;!xplay_defend_both(a,b,c)
+
+>non_oterritory(a);
+
+
+Pattern Nonterritory18a
+
+.XOo
+..xO
+----
+
+:8,t
+
+dEOo
+bacO
+----
+
+;!oplay_defend_both(a,b,c,?,d,b,E)
+
+>non_xterritory(a);
+>non_xterritory(b);
+>non_xterritory(d);
+
+
+Pattern Nonterritory18b
+
+..XOo
+...xO
+-----
+
+:8,t
+
+fbXOo
+dcaeO
+-----
+
+;!oplay_defend_both(a,b,c,d,e,?,f,d,b)
+
+>non_xterritory(a);
+>non_xterritory(b);
+>non_xterritory(c);
+>non_xterritory(d);
+>non_xterritory(f);
+
+
+Pattern Nonterritory19
+# gf New pattern. (3.1.18)
+
+.?
+*X
+.O
+
+:8,t
+
+b?
+*X
+aO
+
+;oplay_attack(*,a,a) && safe_omove(*)
+
+>non_xterritory(*);
+>non_xterritory(b);
+
+
+Pattern Nonterritory20
+# gf New pattern. (3.1.18)
+
+*X
+.O
+
+:8,t
+
+*X
+ab
+
+;attack(b) && oplay_attack(*,b)
+
+>non_oterritory(a);
+
+
+Pattern Nonterritory21
+
+..
+.X
+O?
+
+:8,t
+
+cb
+aX
+O?
+
+;!oplay_attack(a,b,b) && !oplay_attack(b,a,a)
+
+>non_oterritory(a);
+>non_oterritory(b);
+>non_oterritory(c);
+
+
+Pattern Nonterritory22
+
+.?
+*X
+O?
+
+:8,t
+
+a?
+*X
+O?
+
+;safe_omove(*)
+
+>non_xterritory(*);
+>non_xterritory(a);
+
+
+Pattern Nonterritory23
+# tm New Pattern (3.1.20)
+
+O.
+
+:-,t
+
+Oa
+
+>non_xterritory(a);
+
+
+Pattern Nonterritory24
+# tm New Pattern (3.1.20)
+
+X.
+
+:-,t
+
+Xa
+
+>non_oterritory(a);
+
+
+Pattern Nonterritory25
+# gf New pattern. (3.1.20)
+
+|XO
+|..
+
+:8,t
+
+|AO
+|bc
+
+;lib(A)==2 && connect_and_cut_helper(A,b,c)
+
+>non_oterritory(b);
+>non_oterritory(c);
+
+
+Pattern Nonterritory26
+# gf New pattern. (3.1.20)
+
+?.X
+OX.
+?OX
+
+:8,t
+
+?aX
+OXb
+?OX
+
+;safe_omove(a)
+
+>non_xterritory(b);
+
+
+Pattern Nonterritory27
+# gf New Pattern (3.1.22)
+
+O..
+
+:-,t
+
+Oab
+
+;safe_omove(a)
+
+>non_xterritory(b);
+
+
+Pattern Nonterritory28
+# gf New Pattern (3.1.22)
+
+O.
+x.
+
+:8,t
+
+Oa
+xb
+
+;safe_omove(a)
+
+>non_xterritory(b);
+
+
+Pattern Nonterritory29
+# gf New pattern. (3.1.23)
+
+?OO.
+X...
+----
+
+:8,t
+
+?OOc
+Xab.
+----
+
+;!safe_omove(a) && oplay_attack(b,a,b)
+
+>non_oterritory(b);
+>non_oterritory(c);
+
+
+Pattern Nonterritory30
+# gf New pattern. (3.1.23)
+
+?XX.
+O...
+----
+
+:8,t
+
+?EEd
+Oabc
+----
+
+;oplay_attack(a,b,b) && !oplay_attack(a,c,b,b) && oplay_attack(a,c,b,E)
+
+>non_xterritory(c);
+>non_xterritory(d);
+
+
+Pattern Nonterritory31
+# gf New pattern. (3.1.23)
+
+?XXX.
+O....
+-----
+
+:8,t
+
+?XXXd
+Oabc.
+-----
+
+;oplay_attack(a,b,b) && oplay_attack(a,c,b,c)
+
+>non_xterritory(c);
+>non_xterritory(d);
+
+
+Pattern Nonterritory32
+# gf New pattern. (3.1.23)
+# gf This pattern is somewhat problematic. O can often block at d to
+#    secure e or block at b to secure c. The real point of the pattern
+#    is that O can't secure both, but there's no way to express this
+#    accurately. See gunnar:15 for a position where this pattern is
+#    bad. (3.3.17)
+
+..O
+...
+X..
+
+:/,t
+
+e.O
+da.
+Xbc
+
+;!oplay_attack(a,b,c,d,e,d)
+
+>non_oterritory(a);
+>non_oterritory(c);
+>non_oterritory(e);
+
+
+Pattern Nonterritory33
+# gf New pattern. (3.1.30)
+
+X.O
+...
+..X
+
+:/,t
+
+X.O
+ca.
+dbX
+
+;!oplay_attack(a,b,c,a) && !oplay_attack(a,c,b,a)
+
+>non_xterritory(b);
+>non_xterritory(c);
+>non_xterritory(d);
+
+
+Pattern Nonterritory34
+# gf New pattern. (3.1.30)
+
+x.O
+.XO
+.xO
+---
+
+:8,t
+
+xaO
+cXO
+.bO
+---
+
+;safe_omove(a)
+;&& ((x_somewhere(b) && oplay_attack(a,b))
+;    || (!x_somewhere(b) && oplay_attack(a,b,b)))
+
+>non_xterritory(c);
+
+
+Pattern Nonterritory35
+# gf New pattern. (3.3.4)
+
+..O
+..X
+
+:8,t
+
+caO
+dbX
+
+;!oplay_attack(a,b,c,a) && !oplay_attack(a,c,b,a)
+
+>non_xterritory(b);
+>non_xterritory(c);
+>non_xterritory(d);
+
+
+Pattern Nonterritory36
+# gf New pattern. (3.3.7)
+# gf Revised constraint. (3.3.10)
+
+OX?
+.OX
+.o?
+---
+
+:8,t
+
+OX?
+baX
+.o?
+---
+
+;lib(a)==2 && attack(a)
+
+>non_oterritory(b);
+
+
+Pattern Nonterritory37
+# gf New pattern. (3.3.10)
+# See trevorb:270.
+
+X.?
+.XO
+.x?
+---
+
+:8,t
+
+Xa?
+cBO
+.x?
+---
+
+;lib(B)==3 && safe_omove(a) && oplay_attack(a,B)
+
+>non_xterritory(c);
+
+
+Pattern Nonterritory38
+# gf New pattern. (3.3.10)
+# See trevorc:930.
+
+OX?
+.OX
+..O
+
+:8,t
+
+OX?
+.cX
+.ab
+
+;!xplay_defend_both(a,b,c)
+
+>non_oterritory(a);
+
+
+Pattern Nonterritory39
+# gf New pattern. (3.3.10)
+# See trevorc:930.
+
+X.O
+.XO
+..X
+
+:8,t
+
+XaO
+.DO
+.bC
+
+;!oplay_defend_both(a,?,b,C,D)
+
+>non_xterritory(b);
+
+
+Pattern Nonterritory40
+# gf New pattern. (3.3.10)
+
+oX.
+OX.
+...
+...
+---
+
+:8,t
+
+oX.
+OXc
+dab
+.e.
+---
+
+;!oplay_defend(a,b,c,d,a)
+
+>non_oterritory(d);
+>non_oterritory(e);
+
+
+Pattern Nonterritory41
+# gf New pattern. (3.3.13)
+
+?oOo
+X..O
+..X?
+
+:8,t
+
+?oOo
+XabO
+.cX?
+
+;oplay_attack(a,b,b)
+
+>non_xterritory(c);
+
+
+Pattern Nonterritory42
+# gf New pattern. (3.3.15)
+
+OX
+.O
+
+:8,t
+
+bX
+ac
+
+;!xplay_defend_both(a,b,c) && !adjacent_to_defendable_stone_in_atari(b)
+;&& !adjacent_to_defendable_stone_in_atari(c)
+
+>non_oterritory(a);
+
+
+Pattern Nonterritory43
+# gf New pattern. (3.3.15)
+
+oOXx
+O..X
+oO.X
+
+:8,t
+
+oODx
+OabX
+oOcX
+
+;!oplay_attack(b,D) && !oplay_attack(b,c,c)
+
+>non_oterritory(a);
+
+
+Pattern Nonterritory44
+# gf New pattern. (3.3.15)
+
+OXXx?
+.OOXx
+.....
+-----
+
+:8,t
+
+OXXx?
+eccXx
+..abd
+-----
+
+;oplay_attack(a,b,c) && !oplay_attack(b,d,d)
+
+>non_oterritory(e);
+
+
+Pattern Nonterritory45
+# gf New pattern. (3.3.16)
+
+O.X
+?X.
+
+:8,t
+
+OaX
+?Cb
+
+;lib(C)==2 && safe_omove(a) && oplay_attack(a,C) && !oplay_attack(a,b,a)
+
+>non_xterritory(b);
+
+
+Pattern Nonterritory46
+# gf New pattern. (3.3.17)
+
+??X?
+O...
+X...
+?.X?
+
+:8,t
+
+??X?
+Oab.
+Xcef
+?dX?
+
+;oplay_defend(a,b,c,d,e,f,a)
+
+>non_xterritory(b);
+>non_xterritory(c);
+>non_xterritory(d);
+>non_xterritory(e);
+>non_xterritory(f);
+
+
+Pattern Nonterritory47
+# gf New pattern. (3.3.17)
+
+?ooo?
+X...X
+
+:|,t
+
+?ooo?
+CaebD
+
+;!oplay_attack(a,C) && !oplay_attack(b,D)
+
+>non_oterritory(e);
+
+
+# END OF FILE

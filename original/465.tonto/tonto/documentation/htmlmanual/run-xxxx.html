@@ -1,0 +1,304 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>Writing the main run_XXXX program</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Writing foo modules for TONTO"
+HREF="foo-modules.html"><LINK
+REL="PREVIOUS"
+TITLE="Function arguments"
+HREF="function-arguments.html"><LINK
+REL="NEXT"
+TITLE="Are we hypocrites?"
+HREF="hypocrites.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="function-arguments.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="hypocrites.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RUN-XXXX"
+></A
+>Writing the main <TT
+CLASS="LITERAL"
+>run_XXXX</TT
+> program</H1
+><P
+ALIGN="justify"
+>If you want to make an executable from your module, you will have to write
+a main program for it.</P
+><P
+ALIGN="justify"
+>If your module is called <TT
+CLASS="LITERAL"
+>XXXX</TT
+>, then the main program
+should be called <TT
+CLASS="LITERAL"
+>run_XXXX.foo</TT
+>.</P
+><P
+ALIGN="justify"
+>Typically, in a production module, this main program will have only a
+<TT
+CLASS="LITERAL"
+>tonto</TT
+> initialization call, and then a call to a
+<TT
+CLASS="LITERAL"
+>read</TT
+> routine or a <TT
+CLASS="LITERAL"
+>main</TT
+> routine. For
+example, the <TT
+CLASS="LITERAL"
+>run_mol.foo</TT
+> program looks like this:
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>program run_mol
+! $Id: run-xxxx.html,v 1.2 2003/02/19 07:49:44 reaper Exp $
+
+   use TYPES
+   use SYSTEM
+   use MOL_MAIN ,ONLY:main_
+
+#  include "macros"
+
+   implicit none
+
+   MOL* :: m
+
+   tonto.initialize
+   m.main
+
+end </PRE
+></TD
+></TR
+></TABLE
+></P
+><P
+ALIGN="justify"
+>Alternatively, you can write a main program to perform a particular task.
+For example, the following main program <TT
+CLASS="LITERAL"
+>run_realmat.foo</TT
+> solves
+for the eigenvalues and eigenvectors of the unit 2x2 matrix
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>program run_realmat
+! $Id: run-xxxx.html,v 1.2 2003/02/19 07:49:44 reaper Exp $
+  use TYPES
+  use REALVEC
+  use REALMAT
+
+# include "macros"
+
+  implicit none
+  
+  REALMAT* :: matrix
+  REALMAT* :: eigenvectors
+  REALVEC* :: eigenvalues
+
+  matrix.create(2,2)
+  eigenvectors.create(2,2)
+  eigenvalues.create(2)
+
+  matrix = ONE
+
+  matrix.solve_eigenproblem(eigenvalues,eigenvectors)
+
+  write(*,*) eigenvalues
+
+end </PRE
+></TD
+></TR
+></TABLE
+></P
+><P
+ALIGN="justify"
+>You must remember to <TT
+CLASS="LITERAL"
+>USE</TT
+> those modules from which you
+call routines. Here we must at least use the <TT
+CLASS="LITERAL"
+>REALVEC</TT
+> and
+<TT
+CLASS="LITERAL"
+>REALMAT</TT
+> modules, since we use the <TT
+CLASS="LITERAL"
+>create</TT
+>
+routines in <TT
+CLASS="LITERAL"
+>REALVEC</TT
+> and <TT
+CLASS="LITERAL"
+>REALMAT</TT
+>, and we use the
+<TT
+CLASS="LITERAL"
+>solve_eigenproblem</TT
+> routine in <TT
+CLASS="LITERAL"
+>REALMAT</TT
+>.</P
+><P
+ALIGN="justify"
+>You can find examples of other one-off programs in <A
+HREF="example-programs.html"
+>the chapter called <I
+>Examples of simple TONTO programs</I
+></A
+>&#62;.</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="function-arguments.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="hypocrites.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Function arguments</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="foo-modules.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Are we hypocrites?</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

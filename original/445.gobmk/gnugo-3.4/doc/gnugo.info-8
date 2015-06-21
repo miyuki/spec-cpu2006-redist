@@ -1,0 +1,1324 @@
+This is gnugo.info, produced by makeinfo version 4.2 from gnugo.texi.
+
+INFO-DIR-SECTION GNU games
+START-INFO-DIR-ENTRY
+* GNU go: (gnugo).          The GNU Go program
+END-INFO-DIR-ENTRY
+
+
+File: gnugo.info,  Node: Surrounded Dragons,  Next: Influential Patterns,  Prev: Break Ins,  Up: Influence
+
+Surrounded Dragons
+==================
+
+   When is a dragon surrounded?
+
+   As has been pointed out by Bruce Wilcox, the geometric lines
+connecting groups of the opposite color are often important. It is very
+hard to prevent the escape of this `O' dragon:
+
+     ..........
+     .....O....
+     .X.......X
+     .X...O...X
+     ..........
+     ..........
+     ----------
+
+   On the other hand, this dragon is in grave danger:
+
+     ..........
+     ..........
+     .X.......X
+     .....O....
+     .X.......X
+     .X...O...X
+     ..........
+     ..........
+     ----------
+
+   The difference between these two positions is that in the first, the
+`O' dragon crosses the line connecting the top two `X' stones.
+
+   Code in `surround.c' implements a test for when a dragon is
+surrounded.  The idea is to compute the convex hull of the _surround
+set_, that is, the set stones belonging to unfriendly neighbor dragons.
+If the dragon is contained within that hull. If it is, it is said to be
+_surrounded_.
+
+   In practice this scheme is modified slightly. The implementation
+uses various algorithms to compute distances and hostile stones are
+discarded from the surround set when a pair other hostile ones can be
+found which makes the considered one useless. For example, in the
+following position the bottom `O' stone would get discarded.
+
+     O.X.O
+     .....
+     .O.O.
+     .....
+     ..O..
+
+   Also, points are added to the surround set below stones on the
+second and third lines. This should account for the edge being a
+natural barrier.
+
+   In order to compute distances between corners of the convex hull a
+sorting by angle algorithm has been implemented. If the distance
+between a pair enclosing stones is large, the surround status gets
+decreased to `WEAKLY_SURROUNDED', or even 0 for very large ones.
+
+   The sorting by angle must be explained. A small diagram will
+probably help :
+
+     .O.O.
+     O...O
+     ..X..
+     O...O
+     .O.O.
+
+   The sorting algorithm will generate this:
+
+     .4.5.
+     3...6
+     ..X..
+     2...7
+     .1.8.
+
+   That is, the points are sorted by ascending order of the measure of
+the angle S-G-O, where S is SOUTH, G the (approximated) gravity center
+of the goal, and O the position of the considered hostile stones.
+
+   The necessity of such sorting appears when one tries to measure
+distances between enclosing stones without sorting them, just by using
+directly the existing left and right corners arrays. In some positions,
+the results will be inconsistent. Imagine, for example a position where
+for instance the points 1,2,3,4,6 and 7 were in the left arrary,
+leaving only 5 and 8 in the right array. Because of the large distance
+between 5 and 8, the dragon would have declared weak surrounded or not
+surrounded at all. Such cases are rare but frequent enough to require
+the angle sorting.
+
+   The following position:
+
+     O.X.O
+     .....
+     .O.O.
+
+   This is "more" surrounded than the following position:
+
+     O.XXXXXX.O
+     ..........
+     .O......O.
+
+   In the second case, the surround status would be lowered to
+`WEAKLY_SURROUNDED'.
+
+   The surround code is used to modify the escape_route field in the
+dragon2 data array. When a dragon is WEAKLY_SURROUNDED, the
+escape_route is divided by 2. If the dragon is SURROUNDED, escape_route
+is simply set to 0.
+
+
+File: gnugo.info,  Node: Influential Patterns,  Next: Influential Display,  Prev: Surrounded Dragons,  Up: Influence
+
+Patterns used by the Influence module
+=====================================
+
+   This section explains the details of the pattern databases used for
+the influence computation.
+
+   First, we have the patterns in `influence.db', which get matched
+symmetrically for both colors.
+
+   * `E'
+
+          These patterns add extra influence sources close to some
+          shapes like walls.  This tries to reflect their extra
+          strength. These patterns are not used in the influence
+          computations relevant for territory valuations, but they are
+          useful for getting a better estimate of strengths of groups.
+
+   * `I'
+
+          These patterns add extra influence sources at typical
+          invasion points.  Usually they are of small strength. If they
+          additionally have the class `s', the extra influence source
+          is added for both colors. Otherwise, only the player assumed
+          to be next to move gets the benefit.
+
+   The patterns in `barriers.db' get matched only for `O' being the
+player next to move.
+
+   * `A'
+
+          Connections between `X' stones that stop influence of `O'.
+          They have to be tight enough that `O' cannot break through,
+          even though he is allowed to move first.
+
+   * `D'
+
+          Connections between `O' stones that stop influence of `X'. The
+          stones involved can be more loosely connected than those in
+          `A' patterns.
+
+   * `B'
+
+          These indicate positions of followup moves for the `O' stone
+          marked with `Q' in the pattern. They are used to reduce the
+          territory e. g.  where a monkey jump is possible. Also, they
+          are used in the computation of the followup influence, if the
+          `Q' stone was the move played (or a stone saved by the move
+          played).
+
+   * `t'
+
+          These patterns indicate intersections where one color will
+          not be able to get territory, for example in a false eye. The
+          points are set with a call to the helper non_oterritory or
+          non_xterritory in the action of the pattern.
+
+   The intrusion patterns (`B') are more powerful than the description
+above might suggest. They can be very helpful in identifying weak shapes
+(by adding an intrusion source for the opponent where he can break
+through).  A negative inference for this is that a single bad `B'
+pattern, e. g.  one that has a wrong constraint, typically causes 5 to
+10 `FAIL's in the regression test suite.
+
+   Influence Patterns can have autohelper constraints as usual. As for
+the constraint attributes, there are (additionally to the usual ones
+`O', `o', `X' and `x'), attributes `Y' and `FY'. A pattern marked with
+`Y' will only be used in the influence computations relevant for the
+territory valuation, while `FY' patterns only get used in the other
+influence computations.
+
+   The action of an influence pattern is at the moment only used for
+non-territory patterns as mentioned above, and as a workaround for a
+problem with `B' patterns in the followup influence.
+
+   To see why this workaround is necessary, consider the follwoing
+situation:
+
+
+     ..XXX
+     .a*.O
+     .X.O.
+     ..XXO
+
+   (Imagine that there is `X' territory on the left.)
+
+   The move by `O' at `*' has a natural followup move at `a'.  So, in
+the computation of the followup influence for `*', there would be an
+extra influence source for `O' at `a' which would destroy a lot of
+black territory on the left. This would give a big followup value, and
+in effect the move `*' would be treated as sente.
+
+   But of course it is gote, since `X' will answer at `a', which both
+stops the possible intrusion and  threatens to capture `*'. This
+situation is in fact quite common.
+
+   Hence we need an additional constraint that can tell when an
+intrusion pattern can be used in followup influence. This is done by
+misusing the action line: An additional line
+
+     >return <condition>;
+
+   gets added to the pattern. The `condition' should be true if the
+intrusion cannot be stopped in sente. In the above example, the relevant
+intrusion pattern will have an action line of the form
+
+     >return (!xplay_attack(a,b));
+
+   where `b' refers to the stone at `*'. In fact, almost all
+followup-specific constraints look similar to this.
+
+
+File: gnugo.info,  Node: Influential Display,  Prev: Influential Patterns,  Up: Influence
+
+Colored display and debugging of influence
+==========================================
+
+   There are various ways to obtain detailed information about the
+influence computations. Colored diagrams showing influence are possible
+from a colored xterm or rxvt window.
+
+   There are two options controlling when to generate diagrams:
+
+   * `-m 0x08' or `-m 8'
+
+          Show diagrams for the initial influence computation. This is
+          done twice, the first time before `make_dragons()' is run and
+          the second time after. The difference is that dead dragons
+          are taken into account the second time. Tactically captured
+          worms are taken into account both times.
+
+   * `--debug-influence LOCATION'
+
+          Show influence diagrams after the move at the given location.
+          An important limitation of this option is that it's only
+          effective for moves that the move generation is considering.
+
+   The other options control which diagrams should be generated in these
+situations. You have to specify at least one of the options above and
+at least one of the options below to generate any output.
+
+   * The options below must be combined with one of the two previous
+ones, or the diagram will not be printed. For example to print the
+influence diagram, you may combine 0x08 and 0x010, and use the option
+`-m 0x018'.*
+
+   * `-m 0x010' or `-m 16'
+
+          Show colored display of territory/moyo/area regions.
+             - territory: cyan
+
+             - moyo: yellow
+
+             - area: red
+          This feature is very useful to get an immediate impression of
+          the influence regions as GNU Go sees them.
+
+   * `-m 0x20' or `-m 32'
+
+          Show numerical influence values for white and black. These
+          come in two separate diagrams, the first one for white, the
+          second one for black. Notice that the influence values are
+          represented by floats and thus have been rounded in these
+          diagrams.
+
+   * `-m 0x40' or `-m 64'
+
+          This generates two diagrams showing the permeability for
+          black and white influence on the board.
+
+   * `-m 0x80' or `-m 128'
+
+          This shows the strength of the influence sources for black
+          and white across the board. You will see sources at each
+          lively stone (with strength depending on the strength of this
+          stone), and sources contributed by patterns.
+
+   * `-m 0x100' or `-m 256'
+
+          This shows the attenuation with which the influence sources
+          spread influence across the board. Low attenuation indicates
+          far-reaching influence sources.
+
+   * `-m 0x200' or `-m 512'
+
+          This shows the territory valuation of GNU Go. Each
+          intersection is shown with a value between -1.0 and +1.0 (or
+          -2 resp. +2 if there is a dead stone on this intersection).
+          Positive values indicate territory for white. A value of -0.5
+          thus indicates a point where black has a 50% chance of
+          getting territory.
+
+   Finally, there is the debug option `-d 0x1' which turns on on
+`DEBUG_INFLUENCE'. This gives a message for each influence pattern that
+gets matched. Unfortunately, these are way too many messages making it
+tedious to navigate the output. However, if you discover an influence
+source with `-m 0x80' that looks wrong, the debug output can help you
+to quickly find out the responsible pattern.
+
+
+File: gnugo.info,  Node: Alternative Moyo,  Next: Libboard,  Prev: Influence,  Up: Top
+
+Another approach to Moyos : Bouzy's 5/21 algorithm
+**************************************************
+
+* Menu:
+
+* Moyo history::		History of `moyo.c' and `score.c'
+* Bouzy::                       Bouzy's algorithm
+
+   The file `score.c' contains alternative algorithms for the
+computation of Territory and Moyos. These algorithms are used in
+`estimate_score()' but apart from that are generally *not* used in the
+rest of the engine since the concepts of Territory, Moyo and Area were
+reimplemented using the influence code (*note Territory and Moyo::).
+The function `estimate_score()', which is the only way this code is
+used in the engine, could easily be replaced with a function such as
+`influence_score()' based on the influence code.
+
+
+File: gnugo.info,  Node: Moyo history,  Next: Bouzy,  Up: Alternative Moyo
+
+Moyo history
+============
+
+   In GNU Go 2.6 extensive use was made of an algorithm from Bruno
+Bouzy's dissertation, which is available at:
+<ftp://www.joy.ne.jp/welcome/igs/Go/computer/bbthese.ps.Z> This
+algorithm starts with the characteristic function of the live groups on
+the board and performs `n' operations called dilations, then `m'
+operations called erosions.  If n=5 and m=21 this is called the 5/21
+algorithm.
+
+   The Bouzy 5/21 algorithm is interesting in that it corresponds
+reasonably well to the human concept of territory.  This algorithm is
+still used in GNU Go 3.4 in the function `estimate_score'. Thus we
+associate the 5/21 algorithm with the word "territory". Similarly we
+use words "moyo" and "area" in reference to the 5/10 and 4/0
+algorithms, respectively.
+
+   The principle defect of the algorithm is that it is not tunable. The
+current method of estimating moyos and territory is in `influence.c'
+(*note Influence::). The territory, moyo and area concepts have been
+reimplemented using the influence code.
+
+   The Bouzy algorithm is briefly reimplemented in the file `scoring.c'
+and is used by GNU Go 3.4 in estimating the score.
+
+   Not all features of the old `moyo.c' from GNU Go 2.6 were
+reimplemented--particularly the deltas were not--but the
+reimplementation may be more readable.
+
+
+File: gnugo.info,  Node: Bouzy,  Prev: Moyo history,  Up: Alternative Moyo
+
+Bouzy's 5/21 algorithm
+======================
+
+   Bouzy's algorithm was inspired by prior work of Zobrist and ideas
+from computer vision for determining territory. This algorithm is based
+on two simple operations, DILATION and EROSION. Applying dilation 5
+times and erosion 21 times determines the territory.
+
+   To get a feeling for the algorithm, take a position in the early
+middle game and try the colored display using the `-m 1' option in an
+RXVT window. The regions considered territory by this algorithm tend to
+coincide with the judgement of a strong human player.
+
+   Before running the algorithm, dead stones (`dragon.status==0') must
+be "removed."
+
+   Referring to page 86 of Bouzy's thesis, we start with a function
+taking a high value (ex : +128 for black, -128 for white) on stones on
+the goban, 0 to empty intersections. We may iterate the following
+operations:
+
+   "dilation": for each intersection of the goban, if the intersection
+is `>= 0', and not adjacent to a `< 0' one, then add to the intersection
+the number of adjacent >0 intersections. The same for other color : if
+the intersection is `<= 0', and not adjacent to a `> 0' one, then
+subtract the number of `< 0' intersections.
+
+   "erosion": for each intersection `> 0' (or `< 0'), subtract (or add)
+the number of adjacent `<= 0' (or `>= 0') intersection. Stop at zero.
+The algorithm is just : 5 dilations, then 21 erosions. The number of
+erosions should be 1+n(n-1) where n=number of dilation, since this
+permit to have an isolated stone to give no territory. Thus the couple
+4/13 also works, but it is often not good, for example when there is
+territory on the 6th line.
+
+   For example, let us start with a tobi.
+
+
+                128    0    128
+
+   1 dilation :
+
+
+                 1          1
+     
+            1   128    2   128   1
+     
+                 1          1
+
+   2 dilations :
+
+
+                 1          1
+     
+            2    2     3    2    2
+     
+        1   2   132    4   132   2   1
+     
+            2    2     3    2    2
+     
+                 1          1
+
+   3 dilations :
+
+
+                 1          1
+     
+            2    2     3    2    2
+     
+        2   4    6     6    6    4   2
+     
+     1  2   6   136    8   136   6   2   1
+     
+        2   4    6     6    6    4   2
+     
+            2    2     3    2    2
+     
+                 1          1
+
+   and so on...
+
+   Next, with the same example
+
+   3 dilations and 1 erosion :
+
+
+                  2     2     2
+     
+         0   4    6     6     6    4
+     
+     0   2   6   136    8    136   6    2
+     
+         0   4    6     6     6    4
+     
+                  2     2     2
+
+   3 dilations and 2 erosions :
+
+
+                      1
+     
+           2    6     6     6    2
+     
+           6   136    8    136   6
+     
+           2    6     6     6    2
+     
+                      1
+
+   3 dil. / 3 erosions :
+
+
+                5     6     5
+     
+           5   136    8    136   5
+     
+                5     6     5
+
+   3/4 :
+
+
+               3     5     3
+     
+           2  136    8    136   2
+     
+               3     5     3
+
+   3/5 :
+
+
+               1     4     1
+     
+              136    8    136
+     
+               1     4     1
+
+   3/6 :
+
+
+                     3
+     
+              135    8    135
+     
+                     3
+
+   3/7 :
+
+
+              132    8    132
+
+   We interpret this as a 1 point territory.
+
+
+File: gnugo.info,  Node: Libboard,  Next: SGF,  Prev: Alternative Moyo,  Up: Top
+
+The Board Library
+*****************
+
+* Menu:
+
+* Board Data Structures::      Board Data Structures
+* The Board Array::	       One-dimensional board array
+* Incremental Board::	  	Incremental board data structures
+* Some Board Functions::      	Explanation of some board functions
+
+   The foundation of the GNU Go engine is a library of very efficient
+routines for handling go boards.  This board library, called
+`libboard', can be used for those programs that only need a basic go
+board but no AI capability. One such program is `patterns/joseki.c',
+which compiles joseki pattern databases from SGF files.
+
+   The library consists of the following files:
+
+   * `board.c'
+
+          The basic board code.  It uses incremental algorithms for
+          keeping track of strings and liberties on the go board.
+
+   * `hash.c'
+
+          Code for hashing go positions.
+
+   * `globals.c'
+
+          Global variables needed in the rest of the files.  This file
+          also contains global variables needed in the rest of the
+          engine.
+
+   * `sgffile.c'
+
+          Implementation of output file in SGF format.
+
+   * `showbord.c'
+
+          Print go boards.
+
+   * `printutils.c'
+
+          Utilities for printing go boards and other things.
+
+
+   To use the board library, you must include `liberty.h' just like
+when you use the whole engine, but of course you cannot use all the
+functions declared in it, i.e. the functions that are part of the
+engine, but not part of the board library.  You must link your
+application with `libboard.a'.
+
+
+File: gnugo.info,  Node: Board Data Structures,  Next: The Board Array,  Up: Libboard
+
+Board Data structures
+=====================
+
+   The basic data structures of the board correspond tightly to the
+`board_state' struct described in *Note The Board State::. They are all
+stored in global variables for efficiency reasons, the most important
+of which are:
+
+
+     int           board_size;
+     Intersection  board[MAXSIZE];
+     int           board_ko_pos;
+     
+     float         komi;
+     int           white_captured;
+     int           black_captured;
+     
+     Hash_data     hashdata;
+
+   The description of the `Position' struct is applicable to these
+variables also, so we won't duplicate it here.  All these variables are
+globals for performance reasons.  Behind these variables, there are a
+number of other private data structures.  These implement incremental
+handling of strings, liberties and other properties (*note Incremental
+Board::). The variable `hashdata' contains information about the hash
+value for the current position (*note Hashing::).
+
+   These variables should never be manipulated directly, since they are
+only the front end for the incremental machinery. They can be read, but
+should only be written by using the functions described in the next
+section. If you write directly to them, the incremental data structures
+will become out of sync with each other, and a crash is the likely
+result.
+
+
+File: gnugo.info,  Node: The Board Array,  Next: Incremental Board,  Prev: Board Data Structures,  Up: Libboard
+
+The Board Array
+===============
+
+   GNU Go represents the board in a one-dimensional array called
+`board'. For some purposes a two dimensional indexing of the board by
+parameters `(i,j)' might be used.
+
+   The `board' array includes out-of-board markers around the board. To
+make the relation to the old two-dimensional board representation
+clear, this figure shows how the 1D indices correspond to the 2D
+indices when MAX_BOARD is 7.
+
+       j  -1   0   1   2   3   4   5   6
+     i +----------------------------------
+     -1|   0   1   2   3   4   5   6   7
+      0|   8   9  10  11  12  13  14  15
+      1|  16  17  18  19  20  21  22  23
+      2|  24  25  26  27  28  29  30  31
+      3|  32  33  34  35  36  37  38  39
+      4|  40  41  42  43  44  45  46  47
+      5|  48  49  50  51  52  53  54  55
+      6|  56  57  58  59  60  61  62  63
+      7|  64  65  66  67  68  69  70  71  72
+
+   To convert between a 1D index `pos' and a 2D index `(i,j)', the
+macros `POS', `I', and `J' are provided, defined as below:
+
+     #define POS(i, j)    ((MAX_BOARD + 2) + (i) * (MAX_BOARD + 1) + (j))
+     #define I(pos)       ((pos) / (MAX_BOARD + 1) - 1)
+     #define J(pos)       ((pos) % (MAX_BOARD + 1) - 1)
+
+   All 1D indices not corresponding to points on the board have the out
+of board marker value `GRAY'. Thus if `board_size' and `MAX_BOARD' both
+are 7, this looks like
+
+       j  -1   0   1   2   3   4   5   6
+     i +----------------------------------
+     -1|   #   #   #   #   #   #   #   #
+      0|   #   .   .   .   .   .   .   .
+      1|   #   .   .   .   .   .   .   .
+      2|   #   .   .   .   .   .   .   .
+      3|   #   .   .   .   .   .   .   .
+      4|   #   .   .   .   .   .   .   .
+      5|   #   .   .   .   .   .   .   .
+      6|   #   .   .   .   .   .   .   .
+      7|   #   #   #   #   #   #   #   #   #
+
+   The indices marked `#' have value `GRAY'.  If `MAX_BOARD' is 7 and
+`board_size' is only 5:
+
+       j  -1   0   1   2   3   4   5   6
+     i +----------------------------------
+     -1|   #   #   #   #   #   #   #   #
+      0|   #   .   .   .   .   .   #   #
+      1|   #   .   .   .   .   .   #   #
+      2|   #   .   .   .   .   .   #   #
+      3|   #   .   .   .   .   .   #   #
+      4|   #   .   .   .   .   .   #   #
+      5|   #   #   #   #   #   #   #   #
+      6|   #   #   #   #   #   #   #   #
+      7|   #   #   #   #   #   #   #   #   #
+
+   Navigation on the board is done by the `SOUTH', `WEST', `NORTH', and
+`EAST' macros,
+
+     #define NS           (MAX_BOARD + 1)
+     #define WE           1
+     #define SOUTH(pos)   ((pos) + NS)
+     #define WEST(pos)    ((pos) - 1)
+     #define NORTH(pos)   ((pos) - NS)
+     #define EAST(pos)    ((pos) + 1)
+
+   There are also shorthand macros `SW', `NW', `NE', `SE', `SS', `WW',
+`NN', `EE' for two step movements.
+
+   Any movement from a point on the board to an adjacent or diagonal
+vertex is guaranteed to produce a valid index into the board array, and
+the color found is GRAY if it is not on the board. To do explicit tests
+for out of board there are two macros
+
+     #define ON_BOARD(pos) (board[pos] != GRAY)
+     #define ON_BOARD1(pos) (((unsigned) (pos) < BOARDSIZE) && board[pos] != GRAY)
+
+   where the first one should be used in the algorithms and the second
+one is useful for assertion tests.
+
+   The advantage of a one-dimensional board array is that it gives a
+significant performance advantage. We need only one variable to
+determine a board position, which means that many functions need less
+arguments. Also, often one computation is sufficient for 1D-coordinate
+where we would need two with two 2D-coordinates: If we, for example,
+want to have the coordinate of the upper right of `pos', we can do this
+with `NORTH(EAST(pos))' instead of `(i+1, j-1)'.
+
+   *Important*: The 2D coordinate `(-1,-1)', which is used for pass and
+sometimes to indicate no point, maps to the 1D coordinate `0', not to
+`-1'. Instead of a plain `0', use one of the macros `NO_MOVE' or
+`PASS_MOVE'.
+
+   A loop over multiple directions is straightforwardly written:
+
+       for (k = 0; k < 4; k++) {
+         int d = delta[k];
+         do_something(pos + d);
+       }
+
+   The following constants are useful for loops over the entire board
+and allocation of arrays with a 1-1 mapping to the board.
+
+     #define BOARDSIZE    ((MAX_BOARD + 2) * (MAX_BOARD + 1) + 1)
+     #define BOARDMIN     (MAX_BOARD + 2)
+     #define BOARDMAX     (MAX_BOARD + 1) * (MAX_BOARD + 1)
+
+   `BOARDSIZE' is the actual size of the 1D board array, `BOARDMIN' is
+the first index corresponding to a point on the board, and `BOARDMAX'
+is one larger than the last index corresponding to a point on the board.
+
+   Often one wants to traverse the board, carrying out some function at
+every vertex. Here are two possible ways of doing this:
+
+       int m, n;
+       for (m = 0; m < board_size; m++)
+         for (n = 0; n < board_size; n++) {
+           do_something(POS(m, n));
+         }
+
+   Or:
+
+       int pos;
+       for (pos = BOARDMIN; pos < BOARDMAX; pos++) {
+         if (ON_BOARD(pos))
+           do_something(pos);
+       }
+
+
+File: gnugo.info,  Node: Incremental Board,  Next: Some Board Functions,  Prev: The Board Array,  Up: Libboard
+
+Incremental Board data structures
+=================================
+
+   In addition to the global board state, the algorithms in `board.c'
+implement a method of incremental updates that keeps track of the
+following information for each string:
+
+   * The color of the string.
+
+   * Number of stones in the string.
+
+   * Origin of the string, i.e. a canonical reference point, defined to
+     be the stone with smallest 1D board coordinate.
+
+   * A list of the stones in the string.
+
+   * Number of liberties.
+
+   * A list of the liberties. If there are too many liberties the list
+     is truncated.
+
+   * The number of neighbor strings.
+
+   * A list of the neighbor strings.
+
+   The basic data structure is
+
+     struct string_data {
+       int color;                       /* Color of string, BLACK or WHITE */
+       int size;                        /* Number of stones in string. */
+       int origin;                      /* Coordinates of "origin", i.e. */
+                                        /* "upper left" stone. */
+       int liberties;                   /* Number of liberties. */
+       int libs[MAX_LIBERTIES];         /* Coordinates of liberties. */
+       int neighbors;                   /* Number of neighbor strings */
+       int neighborlist[MAXCHAIN];      /* List of neighbor string numbers. */
+       int mark;                        /* General purpose mark. */
+     };
+     
+     struct string_data string[MAX_STRINGS];
+
+   It should be clear that almost all information is stored in the
+`string' array. To get a mapping from the board coordinates to the
+`string' array we have
+
+     static int string_number[BOARDMAX];
+
+which contains indices into the `string' array. This information is only
+valid at nonempty vertices, however, so it is necessary to first verify
+that `board[pos] != EMPTY'.
+
+   The `string_data' structure does not include an array of the stone
+coordinates. This information is stored in a separate array:
+
+     static int next_stone[BOARDMAX];
+
+   This array implements cyclic linked lists of stones. Each vertex
+contains a pointer to another (possibly the same) vertex. Starting at
+an arbitrary stone on the board, following these pointers should
+traverse the entire string in an arbitrary order before coming back to
+the starting point. As for the 'string_number' array, this information
+is invalid at empty points on the board. This data structure has the
+good properties of requiring fixed space (regardless of the number of
+strings) and making it easy to add a new stone or join two strings.
+
+   Additionally the code makes use of some work variables:
+
+     static int ml[BOARDMAX];
+     static int liberty_mark;
+     static int string_mark;
+     static int next_string;
+     static int strings_initialized = 0;
+
+   The `ml' array and `liberty_mark' are used to "mark" liberties on
+the board, e.g. to avoid counting the same liberty twice. The
+convention is that if `ml[pos]' has the same value as `liberty_mark',
+then `pos' is marked. To clear all marks it suffices to increase the
+value of `liberty_mark', since it is never allowed to decrease.
+
+   The same relation holds between the `mark' field of the `string_data'
+structure and `string_mark'. Of course these are used for marking
+individual strings.
+
+   `next_string' gives the number of the next available entry in the
+`string' array. Then `strings_initialized' is set to one when all data
+structures are known to be up to date. Given an arbitrary board
+position in the `board' array, this is done by calling
+`incremental_board_init()'. It is not necessary to call this function
+explicitly since any other function that needs the information does
+this if it has not been done.
+
+   The interesting part of the code is the incremental update of the
+data structures when a stone is played and subsequently removed. To
+understand the strategies involved in adding a stone it is necessary to
+first know how undoing a move works. The idea is that as soon as some
+piece of information is about to be changed, the old value is pushed
+onto a stack which stores the value and its address. The stack is built
+from the following structures:
+
+     struct change_stack_entry {
+       int *address;
+       int value;
+     };
+     
+     struct change_stack_entry change_stack[STACK_SIZE];
+     int change_stack_index;
+
+and manipulated with the macros
+
+     BEGIN_CHANGE_RECORD()
+     PUSH_VALUE(v)
+     POP_MOVE()
+
+   Calling `BEGIN_CHANGE_RECORD()' stores a null pointer in the address
+field to indicate the start of changes for a new move. As mentioned
+earlier `PUSH_VALUE()' stores a value and its corresponding address.
+Assuming that all changed information has been duly pushed onto the
+stack, undoing the move is only a matter of calling `POP_MOVE()', which
+simply assigns the values to the addresses in the reverse order until
+the null pointer is reached. This description is slightly simplified
+because this stack can only store 'int' values and we need to also
+store changes to the board. Thus we have two parallel stacks where one
+stores `int' values and the other one stores `Intersection' values.
+
+   When a new stone is played on the board, first captured opponent
+strings, if any, are removed. In this step we have to push the board
+values and the `next_stone' pointers for the removed stones, and update
+the liberties and neighbor lists for the neighbors of the removed
+strings. We do not have to push all information in the 'string' entries
+of the removed strings however. As we do not reuse the entries they
+will remain intact until the move is pushed and they are back in use.
+
+   After this we put down the new stone and get three distinct cases:
+
+  1. The new stone is isolated, i.e. it has no friendly neighbor.
+
+  2. The new stone has exactly one friendly neighbor.
+
+  3. The new stone has at least two friendly neighbors.
+
+   The first case is easiest. Then we create a new string by using the
+number given by `next_string' and increasing this variable. The string
+will have size one, `next_stone' points directly back on itself, the
+liberties can be found by looking for empty points in the four
+directions, possible neighbor strings are found in the same way, and
+those need also to remove one liberty and add one neighbor.
+
+   In the second case we do not create a new string but extend the
+neighbor with the new stone. This involves linking the new stone into
+the cyclic chain, if needed moving the origin, and updating liberties
+and neighbors. Liberty and neighbor information also needs updating for
+the neighbors of the new stone.
+
+   In the third case finally, we need to join already existing strings.
+In order not to have to store excessive amounts of information, we
+create a new string for the new stone and let it assimilate the
+neighbor strings. Thus all information about those can simply be left
+around in the 'string' array, exactly as for removed strings. Here it
+becomes a little more complex to keep track of liberties and neighbors
+since those may have been shared by more than one of the joined
+strings. Making good use of marks it all becomes rather straightforward
+anyway.
+
+   The often used construction
+
+         pos = FIRST_STONE(s);
+         do {
+             ...
+             pos = NEXT_STONE(pos);
+         } while (!BACK_TO_FIRST_STONE(s, pos));
+
+traverses the stones of the string with number `s' exactly once, with
+`pos' holding the coordinates. In general `pos' is used as board
+coordinate and `s' as an index into the `string' array or sometimes a
+pointer to an entry in the `string' array.
+
+
+File: gnugo.info,  Node: Some Board Functions,  Prev: Incremental Board,  Up: Libboard
+
+Some Board Functions
+====================
+
+   *Reading*, often called *search* in computer game theory, is a
+fundamental process in GNU Go. This is the process of generating
+hypothetical future boards in order to determine the answer to some
+question, for example "can these stones live."  Since these are
+hypothetical future positions, it is important to be able to undo them,
+ultimately returning to the present board. Thus a move stack is
+maintained during reading. When a move is tried, by the function
+`trymove', or its variant `tryko'. This function pushes the current
+board on the stack and plays a move. The stack pointer `stackp', which
+keeps track of the position, is incremented. The function `popgo()'
+pops the move stack, decrementing `stackp' and undoing the last move
+made.
+
+   Every successful `trymove()' must be matched with a `popgo()'.  Thus
+the correct way of using this function is:
+
+
+       if (trymove(pos, color, ... )) {
+            ...    [potentially lots of code here]
+            popgo();
+       }
+
+Here the `komaster' is only set if a conditional ko capture has been
+made at an earlier move. This feature of the tactical and owl reading
+code in GNU Go is used to prevent redundant reading when there is a ko
+on the board (*note Ko::).
+
+   * `int trymove(int pos, int color, const char *message, int str, int
+     komaster, int kom_pos)'
+
+          Returns true if `(pos)' is a legal move for `color'. In that
+          case, it pushes the board on the stack and makes the move,
+          incrementing `stackp'. If the reading code is recording
+          reading variations (as with `--decide-string' or with `-o'),
+          the string `*message' will be inserted in the SGF file as a
+          comment. The comment will also refer to the string at `str'
+          if this is not `0'. The komaster and ko position variables
+          are described elsewhere (*note Ko::)
+
+   * `int tryko(int pos, int color, const char *message, int komaster,
+     int kom_pos)'
+
+          `tryko()' pushes the position onto the stack, and makes a move
+          `pos' of `color'. The move is allowed even if it is an
+          illegal ko capture. It is to be imagined that `color' has
+          made an intervening ko threat which was answered and now the
+          continuation is to be explored. Return 1 if the move is legal
+          with the above caveat. Returns zero if it is not legal
+          because of suicide.
+
+   * `void popgo()'
+
+          Pops the move stack. This function must (eventually) be
+          called after a succesful `trymove' or `tryko' to restore the
+          board position. It undoes all the changes done by the call to
+          `trymove/tryko' and leaves the board in the same state as it
+          was before the call.
+
+          *NOTE*: If `trymove/tryko' returns `0', i.e. the tried move
+          was not legal, you must *not* call `popgo'.
+
+   * `int komaster_trymove(int pos, int color, const char *message, int
+     str, int komaster, int kom_pos, int *new_komaster, int
+     *new_kom_pos, int *is_conditional_ko, int consider_conditional_ko)'
+
+          Variation of `trymove'/`tryko' where ko captures (both
+          conditional and unconditional) must follow a komaster scheme
+          (*note Ko::).
+
+
+   As you see, `trymove()' plays a move which can be easily retracted
+(with `popgo()') and it is call thousands of times per actual game move
+as GNU Go analyzes the board position.  By contrast the function
+`play_move()' plays a move which is intended to be permanent, though it
+is still possible to undo it if, for example, the opponent retracts a
+move.
+
+   * `void play_move(int pos, int color)'
+
+          Play a move. If you want to test for legality you should
+          first call `is_legal()'. This function strictly follows the
+          algorithm:
+            1. Place a stone of given color on the board.
+
+            2. If there are any adjacent opponent strings without
+               liberties, remove them and increase the prisoner count.
+
+            3. If the newly placed stone is part of a string without
+               liberties, remove it and increase the prisoner count.
+               In spite of the name "permanent move", this move can
+          (usually) be unplayed by `undo_move()', but it is
+          significantly more costly than unplaying a temporary move.
+          There are limitations on the available move history, so under
+          certain circumstances the move may not be possible to unplay
+          at a later time.
+
+   * `int undo_move(int n)'
+
+          Undo `n' permanent moves. Returns 1 if successful and 0 if it
+          fails.  If `n' moves cannot be undone, no move is undone.
+
+   Other board functions are documented in *Note Board Utilities::.
+
+
+File: gnugo.info,  Node: SGF,  Next: DFA,  Prev: Libboard,  Up: Top
+
+Handling SGF trees in memory
+****************************
+
+   "SGF" - Smart Game Format - is a file format which is used for
+storing game records for a number of different games, among them chess
+and go. The format is a framework with special adaptions to each game.
+This is not a description of the file format standard. Too see the exact
+definition of the file format, see <http://www.red-bean.com/sgf/>.
+
+   GNU Go contains a library to handle go game records in the SGF
+format in memory and to read and write SGF files. This library -
+`libsgf.a' - is in the `sgf' subdirectory. To use the SGF routines,
+include the file `sgftree.h'.
+
+   Each game record is stored as a tree of "nodes", where each node
+represents a state of the game, often after some move is made. Each node
+contains zero or more "properties", which gives meaning to the node.
+There can also be a number of "child nodes" which are different
+variations of the game tree. The first child node is the main variation.
+
+   Here is the definition of `SGFNode', and `SGFProperty', the data
+structures which are used to encode the game tree.
+
+
+     typedef struct SGFProperty_t {
+       struct SGFProperty_t *next;
+       short  name;
+       char   value[1];
+     } SGFProperty;
+     
+     typedef struct SGFNode_t {
+       SGFProperty      *props;
+       struct SGFNode_t *parent;
+       struct SGFNode_t *child;
+       struct SGFNode_t *next;
+     } SGFNode;
+
+   Each node of the SGF tree is stored in an `SGFNode' struct. It has a
+pointer to a linked list of properties (see below) called `props'. It
+also has a pointer to a linked list of children, where each child is a
+variation which starts at this node. The variations are linked through
+the `next' pointer and each variation continues through the `child'
+pointer. Each and every node also has a pointer to its parent node (the
+`parent' field), except the top node whose parent pointer is `NULL'.
+
+   An SGF property is encoded in the `SGFPoperty' struct. It is linked
+in a list through the `next' field.  A property has a `name' which is
+encoded in a short int.  Symbolic names of properties can be found in
+`sgf_properties.h'.
+
+   Some properties also have a value, which could be an integer, a
+floating point value, a character or a string. These values can be
+accessed or set through special functions.
+
+The SGFTree datatype
+====================
+
+   Sometimes we just want to record an ongoing game or something
+similarly simple and not do any sofisticated tree manipulation.  In
+that case we can use the simplified interface provided by `SGFTree'
+below.
+
+
+     typedef struct SGFTree_t {
+       SGFNode *root;
+       SGFNode *lastnode;
+     } SGFTree;
+
+   An `SGFTree' contains a pointer to the root node of an SGF tree and
+a pointer to the node that we last accessed. Most of the time this will
+be the last move of an ongoing game.
+
+   Most of the functions which manipulate an `SGFTree' work exactly
+like their `SGFNode' counterparts, except that they work on the current
+node of the tree.
+
+   All the functions below that take arguments `tree' and `node' will
+work on:
+
+  1. `node' if non-`NULL'
+
+  2. `tree->lastnode' if non-`NULL'
+
+  3. The current end of the game tree.
+        in that order.
+
+
+File: gnugo.info,  Node: API,  Next: GTP,  Prev: Utility Functions,  Up: Top
+
+Application Programmers Interface to GNU Go
+*******************************************
+
+   If you want to write your own interface to GNU Go, or if you want to
+create a go application using the GNU Go engine, this chapter is of
+interest to you.
+
+   First an overview: GNU Go consists of two parts: the GNU Go engine
+and a program (user interface) which uses this engine. These are linked
+together into one binary. The current program implements the following
+user modes:
+
+   * An interactive board playable on ASCII terminals
+
+   * solo play - GNU Go plays against itself
+
+   * replay - a mode which lets the user investigate moves in an
+     existing SGF file.
+
+   * GMP - Go Modem Protocol, a protocol for automatic play between two
+     computers.
+
+   * GTP - Go Text Protocol, a more general go protocol, *note GTP::.
+
+   The GNU Go engine can be used in other applications. For example,
+supplied with GNU Go is another program using the engine, called
+`debugboard', in the directory `interface/debugboard/'. The program
+debugboard lets the user load SGF files and can then interactively look
+at different properties of the position such as group status and eye
+status.
+
+   The purpose of this Chapter is to show how to interface your own
+program such as `debugboard' with the GNU Go engine.
+
+   Figure 1 describes the structure of a program using the GNU Go
+engine.
+
+                      +-----------------------------------+
+                      |                                   |
+                      |          Go application           |
+                      |                                   |
+                      +-----+----------+------+           |
+                      |     |          |      |           |
+                      |     |   Game   |      |           |
+                      |     | handling |      |           |
+                      |     |          |      |           |
+                      |     +----+-----+      |           |
+                      |   SGF    |    Move    |           |
+                      | handling | generation |           |
+                      |          |            |           |
+                      +----------+------------+-----------+
+                      |                                   |
+                      |           Board handling          |
+                      |                                   |
+                      +-----------------------------------+
+     
+             Figure 1: The structure of a program using the GNU Go engine
+
+   The foundation is a library called `libboard.a' which provides
+efficient handling of a go board with rule checks for moves, with
+incremental handling of connected strings of stones and with methods to
+efficiently hash go positions.
+
+   On top of this, there is a library which helps the application use
+smart go files, SGF files, with complete handling of game trees in
+memory and in files. This library is called `libsgf.a'
+
+   The main part of the code within GNU Go is the move generation
+library which given a position generates a move. This part of the
+engine can also be used to manipulate a go position, add or remove
+stones, do tactical and strategic reading and to query the engine for
+legal moves. These functions are collected into `libengine.a'.
+
+   The game handling code helps the application programmer keep tracks
+of the moves in a game. Games can be saved to SGF files and then later
+be read back again. These are also within `libengine.a'.
+
+   The responsibility of the application is to provide the user with a
+user interface, graphical or not, and let the user interact with the
+engine.
+
+* Menu:
+
+* Getting Started::          How to use the engine in your program
+* Basic Data Structures::    Basic Data Structures in the Engine
+* The Board State::          The board_state `struct'
+* Positional Functions::     Functions which manipulate a Position
+
+
+File: gnugo.info,  Node: Getting Started,  Next: Basic Data Structures,  Up: API
+
+How to use the engine in your own program: getting started
+==========================================================
+
+   To use the GNU Go engine in your own program you must include the
+file `gnugo.h'. This file describes the whole public API. There is
+another file, `liberty.h', which describes the internal interface within
+the engine. If you want to make a new module within the engine, e.g.
+for suggesting moves you will have to include this file also. In this
+section we will only describe the public interface.
+
+   Before you do anything else, you have to call the function
+`init_gnugo()'. This function initializes everything within the engine.
+It takes one parameter: the number of megabytes the engine can use for
+the internal hash table. In addition to this the engine will use a few
+megabytes for other purposes such as data describing groups (liberties,
+life status, etc), eyes and so on.
+
+
+File: gnugo.info,  Node: Basic Data Structures,  Next: The Board State,  Prev: Getting Started,  Up: API
+
+Basic Data Structures in the Engine
+===================================
+
+   There are some basic definitions in gnugo.h which are used
+everywhere. The most important of these are the numeric declarations of
+colors. Each intersection on the board is represented by one of these:
+
+
+          color              value
+          EMPTY                0
+          WHITE                1
+          BLACK                2
+
+   In addition to these, the following values can be used in special
+places, such as describing the borders of eyes:
+
+
+          color                     value
+          GRAY (GRAY_BORDER)          3
+          WHITE_BORDER                4
+          BLACK_BORDER                5
+
+   There is a macro, `OTHER_COLOR(color)' which can be used to get the
+other color than the parameter. This macro can only be used on `WHITE'
+or `BLACK', but not on `EMPTY' or one of the border colors.
+
+   GNU Go uses two different representations of the board, for most
+purposes a one-dimensional one, but for a few purposes a two
+dimensional one (*note Libboard::). The one-dimensional board was
+introduced before GNU Go 3.2, while the two-dimensional board dates
+back to the ancestral program written by Man Lung Li before 1995. The
+API still uses the one-dimensional board, so the API functions have not
+changed much since GNU Go 3.0.
+
+
+File: gnugo.info,  Node: The Board State,  Next: Positional Functions,  Prev: Basic Data Structures,  Up: API
+
+The board_state struct
+======================
+
+   A basic data structure in the engine is the `board_state' struct.
+This structure is internal to the engine and is defined in `liberty.h'.
+
+
+          typedef unsigned char Intersection;
+     
+          struct board_state {
+            int board_size;
+     
+            Intersection board[BOARDSIZE];
+            int board_ko_pos;
+            int black_captured;
+            int white_captured;
+     
+            Intersection initial_board[BOARDSIZE];
+            int initial_board_ko_pos;
+            int initial_white_captured;
+            int initial_black_captured;
+            int move_history_color[MAX_MOVE_HISTORY];
+            int move_history_pos[MAX_MOVE_HISTORY];
+            int move_history_pointer;
+     
+            float komi;
+            int move_number;
+          };
+
+   Here `Intersection' stores `EMPTY', `WHITE' or `BLACK'. It is
+currently defined as an `unsigned char' to make it reasonably efficient
+in both storage and access time. The board state contains an array of
+`Intersection''s representing the board.  The move history is contained
+in the struct. Also contained in the struct is the location of a ko
+(`EMPTY') if the last move was not a ko capture, the komi, the number
+of captures, and corresponding data for the initial position at the
+beginning of the move history.
+

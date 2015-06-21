@@ -1,0 +1,235 @@
+# SpamAssassin rules file: body tests
+#
+# Please don't modify this file as your changes will be overwritten with
+# the next update. Use @@LOCAL_RULES_DIR@@/local.cf instead.
+# See 'perldoc Mail::SpamAssassin::Conf' for details.
+#
+# Note: body tests are run with long lines, so be sure to limit the
+# size of searches; use /.{0,30}/ instead of /.*/ to avoid huge
+# search times.
+#
+# Note: If you are adding a rule which looks for a phrase in the body
+# (as most of them do), please add it to rules/20_phrases.cf instead.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of either the Artistic License or the GNU General
+# Public License as published by the Free Software Foundation; either
+# version 1 of the License, or (at your option) any later version.
+#
+# See the file "License" in the top level of the SpamAssassin source
+# distribution for more details.
+#
+###########################################################################
+
+require_version @@VERSION@@
+
+###########################################################################
+# GTUBE test - the generic test for UBE.
+body GTUBE		/XJS\*C4JDBQADN1\.NSBN3\*2IDNEN\*GTUBE-STANDARD-ANTI-UBE-TEST-EMAIL\*C\.34X/
+describe GTUBE		Generic Test for Unsolicited Bulk Email
+tflags GTUBE		userconf
+
+###########################################################################
+# Message digest tests
+
+full RAZOR2_CHECK	eval:check_razor2()
+describe RAZOR2_CHECK	Listed in Razor2 (http://razor.sf.net/)
+tflags RAZOR2_CHECK	net
+
+# cf (confidence level) is how likely the message is spam.  RAZOR2_CHECK
+# returns true if cf>=min_cf (as defined by user/config).  These return
+# true depending on what cf value the message has.  The algorithm goes:
+# check the message via razor, then go through each mime part and check
+# how razor scored it.  If the part is contested (ie: it's been reported
+# as both ham and spam) it's ignored.  SA takes the highest non-contested
+# part cf score and returns it for the range rules.  ie: This is essentially
+# Razor 2's logic_method 4.
+#
+# Note: Disabling RAZOR2_CHECK (score RAZOR2_CHECK 0) will also disable
+# these checks.
+#
+# Note: The scores are set to 0 on these tests right now until they get
+# better integrated with SA overall.
+#
+body	RAZOR2_CF_RANGE_11_50	eval:check_razor2_range('11','50')
+body	RAZOR2_CF_RANGE_51_100	eval:check_razor2_range('51','100')
+tflags  RAZOR2_CF_RANGE_11_50	net
+tflags  RAZOR2_CF_RANGE_51_100	net
+describe RAZOR2_CF_RANGE_11_50	Razor2 gives confidence between 11 and 50
+describe RAZOR2_CF_RANGE_51_100	Razor2 gives confidence between 51 and 100
+
+full DCC_CHECK		eval:check_dcc()
+describe DCC_CHECK	Listed in DCC (http://rhyolite.com/anti-spam/dcc/)
+tflags DCC_CHECK	net
+
+full PYZOR_CHECK	eval:check_pyzor()
+describe PYZOR_CHECK	Listed in Pyzor (http://pyzor.sf.net/)
+tflags PYZOR_CHECK	net
+
+###########################################################################
+
+body REMOVE_IN_QUOTES		/\"remove\"/i
+describe REMOVE_IN_QUOTES	List removal information
+
+body     __BILL_1618    /\D301\D+a\W*2\W*c\D+1618\D/i
+
+meta     ANTISPAM_BILL  REMOVE_IN_QUOTES && __BILL_1618
+describe ANTISPAM_BILL  Very likely mention of anti-spam bill
+
+###########################################################################
+# CLICK rules
+# note HTML_LINK_CLICK* rules in HTML parser section
+
+body CLICK_TO_REMOVE_2		/mailto:.{0,50}click.{0,50}remove/is
+describe CLICK_TO_REMOVE_2	Click-to-remove with mailto: found
+
+# fixed by ms to not allow entry field onto next line
+rawbody ASCII_FORM_ENTRY	/[^<][A-Za-z][A-Za-z]+.{1,15}?[\x09\x20]*_{30,}/
+describe ASCII_FORM_ENTRY	Contains an ASCII-formatted form
+
+# this seems to be the new fashion (as of Jul 5 2002).  base64-encoded parts need to
+# be stripped before this match
+body TRACKER_ID		/^[a-z0-9]{6,24}[-_a-z0-9]{12,36}[a-z0-9]{6,24}\s*\z/is
+describe TRACKER_ID	Incorporates a tracking ID number
+
+# heh heh heh... tags used to (presumably) generate those anti-Razor random
+# IDs.  Used by Send-Safe ratware, http://www.send-safe.com/
+body MARKUP_RAND                /\{%RAND%\}/
+describe MARKUP_RAND            RAND found, spammer tried to use a random-ID
+body MARKUP_SSPL                /SSPLTM/
+describe MARKUP_SSPL            SSPL found, spammer tried to use a random-ID
+
+# (contrib: Matt Sergeant)
+body LARGE_HEX  		/[0-9a-fA-F]{70,}/
+describe LARGE_HEX		Contains a large block of hexadecimal code
+
+# converted to use eval method by Matthew Cline
+body LINES_OF_YELLING		eval:check_for_yelling()
+describe LINES_OF_YELLING       A WHOLE LINE OF YELLING DETECTED
+
+body     LINES_OF_YELLING_2     eval:check_for_num_yelling_lines("2")
+describe LINES_OF_YELLING_2     2 WHOLE LINES OF YELLING DETECTED
+
+body     LINES_OF_YELLING_3     eval:check_for_num_yelling_lines("3")
+describe LINES_OF_YELLING_3     3 WHOLE LINES OF YELLING DETECTED
+
+body WEIRD_QUOTING	/[\042\223\224\262\263\271]{2}\S{0,16}[\042\223\224\262\263\271]{2}/
+describe WEIRD_QUOTING	Weird repeated double-quotation marks
+
+###########################################################################
+# these tests doesn't actually use rawbody since rawbody isn't raw enough;
+# they must be written very carefully to avoid modifying the original content
+
+# MIME Content-Transfer-Encoding control rules
+rawbody __MIME_BASE64		eval:check_for_mime('mime_base64_count')
+describe __MIME_BASE64		Includes a base64 attachment
+
+rawbody __MIME_QP		eval:check_for_mime('mime_qp_count')
+describe __MIME_QP		Includes a quoted-printable attachment
+
+rawbody MIME_BASE64_BLANKS	eval:check_for_mime('mime_base64_blanks')
+describe MIME_BASE64_BLANKS	Extra blank lines in base64 encoding
+
+rawbody MIME_BASE64_ILLEGAL	eval:check_for_mime('mime_base64_illegal')
+describe MIME_BASE64_ILLEGAL	base64 attachment uses illegal characters
+
+rawbody MIME_BASE64_LATIN	eval:check_for_mime('mime_base64_latin')
+describe MIME_BASE64_LATIN	Latin alphabet text using base64 encoding
+
+rawbody MIME_BASE64_NO_NAME	eval:check_for_mime('mime_base64_no_name')
+describe MIME_BASE64_NO_NAME	base64 attachment does not have a file name
+
+rawbody MIME_BASE64_TEXT	eval:check_for_mime('mime_base64_encoded_text')
+describe MIME_BASE64_TEXT	Message text disguised using base64 encoding
+
+rawbody MIME_HTML_NO_CHARSET	eval:check_for_mime('mime_html_no_charset')
+describe MIME_HTML_NO_CHARSET	Message text in HTML without charset
+
+rawbody  MIME_MISSING_BOUNDARY	eval:check_for_mime('mime_missing_boundary')
+describe MIME_MISSING_BOUNDARY	MIME section missing boundary
+
+body MIME_HTML_MOSTLY		eval:check_mime_multipart_ratio('0.00','0.01')
+describe MIME_HTML_MOSTLY	Multipart message mostly text/html MIME
+
+# Steve Linford via Charlie Watts: good test!
+body MIME_HTML_ONLY		eval:check_for_mime_html_only()
+describe MIME_HTML_ONLY		Message only has text/html MIME parts
+
+# multipart/alternative has very good accuracy, other multipart types are
+# similar to MIME_HTML_ONLY so they don't need a separate rule
+header __CTYPE_MULTIPART_ALT	Content-Type =~ /multipart\/alternative/i
+meta MIME_HTML_ONLY_MULTI	(__CTYPE_MULTIPART_ALT && MIME_HTML_ONLY)
+describe MIME_HTML_ONLY_MULTI	Multipart message only has text/html MIME parts
+
+rawbody MIME_QP_DEFICIENT	eval:check_for_mime('mime_qp_illegal')
+describe MIME_QP_DEFICIENT	Deficient quoted-printable encoding in body
+
+rawbody MIME_QP_EXCESSIVE	eval:check_for_mime_excessive_qp('0.011')
+describe MIME_QP_EXCESSIVE	Excessive quoted-printable encoding in body
+
+rawbody  MIME_QP_LONG_LINE	eval:check_for_mime('mime_qp_long_line')
+describe MIME_QP_LONG_LINE	Quoted-printable line longer than 76 chars
+
+rawbody MIME_QP_NO_CHARSET	eval:check_for_mime('mime_qp_inline_no_charset')
+describe MIME_QP_NO_CHARSET	Quoted-printable inline text with no charset
+
+# actually indicates viruses, typically; just used here to clean corpora.
+rawbody  MICROSOFT_EXECUTABLE	eval:check_for_mime('microsoft_executable')
+describe MICROSOFT_EXECUTABLE	Message includes Microsoft executable program
+# todo: better tflags category for these tests
+tflags MICROSOFT_EXECUTABLE userconf
+
+# actually indicates viruses, typically; just used here to clean corpora.
+rawbody  MIME_SUSPECT_NAME	eval:check_for_mime('mime_suspect_name')
+describe MIME_SUSPECT_NAME	MIME filename does not match content
+# todo: better tflags category for these tests
+tflags MIME_SUSPECT_NAME userconf
+
+# note: __HIGHBITS is used by HTML_CHARSET_FARAWAY
+rawbody __MIME_CHARSET_FARAWAY	eval:check_for_mime('mime_faraway_charset')
+body __HIGHBITS			/(?:[\x80-\xff].?){4,}/
+meta MIME_CHARSET_FARAWAY	(__MIME_CHARSET_FARAWAY && __HIGHBITS)
+describe MIME_CHARSET_FARAWAY	MIME character set indicates foreign language
+tflags MIME_CHARSET_FARAWAY	userconf
+
+###########################################################################
+
+body CHARSET_FARAWAY		eval:check_for_faraway_charset()
+describe CHARSET_FARAWAY	Character set indicates a foreign language
+tflags CHARSET_FARAWAY          userconf
+
+body UNWANTED_LANGUAGE_BODY		eval:check_language()
+describe UNWANTED_LANGUAGE_BODY	Message written in an undesired language
+tflags UNWANTED_LANGUAGE_BODY          userconf
+
+body BODY_8BITS			eval:check_for_body_8bits()
+describe BODY_8BITS		Body includes 8 consecutive 8-bit characters
+tflags BODY_8BITS		userconf
+
+# Send-Safe ratware (from Alan Curry)
+# random alphanumerics, separated into groups of 16 by dashes (the first
+# and last group may be shorter), with a lowercase "l" and a number
+# appended. The final number is the length of the whole string not
+# including the dashes or the "l<number>".  Why? I have no idea.  It's
+# not a tracking code - the spamware does not save it locally.
+#
+# jm: it's specifically to throw off MIME base64 encoding, to evade AOL's
+# filters.
+#
+# http://groups.google.com/groups?selm=atp1ip0n22%40enews3.newsguy.com
+rawbody RATWARE_HASH_DASH	/[a-z\d]+-([a-z\d]{16}-)+[a-z\d]+(?-i:l)\d+/i
+describe RATWARE_HASH_DASH	Contains a hashbuster in Send-Safe format
+
+# duncf
+body EMAIL_ROT13     /\b[a-z(\]-]+\^[a-z-]+\([a-z]{2,3}\b/
+describe EMAIL_ROT13 Body contains a ROT13-encoded email address
+test EMAIL_ROT13 ok  qhabs^ebtref(pbz
+test EMAIL_ROT13 ok  zxrggyre^riv-vap(pbz
+test EMAIL_ROT13 fail	duncf-nospam@rogers.com
+
+body BLANK_LINES_70_80	eval:check_blank_line_ratio('70','80','4')
+body BLANK_LINES_80_90	eval:check_blank_line_ratio('80','90','4')
+body BLANK_LINES_90_100	eval:check_blank_line_ratio('90','100','4')
+describe BLANK_LINES_70_80  Message body has 70-80% blank lines
+describe BLANK_LINES_80_90  Message body has 80-90% blank lines
+describe BLANK_LINES_90_100 Message body has 90-100% blank lines

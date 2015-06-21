@@ -1,0 +1,771 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>Conventional routines</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Writing programs with TONTO"
+HREF="writing-programs.html"><LINK
+REL="PREVIOUS"
+TITLE="The documentation and style in TONTO"
+HREF="documentation-style.html"><LINK
+REL="NEXT"
+TITLE="Customisability and efficiency of TONTO"
+HREF="customisability.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="documentation-style.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="customisability.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="CONVENTIONAL-ROUTINES"
+></A
+>Conventional routines</H1
+><P
+ALIGN="justify"
+>If you look at a number of TONTO modules, you will find that almost all
+of them will have a number of routines with the same name. These are called
+<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>conventional</I
+></SPAN
+> routines, and they are always associated with
+the same kind of task in every module.</P
+><P
+ALIGN="justify"
+>The presence of conventional routines makes the task of understanding and
+using a module slightly easier, since one has a pre-expectation of what tasks
+are performed by a certain routine. Indeed, if you want to write a new module
+within the TONTO system, it is best not to use the conventional routine names
+except for their intended purpose, otherwise you will confuse people.  </P
+><P
+ALIGN="justify"
+>The purpose of these conventional routines will be described below.</P
+><P
+ALIGN="justify"
+>If you are interested in running TONTO, the most important conventional
+routine for you is the <TT
+CLASS="LITERAL"
+>read</TT
+> routine or the
+<TT
+CLASS="LITERAL"
+>process_input</TT
+> routine.  You should read about them
+below.</P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>copy(object)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>This routine makes a copy of another <TT
+CLASS="LITERAL"
+>object</TT
+>
+of the same type.  Any pointers to objects are allocated before copying, so the
+routine leads to a memory leak.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>create; destroy</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>create</TT
+> routine is used to allocate memory
+for a pointer to a data type described by the module.  Sometimes arguments are
+supplied to <TT
+CLASS="LITERAL"
+>create</TT
+> in order to set default values at
+allocation time.</P
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>destroy</TT
+> routine is used to deallocate memory for a
+pointer to a data type described by the module.</P
+><P
+ALIGN="justify"
+>The use of these routine causes a memory <SPAN
+CLASS="QUOTE"
+>"leak"</SPAN
+> which is
+monitored by memory checking routines in TONTO, provided these routines have
+been enabled at compile time.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>created; destroyed</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>created</TT
+> routine returns
+<TT
+CLASS="LITERAL"
+>TRUE</TT
+> if the data object (assumed to be a pointer) has been
+allocated.</P
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>destroyed</TT
+> routine returns <TT
+CLASS="LITERAL"
+>TRUE</TT
+>
+if the data object (assumed to be a pointer) has been deallocated.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>create_copy(object)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>This routine first creates (i.e. allocates) a new object and
+then makes a copy of it, in the sense of the <TT
+CLASS="LITERAL"
+>copy(object)</TT
+>
+routine.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>data_length(keywords)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>This routine is used to determine the length of a list of input
+data for a vector type object. The data is inputted from the
+<TT
+CLASS="LITERAL"
+>stdin</TT
+> file and is assumed to be in the order specified in the
+<TT
+CLASS="LITERAL"
+>keywords</TT
+> variable.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>destroy_ptr_part</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>If a data type has and components which are pointers, then this
+routine is used to deallocate memory for pointer components.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>nullify_ptr_part</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>If a data type has and components which are pointers, then this
+routine is used to nullify these pointer components. This is useful in cases
+where the multiple pointers are pointing to the same piece of memory. Multiple
+aliasing is rare in TONTO (it is inefficient and leads to concoluted code),
+but it is sometimes used to save memory.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>process_input(word); process_input(keyword)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>There are usually two routines with the name
+<TT
+CLASS="LITERAL"
+>process_input</TT
+>. Both are used to map an inputted keyword,
+detected by routine <TT
+CLASS="LITERAL"
+>read</TT
+>, to the actual module routine which
+performs the task.</P
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>process_input(word)</TT
+> routine processes a single
+<TT
+CLASS="LITERAL"
+>STR</TT
+> variable <TT
+CLASS="LITERAL"
+>word</TT
+>, while the
+<TT
+CLASS="LITERAL"
+>process_input(keyword)</TT
+> routine takes a sequence of
+<TT
+CLASS="LITERAL"
+>STR</TT
+> values <TT
+CLASS="LITERAL"
+>keyword</TT
+> as input.  This latter
+routine is typically used to input lists of derived data according to a
+predefined sequence of keywords, specified in the macros file in the
+<TT
+CLASS="LITERAL"
+>INPUT_DATA_ORDER</TT
+> variable for the module, or specified
+manually via a <TT
+CLASS="LITERAL"
+>list_order=</TT
+> keyword.</P
+><P
+ALIGN="justify"
+>Note that if any single <TT
+CLASS="LITERAL"
+>STR</TT
+> variable is comprised of a
+list of blank separated keywords or data, then the
+<TT
+CLASS="LITERAL"
+>process_input</TT
+> routine will recursively process these keywords
+or data as a separate file using the <TT
+CLASS="LITERAL"
+>read</TT
+> routine. This is
+useful for embedding commands in list oriented data.</P
+><P
+ALIGN="justify"
+>See <A
+HREF="calc-chap.html"
+>the chapter called <I
+>Using TONTO to do calculations</I
+></A
+>&#62; for more details.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>put</TT
+> routine, or any routine beginning
+with <TT
+CLASS="LITERAL"
+>put</TT
+> is used to output information concerning the object
+to the textfile <TT
+CLASS="LITERAL"
+>stdout</TT
+>.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>read</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>read</TT
+> routine is used to input a sequence
+of <SPAN
+CLASS="QUOTE"
+>"keywords"</SPAN
+> from an input file. These keywords are then
+interpreted using the <TT
+CLASS="LITERAL"
+>process_input</TT
+> routine, which may cause
+the input of additional data from the input file, or cause certain calculation
+to be performed, or both.</P
+><P
+ALIGN="justify"
+>In the case of array or list type objects, there are three special
+keywords alwaqys recognised by the <TT
+CLASS="LITERAL"
+>read</TT
+> routine:
+<TT
+CLASS="LITERAL"
+>list=</TT
+> and <TT
+CLASS="LITERAL"
+>list_order=</TT
+>.</P
+><P
+ALIGN="justify"
+>The form of the input style for data and the allowed keywords for any
+module have been described respectively in <A
+HREF="calc-chap.html"
+>the chapter called <I
+>Using TONTO to do calculations</I
+></A
+>&#62;
+and <A
+HREF="keywords.html"
+>the chapter called <I
+>Keyword documentation for TONTO</I
+></A
+>&#62;.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>read_data</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>read_data</TT
+> routine is used to input a
+sequence of <SPAN
+CLASS="QUOTE"
+>"keywords"</SPAN
+> for a list or vector type object. It is
+always called from the <TT
+CLASS="LITERAL"
+>read</TT
+> routine.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>read_units</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>This is an input routine which is used to set the default units
+to something other than atomic units. <TT
+CLASS="LITERAL"
+>read_units</TT
+> reads a
+string from the input stream which it interprets as a new units symbol. The next
+object that is inputted is assumed to be in these units; after the next object
+has been inputted, the default units is returned back to the default atomic
+units. It is always associated with the <TT
+CLASS="LITERAL"
+>units=</TT
+>
+keyword.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>redirect; revert</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>When the <TT
+CLASS="LITERAL"
+>redirect</TT
+> routine is available and
+called, the name of a new file is read from the <TT
+CLASS="LITERAL"
+>stdin</TT
+> file,
+and this file is opened and used as the new <TT
+CLASS="LITERAL"
+>stdin</TT
+>. </P
+><P
+ALIGN="justify"
+>When the <TT
+CLASS="LITERAL"
+>revert</TT
+> routine is used, the
+<TT
+CLASS="LITERAL"
+>stdin</TT
+> reverts back to the original file.</P
+><P
+ALIGN="justify"
+>These routines are quite similar to <TT
+CLASS="LITERAL"
+>save</TT
+> and
+<TT
+CLASS="LITERAL"
+>unsave</TT
+> but they are used in the context of I/O
+operations.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>same_as; equals</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>These routines test whether the object has the same data values
+as another data object. The routines should be synonymous and provide a
+generalisation of the <TT
+CLASS="LITERAL"
+>==</TT
+> operation.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>save; unsave</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>When the <TT
+CLASS="LITERAL"
+>save</TT
+> routine is available and
+called, a new object is created and a pointer to the original object is saved as
+a component of this new object. </P
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>unsave</TT
+> routine will deallocate the new object and
+then create an object with its original state. </P
+><P
+ALIGN="justify"
+>These routines are useful for objects that can create new versions of
+themselves from themselves.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>set_defaults</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>This routine is used to set certain default values for the
+components of the data type described in the module. Default values may also be
+set by explicit initialisation of the type components using the
+<TT
+CLASS="LITERAL"
+>DEFAULT</TT
+> or <TT
+CLASS="LITERAL"
+>DEFAULT_NULL</TT
+> macros defined in
+the <TT
+CLASS="LITERAL"
+>macros</TT
+> file. (These latter macros are not available on
+systems where the <TT
+CLASS="LITERAL"
+>LANGUAGE_FORTRAN_90</TT
+> compile option has been
+set due to unavailablity or problems with Fortran 95 compilers).</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>set_to</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Assigns parts of the data object from other data types. For
+pointer objects, copies are <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>not</I
+></SPAN
+> made, but pointer
+assignments are used.  This routine can be thought of as an alias for, or
+generalisation of, the <TT
+CLASS="LITERAL"
+>=</TT
+> operation.</P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="documentation-style.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="customisability.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>The documentation and style in TONTO</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="writing-programs.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Customisability and efficiency of TONTO</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

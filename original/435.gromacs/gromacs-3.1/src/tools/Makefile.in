@@ -1,0 +1,1102 @@
+# Makefile.in generated automatically by automake 1.5 from Makefile.am.
+
+# Copyright 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001
+# Free Software Foundation, Inc.
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+
+@SET_MAKE@
+
+# Note: Makefile is automatically generated from Makefile.in by the configure
+# script, and Makefile.in is generated from Makefile.am by automake.
+
+SHELL = @SHELL@
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
+top_builddir = ../..
+
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOMAKE = @AUTOMAKE@
+AUTOHEADER = @AUTOHEADER@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+INSTALL_HEADER = $(INSTALL_DATA)
+transform = @program_transform_name@
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+host_alias = @host_alias@
+host_triplet = @host@
+AMTAR = @AMTAR@
+AS = @AS@
+ASFLAGS = @ASFLAGS@
+AWK = @AWK@
+CC = @CC@
+CC_FOR_BUILD = @CC_FOR_BUILD@
+CPP = @CPP@
+CXX = @CXX@
+CXXCPP = @CXXCPP@
+DEPDIR = @DEPDIR@
+DLLTOOL = @DLLTOOL@
+ECHO = @ECHO@
+EXEEXT = @EXEEXT@
+F77 = @F77@
+F77LINK = @F77LINK@
+FLIBS = @FLIBS@
+GCJ = @GCJ@
+GCJFLAGS = @GCJFLAGS@
+GMXLIB_LIBOBJS = @GMXLIB_LIBOBJS@
+IDENT = @IDENT@
+INCLUDES = @INCLUDES@
+INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
+LIBSUFFIX = @LIBSUFFIX@
+LIBTOOL = @LIBTOOL@
+LN_S = @LN_S@
+MDLIB_LIBOBJS = @MDLIB_LIBOBJS@
+MPICC = @MPICC@
+OBJDUMP = @OBJDUMP@
+OBJEXT = @OBJEXT@
+PACKAGE = @PACKAGE@
+RANLIB = @RANLIB@
+RC = @RC@
+RPM = @RPM@
+SHARED_VERSION_INFO = @SHARED_VERSION_INFO@
+STRIP = @STRIP@
+VERSION = @VERSION@
+X_CFLAGS = @X_CFLAGS@
+X_EXTRA_LIBS = @X_EXTRA_LIBS@
+X_LIBS = @X_LIBS@
+X_PRE_LIBS = @X_PRE_LIBS@
+am__include = @am__include@
+am__quote = @am__quote@
+install_sh = @install_sh@
+
+AM_CPPFLAGS = -I$(top_srcdir)/include -DGMXLIBDIR=\"$(datadir)/top\"
+
+LDADD = ../mdlib/libmd@LIBSUFFIX@.la ../gmxlib/libgmx@LIBSUFFIX@.la
+
+bin_PROGRAMS = \
+	average		do_dssp		editconf	eneconv		\
+	g_analyze	g_anaeig	g_angle		g_bond		\
+	g_bundle	g_chi		g_cluster	g_confrms	\
+	g_covar		g_density	g_dielectric	g_dih		\
+	g_dipoles	g_disre		g_dist		g_dyndom	\
+	g_enemat	g_energy	g_lie		g_gyrate	\
+	g_h2order	g_hbond		g_helix		g_mdmat		\
+	g_mindist	g_msd		g_morph		g_nmeig		\
+	g_nmens		g_order		g_potential	g_rama		\
+	g_rdf		g_rms		g_rmsdist	g_rmsf		\
+	g_rotacf	g_saltbr	g_sas		g_sgangle	\
+	g_sorient 	g_tcaf		g_traj		g_velacc	\
+	g_clustsize	genbox		genconf		genpr		\
+	make_ndx	mk_angndx	trjcat		trjconv        	\
+	trjorder	wheel		xpm2ps		genion
+
+
+AUTOCORR_SRC = autocorr.c expfit.c polynomials.c levenmar.c
+
+
+# Note: you don't have to list sources for "prog" if it is the single file prog.c
+g_analyze_SOURCES = g_analyze.c $(AUTOCORR_SRC)
+g_anaeig_SOURCES = g_anaeig.c eigio.c
+g_angle_SOURCES = g_angle.c anadih.c $(AUTOCORR_SRC)
+g_bond_SOURCES = g_bond.c lsq.c
+g_chi_SOURCES = g_chi.c anadih.c pp2shift.c pp2shift.h dlist.c $(AUTOCORR_SRC)
+g_cluster_SOURCES = g_cluster.c cmat.c ql77.c ql77.h	
+g_clustsize_SOURCES = g_clustsize.c cmat.c 
+g_covar_SOURCES = g_covar.c eigio.c ql77.c ql77.h
+g_dielectric_SOURCES = g_dielectric.c $(AUTOCORR_SRC)
+g_dipoles_SOURCES = g_dipoles.c lsq.c $(AUTOCORR_SRC)
+g_energy_SOURCES = g_energy.c $(AUTOCORR_SRC)
+g_hbond_SOURCES = g_hbond.c $(AUTOCORR_SRC)
+g_helix_SOURCES = g_helix.c hxprops.c hxprops.h fitahx.c fitahx.h
+g_msd_SOURCES = g_msd.c lsq.c
+g_nmeig_SOURCES = g_nmeig.c eigio.c eigio.h ql77.c ql77.h
+g_nmens_SOURCES = g_nmens.c eigio.c	
+g_rdf_SOURCES = g_rdf.c $(AUTOCORR_SRC)
+g_rms_SOURCES = g_rms.c cmat.c cmat.h
+g_rmsf_SOURCES = g_rmsf.c ql77.c ql77.h
+g_rotacf_SOURCES = g_rotacf.c $(AUTOCORR_SRC)
+g_sas_SOURCES = g_sas.c nsc.c nsc.h
+g_tcaf_SOURCES = g_tcaf.c $(AUTOCORR_SRC)
+g_velacc_SOURCES = g_velacc.c $(AUTOCORR_SRC)
+genbox_SOURCES = genbox.c addconf.c addconf.h
+genion_SOURCES = genion.c calcpot.c calcpot.h edittop.c
+
+CLEANFILES = *~ \\\#*
+subdir = src/tools
+mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+CONFIG_HEADER = $(top_builddir)/src/config.h
+CONFIG_CLEAN_FILES =
+bin_PROGRAMS = average$(EXEEXT) do_dssp$(EXEEXT) editconf$(EXEEXT) \
+	eneconv$(EXEEXT) g_analyze$(EXEEXT) g_anaeig$(EXEEXT) \
+	g_angle$(EXEEXT) g_bond$(EXEEXT) g_bundle$(EXEEXT) \
+	g_chi$(EXEEXT) g_cluster$(EXEEXT) g_confrms$(EXEEXT) \
+	g_covar$(EXEEXT) g_density$(EXEEXT) g_dielectric$(EXEEXT) \
+	g_dih$(EXEEXT) g_dipoles$(EXEEXT) g_disre$(EXEEXT) \
+	g_dist$(EXEEXT) g_dyndom$(EXEEXT) g_enemat$(EXEEXT) \
+	g_energy$(EXEEXT) g_lie$(EXEEXT) g_gyrate$(EXEEXT) \
+	g_h2order$(EXEEXT) g_hbond$(EXEEXT) g_helix$(EXEEXT) \
+	g_mdmat$(EXEEXT) g_mindist$(EXEEXT) g_msd$(EXEEXT) \
+	g_morph$(EXEEXT) g_nmeig$(EXEEXT) g_nmens$(EXEEXT) \
+	g_order$(EXEEXT) g_potential$(EXEEXT) g_rama$(EXEEXT) \
+	g_rdf$(EXEEXT) g_rms$(EXEEXT) g_rmsdist$(EXEEXT) \
+	g_rmsf$(EXEEXT) g_rotacf$(EXEEXT) g_saltbr$(EXEEXT) \
+	g_sas$(EXEEXT) g_sgangle$(EXEEXT) g_sorient$(EXEEXT) \
+	g_tcaf$(EXEEXT) g_traj$(EXEEXT) g_velacc$(EXEEXT) \
+	g_clustsize$(EXEEXT) genbox$(EXEEXT) genconf$(EXEEXT) \
+	genpr$(EXEEXT) make_ndx$(EXEEXT) mk_angndx$(EXEEXT) \
+	trjcat$(EXEEXT) trjconv$(EXEEXT) trjorder$(EXEEXT) \
+	wheel$(EXEEXT) xpm2ps$(EXEEXT) genion$(EXEEXT)
+PROGRAMS = $(bin_PROGRAMS)
+
+average_SOURCES = average.c
+average_OBJECTS = average.$(OBJEXT)
+average_LDADD = $(LDADD)
+average_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+average_LDFLAGS =
+do_dssp_SOURCES = do_dssp.c
+do_dssp_OBJECTS = do_dssp.$(OBJEXT)
+do_dssp_LDADD = $(LDADD)
+do_dssp_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+do_dssp_LDFLAGS =
+editconf_SOURCES = editconf.c
+editconf_OBJECTS = editconf.$(OBJEXT)
+editconf_LDADD = $(LDADD)
+editconf_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+editconf_LDFLAGS =
+eneconv_SOURCES = eneconv.c
+eneconv_OBJECTS = eneconv.$(OBJEXT)
+eneconv_LDADD = $(LDADD)
+eneconv_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+eneconv_LDFLAGS =
+am_g_anaeig_OBJECTS = g_anaeig.$(OBJEXT) eigio.$(OBJEXT)
+g_anaeig_OBJECTS = $(am_g_anaeig_OBJECTS)
+g_anaeig_LDADD = $(LDADD)
+g_anaeig_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_anaeig_LDFLAGS =
+am_g_analyze_OBJECTS = g_analyze.$(OBJEXT) autocorr.$(OBJEXT) \
+	expfit.$(OBJEXT) polynomials.$(OBJEXT) levenmar.$(OBJEXT)
+g_analyze_OBJECTS = $(am_g_analyze_OBJECTS)
+g_analyze_LDADD = $(LDADD)
+g_analyze_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_analyze_LDFLAGS =
+am_g_angle_OBJECTS = g_angle.$(OBJEXT) anadih.$(OBJEXT) \
+	autocorr.$(OBJEXT) expfit.$(OBJEXT) polynomials.$(OBJEXT) \
+	levenmar.$(OBJEXT)
+g_angle_OBJECTS = $(am_g_angle_OBJECTS)
+g_angle_LDADD = $(LDADD)
+g_angle_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_angle_LDFLAGS =
+am_g_bond_OBJECTS = g_bond.$(OBJEXT) lsq.$(OBJEXT)
+g_bond_OBJECTS = $(am_g_bond_OBJECTS)
+g_bond_LDADD = $(LDADD)
+g_bond_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_bond_LDFLAGS =
+g_bundle_SOURCES = g_bundle.c
+g_bundle_OBJECTS = g_bundle.$(OBJEXT)
+g_bundle_LDADD = $(LDADD)
+g_bundle_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_bundle_LDFLAGS =
+am_g_chi_OBJECTS = g_chi.$(OBJEXT) anadih.$(OBJEXT) pp2shift.$(OBJEXT) \
+	dlist.$(OBJEXT) autocorr.$(OBJEXT) expfit.$(OBJEXT) \
+	polynomials.$(OBJEXT) levenmar.$(OBJEXT)
+g_chi_OBJECTS = $(am_g_chi_OBJECTS)
+g_chi_LDADD = $(LDADD)
+g_chi_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_chi_LDFLAGS =
+am_g_cluster_OBJECTS = g_cluster.$(OBJEXT) cmat.$(OBJEXT) ql77.$(OBJEXT)
+g_cluster_OBJECTS = $(am_g_cluster_OBJECTS)
+g_cluster_LDADD = $(LDADD)
+g_cluster_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_cluster_LDFLAGS =
+am_g_clustsize_OBJECTS = g_clustsize.$(OBJEXT) cmat.$(OBJEXT)
+g_clustsize_OBJECTS = $(am_g_clustsize_OBJECTS)
+g_clustsize_LDADD = $(LDADD)
+g_clustsize_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_clustsize_LDFLAGS =
+g_confrms_SOURCES = g_confrms.c
+g_confrms_OBJECTS = g_confrms.$(OBJEXT)
+g_confrms_LDADD = $(LDADD)
+g_confrms_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_confrms_LDFLAGS =
+am_g_covar_OBJECTS = g_covar.$(OBJEXT) eigio.$(OBJEXT) ql77.$(OBJEXT)
+g_covar_OBJECTS = $(am_g_covar_OBJECTS)
+g_covar_LDADD = $(LDADD)
+g_covar_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_covar_LDFLAGS =
+g_density_SOURCES = g_density.c
+g_density_OBJECTS = g_density.$(OBJEXT)
+g_density_LDADD = $(LDADD)
+g_density_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_density_LDFLAGS =
+am_g_dielectric_OBJECTS = g_dielectric.$(OBJEXT) autocorr.$(OBJEXT) \
+	expfit.$(OBJEXT) polynomials.$(OBJEXT) levenmar.$(OBJEXT)
+g_dielectric_OBJECTS = $(am_g_dielectric_OBJECTS)
+g_dielectric_LDADD = $(LDADD)
+g_dielectric_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_dielectric_LDFLAGS =
+g_dih_SOURCES = g_dih.c
+g_dih_OBJECTS = g_dih.$(OBJEXT)
+g_dih_LDADD = $(LDADD)
+g_dih_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_dih_LDFLAGS =
+am_g_dipoles_OBJECTS = g_dipoles.$(OBJEXT) lsq.$(OBJEXT) \
+	autocorr.$(OBJEXT) expfit.$(OBJEXT) polynomials.$(OBJEXT) \
+	levenmar.$(OBJEXT)
+g_dipoles_OBJECTS = $(am_g_dipoles_OBJECTS)
+g_dipoles_LDADD = $(LDADD)
+g_dipoles_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_dipoles_LDFLAGS =
+g_disre_SOURCES = g_disre.c
+g_disre_OBJECTS = g_disre.$(OBJEXT)
+g_disre_LDADD = $(LDADD)
+g_disre_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_disre_LDFLAGS =
+g_dist_SOURCES = g_dist.c
+g_dist_OBJECTS = g_dist.$(OBJEXT)
+g_dist_LDADD = $(LDADD)
+g_dist_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_dist_LDFLAGS =
+g_dyndom_SOURCES = g_dyndom.c
+g_dyndom_OBJECTS = g_dyndom.$(OBJEXT)
+g_dyndom_LDADD = $(LDADD)
+g_dyndom_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_dyndom_LDFLAGS =
+g_enemat_SOURCES = g_enemat.c
+g_enemat_OBJECTS = g_enemat.$(OBJEXT)
+g_enemat_LDADD = $(LDADD)
+g_enemat_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_enemat_LDFLAGS =
+am_g_energy_OBJECTS = g_energy.$(OBJEXT) autocorr.$(OBJEXT) \
+	expfit.$(OBJEXT) polynomials.$(OBJEXT) levenmar.$(OBJEXT)
+g_energy_OBJECTS = $(am_g_energy_OBJECTS)
+g_energy_LDADD = $(LDADD)
+g_energy_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_energy_LDFLAGS =
+g_gyrate_SOURCES = g_gyrate.c
+g_gyrate_OBJECTS = g_gyrate.$(OBJEXT)
+g_gyrate_LDADD = $(LDADD)
+g_gyrate_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_gyrate_LDFLAGS =
+g_h2order_SOURCES = g_h2order.c
+g_h2order_OBJECTS = g_h2order.$(OBJEXT)
+g_h2order_LDADD = $(LDADD)
+g_h2order_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_h2order_LDFLAGS =
+am_g_hbond_OBJECTS = g_hbond.$(OBJEXT) autocorr.$(OBJEXT) \
+	expfit.$(OBJEXT) polynomials.$(OBJEXT) levenmar.$(OBJEXT)
+g_hbond_OBJECTS = $(am_g_hbond_OBJECTS)
+g_hbond_LDADD = $(LDADD)
+g_hbond_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_hbond_LDFLAGS =
+am_g_helix_OBJECTS = g_helix.$(OBJEXT) hxprops.$(OBJEXT) \
+	fitahx.$(OBJEXT)
+g_helix_OBJECTS = $(am_g_helix_OBJECTS)
+g_helix_LDADD = $(LDADD)
+g_helix_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_helix_LDFLAGS =
+g_lie_SOURCES = g_lie.c
+g_lie_OBJECTS = g_lie.$(OBJEXT)
+g_lie_LDADD = $(LDADD)
+g_lie_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_lie_LDFLAGS =
+g_mdmat_SOURCES = g_mdmat.c
+g_mdmat_OBJECTS = g_mdmat.$(OBJEXT)
+g_mdmat_LDADD = $(LDADD)
+g_mdmat_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_mdmat_LDFLAGS =
+g_mindist_SOURCES = g_mindist.c
+g_mindist_OBJECTS = g_mindist.$(OBJEXT)
+g_mindist_LDADD = $(LDADD)
+g_mindist_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_mindist_LDFLAGS =
+g_morph_SOURCES = g_morph.c
+g_morph_OBJECTS = g_morph.$(OBJEXT)
+g_morph_LDADD = $(LDADD)
+g_morph_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_morph_LDFLAGS =
+am_g_msd_OBJECTS = g_msd.$(OBJEXT) lsq.$(OBJEXT)
+g_msd_OBJECTS = $(am_g_msd_OBJECTS)
+g_msd_LDADD = $(LDADD)
+g_msd_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_msd_LDFLAGS =
+am_g_nmeig_OBJECTS = g_nmeig.$(OBJEXT) eigio.$(OBJEXT) ql77.$(OBJEXT)
+g_nmeig_OBJECTS = $(am_g_nmeig_OBJECTS)
+g_nmeig_LDADD = $(LDADD)
+g_nmeig_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_nmeig_LDFLAGS =
+am_g_nmens_OBJECTS = g_nmens.$(OBJEXT) eigio.$(OBJEXT)
+g_nmens_OBJECTS = $(am_g_nmens_OBJECTS)
+g_nmens_LDADD = $(LDADD)
+g_nmens_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_nmens_LDFLAGS =
+g_order_SOURCES = g_order.c
+g_order_OBJECTS = g_order.$(OBJEXT)
+g_order_LDADD = $(LDADD)
+g_order_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_order_LDFLAGS =
+g_potential_SOURCES = g_potential.c
+g_potential_OBJECTS = g_potential.$(OBJEXT)
+g_potential_LDADD = $(LDADD)
+g_potential_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_potential_LDFLAGS =
+g_rama_SOURCES = g_rama.c
+g_rama_OBJECTS = g_rama.$(OBJEXT)
+g_rama_LDADD = $(LDADD)
+g_rama_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_rama_LDFLAGS =
+am_g_rdf_OBJECTS = g_rdf.$(OBJEXT) autocorr.$(OBJEXT) expfit.$(OBJEXT) \
+	polynomials.$(OBJEXT) levenmar.$(OBJEXT)
+g_rdf_OBJECTS = $(am_g_rdf_OBJECTS)
+g_rdf_LDADD = $(LDADD)
+g_rdf_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_rdf_LDFLAGS =
+am_g_rms_OBJECTS = g_rms.$(OBJEXT) cmat.$(OBJEXT)
+g_rms_OBJECTS = $(am_g_rms_OBJECTS)
+g_rms_LDADD = $(LDADD)
+g_rms_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_rms_LDFLAGS =
+g_rmsdist_SOURCES = g_rmsdist.c
+g_rmsdist_OBJECTS = g_rmsdist.$(OBJEXT)
+g_rmsdist_LDADD = $(LDADD)
+g_rmsdist_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_rmsdist_LDFLAGS =
+am_g_rmsf_OBJECTS = g_rmsf.$(OBJEXT) ql77.$(OBJEXT)
+g_rmsf_OBJECTS = $(am_g_rmsf_OBJECTS)
+g_rmsf_LDADD = $(LDADD)
+g_rmsf_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_rmsf_LDFLAGS =
+am_g_rotacf_OBJECTS = g_rotacf.$(OBJEXT) autocorr.$(OBJEXT) \
+	expfit.$(OBJEXT) polynomials.$(OBJEXT) levenmar.$(OBJEXT)
+g_rotacf_OBJECTS = $(am_g_rotacf_OBJECTS)
+g_rotacf_LDADD = $(LDADD)
+g_rotacf_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_rotacf_LDFLAGS =
+g_saltbr_SOURCES = g_saltbr.c
+g_saltbr_OBJECTS = g_saltbr.$(OBJEXT)
+g_saltbr_LDADD = $(LDADD)
+g_saltbr_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_saltbr_LDFLAGS =
+am_g_sas_OBJECTS = g_sas.$(OBJEXT) nsc.$(OBJEXT)
+g_sas_OBJECTS = $(am_g_sas_OBJECTS)
+g_sas_LDADD = $(LDADD)
+g_sas_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_sas_LDFLAGS =
+g_sgangle_SOURCES = g_sgangle.c
+g_sgangle_OBJECTS = g_sgangle.$(OBJEXT)
+g_sgangle_LDADD = $(LDADD)
+g_sgangle_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_sgangle_LDFLAGS =
+g_sorient_SOURCES = g_sorient.c
+g_sorient_OBJECTS = g_sorient.$(OBJEXT)
+g_sorient_LDADD = $(LDADD)
+g_sorient_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_sorient_LDFLAGS =
+am_g_tcaf_OBJECTS = g_tcaf.$(OBJEXT) autocorr.$(OBJEXT) expfit.$(OBJEXT) \
+	polynomials.$(OBJEXT) levenmar.$(OBJEXT)
+g_tcaf_OBJECTS = $(am_g_tcaf_OBJECTS)
+g_tcaf_LDADD = $(LDADD)
+g_tcaf_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_tcaf_LDFLAGS =
+g_traj_SOURCES = g_traj.c
+g_traj_OBJECTS = g_traj.$(OBJEXT)
+g_traj_LDADD = $(LDADD)
+g_traj_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_traj_LDFLAGS =
+am_g_velacc_OBJECTS = g_velacc.$(OBJEXT) autocorr.$(OBJEXT) \
+	expfit.$(OBJEXT) polynomials.$(OBJEXT) levenmar.$(OBJEXT)
+g_velacc_OBJECTS = $(am_g_velacc_OBJECTS)
+g_velacc_LDADD = $(LDADD)
+g_velacc_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+g_velacc_LDFLAGS =
+am_genbox_OBJECTS = genbox.$(OBJEXT) addconf.$(OBJEXT)
+genbox_OBJECTS = $(am_genbox_OBJECTS)
+genbox_LDADD = $(LDADD)
+genbox_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+genbox_LDFLAGS =
+genconf_SOURCES = genconf.c
+genconf_OBJECTS = genconf.$(OBJEXT)
+genconf_LDADD = $(LDADD)
+genconf_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+genconf_LDFLAGS =
+am_genion_OBJECTS = genion.$(OBJEXT) calcpot.$(OBJEXT) edittop.$(OBJEXT)
+genion_OBJECTS = $(am_genion_OBJECTS)
+genion_LDADD = $(LDADD)
+genion_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+genion_LDFLAGS =
+genpr_SOURCES = genpr.c
+genpr_OBJECTS = genpr.$(OBJEXT)
+genpr_LDADD = $(LDADD)
+genpr_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+genpr_LDFLAGS =
+make_ndx_SOURCES = make_ndx.c
+make_ndx_OBJECTS = make_ndx.$(OBJEXT)
+make_ndx_LDADD = $(LDADD)
+make_ndx_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+make_ndx_LDFLAGS =
+mk_angndx_SOURCES = mk_angndx.c
+mk_angndx_OBJECTS = mk_angndx.$(OBJEXT)
+mk_angndx_LDADD = $(LDADD)
+mk_angndx_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+mk_angndx_LDFLAGS =
+trjcat_SOURCES = trjcat.c
+trjcat_OBJECTS = trjcat.$(OBJEXT)
+trjcat_LDADD = $(LDADD)
+trjcat_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+trjcat_LDFLAGS =
+trjconv_SOURCES = trjconv.c
+trjconv_OBJECTS = trjconv.$(OBJEXT)
+trjconv_LDADD = $(LDADD)
+trjconv_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+trjconv_LDFLAGS =
+trjorder_SOURCES = trjorder.c
+trjorder_OBJECTS = trjorder.$(OBJEXT)
+trjorder_LDADD = $(LDADD)
+trjorder_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+trjorder_LDFLAGS =
+wheel_SOURCES = wheel.c
+wheel_OBJECTS = wheel.$(OBJEXT)
+wheel_LDADD = $(LDADD)
+wheel_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+wheel_LDFLAGS =
+xpm2ps_SOURCES = xpm2ps.c
+xpm2ps_OBJECTS = xpm2ps.$(OBJEXT)
+xpm2ps_LDADD = $(LDADD)
+xpm2ps_DEPENDENCIES = ../mdlib/libmd@LIBSUFFIX@.la \
+	../gmxlib/libgmx@LIBSUFFIX@.la
+xpm2ps_LDFLAGS =
+
+DEFS = @DEFS@
+DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)/src
+CPPFLAGS = @CPPFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+depcomp = $(SHELL) $(top_srcdir)/config/depcomp
+@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/addconf.Po $(DEPDIR)/anadih.Po \
+@AMDEP_TRUE@	$(DEPDIR)/autocorr.Po $(DEPDIR)/average.Po \
+@AMDEP_TRUE@	$(DEPDIR)/calcpot.Po $(DEPDIR)/cmat.Po \
+@AMDEP_TRUE@	$(DEPDIR)/dlist.Po $(DEPDIR)/do_dssp.Po \
+@AMDEP_TRUE@	$(DEPDIR)/editconf.Po $(DEPDIR)/edittop.Po \
+@AMDEP_TRUE@	$(DEPDIR)/eigio.Po $(DEPDIR)/eneconv.Po \
+@AMDEP_TRUE@	$(DEPDIR)/expfit.Po $(DEPDIR)/fitahx.Po \
+@AMDEP_TRUE@	$(DEPDIR)/g_anaeig.Po $(DEPDIR)/g_analyze.Po \
+@AMDEP_TRUE@	$(DEPDIR)/g_angle.Po $(DEPDIR)/g_bond.Po \
+@AMDEP_TRUE@	$(DEPDIR)/g_bundle.Po $(DEPDIR)/g_chi.Po \
+@AMDEP_TRUE@	$(DEPDIR)/g_cluster.Po $(DEPDIR)/g_clustsize.Po \
+@AMDEP_TRUE@	$(DEPDIR)/g_confrms.Po $(DEPDIR)/g_covar.Po \
+@AMDEP_TRUE@	$(DEPDIR)/g_density.Po $(DEPDIR)/g_dielectric.Po \
+@AMDEP_TRUE@	$(DEPDIR)/g_dih.Po $(DEPDIR)/g_dipoles.Po \
+@AMDEP_TRUE@	$(DEPDIR)/g_disre.Po $(DEPDIR)/g_dist.Po \
+@AMDEP_TRUE@	$(DEPDIR)/g_dyndom.Po $(DEPDIR)/g_enemat.Po \
+@AMDEP_TRUE@	$(DEPDIR)/g_energy.Po $(DEPDIR)/g_gyrate.Po \
+@AMDEP_TRUE@	$(DEPDIR)/g_h2order.Po $(DEPDIR)/g_hbond.Po \
+@AMDEP_TRUE@	$(DEPDIR)/g_helix.Po $(DEPDIR)/g_lie.Po \
+@AMDEP_TRUE@	$(DEPDIR)/g_mdmat.Po $(DEPDIR)/g_mindist.Po \
+@AMDEP_TRUE@	$(DEPDIR)/g_morph.Po $(DEPDIR)/g_msd.Po \
+@AMDEP_TRUE@	$(DEPDIR)/g_nmeig.Po $(DEPDIR)/g_nmens.Po \
+@AMDEP_TRUE@	$(DEPDIR)/g_order.Po $(DEPDIR)/g_potential.Po \
+@AMDEP_TRUE@	$(DEPDIR)/g_rama.Po $(DEPDIR)/g_rdf.Po \
+@AMDEP_TRUE@	$(DEPDIR)/g_rms.Po $(DEPDIR)/g_rmsdist.Po \
+@AMDEP_TRUE@	$(DEPDIR)/g_rmsf.Po $(DEPDIR)/g_rotacf.Po \
+@AMDEP_TRUE@	$(DEPDIR)/g_saltbr.Po $(DEPDIR)/g_sas.Po \
+@AMDEP_TRUE@	$(DEPDIR)/g_sgangle.Po $(DEPDIR)/g_sorient.Po \
+@AMDEP_TRUE@	$(DEPDIR)/g_tcaf.Po $(DEPDIR)/g_traj.Po \
+@AMDEP_TRUE@	$(DEPDIR)/g_velacc.Po $(DEPDIR)/genbox.Po \
+@AMDEP_TRUE@	$(DEPDIR)/genconf.Po $(DEPDIR)/genion.Po \
+@AMDEP_TRUE@	$(DEPDIR)/genpr.Po $(DEPDIR)/hxprops.Po \
+@AMDEP_TRUE@	$(DEPDIR)/levenmar.Po $(DEPDIR)/lsq.Po \
+@AMDEP_TRUE@	$(DEPDIR)/make_ndx.Po $(DEPDIR)/mk_angndx.Po \
+@AMDEP_TRUE@	$(DEPDIR)/nsc.Po $(DEPDIR)/polynomials.Po \
+@AMDEP_TRUE@	$(DEPDIR)/pp2shift.Po $(DEPDIR)/ql77.Po \
+@AMDEP_TRUE@	$(DEPDIR)/trjcat.Po $(DEPDIR)/trjconv.Po \
+@AMDEP_TRUE@	$(DEPDIR)/trjorder.Po $(DEPDIR)/wheel.Po \
+@AMDEP_TRUE@	$(DEPDIR)/xpm2ps.Po
+COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
+	$(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+CFLAGS = @CFLAGS@
+DIST_SOURCES = average.c do_dssp.c editconf.c eneconv.c \
+	$(g_anaeig_SOURCES) $(g_analyze_SOURCES) $(g_angle_SOURCES) \
+	$(g_bond_SOURCES) g_bundle.c $(g_chi_SOURCES) \
+	$(g_cluster_SOURCES) $(g_clustsize_SOURCES) g_confrms.c \
+	$(g_covar_SOURCES) g_density.c $(g_dielectric_SOURCES) g_dih.c \
+	$(g_dipoles_SOURCES) g_disre.c g_dist.c g_dyndom.c g_enemat.c \
+	$(g_energy_SOURCES) g_gyrate.c g_h2order.c $(g_hbond_SOURCES) \
+	$(g_helix_SOURCES) g_lie.c g_mdmat.c g_mindist.c g_morph.c \
+	$(g_msd_SOURCES) $(g_nmeig_SOURCES) $(g_nmens_SOURCES) \
+	g_order.c g_potential.c g_rama.c $(g_rdf_SOURCES) \
+	$(g_rms_SOURCES) g_rmsdist.c $(g_rmsf_SOURCES) \
+	$(g_rotacf_SOURCES) g_saltbr.c $(g_sas_SOURCES) g_sgangle.c \
+	g_sorient.c $(g_tcaf_SOURCES) g_traj.c $(g_velacc_SOURCES) \
+	$(genbox_SOURCES) genconf.c $(genion_SOURCES) genpr.c \
+	make_ndx.c mk_angndx.c trjcat.c trjconv.c trjorder.c wheel.c \
+	xpm2ps.c
+DIST_COMMON = Makefile.am Makefile.in
+SOURCES = average.c do_dssp.c editconf.c eneconv.c $(g_anaeig_SOURCES) $(g_analyze_SOURCES) $(g_angle_SOURCES) $(g_bond_SOURCES) g_bundle.c $(g_chi_SOURCES) $(g_cluster_SOURCES) $(g_clustsize_SOURCES) g_confrms.c $(g_covar_SOURCES) g_density.c $(g_dielectric_SOURCES) g_dih.c $(g_dipoles_SOURCES) g_disre.c g_dist.c g_dyndom.c g_enemat.c $(g_energy_SOURCES) g_gyrate.c g_h2order.c $(g_hbond_SOURCES) $(g_helix_SOURCES) g_lie.c g_mdmat.c g_mindist.c g_morph.c $(g_msd_SOURCES) $(g_nmeig_SOURCES) $(g_nmens_SOURCES) g_order.c g_potential.c g_rama.c $(g_rdf_SOURCES) $(g_rms_SOURCES) g_rmsdist.c $(g_rmsf_SOURCES) $(g_rotacf_SOURCES) g_saltbr.c $(g_sas_SOURCES) g_sgangle.c g_sorient.c $(g_tcaf_SOURCES) g_traj.c $(g_velacc_SOURCES) $(genbox_SOURCES) genconf.c $(genion_SOURCES) genpr.c make_ndx.c mk_angndx.c trjcat.c trjconv.c trjorder.c wheel.c xpm2ps.c
+
+all: all-am
+
+.SUFFIXES:
+.SUFFIXES: .c .lo .o .obj
+
+mostlyclean-libtool:
+	-rm -f *.lo
+
+clean-libtool:
+	-rm -rf .libs _libs
+
+distclean-libtool:
+	-rm -f libtool
+$(srcdir)/Makefile.in:  Makefile.am  $(top_srcdir)/configure.ac $(ACLOCAL_M4)
+	cd $(top_srcdir) && \
+	  $(AUTOMAKE) --gnu  src/tools/Makefile
+Makefile:  $(srcdir)/Makefile.in  $(top_builddir)/config.status
+	cd $(top_builddir) && \
+	  CONFIG_HEADERS= CONFIG_LINKS= \
+	  CONFIG_FILES=$(subdir)/$@ $(SHELL) ./config.status
+install-binPROGRAMS: $(bin_PROGRAMS)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(bindir)
+	@list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  p1=`echo $$p|sed 's/$(EXEEXT)$$//'`; \
+	  if test -f $$p \
+	     || test -f $$p1 \
+	  ; then \
+	    f=`echo $$p1|sed '$(transform);s/$$/$(EXEEXT)/'`; \
+	   echo " $(INSTALL_PROGRAM_ENV) $(LIBTOOL) --mode=install $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/$$f"; \
+	   $(INSTALL_PROGRAM_ENV) $(LIBTOOL) --mode=install $(INSTALL_PROGRAM) $$p $(DESTDIR)$(bindir)/$$f; \
+	  else :; fi; \
+	done
+
+uninstall-binPROGRAMS:
+	@$(NORMAL_UNINSTALL)
+	@list='$(bin_PROGRAMS)'; for p in $$list; do \
+	  f=`echo $$p|sed 's/$(EXEEXT)$$//;$(transform);s/$$/$(EXEEXT)/'`; \
+	  echo " rm -f $(DESTDIR)$(bindir)/$$f"; \
+	  rm -f $(DESTDIR)$(bindir)/$$f; \
+	done
+
+clean-binPROGRAMS:
+	-test -z "$(bin_PROGRAMS)" || rm -f $(bin_PROGRAMS)
+average$(EXEEXT): $(average_OBJECTS) $(average_DEPENDENCIES) 
+	@rm -f average$(EXEEXT)
+	$(LINK) $(average_LDFLAGS) $(average_OBJECTS) $(average_LDADD) $(LIBS)
+do_dssp$(EXEEXT): $(do_dssp_OBJECTS) $(do_dssp_DEPENDENCIES) 
+	@rm -f do_dssp$(EXEEXT)
+	$(LINK) $(do_dssp_LDFLAGS) $(do_dssp_OBJECTS) $(do_dssp_LDADD) $(LIBS)
+editconf$(EXEEXT): $(editconf_OBJECTS) $(editconf_DEPENDENCIES) 
+	@rm -f editconf$(EXEEXT)
+	$(LINK) $(editconf_LDFLAGS) $(editconf_OBJECTS) $(editconf_LDADD) $(LIBS)
+eneconv$(EXEEXT): $(eneconv_OBJECTS) $(eneconv_DEPENDENCIES) 
+	@rm -f eneconv$(EXEEXT)
+	$(LINK) $(eneconv_LDFLAGS) $(eneconv_OBJECTS) $(eneconv_LDADD) $(LIBS)
+g_anaeig$(EXEEXT): $(g_anaeig_OBJECTS) $(g_anaeig_DEPENDENCIES) 
+	@rm -f g_anaeig$(EXEEXT)
+	$(LINK) $(g_anaeig_LDFLAGS) $(g_anaeig_OBJECTS) $(g_anaeig_LDADD) $(LIBS)
+g_analyze$(EXEEXT): $(g_analyze_OBJECTS) $(g_analyze_DEPENDENCIES) 
+	@rm -f g_analyze$(EXEEXT)
+	$(LINK) $(g_analyze_LDFLAGS) $(g_analyze_OBJECTS) $(g_analyze_LDADD) $(LIBS)
+g_angle$(EXEEXT): $(g_angle_OBJECTS) $(g_angle_DEPENDENCIES) 
+	@rm -f g_angle$(EXEEXT)
+	$(LINK) $(g_angle_LDFLAGS) $(g_angle_OBJECTS) $(g_angle_LDADD) $(LIBS)
+g_bond$(EXEEXT): $(g_bond_OBJECTS) $(g_bond_DEPENDENCIES) 
+	@rm -f g_bond$(EXEEXT)
+	$(LINK) $(g_bond_LDFLAGS) $(g_bond_OBJECTS) $(g_bond_LDADD) $(LIBS)
+g_bundle$(EXEEXT): $(g_bundle_OBJECTS) $(g_bundle_DEPENDENCIES) 
+	@rm -f g_bundle$(EXEEXT)
+	$(LINK) $(g_bundle_LDFLAGS) $(g_bundle_OBJECTS) $(g_bundle_LDADD) $(LIBS)
+g_chi$(EXEEXT): $(g_chi_OBJECTS) $(g_chi_DEPENDENCIES) 
+	@rm -f g_chi$(EXEEXT)
+	$(LINK) $(g_chi_LDFLAGS) $(g_chi_OBJECTS) $(g_chi_LDADD) $(LIBS)
+g_cluster$(EXEEXT): $(g_cluster_OBJECTS) $(g_cluster_DEPENDENCIES) 
+	@rm -f g_cluster$(EXEEXT)
+	$(LINK) $(g_cluster_LDFLAGS) $(g_cluster_OBJECTS) $(g_cluster_LDADD) $(LIBS)
+g_clustsize$(EXEEXT): $(g_clustsize_OBJECTS) $(g_clustsize_DEPENDENCIES) 
+	@rm -f g_clustsize$(EXEEXT)
+	$(LINK) $(g_clustsize_LDFLAGS) $(g_clustsize_OBJECTS) $(g_clustsize_LDADD) $(LIBS)
+g_confrms$(EXEEXT): $(g_confrms_OBJECTS) $(g_confrms_DEPENDENCIES) 
+	@rm -f g_confrms$(EXEEXT)
+	$(LINK) $(g_confrms_LDFLAGS) $(g_confrms_OBJECTS) $(g_confrms_LDADD) $(LIBS)
+g_covar$(EXEEXT): $(g_covar_OBJECTS) $(g_covar_DEPENDENCIES) 
+	@rm -f g_covar$(EXEEXT)
+	$(LINK) $(g_covar_LDFLAGS) $(g_covar_OBJECTS) $(g_covar_LDADD) $(LIBS)
+g_density$(EXEEXT): $(g_density_OBJECTS) $(g_density_DEPENDENCIES) 
+	@rm -f g_density$(EXEEXT)
+	$(LINK) $(g_density_LDFLAGS) $(g_density_OBJECTS) $(g_density_LDADD) $(LIBS)
+g_dielectric$(EXEEXT): $(g_dielectric_OBJECTS) $(g_dielectric_DEPENDENCIES) 
+	@rm -f g_dielectric$(EXEEXT)
+	$(LINK) $(g_dielectric_LDFLAGS) $(g_dielectric_OBJECTS) $(g_dielectric_LDADD) $(LIBS)
+g_dih$(EXEEXT): $(g_dih_OBJECTS) $(g_dih_DEPENDENCIES) 
+	@rm -f g_dih$(EXEEXT)
+	$(LINK) $(g_dih_LDFLAGS) $(g_dih_OBJECTS) $(g_dih_LDADD) $(LIBS)
+g_dipoles$(EXEEXT): $(g_dipoles_OBJECTS) $(g_dipoles_DEPENDENCIES) 
+	@rm -f g_dipoles$(EXEEXT)
+	$(LINK) $(g_dipoles_LDFLAGS) $(g_dipoles_OBJECTS) $(g_dipoles_LDADD) $(LIBS)
+g_disre$(EXEEXT): $(g_disre_OBJECTS) $(g_disre_DEPENDENCIES) 
+	@rm -f g_disre$(EXEEXT)
+	$(LINK) $(g_disre_LDFLAGS) $(g_disre_OBJECTS) $(g_disre_LDADD) $(LIBS)
+g_dist$(EXEEXT): $(g_dist_OBJECTS) $(g_dist_DEPENDENCIES) 
+	@rm -f g_dist$(EXEEXT)
+	$(LINK) $(g_dist_LDFLAGS) $(g_dist_OBJECTS) $(g_dist_LDADD) $(LIBS)
+g_dyndom$(EXEEXT): $(g_dyndom_OBJECTS) $(g_dyndom_DEPENDENCIES) 
+	@rm -f g_dyndom$(EXEEXT)
+	$(LINK) $(g_dyndom_LDFLAGS) $(g_dyndom_OBJECTS) $(g_dyndom_LDADD) $(LIBS)
+g_enemat$(EXEEXT): $(g_enemat_OBJECTS) $(g_enemat_DEPENDENCIES) 
+	@rm -f g_enemat$(EXEEXT)
+	$(LINK) $(g_enemat_LDFLAGS) $(g_enemat_OBJECTS) $(g_enemat_LDADD) $(LIBS)
+g_energy$(EXEEXT): $(g_energy_OBJECTS) $(g_energy_DEPENDENCIES) 
+	@rm -f g_energy$(EXEEXT)
+	$(LINK) $(g_energy_LDFLAGS) $(g_energy_OBJECTS) $(g_energy_LDADD) $(LIBS)
+g_gyrate$(EXEEXT): $(g_gyrate_OBJECTS) $(g_gyrate_DEPENDENCIES) 
+	@rm -f g_gyrate$(EXEEXT)
+	$(LINK) $(g_gyrate_LDFLAGS) $(g_gyrate_OBJECTS) $(g_gyrate_LDADD) $(LIBS)
+g_h2order$(EXEEXT): $(g_h2order_OBJECTS) $(g_h2order_DEPENDENCIES) 
+	@rm -f g_h2order$(EXEEXT)
+	$(LINK) $(g_h2order_LDFLAGS) $(g_h2order_OBJECTS) $(g_h2order_LDADD) $(LIBS)
+g_hbond$(EXEEXT): $(g_hbond_OBJECTS) $(g_hbond_DEPENDENCIES) 
+	@rm -f g_hbond$(EXEEXT)
+	$(LINK) $(g_hbond_LDFLAGS) $(g_hbond_OBJECTS) $(g_hbond_LDADD) $(LIBS)
+g_helix$(EXEEXT): $(g_helix_OBJECTS) $(g_helix_DEPENDENCIES) 
+	@rm -f g_helix$(EXEEXT)
+	$(LINK) $(g_helix_LDFLAGS) $(g_helix_OBJECTS) $(g_helix_LDADD) $(LIBS)
+g_lie$(EXEEXT): $(g_lie_OBJECTS) $(g_lie_DEPENDENCIES) 
+	@rm -f g_lie$(EXEEXT)
+	$(LINK) $(g_lie_LDFLAGS) $(g_lie_OBJECTS) $(g_lie_LDADD) $(LIBS)
+g_mdmat$(EXEEXT): $(g_mdmat_OBJECTS) $(g_mdmat_DEPENDENCIES) 
+	@rm -f g_mdmat$(EXEEXT)
+	$(LINK) $(g_mdmat_LDFLAGS) $(g_mdmat_OBJECTS) $(g_mdmat_LDADD) $(LIBS)
+g_mindist$(EXEEXT): $(g_mindist_OBJECTS) $(g_mindist_DEPENDENCIES) 
+	@rm -f g_mindist$(EXEEXT)
+	$(LINK) $(g_mindist_LDFLAGS) $(g_mindist_OBJECTS) $(g_mindist_LDADD) $(LIBS)
+g_morph$(EXEEXT): $(g_morph_OBJECTS) $(g_morph_DEPENDENCIES) 
+	@rm -f g_morph$(EXEEXT)
+	$(LINK) $(g_morph_LDFLAGS) $(g_morph_OBJECTS) $(g_morph_LDADD) $(LIBS)
+g_msd$(EXEEXT): $(g_msd_OBJECTS) $(g_msd_DEPENDENCIES) 
+	@rm -f g_msd$(EXEEXT)
+	$(LINK) $(g_msd_LDFLAGS) $(g_msd_OBJECTS) $(g_msd_LDADD) $(LIBS)
+g_nmeig$(EXEEXT): $(g_nmeig_OBJECTS) $(g_nmeig_DEPENDENCIES) 
+	@rm -f g_nmeig$(EXEEXT)
+	$(LINK) $(g_nmeig_LDFLAGS) $(g_nmeig_OBJECTS) $(g_nmeig_LDADD) $(LIBS)
+g_nmens$(EXEEXT): $(g_nmens_OBJECTS) $(g_nmens_DEPENDENCIES) 
+	@rm -f g_nmens$(EXEEXT)
+	$(LINK) $(g_nmens_LDFLAGS) $(g_nmens_OBJECTS) $(g_nmens_LDADD) $(LIBS)
+g_order$(EXEEXT): $(g_order_OBJECTS) $(g_order_DEPENDENCIES) 
+	@rm -f g_order$(EXEEXT)
+	$(LINK) $(g_order_LDFLAGS) $(g_order_OBJECTS) $(g_order_LDADD) $(LIBS)
+g_potential$(EXEEXT): $(g_potential_OBJECTS) $(g_potential_DEPENDENCIES) 
+	@rm -f g_potential$(EXEEXT)
+	$(LINK) $(g_potential_LDFLAGS) $(g_potential_OBJECTS) $(g_potential_LDADD) $(LIBS)
+g_rama$(EXEEXT): $(g_rama_OBJECTS) $(g_rama_DEPENDENCIES) 
+	@rm -f g_rama$(EXEEXT)
+	$(LINK) $(g_rama_LDFLAGS) $(g_rama_OBJECTS) $(g_rama_LDADD) $(LIBS)
+g_rdf$(EXEEXT): $(g_rdf_OBJECTS) $(g_rdf_DEPENDENCIES) 
+	@rm -f g_rdf$(EXEEXT)
+	$(LINK) $(g_rdf_LDFLAGS) $(g_rdf_OBJECTS) $(g_rdf_LDADD) $(LIBS)
+g_rms$(EXEEXT): $(g_rms_OBJECTS) $(g_rms_DEPENDENCIES) 
+	@rm -f g_rms$(EXEEXT)
+	$(LINK) $(g_rms_LDFLAGS) $(g_rms_OBJECTS) $(g_rms_LDADD) $(LIBS)
+g_rmsdist$(EXEEXT): $(g_rmsdist_OBJECTS) $(g_rmsdist_DEPENDENCIES) 
+	@rm -f g_rmsdist$(EXEEXT)
+	$(LINK) $(g_rmsdist_LDFLAGS) $(g_rmsdist_OBJECTS) $(g_rmsdist_LDADD) $(LIBS)
+g_rmsf$(EXEEXT): $(g_rmsf_OBJECTS) $(g_rmsf_DEPENDENCIES) 
+	@rm -f g_rmsf$(EXEEXT)
+	$(LINK) $(g_rmsf_LDFLAGS) $(g_rmsf_OBJECTS) $(g_rmsf_LDADD) $(LIBS)
+g_rotacf$(EXEEXT): $(g_rotacf_OBJECTS) $(g_rotacf_DEPENDENCIES) 
+	@rm -f g_rotacf$(EXEEXT)
+	$(LINK) $(g_rotacf_LDFLAGS) $(g_rotacf_OBJECTS) $(g_rotacf_LDADD) $(LIBS)
+g_saltbr$(EXEEXT): $(g_saltbr_OBJECTS) $(g_saltbr_DEPENDENCIES) 
+	@rm -f g_saltbr$(EXEEXT)
+	$(LINK) $(g_saltbr_LDFLAGS) $(g_saltbr_OBJECTS) $(g_saltbr_LDADD) $(LIBS)
+g_sas$(EXEEXT): $(g_sas_OBJECTS) $(g_sas_DEPENDENCIES) 
+	@rm -f g_sas$(EXEEXT)
+	$(LINK) $(g_sas_LDFLAGS) $(g_sas_OBJECTS) $(g_sas_LDADD) $(LIBS)
+g_sgangle$(EXEEXT): $(g_sgangle_OBJECTS) $(g_sgangle_DEPENDENCIES) 
+	@rm -f g_sgangle$(EXEEXT)
+	$(LINK) $(g_sgangle_LDFLAGS) $(g_sgangle_OBJECTS) $(g_sgangle_LDADD) $(LIBS)
+g_sorient$(EXEEXT): $(g_sorient_OBJECTS) $(g_sorient_DEPENDENCIES) 
+	@rm -f g_sorient$(EXEEXT)
+	$(LINK) $(g_sorient_LDFLAGS) $(g_sorient_OBJECTS) $(g_sorient_LDADD) $(LIBS)
+g_tcaf$(EXEEXT): $(g_tcaf_OBJECTS) $(g_tcaf_DEPENDENCIES) 
+	@rm -f g_tcaf$(EXEEXT)
+	$(LINK) $(g_tcaf_LDFLAGS) $(g_tcaf_OBJECTS) $(g_tcaf_LDADD) $(LIBS)
+g_traj$(EXEEXT): $(g_traj_OBJECTS) $(g_traj_DEPENDENCIES) 
+	@rm -f g_traj$(EXEEXT)
+	$(LINK) $(g_traj_LDFLAGS) $(g_traj_OBJECTS) $(g_traj_LDADD) $(LIBS)
+g_velacc$(EXEEXT): $(g_velacc_OBJECTS) $(g_velacc_DEPENDENCIES) 
+	@rm -f g_velacc$(EXEEXT)
+	$(LINK) $(g_velacc_LDFLAGS) $(g_velacc_OBJECTS) $(g_velacc_LDADD) $(LIBS)
+genbox$(EXEEXT): $(genbox_OBJECTS) $(genbox_DEPENDENCIES) 
+	@rm -f genbox$(EXEEXT)
+	$(LINK) $(genbox_LDFLAGS) $(genbox_OBJECTS) $(genbox_LDADD) $(LIBS)
+genconf$(EXEEXT): $(genconf_OBJECTS) $(genconf_DEPENDENCIES) 
+	@rm -f genconf$(EXEEXT)
+	$(LINK) $(genconf_LDFLAGS) $(genconf_OBJECTS) $(genconf_LDADD) $(LIBS)
+genion$(EXEEXT): $(genion_OBJECTS) $(genion_DEPENDENCIES) 
+	@rm -f genion$(EXEEXT)
+	$(LINK) $(genion_LDFLAGS) $(genion_OBJECTS) $(genion_LDADD) $(LIBS)
+genpr$(EXEEXT): $(genpr_OBJECTS) $(genpr_DEPENDENCIES) 
+	@rm -f genpr$(EXEEXT)
+	$(LINK) $(genpr_LDFLAGS) $(genpr_OBJECTS) $(genpr_LDADD) $(LIBS)
+make_ndx$(EXEEXT): $(make_ndx_OBJECTS) $(make_ndx_DEPENDENCIES) 
+	@rm -f make_ndx$(EXEEXT)
+	$(LINK) $(make_ndx_LDFLAGS) $(make_ndx_OBJECTS) $(make_ndx_LDADD) $(LIBS)
+mk_angndx$(EXEEXT): $(mk_angndx_OBJECTS) $(mk_angndx_DEPENDENCIES) 
+	@rm -f mk_angndx$(EXEEXT)
+	$(LINK) $(mk_angndx_LDFLAGS) $(mk_angndx_OBJECTS) $(mk_angndx_LDADD) $(LIBS)
+trjcat$(EXEEXT): $(trjcat_OBJECTS) $(trjcat_DEPENDENCIES) 
+	@rm -f trjcat$(EXEEXT)
+	$(LINK) $(trjcat_LDFLAGS) $(trjcat_OBJECTS) $(trjcat_LDADD) $(LIBS)
+trjconv$(EXEEXT): $(trjconv_OBJECTS) $(trjconv_DEPENDENCIES) 
+	@rm -f trjconv$(EXEEXT)
+	$(LINK) $(trjconv_LDFLAGS) $(trjconv_OBJECTS) $(trjconv_LDADD) $(LIBS)
+trjorder$(EXEEXT): $(trjorder_OBJECTS) $(trjorder_DEPENDENCIES) 
+	@rm -f trjorder$(EXEEXT)
+	$(LINK) $(trjorder_LDFLAGS) $(trjorder_OBJECTS) $(trjorder_LDADD) $(LIBS)
+wheel$(EXEEXT): $(wheel_OBJECTS) $(wheel_DEPENDENCIES) 
+	@rm -f wheel$(EXEEXT)
+	$(LINK) $(wheel_LDFLAGS) $(wheel_OBJECTS) $(wheel_LDADD) $(LIBS)
+xpm2ps$(EXEEXT): $(xpm2ps_OBJECTS) $(xpm2ps_DEPENDENCIES) 
+	@rm -f xpm2ps$(EXEEXT)
+	$(LINK) $(xpm2ps_LDFLAGS) $(xpm2ps_OBJECTS) $(xpm2ps_LDADD) $(LIBS)
+
+mostlyclean-compile:
+	-rm -f *.$(OBJEXT) core *.core
+
+distclean-compile:
+	-rm -f *.tab.c
+
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/addconf.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/anadih.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/autocorr.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/average.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/calcpot.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/cmat.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/dlist.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/do_dssp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/editconf.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/edittop.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/eigio.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/eneconv.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/expfit.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/fitahx.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_anaeig.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_analyze.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_angle.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_bond.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_bundle.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_chi.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_cluster.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_clustsize.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_confrms.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_covar.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_density.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_dielectric.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_dih.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_dipoles.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_disre.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_dist.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_dyndom.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_enemat.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_energy.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_gyrate.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_h2order.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_hbond.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_helix.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_lie.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_mdmat.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_mindist.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_morph.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_msd.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_nmeig.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_nmens.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_order.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_potential.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_rama.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_rdf.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_rms.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_rmsdist.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_rmsf.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_rotacf.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_saltbr.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_sas.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_sgangle.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_sorient.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_tcaf.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_traj.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/g_velacc.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/genbox.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/genconf.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/genion.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/genpr.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/hxprops.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/levenmar.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/lsq.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/make_ndx.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/mk_angndx.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/nsc.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/polynomials.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/pp2shift.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/ql77.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/trjcat.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/trjconv.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/trjorder.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/wheel.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/xpm2ps.Po@am__quote@
+
+distclean-depend:
+	-rm -rf $(DEPDIR)
+
+.c.o:
+@AMDEP_TRUE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(COMPILE) -c `test -f $< || echo '$(srcdir)/'`$<
+
+.c.obj:
+@AMDEP_TRUE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(COMPILE) -c `cygpath -w $<`
+
+.c.lo:
+@AMDEP_TRUE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/$*.Plo' tmpdepfile='$(DEPDIR)/$*.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(LTCOMPILE) -c -o $@ `test -f $< || echo '$(srcdir)/'`$<
+CCDEPMODE = @CCDEPMODE@
+uninstall-info-am:
+
+tags: TAGS
+
+ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
+	list='$(SOURCES) $(HEADERS) $(TAGS_FILES)'; \
+	unique=`for i in $$list; do \
+	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
+	  done | \
+	  $(AWK) '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	mkid -fID $$unique $(LISP)
+
+TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
+		$(TAGS_FILES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	list='$(SOURCES) $(HEADERS) $(TAGS_FILES)'; \
+	unique=`for i in $$list; do \
+	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
+	  done | \
+	  $(AWK) '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	test -z "$(ETAGS_ARGS)$$unique$(LISP)$$tags" \
+	  || etags $(ETAGS_ARGS) $$tags  $$unique $(LISP)
+
+GTAGS:
+	here=`CDPATH=: && cd $(top_builddir) && pwd` \
+	  && cd $(top_srcdir) \
+	  && gtags -i $(GTAGS_ARGS) $$here
+
+distclean-tags:
+	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH
+
+DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
+
+top_distdir = ../..
+distdir = $(top_distdir)/$(PACKAGE)-$(VERSION)
+
+distdir: $(DISTFILES)
+	@for file in $(DISTFILES); do \
+	  if test -f $$file; then d=.; else d=$(srcdir); fi; \
+	  dir=`echo "$$file" | sed -e 's,/[^/]*$$,,'`; \
+	  if test "$$dir" != "$$file" && test "$$dir" != "."; then \
+	    $(mkinstalldirs) "$(distdir)/$$dir"; \
+	  fi; \
+	  if test -d $$d/$$file; then \
+	    cp -pR $$d/$$file $(distdir) \
+	    || exit 1; \
+	  else \
+	    test -f $(distdir)/$$file \
+	    || cp -p $$d/$$file $(distdir)/$$file \
+	    || exit 1; \
+	  fi; \
+	done
+check-am: all-am
+check: check-am
+all-am: Makefile $(PROGRAMS)
+
+installdirs:
+	$(mkinstalldirs) $(DESTDIR)$(bindir)
+
+install: install-am
+install-exec: install-exec-am
+install-data: install-data-am
+uninstall: uninstall-am
+
+install-am: all-am
+	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
+
+installcheck: installcheck-am
+install-strip:
+	$(MAKE) $(AM_MAKEFLAGS) INSTALL_PROGRAM="$(INSTALL_STRIP_PROGRAM)" \
+	  `test -z '$(STRIP)' || \
+	    echo "INSTALL_PROGRAM_ENV=STRIPPROG='$(STRIP)'"` install
+mostlyclean-generic:
+
+clean-generic:
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
+
+distclean-generic:
+	-rm -f Makefile $(CONFIG_CLEAN_FILES) stamp-h stamp-h[0-9]*
+
+maintainer-clean-generic:
+	@echo "This command is intended for maintainers to use"
+	@echo "it deletes files that may require special tools to rebuild."
+clean: clean-am
+
+clean-am: clean-binPROGRAMS clean-generic clean-libtool mostlyclean-am
+
+distclean: distclean-am
+
+distclean-am: clean-am distclean-compile distclean-depend \
+	distclean-generic distclean-libtool distclean-tags
+
+dvi: dvi-am
+
+dvi-am:
+
+info: info-am
+
+info-am:
+
+install-data-am:
+
+install-exec-am: install-binPROGRAMS
+
+install-info: install-info-am
+
+install-man:
+
+installcheck-am:
+
+maintainer-clean: maintainer-clean-am
+
+maintainer-clean-am: distclean-am maintainer-clean-generic
+
+mostlyclean: mostlyclean-am
+
+mostlyclean-am: mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool
+
+uninstall-am: uninstall-binPROGRAMS uninstall-info-am
+
+.PHONY: GTAGS all all-am check check-am clean clean-binPROGRAMS \
+	clean-generic clean-libtool distclean distclean-compile \
+	distclean-depend distclean-generic distclean-libtool \
+	distclean-tags distdir dvi dvi-am info info-am install \
+	install-am install-binPROGRAMS install-data install-data-am \
+	install-exec install-exec-am install-info install-info-am \
+	install-man install-strip installcheck installcheck-am \
+	installdirs maintainer-clean maintainer-clean-generic \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool tags uninstall uninstall-am \
+	uninstall-binPROGRAMS uninstall-info-am
+
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

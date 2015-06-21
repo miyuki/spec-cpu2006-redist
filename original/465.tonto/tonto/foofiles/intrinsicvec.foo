@@ -1,0 +1,483 @@
+!---------------------------------------------------------------------------
+!
+! INTRINSICVEC: Generic vector operations ...
+!
+! Copyright (C) Dylan Jayatilaka, 1997
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: intrinsicvec.foo,v 1.1.2.5 2003/11/06 10:06:14 dylan Exp $
+!---------------------------------------------------------------------------
+
+virtual module INTRINSICVEC
+
+   implicit none
+
+contains
+
+!*******************************************************************************
+! Memory allocation stuff.
+!*******************************************************************************
+
+   create(dim) ::: leaky
+   ! Create space for object
+      self :: PTR
+      dim :: INT, IN
+      ENSURE(dim>=0, "dimension of array not 1 or greater")
+      nullify(self)
+      allocate(self(dim))
+      ADD_MEMORY(dim*ELEMENT_TYPE_SIZE)
+   end
+
+   create(lb,ub) ::: leaky
+   ! Create the vector with lower bound "lb", upper bound "ub"
+      self :: PTR
+      lb,ub :: INT, IN
+      nullify(self)
+      allocate(self(lb:ub))
+      ADD_MEMORY((ub-lb+1)*ELEMENT_TYPE_SIZE)
+   end
+
+   destroy ::: leaky
+   ! Destroy space for object
+      self :: PTR
+      if (.destroyed) return
+      DELETE_MEMORY(size(self)*ELEMENT_TYPE_SIZE)
+      deallocate(self)
+   end
+
+   create_copy(vec) ::: leaky
+   ! Create a replica copy of vec.
+      vec :: SELF_TYPE, IN
+      self :: PTR
+      .create(vec.dim)
+      self = vec
+   end
+
+   copy(vec)
+   ! Copy "vec".
+      vec :: SELF_TYPE, IN
+      ENSURE(.dim==vec.dim,"vec size does not match")
+      self = vec
+   end
+
+   shrink(dim) ::: leaky
+   ! Shrink self to dimension dim.  Contents are retained.
+     self :: PTR
+     dim :: INT, IN
+     old :: SELF_TYPE*
+     n :: INT
+     ENSURE(.created,"no self array")
+     ENSURE(dim<=.dim,"dim too large")
+     if (dim==.dim) return
+     old => self
+     nullify(self)
+     self.create(dim)
+     do n=1,dim
+       self(n) = old(n)
+     end
+     old.destroy
+   end
+
+   expand(dim) ::: leaky
+   ! Expand self to dimension dim. New slots are left undefined.
+     self :: PTR
+     dim :: INT, IN
+     old :: SELF_TYPE*
+     old_dim :: INT
+     if (.destroyed) then
+        .create(dim)
+     else
+        ENSURE(dim>=.dim, "dim not large enough")
+        old => self
+        old_dim = old.dim
+        nullify(self)
+        self.create(dim)
+        self(1:old_dim) = old
+        old.destroy
+     end
+   end
+
+   append(v) ::: leaky
+   ! Expands self and appends the contents of vector "v".
+     self :: PTR
+     v :: SELF_TYPE, IN
+     dim :: INT
+     if (.destroyed) then; dim = 0
+     else;                 dim = .dim
+     end
+     .expand(dim+v.dim)
+     self(dim+1:) = v
+   end
+
+   append(value) ::: leaky
+   ! Expands self by 1, and appends the single scalar "value" onto the end.
+     self :: PTR
+     value :: ELEMENT_TYPE, IN
+     dim :: INT
+     if (.destroyed) then; dim = 0
+     else;                 dim = .dim
+     end
+     .expand(dim+1)
+     self(dim+1) = value
+   end
+
+   append_only_if_unique(value) ::: leaky
+   ! Expands self by 1, and appends the single scalar "value" onto the end, but
+   ! only if the "value" is unique
+     self :: PTR
+     value :: ELEMENT_TYPE, IN
+     if (any(self==value)) return
+     .append(value)
+   end
+
+   prepend(v) ::: leaky
+   ! Prepend the vector "v" to "self". "self" is expanded.
+     self :: PTR
+     v :: SELF_TYPE, IN
+     dim,dimv :: INT
+     dim  = .dim
+     dimv = v.dim
+     .expand(dim+dimv)
+     self(dimv+1:    ) = self(1:dim)
+     self(     1:dimv) = v
+   end
+
+   prepend(value) ::: leaky
+   ! Prepend an single "value" to "self". "self" is expanded.
+     self :: PTR
+     value :: ELEMENT_TYPE, IN
+     dim :: INT
+     dim = .dim
+     .expand(dim+1)
+     self(2:) = self(1:dim)
+     self(1 ) = value
+   end
+
+   join(v) result (res) ::: leaky
+   ! Yield a vector which is the concatenation of "self" and "v"
+     v :: SELF_TYPE, IN
+     res :: SELF_TYPE*
+     dim, dim_v :: INT
+     dim   = self.dim
+     dim_v = v.dim
+     res.create(dim+dim_v)
+     res(    1:dim      ) = self
+     res(dim+1:dim+dim_v) = v
+   end
+
+   join(v1,v2) result (res) ::: leaky
+   ! Yield a vector which is the concatenation of "self" and "v1" and "v2"
+     v1,v2 :: SELF_TYPE, IN
+     res :: SELF_TYPE*
+     dim, dim_v1, dim_v2 :: INT
+     dim    = self.dim
+     dim_v1 = v1.dim
+     dim_v2 = v2.dim
+     res.create(dim+dim_v1+dim_v2)
+     res(           1:dim              ) = self
+     res(dim+       1:dim+dim_v1       ) = v1
+     res(dim+dim_v1+1:dim+dim_v1+dim_v2) = v2
+   end
+
+   remove_repetitions ::: leaky
+   ! Sort through the vector and remove repeated elements which come later in
+   ! the list.  NOTE: the vector may shrink
+      self :: PTR
+      unique :: SELF_TYPE*
+      i,n :: INT
+   ENSURE(.created,"no vector")
+      if (.dim==1) return
+      unique.create(.dim)
+      n = 1
+      unique(1) = self(1)
+      do i = 2,.dim
+         if (any(self(i)==unique(1:n))) cycle
+         n = n + 1
+         unique(n) = self(i)
+      end
+      .destroy
+      .create(n)
+      self = unique(1:n)
+      unique.destroy
+   end
+
+   has_repetitions result (res)
+   ! Return TRUE if self has at least one repeated element.
+      res :: BIN
+      unique :: SELF_TYPE*
+      i,n :: INT
+      res = FALSE
+      if (.dim==1) return
+      unique.create(.dim)
+      n = 1
+      unique(1) = self(1)
+      do i = 2,.dim
+         if (any(self(i)==unique(1:n))) then
+            res = TRUE
+         else
+            n = n + 1
+            unique(n) = self(i)
+         end
+      end
+      unique.destroy
+   end
+
+!*******************************************************************************
+! Misc Stuff
+!*******************************************************************************
+
+   dot(b) result (res) ::: pure
+   ! Return the dot product with "b"
+      self :: IN
+      b :: SELF_TYPE, IN
+      res :: ELEMENT_TYPE
+      res = dot_product(self,b)
+   end
+
+   cross(b) result(res) ::: pure
+   ! Return the cross product of "self" and "b".
+      self :: IN
+      b :: SELF_TYPE, IN
+      res :: SELF_TYPE(3)
+      ENSURE(.dim==3,"self must have dimension 3")
+      res(1) = self(2)*b(3) - b(2)*self(3)
+      res(2) = self(3)*b(1) - b(3)*self(1)
+      res(3) = self(1)*b(2) - b(1)*self(2)
+   end
+
+   to_cross_product(a,b) ::: pure
+   ! Set the vector to the cross product of "a" and "b".
+      self :: INOUT
+      a,b :: SELF_TYPE, IN
+      ENSURE(.dim==3,"self must have dimension 3")
+      self(1) = a(2)*b(3) - b(2)*a(3)
+      self(2) = a(3)*b(1) - b(3)*a(1)
+      self(3) = a(1)*b(2) - b(1)*a(2)
+   end
+
+   to_scaled_vec(fac,b) ::: pure
+   ! Set the vector to "b" scaled by "fac"
+      self :: INOUT
+      b :: SELF_TYPE, IN
+      fac :: ELEMENT_TYPE, IN
+      self = fac*b
+   end
+
+   plus_scaled_vec(fac,b) ::: pure
+   ! Add a vector "b" scaled by "fac" to "self"
+      self :: INOUT
+      b :: SELF_TYPE, IN
+      fac :: ELEMENT_TYPE, IN
+      self = self + fac*b
+   end
+
+   minus(b,mask) ::: pure
+   ! Subtract vector "b" from "self"
+      self :: INOUT
+      b :: SELF_TYPE, IN
+      mask :: BINVEC, IN, optional
+       i :: INT
+      if (NOT present(mask)) then
+         self = self - b
+      else
+         do i = 1,.dim
+            if (mask(i)) self(i) = self(i) - b(i)
+         end
+      end
+   end
+
+   plus(b,mask) ::: pure
+   ! Add vector "b" to "self"
+      self :: INOUT
+      mask :: BINVEC, IN, optional
+      b :: SELF_TYPE, IN
+      i :: INT
+      ENSURE(.dim==b.dim,"wrong size, b")
+      if (NOT present(mask)) then
+         self = self + b
+      else
+         do i = 1,.dim
+            if (mask(i)) self(i) = self(i) + b(i)
+         end
+      end
+   end
+
+   set_to(b) ::: pure
+   ! Set the vector to "b". See also the "copy" routine.
+      self :: INOUT
+      b :: SELF_TYPE, IN
+      self = b
+   end
+
+   swap_elements(e1,e2) ::: pure
+   ! Swap elements "e1" and "e2" in "self".
+      self :: INOUT
+      e1,e2 :: INT, IN
+      val :: ELEMENT_TYPE
+      ENSURE(e1<=.dim AND e2<=.dim,"element exceeds dimesion")
+      ENSURE(e1>0 AND e2>0,"indices must be positive")
+      val = self(e1)
+      self(e1) = self(e2)
+      self(e2) = val
+   end
+
+   chop_large_values(val) ::: pure
+   ! Set all values in the self whose absolute value is larger than "val" to
+   ! "val" times the sign of the original value.
+      self :: INOUT
+      val :: ELEMENT_TYPE, IN
+      dim,i :: INT
+      bb,ba,sign :: ELEMENT_TYPE
+      dim = size(self)
+      do i = 1,dim
+         bb = self(i)
+         if (bb==ZERO) cycle
+         ba = abs(bb)
+         sign = bb/ba
+         self(i) = sign*min(val,ba)
+     end
+   end
+
+!   maximum result (val) ::: pure
+!   ! Return the maximum value in the vector
+!      self :: IN
+!      val :: ELEMENT_TYPE
+!      val = maxval(self)
+!   end
+
+!   minimum result (val) ::: pure
+!   ! Return the minimum value in the vector
+!      self :: IN
+!      val :: ELEMENT_TYPE
+!      val = minval(self)
+!   end
+
+   index_of_maximum result (ind) ::: pure
+   ! Return the index of the maximum in the vector
+      self :: IN
+      ind :: INT
+      ind = maxval(maxloc(self))
+   end
+
+   index_of_minimum result (ind) ::: pure
+   ! Return the index of the minimum in the vector
+      self :: IN
+      ind :: INT
+      ind = minval(minloc(self))
+   end
+
+   all_in_range(range) result(res) ::: pure
+   ! Return TRUE if all values of self are within the specified "range".
+      self :: IN
+      range :: SELF_TYPE(2), IN
+      res :: BIN
+      res = all(range(1) <= self AND self <= range(2))
+   end
+
+   in_range(range) result(res) ::: pure
+   ! Return element i as TRUE if self(i) is within the specified "range".
+      self :: IN
+      range :: SELF_TYPE(2), IN
+      res :: BINVEC(size(self))
+      res = (range(1) <= self AND self <= range(2))
+   end
+
+   range result(res) ::: pure
+   ! Return the range (smallest and largest value) of self.
+      self :: IN
+      res :: SELF_TYPE(2)
+      res(1) = minval(self)
+      res(2) = maxval(self)
+   end
+
+   largest_value result (maxval) ::: pure
+   ! Return the maximum absolute value in the vector
+      self :: IN
+      maxval :: ELEMENT_TYPE
+      val :: ELEMENT_TYPE
+      i :: INT
+      maxval = abs(self(1))
+      do i = 2,size(self)
+        val = abs(self(i))
+        if (val > maxval) maxval = val
+      end
+   end
+
+   smallest_value result (minval) ::: pure
+   ! Return minimum absolute value in the vector
+      self :: IN
+      minval :: ELEMENT_TYPE
+      val :: ELEMENT_TYPE
+      i :: INT
+      minval = abs(self(1))
+      do i = 2,size(self)
+        val = abs(self(i))
+        if (val < minval) minval = val
+      end
+   end
+
+   index_of_largest_value result (ind) ::: pure
+   ! Return the index "ind" of the largest absolute value in the vector
+      self :: IN
+      ind :: INT
+      i :: INT
+      maxval,val :: ELEMENT_TYPE
+      maxval = abs(self(1))
+      ind = 1
+      do i = 2,size(self)
+        val = abs(self(i))
+        if (val > maxval) then
+          maxval = val
+          ind = i
+        end
+      end
+   end
+
+   index_of_smallest_value result (ind) ::: pure
+   ! Return the index "ind" of the smallest value in the vector
+      self :: IN
+      ind :: INT
+      i :: INT
+      minval,val :: ELEMENT_TYPE
+      minval = abs(self(1))
+      ind = 1
+      do i = 2,size(self)
+        val = abs(self(i))
+        if (val < minval) then
+          minval = val
+          ind = i
+        end
+      end
+   end
+
+   no_of_elements_larger_than(tol) result(res) ::: pure
+   ! Return the number of elements larger than "tol".
+      self :: IN
+      tol :: ELEMENT_TYPE, IN
+      res :: INT
+      res = count(self>tol)
+   end
+
+   translate(vector)
+   ! Translate self by vector.
+     self :: INOUT
+     vector :: SELF_TYPE, IN
+     ENSURE(size(self)==size(vector),"vectors not of same dimension")
+     self = self + vector
+   end
+
+end

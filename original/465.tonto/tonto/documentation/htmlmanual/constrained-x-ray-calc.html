@@ -1,0 +1,369 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>A constrained X-ray wavefunction calculation</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Examples of TONTO input files"
+HREF="example-input-files.html"><LINK
+REL="PREVIOUS"
+TITLE="Outputting a MORPHY input file"
+HREF="output-morphy.html"><LINK
+REL="NEXT"
+TITLE="An MO pair-energy decompisitoin"
+HREF="pair-energy-decomposition.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="output-morphy.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="pair-energy-decomposition.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="CONSTRAINED-X-RAY-CALC"
+></A
+>A constrained X-ray wavefunction calculation</H1
+><P
+ALIGN="justify"
+>This represents a simple wavefunction fiting calculation for a single
+NH<SUB
+>3</SUB
+> unit in the ammonia crystal. The geometry for a
+larger cluster has been included and commented out. It was generated using the
+<TT
+CLASS="LITERAL"
+>put_cluster_input</TT
+> command. To select subparts of a large
+cluster, refer to the <TT
+CLASS="LITERAL"
+>repetation_factors=</TT
+> keyword.</P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>Note: </B
+>For brevity, most of the experimental structure fcators have been
+omitted.</P
+></BLOCKQUOTE
+></DIV
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>Note: </B
+>This input deck uses the <TT
+CLASS="LITERAL"
+>games-us</TT
+> style of basis
+input.</P
+></BLOCKQUOTE
+></DIV
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>&lcub;&#13;
+  name=     nh3_1
+ 
+  charge=  0
+ 
+  multiplicity= 1
+ 
+  crystal= &lcub;
+ 
+    spacegroup_it_symbol=   P2_13
+    unit_cell_angles=      90.0   90.0   90.0       Degree
+    unit_cell_dimensions=   5.1305 5.1305 5.1305    Angstrom
+ 
+    thermal_smearing_model= stewart
+    partition_model= mulliken
+    optimise_extinction= true
+ 
+    reflection_data=  &lcub;
+   
+      ! Experimental data from Boese et al ...
+ 
+      list_order= &lcub; h= k= l= F_exp= F_sigma= &rcub;
+   
+      list= &lcub;
+
+      ! These are the real experimental data
+
+       1   1   0    18.093    0.118
+       1   1   1    63.470    0.446
+       0   2   0    53.079    0.434
+       1   2   0     2.864    0.084
+
+       ! Some data deleted here for the example ...
+
+      &rcub;
+    &rcub; 
+  &rcub;
+   
+  atoms= &lcub;
+
+    list_order= 
+       &lcub; label= "&lcub; axis_system= crystal &rcub;" pos= basis_label= 
+         "&lcub; units= angstrom^2 &rcub;" thermal_tensor= &rcub;
+
+    list= &lcub;
+
+    N  0.2103001  0.2103001  0.2103001 N_631 0.0372 0.0372 0.0372 -0.0009 -0.0009 -0.0009
+    H  0.3722001  0.2627001  0.1113001 H_631 0.0530 0.0530 0.0530  0.0000  0.0000  0.0000
+    H  0.1113001  0.3722001  0.2627001 H_631 0.0530 0.0530 0.0530  0.0000  0.0000  0.0000
+    H  0.2627001  0.1113001  0.3722001 H_631 0.0530 0.0530 0.0530  0.0000  0.0000  0.0000
+ 
+  ! These atoms coords were produced with the "put_cluster_input" command 
+
+  ! N  0.2897001 -0.2103001 -0.2897001 N_631 0.0372 0.0372 0.0372 -0.0009 -0.0009 -0.0009
+  ! N -0.2897001  0.2897001 -0.2103001 N_631 0.0372 0.0372 0.0372 -0.0009 -0.0009 -0.0009
+  ! N -0.2103001 -0.2897001  0.2897001 N_631 0.0372 0.0372 0.0372 -0.0009 -0.0009 -0.0009
+  ! H  0.1278001 -0.2627001 -0.3887000 H_631 0.0530 0.0530 0.0530  0.0000  0.0000  0.0000
+  ! H -0.3887000  0.1278001 -0.2627001 H_631 0.0530 0.0530 0.0530  0.0000  0.0000  0.0000
+  ! H -0.2627001 -0.3887000  0.1278001 H_631 0.0530 0.0530 0.0530  0.0000  0.0000  0.0000
+  ! H -0.1278001  0.2373000 -0.1113001 H_631 0.0530 0.0530 0.0530  0.0000  0.0000  0.0000
+  ! H -0.1113001 -0.1278001  0.2373000 H_631 0.0530 0.0530 0.0530  0.0000  0.0000  0.0000
+  ! H  0.2373000 -0.1113001 -0.1278001 H_631 0.0530 0.0530 0.0530  0.0000  0.0000  0.0000
+  ! H  0.3887000 -0.3722001 -0.2373000 H_631 0.0530 0.0530 0.0530  0.0000  0.0000  0.0000
+  ! H -0.2373000  0.3887000 -0.3722001 H_631 0.0530 0.0530 0.0530  0.0000  0.0000  0.0000
+  ! H -0.3722001 -0.2373000  0.3887000 H_631 0.0530 0.0530 0.0530  0.0000  0.0000  0.0000
+
+    &rcub; 
+  &rcub;
+  
+  
+  
+  basis_sets= &lcub;
+
+    list_order= &lcub; gamess-us= &rcub;
+
+    list= &lcub;
+
+    N_631 ! 6311++g**
+    &lcub;
+       S   6
+        1        6293.480000         0.1969790000E-02
+        2        949.0440000         0.1496130000E-01
+        3        218.7760000         0.7350060000E-01
+        4        63.69160000         0.2489370000    
+        5        18.82820000         0.6024600000    
+        6        2.720230000         0.2562020000    
+       S   3
+        1        30.63310000         0.1119060000     
+        2        7.026140000         0.9216660000     
+        3        2.112050000        -0.2569190000E-02 
+       P   3
+        1        30.63310000         0.3831190000E-01
+        2        7.026140000         0.2374030000    
+        3        2.112050000         0.8175920000    
+       S   1
+        1       0.6840090000          1.000000000    
+       P   1
+        1       0.6840090000          1.000000000    
+       S   1
+        1       0.2008780000          1.000000000    
+       P   1
+        1       0.2008780000          1.000000000    
+       D   1
+        1       0.913000000           1.00000000    
+       S   1
+        1       0.639000000E-01       1.00000000    
+       P   1
+        1       0.639000000E-01       1.00000000    
+    &rcub; 
+  
+    H_631 ! 6311++g**
+    &lcub;
+       S   3
+        1       33.86500000          0.2549380000E-01
+        2       5.094790000          0.1903730000    
+        3       1.158790000          0.8521610000    
+       S   1
+        1       0.3258400000         1.000000000    
+       S   1
+        1       0.1027410000         1.000000000    
+       P   1
+        1       0.750000000          1.00000000    
+       S   1
+        1       0.360000000E-01      1.00000000    
+    &rcub; 
+
+    &rcub;
+  &rcub;
+
+
+  scfdata= &lcub;
+
+    kind=            xray_rhf
+    initial_guess=   atom
+    direct=          on
+    max_it=          50
+    eri_limit=       1.0d-20
+
+    initial_lambda=  0.000000
+    lambda_max=      0.001000
+    lambda_step=     0.001000
+
+    ! Convergence options
+
+    diis_keep=       12
+    diis_start=      0
+    diis=            on 
+    level_shift=     1.0
+    damp_factor=     0.5
+    damp_finish=     3
+  &rcub;
+  
+
+  output_style_options= &lcub;
+    int_width= 5
+    real_width= 14
+    precision= 6
+  &rcub;
+
+  scf
+
+&rcub;</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="output-morphy.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="pair-energy-decomposition.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Outputting a MORPHY input file</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="example-input-files.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>An MO pair-energy decompisitoin</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

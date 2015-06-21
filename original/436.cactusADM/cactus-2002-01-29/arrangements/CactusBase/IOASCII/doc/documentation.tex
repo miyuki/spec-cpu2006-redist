@@ -1,0 +1,411 @@
+% Thorn documentation template
+\documentclass{article}
+\begin{document}
+
+\title{IOASCII}
+\author{Thomas Radke, Gabrielle Allen}
+\date{December 2001}
+\maketitle
+
+\abstract{Thorn IOASCII provides I/O methods for 1D, 2D, and 3D output of
+grid arrays into files in ASCII format. The precise format is designed for
+visualisation using the clients {\tt xgraph} or {\tt gnuplot}.}
+
+\section{Purpose}
+Thorn IOASCII registers three I/O methods named {\tt IOASCII\_1D}, {\tt IOASCII\_2D}, and
+{\tt IOASCII\_3D} with the I/O interface in the flesh.
+
+\begin{itemize}
+
+  \item {\tt IOASCII\_1D} 
+
+  creates one-dimensional output of 1D, 2D and
+  3D grid functions and arrays by slicing through the edge (in the
+  octant case) or center (in all origin centered cases) of the grid in
+  the coordinate directions.  In addition, output is provided
+  along a diagonal of the grid, in this case the diagonal always starts
+  at the first grid point (that is, in Fortran notation {\tt var(1,1,1)})
+  and the line taken uses grid points increasing by 1 in each direction.
+  [NOTE: The diagonal output is not yet available for staggered variables].
+
+  Output for each direction can be
+  selected individually via parameters.
+
+  Data is written in ASCII format and goes into files named
+
+  {\tt <GF\_name>.[xyzd]}
+
+  with the default behaviour in each grid dimension being to create
+  the following files:
+
+  \begin{center}
+  \begin{tabular}{cc}
+    Array dimension & Default output \\
+    3D & {\tt xl yl zl dl} \\
+    2D & {\tt xl yl dl} \\
+    1D & {\tt xl} 
+  \end{tabular}
+  \end{center}
+
+  These files can be processed directly by either xgraph or gnuplot
+  (you can select the style of output via parameter settings).
+
+  \item {\tt IOASCII\_2D} 
+
+  outputs two-dimensional slices of grid functions and arrays planes. 
+  Again, slicing is done through the edge (in the
+  octant case) or center (in all origin centered cases).\\ Data is
+  written in ASCII format and goes into files named 
+  
+  {\tt <varname>\_2d\_[\{xy\}\{xz\}\{yz\}].gnuplot}
+
+  The default behaviour in each grid dimension is to create
+  the following files:
+
+  \begin{center}
+  \begin{tabular}{cc}
+    Array dimension & Default output \\
+    3D & {\tt xy yz xz} \\
+    2D & {\tt xy} 
+  \end{tabular}
+  \end{center}
+
+  These files can be
+  visualized by gnuplot using its {\it splot} command.  
+
+  \item {\tt IOASCII\_3D} 
+
+  outputs three-dimensional grid functions and arrays as
+  a whole.
+
+  Data is written in ASCII format and goes into files named
+  
+  {\tt <varname>\_3D.asc}
+
+  These files can be visualized by gnuplot
+  using its {\it splot} command.
+
+\end{itemize}
+%
+You obtain output by an I/O method by either
+%
+\begin{itemize}
+  \item setting the appropriate I/O parameters
+  \item calling one the routines of the I/O function interface provided by the flesh
+\end{itemize}
+%
+For a description of basic I/O parameters and the I/O function interface to
+invoke I/O methods by application thorns please see the documentation of thorn
+IOUtil and the flesh.
+%
+\section{Comments}
+
+IMPORTANT: Must select data to output AFTER spatial coordinates are set up
+
+
+
+
+%
+Since IOASCII uses parameters from IOUtil
+it also needs this I/O utility thorn be compiled into Cactus and activated.
+
+\section{Examples}
+
+In this section we include example output for different parameter combinations. 
+Note that all these examples were generated for just a couple of timesteps for an extremely small 3D grid.
+
+\subsection{One dimensional xgraph}
+
+These options produce data suitable for using with the xgraph visualization client 
+in the format 
+{\tt
+\begin{verbatim}
+x f(t=fixed,x,y=fixed,z=fixed)
+\end{verbatim}
+}
+
+
+{\tt
+\begin{verbatim}
+IOASCII::out1D_every = 1
+IOASCII::out1D_vars = "wavetoy::phi"
+IOASCII::out1D_style = "xgraph"
+\end{verbatim}
+}
+
+\noindent
+{\bf Output File: phi.xl}
+
+{\tt
+\begin{verbatim}
+"Parameter file wavetoy.par
+"Created Sun 19 Aug 2001 16:31:43
+"x-label x
+"y-label WAVETOY::phi (y = 0.0000000000000, z = 0.0000000000000), (yi = 1, zi = 1) 
+
+
+"Time = 0.0000000000000
+-0.5000000000000		0.0000000000139
+0.0000000000000		1.0000000000000
+0.5000000000000		0.0000000000139
+
+
+"Time = 0.2500000000000
+-0.5000000000000		0.0000000000000
+0.0000000000000		0.4980695458846
+0.5000000000000		0.0000000000000
+
+
+"Time = 0.5000000000000
+-0.5000000000000		0.0019304541362
+0.0000000000000		-0.7509652270577
+0.5000000000000		0.0019304541362
+\end{verbatim}
+}
+
+\subsection{One dimensional gnuplot}
+
+These options produce data suitable for using with the gnuplot visualization client in the format
+{\tt
+\begin{verbatim}
+x f(t,x,y=fixed,z=fixed)
+\end{verbatim}
+}
+
+
+{\tt
+\begin{verbatim}
+IOASCII::out1D_every = 1
+IOASCII::out1D_vars = "wavetoy::phi"
+IOASCII::out1D_style = "gnuplot f(x)"
+\end{verbatim}
+}
+
+\noindent
+{\bf Output File: phi.xl}
+
+{\tt
+\begin{verbatim}
+#Parameter file wavetoy.par
+#Created Sun 19 Aug 2001 16:33:07
+#x-label x
+#y-label WAVETOY::phi (y = 0.0000000000000, z = 0.0000000000000), (yi = 1, zi = 1) 
+
+#Time = 0.0000000000000
+-0.5000000000000		0.0000000000139
+0.0000000000000		1.0000000000000
+0.5000000000000		0.0000000000139
+
+#Time = 0.2500000000000
+-0.5000000000000		0.0000000000000
+0.0000000000000		0.4980695458846
+0.5000000000000		0.0000000000000
+
+#Time = 0.5000000000000
+-0.5000000000000		0.0019304541362
+0.0000000000000		-0.7509652270577
+0.5000000000000		0.0019304541362
+\end{verbatim}
+}
+
+
+\subsection{One dimensional gnuplot (including time)}
+
+These options produce data suitable for using with the gnuplot visualization client in the format
+{\tt
+\begin{verbatim}
+t x f(t,x,y=fixed,z=fixed)
+\end{verbatim}
+}
+
+{\tt
+\begin{verbatim}
+IOASCII::out1D_every = 1
+IOASCII::out1D_vars = "wavetoy::phi"
+IOASCII::out1D_style = "gnuplot f(t,x)"
+\end{verbatim}
+}
+
+\noindent
+{\bf Output file: phi.xl}
+{\tt
+\begin{verbatim}
+#Parameter file wavetoy.par
+#Created Sun 19 Aug 2001 16:34:48
+#x-label x
+#y-label WAVETOY::phi (y = 0.0000000000000, z = 0.0000000000000), (yi = 1, zi = 1) 
+
+#Time = 0.0000000000000
+0.0000000000000		-0.5000000000000		0.0000000000139
+0.0000000000000		0.0000000000000		1.0000000000000
+0.0000000000000		0.5000000000000		0.0000000000139
+
+#Time = 0.2500000000000
+0.2500000000000		-0.5000000000000		0.0000000000000
+0.2500000000000		0.0000000000000		0.4980695458846
+0.2500000000000		0.5000000000000		0.0000000000000
+
+#Time = 0.5000000000000
+0.5000000000000		-0.5000000000000		0.0019304541362
+0.5000000000000		0.0000000000000		-0.7509652270577
+0.5000000000000		0.5000000000000		0.0019304541362
+\end{verbatim}
+}
+
+\subsection{Two dimensional gnuplot}
+
+These options produce data suitable for using with the gnuplot visualization client in the format
+{\tt
+\begin{verbatim}
+x y f(t,x,y,z=fixed)
+\end{verbatim}
+}
+
+
+{\tt
+\begin{verbatim}
+IOASCII::out2D_every = 1
+IOASCII::out2D_vars = "wavetoy::phi"
+IOASCII::out2D_style = "gnuplot f(x,y)"
+\end{verbatim}
+}
+
+\noindent
+{\bf Output file: phi\_2d\_xy.gnuplot}
+{\tt
+\begin{verbatim}
+#Parameter file wavetoy.par
+#Created Sun 19 Aug 2001 16:31:43
+#x-label x
+#y-label y
+#z-label WAVETOY::phi (z = 0.0000000000000), (zi = 1)
+
+
+#Time = 0.0000000000000
+-0.5000000000000		-0.5000000000000		0.0000000000000
+0.0000000000000		-0.5000000000000		0.0000000000139
+0.5000000000000		-0.5000000000000		0.0000000000000
+
+-0.5000000000000		0.0000000000000		0.0000000000139
+0.0000000000000		0.0000000000000		1.0000000000000
+0.5000000000000		0.0000000000000		0.0000000000139
+
+-0.5000000000000		0.5000000000000		0.0000000000000
+0.0000000000000		0.5000000000000		0.0000000000139
+0.5000000000000		0.5000000000000		0.0000000000000
+
+
+
+#Time = 0.2500000000000
+-0.5000000000000		-0.5000000000000		0.0000000000000
+0.0000000000000		-0.5000000000000		0.0000000000000
+0.5000000000000		-0.5000000000000		0.0000000000000
+
+-0.5000000000000		0.0000000000000		0.0000000000000
+0.0000000000000		0.0000000000000		0.4980695458846
+0.5000000000000		0.0000000000000		0.0000000000000
+
+-0.5000000000000		0.5000000000000		0.0000000000000
+0.0000000000000		0.5000000000000		0.0000000000000
+0.5000000000000		0.5000000000000		0.0000000000000
+
+
+
+#Time = 0.5000000000000
+-0.5000000000000		-0.5000000000000		0.0000000008425
+0.0000000000000		-0.5000000000000		0.0019304541362
+0.5000000000000		-0.5000000000000		0.0000000008425
+
+-0.5000000000000		0.0000000000000		0.0019304541362
+0.0000000000000		0.0000000000000		-0.7509652270577
+0.5000000000000		0.0000000000000		0.0019304541362
+
+-0.5000000000000		0.5000000000000		0.0000000008425
+0.0000000000000		0.5000000000000		0.0019304541362
+0.5000000000000		0.5000000000000		0.0000000008425
+\end{verbatim}
+}
+
+\subsection{Two dimensional gnuplot (including time)}
+
+These options produce data suitable for using with the gnuplot visualization client in the format
+{\tt
+\begin{verbatim}
+t x y f(t,x,y,z=fixed)
+\end{verbatim}
+}
+
+
+
+{\tt
+\begin{verbatim}
+IOASCII::out2D_every = 1
+IOASCII::out2D_vars = "wavetoy::phi"
+IOASCII::out2D_style = "gnuplot f(t,x,y)"
+\end{verbatim}
+}
+
+\noindent
+{\bf Output file: phi\_2d\_xy.gnuplot}
+{\tt
+\begin{verbatim}
+#Parameter file wavetoy.par
+#Created Sun 19 Aug 2001 16:33:07
+#x-label x
+#y-label y
+#z-label WAVETOY::phi (z = 0.0000000000000), (zi = 1)
+
+
+#Time = 0.0000000000000
+0.0000000000000		-0.5000000000000		-0.5000000000000		0.0000000000000
+0.0000000000000		0.0000000000000		-0.5000000000000		0.0000000000139
+0.0000000000000		0.5000000000000		-0.5000000000000		0.0000000000000
+
+0.0000000000000		-0.5000000000000		0.0000000000000		0.0000000000139
+0.0000000000000		0.0000000000000		0.0000000000000		1.0000000000000
+0.0000000000000		0.5000000000000		0.0000000000000		0.0000000000139
+
+0.0000000000000		-0.5000000000000		0.5000000000000		0.0000000000000
+0.0000000000000		0.0000000000000		0.5000000000000		0.0000000000139
+0.0000000000000		0.5000000000000		0.5000000000000		0.0000000000000
+
+
+
+#Time = 0.2500000000000
+0.2500000000000		-0.5000000000000		-0.5000000000000		0.0000000000000
+0.2500000000000		0.0000000000000		-0.5000000000000		0.0000000000000
+0.2500000000000		0.5000000000000		-0.5000000000000		0.0000000000000
+
+0.2500000000000		-0.5000000000000		0.0000000000000		0.0000000000000
+0.2500000000000		0.0000000000000		0.0000000000000		0.4980695458846
+0.2500000000000		0.5000000000000		0.0000000000000		0.0000000000000
+
+0.2500000000000		-0.5000000000000		0.5000000000000		0.0000000000000
+0.2500000000000		0.0000000000000		0.5000000000000		0.0000000000000
+0.2500000000000		0.5000000000000		0.5000000000000		0.0000000000000
+
+
+
+#Time = 0.5000000000000
+0.5000000000000		-0.5000000000000		-0.5000000000000		0.0000000008425
+0.5000000000000		0.0000000000000		-0.5000000000000		0.0019304541362
+0.5000000000000		0.5000000000000		-0.5000000000000		0.0000000008425
+
+0.5000000000000		-0.5000000000000		0.0000000000000		0.0019304541362
+0.5000000000000		0.0000000000000		0.0000000000000		-0.7509652270577
+0.5000000000000		0.5000000000000		0.0000000000000		0.0019304541362
+
+0.5000000000000		-0.5000000000000		0.5000000000000		0.0000000008425
+0.5000000000000		0.0000000000000		0.5000000000000		0.0019304541362
+0.5000000000000		0.5000000000000		0.5000000000000		0.0000000008425
+\end{verbatim}
+}
+
+%
+% Automatically created from the ccl files 
+% Do not worry for now.
+\include{interface}
+\include{param}
+\include{schedule}
+
+\end{document}

@@ -1,0 +1,38 @@
+% /*@@
+%   @file      CST.tex
+%   @date      Wed Jan 12 14:38:29 2000
+%   @author    Tom Goodale
+%   @desc 
+%   
+%   @enddesc 
+%   @version $Header: /cactus/Cactus/doc/MaintGuide/CST.tex,v 1.2 2001/05/11 10:40:34 goodale Exp $
+% @@*/
+
+\begin{cactuspart}{4}{The CST}{$RCSfile: CST.tex,v $}{$Revision: 1.2 $}
+\renewcommand{\thepage}{\Alph{part}\arabic{page}}
+
+\chapter{Introduction}
+
+The CST is really the glue which holds the code together.  It takes the 
+specifications which users have provided in their {\em .ccl} files
+and generates C header and source files which are used to tell the 
+flesh about the thorns.
+
+The processing is done in three stages.  In the first stage the {\em .ccl}
+files from each thorn in the {\em ThornList} are parsed and the data from them
+is stored internally in databases.  In the second stage the data is 
+cross-indexed for consistency.  Finally the files are written out into the 
+{\em bindings} directory in the configuration directory.
+
+\chapter{The Databases}
+
+\chapter{The Generated Files}
+
+\chapter{The Parsing Routines}
+
+\chapter{The Output Routines}
+
+\chapter{Miscellaneous Routines}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{cactuspart}

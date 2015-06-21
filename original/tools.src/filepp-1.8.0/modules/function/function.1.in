@@ -1,0 +1,59 @@
+.\"  Hey Emacs! This file is -*- nroff -*- source.
+.\" __FILEPP_INPUT__ version __VERSION__
+.\" filepp is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program; see the file COPYING.  If not, write to
+.\" the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+.\"
+.SH FUNCTION MODULE - function.pm
+The function module allows the user write macros which call Perl functions.
+Its file name is \fBfunction.pm\fP.
+.PP
+The function module allows macros of the form:
+
+\fImacro(arg1, arg2, arg3, ...)\fP
+
+to be added to a file.  When the macro is found, it will run a
+function from a Perl module, with arguments \fIarg1\fP, \fIarg2\fP,
+\fIarg3\fP, \fI...\fP passed to the function.  The function must
+return a string.  The returned string will replace the call to the
+function in the output.  The function can have any number of
+arguments.  If the function has no arguments it should be called with
+an empty argument list:
+
+\fImacro()\fP
+
+If the word \fImacro\fP is found in the input file without being
+followed by a \fI(\fP it will be ignored.
+.PP
+To use the function module, the user must provide a Perl function
+which optionally takes in arguments and returns a string.  The
+function can either be one of filepp's internal functions or one of
+the user's own provided in a Perl module.  The function can be added
+in two ways.  The first way is through the \fBfunction\fP keyword:
+.TP
+.BR #function " \fImacro\fP \fIfunction\fP"
+\fImacro\fP is the name of the macro which is used to signify a call
+to the function in the input file and \fIfunction\fP is the name of
+the function to be called.
+.PP
+The second method of adding a function is to call the Perl function:
+.TP
+.BR Function::AddFunction(\fI$macro\fP, \fI$function\fP)
+which has the same inputs as the \fBfunction\fP keyword.
+.PP
+Functions can be removed either through the keyword:
+.TP
+.BR #rmfunction " \fImacro\fP"
+or through the Perl function
+.TP
+.BR Function::RemoveFunction(\fI$macro\fP)

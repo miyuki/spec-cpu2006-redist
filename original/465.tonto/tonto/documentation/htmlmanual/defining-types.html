@@ -1,0 +1,229 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>Defining the type in the types.foo file</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Writing foo modules for TONTO"
+HREF="foo-modules.html"><LINK
+REL="PREVIOUS"
+TITLE="Deciding what is data and what should be a routine"
+HREF="data-routines.html"><LINK
+REL="NEXT"
+TITLE="Modifying the foo pre-processor"
+HREF="preprocessor-modifications.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="data-routines.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="preprocessor-modifications.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="DEFINING-TYPES"
+></A
+>Defining the type in the <TT
+CLASS="FILENAME"
+>types.foo</TT
+> file</H1
+><P
+ALIGN="justify"
+>Once you have decided what is data and what should be a routine, you will
+need to define a type to hold that data.</P
+><P
+ALIGN="justify"
+>You need to decide a name for the type (which will be the name of the
+module also) and the names of all the pieces of data that are held by that type.
+For example, below is the definition of the BUFFER type:
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>   type buffer_type
+
+   INT :: pos
+   ! The position of the last character of the last item processed in
+   ! buffer_str
+
+   INT :: item
+   ! The item number of the last item processed in buffer_str
+
+   INT :: n_items
+   ! The total number of items in the buffer_str
+
+   BIN :: analysed
+   ! True, if the buffer_str has been analysed
+
+   STR :: comment_chars
+   ! The comment character symbols (concatenated) to be used in the
+   ! buffer_str
+
+   BSTR :: buffer_str
+   ! The actual buffer string
+
+   end </PRE
+></TD
+></TR
+></TABLE
+>
+This type contains only simple data types, such as integers, strings, and
+logical variables.  Notice how the intended meaning of each variable is fully
+described below its declaration.  Notice also how long and descriptive names are
+used when neccesary. This is important.  Notice that the
+<TT
+CLASS="LITERAL"
+>BUFFER</TT
+> type is actually declared as
+<TT
+CLASS="LITERAL"
+>buffer_type</TT
+>.</P
+><P
+ALIGN="justify"
+>The above type definition is placed in the <TT
+CLASS="LITERAL"
+>types.foo</TT
+>
+file. It must be placed after all the types which it uses, and before all the
+types which use it it their definition.</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="data-routines.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="preprocessor-modifications.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Deciding what is data and what should be a routine</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="foo-modules.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Modifying the <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> pre-processor</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

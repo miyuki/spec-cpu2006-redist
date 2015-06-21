@@ -1,0 +1,1885 @@
+!-------------------------------------------------------------------------------
+!
+! ATOM: can be a quantum mechanical atom, with a basis set
+!       or a molecular mechanical atom with a force field potential
+!
+! Copyright (C) Dylan Jayatilaka, 1997
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: atom.foo,v 1.33.2.17 2003/11/13 05:34:14 reaper Exp $
+!-------------------------------------------------------------------------------
+
+module ATOM
+
+   implicit none
+
+   keys :: STRVEC*, private DEFAULT_NULL
+
+!  ***************
+!  Data statements
+!  ***************
+
+   !  The Periodic Table
+
+   element_symbols :: ARRAY(STR(2),103)
+
+   data element_symbols/ &
+    "H ",                                                                                "He", &
+    "Li","Be",                                                  "B ","C ","N ","O ","F ","Ne", &
+    "Na","Mg",                                                  "Al","Si","P ","S ","Cl","Ar", &
+    "K ","Ca","Sc","Ti","V ","Cr","Mn","Fe","Co","Ni","Cu","Zn","Ga","Ge","As","Se","Br","Kr", &
+    "Rb","Sr","Y ","Zr","Nb","Mo","Tc","Ru","Rh","Pd","Ag","Cd","In","Sn","Sb","Te","I ","Xe", &
+    "Cs","Ba","La",     "Ce","Pr","Nd","Pm","Sm","Eu","Gd","Tb","Dy","Ho","Er","Tm","Yb","Lu", &
+                   "Hf","Ta","W ","Re","Os","Ir","Pt","Au","Hg","Tl","Pb","Bi","Po","At","Rn", &
+    "Fr","Ra","Ac",     "Th","Pa","U ","Np","Pu","Am","Cm","Bk","Cf","Es","Fm","Md","No","Lr"/
+
+   element_names :: ARRAY(STR(12),103)
+
+   data element_names/ &
+    "Hydrogen    ","Helium      ", &
+    "Lithium     ","Beryllium   ", &
+    "Boron       ","Carbon      ","Nitrogen    ","Oxygen      ","Fluorine    ","Neon        ", &
+    "Sodium      ","Magnesium   ", &
+    "Aluminium   ","Silicon     ","Phosphorous ","Sulfur      ","Chlorine    ","Argon       ", &
+    "Potassium   ","Calcium     ", &
+    "Scandium    ","Titanium    ","Vanadium    ","Chromium    ","Manganese   ", &
+    "Iron        ","Cobalt      ","Nickel      ","Copper      ","Zinc        ", &
+    "Gallium     ","Germanium   ","Arsenic     ","Selinium    ","Bromine     ","Krypton     ", &
+    "Rubidium    ","Strontium   ", &
+    "Yttrium     ","Zirconium   ","Niobium     ","Molybdenum  ","Technitium  ", &
+    "Ruthenium   ","Rhodium     ","Palladium   ","Silver      ","Cadmium     ", &
+    "Indium      ","Tin         ","Antimony    ","Tellurium   ","Iodine      ","Xenon       ", &
+    "Cesium      ","Barium      ", &
+    "Lanthanum   ", &
+    "Cerium      ","Praseodymium","Neodymium   ","Promethium  ","Samarium    ","Europium    ","Gadolinium  ", &
+    "Terbium     ","Dysprosium  ","Holmium     ","Erbium      ","Thulium     ","Ytterbium   ","Lutetium    ", &
+                   "Haffnium    ","Tantalum    ","Tangsten    ","Rhenium     ", &
+    "Osmium      ","Iridium     ","Platinum    ","Gold        ","Mercury     ", &
+    "Thallium    ","Lead        ","Bismuth     ","Polonium    ","Astatine    ","Radon       ", &
+    "Francium    ","Radium      ", &
+    "Actinium    ", &
+    "Thorium     ","Protactinium","Uranium     ","Neptunium   ","Plutonium   ","Americium   ","Curium      ", &
+    "Berkellium  ","Californium ","Einsteinium ","Fermium     ","Mendelevium ","Nobelium    ","Lawrencium  "/
+
+   !  Bragg-Slater radii taken from Aaron Lee's code
+
+   bragg_slater_radii :: REALVEC(54)
+
+   data bragg_slater_radii/ &
+      0.35d0,0.35d0,                                           &
+      1.45d0,1.05d0,0.85d0,0.70d0,0.65d0,0.60d0,0.50d0,0.45d0, &
+      1.80d0,1.50d0,1.25d0,1.10d0,1.00d0,1.00d0,1.00d0,1.00d0, &
+      2.20d0,1.80d0,                                           &
+      1.60d0,1.40d0,1.35d0,1.40d0,1.40d0,                      &
+      1.40d0,1.35d0,1.35d0,1.35d0,1.35d0,                      &
+                    1.30d0,1.25d0,1.15d0,1.15d0,1.15d0,1.15d0, &
+      1.30d0,1.30d0,                                           &
+      1.30d0,1.30d0,1.30d0,1.30d0,1.30d0,                      &
+      1.30d0,1.30d0,1.30d0,1.30d0,1.30d0,                      &
+                    1.30d0,1.30d0,1.30d0,1.30d0,1.30d0,1.30d0  /
+
+   !  Abundance weighted atomic masses taken from the WWW to be the same as Turbomol
+
+   atomic_masses :: REALVEC(92)
+
+   data atomic_masses/ &
+       1.007970d0,   4.002600d0, &
+       6.939000d0,   9.012200d0,  10.811000d0,  12.011150d0,  14.006700d0,  15.999400d0,  18.998400d0,  20.183000d0, &
+      22.989800d0,  24.312000d0,  26.981500d0,  28.086000d0,  30.973800d0,  32.064000d0,  35.453000d0,  39.948000d0, &
+      39.102000d0,  40.080000d0, &
+                    44.956000d0,  47.900000d0,  50.942000d0,  51.996000d0,  54.938000d0, &
+                    55.850000d0,  58.933200d0,  58.710000d0,  63.540000d0,  65.370000d0, &
+                                  69.720000d0,  72.590000d0,  74.921600d0,  78.960000d0,  79.909000d0,  83.800000d0, &
+      85.470000d0,  87.620000d0,  &
+                    88.905000d0,  91.220000d0,  92.906000d0,  95.940000d0,  99.000000d0, &
+                   101.070000d0, 102.905000d0, 106.400000d0, 107.870000d0, 112.400000d0, &
+                                 114.820000d0, 118.690000d0, 121.750000d0, 127.600000d0, 126.904000d0, 131.300000d0, &
+     132.905000d0, 137.330000d0, &
+                   138.910000d0, 140.115000d0, 140.908000d0, 144.240000d0, 146.920000d0, 150.360000d0, 151.965000d0, &
+                   157.250000d0, 158.925000d0, 162.500000d0, 164.930000d0, 167.260000d0, 168.930000d0, 173.040000d0, &
+                   174.970000d0, 178.490000d0, 180.950000d0, 183.850000d0, 186.210000d0, &
+                   190.200000d0, 192.220000d0, 195.080000d0, 196.070000d0, 200.590000d0, &
+                                 204.380000d0, 207.200000d0, 208.980000d0, 208.980000d0, 209.990000d0, 222.020000d0, &
+     223.020000d0, 226.030000d0, &
+                   227.030000d0, 232.040000d0, 231.040000d0, 238.030000d0/
+
+   !  Abundance-weighted coherent neutron scattering lengths in fm taken from:
+   !  International Tables for Crystallography, Vol. C, 1992, pp 384-391
+
+   neutron_scattering_lengths :: REALVEC(95)
+
+   data neutron_scattering_lengths/ &
+      -3.7390,  3.2600, &
+      -1.9000,  7.7900,  5.3000,  6.6460,  9.3600,  5.8030,  5.6540,  4.5470, &
+       3.6300,  5.3750,  3.4490,  4.1490,  5.1300,  2.8470,  9.5770,  1.9090, &
+       3.7100,  4.9000, &
+               12.2900, -3.4380,  -.3824,  3.6350, -3.7300, &
+                9.5400,  2.5000, 10.3000,  7.7180,  5.6890, &
+                         7.2879,  8.1929,  6.5800,  7.9700,  6.7950,  7.8000, &
+       7.0800,  7.0200, &
+                7.7500,  7.1600,  7.0540,  6.9500,  6.8000, &
+                7.2100,  5.8800,  5.9100,  5.9220,  5.1000, &
+                         4.0650,  6.2257,  5.5700,  5.8000,  5.2800,  4.8500, &
+       5.4200,  5.0600, &
+                8.2400,  4.8400,  4.4500,  7.6900, 12.6000,  4.2000,  6.7300, &
+                9.5000,  7.3800, 16.9000,  8.0800,  8.0300,  7.0700, 12.4100, &
+                7.2100,  7.7700,  6.9100,  4.7700,  9.2000, &
+               11.0000, 10.6000,  9.6000,  7.6300, 12.6920, &
+                         8.7760,  9.4017,  8.5307,  0.0000,  0.0000,  0.0000, &
+       0.0000, 10.0000, &
+                0.0000, 10.6300,  9.1000,  8.4170, 10.5500, 14.1000,  8.3000/
+
+   ! X-ray dispersion correction factors.
+   ! First element is f', second is f".  Cr wavelength = 2.291A.
+
+   dispersion_correction_Cr :: CPXVEC(92)
+
+   data dispersion_correction_Cr/ &
+    (  0.0,  0.0), (  0.0,  0.0), (  0.0,  0.0), (  0.0,  0.0), (  0.0,  0.0), &
+    (  0.0,  0.1), (  0.0,  0.1), (  0.1,  0.1), (  0.1,  0.2), (  0.1,  0.3), &
+    (  0.2,  0.4), (  0.2,  0.5), (  0.2,  0.6), (  0.3,  0.8), (  0.3,  0.9), &
+    (  0.3,  1.2), (  0.3,  1.4), (  0.2,  1.7), (  0.0,  2.1), ( -0.2,  2.6), &
+    ( -0.7,  3.1), ( -1.7,  3.7), ( -4.4,  0.5), ( -2.2,  0.6), ( -1.8,  0.7), &
+    ( -1.6,  0.8), ( -1.4,  0.9), ( -1.2,  1.1), ( -1.1,  1.2), ( -1.0,  1.4), &
+    ( -0.9,  1.6), ( -0.8,  1.8), ( -0.7,  2.1), ( -0.7,  2.3), ( -0.7,  2.5), &
+    ( -0.7,  2.8), ( -0.7,  3.2), ( -0.7,  3.6), ( -0.7,  3.9), ( -0.8,  4.3), &
+    ( -0.8,  4.8), ( -0.9,  5.3), ( -1.1,  5.9), ( -1.2,  6.4), ( -1.4,  6.9), &
+    ( -1.7,  7.5), ( -2.0,  8.2), ( -2.3,  8.8), ( -2.8,  9.5), ( -3.3, 10.3), &
+    ( -4.0, 11.1), ( -5.0, 11.9), ( -7.1, 13.1), ( -9.0, 10.0), (-12.0, 11.0), &
+    (-11.0,  8.0), (-14.0,  3.0), (-10.0,  3.0), ( -9.0,  3.0), ( -8.0,  4.0), &
+    ( -7.0,  4.0), ( -7.0,  4.0), ( -6.0,  5.0), ( -6.0,  5.0), ( -6.0,  6.0), &
+    ( -6.0,  6.0), ( -5.0,  7.0), ( -5.0,  7.0), ( -5.0,  8.0), ( -5.0,  8.0), &
+    ( -5.0,  9.0), ( -5.0,  9.0), ( -5.0, 10.0), ( -5.0, 10.0), ( -5.0, 11.0), &
+    ( -5.0, 12.0), ( -5.0, 13.0), ( -5.0, 14.0), ( -5.0, 14.0), ( -5.0, 15.0), &
+    ( -5.0, 16.0), ( -6.0, 17.0), ( -6.0, 18.0), ( -7.0, 19.0), ( -8.0, 20.0), &
+    ( -9.0, 22.0), (-10.0, 23.0), (-11.0, 24.0), (-12.0, 26.0), (-13.0, 27.0), &
+    (-15.0, 28.0), (-17.0, 27.0)/
+
+   ! X-ray dispersion correction factors.
+   ! First element is f', second is f".  Cu wavelength = 1.542A.
+
+   dispersion_correction_Cu :: CPXVEC(92)
+
+   data dispersion_correction_Cu/ &
+    (  0.0,  0.0), (  0.0,  0.0), (  0.0,  0.0), (  0.0,  0.0), (  0.0,  0.0), &
+    (  0.0,  0.0), (  0.0,  0.0), (  0.0,  0.1), (  0.0,  0.1), (  0.1,  0.1), &
+    (  0.1,  0.2), (  0.1,  0.2), (  0.1,  0.3), (  0.2,  0.4), (  0.2,  0.5), &
+    (  0.3,  0.6), (  0.3,  0.7), (  0.3,  0.8), (  0.3,  1.0), (  0.3,  1.3), &
+    (  0.3,  1.5), (  0.2,  1.8), (  0.1,  2.2), ( -0.1,  2.5), ( -0.5,  2.9), &
+    ( -1.1,  3.3), ( -2.2,  3.8), ( -3.1,  0.5), ( -2.1,  0.6), ( -1.7,  0.7), &
+    ( -1.5,  0.8), ( -1.3,  0.9), ( -1.2,  1.0), ( -1.1,  1.1), ( -1.0,  1.3), &
+    ( -1.0,  1.5), ( -0.9,  1.7), ( -0.8,  1.8), ( -0.8,  2.0), ( -0.7,  2.2), &
+    ( -0.7,  2.5), ( -0.6,  2.7), ( -0.6,  3.0), ( -0.6,  3.3), ( -0.6,  3.6), &
+    ( -0.6,  3.9), ( -0.6,  4.3), ( -0.7,  4.6), ( -0.8,  5.0), ( -0.9,  5.4), &
+    ( -1.0,  5.8), ( -1.1,  6.2), ( -1.3,  6.7), ( -1.6,  7.2), ( -1.9,  7.7), &
+    ( -2.3,  8.3), ( -2.7,  8.9), ( -3.1,  9.6), ( -3.6, 10.2), ( -4.4, 10.9), &
+    ( -5.3, 11.5), ( -6.7, 12.4), ( -9.0, 10.2), (-12.0, 11.2), (-11.0,  7.0), &
+    (-10.0,  8.0), (-13.0,  3.0), ( -9.0,  3.0), ( -8.0,  4.0), ( -8.0,  4.0), &
+    ( -7.0,  4.0), ( -7.0,  4.0), ( -6.0,  5.0), ( -6.0,  5.0), ( -6.0,  5.0), &
+    ( -6.0,  6.0), ( -6.0,  6.0), ( -5.0,  7.0), ( -5.0,  7.0), ( -5.0,  8.0), &
+    ( -5.0,  8.0), ( -5.0,  9.0), ( -5.0,  9.0), ( -5.0, 10.0), ( -5.0, 10.0), &
+    ( -5.0, 11.0), ( -5.0, 11.0), ( -5.0, 12.0), ( -5.0, 12.0), ( -5.0, 13.0), &
+    ( -5.0, 14.0), ( -5.0, 15.0)/
+
+   ! X-ray dispersion correction factors.
+   ! First element is f', second is f".  Mo wavelength = 0.7107A.
+
+   dispersion_correction_Mo :: CPXVEC(92)
+
+   data dispersion_correction_Mo/ &
+    (  0.0,  0.0), (  0.0,  0.0), (  0.0,  0.0), (  0.0,  0.0), (  0.0,  0.0),  &
+    (  0.0,  0.0), (  0.0,  0.0), (  0.0,  0.0), (  0.0,  0.0), (  0.0,  0.0),  &
+    (  0.0,  0.1), (  0.0,  0.1), (  0.1,  0.1), (  0.1,  0.1), (  0.1,  0.1),  &
+    (  0.1,  0.2), (  0.1,  0.2), (  0.1,  0.2), (  0.2,  0.3), (  0.2,  0.3),  &
+    (  0.2,  0.4), (  0.2,  0.5), (  0.3,  0.6), (  0.3,  0.7), (  0.3,  0.8),  &
+    (  0.3,  0.9), (  0.3,  1.0), (  0.3,  1.1), (  0.3,  1.3), (  0.3,  1.5),  &
+    (  0.2,  1.6), (  0.2,  1.8), (  0.1,  2.0), ( -0.1,  2.2), ( -0.3,  2.4),  &
+    ( -0.6,  2.7), ( -0.9,  3.0), ( -1.4,  3.4), ( -2.3,  3.7), ( -2.8,  0.6),  &
+    ( -2.1,  0.6), ( -1.7,  0.7), ( -1.5,  0.8), ( -1.3,  0.8), ( -1.2,  0.9),  &
+    ( -1.1,  1.0), ( -1.0,  1.1), ( -0.9,  1.3), ( -0.8,  1.4), ( -0.8,  1.5),  &
+    ( -0.8,  1.6), ( -0.7,  1.8), ( -0.7,  1.9), ( -0.6,  2.1), ( -0.6,  2.3),  &
+    ( -0.6,  2.5), ( -0.5,  2.7), ( -0.5,  2.9), ( -0.5,  3.1), ( -0.5,  3.3),  &
+    ( -0.5,  3.5), ( -0.5,  3.7), ( -0.5,  3.9), ( -0.6,  4.1), ( -0.6,  4.3),  &
+    ( -0.7,  4.7), ( -0.7,  5.0), ( -0.7,  5.3), ( -0.8,  5.6), ( -0.8,  5.9),  &
+    ( -0.9,  6.1), ( -1.0,  6.4), ( -1.1,  6.7), ( -1.3,  7.1), ( -1.5,  7.5),  &
+    ( -1.7,  7.9), ( -2.0,  8.3), ( -2.2,  8.7), ( -2.5,  9.2), ( -2.9,  9.7),  &
+    ( -3.5, 10.2), ( -4.1, 10.7), ( -4.8, 11.1), ( -5.5, 11.7), ( -7.0,  9.0),  &
+    ( -8.0, 10.0), ( -8.0,  7.0), ( -7.0,  7.0), ( -7.0,  8.0), ( -7.0,  7.0),  &
+    ( -7.0,  8.0), ( -8.0,  8.0)/
+
+contains
+
+!  ******************
+!  Allocation methods
+!  ******************
+
+   create
+   ! Create an atom
+      self :: PTR
+      nullify(self)
+      allocate(self)
+      ADD_MEMORY(ATOM_SIZE)
+      .nullify_ptr_part
+      .set_defaults
+   end
+
+   create_copy(atom)
+   ! Create a copy of atom.
+     atom :: ATOM
+     self :: PTR
+     .create
+     .copy(atom)
+   end
+
+   copy(atom) ::: leaky
+   ! Make self a copy of atom.  WARNING: the basis part is not explicitly
+   ! copied, so be careful with destroy operations.
+     atom :: ATOM
+     self = atom
+     ! if (atom.basis.created) .basis.create_copy(atom.basis)
+     ! if (atom.slaterbasis.created) .coppensbasis.create_copy(atom.coppensbasis)
+     ! if (atom.coppensbasis.created) .coppensbasis.create_copy(atom.coppensbasis)
+     if (atom.density_matrix.created) .density_matrix.create_copy(atom.density_matrix)
+     if (atom.natural_orbitals.created) .natural_orbitals.create_copy(atom.natural_orbitals)
+     if (atom.occupation_numbers.created) .occupation_numbers.create_copy(atom.occupation_numbers)
+   end
+
+   destroy
+   ! Destroy an atom
+      self :: PTR
+      if (.destroyed) return
+      .destroy_ptr_part
+      deallocate(self)
+      DELETE_MEMORY(ATOM_SIZE)
+   end
+
+   nullify_ptr_part
+   ! Nullify the pointer parts of the atom
+      nullify(.basis)
+      nullify(.slaterbasis)
+      nullify(.coppensbasis)
+      nullify(.density_matrix)
+      nullify(.natural_orbitals)
+      nullify(.occupation_numbers)
+   end
+
+   destroy_ptr_part
+   ! Destroy the pointer parts of an atom
+      .basis.destroy
+      .slaterbasis.destroy
+      .coppensbasis.destroy
+      .density_matrix.destroy
+      .natural_orbitals.destroy
+      .occupation_numbers.destroy
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   set_defaults
+   ! Set a default atom
+      .label = "?"
+      .atomic_number = 0
+      .pos = [ ZERO,ZERO,ZERO ]
+      .U_iso = ZERO
+      .thermal_tensor = ZERO
+      .basis_label = " "
+      .axis_system = "cartesian"
+      .thermal_axis_system = "cartesian"
+      .energy = ZERO
+      .group  = 0
+      ! MM/protien defaults
+      .sequence_number = 0
+      .residue_atom_name = "?"
+      .residue_name = "UNK"
+      .mm_forcefield_name = "?"
+      .mm_atom_type = "?"
+      .mm_charge = ZERO
+      .restraining_position = [ ZERO,ZERO,ZERO ]
+      .restraining_force_constant = ZERO
+      .site_occupancy = ONE
+   end
+
+   set_label_and_atomic_number(label)
+   ! Set an ATOM "label" and extract the atomic number from it.
+      label :: STR(*)
+      lensym,z :: INT
+      symbol :: STR
+      error :: BIN
+      .label = label
+      if (label.is_int) then    ! The label must be the atomic number
+         z = label.to_int
+         .atomic_number = z
+      else                      ! First part of the label is the element symbol
+         lensym = label.scan("0123456789 ")-1
+         error = lensym>2 OR lensym==0
+         ENSURE(NOT error,"unacceptable atom symbol, "// trim(label))
+         symbol = label(1:lensym)
+         symbol(1:1).to_upper_case
+         symbol(2:2).to_lower_case
+         if (any(element_symbols==symbol(1:2))) then
+            do z = 1,size(element_symbols)
+               if (element_symbols(z)==symbol(1:2)) exit
+            end
+           .atomic_number = z
+         else
+            DIE("unknown element symbol: "//trim(symbol))
+         end
+      end
+   end
+
+   set_coppensbasis_label(label)
+   ! Set the coppensbasis "label".
+      label :: STR(*)
+      if (.coppensbasis.destroyed) .coppensbasis.create
+      .coppensbasis.set_label(label)
+   end
+
+!  ************
+!  I/O Routines
+!  ************
+
+   read_keywords ::: leaky
+   ! Read data from "stdin" using keyword style input.
+     keyword :: STR
+   ENSURE(stdin.next_item=="{","expecting an open bracket symbol, {")
+     stdin.read(keyword)         ! Read opening brace
+     do                          ! Loop over keywords
+       stdin.read(keyword)
+       if (keyword=="}")   exit  ! Exit on closing brace
+       if (stdin.reverted) exit  ! Exit if internal file reverted
+       .process_keyword(keyword)
+     end
+   end
+
+   process_keyword(keyword) ::: leaky
+   ! Process command "keyword". Any required data needed by the "keyword" is
+   ! inputted from "stdin".
+     keyword :: STR(*), IN
+     word :: STR
+     word = keyword
+     word.to_lower_case
+     select case (word)
+       case ("}                            ")  ! exit case
+       case ("axis_system=                 "); .read_axis_system
+       case ("basis=                       "); .read_basis
+       case ("basis_label=                 "); .read_basis_label
+       case ("coppensbasis=                "); .read_coppensbasis
+       case ("group=                       "); .read_group
+       case ("junk=                        "); .read_junk
+       case ("label=                       "); .read_label
+       case ("mm_atom_type=                "); .read_mm_atom_type
+       case ("mm_charge=                   "); .read_mm_charge
+       case ("mm_forcefield_name=          "); .read_mm_forcefield_name
+       case ("pdb_input_line=              "); .read_pdb_input_line
+       case ("pos=                         "); .read_pos
+       case ("position=                    "); .read_pos
+       case ("put                          "); .put
+       case ("residue_atom_name=           "); .read_residue_atom_name
+       case ("residue_name=                "); .read_residue_name
+       case ("restraining_position=        "); .read_restraining_position
+       case ("restraining_force_constant=  "); .read_restraining_force
+       case ("sequence_number=             "); .read_sequence_number
+       case ("site_occupancy=              "); .read_site_occupancy
+       case ("slaterbasis=                 "); .read_slaterbasis
+       case ("thermal_axis_system=         "); .read_thermal_axis_system
+       case ("thermal_tensor=              "); .read_thermal_tensor
+       case ("u_iso=                       "); .read_U_iso
+       case ("u_tensor=                    "); .read_thermal_tensor
+       case ("units=                       "); .read_units
+       ! These are only for making custom tables for the list type
+       case ("---For custom tables---      ");
+       case ("flush                        "); stdout.flush
+       case ("put_atomic_number            "); stdout.put(.atomic_number)
+       case ("put_bragg_slater_radius      "); stdout.put(.bragg_slater_radius)
+       case ("put_chemical_symbol          "); stdout.put(.chemical_symbol,int_width=TRUE)
+       case ("put_column_number            "); stdout.put(.column_number)
+       case ("put_ground_state_multiplicity"); stdout.put(.ground_state_multiplicity)
+       case ("put_label                    "); stdout.put(.label,int_width=TRUE)
+       case ("put_mass                     "); stdout.put(.mass)
+       case ("put_mean_neutron_number      "); stdout.put(.mean_neutron_number)
+       case ("put_neutron_scattering_length"); stdout.put(.neutron_scattering_length)
+       case ("put_period_block             "); stdout.put(.period_block)
+       case ("put_period_number            "); stdout.put(.period_number)
+       case ("put_pos                      "); stdout.put(.pos(1))
+                                               stdout.put(.pos(2))
+                                               stdout.put(.pos(3))
+       case ("put_position                 "); stdout.put(.pos(1))
+                                               stdout.put(.pos(2))
+                                               stdout.put(.pos(3))
+       case ("put_thermal_tensor           "); .put_thermal_tensor
+       case  default;                        UNKNOWN(word)
+     end
+   end
+
+   read_units 
+   ! Read a string which describes the units to be used
+      stdin.set_default_units(stdin.next_str)
+   end
+
+   read_junk
+   ! Read in a junk string, useful for ignoring a field
+      stdin.skip_next_item
+   end
+
+   read_group
+   ! Read the index which describes the group the atom belongs to.
+      stdin.read(.group)
+   end
+
+   read_pos
+   ! Read in the position
+      stdin.read(.pos)
+   end
+
+   read_label
+   ! Read an ATOM label.
+      .set_label_and_atomic_number(stdin.next_str)  ! Input atom label
+   end
+
+   read_residue_atom_name
+   ! Read the atom name that this atom belongs to a residue (case sensitive).
+      stdin.read(.residue_atom_name)
+   end
+
+   read_residue_name
+   ! Read the residue name that this atom belongs to.
+      stdin.read(.residue_name)
+   end
+
+   read_pdb_input_line
+   ! Read a line in the PDB input style
+      word :: STR
+      stdin.read(word)
+      word.to_lower_case
+      ENSURE(word=="atom","PDB line does not begin with 'atom'")
+      .read_residue_atom_name
+      .read_residue_name
+      .read_sequence_number
+      .read_pos
+      .read_junk
+      .read_junk
+      .read_label
+   end
+
+   read_sequence_number
+   ! Read the sequence number of the residue in the molecule
+      stdin.read(.sequence_number)
+   end
+
+   read_mm_atom_type
+   ! Read the atom type potential, used to define the force field potential
+      stdin.read(.mm_atom_type)
+   end
+
+   read_mm_charge
+   ! Read the MM charge on this atom
+      stdin.read(.mm_charge)
+   end
+
+   read_mm_forcefield_name
+   ! Read the MM forcefield name for this atom
+      stdin.read(.mm_forcefield_name)
+   end
+
+   read_restraining_position
+   ! Read the restraining position
+      stdin.read(.restraining_position)
+   end
+
+   read_restraining_force
+   ! Read the restrain force constant for this atom
+      stdin.read(.restraining_force_constant)
+   end
+
+   read_site_occupancy
+   ! Read the site occupancy, used mainly for crystallographic applications.
+      stdin.read(.site_occupancy)
+   end
+
+   read_axis_system
+   ! Read a string which describes the axis system. Currently allowed is
+   ! "cartesian" or "crystal". NOTE: .thermal_axis_system is changed too.
+      stdin.read(.axis_system)
+      .thermal_axis_system = .axis_system
+      select case (.axis_system)
+        case ("cartesian")
+        case ("crystal  ")
+        case default
+          UNKNOWN(.axis_system)
+      end
+   end
+
+   set_axis_system(word)
+   ! Read a string which describes the axis system. Currently allowed is
+   ! "cartesian" or "crystal". NOTE: .thermal_axis_system is changed too.
+     word :: STR(*), IN
+     .axis_system = word
+     .thermal_axis_system = .axis_system
+     select case (.axis_system)
+       case ("cartesian")
+       case ("crystal  ")
+       case default
+         UNKNOWN(.axis_system)
+     end
+   end
+
+   read_thermal_axis_system
+   ! Read a string which describes the thermal tensor axis system.
+   ! Currently allowed, is "cartesian" or "crystal".
+      stdin.read(.thermal_axis_system)
+      select case (.thermal_axis_system)
+        case ("cartesian")
+        case ("crystal  ")
+        case default
+          UNKNOWN(.thermal_axis_system)
+      end
+   end
+
+   set_thermal_axis_system(word)
+   ! Read a string which describes the thermal tensor axis system.
+   ! Currently allowed, is "cartesian" or "crystal".
+     word :: STR(*), IN
+     .thermal_axis_system = word
+     select case (.thermal_axis_system)
+       case ("cartesian")
+       case ("crystal  ")
+       case default
+         UNKNOWN(.thermal_axis_system)
+     end
+   end
+
+   read_basis ::: leaky
+   ! Read the basis set from "stdin"
+      .basis.create
+      .basis.read_keywords
+   end
+
+   read_basis_label ::: leaky
+   ! Read the basis set label from "stdin" which will be used to match a basis
+   ! set to ...
+      stdin.read(.basis_label)
+   end
+
+   read_slaterbasis ::: leaky
+   ! Read the slaterbasis set from "stdin"
+      .slaterbasis.create
+      .slaterbasis.read_keywords
+   end
+
+   read_coppensbasis ::: leaky
+   ! Read the coppensbasis set from "stdin"
+      .coppensbasis.create
+      .coppensbasis.read_keywords
+   end
+
+   read_U_iso
+   ! Read the isotropic thermal parameters from "stdin".  NOTE: units are
+   ! Bohr^2, not Angstrom^2.
+      stdin.read(.U_iso)
+   end
+
+   read_thermal_tensor
+   ! Read thermal parameters from "stdin". These are assumed to be in the
+   ! cartesian axis system, and in bohr^2.  The expansion of the thermal
+   ! smearing temperature factor term is:
+   !              TF = exp ( -2\pi^2 U_{ij} h_i h_j a^*_i a^*_j )
+   ! where (h) are the miller indices and (a^*) are the reciprocal lattice
+   ! constants in angstrom^{-2}.
+      tensor :: REALVEC(6)
+      stdin.read(tensor)
+      .thermal_tensor(1,1) = tensor(1) ! Units must be bohr^2
+      .thermal_tensor(2,2) = tensor(2) ! unless over-ridden by read_units=
+      .thermal_tensor(3,3) = tensor(3)
+      .thermal_tensor(1,2) = tensor(4)
+      .thermal_tensor(1,3) = tensor(5)
+      .thermal_tensor(2,3) = tensor(6)
+      .thermal_tensor(2,1) = .thermal_tensor(1,2)
+      .thermal_tensor(3,1) = .thermal_tensor(1,3)
+      .thermal_tensor(3,2) = .thermal_tensor(2,3)
+   end
+
+!  ********************
+!  Key related routines
+!  ********************
+
+   read_keys
+   ! Read the "keys".
+     .clear_keys
+     stdin.read_ptr(keys)
+     tonto.ignore_memory_leak(memory_blocks_gained=1)
+   end
+
+   process_keys ::: leaky
+   ! Process each of the words in the "keys" list.
+      k,l,n_key :: INT
+      keyword :: STR
+      internal :: STRVEC* 
+   ENSURE(keys.created,"no keys")
+      n_key = size(keys)
+      k = 0
+      do
+         k = k + 1
+         keyword = keys(k)
+         if (keyword=="}") exit
+         if (keyword=="{") then
+            l = keys(k:).index_of_matching_bracket("{")
+            ENSURE(l>0,"no matching closing brace, }")
+            internal => keys(k:k+l-1)
+            stdin.redirect(internal)
+            .read_keywords
+            stdin.revert
+            k = k+l-1
+         else if (keyword.includes(" ")) then
+            internal => keyword.split
+            stdin.redirect(internal)
+            .read_keywords
+            internal.destroy
+            stdin.revert
+         else
+            .process_keyword(keyword)
+         end
+         if (k==n_key) exit
+      end
+   end
+
+   keys_created result (res)
+   ! Return TRUE if the list-element keys are created.
+      res :: BIN
+      res = keys.created
+   end
+
+   set_keys(the_keys)
+   ! This is for setting the "keys" externally.
+     the_keys :: STRVEC(len=*,:)
+     .clear_keys
+     keys.create_copy(the_keys)
+     tonto.ignore_memory_leak(memory_blocks_gained=1)
+   end
+
+   clear_keys
+   ! This is for destroying the "keys" externally.
+     if (keys.destroyed) return
+     keys.destroy
+     tonto.ignore_memory_leak(memory_blocks_gained=-1)
+   end
+
+   put_table_footer
+   ! Output a table footer from the list of "keys". NOTE: not all keywords need
+   ! contribute to the banner - any unrecognised keyword is skipped.
+     stdout.dash(width=.table_width)
+   end
+
+   put_table_header
+   ! Output a table header from the list of "keys". NOTE: not all keywords need
+   ! contribute to the banner - any unrecognised keyword is skipped.
+     word :: STR
+     width,k :: INT
+   ENSURE(keys.created,"no keys")
+     width = .table_width
+     if (width > 0) then
+       stdout.dash(width=width)
+       do k = 1,size(keys)
+         word = keys(k)
+         word.to_lower_case
+         select case (word)
+           case ("put_label   "); stdout.put("label",int_width=TRUE)
+           case ("put_n_shells"); stdout.put("n_shells",int_width=TRUE)
+           case ("put_n_bf    "); stdout.put("n_bf",int_width=TRUE)
+           case ("put_n_prim  "); stdout.put("n_prim",int_width=TRUE)
+           case ("flush       "); stdout.flush; exit
+         end
+         if (k==size(keys)) then
+           stdout.flush ! In case they didn't write one.
+           WARN("no flush keyword - you may later overrun the output buffer")
+         end
+       end
+       stdout.dash(width=width)
+     end
+   end
+
+   table_width result (res)
+   ! Return the table width in characters, based on "keys".  Note that not all
+   ! keywords need to contribute to the banner - if a keyword is not recognised,
+   ! then it is skipped.
+     res :: INT
+     word :: STR
+     int_dash,real_dash,k :: INT
+     ENSURE(keys.created,"no keys")
+     int_dash = 0
+     real_dash = 0
+     do k = 1,size(keys)
+       word = keys(k)
+       word.to_lower_case
+       select case (word)
+         case ("}           "); ! exit surrounding loop
+         case ("put_label   "); int_dash = int_dash + 1
+         case ("put_n_shells"); int_dash = int_dash + 1
+         case ("put_n_bf    "); int_dash = int_dash + 1
+         case ("put_n_prim  "); int_dash = int_dash + 1
+         case ("flush       "); exit
+         case default
+       end
+     end
+     res = int_dash * stdout.int_width + real_dash * stdout.real_width
+   end
+
+!  *******************
+!  Axis change methods
+!  *******************
+
+   resolve_axis_system(crystal)
+   ! Change the axis system for the position and thermal tensors to
+   ! "cartesian". "crystal" holds the axis system information.
+     crystal :: CRYSTAL, IN
+     if (.axis_system=="crystal")         .position_from(crystal)
+     if (.thermal_axis_system=="crystal") .thermal_tensor_from(crystal)
+   end
+
+   change_axis_system_to(axiskind,crystal)
+   ! Change the axis system for the position and thermal tensors
+   ! to "axiskind", either crystal or cartesian.
+     axiskind :: STR(*), IN
+     crystal :: CRYSTAL, IN
+     select case (axiskind)
+       case ("cartesian"); .position_from(crystal); .thermal_tensor_from(crystal)
+       case ("crystal  "); .position_to(crystal);   .thermal_tensor_to(crystal)
+       case default
+         UNKNOWN(axiskind)
+     end
+   end
+
+   change_thermal_axis_system_to(axiskind,crystal)
+   ! Change the axis system for the thermal tensors to "axiskind",
+   ! either crystal or cartesian.
+     axiskind :: STR(*), IN
+     crystal :: CRYSTAL, IN
+     select case (axiskind)
+       case ("cartesian"); .thermal_tensor_from(crystal)
+       case ("crystal  "); .thermal_tensor_to(crystal)
+       case default
+         UNKNOWN(axiskind)
+     end
+   end
+
+   thermal_tensor_from(crystal)
+   ! Change thermal parameters in the crystal axis system to the
+   ! cartesian axis system
+     crystal :: CRYSTAL, IN
+     select case (.thermal_axis_system)
+       case ("crystal  ")
+         if (.U_iso>ZERO) then ! convert U_iso first
+            .thermal_tensor(1,1) = .U_iso
+            .thermal_tensor(2,2) = .U_iso
+            .thermal_tensor(3,3) = .U_iso
+            .thermal_tensor(1,2) = .U_iso * cos(crystal.unitcell.gamma_star)
+            .thermal_tensor(1,3) = .U_iso * cos(crystal.unitcell.beta_star)
+            .thermal_tensor(2,3) = .U_iso * cos(crystal.unitcell.alpha_star)
+         end
+         .thermal_tensor.change_basis(crystal.unitcell.direct_U_matrix)
+         .thermal_axis_system = "cartesian"
+       case ("cartesian")
+         ! do nothing
+       case default
+         UNKNOWN(.thermal_axis_system)
+     end
+   end
+
+   thermal_tensor_to(crystal)
+   ! Change thermal parameters in the cartesian axis system to the
+   ! crystal axis system
+     crystal :: CRYSTAL, IN
+     select case (.thermal_axis_system)
+       case ("crystal  ")
+         ! do nothing
+       case ("cartesian")
+         .thermal_tensor.change_basis(crystal.unitcell.reciprocal_U_matrix)
+         .thermal_axis_system = "crystal"
+       case default
+         UNKNOWN(.thermal_axis_system)
+     end
+   end
+
+   position_from(crystal)
+   ! Change atom positions in the crystal axis system to the
+   ! cartesian axis system
+     crystal :: CRYSTAL, IN
+     select case (.axis_system)
+       case ("crystal  ")
+         .pos = matmul(crystal.unitcell.direct_matrix,.pos)
+         .axis_system = "cartesian"
+       case ("cartesian")
+         ! do nothing
+       case default
+         UNKNOWN(.axis_system)
+     end
+   end
+
+   position_to(crystal)
+   ! Change atom positions in the cartesian axis system to the
+   ! the crystal axis system
+     crystal :: CRYSTAL, IN
+     select case (.axis_system)
+       case ("crystal  ")
+         ! do nothing
+       case ("cartesian")
+         .pos = matmul(crystal.unitcell.inverse_matrix,.pos)
+         .axis_system = "crystal"
+       case default
+         UNKNOWN(.axis_system)
+     end
+   end
+
+!  ************************
+!  Basis resolution methods
+!  ************************
+
+!   resolve_basis(basis,clobber,found) ::: leaky
+!   ! Resolve the basis set by matching the basis set label with one of the
+!   ! labels from the basis set vector "basis". If "clobber" is present and TRUE
+!   ! (the default situation), then the matched basis is pointer assigned to the
+!   ! matching element in "basis" irrespective of whether it is already
+!   ! associated; otherwise if the matching basis set is already assigned, it is
+!   ! not pointer assigned. If present, "found" is set TRUE if the basis set has
+!   ! been resolved (or was already resolved if clobber was not set), or false
+!   ! otherwise. If "found" is not present, and a match has not been found, an
+!   ! error is generated
+!      basis :: BASISVEC*
+!      clobber,found :: BIN, optional
+!      b :: INT
+!      check :: BINVEC*
+!      force,fnd :: BIN
+!   ENSURE(basis.created, "no basis set")
+!      force = TRUE
+!      if (present(clobber)) force = clobber
+!      if (.basis.destroyed) then
+!         if (present(found)) found = FALSE
+!         return
+!      end
+!      if (NOT force) then
+!         if (present(found)) found = TRUE
+!         return
+!      end
+!      check.create(basis.dim)
+!      check = basis.label==.basis.label
+!      b = check.index_of_first_true_element
+!      check.destroy
+!      fnd = b>0
+!      if (fnd) then
+!      !  .basis.destroy     ! don't destroy
+!         .basis => basis(b) ! NOTE : this is a pointer assign NOT COPY
+!      end
+!      if (present(found)) then; found = fnd
+!      else; ENSURE(fnd,"unknown basis, "// trim(.basis.label))
+!      end
+!   end
+!
+!   resolve_library_basis(basis,clobber,found) ::: leaky
+!   ! Resolve the basis set by first looking in the "basis" list, and then (if
+!   ! needed) looking in a basis set library file. The appropriate basis set
+!   ! library files are obtained from the basis set qualifier -- the part after
+!   ! the colon in the atom basis set label. For example, if the atom basis set
+!   ! label is "H:DZP", then the qualifier is "DZP" and the routine looks in
+!   ! library file basis_sets/"DZP" for a matching basis set. If found, the basis
+!   ! set is appended to "basis". If "clobber" is present and TRUE (the default
+!   ! situation), then the matched basis is pointer assigned to the matching
+!   ! element in "basis" irrespective of whether it is already associated;
+!   ! otherwise if the matching basis set is already associated, it is not
+!   ! pointer assigned.  If present, "found" is set TRUE if the basis set has
+!   ! been resolved, or false otherwise. If "found" is not present, and a match
+!   ! has not been found, an error is generated
+!   ! NOTE: this should probably not be used ... .basis should be filled first
+!   ! with the right bases and then they should be resolved in one hit.
+!      basis :: BASISVEC*
+!      clobber,found :: BIN, optional
+!      i :: INT
+!      basis_label,basis_kind,library :: STR
+!      force,fnd :: BIN
+!   ENSURE(.basis.created,"no basis set")
+!      force = TRUE
+!      if (present(clobber)) force = clobber
+!      if (.basis.created AND NOT force) then
+!         if (present(found)) found = TRUE
+!         return
+!      end
+!      if (basis.created) .resolve_basis(basis,clobber=TRUE,found=fnd)
+!      if (fnd) return
+!      basis_label = .basis.label                 ! Look for this <<<<<<<
+!      if (basis_label.includes(":")) then        ! look in library directory
+!         i = basis_label.index_of_substring(":")
+!         if (i>0) then
+!            basis_kind = basis_label(i+1:)
+!            if (basis_kind/=" ") then
+!               library = basis.library_directory(basis_kind)
+!               basis.read_library_data(library,[basis_label])
+!               ! .basis.destroy  ! don't destroy ????
+!               .basis => basis(basis.dim)  ! NOTE : this is a pointer assign NOT COPY
+!               fnd = TRUE
+!            end
+!         end
+!      end
+!      if (present(found)) then; found = fnd
+!      else; ENSURE(fnd,"unknown basis, "// trim(.basis.label))
+!      end
+!   end
+!
+!   resolve_basis_suffix(basis,suffix,clobber,found) ::: leaky
+!   ! Resolve the basis set by first making a standard basis label, by joining
+!   ! the atom chemical symbol with the :"suffix" string, and then trying to find
+!   ! a match with one of the "basis" set vector labels.  If "clobber" is present
+!   ! and FALSE, then only an unassociated .basis is resolved.  If "found" is
+!   ! present and it is set TRUE if there was a match, otherwise FALSE; and if it
+!   ! is not present an error is generated if no match is found.
+!      basis :: BASISVEC*
+!      suffix :: STR(*)
+!      clobber,found :: BIN, optional
+!      label :: STR
+!      b :: INT
+!      force,fnd :: BIN
+!   ENSURE(basis.created,"no basis")
+!      force = TRUE
+!      if (present(clobber)) force = clobber
+!      if (.basis.created AND NOT force) then
+!         if (present(found)) found = TRUE
+!         return
+!      end
+!      label = .library_basis_label(suffix)
+!      fnd = FALSE
+!      do b = 1,basis.dim
+!         if (basis(b).label.same_as(label,ignore_case=TRUE)) then
+!            fnd = TRUE
+!            exit
+!         end
+!      end
+!      if (fnd) then
+!      !  .basis.destroy     ! don't destroy
+!         .basis => basis(b) ! NOTE : this is a pointer assign NOT COPY
+!      end
+!      if (present(found)) then; found = fnd
+!      else; ENSURE(fnd,"unknown basis, "// trim(.basis.label))
+!      end
+!   end
+!
+!   resolve_basis(basis,clobber,found) ::: leaky
+!   ! Resolve the basis set by matching the basis set label with one of the
+!   ! labels from the basis set vector "basis". If "clobber" is present and TRUE
+!   ! (the default situation), then the matched basis is pointer assigned to the
+!   ! matching element in "basis" irrespective of whether it is already
+!   ! associated; otherwise if the matching basis set is already assigned, it is
+!   ! not pointer assigned. If present, "found" is set TRUE if the basis set has
+!   ! been resolved (or was already resolved if clobber was not set), or false
+!   ! otherwise. If "found" is not present, and a match has not been found, an
+!   ! error is generated
+!      basis :: SLATERBASISVEC*
+!      clobber,found :: BIN, optional
+!      b :: INT
+!      check :: BINVEC*
+!      force,fnd :: BIN
+!   ENSURE(basis.created, "no Coppens basis set")
+!      force = TRUE
+!      if (present(clobber)) force = clobber
+!      if (.slaterbasis.destroyed) then
+!         if (present(found)) found = FALSE
+!         return
+!      end
+!      if (.slaterbasis.created AND NOT force) then
+!         if (present(found)) found = TRUE
+!         return
+!      end
+!      check.create(basis.dim)
+!      check = basis.label==.slaterbasis.label
+!      b = check.index_of_first_true_element
+!      check.destroy
+!      fnd = b>0
+!      if (fnd) then
+!      !  .slaterbasis.destroy     ! don't destroy
+!         .slaterbasis => basis(b) ! NOTE : this is a pointer assign NOT COPY
+!      end
+!      if (present(found)) then; found = fnd
+!      else; ENSURE(fnd,"unknown basis, "// trim(.slaterbasis.label))
+!      end
+!   end
+!
+!   resolve_library_basis(basis,clobber,found) ::: leaky
+!   ! Resolve the basis set by first looking in the "basis" list, and then (if
+!   ! needed) looking in a basis set library file. The appropriate basis set
+!   ! library files are obtained from the basis set qualifier -- the part after
+!   ! the colon in the atom basis set label. For example, if the atom basis set
+!   ! label is "H:DZP", then the qualifier is "DZP" and the routine looks in
+!   ! library file basis_sets/"DZP" for a matching basis set. If found, the basis
+!   ! set is appended to "basis". If "clobber" is present and TRUE (the default
+!   ! situation), then the matched basis is pointer assigned to the matching
+!   ! element in "basis" irrespective of whether it is already associated;
+!   ! otherwise if the matching basis set is already associated, it is not
+!   ! pointer assigned.  If present, "found" is set TRUE if the basis set has
+!   ! been resolved, or false otherwise. If "found" is not present, and a match
+!   ! has not been found, an error is generated
+!      basis :: SLATERBASISVEC*
+!      clobber,found :: BIN, optional
+!      i :: INT
+!      basis_label,basis_kind,library :: STR
+!      force,fnd :: BIN
+!   ENSURE(.slaterbasis.created,"no Slater basis set")
+!      force = TRUE
+!      if (present(clobber)) force = clobber
+!      if (.slaterbasis.created AND NOT force) then
+!         if (present(found)) found = TRUE
+!         return
+!      end
+!      if (basis.created) .resolve_basis(basis,clobber=TRUE,found=fnd)
+!      if (fnd) return
+!      basis_label = .slaterbasis.label                 ! Look for this <<<<<<<
+!      if (basis_label.includes(":")) then        ! look in library directory
+!         i = basis_label.index_of_substring(":")
+!         if (i>0) then
+!            basis_kind = basis_label(i+1:)
+!            if (basis_kind/=" ") then
+!               library = basis.library_directory(basis_kind)
+!               basis.read_library_data(library,[basis_label])
+!               ! .slaterbasis.destroy  ! don't destroy ????
+!               .slaterbasis => basis(basis.dim)  ! NOTE : this is a pointer assign NOT COPY
+!               fnd = TRUE
+!            end
+!         end
+!      end
+!      if (present(found)) then; found = fnd
+!      else; ENSURE(fnd,"unknown basis, "// trim(.slaterbasis.label))
+!      end
+!   end
+!
+!   resolve_basis_suffix(basis,suffix,clobber,found) ::: leaky
+!   ! Resolve the basis set by first making a standard basis label, by joining
+!   ! the atom chemical symbol with the :"suffix" string, and then trying to find
+!   ! a match with one of the "basis" set vector labels.  If "clobber" is present
+!   ! and FALSE, then only an unassociated .slaterbasis is resolved.  If "found" is
+!   ! present and it is set TRUE if there was a match, otherwise FALSE; and if it
+!   ! is not present an error is generated if no match is found.
+!      basis :: SLATERBASISVEC*
+!      suffix :: STR(*)
+!      clobber,found :: BIN, optional
+!      label :: STR
+!      b :: INT
+!      force,fnd :: BIN
+!   ENSURE(basis.created,"no Coppens basis")
+!      force = TRUE
+!      if (present(clobber)) force = clobber
+!      if (.slaterbasis.created AND NOT force) then
+!         if (present(found)) found = TRUE
+!         return
+!      end
+!      label = .library_basis_label(suffix)
+!      fnd = FALSE
+!      do b = 1,basis.dim
+!         if (basis(b).label.same_as(label,ignore_case=TRUE)) then
+!            fnd = TRUE
+!            exit
+!         end
+!      end
+!      if (fnd) then
+!      !  .slaterbasis.destroy     ! don't destroy
+!         .slaterbasis => basis(b) ! NOTE : this is a pointer assign NOT COPY
+!      end
+!      if (present(found)) then; found = fnd
+!      else; ENSURE(fnd,"unknown basis, "// trim(.slaterbasis.label))
+!      end
+!   end
+
+!   resolve_basis(basis,clobber,found) 
+!   ! Resolve the basis set by matching the basis set label with one of the
+!   ! labels from the basis set vector "basis". If "clobber" is present and TRUE
+!   ! (the default situation), then the matched basis is pointer assigned to the
+!   ! matching element in "basis" irrespective of whether it is already
+!   ! associated; otherwise if the matching basis set is already assigned, it is
+!   ! not pointer assigned. If present, "found" is set TRUE if the basis set has
+!   ! been resolved (or was already resolved if clobber was not set), or false
+!   ! otherwise. If "found" is not present, and a match has not been found, an
+!   ! error is generated
+!      basis :: COPPENSBASISVEC*
+!      clobber,found :: BIN, optional
+!      b :: INT
+!      check :: BINVEC*
+!      force,fnd :: BIN
+!   ENSURE(basis.created, "no Coppens basis set")
+!      force = TRUE
+!      if (present(clobber)) force = clobber
+!      stdout.text("1==")
+!      if (.coppensbasis.destroyed) then
+!         if (present(found)) found = FALSE
+!         return
+!      end
+!      stdout.text("2==")
+!      if (.coppensbasis.created AND NOT force) then
+!      if (.coppensbasis.label/=" ") then
+!         if (present(found)) found = TRUE
+!         return
+!      end
+!      end
+!      stdout.text("2==")
+!      check.create(basis.dim)
+!      check = basis.label==.coppensbasis.label
+!      b = check.index_of_first_true_element
+!      check.destroy
+!      fnd = b>0
+!      stdout.show("coppensbasis label =",.coppensbasis.label)
+!      stdout.show("found              =",fnd)
+!      if (fnd) then
+!      !  .coppensbasis.destroy     ! don't destroy
+!         .coppensbasis => basis(b) ! NOTE : this is a pointer assign NOT COPY
+!      end
+!      if (present(found)) then; found = fnd
+!      else; ENSURE(fnd,"unknown basis, "// trim(.coppensbasis.label))
+!      end
+!   end
+
+!   set_basis(basis,clobber) 
+!   ! Set the .coppensbasis to be "basis". If "clobber" is present and TRUE (the
+!   ! default situation), then .coppensbasis is pointer assigned to the matching
+!   ! element in "basis" irrespective of whether it is already associated;
+!   ! otherwise it is not pointer assigned. 
+!      basis :: COPPENSBASIS
+!      clobber :: BIN, optional
+!      force :: BIN
+!      force = TRUE
+!      if (present(clobber)) force = clobber
+!      if (.coppensbasis.created AND NOT force) then
+!      if (.coppensbasis.label/=" ") then
+!         return
+!      end
+!      end
+!      .coppensbasis => basis ! NOTE : this is a pointer assign NOT COPY
+!   end
+
+!   resolve_library_basis(basis,clobber,found) ::: leaky
+!   ! Resolve the basis set by first looking in the "basis" list, and then (if
+!   ! needed) looking in a basis set library file. The appropriate basis set
+!   ! library files are obtained from the basis set qualifier -- the part after
+!   ! the colon in the atom basis set label. For example, if the atom basis set
+!   ! label is "H:DZP", then the qualifier is "DZP" and the routine looks in
+!   ! library file basis_sets/"DZP" for a matching basis set. If found, the basis
+!   ! set is appended to "basis". If "clobber" is present and TRUE (the default
+!   ! situation), then the matched basis is pointer assigned to the matching
+!   ! element in "basis" irrespective of whether it is already associated;
+!   ! otherwise if the matching basis set is already associated, it is not
+!   ! pointer assigned.  If present, "found" is set TRUE if the basis set has
+!   ! been resolved, or false otherwise. If "found" is not present, and a match
+!   ! has not been found, an error is generated
+!      basis :: COPPENSBASISVEC*
+!      clobber,found :: BIN, optional
+!      i :: INT
+!      basis_label,basis_kind,library :: STR
+!      force,fnd :: BIN
+!   ENSURE(.coppensbasis.created,"no Coppens basis set")
+!      force = TRUE
+!      if (present(clobber)) force = clobber
+!      if (.coppensbasis.created AND NOT force) then
+!         if (present(found)) found = TRUE
+!         return
+!      end
+!      if (basis.created) .resolve_basis(basis,clobber=TRUE,found=fnd)
+!      if (fnd) return
+!      basis_label = .coppensbasis.label                 ! Look for this <<<<<<<
+!      if (basis_label.includes(":")) then        ! look in library directory
+!         i = basis_label.index_of_substring(":")
+!         if (i>0) then
+!            basis_kind = basis_label(i+1:)
+!            if (basis_kind/=" ") then
+!               library = basis.library_directory(basis_kind)
+!               basis.read_library_data(library,[basis_label])
+!               ! .coppensbasis.destroy  ! don't destroy ?
+!               .coppensbasis => basis(basis.dim)  ! NOTE : this is a pointer assign NOT COPY
+!               fnd = TRUE
+!            end
+!         end
+!      end
+!      if (present(found)) then; found = fnd
+!      else; ENSURE(fnd,"unknown basis, "// trim(.coppensbasis.label))
+!      end
+!   end
+
+   resolve_basis(basis,suffix,found)
+   ! Resolve the .basis by firstly trying to matching the ".basis_label"
+   ! with one of the labels from "basis". If that fails, and "suffix" is present
+   ! and not blank, then a library basis label is generated from the "suffix"
+   ! and we try and match again to one of the labels in "basis". If present,
+   ! "found" is set TRUE if the basis set has been resolved, or FALSE otherwise.
+      basis :: BASISVEC*
+      suffix :: STR(*), optional
+      found :: BIN, optional
+      fnd :: BIN
+   ENSURE(basis.created,"no basis")
+      fnd = FALSE
+      if (.basis_label/=" ") then
+         .basis.resolve_by_label(.basis_label,basis,clobber=TRUE,found=fnd)
+      end
+      if (NOT fnd AND present(suffix)) then
+      if (suffix/=" ") then
+         .basis.resolve_by_label(.library_basis_label(suffix),basis,clobber=TRUE,found=fnd)
+      end
+      end
+      if (present(found)) found = fnd
+   end
+
+   resolve_basis(basis,suffix,found)
+   ! Resolve the .slaterbasis by firstly trying to matching the ".basis_label"
+   ! with one of the labels from "basis". If that fails, and "suffix" is present
+   ! and not blank, then a library basis label is generated from the "suffix"
+   ! and we try and match again to one of the labels in "basis". If present,
+   ! "found" is set TRUE if the basis set has been resolved, or FALSE otherwise.
+      basis :: SLATERBASISVEC*
+      suffix :: STR(*), optional
+      found :: BIN, optional
+      fnd :: BIN
+   ENSURE(basis.created,"no basis")
+      fnd = FALSE
+      if (.basis_label/=" ") then
+         .slaterbasis.resolve_by_label(.basis_label,basis,clobber=TRUE,found=fnd)
+      end
+      if (NOT fnd AND present(suffix)) then
+      if (suffix/=" ") then
+         .slaterbasis.resolve_by_label(.library_basis_label(suffix),basis,clobber=TRUE,found=fnd)
+      end
+      end
+      if (present(found)) found = fnd
+   end
+
+   resolve_basis(basis,suffix,found)
+   ! Resolve the .coppensbasis by firstly trying to matching the ".basis_label"
+   ! with one of the labels from "basis". If that fails, and "suffix" is present
+   ! and not blank, then a library basis label is generated from the "suffix"
+   ! and we try and match again to one of the labels in "basis". If present,
+   ! "found" is set TRUE if the basis set has been resolved, or FALSE otherwise.
+      basis :: COPPENSBASISVEC*
+      suffix :: STR(*), optional
+      found :: BIN, optional
+      fnd :: BIN
+   ENSURE(basis.created,"no basis")
+      fnd = FALSE
+      if (.basis_label/=" ") then
+         .coppensbasis.resolve_by_label(.basis_label,basis,clobber=TRUE,found=fnd)
+      end
+      if (NOT fnd AND present(suffix)) then
+      if (suffix/=" ") then
+         .coppensbasis.resolve_by_label(.library_basis_label(suffix),basis,clobber=TRUE,found=fnd)
+      end
+      end
+      if (present(found)) found = fnd
+   end
+
+!   resolve_by_basis_label(basis,label,clobber,found)
+!   ! Resolve the .coppensbasis set by matching the ".basis_label" with one of
+!   ! the labels from "basis". IF "label" is present it is used instead of
+!   ! ".basis_label". If "clobber" is present and TRUE (the default situation),
+!   ! then .coppensbasis is pointer assigned to the matching element in "basis"
+!   ! irrespective of whether it is already associated; otherwise it is not
+!   ! pointer assigned. If present, "found" is set TRUE if the basis set has been
+!   ! resolved (or was already resolved if clobber was not set), or false
+!   ! otherwise. If "found" is not present, and a match has not been found, an
+!   ! error is generated
+!      basis :: COPPENSBASISVEC*
+!      label :: STR
+!      clobber,found :: BIN, optional
+!   ENSURE(basis.created,"no Coppens basis")
+!      .coppensbasis.resolve_by_label(label,basis,clobber,found)
+!   end
+!
+!   resolve_by_basis_suffix(basis,suffix,clobber,found) 
+!   ! Resolve the basis set by first making a standard basis label, by joining
+!   ! the atom chemical symbol with the ":suffix" string, and then trying to find
+!   ! a match with one of the "basis" set vector labels.  If "clobber" is present
+!   ! and FALSE, then only an unassociated .coppensbasis is resolved.  If "found" is
+!   ! present and it is set TRUE if there was a match, otherwise FALSE; and if it
+!   ! is not present an error is generated if no match is found.
+!      basis :: COPPENSBASISVEC*
+!      suffix :: STR(*)
+!      clobber,found :: BIN, optional
+!      label :: STR
+!   ENSURE(basis.created,"no Coppens basis")
+!      label = .library_basis_label(suffix)
+!      .coppensbasis.resolve_by_label(label,basis,clobber,found)
+!   end
+
+!  ***************
+!  Inquiry methods
+!  ***************
+
+   same_kind_as(atom) result(res)
+   ! Return TRUE if self is the same kind of atom as "atom". The position and
+   ! label are not compared since the same kind of atom can have a different
+   ! position and label.  To check if the basis set is the same, only the
+   ! label is used.
+      atom :: ATOM
+      res :: BIN
+      bases_created,coppens_created,bases_destroyed,coppens_destroyed :: BIN
+      mixed :: BIN
+      bases_created = .basis.created AND atom.basis.created
+      coppens_created = .coppensbasis.created AND atom.coppensbasis.created
+      bases_destroyed = .basis.destroyed AND atom.basis.destroyed
+      coppens_destroyed = .coppensbasis.destroyed AND atom.coppensbasis.destroyed
+      mixed = NOT (bases_created OR bases_destroyed) OR &
+              NOT (coppens_created OR coppens_destroyed) 
+      if (mixed) then
+         res = FALSE
+      else
+         res = .atomic_number==atom.atomic_number 
+         if (bases_created)   res = res AND .basis.label==atom.basis.label 
+         if (coppens_created) res = res AND .coppensbasis.label==atom.coppensbasis.label 
+      end
+   end
+
+   no_of_shells result(res) ::: pure
+   ! Return the no of shells
+      self :: IN
+      res :: INT
+   ENSURE(.basis.created,"no basis")
+      res = .basis.no_of_shells
+   end
+
+   n_shell result(res) ::: pure
+   ! Return the no of shells
+      self :: IN
+      res :: INT
+   ENSURE(.basis.created,"no basis")
+      res = .basis.n_shell
+   end
+
+   no_of_basis_functions result (res) ::: pure
+   ! Evaluate and return the no. of basis functions
+      self :: IN
+      res :: INT
+   ENSURE(.basis.created,"no basis")
+      res = .basis.no_of_basis_functions
+   end
+
+   n_bf result (res) ::: pure
+   ! Return the no. of basis functions
+      self :: IN
+      res :: INT
+   ENSURE(.basis.created,"no basis")
+      res = .basis.n_bf
+   end
+
+   no_of_primitives result (res) ::: pure
+   ! Return the no of primitives for this atom
+      self :: IN
+      res :: INT
+   ENSURE(.basis.created,"no basis")
+      res = .basis.no_of_primitives
+   end
+
+   n_prim result (res) ::: pure
+   ! Return the no of primitives for this atom
+      self :: IN
+      res :: INT
+   ENSURE(.basis.created,"no basis")
+      res = .basis.n_prim
+   end
+
+   no_of_occupied_NOs(axiskind,tol) result (res)
+   ! Returns the number of non-zero occupied natural orbitals. For this purpose,
+   ! zero is defined to be "tol" if present, or TOL(7) otherwise
+      self :: IN
+      axiskind :: STR(*), optional, IN
+      tol :: REAL, optional, IN
+      res :: INT
+      ENSURE(.occupation_numbers.created,"no occupation numbers")
+      res = .occupation_numbers.no_of_occupied(axiskind,tol)
+   end
+
+   chemical_symbol(Z) result(res)
+   ! Return the chemical symbol for this atom. If "Z" is present then the symbol
+   ! returned is the one for the atom with atomic number "Z".
+      Z :: INT, IN, optional
+      res :: STR(2)
+      atomic_number :: INT
+      atomic_number = .atomic_number
+      if (present(Z)) atomic_number = Z
+      if (atomic_number<1 OR atomic_number>103) then; res = "??"
+      else;                  res = element_symbols(atomic_number)
+      end
+   end
+
+   chemical_name result(res)
+   ! Return the chemical name for this atom
+      res :: STR(12)
+      if (.atomic_number<1 OR .atomic_number>103) then; res = "??"
+      else;                  res = element_names(.atomic_number)
+      end
+   end
+
+   mass result (res)
+   ! Return the atomic mass for this atom
+      res :: REAL
+      if (.atomic_number<1 OR .atomic_number>92) then; res = ZERO
+      else;                  res = atomic_masses(.atomic_number)
+      end
+   end
+
+   mean_neutron_number result (res)
+   ! Return the average (abundance weighted) number of neutrons for this atom,
+   ! calculated roughly by subtracting the number of protons from the atomic mass.
+      res :: REAL
+      if (.atomic_number<1 OR .atomic_number>92) then; res = ZERO
+      else;                  res = .mass - .atomic_number
+      end
+   end
+
+   bragg_slater_radius result (res)
+   ! Return the Bragg-Slater radius for this atom
+      res :: REAL
+      ENSURE(.atomic_number > 0,"atomic number less than 1")
+      if (.atomic_number>54) then; res = ZERO
+      else;                  res = bragg_slater_radii(.atomic_number)
+      end
+   end
+
+   neutron_scattering_length result (res)
+   ! Return the neutron scattering length for this atom
+      res :: REAL
+      if (.atomic_number<1 OR .atomic_number>95) then; res = ZERO
+      else;            res = neutron_scattering_lengths(.atomic_number)
+      end
+   end
+
+   period_number(Z) result(p)
+   ! Return the period (i.e. row) on which the atom lies.
+   ! If "Z" is present it is used as the atomic number.
+       Z :: INT, optional
+       p :: INT
+      atomic_number,noble,n :: INT
+      atomic_number = .atomic_number
+      if (present(Z)) atomic_number = Z
+      p = 1
+      if (atomic_number<1) return
+      noble = 0
+      do
+         n = (p+2)/2
+         noble = noble + 2*n**2
+         if (atomic_number <= noble) exit
+         p = p + 1
+      end
+   end
+
+   column_number(Z) result(col)
+   ! Return the period column (i.e. row) on which the atom lies.
+   ! If "Z" is present it is used as the atomic number.
+       Z :: INT, optional
+      col :: INT
+      atomic_number,p,noble,n :: INT
+      atomic_number = .atomic_number
+      if (present(Z)) atomic_number = Z
+      p = 1
+      if (atomic_number<1) return
+      noble = 0
+      do
+         n = (p+2)/2
+         noble = noble + 2*n**2
+         if (atomic_number <= noble) exit
+         p = p + 1
+      end
+      noble = noble - 2*n**2
+      col = atomic_number - noble
+   end
+
+   period_block(Z) result(b)
+   ! Return the period block character in which the atom lies.
+   ! If "Z" is present it is used as the atomic number.
+       Z :: INT, optional
+       b :: STR(1)
+      p,col :: INT
+      p   = .period_number(Z)
+      col = .column_number(Z)
+      if (p<4) then
+         select case (col)
+            case (1:2);   b = "s"
+            case (3:8);   b = "p"
+         end
+      else if (p<6) then
+         select case (col)
+            case (1:2);   b = "s"
+            case (3:12);  b = "d"
+            case (13:18); b = "p"
+         end
+      else if (p<8) then
+         select case (col)
+            case (1:2);   b = "s"
+            case (3:16);  b = "f"
+            case (17:26); b = "d"
+            case (27:32); b = "p"
+         end
+      else
+         DIE("cannot assign for period "// trim(p.to_str))
+      end
+   end
+
+   ground_state_multiplicity(Z) result(mult)
+   ! Return the ground state multiplicity for this atom according to Hunds rule
+   ! (Note this is not neccesarily the real ground state, esp. for Cu)
+   ! If "Z" is present it is used as the atomic number.
+       Z :: INT, optional
+      mult :: INT
+      p,col :: INT
+      p   = .period_number(Z)
+      col = .column_number(Z)
+      if (p<4) then
+         select case (col)
+            case (2,8);   mult = 1
+            case (1,3,7); mult = 2
+            case (4,6);   mult = 3
+            case (5);     mult = 4
+         end
+      else if (p<6) then
+         select case (col)
+            case (2,12,18);      mult = 1
+            case (1,3,11,13,17); mult = 2
+            case (4,10,14,16);   mult = 3
+            case (5,9,15);       mult = 4
+            case (6,8);          mult = 5
+            case (7);            mult = 6
+         end
+      else if (p<8) then
+         select case (col)
+            case (2,16,26,32);         mult = 1
+            case (1,3,15,17,25,27,31); mult = 2
+            case (4,14,18,24,28,30);   mult = 3
+            case (5,13,19,23,29);      mult = 4
+            case (6,12,20,22);         mult = 5
+            case (7,11,21);            mult = 6
+            case (8,10);               mult = 7
+            case (9);                  mult = 8
+         end
+      else
+         DIE("cannot assign for period "// trim(p.to_str))
+      end
+   end
+
+   dispersion_correction(wavelength) result(res)
+   ! The dispersion correction which best matches the wavelength.
+     self :: IN
+     wavelength :: REAL
+     res :: CPX
+     if (.atomic_number<1 OR .atomic_number>92) then
+       res = ZERO
+     else
+       if (wavelength < 2) then
+         res = dispersion_correction_Mo( .atomic_number ) ! 0.71A/1.34au
+       else if (wavelength < 3.5) then
+         res = dispersion_correction_Cu( .atomic_number ) ! 1.542A/2.91au
+       else
+         res = dispersion_correction_Cr( .atomic_number ) ! 2.29A/4.33au
+       end
+     end
+   end
+
+   library_basis_label(suffix) result (label) ::: leaky
+   ! Return a library basis set label by appending "suffix" to the
+   ! chemical symbol.
+      suffix :: STR(*)
+      label :: STR
+      symbol :: STR
+      symbol = .chemical_symbol
+      select case (suffix)
+         case ("Coppens")
+            if (.atomic_number>55) then
+               select case (.atomic_number)
+                  case (56);     symbol = "Sr"
+                  case (57:71);  symbol = "Y"
+                  case (72:87);  symbol = .chemical_symbol(.atomic_number-32)
+                  case (88);     symbol = "Sr"
+                  case (89:103); symbol = "Y"
+               end
+               WARN("Replaced basis for atom "//.chemical_symbol.trim//" with that for atom "//symbol.trim)
+            end
+         case default
+      end
+      label = trim(symbol)//":"//trim(suffix)
+   end
+
+   has_ANO_data result (res)
+   ! Return TRUE if the ANO data exists for the atom.
+      res :: BIN
+      res = .natural_orbitals.created AND .occupation_numbers.created
+   end
+
+   has_basis result (res)
+   ! Return TRUE if the basis exists
+      res :: BIN
+      res = .basis.created
+   end
+
+   has_basis_label result (res)
+   ! Return TRUE if the basis label exists and is not blank
+      res :: BIN
+      if (.basis.destroyed) then;       res = FALSE
+      else if (.basis.label==" ") then; res = FALSE
+      else;                             res = TRUE
+      end
+   end
+
+   min_basis_exponent result (res)
+   ! Return the minimum exponent in the basis.
+     res :: REAL
+     if (.coppensbasis.created) then
+       res = .coppensbasis.min_exponent
+     else if (.basis.created) then
+       res = .basis.min_exponent
+     else
+       DIE("no basis")
+     end
+   end
+
+!  *************************
+!  Density plotting routines
+!  *************************
+
+   make_density_grid(density_grid,pt)
+   ! Work out the electron "density_grid" on "pt" using ".natural orbitals" and
+   ! the ".occupation_numbers" vector.
+      self :: IN
+      density_grid :: REALVEC, OUT
+      pt :: REALMAT, IN
+   ENSURE(density_grid.dim==pt.dim1,"inconsistent number of points")
+      if      (.coppensbasis.created) then
+         .coppensbasis.make_density_grid(density_grid,pt,.pos)
+      else if (.slaterbasis.created) then
+         .slaterbasis.make_density_grid(density_grid,pt,.pos)
+      else if (.basis.created AND .natural_orbitals.created) then
+         if (.natural_orbitals.number_kind == "real") then
+            .make_density_grid_r(density_grid,pt)
+         else
+            .make_density_grid_c(density_grid,pt)
+         end
+      else
+         DIE("Can't made density grid")
+      end
+      if (NOT .site_occupancy.same_as(ONE)) &
+         density_grid = .site_occupancy*density_grid
+   end
+
+   make_density_grid_r(density_grid,pt)
+   ! Make the "density_grid" for the supplied points "pt" from restricted real
+   ! natural orbitals
+     self :: IN
+     density_grid :: REALVEC, OUT
+     pt :: REALMAT, IN
+     NO :: REALVEC*
+     n_occ,n :: INT
+   ENSURE(pt.dim2==3,"wrong dimension for points array")
+   ENSURE(density_grid.dim==pt.dim1,"inconsistent number of points")
+   ENSURE(.natural_orbitals.created("restricted"),"no restricted NO's")
+   ENSURE(.occupation_numbers.created("restricted"),"no occupation numbers")
+     density_grid = ZERO
+     NO.create(pt.dim1)
+     n_occ = .no_of_occupied_NOs
+     do n = 1,n_occ
+       .make_orbital_grid_r(NO,.natural_orbitals.restricted(:,n),pt,.pos)
+       density_grid = density_grid &
+                    + .occupation_numbers.restricted(n)*NO*NO
+     end
+     NO.destroy
+   end
+
+   make_density_grid_c(density_grid,pt)
+   ! Make the "density_grid" for the supplied points "pt" from restricted
+   ! complex natural orbitals.
+      density_grid :: REALVEC
+      pt :: REALMAT
+      NO :: CPXVEC*
+      n_occ,n :: INT
+   ENSURE(pt.dim2==3,"wrong dimension for points array")
+   ENSURE(density_grid.dim==pt.dim1,"inconsistent number of points")
+   ENSURE(.natural_orbitals.created("restricted_complex"),"no restricted NO's")
+   ENSURE(.occupation_numbers.created("restricted"),"no occupation numbers")
+      density_grid = ZERO
+      NO.create(pt.dim1)
+      n_occ = .no_of_occupied_NOs
+      do n = 1,n_occ
+         .make_orbital_grid_c(NO,.natural_orbitals.restricted_complex(:,n),pt,.pos)
+         density_grid = density_grid &
+                      + .occupation_numbers.restricted(n)*conjg(NO)*NO
+      end
+      NO.destroy
+   end
+
+   make_orbital_grid_r(g,orb,pt,pos,square)
+   ! Evaluate the orbital density grid "g" for *one* AO-basis coefficient
+   ! orbital vector "orb" on a set of grid points "pt" for an atom at position
+   ! "pos". If "square" is present and TRUE, the square of the orbital density
+   ! is returned.
+      g :: REALVEC, OUT
+      orb :: REALVEC, IN
+      pt :: REALMAT, IN
+      pos :: REALVEC(3), IN
+      square :: BIN, optional, IN
+      sq :: BIN
+      sh :: SHELL1
+      sh_grid :: REALMAT*
+      n_pt,f,l,s :: INT
+   ENSURE(.basis.created,"no basis set")
+   ENSURE(.basis.no_of_basis_functions==orb.dim,"incorrect suize, orb")
+      sq = FALSE
+      if (present(square)) sq = square
+      n_pt = pt.dim1
+      g = ZERO
+      l = 0
+      do s = 1,.n_shell
+         sh.set(.basis.shell(s),pos)
+         f = l + 1
+         l = f + sh.n_comp - 1
+         sh_grid.create(n_pt,sh.n_comp)
+         sh.make_grid(sh_grid,pt)
+         g = g + matmul(sh_grid,orb(f:l))
+         sh_grid.destroy
+      end
+      if (sq) g = g*g
+   end
+
+   make_orbital_grid_c(g,orb,pt,pos,square)
+   ! Evaluate the orbital density grid "g" for *one* AO-basis coefficient
+   ! orbital vector "orb" on a set of grid points "pt" for an atom at position
+   ! "pos". If "square" is present and TRUE, the square of the orbital density
+   ! is returned.
+      self :: IN
+      g :: CPXVEC, OUT
+      orb :: CPXVEC, IN
+      pt :: REALMAT, IN
+      pos :: REALVEC(3), IN
+      square :: BIN, optional, IN
+      sq :: BIN
+      sh :: SHELL1
+      sh_grid :: REALMAT*
+      n_pt,f,l,s :: INT
+   ENSURE(.basis.created,"no basis set")
+   ENSURE(.basis.no_of_basis_functions==orb.dim,"incorrect suize, orb")
+      sq = FALSE
+      if (present(square)) sq = square
+      n_pt = pt.dim1
+      g = ZERO
+      l = 0
+      do s = 1,.n_shell
+         sh.set(.basis.shell(s),pos)
+         f = l + 1
+         l = f + sh.n_comp - 1
+         sh_grid.create(n_pt,sh.n_comp)
+         sh.make_grid(sh_grid,pt)
+         g = g + matmul(sh_grid,orb(f:l))
+         sh_grid.destroy
+      end
+      if (sq) g = conjg(g)*g
+   end
+
+   density_at_radius(R) result (res)
+   ! Work out the electron at radius "R".
+      R,res :: REAL
+      density_grid :: REALVEC(1)
+      pt :: REALMAT(3,1)
+      if (.coppensbasis.created AND .coppensbasis.orbital.created) then
+         res = .coppensbasis.density_at_radius(R)
+      else if (.basis.created) then
+         pt(:,1) = .pos + [R,ZERO,ZERO]
+         if (.natural_orbitals.number_kind == "real") then
+            .make_density_grid_r(density_grid,pt)
+         else
+            .make_density_grid_c(density_grid,pt)
+         end
+         res = density_grid(1)
+      end
+   end
+
+!  ***************************
+!  Basis shell access routines
+!  ***************************
+
+   get_shell_limits(first,last) ::: leaky
+   ! Get the indices of first and last basis functions in a particular shell
+   ! "s", first(s) and last(s), respectively.
+      first,last :: INTVEC*
+      n_shell,f,l,s :: INT
+      n_shell = .basis.n_shell
+      nullify(first); first.create(n_shell)
+      nullify(last);  last.create(n_shell)
+      l = 0
+      do s = 1,n_shell
+         f = l + 1
+         l = f + .basis.shell(s).n_comp - 1
+         first(s) = f
+         last(s)  = l
+      end
+   end
+
+!  **************
+!  Output methods
+!  **************
+
+   put
+   ! Put out the atom information to file "stdout"
+     stdout.flush
+     stdout.show("Label                  =",trim(.label))
+     stdout.show("Atomic No.             =",.atomic_number)
+     stdout.show("Chemical symbol        =",trim(.chemical_symbol))
+     stdout.show("Atom coordinates       =",.pos(1),.pos(2),.pos(3))
+     if (.sequence_number/=0) .put_mm_info
+     if (.basis.created) .basis.put
+     if (.coppensbasis.created) .coppensbasis.put
+   ! if (.interpolator.created) .interpolator.put
+   end
+
+   put_mm_info
+   ! Put out the MM/protien part of the atom information to file "stdout"
+     stdout.flush
+     stdout.show("Residue atom name      =",trim(.residue_atom_name))
+     stdout.show("Residue name           =",trim(.residue_name))
+     stdout.show("Sequence number        =",.sequence_number)
+     stdout.show("MM forcefield name     =",.mm_forcefield_name)
+     stdout.show("MM atom type           =",.mm_atom_type)
+     stdout.show("MM charge              =",.mm_charge)
+     stdout.show("Restraining position   =",.restraining_position)
+     stdout.show("Restraining force      =",.restraining_force_constant)
+   end
+
+   put_thermal_tensor
+   ! Output the thermal tensor.  Does not put a header or carriage return.
+   ! Only outputs the 6 independent ones, not all 9.
+     stdout.put(.thermal_tensor(1,1))
+     stdout.put(.thermal_tensor(2,2))
+     stdout.put(.thermal_tensor(3,3))
+     stdout.put(.thermal_tensor(1,2))
+     stdout.put(.thermal_tensor(1,3))
+     stdout.put(.thermal_tensor(2,3))
+   end
+
+   put_natural_orbitals
+   ! Put out the current associated molecular orbitals to file "out"
+      stdout.flush
+      stdout.text("Natural orbital occupations:")
+      stdout.put( .occupation_numbers, format="column")
+      stdout.flush
+      stdout.text("Natural orbitals:")
+      stdout.put( .natural_orbitals)
+   end
+
+end

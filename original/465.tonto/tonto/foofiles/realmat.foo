@@ -1,0 +1,2981 @@
+!-------------------------------------------------------------------------------
+!
+! REALMAT: Matrix operations ...
+!
+! Copyright (C) Dylan Jayatilaka, 1996
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: realmat.foo,v 1.58.2.9 2003/11/13 05:36:07 reaper Exp $
+!-------------------------------------------------------------------------------
+
+module REALMAT
+
+   implicit none
+
+   interface trace_of_product
+     trace_product_with
+   end
+
+contains
+
+   create(dim1,dim2) ::: get_from(INTRINSICMAT)
+   ! Create a matrix with the given dimensions
+      self :: PTR
+      dim1,dim2 :: INT, IN
+   end
+
+   create(lb1,ub1,lb2,ub2) ::: get_from(INTRINSICMAT)
+   ! Create a matrix with the given dimensions
+      self :: PTR
+      lb1,ub1,lb2,ub2 :: INT, IN
+   end
+
+   create(bounds1,bounds2) ::: get_from(INTRINSICMAT)
+   ! Create a matrix with the specified bounds for each dimension
+      self :: PTR
+      bounds1,bounds2 :: INTVEC, IN
+   end
+
+   create(bounds) ::: get_from(INTRINSICMAT)
+   ! Create a matrix with the given bounds for all dimensions
+      self :: PTR
+      bounds :: INTMAT(2,2), IN
+   end
+
+   create_copy(matrix) ::: get_from(INTRINSICMAT)
+   ! Create a replica copy of matrix
+      self :: PTR
+      matrix :: SELF_TYPE, IN
+   end
+
+   destroy ::: get_from(INTRINSICMAT)
+   ! Destroy the object
+      self :: PTR
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   is_square result(res) ::: get_from(INTRINSICMAT), pure
+   ! Returns TRUE if the matrix is square
+      self :: IN
+      res :: BIN
+   end
+
+   is_same_shape_as(b) result(res) ::: get_from(INTRINSICMAT), pure
+   ! Returns TRUE if the matrix "b" has the same shape as self
+      self :: IN
+      b :: REALMAT, IN
+      res :: BIN
+   end
+
+   is_transposed_shape_of(b) result(res) ::: get_from(INTRINSICMAT), pure
+   ! Returns TRUE if the matrix "b" is the transposed shape of self
+      self :: IN
+      b :: REALMAT, IN
+      res :: BIN
+   end
+
+   all_in_range(range) result(res)
+   ! Return TRUE if all values of self are within the specified "range".
+      range :: REALVEC(2)
+      res :: BIN
+      res = all(range(1) <= self AND self <= range(2))
+   end
+
+   in_range(range) result(res)
+   ! Return element ij as TRUE if self(i,j) is within the specified "range".
+      range :: REALVEC(2)
+      res :: BINMAT(size(self,1),size(self,2))
+      res = (range(1) <= self AND self <= range(2))
+   end
+
+   range result(res)
+   ! Return the range (smallest and largest value) of self.
+      res :: REALVEC(2)
+      res(1) = minval(self)
+      res(2) = maxval(self)
+   end
+
+   shrink(dim1,dim2) ::: get_from(INTRINSICMAT), leaky
+   ! Shrinks self to dimension dim1xdim2.  Contents are retained.
+     self :: PTR
+     dim1,dim2 :: INT, IN
+   end
+
+   shrink_columns(dim2) ::: get_from(INTRINSICMAT), leaky
+   ! Shrinks columns of self to dimension dim2. Contents are retained.
+     self :: PTR
+     dim2 :: INT, IN
+   end
+
+   expand(dim1,dim2) ::: get_from(INTRINSICMAT), leaky
+   ! Expands self to dimension dim1xdim2.  Contents are retained.
+     self :: PTR
+     dim1,dim2 :: INT, IN
+   end
+
+   expand_columns(dim2) ::: get_from(INTRINSICMAT), leaky
+   ! Expands the columns self to dim2.  Contents are retained.
+     self :: PTR
+     dim2 :: INT, IN
+   end
+
+   append_column(col) ::: leaky
+   ! Append the column "col" onto the end of self.
+     self :: PTR
+     col :: REALVEC
+     old_dim2,new_dim2 :: INT
+   ENSURE(.created, "self not allocated")
+   ENSURE(.dim1==col.dim, "2nd dimension given is too small")
+     old_dim2 = .dim2
+     new_dim2 = .dim2 + 1
+     .expand_columns(new_dim2)
+     self(:,new_dim2) = col
+   end
+
+   append_columns(cols) ::: get_from(INTRINSICMAT), leaky
+   ! Append the columns "cols" onto the end of self.
+     self :: PTR
+     cols :: SELF_TYPE
+   end
+
+   determinant result(res)
+   ! Return the determinant a 3x3 matrix
+      self :: IN
+      res :: REAL
+   ENSURE(.is_square,"non-square matrix")
+   ENSURE(.dim1<4,"only works for up to size 3 matrices")
+      select case (.dim1)
+          case (1)
+             res = self(1,1)
+          case (2)
+             res = self(1,1)*self(2,2) - self(2,1)*self(1,2)
+          case (3)
+             res = self(1,3)*(self(2,1)*self(3,2) - self(3,1)*self(2,2)) &
+                 + self(2,3)*(self(3,1)*self(1,2) - self(1,1)*self(3,2)) &
+                 + self(3,3)*(self(1,1)*self(2,2) - self(2,1)*self(1,2))
+      end
+   end
+
+   cofactor result(res)
+   ! Return the cofactor fo a 3x3 matrix
+      self :: IN
+      res :: SELF_TYPE*
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1==3,"only works for 3x3 matrices")
+      nullify(res)
+      res.create(3,3)
+      res(1,1) =  (self(2,2)*self(3,3) - self(2,3)*self(3,2))
+      res(1,2) = -(self(2,1)*self(3,3) - self(2,3)*self(3,1))
+      res(1,3) =  (self(2,1)*self(3,2) - self(2,2)*self(3,1))
+      res(2,1) = -(self(1,2)*self(3,3) - self(1,3)*self(3,2))
+      res(2,2) =  (self(1,1)*self(3,3) - self(1,3)*self(3,1))
+      res(2,3) = -(self(1,1)*self(3,2) - self(1,2)*self(3,1))
+      res(3,1) =  (self(1,2)*self(2,3) - self(1,3)*self(2,2))
+      res(3,2) = -(self(1,1)*self(2,3) - self(1,3)*self(2,1))
+      res(3,3) =  (self(1,1)*self(2,2) - self(1,2)*self(2,1))
+   end
+
+   dot(l,r) result (res)
+   ! Multiply the matrix self by vector "l" on the left and vector "r" on the
+   ! right ie:  res = l^T self r. Useful for non-unit metric dot_products.
+     self :: IN
+     l,r :: REALVEC, IN
+     res :: REAL
+     w :: REALVEC*
+     ENSURE(.dim1==l.dim,"wrong size, r")
+     ENSURE(.dim2==r.dim,"wrong size, r")
+     w.create(l.dim)
+     w.to_product_of(self,r)
+     res = dot_product(l,w)
+     w.destroy
+   end
+
+   dot(l,r) result (res)
+   ! Multiply the matrix self by vector "l" on the left and vector "r" on the
+   ! right ie:  res = l^T self r. Useful for non-unit metric dot_products.
+     self :: IN
+     l,r :: CPXVEC, IN
+     res :: CPX
+     w :: CPXVEC*
+     ENSURE(.dim1==l.dim,"wrong size, r")
+     ENSURE(.dim2==r.dim,"wrong size, r")
+     w.create(l.dim)
+     w.to_product_of(self,r)
+     res = dot_product(l,w)
+     w.destroy
+   end
+
+   rotate(v)
+   ! Rotate vector "v" by self
+     v :: REALVEC, INOUT
+     dim1,dim2,i,j :: INT
+     w :: REALVEC*
+     val :: REAL
+     ENSURE(.is_square,"incompatible arrays sizes")
+     ENSURE(.dim2==size(v), "incompatible arrays sizes")
+     dim1 = .dim1
+     dim2 = .dim2
+     w.create(dim2)
+     do i = 1,dim1
+       val = ZERO
+       do j = 1,dim2
+         val = val + self(i,j) * v(j)
+       end
+       w(i) = val
+     end
+     v = w
+     w.destroy
+   end
+
+   to_product_of(a,b,transpose_a,transpose_b)
+   ! Set "self" to the matrix product of "a" and "b". If present,
+   ! "transpose_a" and "transpose_b" can be set to TRUE if "a" and "b"
+   ! neeb to be transposed.
+     self :: INOUT
+     a, b :: SELF_TYPE, IN
+     transpose_a, transpose_b :: BIN, optional, IN
+     trans_a,trans_b :: BIN
+     dim1,dim2,i,j,opt :: INT
+     trans_a = FALSE;       trans_b = FALSE
+     if (present(transpose_a)) trans_a = transpose_a
+     if (present(transpose_b)) trans_b = transpose_b
+     opt = 0
+     if (trans_a) opt = opt + 1
+     if (trans_b) opt = opt + 2
+     select case (opt)
+       case (0) ! .to_product_an_bn
+         ENSURE( .dim1==a.dim1,"incompatible arrays")
+         ENSURE( .dim2==b.dim2,"incompatible arrays")
+         ENSURE(a.dim2==b.dim1,"incompatible arrays")
+         dim1 = size(self,1)
+         dim2 = size(self,2)
+         do i=1,dim1
+           do j=1,dim2
+             self(i,j) = sum(a(i,:)*b(:,j))
+           end
+         end
+       case (1) ! .to_product_at_bn
+         ENSURE( .dim1==a.dim2,"incompatible arrays")
+         ENSURE( .dim2==b.dim2,"incompatible arrays")
+         ENSURE(a.dim1==b.dim1,"incompatible arrays")
+         dim1 = size(self,1)
+         dim2 = size(self,2)
+         do i=1,dim1
+           do j=1,dim2
+             self(i,j) = sum(a(:,i)*b(:,j))
+           end
+         end
+       case (2) ! .to_product_an_bt
+         ENSURE( .dim1==a.dim1,"incompatible arrays")
+         ENSURE( .dim2==b.dim1,"incompatible arrays")
+         ENSURE(a.dim2==b.dim2,"incompatible arrays")
+         dim1 = size(self,1)
+         dim2 = size(self,2)
+         do i=1,dim1
+           do j=1,dim2
+             self(i,j) = sum(a(i,:)*b(j,:))
+           end
+         end
+       case (3) ! .to_product_at_bt
+         ENSURE( .dim1==a.dim2,"incompatible arrays")
+         ENSURE( .dim2==b.dim1,"incompatible arrays")
+         ENSURE(a.dim1==b.dim2,"incompatible arrays")
+         dim1 = size(self,1)
+         dim2 = size(self,2)
+         do i=1,dim1
+           do j=1,dim2
+             self(i,j) = sum(a(:,i)*b(j,:))
+           end
+         end
+     end
+   end
+
+   to_product_of(a,b,dagger_a,dagger_b)
+   ! Set "self" to the complex matrix product of "a" and "b". If present,
+   ! "dagger_a" and "dagger_b" can be set to TRUE if "a" and "b" need
+   ! to be daggered. WARNING: the complex part is thrown away.
+     self :: INOUT
+     a, b :: CPXMAT, IN
+     dagger_a, dagger_b :: BIN, optional, IN
+     dagg_a,dagg_b :: BIN
+     opt :: INT
+     dima,dim1,dim2,i,j,k :: INT
+     temp :: REAL
+     dagg_a = FALSE;        dagg_b = FALSE
+     if (present(dagger_a)) dagg_a = dagger_a
+     if (present(dagger_b)) dagg_b = dagger_b
+     opt = 0
+     if (dagg_a) opt = opt + 1
+     if (dagg_b) opt = opt + 2
+     select case (opt)
+       case (0) ! .to_product_an_bn
+         ENSURE( .dim1==a.dim1,"incompatible arrays")
+         ENSURE( .dim2==b.dim2,"incompatible arrays")
+         ENSURE(a.dim2==b.dim1,"incompatible arrays")
+         dima = size(a,2)
+         dim1 = size(self,1)
+         dim2 = size(self,2)
+         do i=1,dim1
+         do j=1,dim2
+           temp = ZERO
+           do k=1,dima
+             temp = temp + a(i,k) * b(k,j)
+           end
+           self(i,j) = temp
+         end
+         end
+       case (1) ! .to_product_ad_bn
+         ENSURE( .dim1==a.dim2,"incompatible arrays")
+         ENSURE( .dim2==b.dim2,"incompatible arrays")
+         ENSURE(a.dim1==b.dim1,"incompatible arrays")
+         dima = size(a,1)
+         dim1 = size(self,1)
+         dim2 = size(self,2)
+         do i=1,dim1
+         do j=1,dim2
+           temp = ZERO
+           do k=1,dima
+             temp = temp + conjg(a(k,i)) * b(k,j)
+           end
+           self(i,j) = temp
+         end
+         end
+       case (2) ! .to_product_an_bd
+         ENSURE( .dim1==a.dim1,"incompatible arrays")
+         ENSURE( .dim2==b.dim1,"incompatible arrays")
+         ENSURE(a.dim2==b.dim2,"incompatible arrays")
+         dima = size(a,2)
+         dim1 = size(self,1)
+         dim2 = size(self,2)
+         do i=1,dim1
+         do j=1,dim2
+           temp = ZERO
+           do k=1,dima
+             temp = temp + a(i,k) * conjg(b(j,k))
+           end
+           self(i,j) = temp
+         end
+         end
+       case (3) ! .to_product_ad_bd
+         ENSURE( .dim1==a.dim2,"incompatible arrays")
+         ENSURE( .dim2==b.dim1,"incompatible arrays")
+         ENSURE(a.dim1==b.dim2,"incompatible arrays")
+         dima = size(a,1)
+         dim1 = size(self,1)
+         dim2 = size(self,2)
+         do i=1,dim1
+         do j=1,dim2
+           temp = ZERO
+           do k=1,dima
+             temp = temp + a(k,i) * b(j,k)
+           end
+           self(i,j) = temp ! conjugate not reqd
+         end
+         end
+     end
+   end
+
+   to_scaled_product_of(fac,a,b,transpose_a,transpose_b)
+   ! Set "self" to the matrix product of "a" and "b" scaled by "fac".
+   ! If present, "transpose_a" and "transpose_b" can be set to TRUE if "a"
+   ! and "b" neeb to be transposed.
+     self :: INOUT
+     fac :: REAL, IN
+     a, b :: SELF_TYPE, IN
+     transpose_a, transpose_b :: BIN, optional, IN
+     trans_a,trans_b :: BIN
+     opt :: INT
+     dima,dim1,dim2,i,j,k :: INT
+     temp :: REAL
+     trans_a = FALSE;          trans_b = FALSE
+     if (present(transpose_a)) trans_a = transpose_a
+     if (present(transpose_b)) trans_b = transpose_b
+     opt = 0
+     if (trans_a) opt = opt + 1
+     if (trans_b) opt = opt + 2
+     select case (opt)
+       case (0) ! .to_scaled_product_an_bn
+         ENSURE( .dim1==a.dim1,"incompatible arrays")
+         ENSURE( .dim2==b.dim2,"incompatible arrays")
+         ENSURE(a.dim2==b.dim1,"incompatible arrays")
+         dima = size(a,2)
+         dim1 = size(self,1)
+         dim2 = size(self,2)
+         do i=1,dim1
+         do j=1,dim2
+           temp = ZERO
+           do k=1,dima
+             temp = temp + a(i,k) * b(k,j)
+           end
+           self(i,j) = fac * temp
+         end
+         end
+       case (1) ! .to_scaled_product_at_bn
+         ENSURE( .dim1==a.dim2,"incompatible arrays")
+         ENSURE( .dim2==b.dim2,"incompatible arrays")
+         ENSURE(a.dim1==b.dim1,"incompatible arrays")
+         dima = size(a,1)
+         dim1 = size(self,1)
+         dim2 = size(self,2)
+         do i=1,dim1
+         do j=1,dim2
+           temp = ZERO
+           do k=1,dima
+             temp = temp + a(k,i) * b(k,j)
+           end
+           self(i,j) = fac * temp
+         end
+         end
+       case (2) ! .to_scaled_product_an_bt
+         ENSURE( .dim1==a.dim1,"incompatible arrays")
+         ENSURE( .dim2==b.dim1,"incompatible arrays")
+         ENSURE(a.dim2==b.dim2,"incompatible arrays")
+         dima = size(a,2)
+         dim1 = size(self,1)
+         dim2 = size(self,2)
+         do i=1,dim1
+         do j=1,dim2
+           temp = ZERO
+           do k=1,dima
+             temp = temp + a(i,k) * b(j,k)
+           end
+           self(i,j) = fac * temp
+         end
+         end
+       case (3) ! .to_scaled_product_at_bt
+         ENSURE( .dim1==a.dim2,"incompatible arrays")
+         ENSURE( .dim2==b.dim1,"incompatible arrays")
+         ENSURE(a.dim1==b.dim2,"incompatible arrays")
+         dima = size(a,1)
+         dim1 = size(self,1)
+         dim2 = size(self,2)
+         do i=1,dim1
+         do j=1,dim2
+           temp = ZERO
+           do k=1,dima
+             temp = temp + a(k,i) * b(j,k)
+           end
+           self(i,j) = fac * temp
+         end
+         end
+     end
+   end
+
+   plus_product_of(a,b,transpose_a,transpose_b)
+   ! Add to  "self" the matrix product of "a" and "b". If present,
+   ! "transpose_a" and "transpose_b" can be set to TRUE if "a" and "b"
+   ! neeb to be transposed.
+     self :: INOUT
+     a, b :: SELF_TYPE, IN
+     transpose_a, transpose_b :: BIN, optional, IN
+     trans_a,trans_b :: BIN
+     opt :: INT
+     dima,dim1,dim2,i,j,k :: INT
+     temp :: REAL
+     trans_a = FALSE;       trans_b = FALSE
+     if (present(transpose_a)) trans_a = transpose_a
+     if (present(transpose_b)) trans_b = transpose_b
+     opt = 0
+     if (trans_a) opt = opt + 1
+     if (trans_b) opt = opt + 2
+     select case (opt)
+       case (0) ! .plus_product_an_bn
+         ENSURE( .dim1==a.dim1,"incompatible arrays")
+         ENSURE( .dim2==b.dim2,"incompatible arrays")
+         ENSURE(a.dim2==b.dim1,"incompatible arrays")
+         dima = size(a,2)
+         dim1 = size(self,1)
+         dim2 = size(self,2)
+         do i=1,dim1
+         do j=1,dim2
+           temp = ZERO
+           do k=1,dima
+             temp = temp + a(i,k) * b(k,j)
+           end
+           self(i,j) = self(i,j) + temp
+         end
+         end
+       case (1) ! .plus_product_at_bn
+         ENSURE( .dim1==a.dim2,"incompatible arrays")
+         ENSURE( .dim2==b.dim2,"incompatible arrays")
+         ENSURE(a.dim1==b.dim1,"incompatible arrays")
+         dima = size(a,1)
+         dim1 = size(self,1)
+         dim2 = size(self,2)
+         do i=1,dim1
+         do j=1,dim2
+           temp = ZERO
+           do k=1,dima
+             temp = temp + a(k,i) * b(k,j)
+           end
+           self(i,j) = self(i,j) + temp
+         end
+         end
+       case (2) ! .plus_product_an_bt
+         ENSURE( .dim1==a.dim1,"incompatible arrays")
+         ENSURE( .dim2==b.dim1,"incompatible arrays")
+         ENSURE(a.dim2==b.dim2,"incompatible arrays")
+         dima = size(a,2)
+         dim1 = size(self,1)
+         dim2 = size(self,2)
+         do i=1,dim1
+         do j=1,dim2
+           temp = ZERO
+           do k=1,dima
+             temp = temp + a(i,k) * b(j,k)
+           end
+           self(i,j) = self(i,j) + temp
+         end
+         end
+       case (3) ! .plus_product_at_bt
+         ENSURE( .dim1==a.dim2,"incompatible arrays")
+         ENSURE( .dim2==b.dim1,"incompatible arrays")
+         ENSURE(a.dim1==b.dim2,"incompatible arrays")
+         dima = size(a,1)
+         dim1 = size(self,1)
+         dim2 = size(self,2)
+         do i=1,dim1
+         do j=1,dim2
+           temp = ZERO
+           do k=1,dima
+             temp = temp + a(k,i) * b(j,k)
+           end
+           self(i,j) = self(i,j) + temp
+         end
+         end
+     end
+   end
+
+   plus_scaled_product_of(fac,a,b,transpose_a,transpose_b)
+   ! Add to "self" the matrix product of "a" and "b" scaled by "fac".
+   ! If present, "transpose_a" and "transpose_b" can be set to TRUE if "a"
+   ! and "b" need to be transposed.
+     self :: INOUT
+     fac :: REAL, IN
+     a, b :: SELF_TYPE, IN
+     transpose_a, transpose_b :: BIN, optional, IN
+     trans_a,trans_b :: BIN
+     opt :: INT
+     dima,dim1,dim2,i,j,k :: INT
+     temp :: REAL
+     trans_a = FALSE;       trans_b = FALSE
+     if (present(transpose_a)) trans_a = transpose_a
+     if (present(transpose_b)) trans_b = transpose_b
+     opt = 0
+     if (trans_a) opt = opt + 1
+     if (trans_b) opt = opt + 2
+     select case (opt)
+       case (0) ! .plus_scaled_product_an_bn
+         ENSURE( .dim1==a.dim1,"incompatible arrays")
+         ENSURE( .dim2==b.dim2,"incompatible arrays")
+         ENSURE(a.dim2==b.dim1,"incompatible arrays")
+         dima = size(a,2)
+         dim1 = size(self,1)
+         dim2 = size(self,2)
+         do i=1,dim1
+         do j=1,dim2
+           temp = ZERO
+           do k=1,dima
+             temp = temp + a(i,k) * b(k,j)
+           end
+           self(i,j) = self(i,j) + fac * temp
+         end
+         end
+       case (1) ! .plus_scaled_product_at_bn
+         ENSURE( .dim1==a.dim2,"incompatible arrays")
+         ENSURE( .dim2==b.dim2,"incompatible arrays")
+         ENSURE(a.dim1==b.dim1,"incompatible arrays")
+         dima = size(a,1)
+         dim1 = size(self,1)
+         dim2 = size(self,2)
+         do i=1,dim1
+         do j=1,dim2
+           temp = ZERO
+           do k=1,dima
+             temp = temp + a(k,i) * b(k,j)
+           end
+           self(i,j) = self(i,j) + fac * temp
+         end
+         end
+       case (2) ! .plus_scaled_product_an_bt
+         ENSURE( .dim1==a.dim1,"incompatible arrays")
+         ENSURE( .dim2==b.dim1,"incompatible arrays")
+         ENSURE(a.dim2==b.dim2,"incompatible arrays")
+         dima = size(a,2)
+         dim1 = size(self,1)
+         dim2 = size(self,2)
+         do i=1,dim1
+         do j=1,dim2
+           temp = ZERO
+           do k=1,dima
+             temp = temp + a(i,k) * b(j,k)
+           end
+           self(i,j) = self(i,j) + fac * temp
+         end
+         end
+       case (3) ! .plus_scaled_product_at_bt
+         ENSURE( .dim1==a.dim2,"incompatible arrays")
+         ENSURE( .dim2==b.dim1,"incompatible arrays")
+         ENSURE(a.dim1==b.dim2,"incompatible arrays")
+         dima = size(a,1)
+         dim1 = size(self,1)
+         dim2 = size(self,2)
+         do i=1,dim1
+         do j=1,dim2
+           temp = ZERO
+           do k=1,dima
+             temp = temp + a(k,i) * b(j,k)
+           end
+           self(i,j) = self(i,j) + fac * temp
+         end
+         end
+     end
+   end
+
+   plus_scaled(mat,fac)
+   ! Add the matrix "mat" scaled by "fac" to "self".
+     self :: INOUT
+     fac :: REAL, IN
+     mat :: SELF_TYPE, IN
+     dim1,dim2,i,j :: INT
+     ENSURE(.dim1==mat.dim1,"incompatible arrays")
+     ENSURE(.dim2==mat.dim2,"incompatible arrays")
+     dim1 = size(self,1)
+     dim2 = size(self,2)
+     do j=1,dim2
+       do i=1,dim1
+         self(i,j) = self(i,j) + fac * mat(i,j)
+       end
+     end
+   end
+
+   minus_scaled(mat,fac)
+   ! Subtract the matrix "mat" scaled by "fac" from "self".
+     self :: INOUT
+     fac :: REAL, IN
+     mat :: SELF_TYPE, IN
+     dim1,dim2,i,j :: INT
+     ENSURE(.dim1==mat.dim1,"incompatible arrays")
+     ENSURE(.dim2==mat.dim2,"incompatible arrays")
+     dim1 = size(self,1)
+     dim2 = size(self,2)
+     do j=1,dim2
+       do i=1,dim1
+         self(i,j) = self(i,j) - fac * mat(i,j)
+       end
+     end
+   end
+
+   to_product_with_diagonal(a,diag,transpose_a)
+   ! Set "self" to the matrix product of "a" with diagonal matrix "diag" (stored
+   ! as a vector).  If present, "transpose_a" can be set to TRUE if "a" needs to
+   ! be transposed.
+      self :: INOUT
+      a :: SELF_TYPE, IN
+      diag :: REALVEC, IN
+      transpose_a :: BIN, optional, IN
+      a1,a2,s1,s2,d1,i,j :: INT
+      temp :: REAL
+   ENSURE(.is_same_shape_as(a),"incompatible dimensions")
+      s1 = size(self,1); s2 = size(self,2)
+      a1 = size(a,1);    a2 = size(a,2)
+      d1 = size(diag)
+      if (present(transpose_a)) then
+         ENSURE(a1==d1,"incompatible dimensions")
+         do j=1,s2
+           temp = diag(j)
+           do i=1,s1
+             self(i,j) = a(j,i)*temp
+           end
+         end
+      else
+         ENSURE(a2==d1,"incompatible dimensions")
+         do j=1,s2
+           temp = diag(j)
+           do i=1,s1
+             self(i,j) = a(i,j)*temp
+           end
+         end
+      end
+   end
+
+   to_product_with_diagonal(dg,a,transpose_a)
+   ! Set "self" to the matrix product of diagonal matrix "dg" (stored as a
+   ! vector) and "a".  If present, "transpose_a" can be set to TRUE if "a" needs
+   ! to be transposed.
+      self :: INOUT
+      a :: SELF_TYPE, IN
+      dg :: REALVEC, IN
+      transpose_a :: BIN, optional, IN
+      a1,a2,s1,s2,d1,i,j :: INT
+      temp :: REAL
+      ENSURE(.is_same_shape_as(a),"incompatible dimensions")
+      s1 = size(self,1); s2 = size(self,2)
+      a1 = size(a,1);    a2 = size(a,2)
+      d1 = size(dg)
+      if (present(transpose_a)) then
+         ENSURE(a2==d1,"incompatible dimensions")
+         do i=1,s1
+           temp = dg(i)
+           do j=1,s2
+             self(i,j) = temp*a(j,i)
+           end
+         end
+      else
+         ENSURE(a1==d1,"incompatible dimensions")
+         do i=1,s1
+           temp = dg(i)
+           do j=1,s2
+             self(i,j) = temp*a(i,j)
+           end
+         end
+      end
+   end
+
+! *********************
+! Eigenproblem routines
+! *********************
+
+   solve_eigenproblem(eigenvalues,eigenvectors)
+   ! Solve the symmetric eigenproblem for "self", yeilding a vector of
+   ! "eigenvalues" and a matrix of "eigenvectors"
+      eigenvalues :: REALVEC
+      eigenvectors :: SELF_TYPE
+      .solve_symmetric_eigenproblem(eigenvalues,eigenvectors)
+   end
+
+!   solve_general_eigenproblem(eigenvalues,left,right,normalize)
+!   ! Solve the eigenproblem for "self", yeilding a vector of "eigenvalues" and
+!   ! a matrix of "left" and "right" eigenvectors. If "normalize" is present
+!   ! and FALSE, the left and right eigenvectors are not automatically
+!   ! renormalized so that (left)^T (right) = 1
+!      eigenvalues :: CPXVEC
+!      left,right :: CPXMAT
+!      normalize :: BIN, optional
+!      er,ei,W :: REALVEC*
+!      A,le,re :: SELF_TYPE*
+!      i,dim,dimW, info :: INT
+!      normalise :: BIN
+!      dot :: REAL
+!      ENSURE(.is_square,"non-square matrix")
+!      ENSURE(size(eigenvalues)>=.dim1,"eigenvalue array too small")
+!      ENSURE(size(left)>=size(self),"left eigenvector matrix too small")
+!      ENSURE(size(right)>=size(self),"right eigenvector matrix too small")
+!      dim = size(self,1)
+!      normalise = TRUE
+!      if (present(normalize)) normalise = normalize
+!      if (self.is_symmetric) then
+!         A.create(dim,dim)
+!         er.create(dim)
+!         .solve_symmetric_eigenproblem(er,A)
+!         eigenvalues = er
+!         right = A
+!         left  = A
+!         er.destroy
+!         A.destroy
+!      else
+!         A.create(dim,dim)
+!         er.create(dim); ei.create(dim)
+!         le.create(dim,dim); re.create(dim,dim)
+!         dimW = 8*dim
+!         W.create(dimW)
+!         A = self
+!         ! Solve the eigenvalueproblem
+!         call dgeev('V','V',dim,A,dim,er,ei,le,dim,re,dim,W,dimW,info)
+!         ENSURE(info==0,"error, info="// trim(info.to_str))
+!         ! Search for the complex eigenvalues/vectors
+!         i = 1
+!         do
+!            if (NOT ei(i).is_zero(TOL(20))) then
+!               eigenvalues(i)   = cmplx(er(i)  ,ei(i),  kind=CPX_KIND)
+!               eigenvalues(i+1) = cmplx(er(i+1),ei(i+1),kind=CPX_KIND)
+!               left(:,i)    = cmplx(le(:,i), le(:,i+1),kind=CPX_KIND)
+!               left(:,i+1)  = cmplx(le(:,i),-le(:,i+1),kind=CPX_KIND)
+!               right(:,i)   = cmplx(re(:,i), re(:,i+1),kind=CPX_KIND)
+!               right(:,i+1) = cmplx(re(:,i),-re(:,i+1),kind=CPX_KIND)
+!               i = i + 2
+!            else
+!               eigenvalues(i)   = cmplx(er(i)  , ZERO,  kind=CPX_KIND)
+!               left(:,i)    = cmplx(le(:,i),ZERO,kind=CPX_KIND)
+!               right(:,i)   = cmplx(re(:,i),ZERO,kind=CPX_KIND)
+!               i = i + 1
+!            end
+!            if (i>dim) exit
+!         end
+!         W.destroy
+!         re.destroy; le.destroy
+!         ei.destroy; er.destroy
+!         A.destroy
+!      end
+!      if (normalise) then
+!         do i = 1,dim
+!            dot = dot_product(left(:,i),right(:,i))
+!            dot = ONE/sqrt(dot)
+!            left(:,i)  = dot*left(:,i)
+!            right(:,i) = dot*right(:,i)
+!         end
+!      end
+!   end
+
+   solve_symmetric_eigenproblem(eigenvalues,eigenvectors)
+   ! Solve the symmetric eigenproblem for "self", yeilding a vector of
+   ! "eigenvalues" and a matrix of "eigenvectors"
+      eigenvalues :: REALVEC
+      eigenvectors :: SELF_TYPE
+#ifdef ESSL
+      .solve_symm_eigenproblem_ESSL(eigenvalues,eigenvectors)
+#else
+      .solve_symm_eigenproblem_LAPACK(eigenvalues,eigenvectors)
+#endif
+   end
+
+   solve_symm_eigenproblem_ESSL(eigenvalues,eigenvectors) ::: private
+   ! Solve the symmetric eigenproblem for "self", yeilding a vector of
+   ! "eigenvalues" and a matrix of "eigenvectors". ESSL version.
+      eigenvalues :: REALVEC
+      eigenvectors :: SELF_TYPE
+      ap,W :: REALVEC*
+      dim :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(eigenvalues.dim>=.dim1,"eigenvalue array too small")
+      ENSURE(size(eigenvectors)>=size(self),"eigenvector matrix too small")
+      dim = .dim1
+      ap.create(dim*(dim+1)/2)
+      .compress_to_triangle(ap)
+      W.create(2*dim)
+#ifdef ESSL
+      call dspev(21,ap,eigenvalues,eigenvectors,dim,dim,W,2*dim)
+#endif
+      W.destroy
+      ap.destroy
+   end
+
+   solve_symm_eigenproblem_LAPACK(eigenvalues,eigenvectors) ::: private
+   ! Solve the symmetric eigenproblem for "self", yeilding a vector of
+   ! "eigenvalues" and a matrix of "eigenvectors". LAPACK version.
+      eigenvalues :: REALVEC
+      eigenvectors :: SELF_TYPE
+      W :: REALVEC*
+      dim,fail,lwork :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(eigenvalues.dim>=.dim1,"eigenvalue array too small")
+      ENSURE(size(eigenvectors)>=size(self),"eigenvector matrix too small")
+      dim = .dim1
+      lwork = max(dim*dim,3*dim-1)
+      W.create(lwork)
+      eigenvectors = self
+      fail = 0
+#ifndef ESSL
+      call dsyev("V","L",dim,eigenvectors,dim,eigenvalues,W,lwork,fail)
+#endif
+   ENSURE(fail==0,"no solution, error found")
+      W.destroy
+   end
+
+   solve_linear_equation(rhs,solution)
+   ! Solve the linear equations posed by "self", with "rhs" as the RHS vector,
+   ! yeilding vector "solution" as the answer
+      rhs, solution :: REALVEC
+#ifdef ESSL
+      .solve_linear_equation_ESSL(rhs,solution)
+#else
+      .solve_linear_equation_LAPACK(rhs,solution)
+#endif
+   end
+
+   solve_linear_equation_ESSL(rhs,solution) ::: private
+   ! Solve the linear equations posed by "self", with "rhs" as the RHS vector,
+   ! yeilding vector "solution" as the answer. ESSL version
+      rhs, solution :: REALVEC
+      LU :: SELF_TYPE*
+      pivot :: INTVEC*
+      dim :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(rhs.dim==.dim1,"incompatible rhs")
+      dim = rhs.dim
+      LU.create(dim,dim)
+      pivot.create(dim)
+      LU = self
+      solution = rhs
+#ifdef ESSL
+      call dgef(LU,dim,dim,pivot)
+      call dges(LU,dim,dim,pivot,solution,0)
+#endif
+      pivot.destroy
+      LU.destroy
+   end
+
+   solve_linear_equation_LAPACK(rhs,solution) ::: private
+   ! Solve the linear equations posed by "self", with "rhs" as the RHS vector,
+   ! yeilding vector "solution" as the answer. LAPACK version.
+      rhs, solution :: REALVEC
+      LU :: SELF_TYPE*
+      pivot :: INTVEC*
+      dim,nrhs,err :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(rhs.dim==.dim1,"incompatible rhs")
+      dim = rhs.dim
+      nrhs = 1
+      nullify(LU); LU.create(dim,dim)
+      nullify(pivot); pivot.create(dim)
+      LU = self
+      solution = rhs
+#ifndef ESSL
+      call dgesv(dim,nrhs,LU,dim,pivot,solution,dim,err)
+#endif
+      ENSURE(err==0,"no solution, error found")
+      pivot.destroy
+      LU.destroy
+   end
+
+   solve_linear_equations(rhs,solution)
+   ! Solve the linear equations posed by "self", with "rhs" as a matrix of RHS
+   ! vectors, yeilding matrix "solution" as a matrix of solution vectors.
+      rhs, solution :: SELF_TYPE
+#ifdef ESSL
+      .solve_linear_equations_ESSL(rhs,solution)
+#else
+      .solve_linear_equations_LAPACK(rhs,solution)
+#endif
+   end
+
+   solve_linear_equations_ESSL(rhs,solution) ::: private
+   ! Solve the linear equations posed by "self", with "rhs" as a matrix of RHS
+   ! vectors, yeilding matrix "solution" as a matrix of solution vectors.
+   ! ESSL version.
+      rhs, solution :: SELF_TYPE
+      LU :: SELF_TYPE*
+      pivot :: INTVEC*
+      dim1,nrhs :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(rhs.dim1==.dim2,"rhs incompatible with coefficient matrix")
+      ENSURE(nrhs>0,"no rhs vectors")
+      dim1 = rhs.dim1
+      nrhs = rhs.dim2
+      LU.create(dim1,dim1)
+      pivot.create(dim1)
+      LU = self
+      solution = rhs
+#ifdef ESSL
+      call dgef(LU,dim1,dim1,pivot)
+      call dgesm("N",LU,dim1,dim1,pivot,solution,dim1,nrhs)
+#endif
+      pivot.destroy
+      LU.destroy
+   end
+
+   solve_linear_equations_LAPACK(rhs,solution) ::: private
+   ! Solve the linear equations posed by "self", with "rhs" as a matrix of RHS
+   ! vectors, yeilding matrix "solution" as a matrix of solution vectors.
+   ! LAPACK version
+      rhs, solution :: SELF_TYPE
+      LU :: SELF_TYPE*
+      pivot :: INTVEC*
+      dim1,nrhs,err :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(rhs.dim1==.dim2,"rhs incompatible with coefficient matrix")
+      ENSURE(nrhs>0,"no rhs vectors")
+      dim1 = rhs.dim1
+      nrhs = rhs.dim2
+      LU.create(dim1,dim1)
+      pivot.create(dim1)
+      LU = self
+      solution = rhs
+#ifndef ESSL
+      call dgesv(dim1,nrhs,LU,dim1,pivot,solution,dim1,err)
+#endif
+      pivot.destroy
+      LU.destroy
+      ENSURE(err==0,"no solution, error found")
+   end
+
+!  Unused ESSL routines
+
+!   solve_general_eigenproblem(eigenvalues,eigenvectors)
+!   ! Solve the eigenproblem for "self", yeilding a vector of "eigenvalues" and
+!   ! a matrix of "eigenvectors"
+!      eigenvalues :: CPXVEC
+!      eigenvectors :: CPXMAT
+!       W :: REALVEC*
+!      dim1,dim2,dime,dimv :: INT
+!      select :: BIN
+!      dim1 = size(self,1)
+!      dim2 = size(self,2)
+!      dime = size(eigenvalues)
+!      dimv = size(eigenvectors)
+!      ENSURE(dim1==dim2,"non-square matrix")
+!      ENSURE(dime>=dim1,"eigenvalue array too small")
+!      ENSURE(dimv>=dim1*dim1,"eigenvector matrix too small")
+!      W.create(2*dim1)
+!      call dgeev(1,self,dim1,eigenvalues,eigenvectors,dim1,select,dim1,W,2*dim1)
+!      W.destroy
+!   end
+!
+!   solve_general_eigenproblem(eigenvalues,left,right,normalize)
+!   ! Solve the eigenproblem for "self", yeilding a vector of "eigenvalues" and
+!   ! a matrix of "left" and "right" eigenvectors. If "normalize" is present
+!   ! and FALSE, the left and right eigenvectors are not automatically
+!   ! renormalized so that (left)^T (right) = 1.
+!   ! NOTE : this routine fails if there are complex eigenvalues. Use the complex
+!   ! routine in this case.
+!      eigenvalues :: REALVEC, target
+!      left,right :: SELF_TYPE, target
+!      normalize :: BIN, optional
+!      er,ei,W :: REALVEC*
+!      A,le,re :: SELF_TYPE*
+!      i,dim,dimW, info :: INT
+!      normalise :: BIN
+!      dot :: REAL
+!      ENSURE(.is_square,"non-square matrix")
+!      ENSURE(size(eigenvalues)>=.dim1,"eigenvalues array too small")
+!      ENSURE(size(left)>=size(self),"left eigenvector matrix too small")
+!      ENSURE(size(right)>=size(self),"right eigenvector matrix too small")
+!      dim = size(self,1)
+!      normalise = TRUE
+!      if (present(normalize)) normalise = normalize
+!      if (.is_symmetric) then
+!         .solve_symmetric_eigenproblem(eigenvalues,right)
+!         left = right
+!      else
+!         A.create(dim,dim)
+!         ei.create(dim)
+!         er => eigenvalues
+!         le => left
+!         re => right
+!         dimW = 8*dim
+!         W.create(dimW)
+!         A = self
+!         ! Solve the eigenvalueproblem
+!         call dgeev('V','V',dim,A,dim,er,ei,le,dim,re,dim,W,dimW,info)
+!         ENSURE(info==0,"error, info="// trim(info.to_str))
+!         ! Search for the complex eigenvalues/vectors
+!         do i = 1,dim
+!            if (NOT ei(i).is_zero(TOL(20))) then
+!               DIE("There are complex eigenvalues, use the complex routine")
+!            end
+!         end
+!         W.destroy
+!         ei.destroy
+!         A.destroy
+!      end
+!      if (normalise) then
+!         do i = 1,dim
+!            dot = dot_product(left(:,i),right(:,i))
+!            dot = ONE/sqrt(dot)
+!            left(:,i)  = dot*left(:,i)
+!            right(:,i) = dot*right(:,i)
+!         end
+!      end
+!   end
+
+   trace result (res) ::: get_from(INTRINSICMAT)
+   ! Return the trace of self
+      self :: IN
+      res :: ELEMENT_TYPE
+   end
+
+   trace_product_with(b) result (res) ::: get_from(INTRINSICMAT)
+   ! Return the trace of the product of "self" with matrix b.
+      self :: IN
+      b :: SELF_TYPE, IN
+      res :: ELEMENT_TYPE
+   end
+
+   trace_product_with(b,c,d) result (res)
+   ! Return the trace of the product of "self" with matrices "b" ... "d".
+      b,c,d :: SELF_TYPE
+      res :: ELEMENT_TYPE
+      W1,W2 :: SELF_TYPE*
+      W2.create(b.dim1,d.dim2)
+      W1.create(c.dim1,d.dim2)
+      W1.to_product_of(c,d)
+      W2.to_product_of(b,W1)
+      W1.destroy
+      W1.create( .dim1,d.dim2)
+      W1.to_product_of(self,W2)
+      res = W1.trace
+      W1.destroy
+      W2.destroy
+   end
+
+   trace_product_with(b,c,d,e,f) result (res)
+   ! Return the trace of the product of "self" with matrices "b" ... "f".
+      b,c,d,e,f :: SELF_TYPE
+      res :: ELEMENT_TYPE
+      W1,W2 :: SELF_TYPE*
+      W1.create(e.dim1,f.dim2)
+      W1.to_product_of(e,f)     ! e*f
+      W2.create(d.dim1,f.dim2)
+      W2.to_product_of(d,W1)    ! d*e*f
+      W1.destroy; W1 => W2
+      W2.create(c.dim1,f.dim2)
+      W2.to_product_of(c,W1)    ! c*d*e*f
+      W1.destroy; W1 => W2
+      W2.create(b.dim1,f.dim2)
+      W2.to_product_of(b,W1)    ! b*c*d*e*f
+      W1.destroy; W1 => W2
+      W2.create( .dim1,f.dim2)
+      W2.to_product_of(self,W1) ! self*b*c*d*e*f
+      res = W2.trace
+      W2.destroy
+      W1.destroy
+   end
+
+   equals(b) result(res)
+   ! Check if the matrix is the same as "b".
+      self :: IN
+      b :: SELF_TYPE, IN
+      res :: BIN
+      res = .same_as(b)
+   end
+
+   same_as(b,eps,diff) result(res)
+   ! Check if the matrix is the same as "b", within "eps", and return the
+   ! actual difference in "diff"
+      self :: IN
+      b :: SELF_TYPE, IN
+      eps :: REAL, IN, optional
+      diff :: REAL, optional
+      res :: BIN
+      i :: INT
+      del,tolerance :: REAL
+   ENSURE(.is_same_shape_as(b),"incompatible dimensions")
+      tolerance = REAL_EPSILON
+      if (present(eps)) tolerance = eps
+      del = ZERO
+      do i = 1,.dim2
+         del = del + sum( (self(:,i)-b(:,i))**2 )
+      end
+      del = sqrt(del)
+      res = FALSE
+      if (del<tolerance) res=TRUE
+      if (present(diff)) diff=del
+   end
+
+   has_column(c,eps,col) result(res)
+   ! Returns TRUE if the matrix "self" has a column "c", with "eps" tolerance.
+   ! If present, the matching column index "col" is also returned.
+      self :: IN
+      c :: REALVEC, IN
+      eps :: REAL, optional
+      col :: INT, optional
+      res :: BIN
+      n :: INT
+   ENSURE(c.dim==.dim1,"incompatible column size")
+      res = FALSE
+      do n = 1,.dim2
+         res = self(:,n).same_as(c,eps)
+         if (res) then
+            if (present(col)) col = n
+            exit
+         end
+      end
+   end
+
+   column_index(c,eps) result(res)
+   ! The matching column index "col" is returned, if the column matches "col" to
+   ! tolerance "tol".  "tol" is optional.
+      self :: IN
+      c :: REALVEC, IN
+      res :: INT
+      eps :: REAL, optional
+      n :: INT
+      ENSURE(c.dim==.dim1,"incompatible column size")
+      res = 0
+      do n = 1,.dim2
+         if (self(:,n).same_as(c,eps)) then
+            res = n
+            exit
+         end
+      end
+   end
+
+   is_diagonal result(res)
+   ! Returns TRUE if the matrix "self" is a diagonal matrix
+      self :: IN
+      res :: BIN
+      dim,i,j :: INT
+      off_diagonal_is_zero :: BIN
+      ENSURE(.is_square,"Non-square matrix")
+      dim = size(self,1)
+      res = TRUE
+      do i = 1,dim
+      do j = 1,dim
+         if (i==j) cycle
+         off_diagonal_is_zero = self(i,j).is_zero
+         if (off_diagonal_is_zero) cycle
+         res = FALSE
+         return
+      end
+      end
+   end
+
+   has_unit_diagonal result(res)
+   ! Returns TRUE if the matrix "self" has 1's as diagonal elements
+      self :: IN
+      res :: BIN
+      i :: INT
+      diagonal_is_one :: BIN
+      ENSURE(.is_square,"Non-square matrix")
+      res = TRUE
+      do i = 1,.dim1
+         diagonal_is_one = (ONE - self(i,i)).is_zero
+         if (diagonal_is_one) cycle
+         res = FALSE
+         return
+      end
+   end
+
+   is_symmetric result(res)
+   ! Returns TRUE if the matrix "self" is a symmetric matrix
+      self :: IN
+      res :: BIN
+      dim,i,j :: INT
+      diff :: REAL
+      ENSURE(.is_square,"Non-square matrix")
+      dim = size(self,1)
+      res = TRUE
+      do i = 1,dim
+      do j = 1,i-1
+         diff = abs(self(i,j)-self(j,i))
+         if (diff.is_zero) cycle
+         res = FALSE
+         return
+      end
+      end
+   end
+
+   is_unit_matrix result(res)
+   ! Returns TRUE if the matrix "self" is the unit matrix
+      self :: IN
+      res :: BIN
+      dim,i :: INT
+      diagonal_is_one :: BIN
+      ENSURE(.is_square,"Non-square matrix")
+      dim = size(self,1)
+      res = TRUE
+      do i = 1,dim
+         diagonal_is_one = (self(i,i)-ONE).is_zero
+         if (diagonal_is_one) cycle
+         res = FALSE
+         exit
+      end
+      if (res) res = .is_diagonal
+   end
+
+   is_inversion_matrix result(res)
+   ! Returns TRUE if the matrix "self" is an inversion matrix
+   ! i.e. minus the unit matrix
+      self :: IN
+      res :: BIN
+      dim,i :: INT
+      diagonal_is_minus_one :: BIN
+      ENSURE(.is_square,"Non-square matrix")
+      dim = size(self,1)
+      res = TRUE
+      do i = 1,dim
+         diagonal_is_minus_one = (self(i,i)+ONE).is_zero
+         if (diagonal_is_minus_one) cycle
+         res = FALSE
+         exit
+      end
+      if (res) res = .is_diagonal
+   end
+
+   sum_row_vectors result(res)
+   ! Sum the row vectors (i.e. columns) in "self".
+      res :: REALVEC(size(self,2))
+      j :: INT
+      do j = 1,size(self,2)
+         res(j) = sum(self(:,j))
+      end
+   end
+
+   sum_column_vectors result(res)
+   ! Sum the column vectors (i.e. rows) in "self".
+      res :: REALVEC(size(self,1))
+      i :: INT
+      do i = 1,size(self,1)
+         res(i) = sum(self(i,:))
+      end
+   end
+
+   swap_columns(col1,col2) ::: get_from(INTRINSICMAT)
+   ! Swap columns "col1" and "col2" of self
+      col1,col2 :: INT, IN
+   end
+
+   swap_columns(list)
+   ! Sequentially swap all columns in a column "list",
+   ! self(:,i)      = self(:,list(i))
+   ! self(:,col(i)) = self(:,i)
+      list :: INTVEC, IN
+      l :: INT
+      ENSURE(maxval(list)<=.dim2,"list value exceed column dimension")
+      do l = 1,list.dim
+         .swap_columns(l,list(l))
+      end
+   end
+
+   column_norms result(res)
+   ! Return the norms of every column
+      res :: REALVEC(size(self,2))
+      i :: INT
+      do i = 1,.dim2
+         res(i) = self(:,i).norm
+      end
+   end
+
+   get_column_norms(res)
+   ! Return the norms of every column
+      res :: REALVEC
+      i :: INT
+   ENSURE(res.dim==.dim2,"wrong size, res array")
+      do i = 1,.dim2
+         res(i) = self(:,i).norm
+      end
+   end
+
+   get_column_dot_products(res)
+   ! Return the dot products of every column with itself.
+   ! Goot for testing distances without using a sqrt.
+      res :: REALVEC
+      i :: INT
+   ENSURE(res.dim==.dim2,"wrong size, res array")
+      do i = 1,.dim2
+         res(i) = dot_product(self(:,i),self(:,i))
+      end
+   end
+
+   index_of_minimum_column_norm(offset) result(res)
+   ! Return the column index of the column with the *minimum* norm. If present,
+   ! "offset" is subtracted from every column beforehand, and then added back
+   ! afterwards. This is useful for finding the index of the column with minimum
+   ! distance to "offset", for a list of points held in "self".
+      offset :: REALVEC(3), optional
+      res :: INT
+      i :: INT
+      val,tmp :: REAL
+      if (present(offset)) &
+         self = self - spread(offset,dim=2,ncopies=self.dim2)
+      res = 1
+      val = self(:,1).norm
+      do i = 2,.dim2
+         tmp = self(:,i).norm
+         if (tmp>=val) cycle
+         val = tmp
+         res = i
+      end
+      if (present(offset)) &
+         self = self + spread(offset,dim=2,ncopies=self.dim2)
+   end
+
+   mean_column_vector result(res)
+   ! Return the mean of the column vectors.
+      res :: REALVEC(size(self,1))
+      res = .sum_column_vectors/.dim2
+   end
+
+   max_abs_column_difference result(res)
+   ! Return the maximum of the absolute difference between all the column vector
+   ! pairs of the matrix.
+      res :: REALVEC(.dim1)
+      i,j,dim :: INT
+      diff,col_i,col_j :: REALVEC(size(self,1))
+      dim = .dim2
+      diff = ZERO
+      do i = 1,.dim2
+         col_i = self(:,i)
+         do j = 1,i-1
+            col_j = self(:,j)
+            diff = max(abs(col_i-col_j),diff)
+         end
+      end
+      res = diff
+   end
+
+   set_to(b) ::: get_from(INTRINSICMAT)
+   ! Set self to "b"
+      b :: SELF_TYPE, IN
+   end
+
+   plus(b) ::: get_from(INTRINSICMAT)
+   ! Add to self the matrix "b"
+      b :: SELF_TYPE, IN
+   end
+
+   minus(b) ::: get_from(INTRINSICMAT)
+   ! Subtract from self the matrix "b"
+      b :: SELF_TYPE, IN
+   end
+
+   to_scaled_mat(fac,b)
+   ! Set "self" to matrix "b" scaled by "fac"
+      b :: SELF_TYPE, IN
+      fac :: REAL, IN
+      ENSURE(.is_same_shape_as(b),"different shapes")
+      self = fac*b
+   end
+
+   plus_scaled_mat(fac,b)
+   ! Add to "self" matrix "b" scaled by "fac"
+      b :: SELF_TYPE, IN
+      fac :: REAL, IN
+      ENSURE(.is_same_shape_as(b),"different shapes")
+      self = self+fac*b
+   end
+
+   zero_small_values(tol) ::: pure
+   ! Zero elements of the matrix which are less than "tol" in magnitude
+      self :: INOUT
+      tol :: REAL, IN
+      where (abs(self)<tol)
+        self = ZERO
+      end
+   end
+
+   is_zero(eps) result (res)
+   ! Return TRUE is "self" is the zero matrix, i.e. every element is zero.
+   ! If present, "eps" is used to decide when a small number is zero.
+      eps :: REAL, optional, IN
+      res :: BIN
+      dim1,dim2,i,j :: INT
+      ij_is_zero :: BIN
+      dim1 = .dim1
+      dim2 = .dim2
+      res = TRUE
+      do i = 1,dim1
+      do j = 1,dim2
+         ij_is_zero = self(i,j).is_zero(eps)
+         if (ij_is_zero) cycle
+         res = FALSE
+         exit
+      end
+      end
+   end
+
+   change_basis(V)
+   ! Change the basis of "self" using vectors "V"; self = V^T self V
+      V :: SELF_TYPE, IN
+      W :: SELF_TYPE*
+      o1,v2 :: INT
+      ENSURE( .is_square,"Non-square matrix")
+      ENSURE(V.is_square,"Non-square matrix")
+      ENSURE(.dim2==V.dim1,"wrong shapes")
+      o1 = size(self,1)
+      v2 = size(V,2)
+      W.create(o1,v2)
+      W.to_product_of(self,V)
+      .to_product_of(V,W,transpose_a=TRUE)
+      W.destroy
+   end
+
+   change_basis(new,V)
+   ! Change the basis of "self" using vectors "V", and place the result in
+   ! "new".  new = V^T self V
+      new,V :: SELF_TYPE
+      W :: SELF_TYPE*
+      o1,v2 :: INT
+      ENSURE(   .is_square,"Non-square matrix")
+      ENSURE(new.is_square,"Non-square matrix")
+      ENSURE(V.dim1==   .dim2,"wrong shapes")
+      ENSURE(V.dim2==new.dim2,"wrong shapes")
+      o1 = size(self,1)
+      v2 = size(V,2)
+      W.create(o1,v2)
+      W.to_product_of(self,V)
+      new.to_product_of(V,W,transpose_a=TRUE)
+      W.destroy
+   end
+
+   change_basis(new,L,R)
+   ! Change the basis of "self" using left and right matrices "L" and "R"
+   ! and place the result in "new", new = L^T self R
+      new,L,R :: SELF_TYPE
+      W :: SELF_TYPE*
+      o1,r2 :: INT
+      ENSURE(.dim2==R.dim1,"incompatible sizes")
+      ENSURE(.dim1==L.dim1,"incompatible sizes")
+      ENSURE(new.dim2==R.dim2,"incompatible sizes")
+      ENSURE(new.dim1==L.dim2,"incompatible sizes")
+      o1 = size(self,1)
+      r2 = size(R,2)
+      W.create(o1,r2)
+      W.to_product_of(self,R)
+      new.to_product_of(L,W,transpose_a=TRUE)
+      W.destroy
+   end
+
+   change_basis(L,R)
+   ! Change the basis of "self" using diagonal matrices "L" and "R" (stored as
+   ! vectors).  self = L self R
+      L,R :: REALVEC
+      W :: SELF_TYPE*
+      l1,r1 :: INT
+      ENSURE(.dim1==size(L) AND .dim2==size(R),"incompatible sizes")
+      l1 = size(L)
+      r1 = size(R)
+      W.create(l1,r1)
+      W.to_product_with_diagonal(self,R)
+      .to_product_with_diagonal(L,W)
+      W.destroy
+   end
+
+   change_basis(V)
+   ! Change the basis of "self" using diagonal matrix "V" (stored as a vectors).
+   ! self = V self V
+      V :: REALVEC
+      W :: SELF_TYPE*
+      v1 :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1==size(V),"incompatible sizes")
+      v1 = size(V)
+      W.create(v1,v1)
+      W.to_product_with_diagonal(self,V)
+      .to_product_with_diagonal(V,W)
+      W.destroy
+   end
+
+   back_transform(V)
+   ! Back transform "self" using vectors "V", and place the result in "self".
+   ! self = V self V^T
+      V :: SELF_TYPE
+      W :: SELF_TYPE*
+      o2,v1 :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.is_same_shape_as(V),"incompatible shape")
+      o2 = size(self,2)
+      v1 = size(V,1)
+      W.create(v1,o2)
+      W.to_product_of(V,self)
+      .to_product_of(W,V,transpose_b=TRUE)
+      W.destroy
+   end
+
+   back_transform(new,V)
+   ! Back transform "self" using vectors "V", and place the result in "new".
+   ! new = V self V^T
+      new,V :: SELF_TYPE
+      W :: SELF_TYPE*
+      o2,v1 :: INT
+      ENSURE(   .is_square,"non-square matrix")
+      ENSURE(new.is_square,"non-square matrix")
+      ENSURE(V.dim2==.dim1,"incompatible sizes")
+      ENSURE(V.dim1==new.dim1,"incompatible sizes")
+      o2 = size(self,2)
+      v1 = size(V,1)
+      W.create(v1,o2)
+      W.to_product_of(V,self)
+      new.to_product_of(W,V,transpose_b=TRUE)
+      W.destroy
+   end
+
+   back_transform(new,L,R)
+   ! Back transform "self" using left and right matrices "L" and "R"
+   ! and place the result in "new", new = L self R^T
+      new,L,R :: SELF_TYPE
+      W :: SELF_TYPE*
+      o1,r1 :: INT
+      ENSURE(.dim2==R.dim2,"incompatible sizes")
+      ENSURE(.dim1==L.dim2,"incompatible sizes")
+      ENSURE(new.dim2==R.dim1,"incompatible sizes")
+      ENSURE(new.dim1==L.dim1,"incompatible sizes")
+      o1 = size(self,1)
+      r1 = size(R,1)
+      W.create(o1,r1)
+      W.to_product_of(self,R,transpose_b=TRUE)
+      new.to_product_of(L,W)
+      W.destroy
+   end
+
+   similarity_transform(V)
+   ! Do a similarity transform of "self" using vectors "V": self = V self V^-1
+      V :: SELF_TYPE, IN
+      V1,W :: SELF_TYPE*
+      n :: INT
+   ENSURE( .is_square,"Non-square matrix")
+   ENSURE(V.is_square,"Non-square matrix")
+   ENSURE(.dim1==V.dim1,"wrong shapes")
+      n = .dim1
+      V1.create(n,n)
+      V1.to_inverse_of(V)
+      W.create(n,n)
+      W.to_product_of(self,V1)
+      .to_product_of(V,W)
+      W.destroy
+      V1.destroy
+   end
+
+   compress_to_triangle(tr)
+   ! Converts the lower triangle of matrix self to the triangle "tr".
+   ! using row order.
+      self :: IN
+      tr :: REALVEC
+      dim,i,j,ij :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(size(tr)>=.tri_size,"triangle array too small")
+      dim = size(self,1)
+      ij = 0
+      do i = 1,dim
+         do j = 1,i
+            tr(ij+j) = self(i,j)
+!            tr(ij+j) = self(j,i)
+         end
+         ij = ij+i
+      end
+   end
+
+   uncompress_from_triangle(tr)
+   ! Converts the triangle "tr" into the symmetric matrix "self".
+      tr :: REALVEC
+      tmp :: REAL
+      dim,i,j,ij :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(size(tr)>=.tri_size,"triangle array too small")
+      dim = size(self,1)
+      ij = 0
+      do i = 1,dim
+         do j = 1,i
+            tmp = tr(ij+j)
+            self(j,i) = tmp
+            self(i,j) = tmp
+         end
+         ij = ij+i
+      end
+   end
+
+   from_diagonal(d)
+   ! Converts the diagonal vector "d" to matrix "self".
+      d :: REALVEC
+      dim,i :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(size(d)==.dim1,"incompatibale diagonal length")
+      dim  = size(d)
+      self = ZERO
+      do i = 1,dim
+         self(i,i) = d(i)
+      end
+   end
+
+   tri_size result (ltr)
+   ! Returns the size of the lower triangle needed to store self.
+      self :: IN
+      ltr :: INT
+      dim :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim = size(self,1)
+      ltr = dim*(dim+1)/2
+   end
+
+   to_unit_matrix
+   ! Set "self" to the unit matrix
+      .to_unit_mat
+   end
+
+   to_unit_mat
+   ! Set "self" to the unit matrix
+      i :: INT
+   ENSURE(.is_square,"non-square matrix")
+      self = ZERO
+      do i = 1,.dim1
+         self(i,i) = ONE
+      end
+   end
+
+   set_diagonal(val)
+   ! Set the diagonal of "self" to "val"
+      val :: REAL
+      dim,i :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim = size(self,1)
+      do i = 1,dim
+         self(i,i) = val
+      end
+   end
+
+   add_to_diagonal(val)
+   ! Add "val" to the diagonal of "self"
+      val :: REAL
+      dim,i :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim = size(self,1)
+      do i = 1,dim
+         self(i,i) = self(i,i) + val
+      end
+   end
+
+   zero_diagonal
+   ! Zero the diagonal elements of "self"
+      dim,i :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim = size(self,1)
+      do i = 1,dim
+         self(i,i) = ZERO
+      end
+   end
+
+   zero_off_diagonal
+   ! Zero the off diagonal elements of "self"
+      dim,i,j :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim = size(self,1)
+      do i = 1,dim
+      do j = 1,dim
+         if (i==j) cycle
+         self(i,j) = ZERO
+      end
+      end
+   end
+
+   weight_diagonal(fac)
+   ! Weight the diagonal elements of "self" by "fac"
+      fac :: REAL, IN
+      dim,i :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim = size(self,1)
+      do i = 1,dim
+         self(i,i) = fac*self(i,i)
+      end
+   end
+
+   get_diagonal(diag)
+   ! Get the diagonal elements of "self" in vector "diag"
+      diag :: REALVEC
+      dim,i :: INT
+      ENSURE(size(diag)==min(.dim1,.dim2),"diag vector is incompatible")
+      dim  = size(diag)
+      do i = 1,dim
+         diag(i) = self(i,i)
+      end
+   end
+
+   max_diagonal_element result (res)
+   ! Get the maximum element on the diagonal of the matrix
+      res :: REAL
+      dim,i :: INT
+      ENSURE(min(.dim1,.dim2)>0,"cannot have zero sized dimensions")
+      dim = min(.dim1,.dim2)
+      res = self(1,1)
+      do i = 2,dim
+         res = max(self(i,i),res)
+      end
+   end
+
+   max_abs_diagonal_element result (res)
+   ! Get the maximum absolute value of the diagonal elements of the self matrix
+      res :: REAL
+      dim,i :: INT
+      ENSURE(min(.dim1,.dim2)>0,"cannot have zero sized dimensions")
+      dim = min(.dim1,.dim2)
+      res = abs(self(1,1))
+      do i = 2,dim
+         res = max(abs(self(i,i)),res)
+      end
+   end
+
+   symmetrize
+   ! Set self to half of itself plus half its transpose, i.e.
+   ! self = 1/2 (self + self^T)
+      dim,i,j :: INT
+      val :: REAL
+   ENSURE(.is_square,"non-square matrix")
+      dim = size(self,1)
+      do i = 1,dim
+         do j=1,i-1
+            val = HALF*(self(i,j)+self(j,i))
+            self(i,j) = val
+            self(j,i) = val
+         end
+      end
+   end
+
+   antisymmetrize
+   ! Set self to half of itself minus half its transpose, i.e.
+   ! self = 1/2 (self - self^T)
+      dim,i,j :: INT
+      val :: REAL
+   ENSURE(.is_square,"non-square matrix")
+      dim = size(self,1)
+      do i = 1,dim
+         do j=1,i
+            val = HALF*(self(i,j)-self(j,i))
+            self(i,j) =  val
+            self(j,i) = -val
+         end
+      end
+   end
+
+   symmetric_fold
+   ! Add the upper triangle of "self" into the lower triangle
+      dim,i,j :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim = size(self,1)
+      do i = 1,dim
+         do j=1,i-1
+            self(i,j) = self(i,j)+self(j,i)
+         end
+      end
+   end
+
+   antisymmetric_fold
+   ! Subtract the upper triangle of "self" into the lower triangle
+      dim,i,j :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim = size(self,1)
+      do i = 1,dim
+         do j=1,i-1
+            self(i,j) = self(i,j)-self(j,i)
+         end
+      end
+   end
+
+   symmetric_fold_to_tri(tr)
+   ! Add the upper triangle of "self" into the lower triangle and return
+   ! the lower triangle "tr"
+      tr :: REALVEC
+      dim,i,j,ij :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(size(tr)>=.tri_size,"triangle array too small")
+      dim = size(self,1)
+      ij = 0
+      do i = 1,dim
+         do j = 1,i
+            ij = ij+1
+            if (i==j) then
+               tr(ij) = self(i,j)
+            else
+               tr(ij) = self(i,j)+self(i,j)
+            end
+         end
+      end
+   end
+
+   symmetric_reflect
+   ! Make the upper triangle of "self" the same as the lower triangle
+      dim,i,j :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim = size(self,1)
+      do i = 1,dim
+         do j = 1,i-1
+            self(j,i) = self(i,j)
+         end
+      end
+   end
+
+   antisymmetric_reflect
+   ! Make the upper triangle of "self" the negative of the lower triangle
+      dim,i,j :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim = size(self,1)
+      do i = 1,dim
+         do j = 1,i-1
+            self(j,i) = -self(i,j)
+         end
+      end
+      do i = 1,dim
+         self(i,i) = ZERO
+      end
+   end
+
+   schmidt_orthonormalise(S,scale)
+   ! Schmidt orthonormalise the column vectors in "self" using "S" as the
+   ! metric. If "scale" is present, it is set to the product of the
+   ! normalisation factors used to normalise each column after the Schmidt
+   ! procedure.
+     S :: SELF_TYPE, IN
+     scale :: REAL, optional
+     self :: target
+     dim,n,o :: INT
+     old,new :: REALVEC*
+     j,k :: INT
+     proj,norm :: REAL
+     T :: REALVEC*
+     fac :: REAL
+     ENSURE(S.is_square,"metric S is not square")
+     ENSURE(.dim1==S.dim1,"incompatible metric S")
+     ENSURE(NOT S.is_zero,"S is zero matrix")
+     ENSURE(NOT .is_zero,"self is zero matrix")
+     if (present(scale)) scale = ONE
+
+     if (present(scale)) then
+       do n = 1,.dim2
+          new => self(:,n)
+          do o = 1,n-1
+             old => self(:,o)
+             fac = S.dot(old,new)
+             new = new - fac*old
+          end
+          norm = S.dot(new,new)
+          ENSURE(norm>MAT_LINEAR_DEPENDENCE_TOL,"linear dependence in vector "//n.to_str)
+          norm = ONE/sqrt(norm)
+          new = new*norm
+          scale = scale*norm
+       end
+     end
+
+    dim = size(self,1)
+    T.create(dim)
+    do n=1,dim
+      do j=1,dim
+        T(j) = dot_product(self(:j,n),S(:j,j))
+        T(1:j-1) = T(1:j-1) + self(j,n) * S(:j-1,j)
+      end
+      do k=1,n-1
+        proj = - dot_product(self(:,k),T)
+        self(:,n) = self(:,n) + proj * self(:,k)
+      end
+      do j=1,dim
+        T(j) = dot_product(self(:j,n), S(:j,j))
+        T(:j-1) = T(:j-1) + self(j,n) * S(:j-1,j)
+      end
+      norm = dot_product(T,self(:,n))
+      ENSURE(norm>TOL(10),"linear dependence in vector " // n.to_str)
+      self(:,n) = self(:,n) / sqrt(norm)
+    end
+    T.destroy
+   end
+
+   reverse_schmidt_orthonormalise(S)
+   ! Schmidt orthonormalise the column vectors in "self" using "S" as the
+   ! metric.
+     self :: target
+     S :: SELF_TYPE
+     new,old,w :: REALVEC*
+     fac,norm :: REAL
+     dim,n,k :: INT
+     ENSURE(.is_square,"non-square matrix")
+     ENSURE(.is_same_shape_as(S),"not same shape as S")
+     ENSURE(NOT .is_zero, "self is zero matrix")
+     ENSURE(NOT .is_zero, "self is zero matrix")
+     dim = size(self,1)
+     w.create(dim)
+     do n = dim,1,-1
+        new => self(:,n)
+        do k = n-1,1,-1
+           old => self(:,k)
+           w.to_product_of(S,new)
+           fac = dot_product(old,w)
+           new = new - fac*old
+        end
+        w.to_product_of(S,new)
+        norm = dot_product(new,w)
+        ENSURE(norm>TOL(10),"linear dependence in vector " // n.to_str)
+        new = new/sqrt(norm)
+     end
+     w.destroy
+   end
+
+   schmidt_orthonormalise
+   ! Schmidt orthonormalise the column vectors in "self".
+     self :: target
+     new,old :: REALVEC*
+     fac,norm :: REAL
+     n,k :: INT
+     ENSURE(.dim1>=.dim2,"more vectors than dimension of vector space")
+     do n = 1,.dim2
+        new => self(:,n)
+        do k = 1,n-1
+           old => self(:,k)
+           fac = dot_product(old,new)
+           new = new - fac*old
+        end
+        norm = dot_product(new,new)
+        ENSURE(norm>TOL(10),"linear dependence in vector " // n.to_str)
+        new = new/sqrt(norm)
+     end
+   end
+
+   reverse_schmidt_orthogonalise
+   ! Schmidt orthonormalise the column vectors in "self" using unit metric.
+      self :: target
+      new,old :: REALVEC*
+      fac,norm :: REAL
+      dim,n,k :: INT
+      ENSURE(.is_square,"non square matrix")
+      dim = size(self,1)
+      do n = dim,1,-1
+         new => self(:,n)
+         do k = n-1,1,-1
+            old => self(:,k)
+            fac = dot_product(old,new)
+            new = new - fac*old
+         end
+         norm = dot_product(new,new)
+         ENSURE(norm>TOL(10),"linear dependence in vector " // n.to_str)
+         new = new/sqrt(norm)
+      end
+   end
+
+   symmetrically_orthonormalise(S)
+   ! Symmetrically orthonormalise the column vectors in "self" using "S" as the
+   ! metric.
+     S :: SELF_TYPE, IN
+     SS,SI :: SELF_TYPE*
+     dim :: INT
+     ENSURE(NOT .is_zero, "self is zero matrix")
+     dim = .dim2
+     SI.create(dim,dim)
+     SS.create(dim,dim)
+     S.change_basis(SS,self)
+     SI.to_inverse_sqrt(SS)
+     SS.destroy
+     SS.create(.dim1,.dim2)
+     SS.to_product_of(self,SI)
+     self = SS
+     SS.destroy
+     SI.destroy
+   end
+
+   reverse_column_order
+   ! Reverse the order of the columns of self.
+      tmp :: REALVEC*
+      n,n_col :: INT
+      n_col = size(self,2)
+      tmp.create(size(self,1))
+      do n=1,n_col/2
+        tmp = self(:,n_col-n+1)
+        self(:,n_col-n+1) = self(:,n)
+        self(:,n) = tmp
+      end
+      tmp.destroy
+   end
+
+   make_diagonally_dominant(permutation)
+   ! Rearrange the order of the columns of self so that the largest magnitude
+   ! elements in each column occur along the diagonal. If "permutation" is
+   ! present, it is a matrix which achieves this ordering, i.e. at the
+   ! conclusion of the routine, self = self(:,permutation).
+      permutation :: INTVEC, optional
+      perm :: INTVEC*
+      mask :: BINMAT*
+      i,n  :: INT
+      loc :: INTVEC(2)
+      ENSURE(.is_square,"not square")
+      if (present(permutation)) &
+      ENSURE(permutation.dim==.dim2,"wrong size, perm")
+      n = .dim2
+      perm.create(n)
+      mask.create(n,n)
+      mask = TRUE
+      do i = 1,n
+        loc = maxloc(abs(self),mask=mask)
+        perm(loc(1))   = loc(2)
+        mask(:,loc(2)) = FALSE ! eliminate this column next time
+        mask(loc(1),:) = FALSE ! eliminate this row also
+      ! write(*,*) " loc  =",loc
+      ! write(*,*) " mask =",mask
+      end
+      self = self(:,perm)
+      if (present(permutation)) permutation = perm
+      mask.destroy
+      perm.destroy
+   end
+
+   to_sqrt(R)
+   ! self = sqrt(R), cannot have R=self
+      R :: SELF_TYPE
+      evec :: SELF_TYPE*
+      eval,veci,vecj :: REALVEC*
+      d,i,j :: INT
+      temp :: REAL
+      ENSURE(.is_square,"not square")
+      d = size(R,1)
+      eval.create(d)
+      evec.create(d,d)
+      R.solve_eigenproblem(eval,evec)
+      do i = 1,d
+         temp = eval(i)
+         if (temp <= ZERO) then
+           WARN("non-positive eigenvalue, " // trim(temp.to_str("e15.8")))
+         end
+         eval(i) = sqrt(abs(temp))
+      end
+      do i=1,d
+        veci => evec(i,:)
+        do j=1,d
+          vecj => evec(j,:)
+          self(i,j) = sum(veci*eval*vecj)
+        end
+      end
+      evec.destroy
+      eval.destroy
+   end
+
+   to_inverse_sqrt(R)
+   ! self = sqrt(R)^(-1), cannot have R=self
+      R :: SELF_TYPE
+      evec :: SELF_TYPE*
+      eval,veci,vecj :: REALVEC* DEFAULT_NULL
+      d,i,j :: INT
+      val :: STR
+      temp :: REAL
+      ENSURE(.is_square,"not square")
+      d = size(R,1)
+      eval.create(d)
+      evec.create(d,d)
+      R.solve_eigenproblem(eval,evec)
+      do i = 1,d
+         temp = eval(i)
+         val = temp.to_str("e15.8")
+         WARN_IF(temp<=ZERO,"non-positive eigenvalue, "// trim(val))
+         eval(i) = ONE/sqrt(abs(temp))
+      end
+      do i=1,d
+        veci => evec(i,:)
+        do j=1,d
+          vecj => evec(j,:)
+          self(i,j) = sum(veci*eval*vecj)
+        end
+      end
+      evec.destroy
+      eval.destroy
+   end
+
+   to_inverse_of(R)
+   ! self = (R)^(-1); can have R=self
+       R :: SELF_TYPE
+#ifdef ESSL
+      .to_inverse_of_ESSL(R)
+#else
+      .to_inverse_of_LAPACK(R)
+#endif
+   end
+
+   to_inverse_of_ESSL(R)
+   ! self = (R)^(-1); can have R=self. ESSL version.
+   ! This ESSL version is untested.
+      R :: SELF_TYPE
+      W :: SELF_TYPE*
+      ipiv :: INTVEC*
+      d,d2 :: INT
+#ifdef ESSL
+      rcond :: REAL
+      det :: REALVEC(2)
+#endif
+      ENSURE(.is_square,"not square")
+      ENSURE(.is_same_shape_as(R),"not same shape as R")
+      d  = size(R,1)
+      d2 = d*d
+      self = R
+      ipiv.create(d)
+      W.create(d,d)
+#ifdef ESSL
+      call dgef(d,d,self,ipiv)
+      W(:,1) = ipiv
+      call dgeicd(self, d, d, 4, rcond, det, W, d2)
+#endif
+      W.destroy
+      ipiv.destroy
+   end
+
+   to_inverse_of_LAPACK(R) ::: private
+   ! self = (R)^(-1); can have R=self. LAPACK version.
+      R :: SELF_TYPE
+      W :: SELF_TYPE*
+      ipiv :: INTVEC*
+      d,d2,fail :: INT
+      ENSURE(.is_square,"not square")
+      ENSURE(.is_same_shape_as(R),"not same shape as R")
+      d  = size(R,1)
+      d2 = d*d
+      self = R
+      ipiv.create(d)
+      W.create(d,d)
+      fail = 0
+#ifndef ESSL
+      call dgetrf(d,d,self,d,ipiv,fail)
+      ENSURE(fail==0,"failed LU factorisation")
+      call dgetri(d,self,d,ipiv,W,d2,fail)
+      ENSURE(fail==0,"failed back substitution")
+#endif
+      ipiv.destroy
+      W.destroy
+   end
+
+   to_power_series_inverse_of(S,tol,max_it)
+   ! Set self to the power series inverse square root of "S".
+   ! If "tol" is present, make sure that the maximum deviation from the exact
+   ! answer is less than "tol" times the smallest element of "S". If "max_it"
+   ! is present, use this as the maximum number of terms in the power series,
+   ! before termination with an error.
+      S :: SELF_TYPE
+      tol :: REAL, optional
+      max_it :: INT, optional
+      d :: REALVEC*
+      perm :: INTVEC*
+      W,X :: SELF_TYPE*
+      max_iter,n,k :: INT
+      eps :: REAL
+      ENSURE(S.is_square,"S not square")
+      ENSURE(.is_same_shape_as(S),"wrong shape")
+      eps = TOL(6)
+      if (present(tol)) eps = tol
+      max_iter = 100
+      if (present(max_it)) max_iter = max_it
+      n = S.dim1
+      perm.create(n)
+      d.create(n)
+      W.create(n,n)
+      X.create(n,n)
+      W = S
+      W.make_diagonally_dominant(perm)
+      W.get_diagonal(d)
+      d = ONE/d
+      X.to_product_with_diagonal(d,W)
+      self.to_unit_matrix
+      X = X - self
+      W = X
+      self = self - W
+      k = 1
+      do
+         k = k + 1
+         W = matmul(X,W)
+         if (k.is_odd) then; self = self - W
+         else;               self = self + W
+         end
+         if (maxval(abs(W)) < eps) exit
+         ENSURE(k<=max_iter,"power series too long")
+       ! write(*,*) "k = ",k
+       ! write(*,*) "W = ",W
+       ! write(*,*) "s = ",self
+      end
+      X.to_product_with_diagonal(self,d)
+      self = X
+      self(perm,:) = self
+      X.destroy
+      W.destroy
+      d.destroy
+      perm.destroy
+   end
+
+   to_power_series_inv_sqrt_of(S,tol,max_it)
+   ! Set self to the inverse square root of "S", a matrix which is required to
+   ! have a unit diagonal. The method uses a binomial power series expansion.
+   ! If "tol" is present, make sure that the maximum deviation from the exact
+   ! answer is less than "tol" times the smallest element of "S". If "max_it"
+   ! is present, use this as the maximum number of terms in the power series,
+   ! before termination with an error.
+      S :: SELF_TYPE
+      tol :: REAL, optional
+      max_it :: INT, optional
+      W,X :: SELF_TYPE*
+      max_iter,n,k :: INT
+      eps,fac :: REAL
+      ENSURE(S.has_unit_diagonal,"must have unit diagonal")
+      ENSURE(S.is_square,"S not square")
+      ENSURE(.is_same_shape_as(S),"wrong shape")
+      eps = TOL(6)
+      if (present(tol)) eps = tol
+      max_iter = 100
+      if (present(max_it)) max_iter = max_it
+      n = size(S,1)
+      self.to_unit_matrix
+      S = S - self
+      X.create(n,n)
+      W.create(n,n)
+      fac = -HALF
+      X = fac*S
+      W = X
+      self = self + X
+      k = 1
+      do
+         k   = k + 1
+         fac = fac - ONE
+         X.to_scaled_product_of((fac/k),S,W)
+         W = X
+         self = self + X
+         if (maxval(abs(X)) < eps) exit
+         ENSURE(k<=max_iter,"power series too long")
+      end
+      W.to_unit_matrix
+      S = S + W
+      W.destroy
+      X.destroy
+   end
+
+   to_exponential_of(X,tol)
+   ! Exponentiate the matrix "X" using a power series expansion, self = exp(X),
+       X :: SELF_TYPE
+      tol :: REAL, optional
+      X.exponentiate_to(self,tol)
+   end
+
+   exponentiate_to(U,tol)
+   ! Exponentiate the matrix self using a power series expansion, U = exp(self),
+   ! so that the maximum deviation from the exact answer is less than "tol"
+   ! if present.
+      U :: SELF_TYPE
+      tol :: REAL, optional
+      W :: SELF_TYPE*
+      n,k :: INT
+      eps,fac :: REAL
+      ind :: INTVEC(2)
+      ENSURE(U.is_square,"U not square")
+      ENSURE(.is_same_shape_as(U),"wrong shape")
+      eps = TOL(6)
+      if (present(tol)) eps = tol
+      n = size(U,1)
+      U.to_unit_matrix
+      W.create(n,n)
+      W = self
+      U = U + W
+      k = 1
+      do
+         k   = k+1
+         fac = ONE/k
+         W   = fac*self*W
+         U   = U + W
+         ind = maxloc(abs(W))
+         if ( abs(W(ind(1),ind(2))) < eps ) exit
+      end
+      W.destroy
+   end
+
+   antisymmetric_exponential(U, eval,evec)
+   ! Make unitary matrix U = exp(self) where "self" must be antisymmetric.
+   ! Uses the formula:  exp A = V (cos P) V^t + V (sin P)/P V^t A
+   !                        P = sqrt diag(eig(A^t A))
+   ! (c) dylan jayatilaka, university of western australia, 1993
+   ! Untested in TONTO.
+      U :: SELF_TYPE
+      evec :: SELF_TYPE*, optional
+      eval :: REALVEC*, optional
+      W :: SELF_TYPE*
+      dim1,dim2,dim,k :: INT
+      e,e2,cs,sn :: REAL
+      v_k :: SELF_TYPE*
+      ENSURE(.is_square,"self is a non-square matrix")
+      ENSURE(.is_same_shape_as(U),"incompatible shapes")
+      dim = size(self,1)
+      if (NOT present(eval)) then
+         eval.create(dim)
+      else
+         dim2 = size(eval)
+         ENSURE(dim2>=dim,"eval too small")
+      end
+      if (NOT present(evec)) then
+         evec.create(dim,dim)
+      else
+         dim1 = size(evec,1)
+         dim2 = size(evec,2)
+         ENSURE(dim1==dim AND dim2==dim,"evec incompatible")
+      end
+      W.create(dim,dim)
+
+      U = matmul(self,self)   ! U = -self^t*self = self^2, makes U hermitian
+      U.solve_eigenproblem(eval,evec) ! diagonalise U ...
+
+      U = ZERO
+      do k = 1,dim            ! do the exponential ... loop over eigenvalues ...
+         e2 = eval(k)
+         if (e2<0)  then
+            e = sqrt(-e2); cs = cos(e);  sn = sin(e)/e;
+         end
+         if (e2>0)  then
+            e = sqrt(e2) ; cs = cosh(e); sn = sinh(e)/e
+         end
+         if (e2==0) then
+            cs = ONE    ; sn = ONE
+         end
+         v_k => evec(1:dim,k:k)
+         W.to_product_of(v_k,v_k,transpose_b=TRUE) ! V V^\dag part
+         U.plus_scaled_product_of(sn,W,self)       ! sin part
+         U.plus_scaled_mat(cs,W)                ! cos part
+      end
+      if (NOT present(eval)) eval.destroy
+      if (NOT present(evec)) evec.destroy
+   end
+
+!  ************************
+!  Block returning routines
+!  ************************
+
+   alpha_alpha result(res)
+   ! return the alpha-alpha sector of the matrix
+      self :: TARGET
+      res :: SELF_TYPE*
+       n :: INT
+   ENSURE(.is_square,"non-square matrix")
+   ENSURE(.dim1.is_even,"uneven dimension")
+      n = size(self,1)/2
+      res => self(1:n,1:n)
+   end
+
+   beta_alpha result(res)
+   ! return the beta-alpha sector of the matrix
+      self :: TARGET
+      res :: SELF_TYPE*
+       n :: INT
+   ENSURE(.is_square,"non-square matrix")
+   ENSURE(.dim1.is_even,"uneven dimension")
+      n = size(self,1)/2
+      res => self(n+1:2*n,1:n)
+   end
+
+   alpha_beta result(res)
+   ! return the alpha-beta sector of the matrix
+      self :: TARGET
+      res :: SELF_TYPE*
+       n :: INT
+   ENSURE(.is_square,"non-square matrix")
+   ENSURE(.dim1.is_even,"uneven dimension")
+      n = size(self,1)/2
+      res => self(1:n,n+1:2*n)
+   end
+
+   beta_beta result(res)
+   ! return the beta-beta sector of the matrix
+      self :: TARGET
+      res :: SELF_TYPE*
+       n :: INT
+   ENSURE(.is_square,"non-square matrix")
+   ENSURE(.dim1.is_even,"uneven dimension")
+      n = size(self,1)/2
+      res => self(n+1:2*n,n+1:2*n)
+   end
+
+!  ***************
+!  Set_to routines
+!  ***************
+
+   alpha_alpha_set_to(X,factor)
+   ! Set the alpha-alpha sector of the matrix to "X"
+       X :: SELF_TYPE, IN
+      factor :: REAL, optional, IN
+       n :: INT
+   ENSURE(.is_square,"non-square matrix")
+   ENSURE(.dim1.is_even,"uneven dimension")
+      n = size(self,1)/2
+      if (present(factor)) then; self(1:n,1:n) = factor*X
+      else;                      self(1:n,1:n) = X
+      end
+   end
+
+   beta_alpha_set_to(X,factor)
+   ! Set the beta-alpha sector of the matrix to "X"
+       X :: SELF_TYPE, IN
+      factor :: REAL, optional, IN
+       n :: INT
+   ENSURE(.is_square,"non-square matrix")
+   ENSURE(.dim1.is_even,"uneven dimension")
+      n = size(self,1)/2
+      if (present(factor)) then; self(n+1:2*n,1:n) = factor*X
+      else;                      self(n+1:2*n,1:n) = X
+      end
+   end
+
+   alpha_beta_set_to(X,factor)
+   ! Set the alpha-beta sector of the matrix to "X"
+       X :: SELF_TYPE, IN
+      factor :: REAL, optional, IN
+       n :: INT
+   ENSURE(.is_square,"non-square matrix")
+   ENSURE(.dim1.is_even,"uneven dimension")
+      n = size(self,1)/2
+      if (present(factor)) then; self(1:n,n+1:2*n) = factor*X
+      else;                      self(1:n,n+1:2*n) = X
+      end
+   end
+
+   beta_beta_set_to(X,factor)
+   ! Set the beta-beta sector of the matrix to "X"
+       X :: SELF_TYPE, IN
+      factor :: REAL, optional, IN
+       n :: INT
+   ENSURE(.is_square,"non-square matrix")
+   ENSURE(.dim1.is_even,"uneven dimension")
+      n = size(self,1)/2
+      if (present(factor)) then; self(n+1:2*n,n+1:2*n) = factor*X
+      else;                      self(n+1:2*n,n+1:2*n) = X
+      end
+   end
+
+!  ***************
+!  Put_to routines
+!  ***************
+
+   alpha_alpha_put_to(X,factor)
+   ! Put the alpha-alpha sector of the matrix to "X"
+       X :: SELF_TYPE, OUT
+      factor :: REAL, optional, IN
+       n :: INT
+   ENSURE(.is_square,"non-square matrix")
+   ENSURE(.dim1.is_even,"uneven dimension")
+      n = size(self,1)/2
+      if (present(factor)) then; X = factor*self(1:n,1:n)
+      else;                      X = self(1:n,1:n)
+      end
+   end
+
+   beta_alpha_put_to(X,factor)
+   ! Put the beta-alpha sector of the matrix to "X"
+       X :: SELF_TYPE, OUT
+      factor :: REAL, optional, IN
+       n :: INT
+   ENSURE(.is_square,"non-square matrix")
+   ENSURE(.dim1.is_even,"uneven dimension")
+      n = size(self,1)/2
+      if (present(factor)) then; X = factor*self(n+1:2*n,1:n)
+      else;                      X = self(n+1:2*n,1:n)
+      end
+   end
+
+   alpha_beta_put_to(X,factor)
+   ! Put the alpha-beta sector of the matrix to "X"
+       X :: SELF_TYPE, OUT
+      factor :: REAL, optional, IN
+       n :: INT
+   ENSURE(.is_square,"non-square matrix")
+   ENSURE(.dim1.is_even,"uneven dimension")
+      n = size(self,1)/2
+      if (present(factor)) then; X = factor*self(1:n,n+1:2*n)
+      else;                      X = self(1:n,n+1:2*n)
+      end
+   end
+
+   beta_beta_put_to(X,factor)
+   ! Put the beta-beta sector of the matrix to "X"
+       X :: SELF_TYPE, OUT
+      factor :: REAL, optional, IN
+       n :: INT
+   ENSURE(.is_square,"non-square matrix")
+   ENSURE(.dim1.is_even,"uneven dimension")
+      n = size(self,1)/2
+      if (present(factor)) then; X = factor*self(n+1:2*n,n+1:2*n)
+      else;                      X = self(n+1:2*n,n+1:2*n)
+      end
+   end
+
+   convert_to(units)
+   ! Convert the number "self" in atomic units or generic units to a
+   ! new number in "units".
+      self :: INOUT
+      units :: STR(*), IN
+      factor :: REAL
+   ENSURE(units.is_known_unit,"unknown units, " // units)
+      factor = units.conversion_factor
+      self = self * factor
+   end
+
+   convert_from(units)
+   ! Convert the number "self" from "units" system to a new number
+   ! in atomic units or generic units.  Returns "err" whether it was successful.
+      self :: INOUT
+      units :: STR(*), IN
+      factor :: REAL
+   ENSURE(units.is_known_unit,"unknown units, " // units)
+      factor = ONE/(units.conversion_factor)
+      self = self * factor
+   end
+
+   to_transpose
+   ! Self becomes its own transpose.
+     self :: INOUT
+     i,j,dim :: INT
+     tmp :: REAL
+   ENSURE(.is_square,"non-square matrix")
+     dim = size(self,1)
+     ! do it element by element, otherwise the intrinsic routine can run out
+     ! of stack space
+     ! Also, only loop over the triangle, otherwise you end up where you started
+     ! from.
+     do i=1,dim
+       do j=1,i
+         tmp       = self(i,j)
+         self(i,j) = self(j,i)
+         self(j,i) = tmp
+       end
+     end
+   end
+
+   to_transpose(a)
+   ! Self becomes the transpose of "a"
+     self :: OUT
+      a :: SELF_TYPE, IN
+     i,j,dim :: INT
+   ENSURE(.is_square,"non-square matrix")
+   ENSURE(.is_same_shape_as(a),"different shapes")
+     dim = size(self,1)
+     ! do it element by element, otherwise the intrinsic routine can run out
+     ! of stack space
+     do i=1,dim
+       do j=1,dim
+         self(i,j) = a(j,i)
+       end
+     end
+   end
+
+   make_corresponding_orbitals(left,right,theta,p)
+   ! This algorithm from Camp and King, J. Chem Phys. Vol 75(1), pp 268-274.
+   ! p is the dimenstion of the first block of the partitioned matrices.
+   ! Works best if "left" and "right" matrices are nonzero.
+     self :: target
+     left,right :: SELF_TYPE, target
+     theta :: REALVEC, OUT
+      p :: INT, IN
+     Vp,Vq,Wp,Wq,M,MWq,Hq,Up,Uq :: SELF_TYPE*
+     lambda :: REALVEC*
+     minpq,q,n :: INT
+   ENSURE(.is_square,"non-square matrix")
+   ENSURE(.is_same_shape_as(right),"right is incompatible")
+   ENSURE(.is_same_shape_as(left),"left is incompatible")
+   ENSURE(size(theta)==min(.dim1,.dim1-p),"theta has wrong size")
+     n = size(self,1)
+     q = n - p
+     minpq = min(p,q)
+     ! I've only tested this for q>p.  Suspect p>q does not work.
+     Vp => left(:p,:p)
+     Vq => left(p+1:,p+1:)
+     Wp => right(:p,:p)
+     Wq => right(p+1:,p+1:)
+     M  => self(:p,p+1:)
+     Up => self(:p,:p)
+     Uq => self(p+1:,p+1:)
+     right(:p,p+1:)=ZERO
+     right(p+1:,:p)=ZERO
+     left(:p,p+1:)=ZERO
+     left(p+1:,:p)=ZERO
+     .zero_small_values(TOL(10))
+
+     lambda.create(q)                       ! get eigenvalues and Wq.
+     Hq.create(q,q)
+     Hq.to_product_of(M,M,transpose_a=TRUE)
+     Hq.solve_eigenproblem(lambda,Wq)
+     Hq.destroy
+
+     lambda.reverse_order                   ! get rotation angles, largest first.
+     theta = lambda(:minpq)
+     lambda.destroy
+     theta.zero_small_values(TOL(10))
+
+   ENSURE(minval(theta)>=ZERO,"eigenvalues less than zero!")
+   ENSURE(maxval(theta)<=ONE,"eigenvalues more than one!")
+     theta = min(theta,ONE)
+     theta = max(theta,ZERO)
+
+     Wq.zero_small_values(TOL(10))          ! get Vp
+     Wq.reverse_column_order
+     MWq.create(p,q)
+     MWq.to_product_of(M,Wq)
+     Vp = MWq(:p,:p)
+     MWq.destroy
+     Vp.schmidt_orthonormalise(theta)
+
+     Vq.to_product_of(Uq,Wq)                   ! get Vq
+     Vq.reverse_schmidt_orthogonalise
+
+     Wp.to_product_of(Up,Vp,transpose_a=TRUE)  ! get Wp
+     Wp.reverse_schmidt_orthogonalise
+
+     theta = sqrt(theta)
+     theta = asin(theta)
+   end
+
+   schmidt_orthonormalise(lambda)
+   ! Schmidt orthonormalise the column vectors in "self".
+   ! If the eigenvalue (lambda) of a vector is less than a cutoff, then that
+   ! vector is chosen to be an orthonormal component.
+   ! Eigenvalues must be sorted largest to smallest.
+     self :: target
+     lambda :: REALVEC, IN
+     new,old :: REALVEC*
+     fac,norm :: REAL
+     dim1,dim2,n,k,x,y,j :: INT
+   ENSURE(size(lambda)>=.dim2,"not enough eigenvalues")
+   ENSURE(.dim1>=.dim2,"more vectors than dimension of vector space")
+     dim1 = size(self,1)
+     dim2 = size(self,2)
+
+     y=dim2+1   ! y is set to the first vanishing eigenvalue.
+     do x=1,dim2
+       if (lambda(x)<TOL(10)) then
+         y=x
+         exit
+       end
+     end
+
+     do n = 1,y-1  ! the usual Schmidt orthogonalisation.
+        new => self(:,n)
+        do k = 1,n-1
+           old => self(:,k)
+           fac = dot_product(old,new)
+           new = new - fac*old
+        end
+        norm = dot_product(new,new)
+        ENSURE(norm>TOL(10),"linear dependence in vector " // n.to_str)
+        new = new * (ONE/sqrt(norm))
+     end
+
+     do n = y,dim2                       ! make up some orthogonal vectors for
+       do j=1,dim1                       ! the vanishing eigenvalues.
+         new => self(:,n)
+         new = ZERO
+         new(j) = ONE
+         do k = 1,n-1
+            old => self(:,k)
+            fac = dot_product(old,new)
+            new = new - fac*old
+         end
+         norm = dot_product(new,new)
+         if (norm>TOL(10)) then  ! we have found an orthogonal vector
+           new = new * (ONE/sqrt(norm))
+           exit
+         else                   ! try another
+           DIE_IF(j==dim1,"cannot find an orthogonal vector")
+         end
+       end
+     end
+   end
+
+!  **************************************************
+!  Gaussian function rotation representation matrices
+!  *************************************************
+
+   gaussian_d_xyz_matrix result (dtr)
+   ! Return the representation matrix for a d xyz product found in gaussian shells
+   ! from a p-type xyz matrix.
+      dtr :: SELF_TYPE(6,6)
+      j,i1,i2 :: INT
+      sqrt3 :: REAL
+      d1 :: INTVEC(6)  = (/1,2,3,1,1,2/)
+      d2 :: INTVEC(6)  = (/1,2,3,2,3,3/)
+   ENSURE(.is_square,"self not square")
+   ENSURE(.dim1==3,"wrong size, self")
+      sqrt3  = sqrt(THREE)
+      do j = 1,6
+         i1=d1(j)
+         i2=d2(j)
+         dtr(1,j)  = self(1,i1)*self(1,i2)
+         dtr(2,j)  = self(2,i1)*self(2,i2)
+         dtr(3,j)  = self(3,i1)*self(3,i2)
+         dtr(4,j)  = self(1,i1)*self(2,i2) &
+                   + self(2,i1)*self(1,i2)
+         dtr(5,j)  = self(1,i1)*self(3,i2) &
+                   + self(3,i1)*self(1,i2)
+         dtr(6,j)  = self(2,i1)*self(3,i2) &
+                   + self(3,i1)*self(2,i2)
+      end
+      dtr(1:6,4:6) = dtr(1:6,4:6)*sqrt3 ! Put in correct normalization for old primitives
+      dtr(4:6,1:6) = dtr(4:6,1:6)/sqrt3 ! Put in wrong   normalization for new primitives
+   end
+
+   gaussian_f_xyz_matrix result (ftr)
+   ! Return the representation matrix for an f xyz product found in gaussian
+   ! shells from a p-type xyz matrix
+      ftr :: SELF_TYPE(10,10)
+      j,i1,i2,i3 :: INT
+      sqrt5,sqrt15 :: REAL
+      f1 :: INTVEC(10) = (/1,2,3,1,1,2,2,3,3,1/)
+      f2 :: INTVEC(10) = (/1,2,3,1,1,2,2,3,3,2/)
+      f3 :: INTVEC(10) = (/1,2,3,2,3,1,3,1,2,3/)
+   ENSURE(.is_square,"self not square")
+   ENSURE(.dim1==3,"wrong size, self")
+      sqrt5  = sqrt(FIVE)
+      sqrt15 = sqrt(15d0)
+      do j = 1,10
+         i1=f1(j)
+         i2=f2(j)
+         i3=f3(j)
+         ftr(1,j)  = self(1,i1)*self(1,i2)*self(1,i3)
+         ftr(2,j)  = self(2,i1)*self(2,i2)*self(2,i3)
+         ftr(3,j)  = self(3,i1)*self(3,i2)*self(3,i3)
+         ftr(4,j)  = self(1,i1)*self(1,i2)*self(2,i3) &
+                   + self(1,i1)*self(2,i2)*self(1,i3) &
+                   + self(2,i1)*self(1,i2)*self(1,i3)
+         ftr(5,j)  = self(1,i1)*self(1,i2)*self(3,i3) &
+                   + self(1,i1)*self(3,i2)*self(1,i3) &
+                   + self(3,i1)*self(1,i2)*self(1,i3)
+         ftr(6,j)  = self(1,i1)*self(2,i2)*self(2,i3) &
+                   + self(2,i1)*self(1,i2)*self(2,i3) &
+                   + self(2,i1)*self(2,i2)*self(1,i3)
+         ftr(7,j)  = self(3,i1)*self(2,i2)*self(2,i3) &
+                   + self(2,i1)*self(3,i2)*self(2,i3) &
+                   + self(2,i1)*self(2,i2)*self(3,i3)
+         ftr(8,j)  = self(1,i1)*self(3,i2)*self(3,i3) &
+                   + self(3,i1)*self(1,i2)*self(3,i3) &
+                   + self(3,i1)*self(3,i2)*self(1,i3)
+         ftr(9,j)  = self(2,i1)*self(3,i2)*self(3,i3) &
+                   + self(3,i1)*self(2,i2)*self(3,i3) &
+                   + self(3,i1)*self(3,i2)*self(2,i3)
+         ftr(10,j) = self(1,i1)*self(2,i2)*self(3,i3) &
+                   + self(1,i1)*self(3,i2)*self(2,i3) &
+                   + self(2,i1)*self(1,i2)*self(3,i3) &
+                   + self(2,i1)*self(3,i2)*self(1,i3) &
+                   + self(3,i1)*self(1,i2)*self(2,i3) &
+                   + self(3,i1)*self(2,i2)*self(1,i3)
+      end
+      ftr(1:10, 4:9 ) = ftr(1:10, 4:9 )*sqrt5
+      ftr(1:10,10:10) = ftr(1:10,10:10)*sqrt15
+      ftr(4:9 , 1:10) = ftr(4:9 , 1:10)/sqrt5
+      ftr(10:10,1:10) = ftr(10:10,1:10)/sqrt15
+   end
+
+   gaussian_g_xyz_matrix result (gtr)
+   ! Return the representation matrix for a g xyz product found in gaussian
+   ! shells from a p-type xyz matrix
+      gtr :: SELF_TYPE(15,15)
+      j,i1,i2,i3,i4 :: INT
+      sqrt7,sqrt35,sqrt353 :: REAL
+      g1 :: INTVEC(15) = (/1,2,3,1,1,2,2,3,3,1,1,2,1,2,3/)
+      g2 :: INTVEC(15) = (/1,2,3,1,1,2,2,3,3,1,1,2,1,2,3/)
+      g3 :: INTVEC(15) = (/1,2,3,1,1,2,2,3,3,2,3,3,2,1,1/)
+      g4 :: INTVEC(15) = (/1,2,3,2,3,1,3,1,2,2,3,3,3,3,2/)
+   ENSURE(.is_square,"self not square")
+   ENSURE(.dim1==3,"wrong size, self")
+      sqrt7  = sqrt(SEVEN)
+      sqrt35 = sqrt(35d0)         ! = sqrt(35)
+      sqrt353= sqrt35/sqrt(THREE) ! = sqrt(35)/sqrt(3)
+      do j = 1,15
+         i1=g1(j)
+         i2=g2(j)
+         i3=g3(j)
+         i4=g4(j)
+         gtr(1,j)  = self(1,i1)*self(1,i2)*self(1,i3)*self(1,i4)
+         gtr(2,j)  = self(2,i1)*self(2,i2)*self(2,i3)*self(2,i4)
+         gtr(3,j)  = self(3,i1)*self(3,i2)*self(3,i3)*self(3,i4)
+         gtr(4,j)  = self(1,i1)*self(1,i2)*self(1,i3)*self(2,i4) &
+                   + self(1,i1)*self(1,i2)*self(2,i3)*self(1,i4) &
+                   + self(1,i1)*self(2,i2)*self(1,i3)*self(1,i4) &
+                   + self(2,i1)*self(1,i2)*self(1,i3)*self(1,i4)
+         gtr(5,j)  = self(1,i1)*self(1,i2)*self(1,i3)*self(3,i4) &
+                   + self(1,i1)*self(1,i2)*self(3,i3)*self(1,i4) &
+                   + self(1,i1)*self(3,i2)*self(1,i3)*self(1,i4) &
+                   + self(3,i1)*self(1,i2)*self(1,i3)*self(1,i4)
+         gtr(6,j)  = self(1,i1)*self(2,i2)*self(2,i3)*self(2,i4) &
+                   + self(2,i1)*self(1,i2)*self(2,i3)*self(2,i4) &
+                   + self(2,i1)*self(2,i2)*self(1,i3)*self(2,i4) &
+                   + self(2,i1)*self(2,i2)*self(2,i3)*self(1,i4)
+         gtr(7,j)  = self(3,i1)*self(2,i2)*self(2,i3)*self(2,i4) &
+                   + self(2,i1)*self(3,i2)*self(2,i3)*self(2,i4) &
+                   + self(2,i1)*self(2,i2)*self(3,i3)*self(2,i4) &
+                   + self(2,i1)*self(2,i2)*self(2,i3)*self(3,i4)
+         gtr(8,j)  = self(1,i1)*self(3,i2)*self(3,i3)*self(3,i4) &
+                   + self(3,i1)*self(1,i2)*self(3,i3)*self(3,i4) &
+                   + self(3,i1)*self(3,i2)*self(1,i3)*self(3,i4) &
+                   + self(3,i1)*self(3,i2)*self(3,i3)*self(1,i4)
+         gtr(9,j)  = self(2,i1)*self(3,i2)*self(3,i3)*self(3,i4) &
+                   + self(3,i1)*self(2,i2)*self(3,i3)*self(3,i4) &
+                   + self(3,i1)*self(3,i2)*self(2,i3)*self(3,i4) &
+                   + self(3,i1)*self(3,i2)*self(3,i3)*self(2,i4)
+         gtr(10,j) = self(1,i1)*self(1,i2)*self(2,i3)*self(2,i4) &
+                   + self(1,i1)*self(2,i2)*self(1,i3)*self(2,i4) &
+                   + self(1,i1)*self(2,i2)*self(2,i3)*self(1,i4) &
+                   + self(2,i1)*self(1,i2)*self(1,i3)*self(2,i4) &
+                   + self(2,i1)*self(1,i2)*self(2,i3)*self(1,i4) &
+                   + self(2,i1)*self(2,i2)*self(1,i3)*self(1,i4)
+         gtr(11,j) = self(1,i1)*self(1,i2)*self(3,i3)*self(3,i4) &
+                   + self(1,i1)*self(3,i2)*self(1,i3)*self(3,i4) &
+                   + self(1,i1)*self(3,i2)*self(3,i3)*self(1,i4) &
+                   + self(3,i1)*self(1,i2)*self(1,i3)*self(3,i4) &
+                   + self(3,i1)*self(1,i2)*self(3,i3)*self(1,i4) &
+                   + self(3,i1)*self(3,i2)*self(1,i3)*self(1,i4)
+         gtr(12,j) = self(2,i1)*self(2,i2)*self(3,i3)*self(3,i4) &
+                   + self(2,i1)*self(3,i2)*self(2,i3)*self(3,i4) &
+                   + self(2,i1)*self(3,i2)*self(3,i3)*self(2,i4) &
+                   + self(3,i1)*self(2,i2)*self(2,i3)*self(3,i4) &
+                   + self(3,i1)*self(2,i2)*self(3,i3)*self(2,i4) &
+                   + self(3,i1)*self(3,i2)*self(2,i3)*self(2,i4)
+         gtr(13,j) = self(1,i1)*self(1,i2)*self(2,i3)*self(3,i4) &
+                   + self(1,i1)*self(1,i2)*self(3,i3)*self(2,i4) &
+                   + self(1,i1)*self(2,i2)*self(1,i3)*self(3,i4) &
+                   + self(1,i1)*self(2,i2)*self(3,i3)*self(1,i4) &
+                   + self(1,i1)*self(3,i2)*self(1,i3)*self(2,i4) &
+                   + self(1,i1)*self(3,i2)*self(2,i3)*self(1,i4) &
+                   + self(2,i1)*self(1,i2)*self(1,i3)*self(3,i4) &
+                   + self(2,i1)*self(1,i2)*self(3,i3)*self(1,i4) &
+                   + self(2,i1)*self(3,i2)*self(1,i3)*self(1,i4) &
+                   + self(3,i1)*self(1,i2)*self(1,i3)*self(2,i4) &
+                   + self(3,i1)*self(1,i2)*self(2,i3)*self(1,i4) &
+                   + self(3,i1)*self(2,i2)*self(1,i3)*self(1,i4)
+         gtr(14,j) = self(2,i1)*self(2,i2)*self(1,i3)*self(3,i4) &
+                   + self(2,i1)*self(2,i2)*self(3,i3)*self(1,i4) &
+                   + self(2,i1)*self(1,i2)*self(2,i3)*self(3,i4) &
+                   + self(2,i1)*self(1,i2)*self(3,i3)*self(2,i4) &
+                   + self(2,i1)*self(3,i2)*self(2,i3)*self(1,i4) &
+                   + self(2,i1)*self(3,i2)*self(1,i3)*self(2,i4) &
+                   + self(1,i1)*self(2,i2)*self(2,i3)*self(3,i4) &
+                   + self(1,i1)*self(2,i2)*self(3,i3)*self(2,i4) &
+                   + self(1,i1)*self(3,i2)*self(2,i3)*self(2,i4) &
+                   + self(3,i1)*self(2,i2)*self(2,i3)*self(1,i4) &
+                   + self(3,i1)*self(2,i2)*self(1,i3)*self(2,i4) &
+                   + self(3,i1)*self(1,i2)*self(2,i3)*self(2,i4)
+         gtr(15,j) = self(3,i1)*self(3,i2)*self(1,i3)*self(2,i4) &
+                   + self(3,i1)*self(3,i2)*self(2,i3)*self(1,i4) &
+                   + self(3,i1)*self(1,i2)*self(3,i3)*self(2,i4) &
+                   + self(3,i1)*self(1,i2)*self(2,i3)*self(3,i4) &
+                   + self(3,i1)*self(2,i2)*self(3,i3)*self(1,i4) &
+                   + self(3,i1)*self(2,i2)*self(1,i3)*self(3,i4) &
+                   + self(1,i1)*self(3,i2)*self(3,i3)*self(2,i4) &
+                   + self(1,i1)*self(3,i2)*self(2,i3)*self(3,i4) &
+                   + self(1,i1)*self(2,i2)*self(3,i3)*self(3,i4) &
+                   + self(2,i1)*self(3,i2)*self(3,i3)*self(1,i4) &
+                   + self(2,i1)*self(3,i2)*self(1,i3)*self(3,i4) &
+                   + self(2,i1)*self(1,i2)*self(3,i3)*self(3,i4)
+      end
+      gtr(1:15, 4:9 ) = gtr(1:15, 4:9 )*sqrt7
+      gtr(1:15,10:12) = gtr(1:15,10:12)*sqrt353
+      gtr(1:15,13:15) = gtr(1:15,13:15)*sqrt35
+      gtr(4:9 , 1:15) = gtr(4:9 , 1:15)/sqrt7
+      gtr(10:12,1:15) = gtr(10:12,1:15)/sqrt353
+      gtr(13:15,1:15) = gtr(13:15,1:15)/sqrt35
+   end
+
+   make_enclosing_sphere(pos,radius) ::: pure
+   ! Determine the position and radius of a sphere that encloses all points in
+   ! the grid.
+     self :: IN
+     radius :: REAL, OUT
+     pos :: REALVEC(3), OUT
+     diff :: REALVEC(3)
+     dist :: REAL
+     n,n_pts :: INT
+     ENSURE(.dim1==3,"First dimension of matrix is not 3.")
+     n_pts = size(self,2)
+ 
+     ! Get the centre of the sphere.  Should use a better algorithm than just the
+     ! average.
+     pos = ZERO
+     do n = 1,n_pts
+       pos = pos + self(:,n)
+     end
+     pos = pos / n_pts
+ 
+     ! The radius is the distance to the furthest point.
+     radius = 0
+     do n = 1,n_pts
+       diff = self(:,n) - pos
+       dist = dot_product(diff,diff)
+       if (dist > radius) radius = dist
+     end
+     radius = sqrt(radius)
+ 
+   end
+
+end

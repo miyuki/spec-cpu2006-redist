@@ -1,0 +1,195 @@
+% Thorn documentation template
+\documentclass{article}
+\begin{document}
+
+\title{IOBasic}
+\author{Gabrielle Allen, Thomas Radke}
+\maketitle
+
+\abstract{Thorn IOBasic provides I/O methods for outputting scalar values in
+ASCII format into files and for printing them as runtime information to screen.}
+
+\section{Purpose}
+Thorn IOBasic registers 2 I/O methods with the I/O interface in the flesh
+which both output the same following information:
+%
+\begin{itemize}
+  \item for CCTK\_SCALAR variables, the value of the scalar versus time
+  \item for CCTK\_GF and CCTK\_ARRAY variables, the values of global reduction
+        operations (eg. minimum, maximum, L1, and L2 norm) versus time
+\end{itemize}
+%
+The I/O methods differ in the destination the output is written to:
+\begin{itemize}
+  \item{\tt Scalar}\\
+    This method outputs the information into ASCII files named {\tt "<scalar\_name>.tl"} (for CCTK\_SCALAR variables) and {\tt "<var\_name>\_<reduction>.tl"}
+    (for CCTK\_GF and CCTK\_ARRAY variables where {\tt reduction} would stand
+    for {\tt min, max, nm1, nm2} respectively).\\
+    The output data can be plotted by using either {\it xgraph} or
+    {\it gnuplot}. The output style can be selected via parameter settings.
+  \item {\tt Info}\\
+    This method prints the data as runtime information to {\it stdout}.\\
+    The output occurs as a table with columns containing the current iteration
+    number, the physical time at this iteration, and more columns for
+    scalar/reduction values of each variable to be output.\\
+\end{itemize}
+%
+%
+\section{{\tt IOBasic} Parameters}
+%
+Parameters to control the {\tt Scalar} I/O method are:
+\begin{itemize}
+  \item {\tt IOBasic::outScalar\_every} (steerable)\\
+        How often to do info output. If this parameter is set in the
+        parameter file, it will override the setting of the shared
+        {\tt IO::out\_every} parameter.
+  \item {\tt IOBasic::outdirScalar}\\
+        The directory in which to place the ASCII output files.\\
+        If the directory doesn't exist at startup it will be created.
+  \item {\tt IOBasic::outScalar\_style}\\
+        How to start comments in the ASCII output files.\\
+        Possible choices for this keywork parameter are {\it xgraph} and
+        {\it gnuplot}.
+  \item {\tt IOBasic::out\_format} (steerable)\\
+        The output format for floating-point numbers in {\tt Scalar} output.\\
+        This parameter conforms to the format modifier of the C library routine
+        {\it fprintf(3)}. You can set the format for outputting floating-point
+        numbers (fixed or exponential) as well as their precision (number of
+        digits).
+  \item {\tt IOBasic::outScalar\_vars} (steerable)\\
+        The list of variables to output into individual ASCII files.\\
+        The variables must be given by their fully qualified variable or group
+        name. The special keyword {\it all} requests info output for all
+        variables. Multiple variables must be separated by spaces.
+  \item {\tt IOBasic::outScalar\_reductions} (steerable)\\
+        The list of global reduction operations to perform on
+        CCTK\_GF and CCTK\_ARRAY variables for {\tt Scalar} output.\\
+        Multiple reduction names must be separated by spaces.
+\end{itemize}
+%
+%
+Parameters to control the {\tt Info} I/O method are:
+\begin{itemize}
+  \item {\tt IOBasic::outInfo\_every} (steerable)\\
+        How often to do info output. If this parameter is set in the
+        parameter file, it will override the setting of the shared
+        {\tt IO::out\_every} parameter.
+  \item {\tt IOBasic::outInfo\_vars} (steerable)\\
+        The list of variables to output to screen.\\
+        The variables must be given by their fully qualified variable or group
+        name. The special keyword {\it all} requests info output for all
+        variables. Multiple variables must be separated by spaces.\\
+        For CCTK\_GF and CCTK\_ARRAY variables, an option string can be appended
+        in square brackets to the name of the variable. The only option
+        supported so far is an individual list of reductions for that variable
+        which would take precedence over the default reduction operations to
+        perform.
+  \item {\tt IOBasic::outInfo\_reductions} (steerable)\\
+        The default list of global reduction operations to perform on
+        CCTK\_GF and CCTK\_ARRAY variables. This setting can be overridden
+        for individual variables using an option string.\\
+        Multiple reduction names must be separated by spaces.
+\end{itemize}
+All of the above parameters marked as steerable can be changed at runtime.
+%
+%
+\section{Examples}
+%
+{\bf Example for {\tt Info} Output}\\
+%
+The following parameter settings request info output for variables {\tt
+grid::r, wavetoy::phi} (both are CCTK grid functions) and {\tt mythorn::complex}
+(a complex CCTK scalar) at every other iteration.
+
+The minimum and maximum of {\tt grid::r} is printed according to the list
+of default reductions for info output (parameter {\tt IOBasic::outInfo\_reductions}). This list is overridden for {\tt wavetoy::phi} where only the L2 norm
+is output as specified in the option string for this variable. You can also
+add other reduction operators within the $<>$ braces.
+
+For the scalar variable {\tt mythorn::complex} both the real and imaginary part are printed.
+\begin{verbatim}
+IOBasic::outInfo_every      = 2
+IOBasic::outInfo_vars       = "grid::r
+                               wavetoy::phi[reductions=<norm2>]
+                               mythorn::complex"
+IOBasic::outInfo_reductions = "minimum maximum"
+\end{verbatim}
+\vspace*{2ex}
+The resulting screen output would look like this:
+\begin{tiny}
+\begin{verbatim}
+---------------------------------------------------------------------------------------------
+  it  |          | GRID::r                     | WAVETOY::phi | MYTHORN::complex            |
+      |    t     | minimum      | maximum      | norm2        | real part    | imag part    |
+---------------------------------------------------------------------------------------------
+    0 |    0.000 |   0.02986294 |   0.86602540 |   0.04217014 |   6.90359593 |   0.00000000 |
+    2 |    0.034 |   0.02986294 |   0.86602540 |   0.00934749 |   6.90359593 |   0.00000000 |
+    4 |    0.069 |   0.02986294 |   0.86602540 |   0.02989811 |   6.90359593 |   0.00000000 |
+    6 |    0.103 |   0.02986294 |   0.86602540 |   0.05899959 |   6.90359593 |   0.00000000 |
+    8 |    0.138 |   0.02986294 |   0.86602540 |   0.07351147 |   6.90359593 |   0.00000000 |
+   10 |    0.172 |   0.02986294 |   0.86602540 |   0.07781795 |   6.90359593 |   0.00000000 |
+\end{verbatim}
+\end{tiny}
+%
+\vspace*{3ex}
+{\bf Example for {\tt Scalar} Output}\\
+%
+The following parameter settings request scalar output for all grid function
+variables in the group {\tt grid::coordinates} and for the scalar variable
+{\tt grid::coarse\_dx}.\\
+Output occurs every 10th iteration. {\tt gnuplot} output style is selected
+for the ASCII files which are placed into a subdirectory {\tt scalar\_output}.
+\begin{verbatim}
+IOBasic::outScalar_every      = 10
+IOBasic::outScalar_vars       = "grid::coordinates grid::coarse_dx"
+IOBasic::outScalar_reductions = "minimum maximum"
+IOBasic::outScalar_style      = "gnuplot"
+IOBasic::outdirScalar         = "scalar_output"
+\end{verbatim}
+\vspace*{2ex}
+This would create the following ASCII files:
+\begin{verbatim}
+~/Cactus/par> ls scalar_output
+coarse_dx.tl  r_min.tl  x_min.tl  y_min.tl  z_min.tl
+r_max.tl      x_max.tl  y_max.tl  z_max.tl
+\end{verbatim}
+%
+%
+\section{Comments}
+%
+{\bf Possible Reduction Operations}\\
+%
+In order to get output of reduction values for {\tt CCTK\_GF} and {\tt
+CCTK\_ARRAY} variables you need to activate a thorn which provides
+reduction operators (eg. thorn {\tt PUGHSlab} in the {\tt CactusPUGH}
+arrangement). For a list of possible reduction operations please refer to
+the documention of this reduction thorn.\\[3ex]
+%
+{\bf Getting Output from IOBasic's I/O Mehtods}\\
+%
+You obtain output by an I/O method by either
+%
+\begin{itemize}
+  \item setting the appropriate I/O parameters
+  \item calling one of the routines of the I/O function interface
+        provided by the flesh
+\end{itemize}
+%
+For a description of basic I/O parameters and the I/O function interface to
+invoke I/O methods by application thorns please see the documentation of thorn
+{\tt IOUtil} and the flesh.\\[3ex]
+%
+%
+{\bf Building Cactus configurations with IOBasic}\\
+%
+Since {\tt IOBasic} uses parameters from {\tt IOUtil} it also needs this I/O
+helper thorn be compiled into Cactus and activated at runtime in the
+{\tt ActiveThorns} parameter in your parameter file.
+%
+% Automatically created from the ccl files 
+% Do not worry for now.
+\include{interface}
+\include{param}
+\include{schedule}
+
+\end{document}

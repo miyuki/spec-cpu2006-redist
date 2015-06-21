@@ -1,0 +1,647 @@
+!---------------------------------------------------------------------------
+!
+! OBJECTVEC: generic vector operations ...
+!
+! Copyright (C) Dylan Jayatilaka, 1997
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: objectvec.foo,v 1.1.2.6 2003/10/08 02:55:38 reaper Exp $
+!---------------------------------------------------------------------------
+
+virtual module OBJECTVEC
+
+   implicit none
+
+   saved_self :: OBJECTVEC*, private
+
+contains
+
+! *****************
+! Memory allocation
+! *****************
+
+   create(dim) ::: leaky
+   ! Create space for object
+      self :: PTR
+      dim :: INT
+      nullify(self)
+      allocate(self(dim))
+      ADD_MEMORY(dim*ELEMENT_TYPE_SIZE)
+      .nullify_ptr_part
+      .set_defaults
+   end
+
+   create(lb,ub) ::: leaky
+   ! Create the vector with lower bound "lb", upper bound "ub"
+      self :: PTR
+      lb,ub :: INT, IN
+      nullify(self)
+      allocate(self(lb:ub))
+      ADD_MEMORY((ub-lb+1)*ELEMENT_TYPE_SIZE)
+      .nullify_ptr_part
+      .set_defaults
+   end
+
+   create(bounds) ::: leaky
+   ! Create the vector with "bounds"
+      self :: PTR
+      bounds :: INTVEC(2), IN
+      .create(bounds(1),bounds(2))
+   end
+
+   destroy ::: leaky
+   ! Destroy space for object
+      self :: PTR
+      if (.destroyed) return
+      .destroy_ptr_part
+      DELETE_MEMORY(.dim*ELEMENT_TYPE_SIZE)
+      deallocate(self)
+   end
+
+   create_copy(vec) ::: leaky
+   ! Create a replica copy of "vec".
+      vec :: SELF_TYPE, IN
+      self :: PTR
+      .create(vec.dim)
+      .copy(vec)
+   end
+
+   copy(vec) ::: leaky
+   ! Copy "vec".
+      vec :: SELF_TYPE, IN
+      a :: INT
+      ENSURE(.dim==vec.dim,"vec size does not match")
+      do a = 1,vec.dim
+        self(a).copy(vec(a))
+      end
+   end
+
+   nullify_ptr_part
+   ! Nullify the pointer parts of self
+      a :: INT
+      do a = 1,.dim
+         self(a).nullify_ptr_part
+      end
+   end
+
+   destroy_ptr_part
+   ! Destroy the pointer parts of self
+      a :: INT
+      do a = 1,.dim
+        self(a).destroy_ptr_part
+      end
+   end
+
+   set_defaults
+   ! Set default values
+       n :: INT
+      do n = 1,.dim
+        self(n).set_defaults
+      end
+   end
+
+   set_saved_self 
+   ! Set saved_self
+      self :: PTR
+      saved_self => self
+   end
+
+! ***********************
+! Shrinking and expansion
+! ***********************
+
+   shrink(dim) ::: leaky
+   ! Shrink self to dimension dim.  Contents are retained.
+     self :: PTR
+     dim :: INT, IN
+     old :: SELF_TYPE*
+     n :: INT
+     ENSURE(.created,"no self array")
+     ENSURE(dim<=.dim,"dim too large")
+     ENSURE(dim>=0,"dim must be non-negative")
+     if (dim==.dim) return
+     old => self
+     nullify(self)
+     self.create(dim)
+     do n=1,dim
+       self(n).copy(old(n))
+     end
+     old.destroy
+   end
+
+   expand(dim) ::: leaky
+   ! Expand the vector "self" to "dim". New slots are left undefined.
+     self :: PTR
+     dim :: INT, IN
+     old :: SELF_TYPE*
+     old_dim :: INT
+     if (.destroyed) then
+        .create(dim)
+     else
+        ENSURE(dim>=.dim, "dim not large enough")
+        ENSURE(dim>=0,"dim must be non-negative")
+        old => self
+        old_dim = old.dim
+        nullify(self)
+        self.create(dim)
+        self(1:old_dim).copy(old)
+        old.destroy
+     end
+   end
+
+   append(v) ::: leaky
+   ! Expands self and appends the contents of vector "v".
+     self :: PTR
+     v :: SELF_TYPE, IN
+     dim :: INT
+     if (.destroyed) then; dim = 0
+     else;                 dim = .dim
+     end
+     .expand(dim+v.dim)
+     self(dim+1:).copy(v)
+   end
+
+   append(value) ::: leaky
+   ! Expands self by 1, and appends the single scalar "value" onto the end.
+     self :: PTR
+     value :: ELEMENT_TYPE, IN
+     dim :: INT
+     if (.destroyed) then; dim = 0
+     else;                 dim = .dim
+     end
+     .expand(dim+1)
+     self(dim+1).copy(value)
+   end
+
+   join(v) result (res) ::: leaky
+   ! Yield a vector which is the concatenation of "self" and "v"
+     v :: SELF_TYPE
+     res :: SELF_TYPE*
+     dim, dim_v :: INT
+     dim   = self.dim
+     dim_v = v.dim
+     res.create(dim+dim_v)
+     res(    1:dim      ).copy(self)
+     res(dim+1:dim+dim_v).copy(v)
+   end
+
+   join(v1,v2) result (res) ::: leaky
+   ! Yield a vector which is the concatenation of "self" and "v1" and "v2"
+     v1,v2 :: SELF_TYPE
+     res :: SELF_TYPE*
+     dim, dim_v1, dim_v2 :: INT
+     dim    = self.dim
+     dim_v1 = v1.dim
+     dim_v2 = v2.dim
+     res.create(dim+dim_v1+dim_v2)
+     res(           1:dim              ).copy(self)
+     res(dim+       1:dim+dim_v1       ).copy(v1)
+     res(dim+dim_v1+1:dim+dim_v1+dim_v2).copy(v2)
+   end
+
+! **********
+! Misc stuff
+! **********
+
+   reverse_order ::: pure
+   ! Reverse the order of the elements of self
+     self :: INOUT
+     n,dim :: INT
+     dim = size(self)
+     do n = 1,dim/2
+       .swap_elements(n,dim-n+1)
+     end
+   end
+
+   to_str(format,separator) result(string)
+   ! Change self to a "string" using default format.
+     format :: STR(*), optional
+     separator :: STR(*), optional
+     string :: STR
+     str1,str2 :: STR
+     n :: INT
+     string = " "
+     do n = 1,size(self)
+       str1 = self(n).to_str(format)
+       ENSURE(len_trim(string) + len_trim(str1) < len(string), "string too long")
+       if (present(separator)) then; str2 = trim(string) // separator // trim(str1)
+       else;                         str2 = trim(string) //    " "    // trim(str1)
+       end
+       string = str2
+     end
+   end
+
+! ***********************
+! List-based I/O Routines
+! ***********************
+
+   read_list_keywords ::: recursive, leaky
+   ! Read in and process list-based keywords from "stdin". List-based keywords
+   ! are those that are intended to apply to each individual element of the list
+   ! through a list of "keys" stored in the associated list-element type module.
+   ! NOTE: this routine will create the list, if required.
+     self :: PTR
+     word :: STR
+     ENSURE(stdin.next_item=="{","expecting open bracket symbol, {")
+     stdin.read(word)
+     do                  ! Loop over input list-type keywords
+       stdin.read(word)
+       if (word=="}")      exit
+       if (stdin.reverted) exit
+       .process_list_keyword(word)
+     end
+   end
+
+   process_list_keyword(keyword) ::: leaky
+   ! Process a list-type "keyword", common to all list-type objects.
+     self :: PTR
+     keyword :: STR(*), IN
+     word :: STR
+     ignore_braces :: BIN
+     word = keyword
+     word.to_lower_case
+     select case (word)
+       case("altered_data= "); .read_altered_data
+       case("append_data=  "); .read_append_data
+       case("data=         "); .read_data
+       case("do            "); .read_keywords
+       case("keys=         "); .read_keys
+       case("new_data=     "); .destroy; .read_data
+       case("process_keys  "); .process_keys
+       case("put_keys_table"); .put_keys_table
+       case("redirect      "); .redirect
+       case("revert        "); .revert
+       case default;           stdin.move_to_previous_item
+                               .read_data(ignore_braces)
+     end
+   end
+
+   read_data(ignore_braces) ::: leaky
+   ! Process the keywords list to read data or commands. If "ignore_braces" is
+   ! present then the opening and closing braces, which are normally required,
+   ! are ignored.
+     self :: PTR
+     ignore_braces :: BIN, optional
+     word,message :: STR
+     length :: INT
+     if (NOT present(ignore_braces)) then
+        ENSURE(stdin.next_item=="{","expecting open bracket symbol, {")
+        stdin.read(word) ! move past open brace
+     end
+     length = .data_length
+     if (.created) then
+        message = "No. of data items in new and old data lists do not match: " &
+                  // "new = "//length.to_str.trim//", old = "//.dim.to_str.trim
+        ENSURE(length==.dim,message)
+     else
+        .create(length)
+     end
+     .process_keys
+     if (NOT present(ignore_braces)) then
+        stdin.read(word) ! read last brace
+        ENSURE(word=="}","expecting close bracket symbol, }")
+     end
+   end
+
+   data_length result (length)
+   ! Read ahead in stdin to get the "length" of the data list, i.e. the number
+   ! of data items in the list. The data must begin with the first data item,
+   ! *not* a "{" symbol.  The order of data items comprising the list is given
+   ! by keys defined in the associated list-element type module. The data list
+   ! must be terminated by a "}" symbol.
+     self :: PTR
+     length :: INT
+     tmp :: ELEMENT_TYPE*
+     word :: STR
+     line,item :: INT
+     ENSURE(stdin.next_item/="}","empty data list!")
+     stdin.read(word)
+     length = 0
+     line = stdin.line_number
+     item = stdin.previous_line_item
+     do
+       stdin.move_to_previous_item
+       tmp.create
+       tmp.process_keys
+       tmp.destroy
+       length = length + 1
+       stdin.read(word)
+       word.to_lower_case
+       if (word=="}") exit
+       if (stdin.at_end_of_file) exit
+     end
+     stdin.move_to_line(line)
+     stdin.move_to_line_item(item)
+   end
+
+   read_altered_data ::: leaky
+   ! Read in a sublist of the complete list, and alter the data for that
+   ! sublist.  The order of the data items in the sublist is given by the "keys"
+   ! defined in the associated list-element type module.
+     self :: PTR
+     word :: STR
+     s :: INT
+     ENSURE(.created,"list does not exist yet")
+     ENSURE(stdin.next_item=="{","expecting open bracket symbol: {")
+     stdin.read(word)
+     read_loop: do
+        stdin.read(word)
+        if (word=="}") exit read_loop
+        ENSURE(word.is_int,"expecting integer list-element index")
+        s = word.to_int
+        ENSURE(s<=.dim,"list-element too large")
+        ENSURE(s>0,"list-element must be positive")
+        self(s).process_keys
+     end do read_loop
+   end
+
+   read_append_data ::: leaky
+   ! Read in a set of data to append to an existing set.
+     self :: PTR
+   ENSURE(.created,"list does not exist yet")
+   ENSURE(stdin.next_item=="{","expecting open bracket symbol: {")
+     nullify(saved_self)
+     saved_self.read_data
+     self.append(saved_self)
+     saved_self.destroy
+   end
+
+   process_keys ::: leaky
+   ! Process the "keys" on each element of the list.
+     self :: PTR
+     tmp :: ELEMENT_TYPE
+     s :: INT
+     if (.created) then
+        do s = 1,size(self)
+           self(s).process_keys
+        end
+     else ! for embedded keywords
+        tmp.process_keys
+     end
+   end
+
+   keys_created result (res)
+   ! Return TRUE if the list-element keys are created.
+      self :: PTR
+      res :: BIN
+      tmp :: ELEMENT_TYPE
+      res = tmp.keys_created
+   end
+
+   set_keys(the_keys)
+   ! This is for setting the "keys" externally.
+     self :: PTR
+     the_keys :: STRVEC(len=*,:)
+     tmp :: ELEMENT_TYPE
+     tmp.set_keys(the_keys)
+   end
+
+   clear_keys
+   ! This is for destroying the "keys" externally.
+     self :: PTR
+     tmp :: ELEMENT_TYPE
+     tmp.clear_keys
+   end
+
+   read_keys
+   ! Read a new set of keys
+      self :: PTR
+      tmp :: ELEMENT_TYPE
+      tmp.read_keys
+   end
+
+   put_keys_table
+   ! Output a generic table based on the "keys"
+     self :: PTR
+     ENSURE(.keys_created,"no keys")
+     .put_table_header
+     .process_keys
+     .put_table_footer
+   end
+
+   put_table_header
+   ! Put out a table header based on "keys"
+      self :: PTR
+      tmp :: ELEMENT_TYPE
+      tmp.put_table_header
+   end
+
+   put_table_footer
+   ! Put out a table footer based on "keys"
+      self :: PTR
+      tmp :: ELEMENT_TYPE
+      tmp.put_table_footer
+   end
+
+   put
+   ! Output the list information
+      b :: INT
+      do b = 1,.dim
+         self(b).put
+         stdout.flush
+      end
+   end
+
+   put_table
+   ! Output table information
+      b :: INT
+      do b = 1,size(self)
+         self(b).put_table
+         stdout.flush
+      end
+   end
+
+! ****************
+! Sorting routines
+! ****************
+
+   sort(decreasing_order) ::: pure
+   ! Sort array "self" from lowest to highest, using simple insertion sort.  If
+   ! "decreasing_order" is present and TRUE sort from highest to lowest instead.
+     self :: INOUT
+     decreasing_order :: BIN, IN, optional
+     i,j,n :: INT
+     lowest_first :: BIN
+     lowest_first = TRUE
+     if (present(decreasing_order)) lowest_first = NOT decreasing_order
+     n = size(self)
+     if (lowest_first) then
+       do i=1,n-1
+       do j=i+1,n
+          if (self(j) < self(i)) .swap_elements(i,j)
+       end
+       end
+     else
+       do i=1,n-1
+       do j=i+1,n
+          if (self(j) > self(i)) .swap_elements(i,j)
+       end
+       end
+     end
+   end
+
+   quick_sort(decreasing_order)
+   ! Sort the vector into increasing order.If "decreasing_order" is present and
+   ! TRUE, the vector is sorted from largest to smallest
+      self :: IN
+      decreasing_order :: BIN, optional, IN
+      decreasing :: BIN
+      decreasing = FALSE
+      if (present(decreasing_order)) decreasing = decreasing_order
+      if (NOT decreasing) then; .quick_sort_increasing
+      else;                     .quick_sort_decreasing
+      end
+   end
+
+   quick_sort_increasing ::: recursive, private
+   ! Sort the vector into order, smallest to largest
+      smaller,larger :: SELF_TYPE*
+      n, ns, ne, nl :: INT
+      chosen :: ELEMENT_TYPE
+      if (.dim<=1) return
+      n = .dim
+      chosen = self(1)
+      ns = count(self<chosen)
+      nl = count(self>chosen)
+      ne = n - ns - nl
+      smaller.create(ns)
+      larger.create(nl)
+      smaller = pack(self,self<chosen)
+      larger  = pack(self,self>chosen)
+      smaller.quick_sort
+      larger.quick_sort
+      self(1:ns)       = smaller
+      self(ns+1:ns+ne) = chosen
+      self(ns+ne+1:)   = larger
+      larger.destroy
+      smaller.destroy
+   end
+
+   quick_sort_decreasing ::: recursive, private
+   ! Sort the vector into order, largest to smallest
+      smaller,larger :: SELF_TYPE*
+      n, ns, ne, nl :: INT
+      chosen :: ELEMENT_TYPE
+      if (.dim<=1) return
+      n = .dim
+      chosen = self(1)
+      ns = count(self<chosen)
+      nl = count(self>chosen)
+      ne = n - ns - nl
+      smaller.create(ns)
+      larger.create(nl)
+      smaller = pack(self,self<chosen)
+      larger  = pack(self,self>chosen)
+      smaller.quick_sort
+      larger.quick_sort
+      self(1:nl)       = larger
+      self(nl+1:nl+ne) = chosen
+      self(nl+ne+1:)   = smaller
+      larger.destroy
+      smaller.destroy
+   end
+
+   quick_sort(indices,decreasing_order)
+   ! Return the "indices" which sort self from smallest to largest, i.e. on
+   ! return "self(indices)" is sorted. NOTE: self is *not* sorted.
+   ! If "decreasing_order" is present and TRUE, the indices are sorted from
+   ! largest to smallest
+      self :: IN
+      indices :: INTVEC, INOUT
+      decreasing_order :: BIN, optional, IN
+      decreasing :: BIN
+      i :: INT
+      ENSURE(indices.dim==.dim,"wrong size, indices")
+      decreasing = FALSE
+      if (present(decreasing_order)) decreasing = decreasing_order
+      indices = [(i,i=1,.dim)] ! initialise indices
+      if (NOT decreasing) then; .quick_sort_increasing(indices)
+      else;                     .quick_sort_decreasing(indices)
+      end
+   end
+
+   quick_sort_increasing(indices) ::: recursive, private
+   ! Return the indices which sort vector from smallest to largest, i.e. on
+   ! return "self(indices)" is sorted. NOTE: self is *not* sorted.
+      self :: IN
+      indices :: INTVEC, INOUT
+      list,small,equal,large,small_indices,equal_indices,large_indices :: INTVEC*
+      n, i, ns, ne, nl :: INT
+      chosen :: ELEMENT_TYPE
+      if (indices.dim<=1) return
+      n = indices.dim
+      list.create(n); list = [(i,i=1,n)]
+      chosen = self(1)
+      ns = count(self<chosen)
+      nl = count(self>chosen)
+      ne = n - ns - nl
+      small.create(ns); small_indices.create(ns)
+      equal.create(ne); equal_indices.create(ne)
+      large.create(nl); large_indices.create(nl)
+      small = pack(list,self <chosen) ! indices of small self elements
+      equal = pack(list,self==chosen) ! indices of equal self elements
+      large = pack(list,self >chosen) ! indices of large self elements
+      small_indices = indices(small)
+      equal_indices = indices(equal)
+      large_indices = indices(large)
+      if (ns>1) self(small).quick_sort_increasing(small_indices)
+      if (nl>1) self(large).quick_sort_increasing(large_indices)
+      indices(1:ns)       = small_indices
+      indices(ns+1:ns+ne) = equal_indices
+      indices(ns+ne+1:)   = large_indices
+      large_indices.destroy; large.destroy
+      equal_indices.destroy; equal.destroy
+      small_indices.destroy; small.destroy
+      list.destroy
+   end
+
+   quick_sort_decreasing(indices) ::: recursive, private
+   ! Return the indices which sort vector from largest to smallest, i.e. on
+   ! return "self(indices)" is sorted. NOTE: self is *not* sorted.
+      self :: IN
+      indices :: INTVEC, INOUT
+      list,small,equal,large,small_indices,equal_indices,large_indices :: INTVEC*
+      n, i, ns, ne, nl :: INT
+      chosen :: ELEMENT_TYPE
+      if (indices.dim<=1) return
+      n = indices.dim
+      list.create(n); list = [(i,i=1,n)]
+      chosen = self(1)
+      ns = count(self>chosen)
+      nl = count(self<chosen)
+      ne = n - ns - nl
+      small.create(ns); small_indices.create(ns)
+      equal.create(ne); equal_indices.create(ne)
+      large.create(nl); large_indices.create(nl)
+      small = pack(list,self >chosen) ! indices of large self elements
+      equal = pack(list,self==chosen) ! indices of equal self elements
+      large = pack(list,self <chosen) ! indices of small self elements
+      small_indices = indices(small)
+      equal_indices = indices(equal)
+      large_indices = indices(large)
+      if (ns>1) self(small).quick_sort_decreasing(small_indices)
+      if (nl>1) self(large).quick_sort_decreasing(large_indices)
+      indices(1:ns)       = small_indices
+      indices(ns+1:ns+ne) = equal_indices
+      indices(ns+ne+1:)   = large_indices
+      large_indices.destroy; large.destroy
+      equal_indices.destroy; equal.destroy
+      small_indices.destroy; small.destroy
+      list.destroy
+   end
+
+end

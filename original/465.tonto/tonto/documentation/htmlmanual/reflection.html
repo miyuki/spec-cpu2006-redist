@@ -1,0 +1,663 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>REFLECTION</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Keyword documentation for TONTO"
+HREF="keywords.html"><LINK
+REL="PREVIOUS"
+TITLE="POINTGROUP"
+HREF="pointgroup.html"><LINK
+REL="NEXT"
+TITLE="SCFDATA"
+HREF="scfdata.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="pointgroup.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="scfdata.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="REFLECTION"
+></A
+><TT
+CLASS="LITERAL"
+>REFLECTION</TT
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="REFLECTION-PURPOSE"
+></A
+>Purpose</H2
+><P
+ALIGN="justify"
+>For representing general crystal diffraction reflection information</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="REFLECTION-SYNOPSIS"
+></A
+>Synopsis</H2
+><P
+ALIGN="justify"
+>A reflection is comprised of the miller indices, the experimental
+structure factors and associated <TT
+CLASS="LITERAL"
+>&sigma;</TT
+> value, the
+experimental intensity and associated <TT
+CLASS="LITERAL"
+>&sigma;</TT
+> values, and
+predicted structure factors and intensities.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="REFLECTION-INPUT"
+></A
+>Default input data order</H2
+><P
+ALIGN="justify"
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>REFLECTION_INPUT_DATA_ORDER    [ indices= ]</PRE
+></TD
+></TR
+></TABLE
+></P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="REFLECTION-KEYWORDS"
+></A
+>Listing of keywords</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>add_f_calc= CPX</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read in a complex number which will be added to the stored
+calculated structure factor</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Note that the calculated structure factor is a complex
+entity</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The predicted structure factor is a real entity, representing
+the magnitude of the strcuture factor, include experimental
+corrections</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>f_calc=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>add_f_exp= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read in a number which will be added to the stored experimental
+structure factor</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>add_f_pred= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read in a number which will be added to the stored experimental
+structure factor</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The predicted structure factor is a real entity, representing
+the magnitude of the structure factor, include experimental
+corrections</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>f_pred=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>add_f_sigma= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read in a number which will be added to the stored
+<TT
+CLASS="LITERAL"
+>&sigma;</TT
+> value for the experimental structure factor</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>add_i_exp= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read in a number which will be added to the stored experimental
+intensity</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>add_i_pred= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read in a number which will be added to the stored predicted
+intensity</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>add_i_sigma= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read in a number which will be added to the stored
+<TT
+CLASS="LITERAL"
+>&sigma;</TT
+> value for the experimental intensity</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>f_calc= CPX</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read in a <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>complex</I
+></SPAN
+> number representing the
+calculated structure factor</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This is not usually inputted, but will be calculated by a
+calling module</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>f_exp= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read in a number which is the <SPAN
+CLASS="QUOTE"
+>"measured"</SPAN
+>
+experimental structure factor</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>f_pred= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read in a number which is the predicted experimental structure
+factor</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This is not usually inputted, but will be calculated by a
+calling module</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>f_sigma= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read in a number which is the <SPAN
+CLASS="QUOTE"
+>"measured"</SPAN
+>
+experimental <TT
+CLASS="LITERAL"
+>&sigma;</TT
+> value for the structure factor</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>h= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read in the <TT
+CLASS="LITERAL"
+>h</TT
+> Miller index</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>indices= INTVEC(3)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read in a triple of indices representing the miller indices
+<TT
+CLASS="LITERAL"
+>h</TT
+>, <TT
+CLASS="LITERAL"
+>k</TT
+>, <TT
+CLASS="LITERAL"
+>l</TT
+></P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>i_exp= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read in a number which is the <SPAN
+CLASS="QUOTE"
+>"measured"</SPAN
+>
+experimental intensity</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>i_pred= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read in a number which is the predicted intensity</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>i_sigma= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read in a number which is the <SPAN
+CLASS="QUOTE"
+>"measured"</SPAN
+>
+<TT
+CLASS="LITERAL"
+>&sigma;</TT
+> value for the experimental intensity</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>k= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read in the <TT
+CLASS="LITERAL"
+>k</TT
+> Miller index</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>l= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read in the <TT
+CLASS="LITERAL"
+>l</TT
+> Miller index</P
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="pointgroup.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="scfdata.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>POINTGROUP</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="keywords.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>SCFDATA</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

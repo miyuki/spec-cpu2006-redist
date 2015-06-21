@@ -1,0 +1,257 @@
+# Parameter definitions for thorn IOASCII
+# $Header: /cactus/CactusBase/IOASCII/param.ccl,v 1.12 2001/12/13 12:25:14 tradke Exp $
+
+
+#############################################################################
+### declare IOASCII parameters
+#############################################################################
+private:
+
+##########################
+# Directories to output to  (overriden by outdir)
+##########################
+STRING outdir1D "Name of 1D ASCII output directory, overrides outdir"
+{
+  .* :: "A regex which matces everything"
+} "."
+
+STRING outdir2D "Name of 2D ASCII output directory, overrides outdir"
+{
+  .* :: "A regex which matces everything"
+} "."
+
+STRING outdir3D "Name of 3D ASCII output directory, overrides outdir"
+{
+  .* :: "A regex which matces everything"
+} "."
+
+
+##########################
+# What variables to output
+##########################
+STRING out1D_vars "Variables to output in 1D ASCII file format" STEERABLE = ALWAYS
+{
+  .* :: "A regex which matces everything"
+} ""
+
+STRING out2D_vars "Variables to output in 2D ASCII file format" STEERABLE = ALWAYS
+{
+  .* :: "A regex which matches everything"
+} ""
+
+STRING out3D_vars "Variables to output in 3D ASCII file format" STEERABLE = ALWAYS
+{
+  .* :: "A regex which matches everything"
+} ""
+
+
+########################
+# How often to do output
+########################
+INT out1D_every "How often to do 1D ASCII output, overrides out_every" STEERABLE = ALWAYS
+{
+  -1:* :: "Values <= 0 disable 1D output"
+} -1
+
+INT out2D_every "How often to do 2D ASCII output, overrides out_every" STEERABLE = ALWAYS
+{
+  -1:* :: "Values <= 0 disable 2D output"
+} -1
+
+INT out3D_every "How often to do 3D ASCII output, overrides out_every" STEERABLE = ALWAYS
+{
+  -1:* :: "Values <= 0 disable 3D output"
+} -1
+
+
+#################
+# output style
+#################
+KEYWORD out_style "Which style for 1D ASCII output (DEPRICATED IN BETA12)"
+{
+  "gnuplot" :: "output readable by gnuplot"
+  "xgraph"  :: "output readable by xgraph"
+} "xgraph"
+
+KEYWORD out1D_style "Which style for 1D lines ASCII output"
+{
+  "xgraph"         :: "f over x plots suitable for xgraph"
+  "gnuplot f(x)"   :: "f over x plots suitable for gnuplot"
+  "gnuplot f(t,x)" :: "f over t,x plots suitable for gnuplot"
+} "xgraph"
+
+KEYWORD out2D_style "Which style for 2D slices ASCII output"
+{
+  "gnuplot f(x,y)"   :: "f over x,y plots suitable for gnuplot"
+  "gnuplot f(t,x,y)" :: "f over t,x,y plots suitable for gnuplot"
+} "gnuplot f(x,y)"
+
+KEYWORD out3D_style "Which style for 3D volume ASCII output"
+{
+  "gnuplot f(x,y,z)"   :: "f over x,y,z plots suitable for gnuplot"
+  "gnuplot f(t,x,y,z)" :: "f over t,x,y,z plots suitable for gnuplot"
+} "gnuplot f(x,y,z)"
+
+STRING out_format "Which format for ASCII floating-point number output" STEERABLE = ALWAYS
+{
+  "^(\.[0-9]{1,2})?[EGefg]$" :: "output with given precision in exponential / floating point notation"
+} ".13f"
+
+
+############################
+# Specific to 1D output
+# Choosing what output to do
+############################
+BOOLEAN out1D_x "Do 1D IOASCII output in the x-direction" STEERABLE = ALWAYS
+{
+} "yes"
+BOOLEAN out1D_y "Do 1D IOASCII output in the y-direction" STEERABLE = ALWAYS
+{
+} "yes"
+BOOLEAN out1D_z "Do 1D IOASCII output in the z-direction" STEERABLE = ALWAYS
+{
+} "yes"
+BOOLEAN out1D_d "Do 1D IOASCII output in the diagonal-direction" STEERABLE = ALWAYS
+{
+} "yes"
+
+CCTK_REAL out1D_xline_y "y-coord for 1D lines in x-direction"
+{
+ *:* :: ""
+} 0.0
+CCTK_REAL out1D_xline_z "z-coord for 1D lines in x-direction"
+{
+ *:* :: ""
+} 0.0
+
+CCTK_REAL out1D_yline_x "x-coord for 1D lines in y-direction"
+{
+ *:* :: ""
+} 0.0
+CCTK_REAL out1D_yline_z "z-coord for 1D lines in y-direction"
+{
+ *:* :: ""
+} 0.0
+
+CCTK_REAL out1D_zline_x "x-coord for 1D lines in z-direction"
+{
+ *:* :: ""
+} 0.0
+CCTK_REAL out1D_zline_y "y-coord for 1D lines in z-direction"
+{
+ *:* :: ""
+} 0.0
+
+CCTK_INT out1D_xline_yi "y-index (from 0) for 1D lines in x-direction"
+{
+ 0:* :: ""
+} 0
+CCTK_INT out1D_xline_zi "z-index (from 0) for 1D lines in x-direction"
+{
+ 0:* :: ""
+} 0
+
+CCTK_INT out1D_yline_xi "x-index (from 0) for 1D lines in y-direction"
+{
+ 0:* :: ""
+} 0
+CCTK_INT out1D_yline_zi "z-index (from 0) for 1D lines in y-direction"
+{
+ 0:* :: ""
+} 0
+
+CCTK_INT out1D_zline_xi "x-index (from 0) for 1D lines in z-direction"
+{
+ 0:* :: ""
+} 0
+CCTK_INT out1D_zline_yi "y-index (from 0) for 1D lines in z-direction"
+{
+ 0:* :: ""
+} 0
+
+
+############################
+# Specific to 2D output
+# Choosing what output to do
+############################
+CCTK_REAL out2D_yzplane_x "x-coord for 2D planes in yz"
+{
+ *:* :: ""
+} 0.0
+
+CCTK_REAL out2D_xzplane_y "y-coord for 2D planes in xz"
+{
+ *:* :: ""
+} 0.0
+
+CCTK_REAL out2D_xyplane_z "z-coord for 2D planes in xy"
+{
+ *:* :: ""
+} 0.0
+
+CCTK_INT out2D_xyplane_zi "z-index (from 0) for 2D planes in xy"
+{
+ 0:* :: ""
+} 0
+
+CCTK_INT out2D_xzplane_yi "y-index (from 0) for 2D planes in xz"
+{
+ 0:* :: ""
+} 0
+
+CCTK_INT out2D_yzplane_xi "x-index (from 0) for 2D planes in yz"
+{
+ 0:* :: ""
+} 0
+
+
+
+#############################################################################
+### import IOUtil parameters
+#############################################################################
+shares: IO
+
+####################
+# Output directories
+####################
+USES STRING outdir
+
+
+########################
+# How often to do output
+########################
+USES INT out_every
+
+
+#######################
+# What slices to output
+#######################
+USES CCTK_REAL out_xline_y
+USES CCTK_REAL out_xline_z
+USES CCTK_REAL out_yline_x
+USES CCTK_REAL out_yline_z
+USES CCTK_REAL out_zline_x
+USES CCTK_REAL out_zline_y
+USES CCTK_INT out_xline_yi
+USES CCTK_INT out_xline_zi
+USES CCTK_INT out_yline_xi
+USES CCTK_INT out_yline_zi
+USES CCTK_INT out_zline_xi
+USES CCTK_INT out_zline_yi
+USES CCTK_REAL out_yzplane_x
+USES CCTK_REAL out_xzplane_y
+USES CCTK_REAL out_xyplane_z
+USES CCTK_INT out_xyplane_zi
+USES CCTK_INT out_xzplane_yi
+USES CCTK_INT out_yzplane_xi
+
+
+
+# various things
+################
+USES KEYWORD newverbose
+USES BOOLEAN new_filename_scheme
+EXTENDS KEYWORD out_fileinfo
+{
+  "axis labels" :: "add axis labels information to output files"
+}

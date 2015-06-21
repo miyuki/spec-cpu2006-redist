@@ -1,0 +1,821 @@
+# SPEC Submission Syntax File           CPU2006 Results
+#
+# Required Variables:
+#       syntax  - assoc-array of
+#                   keys => array (numeric indices) or hash (text keys) of
+#                   0 or 'regexp':
+#                       regexps to define acceptable values,
+#                   1 or 'text':
+#                       explanatory messages to use in case of mismatch, 
+#                   2 or 'one_match':
+#                       whether only one match is acceptable to pass,
+#                       (IOW, if the rule matches for foo000, is it okay for it
+#                        to NOT match for foo001, foo002, etc?)
+#                   3 or 'complain_once':
+#                       whether to complain only once for this rule,
+#                   4 or 'custom_test':
+#                       code ref to do other, more complicated tests
+#                       (The code ref gets the current line, the matched key,
+#                        the value, the regexp, whether the rule matched,
+#                        whether one match is acceptable to pass, whether the
+#                        value was already complained about, whether to
+#                        complain only once for this rule, and a hash ref to
+#                        (key, value) pairs for all the lines in the raw file.)
+#                   5 or 'conditions':
+#                       whether/how to restrict application of this rule
+#                        It's an array of the form
+#                        [
+#                          [ field_to_use,
+#                            [ $min, $max ]     # if numeric
+#                            regular_expression # if not
+#                            ...
+#                          ],
+#                          ...
+#                        ]
+#                        The conditions for each field (if multiple are
+#                        specified) are ORed.  All fields (if multiple are
+#                        specified) must match or the rule will be skipped.
+#        (items 2-5 are optional and default to false or undef)
+# and
+#       first   - pattern to recognize first line of submission text
+#       last    - pattern to recognize the last line (rest of mail is tossed)
+#     or
+#       prefix  - pattern to recognize a line in the result file
+#
+# Note: everything is in Perl syntax, so beware...
+#
+# Note 2: The explanatory messages may either be one line of text, or an
+#         array reference containing multiple lines.  They are evaluated
+#         in the context of an interpolated string.  What's that mean?
+#         Just that if you want to use double quotes (") in your text,
+#         escape them with a backslash.  Also, you may use $key to refer to
+#         the key that matched, $k to refer to the specific line that matched,
+#         and $value to refer to the value that is in error.
+#
+# For nicer editing, make your window this wide: ---------------------------------------------------->
+
+undef $first;
+undef $last;
+$prefix = 'spec.cpu2006.';
+
+# Canned error messages for date format fields
+my $datere = [ qr/^(:?Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-\d{4}$/, 
+               [ 
+                 '    It must be MMM-YYYY, where YYYY is the full four digit',
+                 '    year, and MMM may be any of \"Jan\", \"Feb\", \"Mar\",',
+                 '    \"Apr\", \"May\", \"Jun\", \"Jul\", \"Aug\", \"Sep\", \"Oct\", \"Nov\",',
+                 '    or \"Dec\".',
+                 '   The current value is \"$value\".'
+               ],
+               0,
+               1
+             ];
+
+# Yes/No fields
+my $yesno = [ qr/^(:?Yes|No)$/,
+              [ 
+                '    It must be either \"Yes\" or \"No\".',
+                '   The current value is \"$value\".'
+              ],
+              0,
+              0,
+              undef,
+            ];
+
+# Yes/No/unset fields
+my $yesnounset = [ qr/^(:?Yes|No|--)$/,
+                   [ 
+                     '    It must be either \"Yes\" or \"No\" or \"--\".',
+                     '   The current value is \"$value\".'
+                   ],
+                   0,
+                   0,
+                   undef,
+                 ];
+
+# Results (generic stuff)
+my %result = ( 'regexp' => qr/^[\d\.]+$/,
+               'text' => '- Submittable results must include a valid \"$k\" field.',
+               'one_match' => 0,
+               'complain_once' => 1,
+             );
+
+my $int_base = { %result,
+                 'conditions' => [
+                   [ 'metric', qr/^CINT2006$/ ],
+                   [ 'basemean', qr/^[\d\.]+$/ ],
+                 ]
+               };
+my $int_peak = { %result,
+                 'conditions' => [
+                   [ 'metric', qr/^CINT2006$/ ],
+                   [ 'peakmean', qr/^[\d\.]+$/ ],
+                 ]
+               };
+my $fp_base = { %result,
+                'conditions' => [
+                  [ 'metric', qr/^CFP2006$/ ],
+                  [ 'basemean', qr/^[\d\.]+$/ ],
+                ]
+              };
+my $fp_peak = { %result,
+                'conditions' => [
+                  [ 'metric', qr/^CFP2006$/ ],
+                  [ 'peakmean', qr/^[\d\.]+$/ ],
+                ]
+              };
+
+# This is a sub to do a little extra checking for the memory size.  It's
+# a lot like $cachesub below, but simpler.
+my $memsub = sub {
+    my ($line, $k, $value, $re, $matched, $one_match_sufficient, $complained,
+        $complain_once, $values) = @_;
+
+    return () unless $matched;
+
+    # Check for easily-reduceable numbers and units.  If the regexp didn't
+    # match in the main code, it won't match here; thus the check above.
+    my @gripes = ();
+    my %nextunit = ( 'K'=>'M', 'M'=>'G', 'G'=>'T', 'T'=>'P' );
+    my %prevunit = ( 'M'=>'K', 'G'=>'M', 'T'=>'G', 'P'=>'T' );
+    if ($value =~ /$re/) {
+      my ($size, $unit) = ($1, $2);
+      if ($size > 1023 && int($size / 1024) == ($size / 1024)) {
+          my $newsize = $size / 1024;
+          my $newunits = $unit;
+          $newunits =~ s/^([KMGT])/$nextunit{$1}/;
+          push @gripes, "- Unreduced memory size in the \"$k\" field.";
+          push @gripes, '   Please do not use values greater than 1023.';
+          push @gripes, "   \"$size $unit\" should be changed to \"$newsize $newunits\"";
+          push @gripes, '';
+      }
+      if ($size < 1024 && ($size < 1 || int($size) != $size)) {
+          my $newsize = int($size * 1024);
+          my $newunits = $unit;
+          $newunits =~ s/^([KMGT])/$prevunit{$1}/;
+          push @gripes, "- Fractional memory size in the \"$k\" field.";
+          push @gripes, '   Please do not use fractional sizes.';
+          push @gripes, "   \"$size $unit\" should be changed to \"$newsize $newunits\"";
+          push @gripes, '';
+      }
+    }
+    return @gripes;
+};
+
+# Memory.  This is a the basis for the cache
+my $memory = [ qr/^([.\d]+) ([KMGT]B)/,
+               [ 
+                 '    It must contain leading digits, followed by a space,',
+                 '    and a standard unit abbreviation.  Acceptable',
+                 '    abbreviations are KB, MB, GB, and TB.',
+                 '   The current value is \"$value\".'
+               ],
+               1, # Not all fields need match
+               1, # Don't complain more than once
+               $memsub,
+             ];
+
+# This is a sub to do a little extra checking for cache lines
+my $cachesub = sub {
+    my ($line, $k, $value, $re, $matched, $one_match_sufficient, $complained,
+        $complain_once, $values) = @_;
+
+    return () unless $matched;
+
+    # Check for easily-reduceable numbers and units.  If the regexp didn't
+    # match in the main code, it won't match here; thus the check above.
+    my @gripes = ();
+    my %nextunit = ( 'K'=>'M', 'M'=>'G', 'G'=>'T', 'T'=>'P' );
+    my %prevunit = ( 'M'=>'K', 'G'=>'M', 'T'=>'G', 'P'=>'T' );
+    my ($place, $per, @sizes, @units);
+    ($sizes[0], $units[0], $sizes[1], $units[1], $place, $per) = ($value =~ /$re/);
+    for(my $i = 0; $i < 2; $i++) {
+        next unless defined($sizes[$i]) && $sizes[$i] ne '';
+        if ($sizes[$i] > 1023 && int($sizes[$i] / 1024) == ($sizes[$i] / 1024)) {
+            my $newsize = $sizes[$i] / 1024;
+            my $newunits = $units[$i];
+            $newunits =~ s/^([KMGT])/$nextunit{$1}/;
+            push @gripes, "- Unreduced cache size in the \"$k\" field.";
+            push @gripes, '   Please do not use values greater than 1023.';
+            push @gripes, "   \"$sizes[$i] $units[$i]\" should be changed to \"$newsize $newunits\"";
+            push @gripes, '';
+        }
+        if ($sizes[$i] < 1024 && ($sizes[$i] < 1 || int($sizes[$i]) != $sizes[$i])) {
+            my $newsize = int($sizes[$i] * 1024);
+            my $newunits = $units[$i];
+            $newunits =~ s/^([KMGT])/$prevunit{$1}/;
+            push @gripes, "- Fractional cache size in the \"$k\" field.";
+            push @gripes, '   Please do not use fractional sizes.';
+            push @gripes, "   \"$sizes[$i] $units[$i]\" should be changed to \"$newsize $newunits\"";
+            push @gripes, '';
+        }
+    }
+    my $coresperchip = undef;
+    $coresperchip = $values->{'hw_ncoresperchip0'} if exists($values->{'hw_ncoresperchip0'});
+    $coresperchip = $values->{'hw_ncoresperchip'} if exists($values->{'hw_ncoresperchip'});
+    if (defined($coresperchip) && $coresperchip == 1 && $per eq 'core') {
+        push @gripes, "- Invalid \"per\" specification for \"$k\".";
+        push @gripes, '    Please do not describe caches as "per core"';
+        push @gripes, '    for systems that have only one core per chip.';
+        push @gripes, '    Instead, please use "per chip".';
+        push @gripes, '';
+    }
+
+    return @gripes;
+};
+
+# Here's the text from osgcpu-18620 which is the basis for the L1 cache memory
+# regexp.
+#     number      a string of digits
+#     space
+#     unit        KB, MB, GB, or "K micro-ops"
+#     space
+#     type        I or I+D
+#     [optional
+#        " + "
+#        number   a string of digits
+#        space
+#        unit     KB, MB, GB
+#        space
+#        type     D
+#     ]
+#     location    "on chip" or "off chip"
+#     count       "per core" or "per chip"
+#     optional    other text added by tester
+my $l1cache = [ qr/^(?:None$|([.\d]+) ([KMGT](?:B| micro-ops)) I(?:\+D| \+ ([.\d]+) ([KMGT]B) D) (on|off) chip per (core|chip))/,
+                [
+                  '    It must either be set to \"None\" or conform to the',
+                  '    following format (in-line spaces are literal):',
+                  '       <digits> <unit> I+D <on|off> chip per <chip|core>',
+                  '    for a unified cache, or',
+                  '       <digits> <unit> I + <digits> <unit> D <on|off> chip per <chip|core>',
+                  '    for split caches.',
+                  '    Acceptable values for <unit> are KB, MB, GB, TB,',
+                  '    or \"K micro-ops\".',
+                  '   The current value is \"$value\".'
+                ],
+                1, # Not all fields need match
+                1, # Don't complain more than once
+                $cachesub,
+              ];
+
+# All other caches have the following format (again, from osgcpu-18620):
+#     number      a string of digits
+#     space
+#     unit        KB, MB, GB
+#     space
+#     type        I or I+D
+#     [optional
+#        " + "
+#        number   a string of digits
+#        space
+#        unit     KB, MB, GB
+#        space
+#        type     D
+#     ]
+#     location    "on chip" or "off chip"
+#     count       "per" whatever
+my $cache = [ qr/^(?:None$|([.\d]+) ([KMGT]B) I(?:\+D| \+ ([.\d]+) ([KMGT]B) D) (on|off) chip per (\S+))/,
+              [
+                '    It must either be set to \"None\" or conform to the',
+                '    following format (in-line spaces are literal):',
+                '       <digits> <unit> I+D <on|off> chip per <whatever>',
+                '    for a unified cache, or',
+                '       <digits> <unit> I + <digits> <unit> D <on|off> chip per <whatever>',
+                '    for split caches.',
+                '    Acceptable values for <unit> are KB, MB, GB, or TB.',
+                '   The current value is \"$value\".'
+              ],
+              1, # Not all fields need match
+              1, # Don't complain more than once
+              $cachesub,
+            ];
+
+# This is a sub to do a little extra explaining for the 'invalid' field.
+my $invalidsub = sub {
+    my ($line, $k, $value, $re, $matched, $one_match_sufficient, $complained,
+        $complain_once, $values) = @_;
+
+    # Return no gripes if the original regexp matched or if we're running
+    # in the harness, since there are more specific checks for
+    # forbiddenused and unknownused later on.
+    return () if ($matched || $value == 0 || defined( $::global_config ));
+
+    my @gripes;
+    # If invalid is 1, suggest that the user check for flags
+    if ($value == 2) {
+        push @gripes, '- The result may have been marked invalid because one or more',
+                      '  flags in the "unknown" or "forbidden" categories were used.',
+                      '  If this is the case, you may be able to resolve this problem',
+                      '  without re-running your test; see',
+                      '    http://www.spec.org/cpu2006/Docs/runspec.html#flagsurl',
+                      '  for more information.';
+    }
+
+    return @gripes;
+};
+
+# This just checks to make sure that the value matched is not just "--"
+my $issetsub = sub {
+    my ($line, $k, $value, $re, $matched, $one_match_sufficient, $complained,
+        $complain_once, $values) = @_;
+
+    return () unless $matched;
+
+    # Check for '--'.
+    my @gripes = ();
+    if ($value =~ /^\s*--/) {
+        push @gripes, "- The \"$k\" field must be set to something other than \"--\".";
+        push @gripes, '';
+    }
+
+    return @gripes;
+};
+
+# Yet another common case (must contain _something_ that's not whitespace or --):
+my $nonempty = [ qr/\S+/,
+                 [
+                   '- The $k field must not be empty.'
+                 ],
+                 1, # Not all fields need match
+                 1, # Don't complain more than once
+                 $issetsub,
+               ];
+
+# This just checks to make sure that the value matched is not just "Default"
+my $defaultsub = sub {
+    my ($line, $k, $value, $re, $matched, $one_match_sufficient, $complained,
+        $complain_once, $values) = @_;
+
+    return () unless $matched;
+
+    # Check for 'default'.
+    my @gripes = ();
+    if ($value =~ /^\s*default/i) {
+        push @gripes, "- The \"$k\" field must not be set to \"default\".";
+        push @gripes, '';
+    }
+
+    return (@gripes, &{$issetsub}($line, $k, $value, $re, $matched, $one_match_sufficient, $complained, $complain_once, $values));
+};
+
+# Not empty, and not "default"
+my $nodefault = [ qr/\S+/,
+                  [
+                    '- The $k field must not be empty.'
+                  ],
+                  1, # Not all fields need match
+                  1, # Don't complain more than once
+                  $defaultsub,
+                ];
+
+# There are a few of these too (empty or digits only)
+my $emptyordigits = [ qr/^(?:--|\d*)$/,
+                      [ 
+                        '    It must be either empty or entirely numeric.',
+                        '   The current value is \"$value\".'
+                      ]
+                    ];
+
+my $digitsonly = [ qr/^\d+$/,
+                   [ 
+                     '    It must be entirely numeric.',
+                     '   The current value is \"$value\".'
+                   ]
+                 ];
+
+# Here's a canned message for all "shouldn't happen" errors:
+my $canthappen = [
+                   '    This is not under user control, and should not happen.',
+                   '   The current value is \"$value\".'
+                 ];
+
+# Here's the sub that checks for (R), (TM), and "processor"
+my $tradesub = sub {
+    my ($line, $k, $value, $re, $matched, $one_match_sufficient, $complained,
+        $complain_once, $values) = @_;
+    my @gripes = ();
+
+    # Check for trademark-like characters
+    if ($value =~ /(?:\xAE|\x21\x22|\x84\xA2|\x99|\((?i:r|tm|sm)\))/) {
+        push @gripes, "- Use of trademark marking in \"$k\" field.";
+        push @gripes, '   Please do not use trademark markings like "(R)",';
+        push @gripes, '   "(TM)", and "(SM)".  The bottom of each result has';
+        push @gripes, '   a footer that explains that these marks are your';
+        push @gripes, '   property.  If you must use these markings, do so in';
+        push @gripes, '   the notes section.';
+        push @gripes, '';
+    }
+
+    if ($k =~ /hw_cpu_name/ && $value =~ /processor/i) {
+        push @gripes, "- Use of redundant \"processor\" in \"$k\" field.";
+        push @gripes, '   Please do not use the word "processor" in the CPU';
+        push @gripes, '   name field.  It is implied by context.';
+        push @gripes, '';
+    }
+
+    return @gripes;
+};
+
+# This is a sub to do a little extra checking for license numbers
+my $licensesub = sub {
+    my ($line, $k, $value, $re, $matched, $one_match_sufficient, $complained,
+        $complain_once, $values) = @_;
+    my @gripes = ();
+
+    return () unless $matched;
+
+    if ($value eq '--') {
+        push @gripes, '- License field is blank.  Please use your non-zero';
+        push @gripes, '   license number here.';
+    } elsif ($value+0 <= 0) {
+        push @gripes, '- Unreasonable value for license.  Please use your';
+        push @gripes, '   non-zero license number here.';
+    }
+
+    return @gripes;
+};
+
+# This is a sub to look for the old "Evironment variables" bug
+my $evironment = sub {
+    my ($line, $k, $value, $re, $matched, $one_match_sufficient, $complained,
+        $complain_once, $values) = @_;
+    my @gripes = ();
+
+    return () unless $matched;
+
+    if ($value =~ /Evironment variables/) {
+        push @gripes, '- Tools-generated notes contain the misspelling "Evironment".';
+        push @gripes, '  Apologies for the error, which is not your fault, but it';
+        push @gripes, '  must be fixed before the result will be accepted.';
+    }
+
+    return @gripes;
+};
+
+# These fields should be checked during review.  (As always.)
+%syntax = (
+    ##
+    ## Settings that the tools insert:
+    ##
+        'basemean:'     => [ qr/^[.\d]+$/,
+                             [ '- Submittable results must include a base run.',
+                               '    The basemean ($value) is missing or invalid.'
+                             ]
+                           ],
+        'units:'        => [ qr/^SPEC/, $canthappen ],
+        'metric:'       => [ qr/^C(?:INT|FP)2006/, $canthappen ],
+        'size:'         => [ qr/(?:\(ref\)$|^ref(?: |$))/,
+                             [ '- Submittable runs must use the reference workload.',
+                               '    Runs using the \"$value\" workload are not submittable.'
+                             ]
+                           ],
+        'rawconfig000:' => [ qr/^[\*\@\&]\S{76}$/,
+                             [ '- The stored config file is corrupt.',
+                               '    This is not under user control, and should not happen.'
+                             ]
+                           ],
+        'invalid:'      => {
+                             'regexp'      => qr/^0$/,
+                             'text'        => '- The invalid field is set to \"$value\"; it must be 0.',
+                             'custom_test' => $invalidsub,
+                           },
+        'suitever:'     => [ qr/^(?:1\.2)$/,        # YYY
+                             [ '- Submittable runs may only be done with v1.2.',
+                               '    The result was run with v$value.'
+                             ]
+                           ],
+
+    ##
+    ## Dates (all set by the user):
+    ##
+        'test_date\d*:' => $datere,
+        'hw_avail\d*:'  => $datere,
+        'sw_avail\d*:'  => $datere,
+
+    ##
+    ## Suite information (set by the user):
+    ##
+        'license_num\d*:' => [ qr/^\d+[aA]?$/,
+                               [ 
+                                 '    It must be numeric, with or without a trailing \"A\".',
+                                 '   The current value is \"$value\".'
+                               ],
+                               0, # All fields must match
+                               0, # Complain more than once if necessary
+                               $licensesub
+                             ],
+
+    ##
+    ## Hardware information for the SUT
+    ##
+        'hw_cpu_name\d*:'       => [ qr/\S+/,
+                                     '- The $k field must not be empty.',
+                                     0,
+                                     0,
+                                     $tradesub
+                                   ],
+        'hw_cpu_mhz\d*:'        => $digitsonly,
+        'hw_disk\d*:'           => $nonempty,
+        'hw_fpu\d*:'            => [ qr/\S+/,
+                                     [
+                                       '    The value must be non-blank.  This field is often',
+                                       '    set to \"Integrated\".',
+                                     ]
+                                   ],
+        'hw_memory\d*:'         => $memory,
+        'hw_model\d*:'          => $nonempty,
+        'hw_nchips\d*:'         => $digitsonly,
+        'hw_ncores\d*:'         => $digitsonly,
+        'hw_ncoresperchip\d*:'  => $digitsonly,
+        'hw_nthreadspercore\d*:'=> $digitsonly,
+        'hw_ncpuorder\d*:'      => [ qr/(?:\d+[-,]*)+ \S+/,
+                                     [
+                                        '    The value must contain a number, list of',
+                                       '    numbers, or range of numbers, followed by a unit.',
+                                        '   The current value is \"$value\".'
+                                     ]
+                                   ],
+        'hw_other\d*:'          => [ qr/\S+/,
+                                     [
+                                       '    The value must be non-blank.  If you are not using',
+                                       '    any other hardware relevant to SPEC CPU performance,',
+                                       '    you can say \"None\" here.'
+                                     ]
+                                   ],
+        'hw_pcache\d*:'         => $l1cache,
+        'hw_scache\d*:'         => $cache,
+        'hw_tcache\d*:'         => $cache,
+        'hw_ocache\d*:'         => $cache,
+        'hw_vendor\d*:'         => $nonempty,
+
+    ##
+    ## Software information and system state for the SUT
+    ##
+        'sw_auto_parallel\d*:' => [ @{$yesno},
+                                    [ # v1.0, and dev kits to 105
+                                      'suitever',
+                                      [ 0, 1.0 ],
+                                      [ 89, 105 ],
+                                    ],
+                                  ],
+
+        'sw_parallel_other\d*:'=> [ @{$yesnounset},
+                                    [ # v1.1+, and dev kits from 106
+                                      'suitever',
+                                      [ 1.1, 88 ],
+                                      [ 106, 999 ],
+                                    ],
+                                  ],
+        'sw_compiler\d*:'      => $nonempty,
+        'sw_file\d*:'          => $nodefault,
+        'sw_os\d*:'            => $nonempty,
+        'sw_base_ptrsize\d*:'  => [ qr#^(?:32|64|32/64)-bit$#,
+                                    [
+                                      '    The value must be either \"32-bit\",',
+                                      '    \"64-bit\", or \"32/64-bit\".',
+                                      '   The current value is \"$value\".'
+                                    ],
+                                  ],
+        'sw_other\d*:'         => [ qr/^(?!--)\S+/,
+                                    [
+                                      '    The value must be non-blank and may not begin with \"--\".',
+                                      '    If you are not using any other software relevant to SPEC',
+                                      '    CPU performance, you must say \"None\" here.'
+                                    ]
+                                  ],
+        'sw_peak_ptrsize\d*:'  => [ qr#^(?:(?:32|64|32/64)-bit|Not Applicable)$#,
+                                    [
+                                      '    The value must be either \"32-bit\",',
+                                      '    \"64-bit\", \"32/64-bit\", or \"Not Applicable\".',
+                                      '   The current value is \"$value\".'
+                                    ],
+                                  ],
+        'sw_state\d*:'         => $nonempty,
+
+    ##
+    ## Look for tools errors
+    ##
+        'notes\S+:'           => [ qr/.?/,
+                                   [],
+                                   0,
+                                   1,
+                                   $evironment,
+                                 ],
+    ##
+    ## General restrictions
+    ##
+        '[hs]w_\S+:'           => [ qr/.?/,
+                                    [],
+                                    0,
+                                    0,
+                                    $tradesub,
+                                  ],
+
+    ##
+    ## Ensure that there are results for all iterations of all
+    ## integer benchmarks
+    ##
+        'results.400_perlbench.base.000.reported_time:'	=> $int_base,
+        'results.400_perlbench.base.001.reported_time:'	=> $int_base,
+        'results.400_perlbench.base.002.reported_time:'	=> $int_base,
+        'results.400_perlbench.peak.000.reported_time:'	=> $int_peak,
+        'results.400_perlbench.peak.001.reported_time:'	=> $int_peak,
+        'results.400_perlbench.peak.002.reported_time:'	=> $int_peak,
+        'results.401_bzip2.base.000.reported_time:'	=> $int_base,
+        'results.401_bzip2.base.001.reported_time:'	=> $int_base,
+        'results.401_bzip2.base.002.reported_time:'	=> $int_base,
+        'results.401_bzip2.peak.000.reported_time:'	=> $int_peak,
+        'results.401_bzip2.peak.001.reported_time:'	=> $int_peak,
+        'results.401_bzip2.peak.002.reported_time:'	=> $int_peak,
+        'results.403_gcc.base.000.reported_time:'	=> $int_base,
+        'results.403_gcc.base.001.reported_time:'	=> $int_base,
+        'results.403_gcc.base.002.reported_time:'	=> $int_base,
+        'results.403_gcc.peak.000.reported_time:'	=> $int_peak,
+        'results.403_gcc.peak.001.reported_time:'	=> $int_peak,
+        'results.403_gcc.peak.002.reported_time:'	=> $int_peak,
+        'results.429_mcf.base.000.reported_time:'	=> $int_base,
+        'results.429_mcf.base.001.reported_time:'	=> $int_base,
+        'results.429_mcf.base.002.reported_time:'	=> $int_base,
+        'results.429_mcf.peak.000.reported_time:'	=> $int_peak,
+        'results.429_mcf.peak.001.reported_time:'	=> $int_peak,
+        'results.429_mcf.peak.002.reported_time:'	=> $int_peak,
+        'results.445_gobmk.base.000.reported_time:'	=> $int_base,
+        'results.445_gobmk.base.001.reported_time:'	=> $int_base,
+        'results.445_gobmk.base.002.reported_time:'	=> $int_base,
+        'results.445_gobmk.peak.000.reported_time:'	=> $int_peak,
+        'results.445_gobmk.peak.001.reported_time:'	=> $int_peak,
+        'results.445_gobmk.peak.002.reported_time:'	=> $int_peak,
+        'results.456_hmmer.base.000.reported_time:'	=> $int_base,
+        'results.456_hmmer.base.001.reported_time:'	=> $int_base,
+        'results.456_hmmer.base.002.reported_time:'	=> $int_base,
+        'results.456_hmmer.peak.000.reported_time:'	=> $int_peak,
+        'results.456_hmmer.peak.001.reported_time:'	=> $int_peak,
+        'results.456_hmmer.peak.002.reported_time:'	=> $int_peak,
+        'results.458_sjeng.base.000.reported_time:'	=> $int_base,
+        'results.458_sjeng.base.001.reported_time:'	=> $int_base,
+        'results.458_sjeng.base.002.reported_time:'	=> $int_base,
+        'results.458_sjeng.peak.000.reported_time:'	=> $int_peak,
+        'results.458_sjeng.peak.001.reported_time:'	=> $int_peak,
+        'results.458_sjeng.peak.002.reported_time:'	=> $int_peak,
+        'results.462_libquantum.base.000.reported_time:'	=> $int_base,
+        'results.462_libquantum.base.001.reported_time:'	=> $int_base,
+        'results.462_libquantum.base.002.reported_time:'	=> $int_base,
+        'results.462_libquantum.peak.000.reported_time:'	=> $int_peak,
+        'results.462_libquantum.peak.001.reported_time:'	=> $int_peak,
+        'results.462_libquantum.peak.002.reported_time:'	=> $int_peak,
+        'results.464_h264ref.base.000.reported_time:'	=> $int_base,
+        'results.464_h264ref.base.001.reported_time:'	=> $int_base,
+        'results.464_h264ref.base.002.reported_time:'	=> $int_base,
+        'results.464_h264ref.peak.000.reported_time:'	=> $int_peak,
+        'results.464_h264ref.peak.001.reported_time:'	=> $int_peak,
+        'results.464_h264ref.peak.002.reported_time:'	=> $int_peak,
+        'results.471_omnetpp.base.000.reported_time:'	=> $int_base,
+        'results.471_omnetpp.base.001.reported_time:'	=> $int_base,
+        'results.471_omnetpp.base.002.reported_time:'	=> $int_base,
+        'results.471_omnetpp.peak.000.reported_time:'	=> $int_peak,
+        'results.471_omnetpp.peak.001.reported_time:'	=> $int_peak,
+        'results.471_omnetpp.peak.002.reported_time:'	=> $int_peak,
+        'results.473_astar.base.000.reported_time:'	=> $int_base,
+        'results.473_astar.base.001.reported_time:'	=> $int_base,
+        'results.473_astar.base.002.reported_time:'	=> $int_base,
+        'results.473_astar.peak.000.reported_time:'	=> $int_peak,
+        'results.473_astar.peak.001.reported_time:'	=> $int_peak,
+        'results.473_astar.peak.002.reported_time:'	=> $int_peak,
+        'results.483_xalancbmk.base.000.reported_time:'	=> $int_base,
+        'results.483_xalancbmk.base.001.reported_time:'	=> $int_base,
+        'results.483_xalancbmk.base.002.reported_time:'	=> $int_base,
+        'results.483_xalancbmk.peak.000.reported_time:'	=> $int_peak,
+        'results.483_xalancbmk.peak.001.reported_time:'	=> $int_peak,
+        'results.483_xalancbmk.peak.002.reported_time:'	=> $int_peak,
+
+    ##
+    ## Ensure that there are results for all CFP benchmarks
+    ##
+        'results.410_bwaves.base.000.reported_time:'	=> $fp_base,
+        'results.410_bwaves.base.001.reported_time:'	=> $fp_base,
+        'results.410_bwaves.base.002.reported_time:'	=> $fp_base,
+        'results.410_bwaves.peak.000.reported_time:'	=> $fp_peak,
+        'results.410_bwaves.peak.001.reported_time:'	=> $fp_peak,
+        'results.410_bwaves.peak.002.reported_time:'	=> $fp_peak,
+        'results.416_gamess.base.000.reported_time:'	=> $fp_base,
+        'results.416_gamess.base.001.reported_time:'	=> $fp_base,
+        'results.416_gamess.base.002.reported_time:'	=> $fp_base,
+        'results.416_gamess.peak.000.reported_time:'	=> $fp_peak,
+        'results.416_gamess.peak.001.reported_time:'	=> $fp_peak,
+        'results.416_gamess.peak.002.reported_time:'	=> $fp_peak,
+        'results.433_milc.base.000.reported_time:'	=> $fp_base,
+        'results.433_milc.base.001.reported_time:'	=> $fp_base,
+        'results.433_milc.base.002.reported_time:'	=> $fp_base,
+        'results.433_milc.peak.000.reported_time:'	=> $fp_peak,
+        'results.433_milc.peak.001.reported_time:'	=> $fp_peak,
+        'results.433_milc.peak.002.reported_time:'	=> $fp_peak,
+        'results.434_zeusmp.base.000.reported_time:'	=> $fp_base,
+        'results.434_zeusmp.base.001.reported_time:'	=> $fp_base,
+        'results.434_zeusmp.base.002.reported_time:'	=> $fp_base,
+        'results.434_zeusmp.peak.000.reported_time:'	=> $fp_peak,
+        'results.434_zeusmp.peak.001.reported_time:'	=> $fp_peak,
+        'results.434_zeusmp.peak.002.reported_time:'	=> $fp_peak,
+        'results.435_gromacs.base.000.reported_time:'	=> $fp_base,
+        'results.435_gromacs.base.001.reported_time:'	=> $fp_base,
+        'results.435_gromacs.base.002.reported_time:'	=> $fp_base,
+        'results.435_gromacs.peak.000.reported_time:'	=> $fp_peak,
+        'results.435_gromacs.peak.001.reported_time:'	=> $fp_peak,
+        'results.435_gromacs.peak.002.reported_time:'	=> $fp_peak,
+        'results.436_cactusADM.base.000.reported_time:'	=> $fp_base,
+        'results.436_cactusADM.base.001.reported_time:'	=> $fp_base,
+        'results.436_cactusADM.base.002.reported_time:'	=> $fp_base,
+        'results.436_cactusADM.peak.000.reported_time:'	=> $fp_peak,
+        'results.436_cactusADM.peak.001.reported_time:'	=> $fp_peak,
+        'results.436_cactusADM.peak.002.reported_time:'	=> $fp_peak,
+        'results.437_leslie3d.base.000.reported_time:'	=> $fp_base,
+        'results.437_leslie3d.base.001.reported_time:'	=> $fp_base,
+        'results.437_leslie3d.base.002.reported_time:'	=> $fp_base,
+        'results.437_leslie3d.peak.000.reported_time:'	=> $fp_peak,
+        'results.437_leslie3d.peak.001.reported_time:'	=> $fp_peak,
+        'results.437_leslie3d.peak.002.reported_time:'	=> $fp_peak,
+        'results.444_namd.base.000.reported_time:'	=> $fp_base,
+        'results.444_namd.base.001.reported_time:'	=> $fp_base,
+        'results.444_namd.base.002.reported_time:'	=> $fp_base,
+        'results.444_namd.peak.000.reported_time:'	=> $fp_peak,
+        'results.444_namd.peak.001.reported_time:'	=> $fp_peak,
+        'results.444_namd.peak.002.reported_time:'	=> $fp_peak,
+        'results.447_dealII.base.000.reported_time:'	=> $fp_base,
+        'results.447_dealII.base.001.reported_time:'	=> $fp_base,
+        'results.447_dealII.base.002.reported_time:'	=> $fp_base,
+        'results.447_dealII.peak.000.reported_time:'	=> $fp_peak,
+        'results.447_dealII.peak.001.reported_time:'	=> $fp_peak,
+        'results.447_dealII.peak.002.reported_time:'	=> $fp_peak,
+        'results.450_soplex.base.000.reported_time:'	=> $fp_base,
+        'results.450_soplex.base.001.reported_time:'	=> $fp_base,
+        'results.450_soplex.base.002.reported_time:'	=> $fp_base,
+        'results.450_soplex.peak.000.reported_time:'	=> $fp_peak,
+        'results.450_soplex.peak.001.reported_time:'	=> $fp_peak,
+        'results.450_soplex.peak.002.reported_time:'	=> $fp_peak,
+        'results.453_povray.base.000.reported_time:'	=> $fp_base,
+        'results.453_povray.base.001.reported_time:'	=> $fp_base,
+        'results.453_povray.base.002.reported_time:'	=> $fp_base,
+        'results.453_povray.peak.000.reported_time:'	=> $fp_peak,
+        'results.453_povray.peak.001.reported_time:'	=> $fp_peak,
+        'results.453_povray.peak.002.reported_time:'	=> $fp_peak,
+        'results.454_calculix.base.000.reported_time:'	=> $fp_base,
+        'results.454_calculix.base.001.reported_time:'	=> $fp_base,
+        'results.454_calculix.base.002.reported_time:'	=> $fp_base,
+        'results.454_calculix.peak.000.reported_time:'	=> $fp_peak,
+        'results.454_calculix.peak.001.reported_time:'	=> $fp_peak,
+        'results.454_calculix.peak.002.reported_time:'	=> $fp_peak,
+        'results.459_GemsFDTD.base.000.reported_time:'	=> $fp_base,
+        'results.459_GemsFDTD.base.001.reported_time:'	=> $fp_base,
+        'results.459_GemsFDTD.base.002.reported_time:'	=> $fp_base,
+        'results.459_GemsFDTD.peak.000.reported_time:'	=> $fp_peak,
+        'results.459_GemsFDTD.peak.001.reported_time:'	=> $fp_peak,
+        'results.459_GemsFDTD.peak.002.reported_time:'	=> $fp_peak,
+        'results.465_tonto.base.000.reported_time:'	=> $fp_base,
+        'results.465_tonto.base.001.reported_time:'	=> $fp_base,
+        'results.465_tonto.base.002.reported_time:'	=> $fp_base,
+        'results.465_tonto.peak.000.reported_time:'	=> $fp_peak,
+        'results.465_tonto.peak.001.reported_time:'	=> $fp_peak,
+        'results.465_tonto.peak.002.reported_time:'	=> $fp_peak,
+        'results.470_lbm.base.000.reported_time:'	=> $fp_base,
+        'results.470_lbm.base.001.reported_time:'	=> $fp_base,
+        'results.470_lbm.base.002.reported_time:'	=> $fp_base,
+        'results.470_lbm.peak.000.reported_time:'	=> $fp_peak,
+        'results.470_lbm.peak.001.reported_time:'	=> $fp_peak,
+        'results.470_lbm.peak.002.reported_time:'	=> $fp_peak,
+        'results.481_wrf.base.000.reported_time:'	=> $fp_base,
+        'results.481_wrf.base.001.reported_time:'	=> $fp_base,
+        'results.481_wrf.base.002.reported_time:'	=> $fp_base,
+        'results.481_wrf.peak.000.reported_time:'	=> $fp_peak,
+        'results.481_wrf.peak.001.reported_time:'	=> $fp_peak,
+        'results.481_wrf.peak.002.reported_time:'	=> $fp_peak,
+        'results.482_sphinx3.base.000.reported_time:'	=> $fp_base,
+        'results.482_sphinx3.base.001.reported_time:'	=> $fp_base,
+        'results.482_sphinx3.base.002.reported_time:'	=> $fp_base,
+        'results.482_sphinx3.peak.000.reported_time:'	=> $fp_peak,
+        'results.482_sphinx3.peak.001.reported_time:'	=> $fp_peak,
+        'results.482_sphinx3.peak.002.reported_time:'	=> $fp_peak,
+
+);
+
+# These fields are internally-generated "dummy" fields, and never exist in
+# any file.  They should not be included when the syntax file is used by
+# the website submission handler.
+if( defined( $::global_config ) ) {
+
+    $syntax{'forbiddenused:'}   = [ qr/^0$/,
+                                    [
+                                      '- Forbidden flags were used!',
+                                    ],
+                                  ];
+    $syntax{'unknownused:'}     = [ qr/^0$/,
+                                    [
+                                      '- Your run was marked invalid because it has one or more flags',
+                                      '  in the \"unknown\" category. You might be able to resolve this',
+                                      '  problem without re-running your test; see',
+                                      "    http://www.spec.org/${main::lcsuite}/Docs/runspec.html#flagsurl",
+                                      '  for more information.',
+                                    ],
+                                  ];
+}
+
+1;

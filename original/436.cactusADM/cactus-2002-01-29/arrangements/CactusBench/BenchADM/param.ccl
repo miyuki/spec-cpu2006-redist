@@ -1,0 +1,39 @@
+# Parameter definitions for thorn BenchADM
+# $Header: /cactus/CactusBench/BenchADM/param.ccl,v 1.6 2000/12/17 17:57:48 goodale Exp $
+
+shares:time
+
+USES KEYWORD timestep_method 
+
+USES BOOLEAN timestep_outonly 
+
+shares:einstein
+
+EXTENDS KEYWORD evolution_system 
+{
+   "ADM" :: "Evolve using ADM evolution scheme"
+}
+
+EXTENDS KEYWORD slicing 
+{
+   "geodesic" :: "Lapse is set to unity"
+} ""
+
+restricted: 
+
+KEYWORD method "Numerical method to use for ADM"
+{
+   "stagleap" :: "Evolve using Staggered Leapfrog"
+} "stagleap"
+
+private:
+
+KEYWORD bound "Boundary condition to implement"
+{
+  "none"     :: "No boundary condition"
+} "none"
+
+BOOLEAN time_symmetric "How to get the initial data for staggered leapfrog"
+{
+} "yes"
+

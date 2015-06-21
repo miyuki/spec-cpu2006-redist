@@ -1,0 +1,64 @@
+# $Header: /cactus/Cactus/doc/README.NT,v 1.11 2000/12/12 16:27:59 goodale Exp $
+
+The aim of this file is to describe the environment necessary to build
+the CCTK on an NT (or Windows 2000) platform.
+
+Apart from the required software noted in the manual, you must install
+the cygwin package available from http://www.cygwin.com .
+
+IMPORTANT: After installing Cygwin, you must make sure that the GNU
+CPP is somewhere on your path, and that the directory path leading to
+it contains no names containing un-escaped spaces - these would
+confuse the autoconf program.  Failure to do this will result in
+bizarre errors in the dependency generation.
+
+Additionally, if you want the -clean, -realclean, and -cleandeps
+targets to work, you need to make sure that the GNU find comes before
+the microsoft find in your path.
+
+In principle now all you need to do is start bash, checkout the CCTK,
+and run make.
+
+Please note that paths to additional include files or libraries must
+contain no spaces.  However the INCLUDE and LIB environment variables,
+which are used by the Windows compilers, may include spaces in path
+names.  The INCLUDE environment variable MUST NOT, however, have a
+semicolon (;) with no text after it, e.g. it must not end with a
+semicolon.  This situation can be avoided by putting
+
+INCLUDE="`echo $INCLUDE | sed -e 's/;\+/;/' | sed -e 's/;$//'`"
+
+in your .bashrc .
+
+Tested Software:
+---------------
+
+Cygwin:
+------
+Cygwin beta 20.1.
+Cygwin 1.0 (but with an updated make, see below)
+Cygwin 1.1.6
+
+Perl:
+----
+perl 5.003_7 (Perl for Win32 build 312)
+ActivePerl-5.6.0.620
+
+C/C++:
+-----
+Microsoft Visual C 6.0
+Intel C/C++ version 4.5 (configure with CC=icl CXX="icl /TP" )
+
+Fortran:
+-------
+Digital Fortran 6.0 
+Compaq Fortran 6.1
+Intel Fortran 4.5 
+
+
+
+KNOWN PROBLEMS:
+
+Cygwin 1.0 comes with make 3.77 .  This dumps core in the make system
+and should be updated to 3.79.1, or later.
+

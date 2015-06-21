@@ -1,0 +1,387 @@
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# This is GNU Go, a Go program. Contact gnugo@gnu.org, or see       #
+# http://www.gnu.org/software/gnugo/ for more information.          #
+#                                                                   #
+# Copyright 1999, 2000, 2001, 2002 and 2003                         #
+# by the Free Software Foundation.                                  #
+#                                                                   #
+# This program is free software; you can redistribute it and/or     #
+# modify it under the terms of the GNU General Public License       #
+# as published by the Free Software Foundation - version 2.         #
+#                                                                   #
+# This program is distributed in the hope that it will be useful,   #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of    #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU #
+# General Public License in file COPYING for more details.          #
+#                                                                   #
+# You should have received a copy of the GNU General Public License #
+# along with this program; if not, write to the Free Software       #
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111,  #
+# USA.                                                              #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#
+#  defense.db - pattern database for finding tactical defense moves
+#
+#  The tactical reading functions try to defend by playing on the
+#  immediate liberties only. This database is intended to find
+#  additional defense moves. Notice though that these patterns doesn't
+#  help the tactical reading to find defense moves later in a move
+#  sequence but only at stackp=0.
+#
+#  See patterns.db for a specification of the current database format.
+#
+#  Since these patterns are matched during make_worms() it doesn't
+#  make any sense to use classifications such as X and O. No other
+#  classification than D is useful either since we only have tactical
+#  defense moves here.
+#
+#  The semantics of these patterns are that the move at * is tried
+#  as a defense for each attackable O string in the pattern.
+#  The patterns are matched with either player as O.
+#
+#  FIXME: There are still some redundant patterns.
+#
+##################################################################
+
+
+goal_elements none
+callback_data O
+
+
+Pattern Def1
+
+X*
+Ox
+
+:8,D
+
+X*
+Ox
+
+;olib(*)>1
+
+
+Pattern Def2
+# Require that the common tesuji at b doesn't invalidate this defense move.
+
+O.*
+O..
+
+:8,D
+
+a.*
+a.b
+
+;attack(a) && oplay_defend(*,b,a)
+
+
+Pattern Def4
+
+XOO?    capture one stone
+OX..
+O.*?
+?.??
+
+:8,D
+
+
+Pattern Def5
+
+OXoO    connect under
+O*..
+....
+----
+
+:8,D
+
+
+Pattern Def6
+
+OXXO    connect under (the connection may or may not be broken)
+O.*.
+....
+----
+
+:8,D
+
+
+Pattern Def9
+
+OX*O    cut!
+.OX?
+
+:8,D
+
+
+Pattern Def10
+
+XO?        connection pattern
+*.O
+?.?
+
+:8,D
+
+
+Pattern Def12
+
+?O*X           
+o.XO           
+?O.X
+
+:8,D
+
+
+Pattern Def16
+
+-----
+...O?
+*.OXO
+XO.X?
+?XX??
+
+:8,D
+
+
+Pattern Def17
+
++----
+|.*oo
+|O.o?     defend with good eye shape
+|XOOo     
+|XX??
+
+:8,D
+
+
+Pattern Def21
+
+|oOO
+|.X.
+|.OX
+|*XO
+|.O?        capture to connect
+
+:8,D
+
+|oaa
+|.X.
+|.OX
+|*XO
+|.O?
+
+;lib(a)>2
+
+
+Pattern Def25
+
+?XO           threaten to capture          
+?OX
+..*
+?O.
+
+:8,D
+
+
+Pattern Def26
+
+O.O?           Bamboo joint for defense
+O.*?
+
+:8,D
+
+
+Pattern Def28
+
+?O?
+Ox*	    defend with eye shape
+?O?
+
+:-,D
+
+
+Pattern Def29
+
+?X?        make shape
+.O.
+...
+.*.
+?.?
+
+:|,D
+
+
+Pattern Def39
+
+?X?.??       jump under
+O..*.?
+O....?
+o....?
+------
+
+:8,D
+
+
+Pattern Def44
+
+??Xx?
+XXO*.         override solid connection
+OO...
+.....
+-----
+
+:8,D
+
+
+Pattern Def45
+
+OOXX         push to capture X
+.XO*
+....
+----
+
+:8,D
+
+
+Pattern Def49
+
+??X?
+O*.X         Draw back to defend connection
+..OX
+....
+----
+
+:8,D
+
+
+Pattern Def50
+
+??o?            hanging connection
+?O.*
+XXO.
+----
+
+:8,D
+
+
+Pattern Def52
+
+??????
+?....x             jump into empty space
+?.*.OO
+?....x
+??????
+
+:8,D
+
+
+Pattern Def55
+# Not on edge
+
+ooo
+O.O      form eye to protect
+.*X
+
+:8,D
+
+
+Pattern Def56
+
+xXO             extend after hane
+XO.
+.*.
+...
+
+:8,D
+
+
+Pattern Def57
+
+..O
+o*X
+..O
+
+:-,D
+
+
+Pattern Def58
+
+?????
+....?          jump! (But not down to second line)
+O.*.?
+....?
+X...?
+
+:8,D
+
+
+Pattern Def59
+
+....           jump!
+O.*.
+....
+X.X.
+
+:8,D
+
+
+Pattern Def60
+
+OXO             block opponent
+.*.
+?.?
+
+:|,D
+
+
+Pattern Def61
+
+?.?       extend to defend
+.*.
+XO?
+X.?
+XO?
+
+:8,D
+
+
+Pattern Def62
+
+oOo?           attach
+...?
+.*X.
+...?
+
+:8,D
+
+
+Pattern Def63
+
+O.Oo
+XO..     protect by drawing back
+XX*O
+
+:8,D
+
+
+Pattern Def68
+
+o.X?      try to defend by clamping to connect
+OX*O
+....
+----
+
+:8,D
+
+
+Pattern Def69
+
+OX*       atari on opponent to defend
+?O.
+
+:8,D
+
+aC*
+?b.
+
+;lib(a)>1 && lib(b)>1 && lib(C)<=2 && olib(*)>1
+

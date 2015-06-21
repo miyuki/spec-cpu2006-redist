@@ -1,0 +1,68 @@
+/*@@
+  @header   STRESSENERGY_declare.h
+  @date     Nov 98
+  @author   Gabrielle Allen
+  @desc
+  Macro to calculate the components of the stress energy
+  tensor
+  scheme
+  @enddesc
+@@*/
+
+#ifndef STRESSENERGY_DECLARE
+#define STRESSENERGY_DECLARE
+
+#include "CactusEinstein/Einstein/src/macro/DETG_declare.h"
+#include "CactusEinstein/Einstein/src/macro/UPPERMET_declare.h"
+#include "CactusEinstein/Einstein/src/macro/TRT_declare.h"
+
+#undef  STRESSENERGY_TTT 
+#define STRESSENERGY_TTT Ttt
+#undef  STRESSENERGY_TTX 
+#define STRESSENERGY_TTX Ttx
+#undef  STRESSENERGY_TTY 
+#define STRESSENERGY_TTY Tty
+#undef  STRESSENERGY_TTZ 
+#define STRESSENERGY_TTZ Ttz
+#undef  STRESSENERGY_TXX 
+#define STRESSENERGY_TXX Txx
+#undef  STRESSENERGY_TXY 
+#define STRESSENERGY_TXY Txy
+#undef  STRESSENERGY_TXZ 
+#define STRESSENERGY_TXZ Txz
+#undef  STRESSENERGY_TYY 
+#define STRESSENERGY_TYY Tyy
+#undef  STRESSENERGY_TYZ 
+#define STRESSENERGY_TYZ Tyz
+#undef  STRESSENERGY_TZZ 
+#define STRESSENERGY_TZZ Tzz
+
+/* Symmetries */
+#undef  STRESSENERGY_TXT
+#define STRESSENERGY_TXT STRESSENERGY_TTX
+#undef  STRESSENERGY_TYT
+#define STRESSENERGY_TYT STRESSENERGY_TTY
+#undef  STRESSENERGY_TZT
+#define STRESSENERGY_TZT STRESSENERGY_TTZ
+#undef  STRESSENERGY_TYX
+#define STRESSENERGY_TYX STRESSENERGY_TXY
+#undef  STRESSENERGY_TZX
+#define STRESSENERGY_TZX STRESSENERGY_TXZ
+#undef  STRESSENERGY_TZY
+#define STRESSENERGY_TZY STRESSENERGY_TYZ
+
+      CCTK_REAL STRESSENERGY_TTT
+      CCTK_REAL STRESSENERGY_TTX
+      CCTK_REAL STRESSENERGY_TTY
+      CCTK_REAL STRESSENERGY_TTZ
+      CCTK_REAL STRESSENERGY_TXX
+      CCTK_REAL STRESSENERGY_TXY
+      CCTK_REAL STRESSENERGY_TXZ
+      CCTK_REAL STRESSENERGY_TYY
+      CCTK_REAL STRESSENERGY_TYZ
+      CCTK_REAL STRESSENERGY_TZZ
+      
+      CCTK_REAL uxx,uxy,uxz,uyy,uyz,uzz
+      CCTK_REAL detg
+
+#endif

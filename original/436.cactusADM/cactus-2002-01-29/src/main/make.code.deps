@@ -1,0 +1,34 @@
+# /*@@
+#   @file      make.code.deps
+#   @date      Fri Sep  1 02:06:14 2000
+#   @author    Tom Goodale
+#   @desc 
+#   Additional dependency info for this directory.
+#   @enddesc
+#   @version $Header: /cactus/Cactus/src/main/make.code.deps,v 1.2 2000/09/01 00:13:15 goodale Exp $ 
+# @@*/
+
+# Rule for when there is no C++ compiler
+# In this case the flesh.cc file should be 
+# compiled as C rather than C++.
+
+ifeq ($(strip $(CXX)),none)
+
+flesh.cc.o: flesh.c.o
+	cp $< $@
+
+flesh.c.o: flesh.c
+	@echo Compiling $(SRCDIR)/flesh.cc
+	$(COMPILE_C)
+	@echo Postprocessing $(SRCDIR)/flesh.cc
+	$(POSTPROCESS_C)
+
+flesh.c: $(SRCDIR)/flesh.cc
+	@echo $(DIVIDER)
+	@echo Preprocessing $<
+	cp $< $@
+
+flesh.cc.d: $(SRCDIR)/flesh.cc
+	$(C_DEPENDENCIES)
+
+endif

@@ -1,0 +1,340 @@
+% /*@@
+%   @file      MaintGuide.tex
+%   @date      Wed Jan 12 14:38:29 2000
+%   @author    Tom Goodale
+%   @desc 
+%   
+%   @enddesc 
+%   @version $Header: /cactus/Cactus/doc/MaintGuide/MaintGuide.tex,v 1.5 2001/05/11 10:40:34 goodale Exp $
+% @@*/
+
+\documentclass{report}
+\usepackage{fancyhdr,ifthen,calc}
+\usepackage{graphicx}
+
+\makeatletter
+\@addtoreset{chapter}{part}
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\parskip = 2 pt
+\oddsidemargin = 0 cm
+\textwidth = 16 cm
+\topmargin = -1 cm
+\textheight = 24 cm
+
+\usepackage{tocloft}
+\addtolength{\cftchapnumwidth}{0.5em}
+\addtolength{\cftsecnumwidth}{0.5em}
+\addtolength{\cftsubsecnumwidth}{0.5em}
+\addtolength{\cftsubsubsecnumwidth}{0.5em}
+
+
+\def\q{\bf QUERY: }
+\def\t{\tt \obeylines }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newenvironment{CCTKroutine}{\newpage}{}
+\newenvironment{CCTKsyn}{\noindent\begin{tabular}{@{}p{3cm}cp{11cm}}&&\\{\bf Synopis} \hfill&&\\}{\end{tabular}}
+\newenvironment{CCTKpar}{\noindent\begin{tabular}{@{}p{3cm}cp{11cm}}&&\\{\bf Parameters} \hfill&&\\}{\end{tabular}}
+\newcommand{\CCTKname}[1]{\noindent{\t #1}\hrule}
+\newcommand{\CCTKdesc}[1]{\vskip .3cm \noindent #1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Define some saveboxes to hold data
+\newsavebox{\cctkbox}
+\newsavebox{\cctkcargbox}
+\newsavebox{\cctkfargbox}
+\newsavebox{\cctkfargdefs}
+\newsavebox{\cctkcsepbox}
+\newsavebox{\cctkfsepbox}
+\newsavebox{\cctkfdefssep}
+\newsavebox{\cctkcprefix}
+\newsavebox{\cctkfprefix}
+\newsavebox{\cctkparambox}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MANPAGE like description setting for options, use as 
+% \begin{Lentry} \item[text] text  \end{Lentry}
+
+\newcommand{\entrylabel}[1]{\mbox{\textsf{#1}}\hfil}
+\newenvironment{entry}
+  {\begin{list}{}
+    {\renewcommand{\makelabel}{\entrylabel}
+      \setlength{\labelwidth}{90pt}
+      \setlength{\leftmargin}{\labelwidth+\labelsep}
+    }
+  }
+  {\end{list}}
+
+\newlength{\Mylen}
+\newcommand{\Lentrylabel}[1]{%
+  \settowidth{\Mylen}{\textsf{#1}}%
+  \ifthenelse{\lengthtest{\Mylen > \labelwidth}}%
+    {\parbox[b]{\labelwidth} %  term > labelwidth
+      {\makebox[0pt][l]{\textsf{#1}}\\}} %
+    {\textsf{#1}} %
+
+  \hfil\relax}
+\newenvironment{Lentry}
+  {\renewcommand{\entrylabel}{\Lentrylabel}
+   \begin{entry}}
+  {\end{entry}}
+%%%%%%
+
+
+
+\newenvironment{CCTKFunc}[2]
+        {\sbox{\cctkbox}{#1}
+         \newpage
+         \noindent{\t #1}\hrule 
+         \vskip .3cm \noindent #2\\
+%Clear the saveboxes - this may not be neccessary
+         \sbox{\cctkcargbox}{}
+         \sbox{\cctkfargbox}{}
+         \sbox{\cctkfargdefs}{}
+         \sbox{\cctkcsepbox}{}
+         \sbox{\cctkfsepbox}{}
+         \sbox{\cctkfdefssep}{}
+         \sbox{\cctkcprefix}{}
+         \sbox{\cctkfprefix}{}
+%A command to add an argument - takes ctype, ftype, name
+         \newcommand{\argument}[3]
+         {\sbox{\cctkcargbox}{\usebox{\cctkcargbox}\usebox{\cctkcsepbox} ##1 ##3} 
+          \sbox{\cctkcsepbox}{,}
+          \sbox{\cctkfargbox}{\usebox{\cctkfargbox}\usebox{\cctkfsepbox} ##3} 
+          \sbox{\cctkfsepbox}{,}
+          \sbox{\cctkfargdefs}{\noindent{}\vbox{\noindent\usebox{\cctkfargdefs}\noindent\usebox{\cctkfdefssep}\noindent {}  ##2 ##3}}
+          \sbox{\cctkfdefssep}{\\}
+         }
+%Use this command if it is a subroutine, same args as \argument
+         \newcommand{\subroutine}[3]
+         {\sbox{\cctkcprefix}{##1 ##3 =}
+          \sbox{\cctkfprefix}{call}
+          \sbox{\cctkfargbox}{##3\usebox{\cctkfsepbox} \usebox{\cctkfargbox}} 
+          \sbox{\cctkfsepbox}{,}
+          \sbox{\cctkfargdefs}{\noindent{}\vbox{\noindent ##2 ##3 \usebox{\cctkfdefssep}\noindent{}\usebox{\cctkfargdefs}}}
+          \sbox{\cctkfdefssep}{\\}
+         }
+
+%Use this command if it is a function, same args as \argument
+         \newcommand{\function}[3]
+         {\sbox{\cctkcprefix}{##1 ##3 =}
+          \sbox{\cctkfprefix}{##3 = }
+          \sbox{\cctkfargdefs}{\noindent{}\vbox{\noindent ##2 ##3 \usebox{\cctkfdefssep}\noindent{}\usebox{\cctkfargdefs}}}
+          \sbox{\cctkfdefssep}{\\}
+         }
+
+%Use this to display the arguments
+         \newcommand{\showargs}
+         {\noindent
+          \begin{tabular}{@{}p{3cm}cp{11cm}}&&\\
+{\bf Synopis} \hfill&&\\ 
+\hfill {\bf C} && {\t \usebox{\cctkcprefix} \usebox{\cctkbox}(\usebox{\cctkcargbox})}\\
+\hfill {\bf Fortran} && 
+{\t \usebox{\cctkfprefix} \usebox{\cctkbox}(\usebox{\cctkfargbox} ) }\\
+&&\noindent\usebox{\cctkfargdefs}
+\end{tabular}\\
+}
+
+%Use this to display the C arguments
+         \newcommand{\showcargs}
+         {\noindent
+          \begin{tabular}{@{}p{3cm}cp{11cm}}&&\\
+{\bf Synopis} \hfill&&\\ 
+\hfill {\bf C} && {\t \usebox{\cctkcprefix} \usebox{\cctkbox}(\usebox{\cctkcargbox})}\\
+\end{tabular}\\
+}
+
+
+%Environment for describing parameters
+          \newenvironment{params}{
+             \noindent\begin{tabular}{@{}p{3cm}cp{11cm}}&&\\{\bf Parameters} \hfill&&\\}{\end{tabular}\\}
+%Command to describe a parameter, takes name and description
+          \newcommand{\parameter}[2]{
+\\
+\hfill {\t ##1} &-&##2
+\\
+}
+%Environment for discussion
+    \newenvironment{discussion}
+    {\noindent
+     \begin{tabular}{@{}p{14cm}}
+     \\{\bf Discussion} \hfill\\
+    }
+    {
+     \end{tabular}\\
+    }
+%Environment for examples
+    \newenvironment{examples}
+    {\noindent
+     \begin{tabular}{@{}p{14cm}}
+     \\{\bf Examples} \hfill\\
+    }
+    {
+     \end{tabular}\\\\
+    }
+%Environment for describing errors
+     \newenvironment{errorcodes}
+    {\noindent
+     \begin{tabular}{@{}p{6cm}cp{10cm}}&&\\
+     {\bf Errors} \hfill&&\\}
+    {\end{tabular}\\}
+%Command to describe an errorcode, takes name and description
+          \newcommand{\errorcode}[2]{
+\\
+\hfill {\t ##1} &-&##2
+\\
+}
+
+}
+        {
+        }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Takes three arguments - the name of the document, the revision, and
+% the date.
+% Additionally ther eis an optional first argument with the version number
+
+\newcommand{\cactustitlepage}[4][4.0]
+{
+\thispagestyle{empty}
+\setlength{\parindent}{0mm}
+\setlength{\parskip}{0mm}
+\vspace*{\stretch{1}}
+\rule{\linewidth}{1mm}
+\begin{flushright}
+  \Huge Cactus #1\\[5mm]
+        #2
+\end{flushright}
+\rule{\linewidth}{1mm}
+\vspace*{\stretch{2}}
+\begin{center}
+\includegraphics[angle=0,width=5cm]{bincactus2.eps}
+\end{center}
+\vspace*{\stretch{2}}
+\begin{center}
+   \Large #3 \\[3mm]
+          #4
+\end{center}
+\newpage
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newenvironment{cactuspart}[4]
+{
+  \clearpage
+  \renewcommand{\thepage}{\Alph{part}\arabic{page}}
+  % Redefine the plain style
+  \fancypagestyle{plain}
+  {
+    \fancyhf{} % Clear all header and footer fields
+    \lfoot{#3}
+    \cfoot{#4}
+    \rfoot{\thepage/\pageref{lastpage:\thepart}}
+    \renewcommand{\headrulewidth}{0.0pt}  
+    \renewcommand{\footrulewidth}{0.4pt}  
+    \renewcommand{\thepage}{\Alph{part}\arabic{page}}
+  }
+
+  % Make sure it's arabic numbering
+  \pagenumbering{arabic}
+  % Start the page counter at 1
+  \setcounter{page}{1}
+  % Start a new part
+  \renewcommand{\thepage}{\Alph{part}\arabic{page}}
+  \part{#2}
+  \setcounter{part}{#1}
+  % Redefine the page
+  % Set up fancy headings.
+  \lfoot{#3}
+  \cfoot{#4}
+  \rfoot{\thepage/\pageref{lastpage:\thepart}}
+  \renewcommand{\headrulewidth}{0.4pt}
+  \renewcommand{\footrulewidth}{0.4pt}
+}
+{
+  % Remember the last page of the 
+  \label{lastpage:\thepart}
+  \clearpage
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\cactustitlepage{Maintainers' Guide DRAFT VERSION}{$$Revision: 1.5 $$}{$$Date: 2001/05/11 10:40:34 $$}
+
+\setcounter{page}{1}
+
+% Table of contents
+\pagenumbering{roman}
+
+\tableofcontents
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\renewcommand{\thepart}{\Alph{part}}
+\renewcommand{\thechapter}{\Alph{part}\arabic{chapter}}
+\renewcommand{\thepage}{\Alph{part}\arabic{page}}
+\pagestyle{fancy}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\include{Preface}
+
+\include{Style}
+
+\include{Procedures}
+
+\include{Makesystem}
+
+\include{CST}
+
+\include{Main}
+
+\include{Comm}
+
+\include{IO}
+
+\include{Util}
+
+\include{Schedule}
+
+\include{Appendices}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The rest is just odd bits for use in future documents.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+

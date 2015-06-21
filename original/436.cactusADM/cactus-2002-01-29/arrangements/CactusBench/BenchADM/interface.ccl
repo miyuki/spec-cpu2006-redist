@@ -1,0 +1,44 @@
+# Interface definition for thorn BenchADM
+# $Header: /cactus/CactusBench/BenchADM/interface.ccl,v 1.6 2000/09/15 10:45:48 allen Exp $
+
+implements: benchadm
+inherits: einstein
+
+private:
+
+real ADM_metric_prev type=GF Timelevels=2
+{
+ADM_gxx,
+ADM_gxy,
+ADM_gxz,
+ADM_gyy, 
+ADM_gyz,
+ADM_gzz
+} "Metric variables and lapse on previous timestep"
+
+real ADM_curv_stag type=GF Timelevels=3
+{
+ADM_kxx_stag,
+ADM_kxy_stag,
+ADM_kxz_stag,
+ADM_kyy_stag,
+ADM_kyz_stag,
+ADM_kzz_stag,
+}"Extrinsic curvature on staggered timestep"
+
+real ADM_sources type=GF
+{
+adms_kxx,
+adms_kxy,
+adms_kxz,
+adms_kyy,
+adms_kyz,
+adms_kzz,
+adms_gxx,
+adms_gxy,
+adms_gxz,
+adms_gyy,
+adms_gyz,
+adms_gzz,
+} "The sources for the ADM evolution equations"
+

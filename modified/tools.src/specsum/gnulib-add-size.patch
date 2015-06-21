@@ -1,0 +1,266 @@
+diff -ur ../coreutils-8.9/lib/md5.c ./md5.c
+--- ../coreutils-8.9/lib/md5.c	2011-01-01 13:23:08.000000000 -0800
++++ ./md5.c	2011-02-01 16:16:13.000000000 -0800
+@@ -51,6 +51,12 @@
+ # define md5_buffer __md5_buffer
+ #endif
+ 
++#if __BIG_ENDIAN__
++# define WORDS_BIGENDIAN
++#elif __LITTLE_ENDIAN__
++# undef WORDS_BIGENDIAN
++#endif
++
+ #ifdef WORDS_BIGENDIAN
+ # define SWAP(n)                                                        \
+     (((n) << 24) | (((n) & 0xff00) << 8) | (((n) >> 8) & 0xff00) | ((n) >> 24))
+@@ -135,7 +141,7 @@
+    resulting message digest number will be written into the 16 bytes
+    beginning at RESBLOCK.  */
+ int
+-md5_stream (FILE *stream, void *resblock)
++md5_stream (FILE *stream, size_t *size, void *resblock)
+ {
+   struct md5_ctx ctx;
+   size_t sum;
+@@ -148,6 +154,7 @@
+   md5_init_ctx (&ctx);
+ 
+   /* Iterate over full file contents.  */
++  *size = 0;
+   while (1)
+     {
+       /* We read the file in blocks of BLOCKSIZE bytes.  One call of the
+@@ -162,6 +169,7 @@
+           n = fread (buffer + sum, 1, BLOCKSIZE - sum, stream);
+ 
+           sum += n;
++          *size += n;
+ 
+           if (sum == BLOCKSIZE)
+             break;
+diff -ur ../coreutils-8.9/lib/md5.h ./md5.h
+--- ../coreutils-8.9/lib/md5.h	2011-01-01 13:23:08.000000000 -0800
++++ ./md5.h	2011-02-01 16:17:24.000000000 -0800
+@@ -112,7 +112,7 @@
+ /* Compute MD5 message digest for bytes read from STREAM.  The
+    resulting message digest number will be written into the 16 bytes
+    beginning at RESBLOCK.  */
+-extern int __md5_stream (FILE *stream, void *resblock) __THROW;
++extern int __md5_stream (FILE *stream, size_t *size, void *resblock) __THROW;
+ 
+ /* Compute MD5 message digest for LEN bytes beginning at BUFFER.  The
+    result is always in little endian byte order, so that a byte-wise
+diff -ur ../coreutils-8.9/lib/sha1.c ./sha1.c
+--- ../coreutils-8.9/lib/sha1.c	2011-01-01 13:23:10.000000000 -0800
++++ ./sha1.c	2011-02-01 16:23:50.000000000 -0800
+@@ -36,6 +36,12 @@
+ # include "unlocked-io.h"
+ #endif
+ 
++#if __BIG_ENDIAN__
++# define WORDS_BIGENDIAN
++#elif __LITTLE_ENDIAN__
++# undef WORDS_BIGENDIAN
++#endif
++
+ #ifdef WORDS_BIGENDIAN
+ # define SWAP(n) (n)
+ #else
+@@ -123,7 +129,7 @@
+    resulting message digest number will be written into the 16 bytes
+    beginning at RESBLOCK.  */
+ int
+-sha1_stream (FILE *stream, void *resblock)
++sha1_stream (FILE *stream, size_t *size, void *resblock)
+ {
+   struct sha1_ctx ctx;
+   size_t sum;
+@@ -136,6 +142,7 @@
+   sha1_init_ctx (&ctx);
+ 
+   /* Iterate over full file contents.  */
++  *size = 0;
+   while (1)
+     {
+       /* We read the file in blocks of BLOCKSIZE bytes.  One call of the
+@@ -150,6 +157,7 @@
+           n = fread (buffer + sum, 1, BLOCKSIZE - sum, stream);
+ 
+           sum += n;
++          *size += n;
+ 
+           if (sum == BLOCKSIZE)
+             break;
+diff -ur ../coreutils-8.9/lib/sha1.h ./sha1.h
+--- ../coreutils-8.9/lib/sha1.h	2011-01-01 13:23:10.000000000 -0800
++++ ./sha1.h	2011-02-01 16:18:55.000000000 -0800
+@@ -79,7 +79,7 @@
+ /* Compute SHA1 message digest for bytes read from STREAM.  The
+    resulting message digest number will be written into the 20 bytes
+    beginning at RESBLOCK.  */
+-extern int sha1_stream (FILE *stream, void *resblock);
++extern int sha1_stream (FILE *stream, size_t *size, void *resblock);
+ 
+ /* Compute SHA1 message digest for LEN bytes beginning at BUFFER.  The
+    result is always in little endian byte order, so that a byte-wise
+diff -ur ../coreutils-8.9/lib/sha256.c ./sha256.c
+--- ../coreutils-8.9/lib/sha256.c	2011-01-01 13:19:27.000000000 -0800
++++ ./sha256.c	2011-02-01 16:23:56.000000000 -0800
+@@ -32,6 +32,12 @@
+ # include "unlocked-io.h"
+ #endif
+ 
++#if __BIG_ENDIAN__
++# define WORDS_BIGENDIAN
++#elif __LITTLE_ENDIAN__
++# undef WORDS_BIGENDIAN
++#endif
++
+ #ifdef WORDS_BIGENDIAN
+ # define SWAP(n) (n)
+ #else
+@@ -167,7 +173,7 @@
+    resulting message digest number will be written into the 32 bytes
+    beginning at RESBLOCK.  */
+ int
+-sha256_stream (FILE *stream, void *resblock)
++sha256_stream (FILE *stream, size_t *size, void *resblock)
+ {
+   struct sha256_ctx ctx;
+   size_t sum;
+@@ -180,6 +186,7 @@
+   sha256_init_ctx (&ctx);
+ 
+   /* Iterate over full file contents.  */
++  *size = 0;
+   while (1)
+     {
+       /* We read the file in blocks of BLOCKSIZE bytes.  One call of the
+@@ -194,6 +201,7 @@
+           n = fread (buffer + sum, 1, BLOCKSIZE - sum, stream);
+ 
+           sum += n;
++          *size += n;
+ 
+           if (sum == BLOCKSIZE)
+             break;
+@@ -238,7 +246,7 @@
+ 
+ /* FIXME: Avoid code duplication */
+ int
+-sha224_stream (FILE *stream, void *resblock)
++sha224_stream (FILE *stream, size_t *size, void *resblock)
+ {
+   struct sha256_ctx ctx;
+   size_t sum;
+@@ -251,6 +259,7 @@
+   sha224_init_ctx (&ctx);
+ 
+   /* Iterate over full file contents.  */
++  *size = 0;
+   while (1)
+     {
+       /* We read the file in blocks of BLOCKSIZE bytes.  One call of the
+@@ -265,6 +274,7 @@
+           n = fread (buffer + sum, 1, BLOCKSIZE - sum, stream);
+ 
+           sum += n;
++          *size += n;
+ 
+           if (sum == BLOCKSIZE)
+             break;
+diff -ur ../coreutils-8.9/lib/sha256.h ./sha256.h
+--- ../coreutils-8.9/lib/sha256.h	2011-01-01 13:19:27.000000000 -0800
++++ ./sha256.h	2011-02-01 16:19:07.000000000 -0800
+@@ -74,8 +74,8 @@
+ /* Compute SHA256 (SHA224) message digest for bytes read from STREAM.  The
+    resulting message digest number will be written into the 32 (28) bytes
+    beginning at RESBLOCK.  */
+-extern int sha256_stream (FILE *stream, void *resblock);
+-extern int sha224_stream (FILE *stream, void *resblock);
++extern int sha256_stream (FILE *stream, size_t *size, void *resblock);
++extern int sha224_stream (FILE *stream, size_t *size, void *resblock);
+ 
+ /* Compute SHA256 (SHA224) message digest for LEN bytes beginning at BUFFER.  The
+    result is always in little endian byte order, so that a byte-wise
+diff -ur ../coreutils-8.9/lib/sha512.c ./sha512.c
+--- ../coreutils-8.9/lib/sha512.c	2011-01-01 13:19:27.000000000 -0800
++++ ./sha512.c	2011-02-01 16:24:00.000000000 -0800
+@@ -32,6 +32,12 @@
+ # include "unlocked-io.h"
+ #endif
+ 
++#if __BIG_ENDIAN__
++# define WORDS_BIGENDIAN
++#elif __LITTLE_ENDIAN__
++# undef WORDS_BIGENDIAN
++#endif
++
+ #ifdef WORDS_BIGENDIAN
+ # define SWAP(n) (n)
+ #else
+@@ -175,7 +181,7 @@
+    resulting message digest number will be written into the 64 bytes
+    beginning at RESBLOCK.  */
+ int
+-sha512_stream (FILE *stream, void *resblock)
++sha512_stream (FILE *stream, size_t *size, void *resblock)
+ {
+   struct sha512_ctx ctx;
+   size_t sum;
+@@ -188,6 +194,7 @@
+   sha512_init_ctx (&ctx);
+ 
+   /* Iterate over full file contents.  */
++  *size = 0;
+   while (1)
+     {
+       /* We read the file in blocks of BLOCKSIZE bytes.  One call of the
+@@ -202,6 +209,7 @@
+           n = fread (buffer + sum, 1, BLOCKSIZE - sum, stream);
+ 
+           sum += n;
++          *size += n;
+ 
+           if (sum == BLOCKSIZE)
+             break;
+@@ -246,7 +254,7 @@
+ 
+ /* FIXME: Avoid code duplication */
+ int
+-sha384_stream (FILE *stream, void *resblock)
++sha384_stream (FILE *stream, size_t *size, void *resblock)
+ {
+   struct sha512_ctx ctx;
+   size_t sum;
+@@ -259,6 +267,7 @@
+   sha384_init_ctx (&ctx);
+ 
+   /* Iterate over full file contents.  */
++  *size = 0;
+   while (1)
+     {
+       /* We read the file in blocks of BLOCKSIZE bytes.  One call of the
+@@ -273,6 +282,7 @@
+           n = fread (buffer + sum, 1, BLOCKSIZE - sum, stream);
+ 
+           sum += n;
++          *size += n;
+ 
+           if (sum == BLOCKSIZE)
+             break;
+diff -ur ../coreutils-8.9/lib/sha512.h ./sha512.h
+--- ../coreutils-8.9/lib/sha512.h	2011-01-01 13:19:27.000000000 -0800
++++ ./sha512.h	2011-02-01 16:19:17.000000000 -0800
+@@ -78,8 +78,8 @@
+ /* Compute SHA512 (SHA384) message digest for bytes read from STREAM.  The
+    resulting message digest number will be written into the 64 (48) bytes
+    beginning at RESBLOCK.  */
+-extern int sha512_stream (FILE *stream, void *resblock);
+-extern int sha384_stream (FILE *stream, void *resblock);
++extern int sha512_stream (FILE *stream, size_t *size, void *resblock);
++extern int sha384_stream (FILE *stream, size_t *size, void *resblock);
+ 
+ /* Compute SHA512 (SHA384) message digest for LEN bytes beginning at BUFFER.  The
+    result is always in little endian byte order, so that a byte-wise

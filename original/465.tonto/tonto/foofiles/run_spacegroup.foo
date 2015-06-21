@@ -1,0 +1,18 @@
+!
+! $Id: run_spacegroup.foo,v 1.2.2.1 2003/11/13 06:32:40 reaper Exp $
+program run_SPACEGROUP
+
+   implicit none
+
+   sg :: SPACEGROUP
+
+   tonto.initialize
+
+   stdin.create_stdin
+   stdin.open
+   stdout.create_stdout
+   stdout.open
+
+   sg.read_keywords
+
+end

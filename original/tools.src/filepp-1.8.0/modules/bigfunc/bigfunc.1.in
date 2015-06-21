@@ -1,0 +1,44 @@
+.\"  Hey Emacs! This file is -*- nroff -*- source.
+.\" __FILEPP_INPUT__ version __VERSION__
+.\" filepp is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program; see the file COPYING.  If not, write to
+.\" the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+.\"
+.SH BIGFUNC MODULE - bigfunc.pm
+The bigfunc module allows easy definition of multi-line macros. Its
+file name is \fBbigfunc.pm\fP.
+.PP
+A multi-line macro is a macro which has a definition which spans more
+than one line.  The normal way to define these is to place a line
+continuation character at the end of each line in the definition.
+However, this can be annoying and unreadable for large multi-line
+macros.  The bigfunc module tries to improve on this by providing two
+keywords:
+.TP
+.BR #bigfunc " \fImacro\fP \fIdefinition...\fP"
+The \fB#bigfunc\fP keyword has the same syntax as \fB#define\fP, the
+only difference being the macro definition is everything following the
+macro name including all following lines up to the next
+\fB#endbigfunc\fP keyword.
+.TP
+.BR #endbigfunc
+Ends a bigfunc.  Everything between this keyword and the last
+preceding \fB#bigfunc\fP is included in the macro.
+.PP
+Any keywords found in the definition will be evaluated as normal AT
+THE TIME THE MACRO IS REPLACED and any output from these will be
+included in the definition.
+
+Note: The difference between bigfunc and bigdef is the time keywords
+in the definition are evaluated.  Bigdef evaluates them as the macro
+is DEFINED, bigfunc evaluates them whenever the macro is REPLACED.

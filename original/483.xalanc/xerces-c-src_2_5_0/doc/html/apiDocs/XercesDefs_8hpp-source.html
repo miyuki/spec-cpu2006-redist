@@ -1,0 +1,566 @@
+<HTML><HEAD><SCRIPT language="JavaScript" src="../resources/script.js" type="text/javascript"></SCRIPT><TITLE>XercesDefs.hpp Source File</TITLE><link href="XercesApi.css" rel="stylesheet" type="text/css"></HEAD><BODY alink="#ff0000" bgcolor="#ffffff" leftmargin="4" link="#0000ff" marginheight="4" marginwidth="4" text="#000000" topmargin="4" vlink="#0000aa"><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" height="60" rowspan="3" valign="top" width="135"><IMG border="0" height="60" hspace="0" src="../resources/logo.gif" vspace="0" width="135"></TD><TD align="left" colspan="4" height="5" valign="top" width="456"><IMG border="0" height="5" hspace="0" src="../resources/line.gif" vspace="0" width="456"></TD><TD align="left" height="60" rowspan="3" valign="top" width="29"><IMG border="0" height="60" hspace="0" src="../resources/right.gif" vspace="0" width="29"></TD></TR><TR><TD align="left" bgcolor="#0086b2" colspan="4" height="35" valign="top" width="456"><IMG alt="" border="0" height="35" hspace="0" src="../graphics/api-header.jpg" vspace="0" width="456"></TD></TR><TR><TD align="left" height="20" valign="top" width="168"><IMG border="0" height="20" hspace="0" src="../resources/bottom.gif" vspace="0" width="168"></TD><TD align="left" height="20" valign="top" width="96"><A href="http://xml.apache.org/" onMouseOut="rolloverOff('xml');" onMouseOver="rolloverOn('xml');" target="new"><IMG alt="http://xml.apache.org/" border="0" height="20" hspace="0" name="xml" onLoad="rolloverLoad('xml','../resources/button-xml-hi.gif','../resources/button-xml-lo.gif');" src="../resources/button-xml-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.apache.org/" onMouseOut="rolloverOff('asf');" onMouseOver="rolloverOn('asf');" target="new"><IMG alt="http://www.apache.org/" border="0" height="20" hspace="0" name="asf" onLoad="rolloverLoad('asf','../resources/button-asf-hi.gif','../resources/button-asf-lo.gif');" src="../resources/button-asf-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.w3.org/" onMouseOut="rolloverOff('w3c');" onMouseOver="rolloverOn('w3c');" target="new"><IMG alt="http://www.w3.org/" border="0" height="20" hspace="0" name="w3c" onLoad="rolloverLoad('w3c','../resources/button-w3c-hi.gif','../resources/button-w3c-lo.gif');" src="../resources/button-w3c-lo.gif" vspace="0" width="96"></A></TD></TR></TABLE><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" valign="top" width="120"><IMG border="0" height="14" hspace="0" src="../resources/join.gif" vspace="0" width="120"><BR>
+  <A href="../../index.html" onMouseOut="rolloverOff('side-ext-2');" onMouseOver="rolloverOn('side-ext-2');"><IMG alt="Home" border="0" height="12" hspace="0" name="side-ext-2" onLoad="rolloverLoad('side-ext-2','../graphics/ext-2-label-2.jpg','../graphics/ext-2-label-3.jpg');" src="../graphics/ext-2-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../index.html" onMouseOut="rolloverOff('side-index');" onMouseOver="rolloverOn('side-index');"><IMG alt="Readme" border="0" height="12" hspace="0" name="side-index" onLoad="rolloverLoad('side-index','../graphics/index-label-2.jpg','../graphics/index-label-3.jpg');" src="../graphics/index-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../releases.html" onMouseOut="rolloverOff('side-releases');" onMouseOver="rolloverOn('side-releases');"><IMG alt="Release Info" border="0" height="12" hspace="0" name="side-releases" onLoad="rolloverLoad('side-releases','../graphics/releases-label-2.jpg','../graphics/releases-label-3.jpg');" src="../graphics/releases-label-3.jpg" vspace="0" width="120"></A><BR>
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../install.html" onMouseOut="rolloverOff('side-install');" onMouseOver="rolloverOn('side-install');"><IMG alt="Installation" border="0" height="12" hspace="0" name="side-install" onLoad="rolloverLoad('side-install','../graphics/install-label-2.jpg','../graphics/install-label-3.jpg');" src="../graphics/install-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://xml.apache.org/dist/xerces-c/" onMouseOut="rolloverOff('side-ext-18');" onMouseOver="rolloverOn('side-ext-18');"><IMG alt="Download" border="0" height="12" hspace="0" name="side-ext-18" onLoad="rolloverLoad('side-ext-18','../graphics/ext-18-label-2.jpg','../graphics/ext-18-label-3.jpg');" src="../graphics/ext-18-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../build.html" onMouseOut="rolloverOff('side-build');" onMouseOver="rolloverOn('side-build');"><IMG alt="Build" border="0" height="12" hspace="0" name="side-build" onLoad="rolloverLoad('side-build','../graphics/build-label-2.jpg','../graphics/build-label-3.jpg');" src="../graphics/build-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../faqs.html" onMouseOut="rolloverOff('side-faqs');" onMouseOver="rolloverOn('side-faqs');"><IMG alt="FAQs" border="0" height="12" hspace="0" name="side-faqs" onLoad="rolloverLoad('side-faqs','../graphics/faqs-label-2.jpg','../graphics/faqs-label-3.jpg');" src="../graphics/faqs-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../samples.html" onMouseOut="rolloverOff('side-samples');" onMouseOver="rolloverOn('side-samples');"><IMG alt="Samples" border="0" height="12" hspace="0" name="side-samples" onLoad="rolloverLoad('side-samples','../graphics/samples-label-2.jpg','../graphics/samples-label-3.jpg');" src="../graphics/samples-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../api.html" onMouseOut="rolloverOff('side-api');" onMouseOver="rolloverOn('side-api');"><IMG alt="API Docs" border="0" height="12" hspace="0" name="side-api" onLoad="rolloverLoad('side-api','../graphics/api-label-2.jpg','../graphics/api-label-3.jpg');" src="../graphics/api-label-3.jpg" vspace="0" width="120"></A><BR>  
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../ApacheDOMC++Binding.html" onMouseOut="rolloverOff('side-ext-64');" onMouseOver="rolloverOn('side-ext-64');"><IMG alt="DOM C++ Binding" border="0" height="12" hspace="0" name="side-ext-64" onLoad="rolloverLoad('side-ext-64','../graphics/ext-64-label-2.jpg','../graphics/ext-64-label-3.jpg');" src="../graphics/ext-64-label-3.jpg" vspace="0" width="120"></A><BR> 
+  <A href="../program.html" onMouseOut="rolloverOff('side-program');" onMouseOver="rolloverOn('side-program');"><IMG alt="Programming" border="0" height="12" hspace="0" name="side-program" onLoad="rolloverLoad('side-program','../graphics/program-label-2.jpg','../graphics/program-label-3.jpg');" src="../graphics/program-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../migrate.html" onMouseOut="rolloverOff('side-migrate');" onMouseOver="rolloverOn('side-migrate');"><IMG alt="Migration Guide" border="0" height="12" hspace="0" name="side-migrate" onLoad="rolloverLoad('side-migrate','../graphics/migrate-label-2.jpg','../graphics/migrate-label-3.jpg');" src="../graphics/migrate-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../feedback.html" onMouseOut="rolloverOff('side-feedback');" onMouseOver="rolloverOn('side-feedback');"><IMG alt="Feedback" border="0" height="12" hspace="0" name="side-feedback" onLoad="rolloverLoad('side-feedback','../graphics/feedback-label-2.jpg','../graphics/feedback-label-3.jpg');" src="../graphics/feedback-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../bug-report.html" onMouseOut="rolloverOff('side-bug-report');" onMouseOver="rolloverOn('side-bug-report');"><IMG alt="Bug-Reporting" border="0" height="12" hspace="0" name="side-bug-report" onLoad="rolloverLoad('side-bug-report','../graphics/bug-report-label-2.jpg','../graphics/bug-report-label-3.jpg');" src="../graphics/bug-report-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../pdf.html" onMouseOut="rolloverOff('side-pdf');" onMouseOver="rolloverOn('side-pdf');"><IMG alt="PDF Document" border="0" height="12" hspace="0" name="side-pdf" onLoad="rolloverLoad('side-pdf','../graphics/pdf-label-2.jpg','../graphics/pdf-label-3.jpg');" src="../graphics/pdf-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="http://xml.apache.org/websrc/cvsweb.cgi/xml-xerces/c/" onMouseOut="rolloverOff('side-ext-96');" onMouseOver="rolloverOn('side-ext-96');"><IMG alt="CVS Repository" border="0" height="12" hspace="0" name="side-ext-96" onLoad="rolloverLoad('side-ext-96','../graphics/ext-96-label-2.jpg','../graphics/ext-96-label-3.jpg');" src="../graphics/ext-96-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://marc.theaimsgroup.com/?l=xerces-c-dev" onMouseOut="rolloverOff('side-ext-98');" onMouseOver="rolloverOn('side-ext-98');"><IMG alt="Mail Archive" border="0" height="12" hspace="0" name="side-ext-98" onLoad="rolloverLoad('side-ext-98','../graphics/ext-98-label-2.jpg','../graphics/ext-98-label-3.jpg');" src="../graphics/ext-98-label-3.jpg" vspace="0" width="120"></A><BR>
+
+<IMG border="0" height="14" hspace="0" src="../resources/close.gif" vspace="0" width="120"><BR></TD><TD align="left" valign="top" width="500"><TABLE border="0" cellpadding="3" cellspacing="0"><TR><TD>
+    <TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#FFFFFF" colspan="2" width="494"><TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#039acc" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#039acc" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#039acc" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" width="492"><FONT color="#ffffff" face="arial,helvetica,sanserif" size="+1"><IMG border="0" height="2" hspace="0" src="../resources/void.gif" vspace="0" width="2"><B>API Docs for SAX and DOM</B></FONT></TD><TD bgcolor="#017299" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#017299" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#017299" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></TD></TR><TR><TD width="10">&nbsp;</TD><TD width="484"><FONT color="#000000" face="arial,helvetica,sanserif">
+
+	    <P>
+<!-- Generated by Doxygen 1.2.14 -->
+<center>
+<a class="qindex" href="index.html">Main Page</a> &nbsp; <a class="qindex" href="hierarchy.html">Class Hierarchy</a> &nbsp; <a class="qindex" href="classes.html">Alphabetical List</a> &nbsp; <a class="qindex" href="annotated.html">Compound List</a> &nbsp; <a class="qindex" href="files.html">File List</a> &nbsp; <a class="qindex" href="functions.html">Compound Members</a> &nbsp; <a class="qindex" href="globals.html">File Members</a> &nbsp; </center>
+<hr><h1>XercesDefs.hpp</h1><a href="XercesDefs_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><pre>00001 <font class="comment">/*</font>
+00002 <font class="comment"> * The Apache Software License, Version 1.1</font>
+00003 <font class="comment"> *</font>
+00004 <font class="comment"> * Copyright (c) 1999-2001 The Apache Software Foundation.  All rights</font>
+00005 <font class="comment"> * reserved.</font>
+00006 <font class="comment"> *</font>
+00007 <font class="comment"> * Redistribution and use in source and binary forms, with or without</font>
+00008 <font class="comment"> * modification, are permitted provided that the following conditions</font>
+00009 <font class="comment"> * are met:</font>
+00010 <font class="comment"> *</font>
+00011 <font class="comment"> * 1. Redistributions of source code must retain the above copyright</font>
+00012 <font class="comment"> *    notice, this list of conditions and the following disclaimer.</font>
+00013 <font class="comment"> *</font>
+00014 <font class="comment"> * 2. Redistributions in binary form must reproduce the above copyright</font>
+00015 <font class="comment"> *    notice, this list of conditions and the following disclaimer in</font>
+00016 <font class="comment"> *    the documentation and/or other materials provided with the</font>
+00017 <font class="comment"> *    distribution.</font>
+00018 <font class="comment"> *</font>
+00019 <font class="comment"> * 3. The end-user documentation included with the redistribution,</font>
+00020 <font class="comment"> *    if any, must include the following acknowledgment:</font>
+00021 <font class="comment"> *       "This product includes software developed by the</font>
+00022 <font class="comment"> *        Apache Software Foundation (http://www.apache.org/)."</font>
+00023 <font class="comment"> *    Alternately, this acknowledgment may appear in the software itself,</font>
+00024 <font class="comment"> *    if and wherever such third-party acknowledgments normally appear.</font>
+00025 <font class="comment"> *</font>
+00026 <font class="comment"> * 4. The names "Xerces" and "Apache Software Foundation" must</font>
+00027 <font class="comment"> *    not be used to endorse or promote products derived from this</font>
+00028 <font class="comment"> *    software without prior written permission. For written</font>
+00029 <font class="comment"> *    permission, please contact apache\@apache.org.</font>
+00030 <font class="comment"> *</font>
+00031 <font class="comment"> * 5. Products derived from this software may not be called "Apache",</font>
+00032 <font class="comment"> *    nor may "Apache" appear in their name, without prior written</font>
+00033 <font class="comment"> *    permission of the Apache Software Foundation.</font>
+00034 <font class="comment"> *</font>
+00035 <font class="comment"> * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED</font>
+00036 <font class="comment"> * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES</font>
+00037 <font class="comment"> * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE</font>
+00038 <font class="comment"> * DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR</font>
+00039 <font class="comment"> * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,</font>
+00040 <font class="comment"> * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT</font>
+00041 <font class="comment"> * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF</font>
+00042 <font class="comment"> * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND</font>
+00043 <font class="comment"> * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,</font>
+00044 <font class="comment"> * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT</font>
+00045 <font class="comment"> * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF</font>
+00046 <font class="comment"> * SUCH DAMAGE.</font>
+00047 <font class="comment"> * ====================================================================</font>
+00048 <font class="comment"> *</font>
+00049 <font class="comment"> * This software consists of voluntary contributions made by many</font>
+00050 <font class="comment"> * individuals on behalf of the Apache Software Foundation, and was</font>
+00051 <font class="comment"> * originally based on software copyright (c) 1999, International</font>
+00052 <font class="comment"> * Business Machines, Inc., http://www.ibm.com .  For more information</font>
+00053 <font class="comment"> * on the Apache Software Foundation, please see</font>
+00054 <font class="comment"> * &lt;http://www.apache.org/&gt;.</font>
+00055 <font class="comment"> */</font>
+00056 
+00057 <font class="comment">/*</font>
+00058 <font class="comment"> * $Log: XercesDefs.hpp,v $</font>
+00059 <font class="comment"> * Revision 1.16  2004/02/04 13:26:44  amassari</font>
+00060 <font class="comment"> * Added support for the Interix platform (Windows Services for Unix 3.5)</font>
+00061 <font class="comment"> *</font>
+00062 <font class="comment"> * Revision 1.15  2003/05/29 11:18:37  gareth</font>
+00063 <font class="comment"> * Added macros in so we can determine whether to do things like iostream as opposed to iostream.h and whether to use std:: or not.</font>
+00064 <font class="comment"> *</font>
+00065 <font class="comment"> * Revision 1.14  2003/05/12 09:44:19  gareth</font>
+00066 <font class="comment"> * Port to NetBSD. Patch by Hiramatsu Yoshifumi.</font>
+00067 <font class="comment"> *</font>
+00068 <font class="comment"> * Revision 1.13  2003/03/13 22:11:46  tng</font>
+00069 <font class="comment"> * [Bug 17858] Support for QNX/Neutrino.  Patch from Chris McKillop.</font>
+00070 <font class="comment"> *</font>
+00071 <font class="comment"> * Revision 1.12  2003/02/23 05:44:12  jberry</font>
+00072 <font class="comment"> * Ripple through changes of BeOSDefs.h name change</font>
+00073 <font class="comment"> *</font>
+00074 <font class="comment"> * Revision 1.11  2002/12/31 19:31:07  tng</font>
+00075 <font class="comment"> * [Bug 15590] BeOSDefs.hpp has wrong case in CVS.</font>
+00076 <font class="comment"> *</font>
+00077 <font class="comment"> * Revision 1.10  2002/12/02 20:40:49  tng</font>
+00078 <font class="comment"> * [Bug 12490] Patches required to build Xerces-C++ on BeOS R5.  Patch from Andrew Bachmann.</font>
+00079 <font class="comment"> *</font>
+00080 <font class="comment"> * Revision 1.9  2002/11/05 21:44:21  tng</font>
+00081 <font class="comment"> * Do not code using namespace in a global header.</font>
+00082 <font class="comment"> *</font>
+00083 <font class="comment"> * Revision 1.8  2002/11/04 14:40:12  tng</font>
+00084 <font class="comment"> * C++ Namespace Support.</font>
+00085 <font class="comment"> *</font>
+00086 <font class="comment"> * Revision 1.7  2002/07/12 16:48:49  jberry</font>
+00087 <font class="comment"> * Remove reliance on XML_MACOSX. XML_MACOS is used solely. Where qualification</font>
+00088 <font class="comment"> * by compiler is required, look for the compiler explicitly such as with</font>
+00089 <font class="comment"> * XML_METROWERKS or __APPLE__ (for the Apple GCC compiler).</font>
+00090 <font class="comment"> *</font>
+00091 <font class="comment"> * Add a few tweaks for compatibility with GCC3.1.</font>
+00092 <font class="comment"> *</font>
+00093 <font class="comment"> * This change may address Bug 10649.</font>
+00094 <font class="comment"> *</font>
+00095 <font class="comment"> * Revision 1.6  2002/07/10 12:56:45  tng</font>
+00096 <font class="comment"> * [Bug 9154] Requesting Xerces Version Macro.</font>
+00097 <font class="comment"> *</font>
+00098 <font class="comment"> * Revision 1.5  2002/05/21 19:35:08  tng</font>
+00099 <font class="comment"> * Update from 1.7 to 2.0</font>
+00100 <font class="comment"> *</font>
+00101 <font class="comment"> * Revision 1.4  2002/02/27 22:38:34  peiyongz</font>
+00102 <font class="comment"> * Bug# 6445 Caldera (SCO) OpenServer Port : patch from Martin Kalen</font>
+00103 <font class="comment"> *</font>
+00104 <font class="comment"> * Revision 1.3  2002/02/20 21:41:54  tng</font>
+00105 <font class="comment"> * project files changes for Xerces-C++ 1.7.</font>
+00106 <font class="comment"> *</font>
+00107 <font class="comment"> * Revision 1.2  2002/02/17 21:12:06  jberry</font>
+00108 <font class="comment"> * Adjust "sane includes" include path for Mac OS.</font>
+00109 <font class="comment"> *</font>
+00110 <font class="comment"> * I've also changed this path for XML_AS400, XML_TRU64, XML_PTX_CC, and XML_DECCXX</font>
+00111 <font class="comment"> * 'cause it looks like the right thing to do...hope that's not a mistake.</font>
+00112 <font class="comment"> *</font>
+00113 <font class="comment"> * Revision 1.1.1.1  2002/02/01 22:22:13  peiyongz</font>
+00114 <font class="comment"> * sane_include</font>
+00115 <font class="comment"> *</font>
+00116 <font class="comment"> * Revision 1.18  2001/11/29 18:25:18  tng</font>
+00117 <font class="comment"> * FreeBSD support by Michael Huedepohl.</font>
+00118 <font class="comment"> *</font>
+00119 <font class="comment"> * Revision 1.17  2001/11/23 17:19:33  tng</font>
+00120 <font class="comment"> * Change from 1.5.2 to 1.6.0</font>
+00121 <font class="comment"> *</font>
+00122 <font class="comment"> * Revision 1.16  2001/10/15 16:27:35  tng</font>
+00123 <font class="comment"> * Changes for Xerces-C 1.5.2</font>
+00124 <font class="comment"> *</font>
+00125 <font class="comment"> * Revision 1.15  2001/07/13 20:16:38  tng</font>
+00126 <font class="comment"> * Update for release 1.5.1.</font>
+00127 <font class="comment"> *</font>
+00128 <font class="comment"> * Revision 1.14  2001/06/05 13:52:25  tng</font>
+00129 <font class="comment"> * Change Version number from Xerces 1.4 to 1.5.  By Pei Yong Zhang.</font>
+00130 <font class="comment"> *</font>
+00131 <font class="comment"> * Revision 1.13  2001/05/11 13:26:32  tng</font>
+00132 <font class="comment"> * Copyright update.</font>
+00133 <font class="comment"> *</font>
+00134 <font class="comment"> * Revision 1.12  2001/02/08 14:15:33  tng</font>
+00135 <font class="comment"> * enable COMPAQ Tru64 UNIX machines to build xerces-c with gcc (tested using COMPAQ gcc version2.95.2 19991024 (release) and Tru64 V5.0 1094).  Added by Martin Kalen.</font>
+00136 <font class="comment"> *</font>
+00137 <font class="comment"> * Revision 1.11  2001/01/25 19:17:06  tng</font>
+00138 <font class="comment"> * const should be used instead of static const.  Fixed by Khaled Noaman.</font>
+00139 <font class="comment"> *</font>
+00140 <font class="comment"> * Revision 1.10  2001/01/12 22:09:07  tng</font>
+00141 <font class="comment"> * Various update for Xerces 1.4</font>
+00142 <font class="comment"> *</font>
+00143 <font class="comment"> * Revision 1.9  2000/11/07 18:14:39  andyh</font>
+00144 <font class="comment"> * Fix incorrect version number in gXercesMinVersion.</font>
+00145 <font class="comment"> * From Pieter Van-Dyck</font>
+00146 <font class="comment"> *</font>
+00147 <font class="comment"> * Revision 1.8  2000/11/02 07:23:27  roddey</font>
+00148 <font class="comment"> * Just a test of checkin access</font>
+00149 <font class="comment"> *</font>
+00150 <font class="comment"> * Revision 1.7  2000/08/18 21:29:14  andyh</font>
+00151 <font class="comment"> * Change version to 1.3 in preparation for upcoming Xerces 1.3</font>
+00152 <font class="comment"> * and XML4C 3.3 stable releases</font>
+00153 <font class="comment"> *</font>
+00154 <font class="comment"> * Revision 1.6  2000/08/07 20:31:34  jpolast</font>
+00155 <font class="comment"> * include  module</font>
+00156 <font class="comment"> *</font>
+00157 <font class="comment"> * Revision 1.5  2000/08/01 18:26:02  aruna1</font>
+00158 <font class="comment"> * Tru64 support added</font>
+00159 <font class="comment"> *</font>
+00160 <font class="comment"> * Revision 1.4  2000/07/29 05:36:37  jberry</font>
+00161 <font class="comment"> * Fix misspelling in Mac OS port</font>
+00162 <font class="comment"> *</font>
+00163 <font class="comment"> * Revision 1.3  2000/07/19 18:20:12  andyh</font>
+00164 <font class="comment"> * Macintosh port: fix problems with yesterday's code checkin.  A couple</font>
+00165 <font class="comment"> * of the changes were mangled or missed.</font>
+00166 <font class="comment"> *</font>
+00167 <font class="comment"> * Revision 1.2  2000/04/04 20:11:29  abagchi</font>
+00168 <font class="comment"> * Added PTX support</font>
+00169 <font class="comment"> *</font>
+00170 <font class="comment"> * Revision 1.1  2000/03/02 19:54:50  roddey</font>
+00171 <font class="comment"> * This checkin includes many changes done while waiting for the</font>
+00172 <font class="comment"> * 1.1.0 code to be finished. I can't list them all here, but a list is</font>
+00173 <font class="comment"> * available elsewhere.</font>
+00174 <font class="comment"> *</font>
+00175 <font class="comment"> * Revision 1.13  2000/03/02 01:51:00  aruna1</font>
+00176 <font class="comment"> * Sun CC 5.0 related changes</font>
+00177 <font class="comment"> *</font>
+00178 <font class="comment"> * Revision 1.12  2000/02/24 20:05:26  abagchi</font>
+00179 <font class="comment"> * Swat for removing Log from API docs</font>
+00180 <font class="comment"> *</font>
+00181 <font class="comment"> * Revision 1.11  2000/02/22 01:00:10  aruna1</font>
+00182 <font class="comment"> * GNUGDefs references removed. Now only GCCDefs is used instead</font>
+00183 <font class="comment"> *</font>
+00184 <font class="comment"> * Revision 1.10  2000/02/06 07:48:05  rahulj</font>
+00185 <font class="comment"> * Year 2K copyright swat.</font>
+00186 <font class="comment"> *</font>
+00187 <font class="comment"> * Revision 1.9  2000/02/01 23:43:32  abagchi</font>
+00188 <font class="comment"> * AS/400 related change</font>
+00189 <font class="comment"> *</font>
+00190 <font class="comment"> * Revision 1.8  2000/01/21 22:12:29  abagchi</font>
+00191 <font class="comment"> * OS390 Change: changed OE390 to OS390</font>
+00192 <font class="comment"> *</font>
+00193 <font class="comment"> * Revision 1.7  2000/01/14 01:18:35  roddey</font>
+00194 <font class="comment"> * Added a macro, XMLStrL(), which is defined one way or another according</font>
+00195 <font class="comment"> * to whether the per-compiler file defines XML_LSTRSUPPORT or not. This</font>
+00196 <font class="comment"> * allows conditional support of L"" type prefixes.</font>
+00197 <font class="comment"> *</font>
+00198 <font class="comment"> * Revision 1.6  2000/01/14 00:52:06  roddey</font>
+00199 <font class="comment"> * Updated the version information for the next release, i.e. 1.1.0</font>
+00200 <font class="comment"> *</font>
+00201 <font class="comment"> * Revision 1.5  1999/12/17 01:28:53  rahulj</font>
+00202 <font class="comment"> * Merged in changes submitted for UnixWare 7 port. Platform</font>
+00203 <font class="comment"> * specific files are still missing.</font>
+00204 <font class="comment"> *</font>
+00205 <font class="comment"> * Revision 1.4  1999/12/16 23:47:10  rahulj</font>
+00206 <font class="comment"> * Updated for version 1.0.1</font>
+00207 <font class="comment"> *</font>
+00208 <font class="comment"> * Revision 1.3  1999/12/01 17:16:16  rahulj</font>
+00209 <font class="comment"> * Added support for IRIX 6.5.5 using SGI MIPSpro C++ 7.3 and 7.21 generating 32 bit objects. Changes submitted by Marc Stuessel</font>
+00210 <font class="comment"> *</font>
+00211 <font class="comment"> * Revision 1.2  1999/11/10 02:02:51  abagchi</font>
+00212 <font class="comment"> * Changed version numbers</font>
+00213 <font class="comment"> *</font>
+00214 <font class="comment"> * Revision 1.1.1.1  1999/11/09 01:05:35  twl</font>
+00215 <font class="comment"> * Initial checkin</font>
+00216 <font class="comment"> *</font>
+00217 <font class="comment"> * Revision 1.3  1999/11/08 20:45:19  rahul</font>
+00218 <font class="comment"> * Swat for adding in Product name and CVS comment log variable.</font>
+00219 <font class="comment"> *</font>
+00220 <font class="comment"> */</font>
+00221 
+00222 
+00223 <font class="preprocessor">#if !defined(XERCESDEFS_HPP)</font>
+<a name="l00224"></a><a class="code" href="XercesDefs_8hpp.html#a0">00224</a> <font class="preprocessor"></font><font class="preprocessor">#define XERCESDEFS_HPP</font>
+00225 <font class="preprocessor"></font>
+00226 <font class="comment">// ---------------------------------------------------------------------------</font>
+00227 <font class="comment">//  Include the Xerces version information; this is kept in a separate file to</font>
+00228 <font class="comment">//  make modification simple and obvious. Updates to the version header file</font>
+00229 <font class="comment">// ---------------------------------------------------------------------------</font>
+00230 <font class="preprocessor">#include    &lt;<a class="code" href="XercesVersion_8hpp.html">xercesc/util/XercesVersion.hpp</a>&gt;</font>
+00231 
+00232 
+00233 <font class="comment">// ---------------------------------------------------------------------------</font>
+00234 <font class="comment">//  Include the header that does automatic sensing of the current platform</font>
+00235 <font class="comment">//  and compiler.</font>
+00236 <font class="comment">// ---------------------------------------------------------------------------</font>
+00237 <font class="preprocessor">#include    &lt;<a class="code" href="AutoSense_8hpp.html">xercesc/util/AutoSense.hpp</a>&gt;</font>
+00238 
+00239 
+00240 
+00241 <font class="comment">// ---------------------------------------------------------------------------</font>
+00242 <font class="comment">//  According to the platform we include a platform specific file. This guy</font>
+00243 <font class="comment">//  will set up any platform specific stuff, such as character mode.</font>
+00244 <font class="comment">// ---------------------------------------------------------------------------</font>
+00245 <font class="preprocessor">#if defined(XML_WIN32)</font>
+00246 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Platforms/Win32/Win32Defs.hpp&gt;</font>
+00247 <font class="preprocessor">#endif</font>
+00248 <font class="preprocessor"></font>
+00249 <font class="preprocessor">#if defined(XML_AIX)</font>
+00250 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Platforms/AIX/AIXDefs.hpp&gt;</font>
+00251 <font class="preprocessor">#endif</font>
+00252 <font class="preprocessor"></font>
+00253 <font class="preprocessor">#if defined(XML_SOLARIS)</font>
+00254 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Platforms/Solaris/SolarisDefs.hpp&gt;</font>
+00255 <font class="preprocessor">#endif</font>
+00256 <font class="preprocessor"></font>
+00257 <font class="preprocessor">#if defined(XML_OPENSERVER)</font>
+00258 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Platforms/OpenServer/OpenServerDefs.hpp&gt;</font>
+00259 <font class="preprocessor">#endif</font>
+00260 <font class="preprocessor"></font>
+00261 <font class="preprocessor">#if defined(XML_UNIXWARE)</font>
+00262 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Platforms/UnixWare/UnixWareDefs.hpp&gt;</font>
+00263 <font class="preprocessor">#endif</font>
+00264 <font class="preprocessor"></font>
+00265 <font class="preprocessor">#if defined(XML_HPUX)</font>
+00266 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Platforms/HPUX/HPUXDefs.hpp&gt;</font>
+00267 <font class="preprocessor">#endif</font>
+00268 <font class="preprocessor"></font>
+00269 <font class="preprocessor">#if defined(XML_IRIX)</font>
+00270 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Platforms/IRIX/IRIXDefs.hpp&gt;</font>
+00271 <font class="preprocessor">#endif</font>
+00272 <font class="preprocessor"></font>
+00273 <font class="preprocessor">#if defined(XML_INTERIX)</font>
+00274 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Platforms/Interix/InterixDefs.hpp&gt;</font>
+00275 <font class="preprocessor">#endif</font>
+00276 <font class="preprocessor"></font>
+00277 <font class="preprocessor">#if defined(XML_TANDEM)</font>
+00278 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Platforms/Tandem/TandemDefs.hpp&gt;</font>
+00279 <font class="preprocessor">#endif</font>
+00280 <font class="preprocessor"></font>
+00281 <font class="preprocessor">#if defined(XML_BEOS)</font>
+00282 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Platforms/BeOS/BeOSDefs.hpp&gt;</font>
+00283 <font class="preprocessor">#endif</font>
+00284 <font class="preprocessor"></font>
+00285 <font class="preprocessor">#if defined(XML_LINUX)</font>
+00286 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Platforms/Linux/LinuxDefs.hpp&gt;</font>
+00287 <font class="preprocessor">#endif</font>
+00288 <font class="preprocessor"></font>
+00289 <font class="preprocessor">#if defined(XML_FREEBSD)</font>
+00290 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Platforms/FreeBSD/FreeBSDDefs.hpp&gt;</font>
+00291 <font class="preprocessor">#endif</font>
+00292 <font class="preprocessor"></font>
+00293 <font class="preprocessor">#if defined(XML_OS390)</font>
+00294 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Platforms/OS390/OS390Defs.hpp&gt;</font>
+00295 <font class="preprocessor">#endif</font>
+00296 <font class="preprocessor"></font>
+00297 <font class="preprocessor">#if defined(XML_PTX)</font>
+00298 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Platforms/PTX/PTXDefs.hpp&gt;</font>
+00299 <font class="preprocessor">#endif</font>
+00300 <font class="preprocessor"></font>
+00301 <font class="preprocessor">#if defined(XML_OS2)</font>
+00302 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Platforms/OS2/OS2Defs.hpp&gt;</font>
+00303 <font class="preprocessor">#endif</font>
+00304 <font class="preprocessor"></font>
+00305 <font class="preprocessor">#if defined(XML_MACOS)</font>
+00306 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Platforms/MacOS/MacOSDefs.hpp&gt;</font>
+00307 <font class="preprocessor">#endif</font>
+00308 <font class="preprocessor"></font>
+00309 <font class="preprocessor">#if defined(XML_AS400)</font>
+00310 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Platforms/OS400/OS400Defs.hpp&gt;</font>
+00311 <font class="preprocessor">#endif</font>
+00312 <font class="preprocessor"></font>
+00313 <font class="preprocessor">#if defined(XML_TRU64)</font>
+00314 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Platforms/Tru64/Tru64Defs.hpp&gt;</font>
+00315 <font class="preprocessor">#endif</font>
+00316 <font class="preprocessor"></font>
+00317 <font class="preprocessor">#if defined(XML_QNX)</font>
+00318 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Platforms/QNX/QNXDefs.hpp&gt;</font>
+00319 <font class="preprocessor">#endif</font>
+00320 <font class="preprocessor"></font>
+00321 <font class="comment">// ---------------------------------------------------------------------------</font>
+00322 <font class="comment">//  And now we subinclude a header according to the development environment</font>
+00323 <font class="comment">//  we are on. This guy defines for each platform some basic stuff that is</font>
+00324 <font class="comment">//  specific to the development environment.</font>
+00325 <font class="comment">// ---------------------------------------------------------------------------</font>
+00326 <font class="preprocessor">#if defined(XML_VISUALCPP)</font>
+00327 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Compilers/VCPPDefs.hpp&gt;</font>
+00328 <font class="preprocessor">#endif</font>
+00329 <font class="preprocessor"></font>
+00330 <font class="preprocessor">#if defined(XML_CSET)</font>
+00331 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Compilers/CSetDefs.hpp&gt;</font>
+00332 <font class="preprocessor">#endif</font>
+00333 <font class="preprocessor"></font>
+00334 <font class="preprocessor">#if defined(XML_BORLAND)</font>
+00335 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Compilers/BorlandCDefs.hpp&gt;</font>
+00336 <font class="preprocessor">#endif</font>
+00337 <font class="preprocessor"></font>
+00338 <font class="preprocessor">#if defined(XML_SUNCC) || defined(XML_SUNCC5)</font>
+00339 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Compilers/SunCCDefs.hpp&gt;</font>
+00340 <font class="preprocessor">#endif</font>
+00341 <font class="preprocessor"></font>
+00342 <font class="preprocessor">#if defined(XML_SCOCC)</font>
+00343 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Compilers/SCOCCDefs.hpp&gt;</font>
+00344 <font class="preprocessor">#endif</font>
+00345 <font class="preprocessor"></font>
+00346 <font class="preprocessor">#if defined(XML_SOLARIS_KAICC)</font>
+00347 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Compilers/SunKaiDefs.hpp&gt;</font>
+00348 <font class="preprocessor">#endif</font>
+00349 <font class="preprocessor"></font>
+00350 <font class="preprocessor">#if defined(XML_HPUX_CC) || defined(XML_HPUX_aCC) || defined(XML_HPUX_KAICC)</font>
+00351 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Compilers/HPCCDefs.hpp&gt;</font>
+00352 <font class="preprocessor">#endif</font>
+00353 <font class="preprocessor"></font>
+00354 <font class="preprocessor">#if defined(XML_MIPSPRO_CC)</font>
+00355 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Compilers/MIPSproDefs.hpp&gt;</font>
+00356 <font class="preprocessor">#endif</font>
+00357 <font class="preprocessor"></font>
+00358 <font class="preprocessor">#if defined(XML_TANDEMCC)</font>
+00359 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Compilers/TandemCCDefs.hpp&gt;</font>
+00360 <font class="preprocessor">#endif</font>
+00361 <font class="preprocessor"></font>
+00362 <font class="preprocessor">#if defined(XML_GCC)</font>
+00363 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Compilers/GCCDefs.hpp&gt;</font>
+00364 <font class="preprocessor">#endif</font>
+00365 <font class="preprocessor"></font>
+00366 <font class="preprocessor">#if defined(XML_MVSCPP)</font>
+00367 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Compilers/MVSCPPDefs.hpp&gt;</font>
+00368 <font class="preprocessor">#endif</font>
+00369 <font class="preprocessor"></font>
+00370 <font class="preprocessor">#if defined(XML_IBMVAW32)</font>
+00371 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Compilers/IBMVAW32Defs.hpp&gt;</font>
+00372 <font class="preprocessor">#endif</font>
+00373 <font class="preprocessor"></font>
+00374 <font class="preprocessor">#if defined(XML_IBMVAOS2)</font>
+00375 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Compilers/IBMVAOS2Defs.hpp&gt;</font>
+00376 <font class="preprocessor">#endif</font>
+00377 <font class="preprocessor"></font>
+00378 <font class="preprocessor">#if defined(XML_METROWERKS)</font>
+00379 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Compilers/CodeWarriorDefs.hpp&gt;</font>
+00380 <font class="preprocessor">#endif</font>
+00381 <font class="preprocessor"></font>
+00382 <font class="preprocessor">#if defined(XML_PTX_CC)</font>
+00383 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Compilers/PTXCCDefs.hpp&gt;</font>
+00384 <font class="preprocessor">#endif</font>
+00385 <font class="preprocessor"></font>
+00386 <font class="preprocessor">#if defined(XML_AS400)</font>
+00387 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Compilers/OS400SetDefs.hpp&gt;</font>
+00388 <font class="preprocessor">#endif</font>
+00389 <font class="preprocessor"></font>
+00390 <font class="preprocessor">#if defined(XML_DECCXX)</font>
+00391 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Compilers/DECCXXDefs.hpp&gt;</font>
+00392 <font class="preprocessor">#endif</font>
+00393 <font class="preprocessor"></font>
+00394 <font class="preprocessor">#if defined(XML_QCC)</font>
+00395 <font class="preprocessor"></font><font class="preprocessor">#include    &lt;xercesc/util/Compilers/QCCDefs.hpp&gt;</font>
+00396 <font class="preprocessor">#endif</font>
+00397 <font class="preprocessor"></font>
+00398 <font class="comment">// ---------------------------------------------------------------------------</font>
+00399 <font class="comment">//  Some general typedefs that are defined for internal flexibility.</font>
+00400 <font class="comment">//</font>
+00401 <font class="comment">//  Note  that UTF16Ch is fixed at 16 bits, whereas XMLCh floats in size per</font>
+00402 <font class="comment">//  platform, to whatever is the native wide char format there. UCS4Ch is</font>
+00403 <font class="comment">//  fixed at 32 bits. The types we defined them in terms of are defined per</font>
+00404 <font class="comment">//  compiler, using whatever types are the right ones for them to get these</font>
+00405 <font class="comment">//  16/32 bit sizes.</font>
+00406 <font class="comment">//</font>
+00407 <font class="comment">// ---------------------------------------------------------------------------</font>
+<a name="l00408"></a><a class="code" href="XercesDefs_8hpp.html#a15">00408</a> <font class="keyword">typedef</font> <font class="keywordtype">unsigned</font> <font class="keywordtype">char</font>       <a class="code" href="XercesDefs_8hpp.html#a15">XMLByte</a>;
+<a name="l00409"></a><a class="code" href="XercesDefs_8hpp.html#a16">00409</a> <font class="keyword">typedef</font> XMLUInt16           <a class="code" href="XercesDefs_8hpp.html#a16">UTF16Ch</a>;
+<a name="l00410"></a><a class="code" href="XercesDefs_8hpp.html#a17">00410</a> <font class="keyword">typedef</font> XMLUInt32           <a class="code" href="XercesDefs_8hpp.html#a17">UCS4Ch</a>;
+00411 
+00412 
+00413 <font class="comment">// ---------------------------------------------------------------------------</font>
+00414 <font class="comment">//  Handle boolean. If the platform can handle booleans itself, then we</font>
+00415 <font class="comment">//  map our boolean type to the native type. Otherwise we create a default</font>
+00416 <font class="comment">//  one as an int and define const values for true and false.</font>
+00417 <font class="comment">//</font>
+00418 <font class="comment">//  This flag will be set in the per-development environment stuff above.</font>
+00419 <font class="comment">// ---------------------------------------------------------------------------</font>
+00420 <font class="preprocessor">#if defined(NO_NATIVE_BOOL)</font>
+00421 <font class="preprocessor"></font><font class="preprocessor">  #ifndef bool</font>
+00422 <font class="preprocessor"></font>    <font class="keyword">typedef</font> <font class="keywordtype">int</font>     <font class="keywordtype">bool</font>;
+00423 <font class="preprocessor">  #endif</font>
+00424 <font class="preprocessor"></font><font class="preprocessor">  #ifndef true</font>
+00425 <font class="preprocessor"></font><font class="preprocessor">    #define  true     1</font>
+00426 <font class="preprocessor"></font><font class="preprocessor">  #endif</font>
+00427 <font class="preprocessor"></font><font class="preprocessor">  #ifndef false</font>
+00428 <font class="preprocessor"></font><font class="preprocessor">    #define false 0</font>
+00429 <font class="preprocessor"></font><font class="preprocessor">  #endif</font>
+00430 <font class="preprocessor"></font><font class="preprocessor">#endif</font>
+00431 <font class="preprocessor"></font>
+00432 <font class="preprocessor">#if defined(XML_NETBSD)</font>
+00433 <font class="preprocessor"></font><font class="preprocessor">#include       &lt;xercesc/util/Platforms/NetBSD/NetBSDDefs.hpp&gt;</font>
+00434 <font class="preprocessor">#endif</font>
+00435 <font class="preprocessor"></font>
+00436 <font class="comment">// ---------------------------------------------------------------------------</font>
+00437 <font class="comment">//  According to whether the compiler suports L"" type strings, we define</font>
+00438 <font class="comment">//  the XMLStrL() macro one way or another.</font>
+00439 <font class="comment">// ---------------------------------------------------------------------------</font>
+00440 <font class="preprocessor">#if defined(XML_LSTRSUPPORT)</font>
+00441 <font class="preprocessor"></font><font class="preprocessor">#define XMLStrL(str)  L##str</font>
+00442 <font class="preprocessor"></font><font class="preprocessor">#else</font>
+<a name="l00443"></a><a class="code" href="XercesDefs_8hpp.html#a1">00443</a> <font class="preprocessor"></font><font class="preprocessor">#define XMLStrL(str)  str</font>
+00444 <font class="preprocessor"></font><font class="preprocessor">#endif</font>
+00445 <font class="preprocessor"></font>
+00446 
+00447 <font class="comment">// ---------------------------------------------------------------------------</font>
+00448 <font class="comment">// Define namespace symbols if the compiler supports it.</font>
+00449 <font class="comment">// ---------------------------------------------------------------------------</font>
+00450 <font class="preprocessor">#if defined(XERCES_HAS_CPP_NAMESPACE)</font>
+00451 <font class="preprocessor"></font><font class="preprocessor">    #define XERCES_CPP_NAMESPACE_BEGIN namespace XERCES_CPP_NAMESPACE {</font>
+00452 <font class="preprocessor"></font><font class="preprocessor">    #define XERCES_CPP_NAMESPACE_END  }</font>
+00453 <font class="preprocessor"></font><font class="preprocessor">    #define XERCES_CPP_NAMESPACE_USE using namespace XERCES_CPP_NAMESPACE;</font>
+00454 <font class="preprocessor"></font><font class="preprocessor">    #define XERCES_CPP_NAMESPACE_QUALIFIER XERCES_CPP_NAMESPACE::</font>
+00455 <font class="preprocessor"></font>
+00456     <font class="keyword">namespace </font><a class="code" href="XercesVersion_8hpp.html#a30">XERCES_CPP_NAMESPACE</a> { }
+00457     <font class="keyword">namespace </font>xercesc = <a class="code" href="XercesVersion_8hpp.html#a30">XERCES_CPP_NAMESPACE</a>;
+00458 <font class="preprocessor">#else</font>
+<a name="l00459"></a><a class="code" href="XercesDefs_8hpp.html#a2">00459</a> <font class="preprocessor"></font><font class="preprocessor">    #define XERCES_CPP_NAMESPACE_BEGIN</font>
+<a name="l00460"></a><a class="code" href="XercesDefs_8hpp.html#a3">00460</a> <font class="preprocessor"></font><font class="preprocessor">    #define XERCES_CPP_NAMESPACE_END</font>
+<a name="l00461"></a><a class="code" href="XercesDefs_8hpp.html#a4">00461</a> <font class="preprocessor"></font><font class="preprocessor">    #define XERCES_CPP_NAMESPACE_USE</font>
+<a name="l00462"></a><a class="code" href="XercesDefs_8hpp.html#a5">00462</a> <font class="preprocessor"></font><font class="preprocessor">    #define XERCES_CPP_NAMESPACE_QUALIFIER</font>
+00463 <font class="preprocessor"></font><font class="preprocessor">#endif</font>
+00464 <font class="preprocessor"></font>
+00465 <font class="preprocessor">#if defined(XERCES_STD_NAMESPACE)</font>
+00466 <font class="preprocessor"></font><font class="preprocessor">    #define XERCES_USING_STD(NAME) using std :: NAME;</font>
+00467 <font class="preprocessor"></font><font class="preprocessor">    #define XERCES_STD_QUALIFIER  std ::</font>
+00468 <font class="preprocessor"></font><font class="preprocessor">#else</font>
+<a name="l00469"></a><a class="code" href="XercesDefs_8hpp.html#a6">00469</a> <font class="preprocessor"></font><font class="preprocessor">    #define XERCES_USING_STD(NAME)</font>
+<a name="l00470"></a><a class="code" href="XercesDefs_8hpp.html#a7">00470</a> <font class="preprocessor"></font><font class="preprocessor">    #define XERCES_STD_QUALIFIER </font>
+00471 <font class="preprocessor"></font><font class="preprocessor">#endif</font>
+00472 <font class="preprocessor"></font>
+00473 
+00474 <font class="comment">// ---------------------------------------------------------------------------</font>
+00475 <font class="comment">//  Set up the import/export keyword  for our core projects. The</font>
+00476 <font class="comment">//  PLATFORM_XXXX keywords are set in the per-development environment</font>
+00477 <font class="comment">//  include above.</font>
+00478 <font class="comment">// ---------------------------------------------------------------------------</font>
+00479 <font class="preprocessor">#if defined(PROJ_XMLUTIL)</font>
+00480 <font class="preprocessor"></font><font class="preprocessor">#define  PLATFORM_EXPORT</font>
+00481 <font class="preprocessor"></font><font class="preprocessor">#else</font>
+<a name="l00482"></a><a class="code" href="XercesDefs_8hpp.html#a8">00482</a> <font class="preprocessor"></font><font class="preprocessor">#define  PLATFORM_IMPORT</font>
+00483 <font class="preprocessor"></font><font class="preprocessor">#endif</font>
+00484 <font class="preprocessor"></font>
+00485 <font class="preprocessor">#if defined(PROJ_XMLPARSER)</font>
+00486 <font class="preprocessor"></font><font class="preprocessor">#define  PLATFORM_EXPORT</font>
+00487 <font class="preprocessor"></font><font class="preprocessor">#else</font>
+<a name="l00488"></a><a class="code" href="XercesDefs_8hpp.html#a9">00488</a> <font class="preprocessor"></font><font class="preprocessor">#define  PLATFORM_IMPORT</font>
+00489 <font class="preprocessor"></font><font class="preprocessor">#endif</font>
+00490 <font class="preprocessor"></font>
+00491 <font class="preprocessor">#if defined(PROJ_SAX4C)</font>
+00492 <font class="preprocessor"></font><font class="preprocessor">#define  PLATFORM_EXPORT</font>
+00493 <font class="preprocessor"></font><font class="preprocessor">#else</font>
+<a name="l00494"></a><a class="code" href="XercesDefs_8hpp.html#a10">00494</a> <font class="preprocessor"></font><font class="preprocessor">#define  PLATFORM_IMPORT</font>
+00495 <font class="preprocessor"></font><font class="preprocessor">#endif</font>
+00496 <font class="preprocessor"></font>
+00497 <font class="preprocessor">#if defined(PROJ_SAX2)</font>
+00498 <font class="preprocessor"></font><font class="preprocessor">#define  PLATFORM_EXPORT</font>
+00499 <font class="preprocessor"></font><font class="preprocessor">#else</font>
+<a name="l00500"></a><a class="code" href="XercesDefs_8hpp.html#a11">00500</a> <font class="preprocessor"></font><font class="preprocessor">#define  PLATFORM_IMPORT</font>
+00501 <font class="preprocessor"></font><font class="preprocessor">#endif</font>
+00502 <font class="preprocessor"></font>
+00503 <font class="preprocessor">#if defined(PROJ_DOM)</font>
+00504 <font class="preprocessor"></font><font class="preprocessor">#define  PLATFORM_EXPORT</font>
+00505 <font class="preprocessor"></font><font class="preprocessor">#else</font>
+<a name="l00506"></a><a class="code" href="XercesDefs_8hpp.html#a12">00506</a> <font class="preprocessor"></font><font class="preprocessor">#define  PLATFORM_IMPORT</font>
+00507 <font class="preprocessor"></font><font class="preprocessor">#endif</font>
+00508 <font class="preprocessor"></font>
+00509 <font class="preprocessor">#if defined(PROJ_PARSERS)</font>
+00510 <font class="preprocessor"></font><font class="preprocessor">#define   PLATFORM_EXPORT</font>
+00511 <font class="preprocessor"></font><font class="preprocessor">#else</font>
+<a name="l00512"></a><a class="code" href="XercesDefs_8hpp.html#a13">00512</a> <font class="preprocessor"></font><font class="preprocessor">#define   PLATFORM_IMPORT</font>
+00513 <font class="preprocessor"></font><font class="preprocessor">#endif</font>
+00514 <font class="preprocessor"></font>
+00515 <font class="preprocessor">#if defined(PROJ_VALIDATORS)</font>
+00516 <font class="preprocessor"></font><font class="preprocessor">#define VALIDATORS_EXPORT  PLATFORM_EXPORT</font>
+00517 <font class="preprocessor"></font><font class="preprocessor">#else</font>
+<a name="l00518"></a><a class="code" href="XercesDefs_8hpp.html#a14">00518</a> <font class="preprocessor"></font><font class="preprocessor">#define VALIDATORS_EXPORT  PLATFORM_IMPORT</font>
+00519 <font class="preprocessor"></font><font class="preprocessor">#endif</font>
+00520 <font class="preprocessor"></font>
+00521 <font class="preprocessor">#endif</font>
+</pre></div>    </FONT></TD></TR></TABLE><BR>
+</TD></TR></TABLE></TD></TR></TABLE><BR><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD bgcolor="#0086b2"><IMG height="1" src="images/dot.gif" width="1" alt=""></TD></TR><TR><TD align="center"><FONT color="#0086b2" size="-1"><I>
+              Copyright &copy; 2004 The Apache Software Foundation.
+              All Rights Reserved.
+            </I></FONT></TD></TR></TABLE></BODY></HTML>

@@ -1,0 +1,65 @@
+#! /bin/sh
+# /*@@
+#   @file      LAM
+#   @date      Wed Jul 21 13:27:07 1999
+#   @author    Tom Goodale
+#   @desc
+#              Configure Cactus to compile with the LAM version of MPI.
+#   @enddesc
+#   @version   $Header: /cactus/Cactus/lib/make/extras/MPI/LAM,v 1.5 2001/09/10 14:23:03 tradke Exp $
+# @@*/
+
+echo "LAM selected"
+
+if test -z "$LAM_LIB_DIR" -o -z "$LAM_INC_DIR" ; then
+  if test -z "$LAM_DIR" ; then
+    echo "LAM selected but no LAM_DIR set... Checking some places"
+    if test -d "/usr/include/lam" -a -d "/usr/lib/lam" ; then
+      lam_libs="/usr/lib/lam"
+      lam_includes="/usr/include/lam"
+    elif test -d "/usr/local/include/lam" -a -d "/usr/local/lib/lam" ; then
+      lam_libs="/usr/local/lib/lam"
+      lam_includes="/usr/local/include/lam"
+    else
+      CCTK_Search LAM_DIR "/usr /usr/local /usr/local/lam /usr/local/packages/lam /usr/local/apps/lam" include/lam_config.h
+      if test -z "$LAM_DIR" ; then
+        echo "Unable to locate LAM installation - please set LAM_DIR or {LAM_INC_DIR, LAM_LIB_DIR}"
+        exit 2
+      fi
+    fi
+  fi
+
+  # set LAM_INC_DIR if not already set
+  if test -z "$LAM_INC_DIR" ; then
+
+    : ${lam_includes="$LAM_DIR/include"}
+
+    # search for mpi++.h which might be in an include subdirectory
+    if test ! -r "$lam_includes/mpi++.h" ; then
+      if test -r "$lam_includes/mpi2c++/mpi++.h" ; then
+        lam_cxx_includes="$lam_includes/mpi2c++"
+      elif test -r "$lam_includes/../mpi2c++/mpi++.h" ; then
+        lam_cxx_includes="$lam_includes/../mpi2c++"
+      fi
+    fi
+    LAM_INC_DIR="$lam_includes $lam_cxx_includes"
+
+  fi
+
+  # set LAM_LIB_DIR if not already set
+  : ${lam_libs="$LAM_DIR/lib"}
+  : ${LAM_LIB_DIR="$lam_libs"}
+
+  echo "Using \"$LAM_INC_DIR\" as LAM include path"
+  echo "Using \"$LAM_LIB_DIR\" as LAM library path"
+fi
+
+# LAM libs changed in versions newer than 6.4
+if test -r "$LAM_LIB_DIR/libtrillium.a" ; then
+  MPI_LIBS="mpi tstdio args t trillium" 
+else
+  MPI_LIBS="mpi lam"
+fi
+
+MPI_INC_DIRS="$LAM_INC_DIR"
+MPI_LIB_DIRS="$LAM_LIB_DIR"

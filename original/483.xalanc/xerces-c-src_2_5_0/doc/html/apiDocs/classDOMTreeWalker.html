@@ -1,0 +1,635 @@
+<HTML><HEAD><SCRIPT language="JavaScript" src="../resources/script.js" type="text/javascript"></SCRIPT><TITLE>DOMTreeWalker class Reference</TITLE><link href="XercesApi.css" rel="stylesheet" type="text/css"></HEAD><BODY alink="#ff0000" bgcolor="#ffffff" leftmargin="4" link="#0000ff" marginheight="4" marginwidth="4" text="#000000" topmargin="4" vlink="#0000aa"><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" height="60" rowspan="3" valign="top" width="135"><IMG border="0" height="60" hspace="0" src="../resources/logo.gif" vspace="0" width="135"></TD><TD align="left" colspan="4" height="5" valign="top" width="456"><IMG border="0" height="5" hspace="0" src="../resources/line.gif" vspace="0" width="456"></TD><TD align="left" height="60" rowspan="3" valign="top" width="29"><IMG border="0" height="60" hspace="0" src="../resources/right.gif" vspace="0" width="29"></TD></TR><TR><TD align="left" bgcolor="#0086b2" colspan="4" height="35" valign="top" width="456"><IMG alt="" border="0" height="35" hspace="0" src="../graphics/api-header.jpg" vspace="0" width="456"></TD></TR><TR><TD align="left" height="20" valign="top" width="168"><IMG border="0" height="20" hspace="0" src="../resources/bottom.gif" vspace="0" width="168"></TD><TD align="left" height="20" valign="top" width="96"><A href="http://xml.apache.org/" onMouseOut="rolloverOff('xml');" onMouseOver="rolloverOn('xml');" target="new"><IMG alt="http://xml.apache.org/" border="0" height="20" hspace="0" name="xml" onLoad="rolloverLoad('xml','../resources/button-xml-hi.gif','../resources/button-xml-lo.gif');" src="../resources/button-xml-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.apache.org/" onMouseOut="rolloverOff('asf');" onMouseOver="rolloverOn('asf');" target="new"><IMG alt="http://www.apache.org/" border="0" height="20" hspace="0" name="asf" onLoad="rolloverLoad('asf','../resources/button-asf-hi.gif','../resources/button-asf-lo.gif');" src="../resources/button-asf-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.w3.org/" onMouseOut="rolloverOff('w3c');" onMouseOver="rolloverOn('w3c');" target="new"><IMG alt="http://www.w3.org/" border="0" height="20" hspace="0" name="w3c" onLoad="rolloverLoad('w3c','../resources/button-w3c-hi.gif','../resources/button-w3c-lo.gif');" src="../resources/button-w3c-lo.gif" vspace="0" width="96"></A></TD></TR></TABLE><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" valign="top" width="120"><IMG border="0" height="14" hspace="0" src="../resources/join.gif" vspace="0" width="120"><BR>
+  <A href="../../index.html" onMouseOut="rolloverOff('side-ext-2');" onMouseOver="rolloverOn('side-ext-2');"><IMG alt="Home" border="0" height="12" hspace="0" name="side-ext-2" onLoad="rolloverLoad('side-ext-2','../graphics/ext-2-label-2.jpg','../graphics/ext-2-label-3.jpg');" src="../graphics/ext-2-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../index.html" onMouseOut="rolloverOff('side-index');" onMouseOver="rolloverOn('side-index');"><IMG alt="Readme" border="0" height="12" hspace="0" name="side-index" onLoad="rolloverLoad('side-index','../graphics/index-label-2.jpg','../graphics/index-label-3.jpg');" src="../graphics/index-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../releases.html" onMouseOut="rolloverOff('side-releases');" onMouseOver="rolloverOn('side-releases');"><IMG alt="Release Info" border="0" height="12" hspace="0" name="side-releases" onLoad="rolloverLoad('side-releases','../graphics/releases-label-2.jpg','../graphics/releases-label-3.jpg');" src="../graphics/releases-label-3.jpg" vspace="0" width="120"></A><BR>
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../install.html" onMouseOut="rolloverOff('side-install');" onMouseOver="rolloverOn('side-install');"><IMG alt="Installation" border="0" height="12" hspace="0" name="side-install" onLoad="rolloverLoad('side-install','../graphics/install-label-2.jpg','../graphics/install-label-3.jpg');" src="../graphics/install-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://xml.apache.org/dist/xerces-c/" onMouseOut="rolloverOff('side-ext-18');" onMouseOver="rolloverOn('side-ext-18');"><IMG alt="Download" border="0" height="12" hspace="0" name="side-ext-18" onLoad="rolloverLoad('side-ext-18','../graphics/ext-18-label-2.jpg','../graphics/ext-18-label-3.jpg');" src="../graphics/ext-18-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../build.html" onMouseOut="rolloverOff('side-build');" onMouseOver="rolloverOn('side-build');"><IMG alt="Build" border="0" height="12" hspace="0" name="side-build" onLoad="rolloverLoad('side-build','../graphics/build-label-2.jpg','../graphics/build-label-3.jpg');" src="../graphics/build-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../faqs.html" onMouseOut="rolloverOff('side-faqs');" onMouseOver="rolloverOn('side-faqs');"><IMG alt="FAQs" border="0" height="12" hspace="0" name="side-faqs" onLoad="rolloverLoad('side-faqs','../graphics/faqs-label-2.jpg','../graphics/faqs-label-3.jpg');" src="../graphics/faqs-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../samples.html" onMouseOut="rolloverOff('side-samples');" onMouseOver="rolloverOn('side-samples');"><IMG alt="Samples" border="0" height="12" hspace="0" name="side-samples" onLoad="rolloverLoad('side-samples','../graphics/samples-label-2.jpg','../graphics/samples-label-3.jpg');" src="../graphics/samples-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../api.html" onMouseOut="rolloverOff('side-api');" onMouseOver="rolloverOn('side-api');"><IMG alt="API Docs" border="0" height="12" hspace="0" name="side-api" onLoad="rolloverLoad('side-api','../graphics/api-label-2.jpg','../graphics/api-label-3.jpg');" src="../graphics/api-label-3.jpg" vspace="0" width="120"></A><BR>  
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../ApacheDOMC++Binding.html" onMouseOut="rolloverOff('side-ext-64');" onMouseOver="rolloverOn('side-ext-64');"><IMG alt="DOM C++ Binding" border="0" height="12" hspace="0" name="side-ext-64" onLoad="rolloverLoad('side-ext-64','../graphics/ext-64-label-2.jpg','../graphics/ext-64-label-3.jpg');" src="../graphics/ext-64-label-3.jpg" vspace="0" width="120"></A><BR> 
+  <A href="../program.html" onMouseOut="rolloverOff('side-program');" onMouseOver="rolloverOn('side-program');"><IMG alt="Programming" border="0" height="12" hspace="0" name="side-program" onLoad="rolloverLoad('side-program','../graphics/program-label-2.jpg','../graphics/program-label-3.jpg');" src="../graphics/program-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../migrate.html" onMouseOut="rolloverOff('side-migrate');" onMouseOver="rolloverOn('side-migrate');"><IMG alt="Migration Guide" border="0" height="12" hspace="0" name="side-migrate" onLoad="rolloverLoad('side-migrate','../graphics/migrate-label-2.jpg','../graphics/migrate-label-3.jpg');" src="../graphics/migrate-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../feedback.html" onMouseOut="rolloverOff('side-feedback');" onMouseOver="rolloverOn('side-feedback');"><IMG alt="Feedback" border="0" height="12" hspace="0" name="side-feedback" onLoad="rolloverLoad('side-feedback','../graphics/feedback-label-2.jpg','../graphics/feedback-label-3.jpg');" src="../graphics/feedback-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../bug-report.html" onMouseOut="rolloverOff('side-bug-report');" onMouseOver="rolloverOn('side-bug-report');"><IMG alt="Bug-Reporting" border="0" height="12" hspace="0" name="side-bug-report" onLoad="rolloverLoad('side-bug-report','../graphics/bug-report-label-2.jpg','../graphics/bug-report-label-3.jpg');" src="../graphics/bug-report-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../pdf.html" onMouseOut="rolloverOff('side-pdf');" onMouseOver="rolloverOn('side-pdf');"><IMG alt="PDF Document" border="0" height="12" hspace="0" name="side-pdf" onLoad="rolloverLoad('side-pdf','../graphics/pdf-label-2.jpg','../graphics/pdf-label-3.jpg');" src="../graphics/pdf-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="http://xml.apache.org/websrc/cvsweb.cgi/xml-xerces/c/" onMouseOut="rolloverOff('side-ext-96');" onMouseOver="rolloverOn('side-ext-96');"><IMG alt="CVS Repository" border="0" height="12" hspace="0" name="side-ext-96" onLoad="rolloverLoad('side-ext-96','../graphics/ext-96-label-2.jpg','../graphics/ext-96-label-3.jpg');" src="../graphics/ext-96-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://marc.theaimsgroup.com/?l=xerces-c-dev" onMouseOut="rolloverOff('side-ext-98');" onMouseOver="rolloverOn('side-ext-98');"><IMG alt="Mail Archive" border="0" height="12" hspace="0" name="side-ext-98" onLoad="rolloverLoad('side-ext-98','../graphics/ext-98-label-2.jpg','../graphics/ext-98-label-3.jpg');" src="../graphics/ext-98-label-3.jpg" vspace="0" width="120"></A><BR>
+
+<IMG border="0" height="14" hspace="0" src="../resources/close.gif" vspace="0" width="120"><BR></TD><TD align="left" valign="top" width="500"><TABLE border="0" cellpadding="3" cellspacing="0"><TR><TD>
+    <TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#FFFFFF" colspan="2" width="494"><TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#039acc" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#039acc" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#039acc" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" width="492"><FONT color="#ffffff" face="arial,helvetica,sanserif" size="+1"><IMG border="0" height="2" hspace="0" src="../resources/void.gif" vspace="0" width="2"><B>API Docs for SAX and DOM</B></FONT></TD><TD bgcolor="#017299" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#017299" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#017299" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></TD></TR><TR><TD width="10">&nbsp;</TD><TD width="484"><FONT color="#000000" face="arial,helvetica,sanserif">
+
+	    <P>
+<!-- Generated by Doxygen 1.2.14 -->
+<center>
+<a class="qindex" href="index.html">Main Page</a> &nbsp; <a class="qindex" href="hierarchy.html">Class Hierarchy</a> &nbsp; <a class="qindex" href="classes.html">Alphabetical List</a> &nbsp; <a class="qindex" href="annotated.html">Compound List</a> &nbsp; <a class="qindex" href="files.html">File List</a> &nbsp; <a class="qindex" href="functions.html">Compound Members</a> &nbsp; <a class="qindex" href="globals.html">File Members</a> &nbsp; </center>
+<hr><h1>DOMTreeWalker  Class Reference</h1><code>DOMTreeWalker</code> objects are used to navigate a document tree or subtree using the view of the document defined by their <code>whatToShow</code> flags and filter (if any). 
+<a href="#_details">More...</a>
+<p>
+<a href="classDOMTreeWalker-members.html">List of all members.</a><table border=0 cellpadding=0 cellspacing=0>
+<tr><td colspan=2><br><h2>Public Methods</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
+<tr><td nowrap align=right valign=top>virtual&nbsp;</td><td valign=bottom><a class="el" href="classDOMTreeWalker.html#z157_0">~DOMTreeWalker</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Destructor.</em> <a href="#z157_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Functions introduced in DOM Level 2</div></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classDOMNode.html">DOMNode</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMTreeWalker.html#z158_0">getRoot</a> ()=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>The <code>root</code> node of the <code>DOMTreeWalker</code>, as specified when it was created.</em> <a href="#z158_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual unsigned long&nbsp;</td><td valign=bottom><a class="el" href="classDOMTreeWalker.html#z158_1">getWhatToShow</a> ()=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>This attribute determines which node types are presented via the <code>DOMTreeWalker</code>.</em> <a href="#z158_1">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classDOMNodeFilter.html">DOMNodeFilter</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMTreeWalker.html#z158_2">getFilter</a> ()=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Return The filter used to screen nodes.</em> <a href="#z158_2">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual bool&nbsp;</td><td valign=bottom><a class="el" href="classDOMTreeWalker.html#z158_3">getExpandEntityReferences</a> ()=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>The value of this flag determines whether the children of entity reference nodes are visible to the <code>DOMTreeWalker</code>.</em> <a href="#z158_3">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classDOMNode.html">DOMNode</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMTreeWalker.html#z158_4">getCurrentNode</a> ()=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Return the node at which the DOMTreeWalker is currently positioned.</em> <a href="#z158_4">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classDOMNode.html">DOMNode</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMTreeWalker.html#z158_5">parentNode</a> ()=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Moves to and returns the closest visible ancestor node of the current node.</em> <a href="#z158_5">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classDOMNode.html">DOMNode</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMTreeWalker.html#z158_6">firstChild</a> ()=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Moves the <code>DOMTreeWalker</code> to the first visible child of the current node, and returns the new node.</em> <a href="#z158_6">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classDOMNode.html">DOMNode</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMTreeWalker.html#z158_7">lastChild</a> ()=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Moves the <code>DOMTreeWalker</code> to the last visible child of the current node, and returns the new node.</em> <a href="#z158_7">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classDOMNode.html">DOMNode</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMTreeWalker.html#z158_8">previousSibling</a> ()=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Moves the <code>DOMTreeWalker</code> to the previous sibling of the current node, and returns the new node.</em> <a href="#z158_8">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classDOMNode.html">DOMNode</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMTreeWalker.html#z158_9">nextSibling</a> ()=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Moves the <code>DOMTreeWalker</code> to the next sibling of the current node, and returns the new node.</em> <a href="#z158_9">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classDOMNode.html">DOMNode</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMTreeWalker.html#z158_10">previousNode</a> ()=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Moves the <code>DOMTreeWalker</code> to the previous visible node in document order relative to the current node, and returns the new node.</em> <a href="#z158_10">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classDOMNode.html">DOMNode</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMTreeWalker.html#z158_11">nextNode</a> ()=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Moves the <code>DOMTreeWalker</code> to the next visible node in document order relative to the current node, and returns the new node.</em> <a href="#z158_11">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classDOMTreeWalker.html#z158_12">setCurrentNode</a> (<a class="el" href="classDOMNode.html">DOMNode</a> *currentNode)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>The node at which the <code>DOMTreeWalker</code> is currently positioned.</em> <a href="#z158_12">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Non-standard Extension</div></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classDOMTreeWalker.html#z159_0">release</a> ()=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Called to indicate that this TreeWalker is no longer in use and that the implementation may relinquish any resources associated with it.</em> <a href="#z159_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan=2><br><h2>Protected Methods</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Hidden constructors</div></td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classDOMTreeWalker.html#z155_0">DOMTreeWalker</a> ()</td></tr>
+</table>
+<hr><a name="_details"></a><h2>Detailed Description</h2>
+<code>DOMTreeWalker</code> objects are used to navigate a document tree or subtree using the view of the document defined by their <code>whatToShow</code> flags and filter (if any).
+<p>
+Any function which performs navigation using a <code>DOMTreeWalker</code> will automatically support any view defined by a <code>DOMTreeWalker</code>. 
+<p>
+Omitting nodes from the logical view of a subtree can result in a structure that is substantially different from the same subtree in the complete, unfiltered document. Nodes that are siblings in the <code>DOMTreeWalker</code> view may be children of different, widely separated nodes in the original view. For instance, consider a <code><a class="el" href="classDOMNodeFilter.html">DOMNodeFilter</a></code> that skips all nodes except for <a class="el" href="classDOMText.html">DOMText</a> nodes and the root node of a document. In the logical view that results, all text nodes will be siblings and appear as direct children of the root node, no matter how deeply nested the structure of the original document. 
+<p>
+See also the <a href="http://www.w3.org/TR/2000/REC-DOM-Level-2-Traversal-Range-20001113">Document Object Model (DOM) Level 2 Traversal and Range Specification</a>.
+<p>
+<dl compact><dt><b>
+Since: </b><dd>
+DOM Level 2 </dl>
+<p>
+<hr><h2>Constructor &amp; Destructor Documentation</h2>
+<a name="z155_0" doxytag="DOMTreeWalker::DOMTreeWalker"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> DOMTreeWalker::DOMTreeWalker </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [protected]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="z157_0" doxytag="DOMTreeWalker::~DOMTreeWalker"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual DOMTreeWalker::~DOMTreeWalker </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Destructor.
+<p>
+    </td>
+  </tr>
+</table>
+<hr><h2>Member Function Documentation</h2>
+<a name="z158_6" doxytag="DOMTreeWalker::firstChild"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classDOMNode.html">DOMNode</a>* DOMTreeWalker::firstChild </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Moves the <code>DOMTreeWalker</code> to the first visible child of the current node, and returns the new node.
+<p>
+If the current node has no visible children, returns <code>null</code>, and retains the current node. <dl compact><dt><b>
+Returns: </b><dd>
+The new node, or <code>null</code> if the current node has no visible children in the <code>DOMTreeWalker</code>'s logical view.</dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 2 </dl>    </td>
+  </tr>
+</table>
+<a name="z158_4" doxytag="DOMTreeWalker::getCurrentNode"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classDOMNode.html">DOMNode</a>* DOMTreeWalker::getCurrentNode </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Return the node at which the DOMTreeWalker is currently positioned.
+<p>
+<dl compact><dt><b>
+Since: </b><dd>
+DOM Level 2 </dl>    </td>
+  </tr>
+</table>
+<a name="z158_3" doxytag="DOMTreeWalker::getExpandEntityReferences"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual bool DOMTreeWalker::getExpandEntityReferences </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+The value of this flag determines whether the children of entity reference nodes are visible to the <code>DOMTreeWalker</code>.
+<p>
+If false, these children and their descendants will be rejected. Note that this rejection takes precedence over <code>whatToShow</code> and the filter, if any. <br>
+ To produce a view of the document that has entity references expanded and does not expose the entity reference node itself, use the <code>whatToShow</code> flags to hide the entity reference node and set <code>expandEntityReferences</code> to true when creating the <code>DOMTreeWalker</code>. To produce a view of the document that has entity reference nodes but no entity expansion, use the <code>whatToShow</code> flags to show the entity reference node and set <code>expandEntityReferences</code> to false.
+<p>
+<dl compact><dt><b>
+Since: </b><dd>
+DOM Level 2 </dl>    </td>
+  </tr>
+</table>
+<a name="z158_2" doxytag="DOMTreeWalker::getFilter"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classDOMNodeFilter.html">DOMNodeFilter</a>* DOMTreeWalker::getFilter </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Return The filter used to screen nodes.
+<p>
+<dl compact><dt><b>
+Since: </b><dd>
+DOM Level 2 </dl>    </td>
+  </tr>
+</table>
+<a name="z158_0" doxytag="DOMTreeWalker::getRoot"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classDOMNode.html">DOMNode</a>* DOMTreeWalker::getRoot </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+The <code>root</code> node of the <code>DOMTreeWalker</code>, as specified when it was created.
+<p>
+<dl compact><dt><b>
+Since: </b><dd>
+DOM Level 2 </dl>    </td>
+  </tr>
+</table>
+<a name="z158_1" doxytag="DOMTreeWalker::getWhatToShow"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual unsigned long DOMTreeWalker::getWhatToShow </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+This attribute determines which node types are presented via the <code>DOMTreeWalker</code>.
+<p>
+The available set of constants is defined in the <code><a class="el" href="classDOMNodeFilter.html">DOMNodeFilter</a></code> interface. Nodes not accepted by <code>whatToShow</code> will be skipped, but their children may still be considered. Note that this skip takes precedence over the filter, if any.
+<p>
+<dl compact><dt><b>
+Since: </b><dd>
+DOM Level 2 </dl>    </td>
+  </tr>
+</table>
+<a name="z158_7" doxytag="DOMTreeWalker::lastChild"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classDOMNode.html">DOMNode</a>* DOMTreeWalker::lastChild </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Moves the <code>DOMTreeWalker</code> to the last visible child of the current node, and returns the new node.
+<p>
+If the current node has no visible children, returns <code>null</code>, and retains the current node. <dl compact><dt><b>
+Returns: </b><dd>
+The new node, or <code>null</code> if the current node has no children in the <code>DOMTreeWalker</code>'s logical view.</dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 2 </dl>    </td>
+  </tr>
+</table>
+<a name="z158_11" doxytag="DOMTreeWalker::nextNode"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classDOMNode.html">DOMNode</a>* DOMTreeWalker::nextNode </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Moves the <code>DOMTreeWalker</code> to the next visible node in document order relative to the current node, and returns the new node.
+<p>
+If the current node has no next node, or if the search for nextNode attempts to step upward from the <code>DOMTreeWalker</code>'s <code>root</code> node, returns <code>null</code>, and retains the current node. <dl compact><dt><b>
+Returns: </b><dd>
+The new node, or <code>null</code> if the current node has no next node in the <code>DOMTreeWalker</code>'s logical view.</dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 2 </dl>    </td>
+  </tr>
+</table>
+<a name="z158_9" doxytag="DOMTreeWalker::nextSibling"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classDOMNode.html">DOMNode</a>* DOMTreeWalker::nextSibling </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Moves the <code>DOMTreeWalker</code> to the next sibling of the current node, and returns the new node.
+<p>
+If the current node has no visible next sibling, returns <code>null</code>, and retains the current node. <dl compact><dt><b>
+Returns: </b><dd>
+The new node, or <code>null</code> if the current node has no next sibling. in the <code>DOMTreeWalker</code>'s logical view.</dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 2 </dl>    </td>
+  </tr>
+</table>
+<a name="z158_5" doxytag="DOMTreeWalker::parentNode"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classDOMNode.html">DOMNode</a>* DOMTreeWalker::parentNode </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Moves to and returns the closest visible ancestor node of the current node.
+<p>
+If the search for <code>parentNode</code> attempts to step upward from the <code>DOMTreeWalker</code>'s <code>root</code> node, or if it fails to find a visible ancestor node, this method retains the current position and returns <code>null</code>. <dl compact><dt><b>
+Returns: </b><dd>
+The new parent node, or <code>null</code> if the current node has no parent in the <code>DOMTreeWalker</code>'s logical view.</dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 2 </dl>    </td>
+  </tr>
+</table>
+<a name="z158_10" doxytag="DOMTreeWalker::previousNode"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classDOMNode.html">DOMNode</a>* DOMTreeWalker::previousNode </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Moves the <code>DOMTreeWalker</code> to the previous visible node in document order relative to the current node, and returns the new node.
+<p>
+If the current node has no previous node, or if the search for <code>previousNode</code> attempts to step upward from the <code>DOMTreeWalker</code>'s <code>root</code> node, returns <code>null</code>, and retains the current node. <dl compact><dt><b>
+Returns: </b><dd>
+The new node, or <code>null</code> if the current node has no previous node in the <code>DOMTreeWalker</code>'s logical view.</dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 2 </dl>    </td>
+  </tr>
+</table>
+<a name="z158_8" doxytag="DOMTreeWalker::previousSibling"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classDOMNode.html">DOMNode</a>* DOMTreeWalker::previousSibling </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Moves the <code>DOMTreeWalker</code> to the previous sibling of the current node, and returns the new node.
+<p>
+If the current node has no visible previous sibling, returns <code>null</code>, and retains the current node. <dl compact><dt><b>
+Returns: </b><dd>
+The new node, or <code>null</code> if the current node has no previous sibling. in the <code>DOMTreeWalker</code>'s logical view.</dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 2 </dl>    </td>
+  </tr>
+</table>
+<a name="z159_0" doxytag="DOMTreeWalker::release"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void DOMTreeWalker::release </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Called to indicate that this TreeWalker is no longer in use and that the implementation may relinquish any resources associated with it.
+<p>
+Access to a released object will lead to unexpected result.     </td>
+  </tr>
+</table>
+<a name="z158_12" doxytag="DOMTreeWalker::setCurrentNode"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void DOMTreeWalker::setCurrentNode </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classDOMNode.html">DOMNode</a> *&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>currentNode</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+The node at which the <code>DOMTreeWalker</code> is currently positioned.
+<p>
+<br>
+Alterations to the DOM tree may cause the current node to no longer be accepted by the <code>DOMTreeWalker</code>'s associated filter. <code>currentNode</code> may also be explicitly set to any node, whether or not it is within the subtree specified by the <code>root</code> node or would be accepted by the filter and <code>whatToShow</code> flags. Further traversal occurs relative to <code>currentNode</code> even if it is not part of the current view, by applying the filters in the requested direction; if no traversal is possible, <code>currentNode</code> is not changed. <dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em><a class="el" href="classDOMException.html">DOMException</a></em>&nbsp;</td><td>
+ NOT_SUPPORTED_ERR: Raised if an attempt is made to set <code>currentNode</code> to <code>null</code>.</td></tr>
+</table>
+</dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 2 </dl>    </td>
+  </tr>
+</table>
+<hr>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="DOMTreeWalker_8hpp-source.html">DOMTreeWalker.hpp</a></ul>
+    </FONT></TD></TR></TABLE><BR>
+</TD></TR></TABLE></TD></TR></TABLE><BR><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD bgcolor="#0086b2"><IMG height="1" src="images/dot.gif" width="1" alt=""></TD></TR><TR><TD align="center"><FONT color="#0086b2" size="-1"><I>
+              Copyright &copy; 2004 The Apache Software Foundation.
+              All Rights Reserved.
+            </I></FONT></TD></TR></TABLE></BODY></HTML>

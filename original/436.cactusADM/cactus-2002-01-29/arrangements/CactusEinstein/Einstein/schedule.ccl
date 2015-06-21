@@ -1,0 +1,143 @@
+# Schedule definitions for thorn Einstein
+# $Header: /cactus/CactusEinstein/Einstein/Attic/schedule.ccl,v 1.39 2001/12/19 08:23:29 miguel Exp $
+
+STORAGE: metric, curv, lapse, flags, slicing_flags
+
+if (!CCTK_Equals(shift,"none")) 
+{
+  STORAGE: shift
+}
+
+if (use_conformal) {
+  STORAGE: confac
+}
+
+if (use_conformal_derivs) {
+  STORAGE: confac_1derivs,confac_2derivs
+}
+
+if (use_mask) {
+  STORAGE: mask
+  schedule MaskOne at CCTK_INITIAL
+  {
+    LANG: C
+  } "Set mask to one"
+}
+
+schedule Einstein_InitSymBound at CCTK_BASEGRID
+{
+  LANG: C
+} "Set up GF symmetries"
+ 
+if (einstein_register_slicing)
+{
+   schedule Einstein_ActivateSlicing at CCTK_BASEGRID
+   {
+     LANG: C
+   } "Initialize slicing, setup priorities for mixed slicings"
+}
+
+schedule InitialEinstein at CCTK_INITIAL 
+{
+    LANG: C
+} "Initialisation for Einstein methods"
+
+if (CCTK_Equals(initial_data,"flat")) 
+{
+  schedule InitialFlat at CCTK_INITIAL after InitialEinstein
+  {
+    LANG: C
+  } "Flat initial data"
+}
+
+if (CCTK_Equals(initial_lapse,"one") || CCTK_Equals(slicing,"geodesic"))
+{
+  schedule LapseOne at CCTK_INITIAL
+  {
+    LANG: C
+  } "Set initial lapse to one"
+}
+
+if (CCTK_Equals(initial_lapse,"gaussian"))
+{
+  schedule LapseGaussian at CCTK_INITIAL
+  {
+    LANG: C
+  } "Set initial lapse to a gaussian"
+}
+
+if (CCTK_Equals(initial_lapse,"psiminustwo"))
+{
+  schedule LapsePsiMinusTwo at CCTK_INITIAL after (BiBBAM_InitialWrapper,IDAxiBrillBH,Schwarzschild)
+  {
+    LANG: C
+  } "Set initial lapse to psi to the minus two"
+}
+
+if (CCTK_Equals(initial_lapse,"isotropic"))
+{
+  schedule LapseIsotropic at CCTK_INITIAL after (BiBBAM_InitialWrapper,IDAxiBrillBH,Schwarzschild)
+  {
+    LANG: C
+  } "Set initial lapse to isotropic lapse"
+}
+
+if (!CCTK_Equals(shift,"none"))
+{
+   if (CCTK_Equals(initial_shift,"zero"))
+   {
+     schedule ShiftZero at CCTK_INITIAL
+     {
+       LANG: C
+     } "Set initial shift to zero"
+   }
+
+   if (CCTK_Equals(initial_shift,"rotation"))
+   {
+     schedule ShiftRotation at CCTK_INITIAL after (BiBBAM_InitialWrapper,IDAxiBrillBH,Schwarzschild)
+     {
+       LANG: C
+     } "Set initial shift to rigid rotation"
+   }
+}
+
+if (einstein_register_slicing)
+{
+   schedule Einstein_SetNextSlicing at CCTK_PRESTEP
+   {
+     LANG: C
+   } "Identify the slicing for the next iteration"
+}
+
+schedule evaltrK at CCTK_ANALYSIS
+{
+  STORAGE: trace_of_K,detofg
+  LANG: C
+  TRIGGERS: trace_of_K,detofg
+} "Compute the trace of the extrinsic curvature"
+
+schedule metric_carttosphere at CCTK_ANALYSIS
+{
+  STORAGE: spherical_metric
+  LANG: C
+  TRIGGERS: spherical_metric
+} "Calculate the spherical metric in r,theta(q), phi(p)"
+
+schedule curv_carttosphere at CCTK_ANALYSIS
+{
+  STORAGE: spherical_curv
+  LANG: C
+  TRIGGERS: spherical_curv
+} "Calculate the spherical ex. curvature in r, theta(q), phi(p)"
+
+if (CCTK_Equals(timestep_method,"courant") || CCTK_Equals(timestep_method,"courant_time")) 
+{
+  schedule CalcCourant at CCTK_PRESTEP before Time_Simple
+  {
+   LANG: C
+  } "Calculate the wavespeed for the Courant condition"
+}
+
+
+
+

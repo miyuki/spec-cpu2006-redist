@@ -1,0 +1,49 @@
+# Schedule definitions for thorn BenchADM
+# $Header: /cactus/CactusBench/BenchADM/schedule.ccl,v 1.9 2001/04/18 20:37:48 allen Exp $
+
+
+schedule Bench_ParamCheck at CCTK_PARAMCHECK
+{
+  LANG: C
+} "Check parameters"
+
+if (CCTK_Equals(evolution_system,"ADM"))
+{
+  STORAGE: ADM_metric_prev
+  STORAGE: ADM_curv_stag
+
+  schedule BenchRegisterSlicing at CCTK_STARTUP
+  {
+    LANG: C
+  } "Register slicings"
+
+  schedule Bench_PreLoop at CCTK_INITIAL after InitialEinstein
+  {
+    LANG: Fortran
+  }"Setup for ADM"
+
+
+  if (time_symmetric)
+  {
+    schedule Bench_StaggeredLeapfrog1a_TS at CCTK_INITIAL after planewaves after teukwaves after InitialFlat after LapseOne after LapseGaussian
+    {
+       LANG: Fortran
+    } "Time symmetric initial data for staggered leapfrog"
+  }
+  else
+  {
+    schedule Bench_StaggeredLeapfrog1a at CCTK_INITIAL after planewaves after teukwaves after InitialFlat after LapseOne after LapseGaussian
+    {
+       STORAGE: ADM_sources
+       LANG: Fortran
+    } "Time asymmetric initial data for staggered leapfrog"
+  }
+  schedule Bench_StaggeredLeapfrog2 at CCTK_EVOL
+  {
+    SYNC: ADM_curv_stag
+    LANG: Fortran
+  } "Evolve using Staggered Leapfrog"
+}
+
+
+

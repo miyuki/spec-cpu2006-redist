@@ -1,0 +1,125 @@
+!---------------------------------------------------------------------------
+!
+!  INTMAT3: 3 dimensional integer matrices
+!
+! Copyright (C) Dylan Jayatilaka, 1998
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: intmat3.foo,v 1.4 2003/02/19 07:48:57 reaper Exp $
+!---------------------------------------------------------------------------
+
+module INTMAT3
+
+   implicit none
+
+contains
+
+   create(dim1,dim2,dim3)
+   ! Create the object with the desired bounds
+      self :: PTR
+      dim1,dim2,dim3 :: INT, IN
+      nullify(self)
+      allocate(self(dim1,dim2,dim3))
+      ADD_MEMORY(dim1*dim2*dim3*INT_SIZE)
+   end
+
+   create(lb1,ub1,lb2,ub2,lb3,ub3)
+   ! Create the object with the desired bounds
+      self :: PTR
+      lb1,lb2,lb3,ub1,ub2,ub3 :: INT, IN
+      nullify(self)
+      allocate(self(lb1:ub1,lb2:ub2,lb3:ub3))
+      ADD_MEMORY((ub1-lb1+1)*(ub2-lb2+1)*(ub3-lb3+1)*INT_SIZE)
+   end
+
+   create(bounds1,bounds2,bounds3)
+   ! Create the object with the desired bounds
+      self :: PTR
+      bounds1,bounds2,bounds3 :: INTVEC(2)
+      .create(bounds1(1),bounds1(2),bounds2(1),bounds2(2),bounds3(1),bounds3(2))
+   end
+
+   destroy
+   ! Destroy the object
+      self :: PTR
+      DELETE_MEMORY(size(self)*INT_SIZE)
+      deallocate(self)
+   end
+
+   make_index_of_components(components) ::: pure
+   ! Returns the index matrix corresponding to the components.
+   ! Each dimension of self is size(components,2).
+     components :: INTMAT, IN
+     self :: OUT
+     ind,a,b,c :: INT
+     do ind = 1,size(components,2)
+       a = components(1,ind)
+       b = components(2,ind)
+       c = components(3,ind)
+       self(a+1,b+1,c+1) = ind
+     end
+   end
+
+   to_gaussian_xyz_indices(l_max)
+   ! Make "self", which maps the three defining xyz powers of each cartesian
+   ! gaussian, for all gaussians up to angular momnetum "l_max", back to its
+   ! lexical index *within a shell of the same angular momentum* i.e. not the
+   ! total lexical index. NOTE: "self" has lower bounds of 0, and so is passed
+   ! in as a pointer.
+     self :: PTR
+     l_max :: INT, IN
+     L,k,a,b,c :: INT
+   ENSURE(lbound(self,1)==0,"wrong lower bound")
+   ENSURE(lbound(self,2)==0,"wrong lower bound")
+   ENSURE(lbound(self,3)==0,"wrong lower bound")
+   ENSURE(ubound(self,1)==l_max,"wrong upper bound")
+   ENSURE(ubound(self,2)==l_max,"wrong upper bound")
+   ENSURE(ubound(self,3)==l_max,"wrong upper bound")
+     do L = 0,l_max  ! Loop over all shells with momentum L
+       k = 1         ! This is the local shell lexical index
+                     ! Loop over powers a, b, c
+       do a = L,floor((L+2)*THIRD),-1
+         do b = min(L-a,a),floor((L-a+1)*HALF),-1
+           c = L-a-b
+           if (a==b AND b==c) then
+             self(a,a,a) = k
+             k = k+1
+           else if (a>b AND b==c) then
+             self(a,b,b) = k
+             self(b,a,b) = k+1
+             self(b,b,a) = k+2
+             k = k+3
+           else if (a==b AND b>c) then
+             self(a,a,c) = k
+             self(a,c,a) = k+1
+             self(c,a,a) = k+2
+             k = k+3
+           else
+             self(a,b,c) = k
+             self(a,c,b) = k+1
+             self(b,a,c) = k+2
+             self(c,a,b) = k+3
+             self(b,c,a) = k+4
+             self(c,b,a) = k+5
+             k = k+6
+           end
+         end
+       end
+     end
+   end
+
+end

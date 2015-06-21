@@ -1,0 +1,64 @@
+   use TYPES_MODULE
+   use SYSTEM_MODULE
+ 
+   use REALVEC_MODULE, only: equals_
+   use REALVEC_MODULE, only: create_
+   use REALVEC_MODULE, only: create_copy_
+   use REALVEC_MODULE, only: destroy_
+ 
+   use INT_MODULE, only: to_str_
+ 
+   use PARALLEL_MODULE, only: sum_vectors_
+   use PARALLEL_MODULE, only: n_proc_
+   use PARALLEL_MODULE, only: this_proc_
+ 
+   use ATOM_MODULE, only: chemical_symbol_
+   use ATOM_MODULE, only: bragg_slater_radius_
+ 
+   use GAUSSIAN_MODULE, only: make_grid_
+   use GAUSSIAN_MODULE, only: n_comp_
+ 
+   use REALMAT3_MODULE, only: create_
+   use REALMAT3_MODULE, only: destroy_
+ 
+   use SHELL1_MODULE, only: make_grid_
+   use SHELL1_MODULE, only: make_nabla_grid_
+ 
+   use TEXTFILE_MODULE, only: stdin
+   use TEXTFILE_MODULE, only: stdout
+   use TEXTFILE_MODULE, only: set_default_units_
+   use TEXTFILE_MODULE, only: text_
+   use TEXTFILE_MODULE, only: next_str_
+   use TEXTFILE_MODULE, only: skip_next_item_
+   use TEXTFILE_MODULE, only: next_item_
+   use TEXTFILE_MODULE, only: show_
+   use TEXTFILE_MODULE, only: read_
+   use TEXTFILE_MODULE, only: flush_
+   use TEXTFILE_MODULE, only: reverted_
+ 
+   use STR_MODULE, only: to_lower_case_
+ 
+ 
+   use ATOMVEC_MODULE, only: nullify_ptr_part_
+   use ATOMVEC_MODULE, only: atom_index_from_pos_
+   use ATOMVEC_MODULE, only: create_
+   use ATOMVEC_MODULE, only: destroy_
+ 
+   use REAL_MODULE, only: arcsinh_
+ 
+   use ARCHIVE_MODULE, only: set_genre_
+   use ARCHIVE_MODULE, only: set_root_name_
+   use ARCHIVE_MODULE, only: set_
+   use ARCHIVE_MODULE, only: set_name_
+   use ARCHIVE_MODULE, only: nullify_ptr_part_
+   use ARCHIVE_MODULE, only: exists_
+   use ARCHIVE_MODULE, only: write_
+   use ARCHIVE_MODULE, only: read_
+   use ARCHIVE_MODULE, only: copy_
+ 
+   use REALMAT_MODULE, only: create_
+   use REALMAT_MODULE, only: create_copy_
+   use REALMAT_MODULE, only: destroy_
+ 
+   use CPXVEC_MODULE, only: create_
+   use CPXVEC_MODULE, only: destroy_

@@ -1,0 +1,757 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>DFTGRID</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Keyword documentation for TONTO"
+HREF="keywords.html"><LINK
+REL="PREVIOUS"
+TITLE="CRYSTAL"
+HREF="crystal.html"><LINK
+REL="NEXT"
+TITLE="GAUSSIAN"
+HREF="gaussian.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="crystal.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="gaussian.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="DFTGRID"
+></A
+><TT
+CLASS="LITERAL"
+>DFTGRID</TT
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="DFTGRID-PURPOSE"
+></A
+>Purpose</H2
+><P
+ALIGN="justify"
+>An object for making integration grids used for DFT calculations.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="DFTGRID-SYNOPSIS"
+></A
+>Synopsis</H2
+><P
+ALIGN="justify"
+>This routine makes a 3-D atomic integration grid which is a tensor product
+of a radial grid and a spherical grid.</P
+><P
+ALIGN="justify"
+>An integration grid for a molecule can also be made, using a weighted
+sum of these atomic grids.</P
+><P
+ALIGN="justify"
+>In getting a complete molecular grid, an atomic grid at the origin is made
+using the <TT
+CLASS="LITERAL"
+>make_atom_grid</TT
+> routine. For each atom in the
+molecule, this grid at the origin is copied, re-scaled depending on the
+Bragg-Slater radii, and then displaced so that its origin is now centred on the
+atom.  </P
+><P
+ALIGN="justify"
+>Each re-scaled, displaced grid is then <SPAN
+CLASS="QUOTE"
+>"partitioned"</SPAN
+>. The
+partitioning modifies the weights of the displaced grid so that effectively it
+doesn't overlap with the displaced grids on all the other atoms.</P
+><P
+ALIGN="justify"
+>The displace and partition of the original <SPAN
+CLASS="QUOTE"
+>"atom"</SPAN
+> grid is
+done by the routine <TT
+CLASS="LITERAL"
+>rescale_displace_partition</TT
+>.</P
+><H3
+><A
+NAME="AEN2099"
+>References</A
+></H3
+><DIV
+CLASS="BIBLIOENTRY"
+><A
+NAME="AEN2101"
+></A
+><P
+><SPAN
+CLASS="AUTHOR"
+>A. D. Becke</SPAN
+>, <I
+>J. Chem. Phys.</I
+>, 88, 1988, 2547.</P
+><DIV
+CLASS="BIBLIOENTRYBLOCK"
+STYLE="margin-left=0.5in"
+></DIV
+></DIV
+><DIV
+CLASS="BIBLIOENTRY"
+><A
+NAME="AEN2110"
+></A
+><P
+><SPAN
+CLASS="AUTHOR"
+>O. Treutler </SPAN
+><SPAN
+CLASS="AUTHOR"
+>and R. Ahlrichs</SPAN
+>, <I
+>J. Chem. Phys.</I
+>, 102, 1995, 346.</P
+><DIV
+CLASS="BIBLIOENTRYBLOCK"
+STYLE="margin-left=0.5in"
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="DFTGRID-INPUT"
+></A
+>Default input data order</H2
+><P
+ALIGN="justify"
+>There is no associated DFTGRIDVEC type; an input data order has not been
+defined.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="DFTGRID-KEYWORDS"
+></A
+>Listing of keywords</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>becke_m_partition_power= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read an integer used in smoothing the partition between atomic
+grids.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Must be greater than zero</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Default value is 2</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>euler_maclaurin_alpha= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the the <TT
+CLASS="LITERAL"
+>&alpha;</TT
+> parameter used to define
+the Euler-Maclaurin radial grid.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Must be greater than zero</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Default value is 2</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>euler-maclaurin_alpha= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Equivalent to <TT
+CLASS="LITERAL"
+>euler_maclaurin_alpha=</TT
+>.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>euler_maclaurin_m= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the the <TT
+CLASS="LITERAL"
+>&alpha;</TT
+> parameter used to define
+the Euler-Maclaurin radial grid.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Must be greater than zero</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Default value is 2</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>euler-maclaurin_m= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Equivalent to <TT
+CLASS="LITERAL"
+>euler_maclaurin_m=</TT
+>.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>gauss_chebyshev_alpha= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the the <TT
+CLASS="LITERAL"
+>&alpha;</TT
+> parameter used to define
+the Gauss-Chebyshev radial grid.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Must be greater than zero</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Default value is 3</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>gauss-chebyshev_alpha= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Equivalent to <TT
+CLASS="LITERAL"
+>gauss_chebyshev_alpha=</TT
+>.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>gauss_chebyshev_m= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the the <TT
+CLASS="LITERAL"
+>m</TT
+> parameter used to define
+the Gauss-Chebyshev radial grid.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Must be greater than zero</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Default value is 1</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>gauss-chebyshev_m= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Equivalent to <TT
+CLASS="LITERAL"
+>gauss_chebyshev_m=</TT
+>.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>radial_grid_kind= STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the kind of radial grid to be used for the radial part of
+the numerical quadrature grid.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Allowed options are <TT
+CLASS="LITERAL"
+>gauss-chebyshev</TT
+> or
+<TT
+CLASS="LITERAL"
+>euler_maclaurin</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Default is <TT
+CLASS="LITERAL"
+>gauss-chebyshev</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>radial_grid_order= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read a the number of radial quadrature points to be used.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Must be greater than zero</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Default value is 60</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>spherical_grid_kind= STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the kind of spherical grid to be used for the angular part
+of the numerical quadrature grid.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Allowed optins: only <TT
+CLASS="LITERAL"
+>lebedev</TT
+> so
+far</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Not surprisingly, the default value is
+<TT
+CLASS="LITERAL"
+>lebedev</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>To input the kind of radial integration grid see
+<TT
+CLASS="LITERAL"
+>radial_grid_kind=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>spherical_grid_order= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read an integer which determines the <SPAN
+CLASS="QUOTE"
+>"order"</SPAN
+> or
+accuracy of the angular quandrature grid..</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Allowed <TT
+CLASS="LITERAL"
+>lebedev</TT
+> values are
+<TT
+CLASS="LITERAL"
+>23</TT
+>, <TT
+CLASS="LITERAL"
+>25</TT
+>, <TT
+CLASS="LITERAL"
+>27</TT
+>,
+<TT
+CLASS="LITERAL"
+>29</TT
+>, <TT
+CLASS="LITERAL"
+>35</TT
+>, <TT
+CLASS="LITERAL"
+>41</TT
+>,
+<TT
+CLASS="LITERAL"
+>47</TT
+>, <TT
+CLASS="LITERAL"
+>53</TT
+>,
+<TT
+CLASS="LITERAL"
+>59</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Default <TT
+CLASS="LITERAL"
+>lebedev</TT
+> value is
+<TT
+CLASS="LITERAL"
+>35</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Print out information about the DFT integration grid to
+<TT
+CLASS="LITERAL"
+>stdout</TT
+> in human readable form.</P
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="crystal.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="gaussian.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>CRYSTAL</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="keywords.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>GAUSSIAN</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

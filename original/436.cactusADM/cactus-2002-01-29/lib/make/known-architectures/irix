@@ -1,0 +1,215 @@
+#! /bin/sh
+#  /*@@
+#    @file      irix
+#    @date      Thu Feb 25 12:20:53 1999
+#    @author    Tom Goodale
+#    @desc 
+#   
+#    @enddesc 
+#    @version $Header: /cactus/Cactus/lib/make/known-architectures/irix,v 1.29 2002/01/05 19:16:38 allen Exp $
+#  @@*/
+
+if test "$CCTK_CONFIG_STAGE" = "preferred-compilers" ; then
+
+# extract the CPU type from hinv output
+# (assumes all processors are of equal type :-)
+  IRIX_CPU="`hinv -t cpu | tail -1 | sed 's/^[^R]*R\([01-9]*\).*$/\1/'`"
+
+  if test -z "$IRIX_BITS" ; then
+    if test -n "`uname | grep 64`" ; then
+       IRIX_BITS=64
+    else
+       IRIX_BITS=32
+    fi
+  fi
+
+#case "$IRIX_BITS:$CC" in
+#    64:gcc)
+#    echo gcc can\'t compile 64 bit, changing to cc
+#    CC=cc
+#    CXX=CC
+#    LD=CC
+#    ;;
+#esac
+
+#  if test "$CC" = "gcc" ; then
+#      echo "There seem to be some problems with the GNU compiler under irix, switching to cc"
+#      echo "If you don't like this, you can edit your make.config.defn file."
+#      CC=cc
+#      CXX=CC
+#      LD=CC
+#  fi
+
+  if test -z "$CC"; then
+    echo Setting C compiler to cc
+    CC="cc"
+  fi
+
+  if test -z "$CXX"; then
+    echo Setting C++ compiler to CC
+    CXX="CC"
+  fi
+
+  if test -z "$LD"; then
+    echo Setting linker to CC
+    LD="CC"
+  fi
+
+
+
+else
+
+
+# Find out which version of the C++ compilers is installed
+
+  IRIX_CVERSION="`versions c++_dev | grep , | tail -1 | sed 's:.*, ::'`"
+
+  IRIX_CMAJ="`echo $IRIX_CVERSION | sed 's:\([^. ]*\)\.\([^. ]*\).*:\1:'`"
+  IRIX_CMIN="`echo $IRIX_CVERSION | sed 's:\([^. ]*\)\.\([^. ]*\).*:\2:'`"
+
+  if test $IRIX_CMAJ -gt 7 -o \( $IRIX_CMAJ -eq 7 -a $IRIX_CMIN -gt 2 \) ; then
+    IRIX_CCOMP="new"
+  else
+    IRIX_CCOMP="old"
+  fi
+
+  case $IRIX_BITS in
+    64)
+      : ${LIBS="$LIBS malloc perfex fpe $IRIX_FLIBS m"}
+      ;;
+    32)
+      : ${LIBS="$LIBS malloc fpe $IRIX_FLIBS m"}
+      ;;
+    *)
+      ;;
+  esac
+
+
+  case "$IRIX_CPU" in
+    4???)
+       IRIX_FLAGS="-mips3" ;;
+    8???)
+       IRIX_FLAGS="-mips3" ;;
+    10???)
+       IRIX_FLAGS="-mips4 -r10000" ;;
+    12???)
+       case "$IRIX_CCOMP" in 
+         "old")
+	    IRIX_FLAGS="-mips4 -r10000" ;; 
+	  *) 
+	    IRIX_FLAGS="-mips4 -r12000" ;;
+       esac ;;
+    *)
+       IRIX_FLAGS="-mips4" ;;
+  esac
+
+  case "$IRIX_BITS:$CC" in
+    64:cc)
+      : ${CFLAGS="$CFLAGS -64 $IRIX_FLAGS"}
+      : ${CXXFLAGS="$CXXFLAGS -64 $IRIX_FLAGS"}
+      : ${C_OPTIMISE_FLAGS="-O3 -INLINE -LNO -OPT:Olimit=100000"}
+      : ${CXX_OPTIMISE_FLAGS="-O3 -INLINE -LNO -OPT:Olimit=100000"}
+      : ${C_DEBUG_FLAGS="-g3"}
+      : ${CXX_DEBUG_FLAGS="-g3"}
+      : ${C_WARN_FLAGS="-fullwarn"}
+      : ${CXX_WARN_FLAGS="-fullwarn"}
+      ;;
+    32:cc)
+      : ${CFLAGS="$CFLAGS -n32 $IRIX_FLAGS"}
+      : ${CXXFLAGS="$CXXFLAGS  -n32 $IRIX_FLAGS"}
+      : ${C_OPTIMISE_FLAGS="-O3 -INLINE -LNO -OPT:Olimit=100000"}
+      : ${CXX_OPTIMISE_FLAGS="-O3 -INLINE -LNO -OPT:Olimit=100000"}
+      : ${C_DEBUG_FLAGS="-g3"}
+      : ${CXX_DEBUG_FLAGS="-g3"}
+      : ${C_WARN_FLAGS="-fullwarn"}
+      : ${CXX_WARN_FLAGS="-fullwarn"}
+      ;;
+    *)
+      ;;
+  esac
+
+  case "$IRIX_BITS" in
+    64)
+      : ${F90FLAGS="$F90FLAGS -r10000 -TARG:proc=r10000 -64 -mips4"}
+      : ${F77FLAGS="$F90FLAGS"}
+      : ${F90_OPTIMISE_FLAGS="-O3 -OPT:roundoff=3:IEEE_arithmetic=3:const_copy_limit=100000"}
+      : ${F77_OPTIMISE_FLAGS="$F90_OPTIMISE_FLAGS"}
+      : ${F90_DEBUG_FLAGS="-g3"}
+      : ${F77_DEBUG_FLAGS="-g3"}
+      : ${F90_WARN_FLAGS="-fullwarn"}
+      : ${F77_WARN_FLAGS="-fullwarn"}
+      ;;
+    32)
+      : ${F90FLAGS="-n32 -mips3"}
+      : ${F77FLAGS="$F90FLAGS"}
+      : ${F90_OPTIMISE_FLAGS="-O3 -OPT:roundoff=3:IEEE_arithmetic=3:fold_arith_limit=10000:const_copy_limit=100000"}
+      : ${F77_OPTIMISE_FLAGS="-O3 -OPT:roundoff=3:IEEE_arithmetic=3:fold_arith_limit=10000:const_copy_limit=100000"}
+      : ${F90_DEBUG_FLAGS="-g3"}
+      : ${F77_DEBUG_FLAGS="-g3"}
+      : ${F90_WARN_FLAGS="-fullwarn"}
+      : ${F77_WARN_FLAGS="-fullwarn"}
+      ;;
+    *)
+      ;;
+esac
+
+case "$IRIX_BITS:$LD" in
+    64:CC)
+      : ${LDFLAGS="$LDFLAGS -64 -Wl,\"-woff 84\",\"-woff 85\""}
+      ;;
+    32:CC)
+      : ${LDFLAGS="$LDFLAGS -n32 -Wl,\"-woff 84\",\"-woff 85\""}
+      ;;
+    *)
+      ;;
+esac
+
+# Find out which version of the Fortran compilers is installed
+
+  IRIX_FVERSION="`versions ftn_dev | grep , | tail -1 | sed 's:.*, ::'`"
+
+  IRIX_FMAJ="`echo $IRIX_FVERSION | sed 's:\([^. ]*\)\.\([^. ]*\).*:\1:'`"
+  IRIX_FMIN="`echo $IRIX_FVERSION | sed 's:\([^. ]*\)\.\([^. ]*\).*:\2:'`"
+
+  if test $IRIX_FMAJ -gt 7 -o \( $IRIX_FMAJ -eq 7 -a $IRIX_FMIN -ge 2 \) ; then
+    IRIX_FLIBS="fortran ftn ftn90"
+  else
+    IRIX_FLIBS="ftn ftn90"
+  fi
+
+  case $IRIX_BITS in
+    64)
+      LIBS="$LIBS malloc perfex fpe $IRIX_FLIBS m"
+      ;;
+    32)
+      LIBS="$LIBS malloc fpe $IRIX_FLIBS m"
+      ;;
+    *)
+      ;;
+  esac
+
+
+
+# Cache stuff
+  if test -z "$L2_CACHELINE_BYTES" ; then
+    L2_CACHELINE_BYTES=128
+    echo "Setting L2_CACHELINE_BYTES to $L2_CACHELINE_BYTES"
+  fi
+
+  if test -z "$L2_CACHE_SIZE" ; then
+    TEMP_CACHE_SIZE="`hinv | perl -ne 'if (m/Secondary.*cache/) { s/^.*: (.*)( on P.*)?$/$1/ ; s/ Mbyte.*/\*1024/ ; s/ Kbyte.*//; print}' | sort | head -n1`"
+    if test -n "$TEMP_CACHE_SIZE" ; then
+      L2_CACHE_SIZE="$TEMP_CACHE_SIZE*1024"
+      echo "Setting L2_CACHE_SIZE to $L2_CACHE_SIZE bytes"
+    else
+      echo "Unable to determine L2 Cache size on this machine. "
+    fi
+  fi
+
+# MPI stuff
+
+  if test -n "$MPI" ; then
+    NATIVE_MPI_LIBS="mpi"
+  fi
+
+fi

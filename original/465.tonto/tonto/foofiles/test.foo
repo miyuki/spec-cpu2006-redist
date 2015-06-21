@@ -1,0 +1,99 @@
+!-------------------------------------------------------------------------------
+!
+! TEST: test functions for the example run_XXXX.foo programs
+!
+! Copyright (C) Dylan Jayatilaka, 2001
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+! 
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+! 
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: test.foo,v 1.2 2003/02/19 07:48:58 reaper Exp $
+!-------------------------------------------------------------------------------
+
+module TEST
+
+   implicit none
+
+   public func
+   public arcsin
+   public funk
+   public dfunk
+   public unit
+   public v010
+
+contains
+
+   func(x) result (res) ::: selfless
+   !  A test function for minimising
+      x,res :: REAL
+      res = (x-1)*(x-1) + 1
+   end
+
+   arcsin(x) result (res) ::: selfless
+   ! Return the arcsin for x. Corrects bug for numbers close to 1.
+      x,res :: REAL
+      if (abs(abs(x)-ONE)<TOL(5)) then
+         if (x<0) then; res = -PI/TWO
+         else;          res = +PI/TWO
+         end
+      else
+         res = asin(x)
+      end
+   end
+
+   funk(p) result (res) ::: selfless
+   !  A test function for minimising
+       p :: REALVEC(2)
+      res :: REAL
+      x,y :: REAL
+      x = p(1); y = p(2)
+      res = (x-1)*(x-1) + (y-1)*(y-1) + 1
+   end
+
+   dfunk(p) result (res) ::: selfless
+   !  A test function for minimising
+      p,res :: REALVEC(2)
+      x,y :: REAL
+      x = p(1); y = p(2)
+      res(1) = 2*(x-1)
+      res(2) = 2*(y-1)
+   end
+
+   unit(grid,pts) ::: selfless
+   !  The potential "grid" from a unit charge at (0,1,0)
+      grid :: REALVEC
+      pts :: REALMAT
+      ENSURE(pts.dim2==3,"incorrect pts array")
+      ENSURE(grid.dim==pts.dim1,"incorrect pts array")
+      grid = ONE
+   end
+
+   v010(grid,pts) ::: selfless
+   !  The potential "grid" from a unit charge at (0,1,0)
+      grid :: REALVEC
+      pts :: REALMAT
+      i :: INT
+      x,y,z :: REAL
+      ENSURE(pts.dim2==3,"incorrect pts array")
+      ENSURE(grid.dim==pts.dim1,"incorrect pts array")
+      do i = 1,grid.dim
+         x = pts(i,1)
+         y = pts(i,2)
+         z = pts(i,3)
+         grid(i) = ONE/sqrt(x*x + (y-1)*(y-1) + z*z)
+      end
+   end
+
+end

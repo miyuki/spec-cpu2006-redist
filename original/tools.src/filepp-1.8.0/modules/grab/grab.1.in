@@ -1,0 +1,51 @@
+.\"  Hey Emacs! This file is -*- nroff -*- source.
+.\" __FILEPP_INPUT__ version __VERSION__
+.\" filepp is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program; see the file COPYING.  If not, write to
+.\" the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+.\"
+.SH GRAB MODULE - grab.pm
+The grab module is used to grab input before processing. Its file name
+is \fBgrab.pm\fP. 
+.PP
+The grab module is mainly for use in other modules, such as for.pm and
+bigfunc.pm.  It grabs all input from a file before any processing is
+done on it.  This allows other modules to do processing on the
+original input data before the main processing is done.  For example,
+the for module will store the original input inside a loop and re-use
+it each time the loop is processed.
+.TP
+.BR #grab " \fImacro\fP \fIdefinition...\fP"
+The grab module will start grabbing of all input from the grab
+keyword, onwards.
+.TP
+.BR #endgrab
+Ends a grab.  Everything between this keyword and the last
+preceding \fB#grab\fP will be grabbed and stored for use in other
+modules.
+.PP
+Grabs can be nested if required.
+.PP
+When calling grab from another module, use the following functions:
+.TP
+.BR Grab::StartGrab(\fI$startkeyword\fP, \fI$endkeyword\fP)
+\fI$startkeyword\fP is the keyword that StartGrab is called from.
+\fI$endkeyword\fP is the keyword that grabbing should stop at. 
+.TP
+.BR \fI@List\fP = Grab::GetInput()
+Returns a Perl list containing all input grabbed from when grab was last
+run.
+.TP
+.BR \fI$line\fP = Grab::GetInputLine()
+Returns the line number of the input file where grabbing last started.
+

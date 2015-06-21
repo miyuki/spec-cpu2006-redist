@@ -1,0 +1,2588 @@
+<HTML><HEAD><SCRIPT language="JavaScript" src="../resources/script.js" type="text/javascript"></SCRIPT><TITLE>XMLUniDefs.hpp File Reference</TITLE><link href="XercesApi.css" rel="stylesheet" type="text/css"></HEAD><BODY alink="#ff0000" bgcolor="#ffffff" leftmargin="4" link="#0000ff" marginheight="4" marginwidth="4" text="#000000" topmargin="4" vlink="#0000aa"><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" height="60" rowspan="3" valign="top" width="135"><IMG border="0" height="60" hspace="0" src="../resources/logo.gif" vspace="0" width="135"></TD><TD align="left" colspan="4" height="5" valign="top" width="456"><IMG border="0" height="5" hspace="0" src="../resources/line.gif" vspace="0" width="456"></TD><TD align="left" height="60" rowspan="3" valign="top" width="29"><IMG border="0" height="60" hspace="0" src="../resources/right.gif" vspace="0" width="29"></TD></TR><TR><TD align="left" bgcolor="#0086b2" colspan="4" height="35" valign="top" width="456"><IMG alt="" border="0" height="35" hspace="0" src="../graphics/api-header.jpg" vspace="0" width="456"></TD></TR><TR><TD align="left" height="20" valign="top" width="168"><IMG border="0" height="20" hspace="0" src="../resources/bottom.gif" vspace="0" width="168"></TD><TD align="left" height="20" valign="top" width="96"><A href="http://xml.apache.org/" onMouseOut="rolloverOff('xml');" onMouseOver="rolloverOn('xml');" target="new"><IMG alt="http://xml.apache.org/" border="0" height="20" hspace="0" name="xml" onLoad="rolloverLoad('xml','../resources/button-xml-hi.gif','../resources/button-xml-lo.gif');" src="../resources/button-xml-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.apache.org/" onMouseOut="rolloverOff('asf');" onMouseOver="rolloverOn('asf');" target="new"><IMG alt="http://www.apache.org/" border="0" height="20" hspace="0" name="asf" onLoad="rolloverLoad('asf','../resources/button-asf-hi.gif','../resources/button-asf-lo.gif');" src="../resources/button-asf-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.w3.org/" onMouseOut="rolloverOff('w3c');" onMouseOver="rolloverOn('w3c');" target="new"><IMG alt="http://www.w3.org/" border="0" height="20" hspace="0" name="w3c" onLoad="rolloverLoad('w3c','../resources/button-w3c-hi.gif','../resources/button-w3c-lo.gif');" src="../resources/button-w3c-lo.gif" vspace="0" width="96"></A></TD></TR></TABLE><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" valign="top" width="120"><IMG border="0" height="14" hspace="0" src="../resources/join.gif" vspace="0" width="120"><BR>
+  <A href="../../index.html" onMouseOut="rolloverOff('side-ext-2');" onMouseOver="rolloverOn('side-ext-2');"><IMG alt="Home" border="0" height="12" hspace="0" name="side-ext-2" onLoad="rolloverLoad('side-ext-2','../graphics/ext-2-label-2.jpg','../graphics/ext-2-label-3.jpg');" src="../graphics/ext-2-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../index.html" onMouseOut="rolloverOff('side-index');" onMouseOver="rolloverOn('side-index');"><IMG alt="Readme" border="0" height="12" hspace="0" name="side-index" onLoad="rolloverLoad('side-index','../graphics/index-label-2.jpg','../graphics/index-label-3.jpg');" src="../graphics/index-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../releases.html" onMouseOut="rolloverOff('side-releases');" onMouseOver="rolloverOn('side-releases');"><IMG alt="Release Info" border="0" height="12" hspace="0" name="side-releases" onLoad="rolloverLoad('side-releases','../graphics/releases-label-2.jpg','../graphics/releases-label-3.jpg');" src="../graphics/releases-label-3.jpg" vspace="0" width="120"></A><BR>
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../install.html" onMouseOut="rolloverOff('side-install');" onMouseOver="rolloverOn('side-install');"><IMG alt="Installation" border="0" height="12" hspace="0" name="side-install" onLoad="rolloverLoad('side-install','../graphics/install-label-2.jpg','../graphics/install-label-3.jpg');" src="../graphics/install-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://xml.apache.org/dist/xerces-c/" onMouseOut="rolloverOff('side-ext-18');" onMouseOver="rolloverOn('side-ext-18');"><IMG alt="Download" border="0" height="12" hspace="0" name="side-ext-18" onLoad="rolloverLoad('side-ext-18','../graphics/ext-18-label-2.jpg','../graphics/ext-18-label-3.jpg');" src="../graphics/ext-18-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../build.html" onMouseOut="rolloverOff('side-build');" onMouseOver="rolloverOn('side-build');"><IMG alt="Build" border="0" height="12" hspace="0" name="side-build" onLoad="rolloverLoad('side-build','../graphics/build-label-2.jpg','../graphics/build-label-3.jpg');" src="../graphics/build-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../faqs.html" onMouseOut="rolloverOff('side-faqs');" onMouseOver="rolloverOn('side-faqs');"><IMG alt="FAQs" border="0" height="12" hspace="0" name="side-faqs" onLoad="rolloverLoad('side-faqs','../graphics/faqs-label-2.jpg','../graphics/faqs-label-3.jpg');" src="../graphics/faqs-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../samples.html" onMouseOut="rolloverOff('side-samples');" onMouseOver="rolloverOn('side-samples');"><IMG alt="Samples" border="0" height="12" hspace="0" name="side-samples" onLoad="rolloverLoad('side-samples','../graphics/samples-label-2.jpg','../graphics/samples-label-3.jpg');" src="../graphics/samples-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../api.html" onMouseOut="rolloverOff('side-api');" onMouseOver="rolloverOn('side-api');"><IMG alt="API Docs" border="0" height="12" hspace="0" name="side-api" onLoad="rolloverLoad('side-api','../graphics/api-label-2.jpg','../graphics/api-label-3.jpg');" src="../graphics/api-label-3.jpg" vspace="0" width="120"></A><BR>  
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../ApacheDOMC++Binding.html" onMouseOut="rolloverOff('side-ext-64');" onMouseOver="rolloverOn('side-ext-64');"><IMG alt="DOM C++ Binding" border="0" height="12" hspace="0" name="side-ext-64" onLoad="rolloverLoad('side-ext-64','../graphics/ext-64-label-2.jpg','../graphics/ext-64-label-3.jpg');" src="../graphics/ext-64-label-3.jpg" vspace="0" width="120"></A><BR> 
+  <A href="../program.html" onMouseOut="rolloverOff('side-program');" onMouseOver="rolloverOn('side-program');"><IMG alt="Programming" border="0" height="12" hspace="0" name="side-program" onLoad="rolloverLoad('side-program','../graphics/program-label-2.jpg','../graphics/program-label-3.jpg');" src="../graphics/program-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../migrate.html" onMouseOut="rolloverOff('side-migrate');" onMouseOver="rolloverOn('side-migrate');"><IMG alt="Migration Guide" border="0" height="12" hspace="0" name="side-migrate" onLoad="rolloverLoad('side-migrate','../graphics/migrate-label-2.jpg','../graphics/migrate-label-3.jpg');" src="../graphics/migrate-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../feedback.html" onMouseOut="rolloverOff('side-feedback');" onMouseOver="rolloverOn('side-feedback');"><IMG alt="Feedback" border="0" height="12" hspace="0" name="side-feedback" onLoad="rolloverLoad('side-feedback','../graphics/feedback-label-2.jpg','../graphics/feedback-label-3.jpg');" src="../graphics/feedback-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../bug-report.html" onMouseOut="rolloverOff('side-bug-report');" onMouseOver="rolloverOn('side-bug-report');"><IMG alt="Bug-Reporting" border="0" height="12" hspace="0" name="side-bug-report" onLoad="rolloverLoad('side-bug-report','../graphics/bug-report-label-2.jpg','../graphics/bug-report-label-3.jpg');" src="../graphics/bug-report-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../pdf.html" onMouseOut="rolloverOff('side-pdf');" onMouseOver="rolloverOn('side-pdf');"><IMG alt="PDF Document" border="0" height="12" hspace="0" name="side-pdf" onLoad="rolloverLoad('side-pdf','../graphics/pdf-label-2.jpg','../graphics/pdf-label-3.jpg');" src="../graphics/pdf-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="http://xml.apache.org/websrc/cvsweb.cgi/xml-xerces/c/" onMouseOut="rolloverOff('side-ext-96');" onMouseOver="rolloverOn('side-ext-96');"><IMG alt="CVS Repository" border="0" height="12" hspace="0" name="side-ext-96" onLoad="rolloverLoad('side-ext-96','../graphics/ext-96-label-2.jpg','../graphics/ext-96-label-3.jpg');" src="../graphics/ext-96-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://marc.theaimsgroup.com/?l=xerces-c-dev" onMouseOut="rolloverOff('side-ext-98');" onMouseOver="rolloverOn('side-ext-98');"><IMG alt="Mail Archive" border="0" height="12" hspace="0" name="side-ext-98" onLoad="rolloverLoad('side-ext-98','../graphics/ext-98-label-2.jpg','../graphics/ext-98-label-3.jpg');" src="../graphics/ext-98-label-3.jpg" vspace="0" width="120"></A><BR>
+
+<IMG border="0" height="14" hspace="0" src="../resources/close.gif" vspace="0" width="120"><BR></TD><TD align="left" valign="top" width="500"><TABLE border="0" cellpadding="3" cellspacing="0"><TR><TD>
+    <TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#FFFFFF" colspan="2" width="494"><TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#039acc" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#039acc" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#039acc" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" width="492"><FONT color="#ffffff" face="arial,helvetica,sanserif" size="+1"><IMG border="0" height="2" hspace="0" src="../resources/void.gif" vspace="0" width="2"><B>API Docs for SAX and DOM</B></FONT></TD><TD bgcolor="#017299" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#017299" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#017299" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></TD></TR><TR><TD width="10">&nbsp;</TD><TD width="484"><FONT color="#000000" face="arial,helvetica,sanserif">
+
+	    <P>
+<!-- Generated by Doxygen 1.2.14 -->
+<center>
+<a class="qindex" href="index.html">Main Page</a> &nbsp; <a class="qindex" href="hierarchy.html">Class Hierarchy</a> &nbsp; <a class="qindex" href="classes.html">Alphabetical List</a> &nbsp; <a class="qindex" href="annotated.html">Compound List</a> &nbsp; <a class="qindex" href="files.html">File List</a> &nbsp; <a class="qindex" href="functions.html">Compound Members</a> &nbsp; <a class="qindex" href="globals.html">File Members</a> &nbsp; </center>
+<hr><h1>XMLUniDefs.hpp File Reference</h1>
+<p>
+Include dependency graph for XMLUniDefs.hpp:<p><center><img src="XMLUniDefs_8hpp__incl.gif" border="0" usemap="#XMLUniDefs.hpp_map" alt="Include dependency graph"></center>
+<map name="XMLUniDefs.hpp_map">
+<area href="XercesDefs_8hpp.html" shape="rect" coords="119,105,300,86" alt="">
+<area href="XercesVersion_8hpp.html" shape="rect" coords="7,36,204,17" alt="">
+<area href="AutoSense_8hpp.html" shape="rect" coords="228,36,401,17" alt="">
+</map>
+
+<p>
+This graph shows which files directly or indirectly include this file:<p><center><img src="XMLUniDefs_8hpp__dep__incl.gif" border="0" usemap="#XMLUniDefs.hppdep_map" alt="Included by dependency graph"></center>
+<map name="XMLUniDefs.hppdep_map">
+<area href="Base64_8hpp.html" shape="rect" coords="96,313,176,294" alt="">
+<area href="OutOfMemoryException_8hpp.html" shape="rect" coords="200,313,381,294" alt="">
+<area href="QName_8hpp.html" shape="rect" coords="405,313,485,294" alt="">
+<area href="XMLAttr_8hpp.html" shape="rect" coords="227,244,315,225" alt="">
+<area href="XMLDocumentHandler_8hpp.html" shape="rect" coords="7,174,177,156" alt="">
+<area href="AbstractDOMParser_8hpp.html" shape="rect" coords="12,105,172,86" alt="">
+<area href="XercesDOMParser_8hpp.html" shape="rect" coords="16,36,168,17" alt="">
+<area href="SAXParser_8hpp.html" shape="rect" coords="208,105,312,86" alt="">
+<area href="XMLElementDecl_8hpp.html" shape="rect" coords="201,174,343,156" alt="">
+<area href="XMLValidator_8hpp.html" shape="rect" coords="368,174,485,156" alt="">
+<area href="SAX2XMLReader_8hpp.html" shape="rect" coords="403,105,547,86" alt="">
+<area href="XMLContentModel_8hpp.html" shape="rect" coords="339,244,485,225" alt="">
+<area href="XMLChar_8hpp.html" shape="rect" coords="560,313,653,294" alt="">
+<area href="XMLDateTime_8hpp.html" shape="rect" coords="677,313,800,294" alt="">
+</map>
+
+<p>
+<a href="XMLUniDefs_8hpp-source.html">Go to the source code of this file.</a><table border=0 cellpadding=0 cellspacing=0>
+<tr><td colspan=2><br><h2>Defines</h2></td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a0">XMLUNIDEFS_HPP</a></td></tr>
+<tr><td colspan=2><br><h2>Variables</h2></td></tr>
+<tr><td nowrap align=right valign=top>XERCES_CPP_NAMESPACE_BEGIN <br>
+const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a1">chNull</a> = 0x00</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a2">chHTab</a> = 0x09</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a3">chLF</a> = 0x0A</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a4">chVTab</a> = 0x0B</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a5">chFF</a> = 0x0C</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a6">chCR</a> = 0x0D</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a7">chAmpersand</a> = 0x26</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a8">chAsterisk</a> = 0x2A</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a9">chAt</a> = 0x40</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a10">chBackSlash</a> = 0x5C</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a11">chBang</a> = 0x21</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a12">chCaret</a> = 0x5E</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a13">chCloseAngle</a> = 0x3E</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a14">chCloseCurly</a> = 0x7D</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a15">chCloseParen</a> = 0x29</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a16">chCloseSquare</a> = 0x5D</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a17">chColon</a> = 0x3A</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a18">chComma</a> = 0x2C</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a19">chDash</a> = 0x2D</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a20">chDollarSign</a> = 0x24</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a21">chDoubleQuote</a> = 0x22</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a22">chEqual</a> = 0x3D</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a23">chForwardSlash</a> = 0x2F</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a24">chGrave</a> = 0x60</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a25">chNEL</a> = 0x85</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a26">chOpenAngle</a> = 0x3C</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a27">chOpenCurly</a> = 0x7B</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a28">chOpenParen</a> = 0x28</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a29">chOpenSquare</a> = 0x5B</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a30">chPercent</a> = 0x25</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a31">chPeriod</a> = 0x2E</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a32">chPipe</a> = 0x7C</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a33">chPlus</a> = 0x2B</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a34">chPound</a> = 0x23</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a35">chQuestion</a> = 0x3F</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a36">chSingleQuote</a> = 0x27</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a37">chSpace</a> = 0x20</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a38">chSemiColon</a> = 0x3B</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a39">chTilde</a> = 0x7E</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a40">chUnderscore</a> = 0x5F</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a41">chSwappedUnicodeMarker</a> = XMLCh(0xFFFE)</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a42">chUnicodeMarker</a> = XMLCh(0xFEFF)</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a43">chDigit_0</a> = 0x30</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a44">chDigit_1</a> = 0x31</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a45">chDigit_2</a> = 0x32</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a46">chDigit_3</a> = 0x33</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a47">chDigit_4</a> = 0x34</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a48">chDigit_5</a> = 0x35</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a49">chDigit_6</a> = 0x36</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a50">chDigit_7</a> = 0x37</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a51">chDigit_8</a> = 0x38</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a52">chDigit_9</a> = 0x39</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a53">chLatin_A</a> = 0x41</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a54">chLatin_B</a> = 0x42</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a55">chLatin_C</a> = 0x43</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a56">chLatin_D</a> = 0x44</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a57">chLatin_E</a> = 0x45</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a58">chLatin_F</a> = 0x46</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a59">chLatin_G</a> = 0x47</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a60">chLatin_H</a> = 0x48</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a61">chLatin_I</a> = 0x49</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a62">chLatin_J</a> = 0x4A</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a63">chLatin_K</a> = 0x4B</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a64">chLatin_L</a> = 0x4C</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a65">chLatin_M</a> = 0x4D</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a66">chLatin_N</a> = 0x4E</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a67">chLatin_O</a> = 0x4F</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a68">chLatin_P</a> = 0x50</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a69">chLatin_Q</a> = 0x51</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a70">chLatin_R</a> = 0x52</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a71">chLatin_S</a> = 0x53</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a72">chLatin_T</a> = 0x54</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a73">chLatin_U</a> = 0x55</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a74">chLatin_V</a> = 0x56</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a75">chLatin_W</a> = 0x57</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a76">chLatin_X</a> = 0x58</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a77">chLatin_Y</a> = 0x59</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a78">chLatin_Z</a> = 0x5A</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a79">chLatin_a</a> = 0x61</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a80">chLatin_b</a> = 0x62</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a81">chLatin_c</a> = 0x63</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a82">chLatin_d</a> = 0x64</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a83">chLatin_e</a> = 0x65</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a84">chLatin_f</a> = 0x66</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a85">chLatin_g</a> = 0x67</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a86">chLatin_h</a> = 0x68</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a87">chLatin_i</a> = 0x69</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a88">chLatin_j</a> = 0x6A</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a89">chLatin_k</a> = 0x6B</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a90">chLatin_l</a> = 0x6C</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a91">chLatin_m</a> = 0x6D</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a92">chLatin_n</a> = 0x6E</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a93">chLatin_o</a> = 0x6F</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a94">chLatin_p</a> = 0x70</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a95">chLatin_q</a> = 0x71</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a96">chLatin_r</a> = 0x72</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a97">chLatin_s</a> = 0x73</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a98">chLatin_t</a> = 0x74</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a99">chLatin_u</a> = 0x75</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a100">chLatin_v</a> = 0x76</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a101">chLatin_w</a> = 0x77</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a102">chLatin_x</a> = 0x78</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a103">chLatin_y</a> = 0x79</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a104">chLatin_z</a> = 0x7A</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a105">chYenSign</a> = 0xA5</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a106">chWonSign</a> = 0x20A9</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a107">chLineSeparator</a> = 0x2028</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="XMLUniDefs_8hpp.html#a108">chParagraphSeparator</a> = 0x2029</td></tr>
+</table>
+<hr><h2>Define Documentation</h2>
+<a name="a0" doxytag="XMLUniDefs.hpp::XMLUNIDEFS_HPP"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define XMLUNIDEFS_HPP
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<hr><h2>Variable Documentation</h2>
+<a name="a7" doxytag="XMLUniDefs.hpp::chAmpersand"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chAmpersand = 0x26
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a8" doxytag="XMLUniDefs.hpp::chAsterisk"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chAsterisk = 0x2A
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a9" doxytag="XMLUniDefs.hpp::chAt"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chAt = 0x40
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a10" doxytag="XMLUniDefs.hpp::chBackSlash"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chBackSlash = 0x5C
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a11" doxytag="XMLUniDefs.hpp::chBang"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chBang = 0x21
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a12" doxytag="XMLUniDefs.hpp::chCaret"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chCaret = 0x5E
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a13" doxytag="XMLUniDefs.hpp::chCloseAngle"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chCloseAngle = 0x3E
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a14" doxytag="XMLUniDefs.hpp::chCloseCurly"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chCloseCurly = 0x7D
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a15" doxytag="XMLUniDefs.hpp::chCloseParen"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chCloseParen = 0x29
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a16" doxytag="XMLUniDefs.hpp::chCloseSquare"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chCloseSquare = 0x5D
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a17" doxytag="XMLUniDefs.hpp::chColon"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chColon = 0x3A
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a18" doxytag="XMLUniDefs.hpp::chComma"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chComma = 0x2C
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a6" doxytag="XMLUniDefs.hpp::chCR"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chCR = 0x0D
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a19" doxytag="XMLUniDefs.hpp::chDash"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chDash = 0x2D
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a43" doxytag="XMLUniDefs.hpp::chDigit_0"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chDigit_0 = 0x30
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a44" doxytag="XMLUniDefs.hpp::chDigit_1"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chDigit_1 = 0x31
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a45" doxytag="XMLUniDefs.hpp::chDigit_2"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chDigit_2 = 0x32
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a46" doxytag="XMLUniDefs.hpp::chDigit_3"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chDigit_3 = 0x33
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a47" doxytag="XMLUniDefs.hpp::chDigit_4"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chDigit_4 = 0x34
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a48" doxytag="XMLUniDefs.hpp::chDigit_5"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chDigit_5 = 0x35
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a49" doxytag="XMLUniDefs.hpp::chDigit_6"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chDigit_6 = 0x36
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a50" doxytag="XMLUniDefs.hpp::chDigit_7"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chDigit_7 = 0x37
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a51" doxytag="XMLUniDefs.hpp::chDigit_8"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chDigit_8 = 0x38
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a52" doxytag="XMLUniDefs.hpp::chDigit_9"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chDigit_9 = 0x39
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a20" doxytag="XMLUniDefs.hpp::chDollarSign"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chDollarSign = 0x24
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a21" doxytag="XMLUniDefs.hpp::chDoubleQuote"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chDoubleQuote = 0x22
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a22" doxytag="XMLUniDefs.hpp::chEqual"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chEqual = 0x3D
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a5" doxytag="XMLUniDefs.hpp::chFF"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chFF = 0x0C
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a23" doxytag="XMLUniDefs.hpp::chForwardSlash"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chForwardSlash = 0x2F
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a24" doxytag="XMLUniDefs.hpp::chGrave"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chGrave = 0x60
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a2" doxytag="XMLUniDefs.hpp::chHTab"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chHTab = 0x09
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a79" doxytag="XMLUniDefs.hpp::chLatin_a"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_a = 0x61
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a53" doxytag="XMLUniDefs.hpp::chLatin_A"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_A = 0x41
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a80" doxytag="XMLUniDefs.hpp::chLatin_b"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_b = 0x62
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a54" doxytag="XMLUniDefs.hpp::chLatin_B"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_B = 0x42
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a81" doxytag="XMLUniDefs.hpp::chLatin_c"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_c = 0x63
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a55" doxytag="XMLUniDefs.hpp::chLatin_C"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_C = 0x43
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a82" doxytag="XMLUniDefs.hpp::chLatin_d"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_d = 0x64
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a56" doxytag="XMLUniDefs.hpp::chLatin_D"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_D = 0x44
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a83" doxytag="XMLUniDefs.hpp::chLatin_e"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_e = 0x65
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a57" doxytag="XMLUniDefs.hpp::chLatin_E"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_E = 0x45
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a84" doxytag="XMLUniDefs.hpp::chLatin_f"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_f = 0x66
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a58" doxytag="XMLUniDefs.hpp::chLatin_F"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_F = 0x46
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a85" doxytag="XMLUniDefs.hpp::chLatin_g"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_g = 0x67
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a59" doxytag="XMLUniDefs.hpp::chLatin_G"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_G = 0x47
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a86" doxytag="XMLUniDefs.hpp::chLatin_h"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_h = 0x68
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a60" doxytag="XMLUniDefs.hpp::chLatin_H"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_H = 0x48
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a87" doxytag="XMLUniDefs.hpp::chLatin_i"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_i = 0x69
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a61" doxytag="XMLUniDefs.hpp::chLatin_I"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_I = 0x49
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a88" doxytag="XMLUniDefs.hpp::chLatin_j"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_j = 0x6A
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a62" doxytag="XMLUniDefs.hpp::chLatin_J"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_J = 0x4A
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a89" doxytag="XMLUniDefs.hpp::chLatin_k"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_k = 0x6B
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a63" doxytag="XMLUniDefs.hpp::chLatin_K"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_K = 0x4B
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a90" doxytag="XMLUniDefs.hpp::chLatin_l"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_l = 0x6C
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a64" doxytag="XMLUniDefs.hpp::chLatin_L"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_L = 0x4C
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a91" doxytag="XMLUniDefs.hpp::chLatin_m"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_m = 0x6D
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a65" doxytag="XMLUniDefs.hpp::chLatin_M"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_M = 0x4D
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a92" doxytag="XMLUniDefs.hpp::chLatin_n"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_n = 0x6E
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a66" doxytag="XMLUniDefs.hpp::chLatin_N"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_N = 0x4E
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a93" doxytag="XMLUniDefs.hpp::chLatin_o"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_o = 0x6F
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a67" doxytag="XMLUniDefs.hpp::chLatin_O"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_O = 0x4F
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a94" doxytag="XMLUniDefs.hpp::chLatin_p"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_p = 0x70
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a68" doxytag="XMLUniDefs.hpp::chLatin_P"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_P = 0x50
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a95" doxytag="XMLUniDefs.hpp::chLatin_q"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_q = 0x71
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a69" doxytag="XMLUniDefs.hpp::chLatin_Q"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_Q = 0x51
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a96" doxytag="XMLUniDefs.hpp::chLatin_r"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_r = 0x72
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a70" doxytag="XMLUniDefs.hpp::chLatin_R"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_R = 0x52
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a97" doxytag="XMLUniDefs.hpp::chLatin_s"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_s = 0x73
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a71" doxytag="XMLUniDefs.hpp::chLatin_S"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_S = 0x53
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a98" doxytag="XMLUniDefs.hpp::chLatin_t"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_t = 0x74
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a72" doxytag="XMLUniDefs.hpp::chLatin_T"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_T = 0x54
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a99" doxytag="XMLUniDefs.hpp::chLatin_u"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_u = 0x75
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a73" doxytag="XMLUniDefs.hpp::chLatin_U"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_U = 0x55
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a100" doxytag="XMLUniDefs.hpp::chLatin_v"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_v = 0x76
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a74" doxytag="XMLUniDefs.hpp::chLatin_V"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_V = 0x56
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a101" doxytag="XMLUniDefs.hpp::chLatin_w"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_w = 0x77
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a75" doxytag="XMLUniDefs.hpp::chLatin_W"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_W = 0x57
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a102" doxytag="XMLUniDefs.hpp::chLatin_x"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_x = 0x78
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a76" doxytag="XMLUniDefs.hpp::chLatin_X"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_X = 0x58
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a103" doxytag="XMLUniDefs.hpp::chLatin_y"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_y = 0x79
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a77" doxytag="XMLUniDefs.hpp::chLatin_Y"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_Y = 0x59
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a104" doxytag="XMLUniDefs.hpp::chLatin_z"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_z = 0x7A
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a78" doxytag="XMLUniDefs.hpp::chLatin_Z"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLatin_Z = 0x5A
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a3" doxytag="XMLUniDefs.hpp::chLF"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLF = 0x0A
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a107" doxytag="XMLUniDefs.hpp::chLineSeparator"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chLineSeparator = 0x2028
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a25" doxytag="XMLUniDefs.hpp::chNEL"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chNEL = 0x85
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a1" doxytag="XMLUniDefs.hpp::chNull"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> XERCES_CPP_NAMESPACE_BEGIN const XMLCh chNull = 0x00
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a26" doxytag="XMLUniDefs.hpp::chOpenAngle"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chOpenAngle = 0x3C
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a27" doxytag="XMLUniDefs.hpp::chOpenCurly"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chOpenCurly = 0x7B
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a28" doxytag="XMLUniDefs.hpp::chOpenParen"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chOpenParen = 0x28
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a29" doxytag="XMLUniDefs.hpp::chOpenSquare"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chOpenSquare = 0x5B
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a108" doxytag="XMLUniDefs.hpp::chParagraphSeparator"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chParagraphSeparator = 0x2029
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a30" doxytag="XMLUniDefs.hpp::chPercent"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chPercent = 0x25
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a31" doxytag="XMLUniDefs.hpp::chPeriod"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chPeriod = 0x2E
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a32" doxytag="XMLUniDefs.hpp::chPipe"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chPipe = 0x7C
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a33" doxytag="XMLUniDefs.hpp::chPlus"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chPlus = 0x2B
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a34" doxytag="XMLUniDefs.hpp::chPound"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chPound = 0x23
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a35" doxytag="XMLUniDefs.hpp::chQuestion"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chQuestion = 0x3F
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a38" doxytag="XMLUniDefs.hpp::chSemiColon"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chSemiColon = 0x3B
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a36" doxytag="XMLUniDefs.hpp::chSingleQuote"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chSingleQuote = 0x27
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a37" doxytag="XMLUniDefs.hpp::chSpace"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chSpace = 0x20
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a41" doxytag="XMLUniDefs.hpp::chSwappedUnicodeMarker"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chSwappedUnicodeMarker = XMLCh(0xFFFE)
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a39" doxytag="XMLUniDefs.hpp::chTilde"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chTilde = 0x7E
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a40" doxytag="XMLUniDefs.hpp::chUnderscore"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chUnderscore = 0x5F
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a42" doxytag="XMLUniDefs.hpp::chUnicodeMarker"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chUnicodeMarker = XMLCh(0xFEFF)
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a4" doxytag="XMLUniDefs.hpp::chVTab"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chVTab = 0x0B
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a106" doxytag="XMLUniDefs.hpp::chWonSign"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chWonSign = 0x20A9
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a105" doxytag="XMLUniDefs.hpp::chYenSign"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh chYenSign = 0xA5
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+    </FONT></TD></TR></TABLE><BR>
+</TD></TR></TABLE></TD></TR></TABLE><BR><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD bgcolor="#0086b2"><IMG height="1" src="images/dot.gif" width="1" alt=""></TD></TR><TR><TD align="center"><FONT color="#0086b2" size="-1"><I>
+              Copyright &copy; 2004 The Apache Software Foundation.
+              All Rights Reserved.
+            </I></FONT></TD></TR></TABLE></BODY></HTML>

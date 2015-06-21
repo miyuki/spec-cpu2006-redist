@@ -1,0 +1,52 @@
+
+KERNEL FOR ADM STAGGERED LEAPFROG
+---------------------------------
+
+NOTES: 
+
+1) 2000 timesteps of a 40x40x40 simulation in single precision
+2) Floating point operations are counted using compiler options for 
+   unoptimised code counting all mult-adds on a origin 2000 with perfex
+   (make StagLeap_count)
+
+Number of floating point operations in base code:
+------------------------------------------------
+
+Current Kernal: 133,795,402,096
+New Kernal:      78,396,164,848
+
+CPU Times:
+---------
+
+Origin 2000 (195MHz R10000): (make StagLeap_origin)
+
+	Current: 605 secs   (221MF)
+	New:	 385.4 secs (203MF)
+
+        Actual number of floating point operations in compiled code:
+        -----------------------------------------------------------
+        Current: 66,093,427,648 ) (110MF)
+        New:     53,526,871,072,  (139MF)
+
+Compaq XP1000 (667MHz EV6): (make StagLeap_alpha)
+
+	Current: 204 secs
+	New: 	 127.8 secs
+
+Sun Ultra60 (360MHz SparcII): (make StagLeap_sun)
+
+	Current: 778 secs
+	New:     469 secs
+
+Intel (667MHz Itanium)
+
+        Current: 1120 secs  (119MF / 60MF)
+	New:     116.5 secs (673MF / 459MF)
+        Hand:    33.76 secs 
+
+
+
+
+
+
+

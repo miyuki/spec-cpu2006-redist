@@ -1,0 +1,17 @@
+target = StagLeap2
+prefix = 
+
+f90 = f90
+f90flags = -g -s -O
+
+
+$(target): $(prefix)Wrapper2.o $(prefix)StaggeredLeapfrog2.o
+	$(f90) $(f90flags) -o $@ $+
+
+$(prefix)Wrapper2.o: Wrapper2.F
+	$(f90) $(f90flags) -c -o $@ $<
+
+$(prefix)StaggeredLeapfrog2.o: StaggeredLeapfrog2.F
+	$(f90) $(f90flags) -c -o $@ $<
+
+

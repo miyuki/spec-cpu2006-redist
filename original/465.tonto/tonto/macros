@@ -1,0 +1,540 @@
+! Macros file
+! $Id: macros,v 1.37.2.11 2003/10/14 02:28:29 reaper Exp $
+
+!----------------------------------------------------------------------
+! Kind parameters for value types
+!----------------------------------------------------------------------
+#define CHR_KIND     kind("a")
+#define INT_KIND     kind(1)
+#define BIN_KIND     kind(.true.)
+#define SGL_KIND     kind(1.0)
+#define REAL_KIND    kind(1.0d0)
+#define CPX_KIND     kind((1.0d0,1.0d0))
+
+!----------------------------------------------------------------------
+! Size parameters for value types
+!----------------------------------------------------------------------
+#define CHR_SIZE     1
+#define INT_SIZE     4
+#define BIN_SIZE     4
+#define PTR_SIZE     8
+#define SGL_SIZE     4
+#define REAL_SIZE     8
+#define CPX_SIZE   16
+#define STR_SIZE   128
+#define BSTR_SIZE  256
+
+!----------------------------------------------------------------------
+! Value types ...
+!----------------------------------------------------------------------
+#define BIN        logical(kind=BIN_KIND)
+#define INT        integer(kind=INT_KIND)
+#define SGL        real(kind=SGL_KIND)
+#define REAL        real(kind=REAL_KIND)
+#define CPX       complex(kind=CPX_KIND)
+#define CHR        character
+
+!----------------------------------------------------------------------
+! Memory/Call stack management macros ... 
+! These define STACK, CHECK, as well as ENSURE, DIE and WARN ...
+!----------------------------------------------------------------------
+
+#ifdef USE_CALL_STACK_MANAGEMENT
+#   define USE_PRE_AND_POST_CONDITIONS
+#   ifndef NOGENERIC
+#      define STACK(X)          call stack_(tonto,X);
+#      define UNSTACK           call unstack_(tonto);
+#      define CHECK             call check_(tonto);
+#      define ADD_MEMORY(X)     call add_memory_(tonto,X);
+#      define DELETE_MEMORY(X)  call delete_memory_(tonto,X);
+#   else
+#      define STACK(X)          call SYSTEM_stack(tonto,X);
+#      define UNSTACK           call SYSTEM_unstack(tonto);
+#      define CHECK             call SYSTEM_check(tonto);
+#      define ADD_MEMORY(X)     call SYSTEM_add_memory(tonto,X);
+#      define DELETE_MEMORY(X)  call SYSTEM_delete_memory(tonto,X);
+#   endif
+#else
+#      define STACK(X)
+#      define UNSTACK
+#      define CHECK
+#      define ADD_MEMORY(X)
+#      define DELETE_MEMORY(X)
+#endif
+
+!----------------------------------------------------------------------
+! Precondition and Postcodition macros ... 
+! These define ENSURE as well as DIE and WARN ...
+!----------------------------------------------------------------------
+
+#ifndef NOGENERIC
+#   define ENSURE0(X,Y)      call ensure_(tonto,X,Y)
+#else
+#   define ENSURE0(X,Y)      call SYSTEM_ensure(tonto,X,Y)
+#endif
+
+#ifdef USE_PRE_AND_POST_CONDITIONS
+#   define USE_ERROR_MANAGEMENT
+#   define ENSURE(X,Y)       ENSURE0(X,Y)
+#else
+#   define ENSURE(X,Y)
+#endif
+
+!----------------------------------------------------------------------
+! Error macros ... 
+! These define only DIE and WARN ...
+!----------------------------------------------------------------------
+
+#ifdef USE_ERROR_MANAGEMENT
+!####   define pure
+!####   define elemental
+#   ifndef NOGENERIC
+#      define DIE(X)            call die_(tonto,X)
+#      define DIE_IF(X,Y)       call die_if_(tonto,X,Y)
+#      define WARN(X)           call warn_(tonto,X)
+#      define WARN_IF(X,Y)      call warn_if_(tonto,X,Y)
+#   else
+#      define DIE(X)            call SYSTEM_die(tonto,X)
+#      define DIE_IF(X,Y)       call SYSTEM_die_if(tonto,X,Y)
+#      define WARN(X)           call SYSTEM_warn(tonto,X)
+#      define WARN_IF(X,Y)      call SYSTEM_warn_if(tonto,X,Y)
+#   endif
+#else
+#      define DIE(X)
+#      define DIE_IF(X,Y)
+#      define WARN(X)
+#      define WARN_IF(X,Y)
+#endif
+
+#define UNKNOWN(X)    DIE("unknown case option: " // trim(X))
+
+!----------------------------------------------------------------------
+! Profiling macros ... 
+! These define START_TIMER, STOP_TIMER ...
+!----------------------------------------------------------------------
+
+#ifdef USE_PROFILING
+#   define BROKEN_PURE
+#   ifndef NOGENERIC
+#      define START_TIMER(X)    call start_timer_(tonto,X);
+#      define STOP_TIMER(X)     call stop_timer_(tonto,X);
+#   else
+#      define START_TIMER(X)    call SYSTEM_start_timer(tonto,X);
+#      define STOP_TIMER(X)     call SYSTEM_stop_timer(tonto,X);
+#   endif
+#else
+#      define START_TIMER(X)    
+#      define STOP_TIMER(X)     
+#endif
+
+!-------------------------------------------------------------------------------
+! Some compilers cannot handle Fortran 95 features ...
+!-------------------------------------------------------------------------------
+
+#ifdef LANGUAGE_FORTRAN_90
+#   define BROKEN_TYPE_INITIALIZATION
+#   define BROKEN_PURE
+#endif
+
+!-------------------------------------------------------------------------------
+! Some Fortran 95 compilers can't handle pure routines ...
+!-------------------------------------------------------------------------------
+
+#ifdef BROKEN_PURE
+#   define PURE
+#   define ELEMENTAL
+#   define ALWAYS_PURE
+#   define ALWAYS_ELEMENTAL
+#else
+#   define PURE              pure
+#   define ELEMENTAL         elemental
+#   define ALWAYS_PURE       pure
+#   define ALWAYS_ELEMENTAL  elemental
+#endif
+
+!-------------------------------------------------------------------------------
+! Some Fortran 95 compilers can't handle default initialisation properly ...
+!-------------------------------------------------------------------------------
+
+#ifdef BROKEN_TYPE_INITIALIZATION
+#   define DEFAULT_NULL
+#   define DEFAULT(X)
+#else
+#   define DEFAULT(X)         = X
+#   define DEFAULT_NULL       => NULL()
+#endif
+
+!----------------------------------------------------------------------
+! Convenience macros ...
+!----------------------------------------------------------------------
+#define AND        .and.
+#define OR         .or.
+#define NOT        .not.
+#define FALSE      .false.
+#define TRUE       .true.
+#define EQV        .eqv.
+
+#define PTR        pointer
+#define IN         intent(in)
+#define OUT        intent(out)
+#define INOUT      intent(inout)
+#define PAR        parameter
+
+#define ZERO          0.0d0
+#define ONE           1.0d0
+#define TWO           2.0d0
+#define THREE         3.0d0
+#define FOUR          4.0d0
+#define FIVE          5.0d0
+#define SIX           6.0d0
+#define SEVEN         7.0d0
+#define EIGHT         8.0d0
+#define NINE          9.0d0
+#define TEN          10.0d0
+#define HALF         0.50d0
+#define QUARTER      0.25d0
+#define EIGHTH      0.125d0
+#define TENTH        0.10d0
+
+#define THIRD             0.33333333333333333333333d0
+#define ONETHIRD          0.33333333333333333333333d0
+#define TWOTHIRD          0.66666666666666666666667d0
+#define TWOTHIRDS         0.66666666666666666666667d0
+#define SIXTH             0.16666666666666666666666d0
+#define PI                3.141592653589793d0
+#define E                 2.718281828459045d0
+#define TWOPI5ON2         34.98683665524973d0
+
+#define TOL(N)                   TEN**(-N)
+
+!----------------------------------------------------------------------
+! Fundamental constants and conversion factors ...
+!----------------------------------------------------------------------
+
+#define SPEED_OF_LIGHT_SI        2.99792458d+8
+#define CHARGE_OF_ELECTRON_SI    1.602177d-19
+#define AMU_SI                   1.6605402d-27
+#define MASS_OF_ELECTRON_SI      9.10939d-31
+#define MASS_OF_PROTON_SI        1.67262d-27
+#define MASS_OF_NEUTRON_SI       1.67493d-27
+#define BOHR_MAGNETON_SI         9.27402d-24
+#define NUCLEAR_MAGNETON_SI      5.05079d-27
+#define G_FACTOR                 2.002319304386
+#define BOLTZMANN_SI             1.38066d-23
+#define HARTREE_SI               4.3597482d-18
+#define ANGSTROM_SI              1.0d-10
+#define PLANCK_SI                6.6260755d-34
+#define BOHR_MAGNETON_AU         HALF
+#define SPEED_OF_LIGHT_AU        137.03599d0
+
+#define AMU_PER_MASS_OF_ELECTRON (MASS_OF_ELECTRON_SI/AMU_SI)
+#define MASS_OF_ELECTRON_PER_AMU (AMU_SI/MASS_OF_ELECTRON_SI)
+#define ANGSTROM_PER_BOHR        0.52917724924d0
+#define METER_PER_ANGSTROM       1.0d-10
+#define BOHR_PER_BOHR            ONE
+#define BOHR_PER_ANGSTROM        (1/0.52917724924d0)
+#define WAVENUMBER_PER_HARTREE   2.1947463067d+5
+#define EV_PER_HARTREE           27.21
+#define KELVIN_PER_HARTREE       3.158d+5
+#define JOULE_PER_HARTREE        4.3597482d-18
+#define KJOULE_PER_HARTREE       4.3597482d-21
+#define CAL_PER_HARTREE          1.042d-18
+#define KCAL_PER_HARTREE         1.042d-21
+#define KCALMOL_PER_HARTREE      627.5
+#define KJOULEMOL_PER_HARTREE    2625.46
+#define JOULE_PER_CAL            4.184
+#define DEGREE_PER_RADIAN        (180d0/PI)
+#define DEBYE_PER_AU             2.5418d0
+#define AU_PER_DEBYE             (ONE/2.5418d0)
+
+!----------------------------------------------------------------------
+! Program constants ...
+! The first word identifies the module to which the constant belongs
+!----------------------------------------------------------------------
+
+#define UNITNUMBER_STARTING_UNIT         10
+
+#define BUFFER_COMMENT_CHARS             "!#"
+#define BUFFER_QUOTE_CHARS               "'"""
+
+#define SYSTEM_ERROR_OUTPUT_UNIT         6
+#define SYSTEM_MEMORY_UNITS              "Words"
+#define SYSTEM_MEMORY_LIMIT              6*8000000
+#define SYSTEM_STACK_LIMIT               20
+
+#define REAL_EPSILON                     TOL(6)
+
+#define MAT_LINEAR_DEPENDENCE_TOL        TOL(10)
+
+#define DIIS_KEEP                        8
+
+#define TEXTFILE_STDIN_UNIT              5
+#define TEXTFILE_STDOUT_UNIT             6
+#define TEXTFILE_COMMENT_CHARS           "!#"
+#define TEXTFILE_QUOTE_CHARS             "'"""
+#define TEXTFILE_USE_LABELS              TRUE
+#define TEXTFILE_MARGIN_WIDTH            0
+#define TEXTFILE_N_FIELDS                5
+#define TEXTFILE_REAL_WIDTH              16
+#define TEXTFILE_INT_WIDTH               9
+#define TEXTFILE_REAL_PRECISION          6
+#define TEXTFILE_REAL_STYLE              " f"
+
+#define FILE_BUFFER_LENGTH               1024
+
+#define ATOMVEC_BONDED_SCALE_FACTOR      1.15
+
+#define SHELL4_ERI_CUTOFF                1.0d-15
+
+#define SCFDATA_CONVERGENCE              TOL(4)
+#define SCFDATA_DIIS_CONVERGENCE         TOL(4)
+#define SCFDATA_DIIS_START_ITERATION     3
+#define SCFDATA_USING_ROUGH_CONVERGENCE  TRUE
+#define SCFDATA_ROUGH_CONVERGENCE        TOL(2)
+#define SCFDATA_ROUGH_DIIS_CONVERGENCE   TOL(2)
+#define SCFDATA_USING_DAMPING            TRUE
+#define SCFDATA_USING_LEVEL_SHIFT        TRUE
+#define SCFDATA_ERI_LIMIT                1.0d-12
+#define SCFDATA_ERI_LIMIT_ROUGH          1.0d-7
+#define SCFDATA_MIN_ITERATIONS           1
+#define SCFDATA_MAX_ITERATIONS           100
+#define SCFDATA_DAMP_FACTOR              0.5d0
+#define SCFDATA_LEVEL_SHIFT              0.3d0
+
+#define SPACEGROUP_MAX_UNIQUE_SYMOPS     1000
+
+#define UNITCELL_ANGLES                  (/90.0d0,90.0d0,90.0d0/)
+#define UNITCELL_LENGTHS                 (/10.0d0,10.0d0,10.0d0/)
+
+#define CRYSTAL_UNIT_CELL_ANGLES         (/90.0d0,90.0d0,90.0d0/)
+#define CRYSTAL_UNIT_CELL_LENGTHS        (/10.0d0,10.0d0,10.0d0/)
+#define CRYSTAL_SYNTHESISE_SIGMA_I       FALSE
+#define CRYSTAL_OPTIMISE_SCALE           TRUE
+#define CRYSTAL_OPTIMISE_EXTINCTION      TRUE
+#define CRYSTAL_CORRECT_DISPERSION       FALSE
+#define CRYSTAL_SCALE_FACTOR             ONE
+#define CRYSTAL_EXP_SCALE_FACTOR         ONE
+#define CRYSTAL_EXTINCTION_FACTOR        ZERO
+#define CRYSTAL_WAVELENGTH               0.71069d0 * BOHR_PER_ANGSTROM
+#define CRYSTAL_DATA_KIND                "x-ray"
+#define CRYSTAL_THERMAL_SMEARING_MODEL   " "
+#define CRYSTAL_PARTITION_MODEL          " "
+
+#define CLUSTER_ADD_CRITERIA             "fragment"
+#define CLUSTER_RADIUS                   ZERO
+#define CLUSTER_DEFRAGMENT               TRUE
+
+#define COPPENSORBITAL_VALUES_CUTOFF     TOL(6)
+
+#define PLOTGRID_MAXIMUM_CELL_DISTANCE   5
+#define PLOTGRID_NX                      75
+#define PLOTGRID_NY                      75
+#define PLOTGRID_NZ                      1
+#define PLOTGRID_X_AXIS                  (/ ONE,ZERO,ZERO/)
+#define PLOTGRID_Y_AXIS                  (/ZERO, ONE,ZERO/)
+#define PLOTGRID_Z_AXIS                  (/ZERO,ZERO, ONE/)
+#define PLOTGRID_WIDTH                   (/ TWO, TWO,ZERO/)
+
+#define DFTGRID_SPHERICAL_GRID_KIND      "lebedev"
+#define DFTGRID_SPHERICAL_GRID_ORDER     35
+#define DFTGRID_RADIAL_GRID_KIND         "gauss-chebyshev"
+#define DFTGRID_RADIAL_GRID_ORDER        60
+#define DFTGRID_BECKE_M_PARTITION_POWER  TWO
+#define DFTGRID_GAUSS_CHEBYSHEV_M        ONE
+#define DFTGRID_GAUSS_CHEBYSHEV_ALPHA    THREE
+#define DFTGRID_EULER_MACLAURIN_M        TWO
+#define DFTGRID_EULER_MACLAURIN_ALPHA    TWO
+#define DFTGRID_ARCHIVE_ROOT_NAME        "dftgrid"
+#define DFTGRID_ARCHIVE_NAME             "grid"
+
+#define ROBY_OCCUPIED_ANO_CUTOFF         0.05d0
+#define ROBY_COVALENT_CUTOFF             90.0d0
+#define ROBY_IONIC_CUTOFF                77.0d0
+#define ROBY_ZERO_CUTOFF                 TOL(4)
+#define ROBY_PI_ON_2_CUTOFF              90.0d0
+#define ROBY_OUTPUT_THETA_INFO           TRUE
+
+#define ISOSURFACE_ISO_VALUE             ONE
+#define ISOSURFACE_SURFACE_POINT         (/TOL(6),TOL(6),TOL(6)/)
+#define ISOSURFACE_PROPERTY_BOUND        179.55d0
+#define ISOSURFACE_N_POINT               10000
+#define ISOSURFACE_N_FACE                20000
+
+!----------------------------------------------------------------------
+! Program default input orders for vectors of derived type
+! The first word identifies the module to which the constant belongs
+!----------------------------------------------------------------------
+
+#define SHELL_INPUT_DATA_ORDER      (/ "l=          ","n_cc=       ","ex,cc=      " /)
+#define SHELL1_INPUT_DATA_ORDER     (/ "l=          ","pos=        ","n_cc=       ","ex,cc=      " /)
+#define BASIS_INPUT_DATA_ORDER      (/ "label=      ","shells=     " /)
+#define ATOM_INPUT_DATA_ORDER       (/ "label=      ","pos=        ","basis_label=" /)
+#define REFLECTION_INPUT_DATA_ORDER (/ "indices=    " /)
+#define MOL_INPUT_DATA_ORDER        (/ "name=       ","atoms=      " /)
+
+!----------------------------------------------------------------------
+! Derived non-array types ... (in alphabetical order)
+!----------------------------------------------------------------------
+#define ARCHIVE                type(archive_type)
+#define ATOM                   type(atom_type)
+#define BASIS                  type(basis_type)
+#define BUFFER                 type(buffer_type)
+#define CIF                    type(cif_type)
+#define CLUSTER                type(cluster_type)
+#define COLOUR                 type(colour_type)
+#define COLOURFUNCTION         type(colourfunction_type)
+#define COPPENSBASIS           type(coppensbasis_type)
+#define COPPENSORBITAL         type(coppensorbital_type)
+#define CRYSTAL                type(crystal_type)
+#define DIIS                   type(diis_type)
+#define DFTGRID                type(dftgrid_type)
+#define FILE                   type(file_type)
+#define GAUSSIAN               type(gaussian_type)
+#define GAUSSIAN2              type(gaussian2_type)
+#define GAUSSIAN4              type(gaussian4_type)
+#define IRREP                  type(irrep_type)
+#define ISOSURFACE             type(isosurface_type)
+#define INTERPOLATOR           type(interpolator_type)
+#define INTVEC_                type(intvec__type)
+#define INTVECINTHASH          type(intvecinthash_type)
+#define INTVECINTVECHASH       type(intvecintvechash_type)
+#define MARCHINGCUBE           type(marchingcube_type)
+#define REALMAT_               type(realmat__type)
+#define REALMAT3_              type(realmat3__type)
+#define REALMAT4_              type(realmat4__type)
+#define MOL                    type(mol_type)
+#define OPMATRIX               type(opmatrix_type)
+#define OPVECTOR               type(opvector_type)
+#define PARALLEL               type(parallel_type)
+#define PLOTGRID               type(plotgrid_type)
+#define POINTGROUP             type(pointgroup_type)
+#define REFLECTION             type(reflection_type)
+#define ROBY                   type(roby_type)
+#define RYS                    type(rys_type)
+#define SCFDATA                type(scfdata_type)
+#define SHELL                  type(shell_type)
+#define SHELL1                 type(shell1_type)
+#define SHELL2                 type(shell2_type)
+#define SHELL4                 type(shell4_type)
+#define SHELLDATA              type(shelldata_type)
+#define SHELLPAIR              type(shellpair_type)
+#define SHELLQUARTET           type(shellquartet_type)
+#define SHELL1QUARTET          type(shell1quartet_type)
+#define SLATERSHELL            type(slatershell_type)
+#define SLATERBASIS            type(slaterbasis_type)
+#define SPACEGROUP             type(spacegroup_type)
+#define SYSTEM                 type(system_type)
+#define TEXTFILE               type(textfile_type)
+#define TIME                   type(time_type)
+#define UNITCELL               type(unitcell_type)
+#define UNITNUMBER             type(unitnumber_type)
+#define REALVEC_               type(realvec__type)
+
+!----------------------------------------------------------------------
+! Parameterised abstract array types ...
+!----------------------------------------------------------------------
+#define ARRAY(X,A)             X, dimension(A)
+#define ARRAY2(X,A,B)          X, dimension(A,B)
+#define ARRAY3(X,A,B,C)        X, dimension(A,B,C)
+#define ARRAY4(X,A,B,C,D)      X, dimension(A,B,C,D)
+#define ARRAY5(X,A,B,C,D,E)    X, dimension(A,B,C,D,E)
+
+!----------------------------------------------------------------------
+! Derived array types ...
+!----------------------------------------------------------------------
+#define STR(A)                 character(A)
+
+#define REALVEC(A)             ARRAY(REAL,A)
+#define REALVECVEC(A)          ARRAY(REALVEC_,A)
+#define INTVEC(A)              ARRAY(INT,A)
+#define BINVEC(A)              ARRAY(BIN,A)
+#define INTVECVEC(A)           ARRAY(INTVEC_,A)
+#define CPXVEC(A)              ARRAY(CPX,A)
+#define REALMATVEC(A)          ARRAY(REALMAT_,A)
+#define REALMAT3VEC(A)         ARRAY(REALMAT3_,A)
+#define REALMAT4VEC(A)         ARRAY(REALMAT4_,A)
+#define STRVEC(len,A)          ARRAY(STR(len),A)
+#define SHELLVEC(A)            ARRAY(SHELL,A)
+#define SHELLPAIRVEC(A)        ARRAY(SHELLPAIR,A)
+#define SLATERBASISVEC(A)      ARRAY(SLATERBASIS,A)
+#define SLATERSHELLVEC(A)      ARRAY(SLATERSHELL,A)
+#define BASISVEC(A)            ARRAY(BASIS,A)
+#define COPPENSORBITALVEC(A)   ARRAY(COPPENSORBITAL,A)
+#define COPPENSBASISVEC(A)     ARRAY(COPPENSBASIS,A)
+#define ATOMVEC(A)             ARRAY(ATOM,A)
+#define REFLECTIONVEC(A)       ARRAY(REFLECTION,A)
+#define IRREPVEC(A)            ARRAY(IRREP,A)
+#define MARCHINGCUBEVEC(A)     ARRAY(MARCHINGCUBE,A)
+#define MOLVEC(A)              ARRAY(MOL,A)
+
+#define REALMAT(A,B)           ARRAY2(REAL,A,B)
+#define CPXMAT(A,B)            ARRAY2(CPX,A,B)
+#define INTMAT(A,B)            ARRAY2(INT,A,B)
+#define STRMAT(len,A,B)        ARRAY2(STR(len),A,B)
+#define BINMAT(A,B)            ARRAY2(BIN,A,B)
+#define REALMATMAT(A,B)        ARRAY2(REALMAT_,A,B)
+
+#define REALMAT3(A,B,C)        ARRAY3(REAL,A,B,C)
+#define CPXMAT3(A,B,C)         ARRAY3(CPX,A,B,C)
+#define INTMAT3(A,B,C)         ARRAY3(INT,A,B,C)
+#define BINMAT3(A,B,C)         ARRAY3(BIN,A,B,C)
+#define INTVECMAT3(A,B,C)      ARRAY3(INTVEC_,A,B,C)
+
+#define REALMAT4(A,B,C,D)      ARRAY4(REAL,A,B,C,D)
+#define INTMAT4(A,B,C,D)       ARRAY4(INT,A,B,C,D)
+#define CPXMAT4(A,B,C,D)       ARRAY4(CPX,A,B,C,D)
+
+#define REALMAT5(A,B,C,D,E)    ARRAY5(REAL,A,B,C,D,E)
+#define CPXMAT5(A,B,C,D,E)     ARRAY5(CPX,A,B,C,D,E)
+
+
+!----------------------------------------------------------------------
+! Type sizes ...
+!----------------------------------------------------------------------
+#define ARCHIVE_SIZE           4*STR_SIZE+3*PTR_SIZE
+#define ATOM_SIZE              STR_SIZE+INT_SIZE+12*REAL_SIZE+PTR_SIZE
+#define BASIS_SIZE             3*INT_SIZE+STR_SIZE+PTR_SIZE
+#define BUFFER_SIZE            3*INT_SIZE+BIN_SIZE+STR_SIZE+BSTR_SIZE
+#define CIF_SIZE               PTR_SIZE+STR_SIZE+INT_SIZE
+#define CLUSTER_SIZE           11*PTR_SIZE+9*INT_SIZE+REAL_SIZE+BIN_SIZE
+#define COLOUR_SIZE            STR_SIZE+3*INT_SIZE
+#define COLOURFUNCTION_SIZE    INT_SIZE+BIN_SIZE+3*PTR_SIZE
+#define COPPENSBASIS_SIZE      STR_SIZE+2*INT_SIZE+PTR_SIZE
+#define COPPENSORBITAL_SIZE    STR_SIZE+2*INT_SIZE+3*PTR_SIZE
+#define CRYSTAL_SIZE           8*PTR_SIZE+2*INT_SIZE+8*REAL_SIZE+3*BIN_SIZE+STR_SIZE
+#define DFTGRID_SIZE           2*STR_SIZE+5*INT_SIZE+4*REAL_SIZE
+#define DIIS_SIZE              4*INT_SIZE+REAL_SIZE+(ARCHIVE_SIZE)+2*PTR_SIZE
+#define FILE_SIZE              4*INT_SIZE+3*STR_SIZE+BIN_SIZE+2*PTR_SIZE
+#define GAUSSIAN_SIZE          INT_SIZE+4*REAL_SIZE
+#define GAUSSIAN2_SIZE         2*(GAUSSIAN_SIZE)
+#define GAUSSIAN4_SIZE         2*(GAUSSIAN2_SIZE)
+#define PLOTGRID_SIZE          STR_SIZE+3*INT_SIZE+11*REAL_SIZE
+#define INPUT_SIZE             3*INT_SIZE+STR_SIZE+BSTR_SIZE
+#define IRREP_SIZE             INT_SIZE+2*PTR_SIZE+4
+#define ISOSURFACE_SIZE        3*PTR_SIZE+3*INT_SIZE+4*REAL_SIZE
+#define INTERPOLATOR_SIZE      STR_SIZE+INT_SIZE+BIN_SIZE+REAL_SIZE+2*PTR_SIZE
+#define INTVECINTHASH_SIZE     2*PTR_SIZE+2*INT_SIZE+BIN_SIZE
+#define INTVECINTVECHASH_SIZE  2*PTR_SIZE+2*INT_SIZE+BIN_SIZE
+#define ROBY_SIZE              2*INT_SIZE+2*BIN_SIZE+21*PTR_SIZE+7*REAL_SIZE+STR_SIZE
+#define MARCHINGCUBE_SIZE      18*INT_SIZE+4*PTR_SIZE+142*REAL_SIZE
+#define MOL_SIZE               9*INT_SIZE+8*PTR_SIZE+STR_SIZE
+#define OPMATRIX_SIZE          INT_SIZE+10*PTR_SIZE
+#define OPVECTOR_SIZE          INT_SIZE+4*PTR_SIZE
+#define OUTPUT_SIZE            8*INT_SIZE+BIN_SIZE+2*STR_SIZE+BSTR_SIZE
+#define POINTGROUP_SIZE        8*BIN_SIZE+5*INT_SIZE+7*PTR_SIZE
+#define REFLECTION_SIZE        3*INT_SIZE+3*REAL_SIZE+CPX_SIZE
+#define RYS_SIZE               INT_SIZE+2*INT_SIZE
+#define SCFDATA_SIZE           2*STR_SIZE+9*REAL_SIZE+3*INT_SIZE+4*BIN_SIZE+(DIIS_SIZE)
+#define SHELL_SIZE             3*INT_SIZE+2*PTR_SIZE
+#define SHELL1_SIZE            3*INT_SIZE+3*REAL_SIZE+2*PTR_SIZE
+#define SHELL1QUARTET_SIZE     30*PTR_SIZE+16*REAL_SIZE+2*BIN_SIZE+8*INT_SIZE
+#define SHELL2_SIZE            2*SHELL1_SIZE
+#define SHELL4_SIZE            4*SHELL1_SIZE
+#define SHELLPAIR_SIZE         2*SHELL_SIZE+4*INT_SIZE+14*PTR_SIZE
+#define SHELLQUARTET_SIZE      2*PTR_SIZE
+#define SLATERBASIS_SIZE       3*INT_SIZE+2*STR_SIZE+2*PTR_SIZE
+#define SLATERSHELL_SIZE       4*INT_SIZE+STR_SIZE+5*PTR_SIZE
+#define SPACEGROUP_SIZE        2*STR_SIZE+20*PTR_SIZE+13*INT_SIZE+6*REAL_SIZE
+#define SYSTEM_SIZE            11*INT_SIZE+3*STR_SIZE+2*PTR_SIZE+BIN_SIZE
+#define TEXTFILE_SIZE          8*INT_SIZE+BIN_SIZE+2*STR_SIZE+BSTR_SIZE
+#define UNITCELL_SIZE          52*REAL_SIZE+BIN_SIZE

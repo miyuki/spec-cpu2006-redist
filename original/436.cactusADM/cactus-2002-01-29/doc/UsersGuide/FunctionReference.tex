@@ -1,0 +1,5924 @@
+% /*@@
+%   @file      FunctionReference.tex
+%   @date      27 Jan 1999
+%   @author    Tom Goodale, Gabrielle Allen, Gerd Lanferman
+%   @desc
+%   Function Reference for the Cactus User's Guide
+%   @enddesc
+%   @version $Header: /cactus/Cactus/doc/UsersGuide/Attic/FunctionReference.tex,v 1.45 2002/01/22 15:28:39 jthorn Exp $
+%   @history
+%   @date       Sat Nov  3 18:47:53 MET 2001
+%   @author     Jonathan Thornburg <jthorn@aei.mpg.de>
+%   @desc       Add new section for Utility functions,
+%               add key/value table functions in that section
+%   @endhistory
+% @@*/
+\begin{cactuspart}{5}{FunctionReference}{$RCSfile: FunctionReference.tex,v $}{$Revision: 1.45 $}
+\renewcommand{\thepage}{\Alph{part}\arabic{page}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Cactus Functions}
+
+In this section all \hbox{{\tt CCTK\_}*} Cactus functions are described.
+These functions are callable from Fortran or C thorns.  Note that whereas
+all functions are available from C, not all are currently available
+from Fortran.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Functions Alphabetically}
+
+\begin{Lentry}
+
+\item[CCTK\_Abort]
+  [\pageref{CCTK-Abort}]
+  Causes abnormal Cactus termination
+
+\item[CCTK\_ArrayGroupSize]
+  [\pageref{CCTK-ArrayGroupSize}]
+  Returns the local size for a group, given by its group name
+
+\item[CCTK\_ArrayGroupSizeI]
+  [\pageref{CCTK-ArrayGroupSizeI}]
+  Returns the local size for a group, given by its group index
+
+\item[CCTK\_Barrier]
+  [\pageref{CCTK-Barrier}]
+  Synchronizes all processors
+
+\item[CCTK\_Cmplx]
+  [\pageref{CCTK-Cmplx}]
+  Turns two real numbers into a complex number (only C)
+
+\item[CCTK\_CmplxAbs]
+  [\pageref{CCTK-CmplxAbs}]
+  Returns the absolute value of a complex number (only C)
+
+\item[CCTK\_CmplxAdd]
+  [\pageref{CCTK-CmplxAdd}]
+  Returns the sum of two complex numbers (only C)
+
+\item[CCTK\_CmplxConjg]
+  [\pageref{CCTK-CmplxConjg}]
+  Returns the complex conjugate of a complex number (only C)
+
+\item[CCTK\_CmplxCos]
+  [\pageref{CCTK-CmplxCos}]
+  Returns the Cosine of a complex number (only C) [not yet available]
+
+\item[CCTK\_CmplxDiv]
+  [\pageref{CCTK-CmplxDiv}]
+  Returns the division of two complex numbers (only C)
+
+\item[CCTK\_CmplxExp]
+  [\pageref{CCTK-CmplxExp}]
+  Returns the Exponentiation of a complex number (only C) [not yet available]
+
+\item[CCTK\_CmplxImag]
+  [\pageref{CCTK-CmplxImag}]
+  Returns the imaginary part of a complex number (only C)
+
+\item[CCTK\_CmplxLog]
+  [\pageref{CCTK-CmplxLog}]
+  Returns the Logarithm of a complex number (only C) [not yet available]
+
+\item[CCTK\_CmplxMul]
+  [\pageref{CCTK-CmplxMul}]
+  Returns the multiplication of two complex numbers (only C)
+
+\item[CCTK\_CmplxReal]
+  [\pageref{CCTK-CmplxReal}]
+  Returns the real part of a complex number (only C)
+
+\item[CCTK\_CmplxSin]
+  [\pageref{CCTK-CmplxSin}]
+  Returns the Sine of a complex number (only C) [not yet available]
+
+\item[CCTK\_CmplxSqrt]
+  [\pageref{CCTK-CmplxSqrt}]
+  Returns the square root of a complex number (only C) [not yet available]
+
+\item[CCTK\_CmplxSub]
+  [\pageref{CCTK-CmplxSub}]
+  Returns the subtraction of two complex numbers (only C)
+
+\item[CCTK\_CoordDir]
+  [\pageref{CCTK-CoordDir}]
+  Give the direction for a given coordinate name.
+
+\item[CCTK\_CoordIndex]
+  [\pageref{CCTK-CoordIndex}]
+  Give the grid variable index for a given coordinate.
+
+\item[CCTK\_CoordRange]
+  [\pageref{CCTK-CoordRange}]
+  Return the global upper and lower bounds for a given coordinate name on a cctkGH
+
+\item[CCTK\_CoordRegisterData]
+  [\pageref{CCTK-CoordRegisterData}]
+  Register a coordinate as belonging to a coordinate system, with a given name and direction, and
+  optionally with a grid variable
+
+\item[CCTK\_CoordRegisterRange]
+  [\pageref{CCTK-CoordRegisterRange}]
+  Saves the global upper and lower bounds for a given coordinate name on a cctkGH
+
+\item[CCTK\_CoordRegisterSystem]
+  [\pageref{CCTK-CoordRegisterSystem}]
+  Registers a coordinate system with a given dimension
+
+\item[CCTK\_CoordSystemDim]
+  [\pageref{CCTK-CoordDim}]
+  Provides the dimension of a given coordinate system
+
+\item[CCTK\_CoordSystemHandle]
+  [\pageref{CCTK-CoordSystemHandle}]
+  Get the handle associated with a registered coordinate system
+
+\item[CCTK\_CoordSystemName]
+  [\pageref{CCTK-CoordSystemName}]
+  Provides the name of the coordinate system identified by its handle
+
+\item[CCTK\_CreateDirectory]
+  [\pageref{CCTK-CreateDirectory}]
+  Creates a directory
+
+\item[CCTK\_DecomposeName]
+  [\pageref{CCTK-DecomposeName}]
+  Given the full name of a variable/group, separates the name returning both the implementation and the variable/group
+
+\item[CCTK\_DisableGroupComm]
+  [\pageref{CCTK-DisableGroupComm}]
+  Disable the communication for a group
+
+\item[CCTK\_DisableGroupStorage]
+  [\pageref{CCTK-DisableGroupStorage}]
+  Disable the storage for a group
+
+\item[CCTK\_EnableGroupComm]
+  [\pageref{CCTK-EnableGroupComm}]
+  Enable the communication for a group
+
+\item[CCTK\_EnableGroupStorage]
+  [\pageref{CCTK-EnableGroupStorage}]
+  Enable the storage for a group
+
+\item[CCTK\_Equals]
+  [\pageref{CCTK-Equals}]
+  Check a STRING or KEYWORD parameter for equality equality with a given string
+
+\item[CCTK\_Exit]
+  [\pageref{CCTK-Equals}]
+  Causes normal Cactus termination
+
+\item[CCTK\_FirstVarIndex]
+  [\pageref{CCTK-FirstVarIndex}]
+  Given a group name returns the first variable index in the group
+
+\item[CCTK\_FirstVarIndexI]
+  [\pageref{CCTK-FirstVarIndexI}]
+  Given a group index returns the first variable index in the group
+
+\item[CCTK\_FortranString]
+  [\pageref{CCTK-FortranString}]
+  Changes a C string into a Fortran string
+
+\item[CCTK\_FullName]
+  [\pageref{CCTK-FullName}]
+  Given a variable index, returns the full name of the variable
+
+\item[CCTK\_GroupData]
+  [\pageref{CCTK-GroupData}]
+  Given a group index, returns information about the variables held in the group
+
+\item[CCTK\_GHExtension]
+  [\pageref{CCTK-GHExtension}]
+  Get the pointer to a registered extension to the Cactus GH structure
+
+\item[CCTK\_GHExtensionHandle]
+  [\pageref{CCTK-GHExtensionHandle}]
+  Get the handle associated with a extension to the Cactus GH structure
+
+\item[CCTK\_GroupIndex]
+  [\pageref{CCTK-GroupIndex}]
+  Get the index number for a group name
+
+\item[CCTK\_GroupIndexFromVar]
+  [\pageref{CCTK-GroupIndexFromVar}]
+  Given a variable name, returns the index of the associated group
+
+\item[CCTK\_GroupIndexFromVarI]
+  [\pageref{CCTK-GroupIndexFromVarI}]
+  Given a variable index, returns the index of the associated group
+
+\item[CCTK\_GroupName]
+  [\pageref{CCTK-GroupName}]
+  Given a group index, returns the group name
+
+\item[CCTK\_GroupNameFromVarI]
+  [\pageref{CCTK-GroupNameFromVarI}]
+  Given a variable index, return the name of the associated group
+
+\item[CCTK\_GroupTypeFromVarI]
+  [\pageref{CCTK-GroupTypeFromVarI}]
+  Provides group type index from the group index
+
+\item[CCTK\_ImpFromVarI]
+  [\pageref{CCTK-ImpFromVarI}]
+  Given a variable index, returns the implementation name
+
+\item[CCTK\_INFO]
+  [\pageref{CCTK-INFO}]
+  Prints an information message
+
+%notyet%\item[CCTK\_InterpGridArrays]
+%notyet%  [\pageref{CCTK-InterpLocalArrays}]
+%notyet%  Performs an interpolation on a list of distributed arrays,
+%notyet%  using a chosen interpolation operator (this function is currently
+%notyet%  being implemented; it should be available in early 2002)
+
+\item[CCTK\_InterpGV]
+  [\pageref{CCTK-InterpGV}]
+  Performs an interpolation on a list of distributed CCTK grid variables,
+  using a chosen interpolation operator
+%notyet%  (this function is being phased out;
+%notyet%  it will eventually be replaced by \verb|CCTK_InterpGridArrays()|)
+
+\item[CCTK\_InterpHandle]
+  [\pageref{CCTK-InterpHandle}]
+  Returns the handle for a given interpolation operator
+
+\item[CCTK\_InterpLocal]
+  [\pageref{CCTK-InterpLocal}]
+  Performs an interpolation on a list of processor-local arrays,
+  using a chosen interpolation operator
+%notyet%  (this function is being phased out;
+%notyet%  it will eventually be replaced by \verb|CCTK_InterpLocalArrays()|)
+
+%notyet%\item[CCTK\_InterpLocalArrays]
+%notyet%  [\pageref{CCTK-InterpLocalArrays}]
+%notyet%  Performs an interpolation on a list of processor-local arrays,
+%notyet%  using a chosen interpolation operator (this function is currently
+%notyet%  being implemented; it should be available in early 2002)
+
+\item[CCTK\_InterpRegisterOperatorGV]
+  [\pageref{CCTK-InterpRegisterOperatorGV}]
+  Registers a routine as an interpolation operator for distributed CCTK grid variables
+
+\item[CCTK\_InterpRegisterOperatorLocal]
+  [\pageref{CCTK-InterpRegisterOperatorLocal}]
+  Registers a routine as an interpolation operator for processor-local arrays
+
+\item[CCTK\_IsThornActive]
+  [\pageref{CCTK-IsThornActive}]
+  Reports whether a thorn was activated in a parameter file
+
+\item[CCTK\_MaxDim]
+  [\pageref{CCTK-MaxDim}]
+  Get the maximum dimension of any grid variable
+
+\item[CCTK\_MyProc]
+  [\pageref{CCTK-MyProc}]
+  Get the local processor number
+
+\item[CCTK\_NumGroups]
+  [\pageref{CCTK-NumGroups}]
+  Get the number of groups of variables compiled in the code
+
+\item[CCTK\_NumIOMethods]
+  [\pageref{CCTK-NumIOMethods}]
+  Returns the total number of I/O methods registered with the flesh
+
+\item[CCTK\_NumTimeLevelsFromVar]
+  [\pageref{CCTK-NumTimeLevelsFromVar}]
+  Gives the number of timelevels for a variable
+
+\item[CCTK\_NumTimeLevelsFromVarI]
+  [\pageref{CCTK-NumTimeLevelsFromVarI}]
+  Gives the number of timelevels for a variable
+
+\item[CCTK\_NumVars]
+  [\pageref{CCTK-NumVars}]
+  Get the number of grid variables compiled in the code
+
+\item[CCTK\_NumVarsInGroup]
+  [\pageref{CCTK-NumVarsInGroup}]
+  Provides the number of variables in a group from the group name
+
+\item[CCTK\_NumVarsInGroupI]
+  [\pageref{CCTK-NumVarsInGroupI}]
+  Provides the number of variables in a group from the group index
+
+\item[CCTK\_nProcs]
+  [\pageref{CCTK-nProcs}]
+  Get the total number of processors used
+
+\item[CCTK\_OutputGH]
+  [\pageref{CCTK-OutputGH}]
+  Conditional output of all variables on a GH by all I/O methods
+
+\item[CCTK\_OutputVar]
+  [\pageref{CCTK-OutputVar}]
+  Output of a single variable by all I/O methods
+
+\item[CCTK\_OutputVarAs]
+  [\pageref{CCTK-OutputVarAs}]
+  Output of a single variable as an alias by all I/O methods
+
+\item[CCTK\_OutputVarAsByMethod]
+  [\pageref{CCTK-OutputVarAsByMethod}]
+  Output of a single variable as an alias by a single I/O method
+
+\item[CCTK\_OutputVarByMethod]
+  [\pageref{CCTK-OutputVarByMethod}]
+  Output of a single variable by a single I/O method
+
+\item[CCTK\_ParallelInit]
+  [\pageref{CCTK-ParallelInit}]
+  Initializes the parallel subsystem
+
+\item[CCTK\_PARAMWARN]
+  [\pageref{CCTK-PARAMWARN}]
+  Prints a warning from parameter checking, and possibly stops the code
+
+\item[CCTK\_PrintGroup]
+  [\pageref{CCTK-PrintGroup}]
+  Prints a group name from its index
+
+\item[CCTK\_PrintString]
+  [\pageref{CCTK-PrintString}]
+  Prints a Cactus string to screen (from Fortran)
+
+\item[CCTK\_PrintVar]
+  [\pageref{CCTK-PrintVar}]
+  Prints a variable name from its index
+
+\item[CCTK\_QueryGroupStorage]
+  [\pageref{CCTK-QueryGroupStorage}]
+  Queries storage for a group given by its group name
+
+\item[CCTK\_QueryGroupStorageI]
+  [\pageref{CCTK-QueryGroupStorageI}]
+  Queries storage for a group given by its group index
+
+%\item[CCTK\_Reduce]
+%  [\pageref{CCTK-Reduce}]
+%  Perform a reduction operation using a registered operator
+
+\item[CCTK\_ReductionHandle]
+  [\pageref{CCTK-ReductionHandle}]
+  Get the handle for a registered reduction operator
+
+\item[CCTK\_RegisterBanner]
+  [\pageref{CCTK-RegisterBanner}]
+  Register a banner for a thorn
+
+\item[CCTK\_RegisterGHExtension]
+  [\pageref{CCTK-RegisterGHExtension}]
+  Register the name of an extension to the Cactus GH.
+
+\item[CCTK\_RegisterGHExtensionInitGH]
+  [\pageref{CCTK-RegisterGHExtensionInitGH}]
+  Register a routine for providing initialisation for an extension to the Cactus GH
+
+\item[CCTK\_RegisterGHExtensionScheduleTraverseGH]
+  [\pageref{CCTK-RegisterGHExtensionScheduleTraverseGH}]
+  Register a GH extension schedule traversal routine
+
+\item[CCTK\_RegisterGHExtensionSetupGH]
+  [\pageref{CCTK-RegisterGHExtensionSetupGH}]
+  Register a routine for setting up an extension to the Cactus GH
+
+\item[CCTK\_RegisterIOMethod]
+  [\pageref{CCTK-RegisterIOMethod}]
+  Registers a new I/O method
+
+\item[CCTK\_RegisterIOMethodOutputGH]
+  [\pageref{CCTK-RegisterIOMethodOutputGH}]
+  Registers an I/O method's routine for conditional output
+
+\item[CCTK\_RegisterIOMethodOutputVarAs]
+  [\pageref{CCTK-RegisterIOMethodOutputVarAs}]
+  Registers an I/O method's routine for unconditional output
+
+\item[CCTK\_RegisterIOMethodTimeToOutput]
+  [\pageref{CCTK-RegisterIOMethodTimeToOutput}]
+  Register a routine for deciding if it is time to output for an IO method
+
+\item[CCTK\_RegisterIOMethodTriggerOutput]
+  [\pageref{CCTK-RegisterIOMethodTriggerOutput}]
+  Register a routine for dealing with trigger output for an IO method
+
+\item[CCTK\_RegisterReductionOperator]
+  [\pageref{CCTK-RegisterReductionOperator}]
+  Register a function as providing a reduction operation
+
+\item[CCTK\_SetupGH]
+  [\pageref{CCTK-SetupGH}]
+  Sets up a CCTK grid hierarchy
+
+\item[CCTK\_SyncGroup]
+  [\pageref{CCTK-SyncGroup}]
+  Synchronize the ghost zones for a group of variables
+
+\item[CCTK\_VarDataPtr]
+  [\pageref{CCTK-VarDataPtr}]
+  Returns the data pointer for a grid variable
+
+\item[CCTK\_VarDataPtrB]
+  [\pageref{CCTK-VarDataPtrB}]
+  Returns the data pointer for a grid variable from the variable index or name
+
+\item[CCTK\_VarDataPtrI]
+  [\pageref{CCTK-VarDataPtrI}]
+  Returns the data pointer for a grid variable from the variable index
+
+\item[CCTK\_VarIndex]
+   [\pageref{CCTK-VarIndex}]
+  Get the index for a variable
+
+\item[CCTK\_VarName]
+  [\pageref{CCTK-VarName}]
+  Given a variable index, returns the variable name
+
+\item[CCTK\_VarTypeI]
+  [\pageref{CCTK-VarTypeI}]
+  Provides variable type index from the variable index
+
+\item[CCTK\_WARN]
+  [\pageref{CCTK-WARN}]
+  Prints a warning message and possibly stops the code
+
+\end{Lentry}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Full Description of Functions}
+
+%%%%%
+% AAA
+%%%%%
+
+
+% CommOverloadables.c
+\begin{CCTKFunc}{CCTK\_Abort}{Abnormal Cactus termination}
+\label{CCTK-Abort}
+\subroutine{int}{integer}{istat}
+\argument{cGH *}{CCTK\_POINTER}{cctkGH}
+\argument{int}{integer}{value}
+\showargs
+\begin{params}
+\parameter{cctkGH}{pointer to CCTK grid hierarchy}
+\parameter{value}{the return code to abort with}
+\end{params}
+\begin{discussion}
+This routine causes an immediate, abnormal Cactus termination.
+It never returns to the caller.
+\end{discussion}
+\end{CCTKFunc}
+
+
+
+
+
+% cctk_Comm.h
+\begin{CCTKFunc}{CCTK\_ArrayGroupSize}{}
+\label{CCTK-ArrayGroupSize}
+\subroutine{const int *}{}{size}
+\argument{const cGH *}{CCTK\_POINTER}{cctkGH}
+\argument{int}{integer}{dir}
+\argument{const char *}{character*(*)}{groupname}
+\showcargs
+\begin{params}
+\parameter{cctkGH}{pointer to CCTK grid hierarchy}
+\parameter{dir}{the direction to query}
+\parameter{groupname}{the group to query given by its full name}
+\parameter{size}{pointer to the size in the given direction}
+\end{params}
+\begin{discussion}
+For a CCTK\_ARRAY or CCTK\_GF group, this routine returns the processor-local
+size for variables in that group in a given direction. The direction is counted
+in C order (zero being the lowest dimension).
+\end{discussion}
+\begin{errorcodes}
+\begin{tabular}{l}
+A NULL pointer is returned if the group name or the direction given are invalid.
+\end{tabular}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+% CommOverloadables.c
+\begin{CCTKFunc}{CCTK\_ArrayGroupSizeI}{}
+\label{CCTK-ArrayGroupSizeI}
+\subroutine{const int *}{}{size}
+\argument{const cGH *}{CCTK\_POINTER}{cctkGH}
+\argument{int}{integer}{dir}
+\argument{int}{integer}{groupindex}
+\showcargs
+\begin{params}
+\parameter{cctkGH}{pointer to CCTK grid hierarchy}
+\parameter{dir}{the direction to query}
+\parameter{groupindex}{the group to query given by its index}
+\parameter{size}{pointer to the size in the given direction}
+\end{params}
+\begin{discussion}
+For a CCTK\_ARRAY or CCTK\_GF group, this routine returns the processor-local
+size for variables in that group in a given direction. The direction is counted
+in C order (zero being the lowest dimension).
+\end{discussion}
+\begin{errorcodes}
+\begin{tabular}{l}
+A NULL pointer is returned if the group name or the direction given are invalid.
+\end{tabular}
+\end{errorcodes}
+\end{CCTKFunc}
+
+%%%%%
+% BBB
+%%%%%
+
+
+% CommOverloadables.c
+\begin{CCTKFunc}{CCTK\_Barrier}{Synchronizes all processors at a given execution point}
+\label{CCTK-Barrier}
+\subroutine{int}{integer}{istat}
+\argument{cGH *}{CCTK\_POINTER}{cctkGH}
+\showargs
+\begin{params}
+\parameter{cctkGH}{pointer to CCTK grid hierarchy}
+\parameter{istat}{return code}
+\end{params}
+\begin{discussion}
+\end{discussion}
+This routine synchronizes all processors in a parallel job at a given point of
+execution. No processor will continue execution until all other processors
+have called {\t CCTK\_Barrier()}. Note that this is a collective operation --
+it must be called by all processors otherwise the code will hang.
+\end{CCTKFunc}
+
+
+%%%%%
+% CCC
+%%%%%
+
+
+\begin{CCTKFunc}{CCTK\_Cmplx}{Turns two real numbers into a complex number}
+\label{CCTK-Cmplx}
+\subroutine{CCTK\_COMPLEX}{}{cmpno}
+\argument{CCTK\_REAL}{}{realpart}
+\argument{CCTK\_REAL}{}{imagpart}
+\showcargs
+\begin{params}
+\parameter{cmpno}{The complex number}
+\parameter{realpart}{The real part of the complex number}
+\parameter{imagpart}{The imaginary part of the complex number}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t cmpno = CCTK\_Cmplx(re,im)};
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+\begin{CCTKFunc}{CCTK\_CmplxAbs}{Absolute value of a complex number}
+\label{CCTK-CmplxAbs}
+\subroutine{CCTK\_COMPLEX}{}{absval}
+\argument{CCTK\_COMPLEX}{}{inval}
+\showcargs
+\begin{params}
+\parameter{absval}{The computed absolute value}
+\parameter{realpart}{The complex number who absolute value is to be returned}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t absval = CCTK\_CmplxAbs(inval)};
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+\begin{CCTKFunc}{CCTK\_CmplxAdd}{Sum of two complex numbers}
+\label{CCTK-CmplxAdd}
+\subroutine{CCTK\_COMPLEX}{}{addval}
+\argument{CCTK\_COMPLEX}{}{inval1}
+\argument{CCTK\_COMPLEX}{}{inval2}
+\showcargs
+\begin{params}
+\parameter{addval}{The computed added value}
+\parameter{inval1}{The first complex number to be summed}
+\parameter{inval2}{The second complex number to be summed}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t addval = CCTK\_CmplxAdd(inval1,inval2)};
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+\begin{CCTKFunc}{CCTK\_CmplxConjg}{Complex conjugate of a complex number}
+\label{CCTK-CmplxConjg}
+\subroutine{CCTK\_COMPLEX}{}{conjgval}
+\argument{CCTK\_COMPLEX}{}{inval}
+\showcargs
+\begin{params}
+\parameter{conjval}{The computed conjugate}
+\parameter{inval}{The complex number to be conjugated}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t conjgval = CCTK\_CmplxConjg(inval)};
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+\begin{CCTKFunc}{CCTK\_CmplxCos}{Cosine of a complex number}
+\label{CCTK-CmplxCos}
+\subroutine{CCTK\_COMPLEX}{}{cosval}
+\argument{CCTK\_COMPLEX}{}{inval}
+\showcargs
+\begin{params}
+\parameter{cosval}{The computed cosine}
+\parameter{inval}{The complex number to be cosined}
+\end{params}
+\begin{discussion}
+{\bf NOT YET AVAILABLE}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t cosval = CCTK\_CmplxCos(inval)};
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+\begin{CCTKFunc}{CCTK\_CmplxDiv}{Division of two complex numbers}
+\label{CCTK-CmplxDiv}
+\subroutine{CCTK\_COMPLEX}{}{divval}
+\argument{CCTK\_COMPLEX}{}{inval1}
+\argument{CCTK\_COMPLEX}{}{inval2}
+\showcargs
+\begin{params}
+\parameter{divval}{The divided value}
+\parameter{inval1}{The enumerator}
+\parameter{inval1}{The denominator}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t divval = CCTK\_CmplxDiv(inval1,inval2)};
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+\begin{CCTKFunc}{CCTK\_CmplxExp}{Exponent of a complex number}
+\label{CCTK-CmplxExp}
+\subroutine{CCTK\_COMPLEX}{}{expval}
+\argument{CCTK\_COMPLEX}{}{inval}
+\showcargs
+\begin{params}
+\parameter{expval}{The computed exponent}
+\parameter{inval}{The complex number to be exponented}
+\end{params}
+\begin{discussion}
+{\bf NOT YET AVAILABLE}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t expval = CCTK\_CmplxExp(inval)};
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+\begin{CCTKFunc}{CCTK\_CmplxImag}{Imaginary part of a complex number}
+\label{CCTK-CmplxImag}
+\subroutine{CCTK\_REAL}{}{imval}
+\argument{CCTK\_COMPLEX}{}{inval}
+\showcargs
+\begin{params}
+\parameter{imval}{The imaginary part}
+\parameter{inval}{The complex number}
+\end{params}
+\begin{discussion}
+The imaginary part of a complex number $z=a+bi$ is $b$.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t imval = CCTK\_CmplxImag(inval)};
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+\begin{CCTKFunc}{CCTK\_CmplxLog}{Logarithm of a complex number}
+\label{CCTK-CmplxLog}
+\subroutine{CCTK\_COMPLEX}{}{logval}
+\argument{CCTK\_COMPLEX}{}{inval}
+\showcargs
+\begin{params}
+\parameter{logval}{The computed logarithm}
+\parameter{inval}{The complex number}
+\end{params}
+\begin{discussion}
+{\bf NOT YET AVAILABLE}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t logval = CCTK\_CmplxLog(inval)};
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+\begin{CCTKFunc}{CCTK\_CmplxMul}{Multiplication of two complex numbers}
+\label{CCTK-CmplxMul}
+\subroutine{CCTK\_COMPLEX}{}{mulval}
+\argument{CCTK\_COMPLEX}{}{inval1}
+\argument{CCTK\_COMPLEX}{}{inval2}
+\showcargs
+\begin{params}
+\parameter{mulval}{The product}
+\parameter{inval1}{First complex number to be multiplied}
+\parameter{inval2}{Second complex number to be multiplied}
+\end{params}
+\begin{discussion}
+The product of two complex numbers $z_1=a_1+b_1 i$ and $z_2=a_2+b_2 i$ is
+$z=(a_1 a_2 - b_1 b_2) + (a_1 b_2 + a_2 b_1)i$.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t mulval = CCTK\_CmplxMul(inval1,inval2)};
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+\begin{CCTKFunc}{CCTK\_CmplxReal}{Real part of a complex number}
+\label{CCTK-CmplxReal}
+\subroutine{CCTK\_REAL}{}{reval}
+\argument{CCTK\_COMPLEX}{}{inval}
+\showcargs
+\begin{params}
+\parameter{reval}{The real part}
+\parameter{inval}{The complex number}
+\end{params}
+\begin{discussion}
+The real part of a complex number $z=a+bi$ is $a$.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t reval = CCTK\_CmplxReal(inval)};
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+\begin{CCTKFunc}{CCTK\_CmplxSin}{Sine of a complex number}
+\label{CCTK-CmplxSin}
+\subroutine{CCTK\_COMPLEX}{}{sinval}
+\argument{CCTK\_COMPLEX}{}{inval}
+\showcargs
+\begin{params}
+\parameter{sinval}{The computed sine}
+\parameter{inval}{The complex number to be Sined}
+\end{params}
+\begin{discussion}
+{\bf NOT YET AVAILABLE}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t sinval = CCTK\_CmplxSin(inval)};
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+\begin{CCTKFunc}{CCTK\_CmplxSub}{Subtraction of two complex numbers}
+\label{CCTK-CmplxSub}
+\subroutine{CCTK\_COMPLEX}{}{subval}
+\argument{CCTK\_COMPLEX}{}{inval1}
+\argument{CCTK\_COMPLEX}{}{inval2}
+\showcargs
+\begin{params}
+\parameter{addval}{The computed subtracted value}
+\parameter{inval1}{The complex number to be subtracted from}
+\parameter{inval2}{The complex number to subtract}
+\end{params}
+\begin{discussion}
+If $z_1=a_1 + b_1 i$ and $z_2 = a_2+ b_2 i$ then
+$$
+z_1-z_2 = (a_1-a_2)+ (b_1 - b_2)i
+$$
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t subval = CCTK\_CmplxSub(inval1,inval2)};
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+\begin{CCTKFunc}{CCTK\_CmplxSqrt}{Square root of a complex number}
+\label{CCTK-CmplxSqrt}
+\subroutine{CCTK\_COMPLEX}{}{sqrtval}
+\argument{CCTK\_COMPLEX}{}{inval}
+\showcargs
+\begin{params}
+\parameter{expval}{The computed square root}
+\parameter{inval}{The complex number to be square rooted}
+\end{params}
+\begin{discussion}
+{\bf NOT YET AVAILABLE}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t sqrtval = CCTK\_CmplxSqrt(inval)};
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+\begin{CCTKFunc}{CCTK\_CoordSystemDim}{Give the dimension for a given coordinate system.}
+\label{CCTK-CoordDim}
+\subroutine{int}{integer}{dim}
+\argument{const char *}{character*(*)}{systemname}
+\showargs
+\begin{params}
+\parameter{dim}{The dimension of the coordinate system}
+\parameter{systemname}{The name of the coordinate system}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t dim = CCTK\_CoordSystemDim("cart3d")};
+\\
+\hfill {\bf Fortran} && {\t call  CCTK\_COORDSYSTEMDIM(dim,"spher3d")}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+\begin{CCTKFunc}{CCTK\_CoordDir}{Give the direction for a given coordinate.}
+\label{CCTK-CoordDir}
+\subroutine{int}{integer}{dir}
+\argument{const char *}{character*(*)}{coordname}
+\argument{const char *}{character*(*)}{systemname}
+\showargs
+\begin{params}
+\parameter{dir}{The direction of the coordinate}
+\parameter{coordname}{The name assigned to this coordinate}
+\parameter{systemname}{The name of the coordinate system}
+\end{params}
+\begin{discussion}
+The coordinate name is independent of the grid function name.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t direction = CCTK\_CoordDir("xdir","cart3d")};
+\\
+\hfill {\bf Fortran} && {\t call  CCTK\_COORDDIR(direction,"radius","spher3d")}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+\begin{CCTKFunc}{CCTK\_CoordIndex}{Give the grid variable index for a given coordinate.}
+\label{CCTK-CoordIndex}
+\subroutine{int}{integer}{index}
+\argument{int}{integer}{direction}
+\argument{const char *}{character*(*)}{coordname}
+\argument{const char *}{character*(*)}{systemname}
+\showargs
+\begin{params}
+\parameter{index}{The coordinates associated grid variable index}
+\parameter{direction}{The direction of the coordinate in this coordinate system}
+\parameter{coordname}{The name assigned to this coordinate}
+\parameter{systemname}{The coordinate system for this coordinate}
+\end{params}
+\begin{discussion}
+The coordinate name is independent of the grid variable name.
+To find the index, the coordinate system name must be given, and either
+the coordinate direction or the coordinate name. The coordinate name
+will be used if the coordinate direction is given as less than or equal to zero, otherwise the coordinate name will be used.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t index = CCTK\_CoordIndex(-1,"xdir","cart3d")};
+\\
+\hfill {\bf Fortran} && one = 1
+\\
+&& {\t call  CCTK\_COORDINDEX(index,one,"radius","spher2d")}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+% Coord.c
+\begin{CCTKFunc}{CCTK\_CoordRange}{Return the global upper and lower bounds for a given coordinate}
+\label{CCTK-CoordRange}
+\subroutine{int}{integer}{ierr}
+\argument{const cGH *}{CCTK\_POINTER}{cctkGH}
+\argument{CCTK\_REAL *}{CCTK\_REAL}{lower}
+\argument{CCTK\_REAL *}{CCTK\_REAL}{upper}
+\argument{int}{integer}{direction}
+\argument{const char *}{character*(*)}{coordname}
+\argument{const char *}{character*(*)}{systemname}
+\showargs
+\begin{params}
+\parameter{ierr}{Error code}
+\parameter{cctkGH}{pointer to CCTK grid hierarchy}
+\parameter{lower}{Global lower bound of the coordinate (POINTER in C)}
+\parameter{upper}{Global upper bound of the coordinate (POINTER in C)}
+\parameter{direction}{Direction of coordinate in coordinate system}
+\parameter{coordname}{Coordinate name}
+\parameter{systemname}{Coordinate system name}
+\end{params}
+\begin{discussion}
+The coordinate name is independent of the grid function name.
+The coordinate range is registered by {\t CCTK\_CoordRegisterRange}.
+To find the range, the coordinate system name must be given, and either
+the coordinate direction or the coordinate name. The coordinate direction
+will be used if is given as a positive value, otherwise the coordinate
+name will be used.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t ierr = CCTK\_CoordRange(cctkGH, \&xmin, \&xmax, -1, "xdir", "mysystem");}
+\\
+\hfill {\bf Fortran} && {\t call CCTK\_COORDRANGE(ierr, cctkGH, Rmin, Rmax, -1, "radius", "sphersystem")}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+% Coord.c
+\begin{CCTKFunc}{CCTK\_CoordRegisterData}{Define a coordinate in a given coordinate
+system.}
+\label{CCTK-CoordRegisterData}
+\subroutine{int}{integer}{ierr}
+\argument{int}{integer}{direction}
+\argument{const char *}{character*(*)}{gvname}
+\argument{const char *}{character*(*)}{coordname}
+\argument{const char *}{character*(*)}{systemname}
+\showargs
+\begin{params}
+\parameter{ierr}{Error code}
+\parameter{direction}{Direction of coordinate in coordinate system}
+\parameter{gvname}{Name of grid variable associated with coordinate}
+\parameter{coordname}{Name of this coordinate}
+\parameter{systemname}{Name of this coordinate system}
+\end{params}
+\begin{discussion}
+There must already be a coordinate system registered,
+using {\tt CCTK\_CoordRegisterSystem}.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t ierr = CCTK\_CoordRegisterData(1,"coordthorn::myx","x2d","cart2d")};
+\\
+\hfill {\bf Fortran} && two = 2
+\\
+&&{\t call CCTK\_COORDREGISTERDATA(ierr,two,"coordthorn::mytheta","spher3d")}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+% Coord.c
+\begin{CCTKFunc}{CCTK\_CoordRegisterRange}{Assign the global maximum and minimum
+values of a coordinate on a given grid hierachy}
+\label{CCTK-CoordRegisterRange}
+\subroutine{int}{integer}{ierr}
+\argument{const cGH *}{CCTK\_POINTER}{cctkGH}
+\argument{CCTK\_REAL}{CCTK\_REAL}{min}
+\argument{CCTK\_REAL}{CCTK\_REAL}{max}
+\argument{int}{integer}{direction}
+\argument{const char *}{character*(*)}{coordname}
+\argument{const char *}{character*(*)}{systemname}
+\showargs
+\begin{params}
+\parameter{ierr}{Error code}
+\parameter{dimension}{Pointer to CCTK grid hierachy}
+\parameter{min}{Global minimum of coordinate}
+\parameter{max}{Global maximum of coordinate}
+\parameter{direction}{Direction of coordinate in coordinate system}
+\parameter{coordname}{Name of coordinate in coordinate system}
+\parameter{systemname}{Name of this coordinate system}
+\end{params}
+\begin{discussion}
+There must already
+be a coordinate registered with the given name, with {\t CCTK\_CoordRegisterData}.
+The coordinate range
+can be accessed by {\t CCTK\_CoordRange}.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t ierr = CCTK\_CoordRegisterRange(cctkGH,-1.0,1.0,1,"x2d","cart2d")};
+\\
+\hfill {\bf Fortran} && min = 0
+\\
+&& max = 3.1415d0/2.0d0
+\\
+&& two = 2
+\\
+&&{\t call CCTK\_COORDREGISTERRANGE(ierr,min,max,two,"coordthorn::mytheta","spher3d")}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+% Coord.c
+\begin{CCTKFunc}{CCTK\_CoordRegisterSystem}{Assigns a coordinate system with
+a chosen name and dimension}
+\label{CCTK-CoordRegisterSystem}
+\subroutine{int}{integer}{ierr}
+\argument{int}{integer}{dimension}
+\argument{const char *}{character*(*)}{systemname}
+\showargs
+\begin{params}
+\parameter{ierr}{Error code}
+\parameter{dimension}{Dimension of coordinate system}
+\parameter{systemname}{Unique name assigned to coordinate system}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t ierr = CCTK\_CoordRegisterSystem(3,"cart3d")};
+\\
+\hfill {\bf Fortran} && three = 3
+\\
+&&{\t call CCTK\_COORDREGISTERSYSTEM(ierr,three,"sphersystem")}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+% Coord.c
+\begin{CCTKFunc}{CCTK\_CoordSystemHandle}{Returns the handle associated with a registered coordinate system}
+\label{CCTK-CoordSystemHandle}
+\subroutine{int}{integer}{handle}
+\argument{const char *}{character*(*)}{systemname}
+\showargs
+\begin{params}
+\parameter{handle}{The coordinate system handle}
+\parameter{systemname}{Name of the coordinate system}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t handle =  CCTK\_CoordSystemHandle("my coordinate system");}
+\\
+\hfill {\bf Fortran} && {\t call CCTK\_CoordSystemHandle(handle,"my coordinate system")}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\begin{tabular}{l}
+A negative return code indicates an invalid coordinate system name.
+\end{tabular}
+\end{errorcodes}
+\end{CCTKFunc}
+
+% Coord.c
+\begin{CCTKFunc}{CCTK\_CoordSystemName}{Returns the name of a registered coordinate system}
+\label{CCTK-CoordSystemName}
+\subroutine{const char *}{integer}{systemname}
+\argument{int}{integer}{handle}
+\showcargs
+\begin{params}
+\parameter{handle}{The coordinate system handle}
+\parameter{systemname}{The coordinate system name}
+\end{params}
+\begin{discussion}
+No Fortran routine exists at the moment.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t systemname = CCTK\_CoordSystemName(handle);}
+\\
+\hfill         && {\t handle =  CCTK\_CoordSystemHandle(systemname);}
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\begin{tabular}{l}
+A NULL pointer is returned if an invalid handle was given.
+\end{tabular}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+% Coord.c
+\begin{CCTKFunc}{CCTK\_CreateDirectory}{Create a directory with required permissions}
+\label{CCTK-CreateDirectory}
+\subroutine{int}{integer}{ierr}
+\argument{const char *}{character*(*)}{pathname}
+\argument{int}{integer}{mode}
+\showargs
+\begin{params}
+\parameter{ierr}{Error code}
+\parameter{pathname}{Directory to create}
+\parameter{mode}{Permission mode for new directory as an octal number}
+\end{params}
+\begin{discussion}
+To create a directory readable by everyone, but writeable only by the user runnning the code, the permission mode would be 0755.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t ierr = CCTK\_CreateDirectory("Results/New",0755) };
+\\
+\hfill {\bf Fortran} && {\t call CCTK\_CREATEDIRECTORY(ierr,"Results/New",0755)}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\begin{tabular}{ll}
+0 & Directory successfully created\\
+-1 & Memory allocation failed\\
+-2 & Failed to create directory\\
+-3 & pathname exists but is not a directory\\
+\end{tabular}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+%%%%%
+% DDD
+%%%%%
+
+
+% CommOverloadables.c
+\begin{CCTKFunc}{CCTK\_DisableGroupComm}{Turn communications off for a group of grid variables}
+\label{CCTK-DisableGroupComm}
+\subroutine{int}{integer}{istat}
+\argument{cGH *}{CCTK\_POINTER}{cctkGH}
+\argument{const char *}{character*(*)}{group}
+\showcargs
+\begin{params}
+\parameter{cctkGH}{pointer to CCTK grid hierarchy}
+\end{params}
+\begin{discussion}
+Turning off communications means that ghost zones will not be
+communicated during a call to {\tt CCTK\_SyncGroup}. By default
+communications are all off.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+% CommOverloadables.c
+\begin{CCTKFunc}{CCTK\_DisableGroupStorage}{Free the storage associated with a group of grid variables}
+\label{CCTK-DisableGroupStorage}
+\subroutine{int}{integer}{istat}
+\argument{cGH *}{CCTK\_POINTER}{cctkGH}
+\argument{const char *}{character*(*)}{group}
+\showcargs
+\begin{params}
+\parameter{cctkGH}{pointer to CCTK grid hierarchy}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+% Groups.c
+\begin{CCTKFunc}{CCTK\_DecomposeName}{Given the full name of a variable/group, separates the name returning both the implementation and the variable/group}
+\label{CCTK-DecomposeName}
+\subroutine{int}{integer}{istat}
+\argument{char *}{}{fullname}
+\argument{char **}{}{imp}
+\argument{char **}{}{name}
+\showcargs
+\begin{params}
+\parameter{istat}{Status flag returned by routine}
+\parameter{fullname}{The full name of the group/variable}
+\parameter{imp}{The implementation name}
+\parameter{name}{The group/variable name}
+\end{params}
+\begin{discussion}
+No Fortran routine exists at the moment.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t istat = CCTK\_DecomposeName("evolve::scalars",imp,name)}\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+%%%%%
+% EEE
+%%%%%
+
+
+
+
+
+% CommOverloadables.c
+\begin{CCTKFunc}{CCTK\_EnableGroupComm}{Turn communications on for a group of grid variables}
+\label{CCTK-EnableGroupComm}
+\subroutine{int}{integer}{istat}
+\argument{cGH *}{CCTK\_POINTER}{cctkGH}
+\argument{const char *}{character*(*)}{group}
+\showcargs
+\begin{params}
+\parameter{cctkGH}{pointer to CCTK grid hierarchy}
+\end{params}
+\begin{discussion}
+Grid variables with communication enabled will have their ghost zones communicated during a call
+to {\tt CCTK\_SyncGroup}. In general, this function does not need to be used, since communication
+is automatically enabled for grid variables who have assigned storage via the {\tt schedule.ccl}
+file.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+% CommOverloadables.c
+\begin{CCTKFunc}{CCTK\_EnableGroupStorage}{Assign the storage for a group of grid variables}
+\label{CCTK-EnableGroupStorage}
+\subroutine{int}{integer}{istat}
+\argument{cGH *}{CCTK\_POINTER}{cctkGH}
+\argument{const char *}{character*(*)}{group}
+\showcargs
+\begin{params}
+\parameter{cctkGH}{pointer to CCTK grid hierarchy}
+\end{params}
+\begin{discussion}
+In general this function does not need to be used, since storage assignment is best handled by
+the Cactus scheduler via a thorn's {\tt schedule.ccl} file.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+% CommOverloadables.c
+\begin{CCTKFunc}{CCTK\_Equals}{Checks a STRING or KEYWORD parameter for equality with a given string}
+\label{CCTK-Equals}
+\function{int}{integer}{istat}
+\argument{const char *}{CCTK\_POINTER}{param}
+\argument{const char *}{character*(*)}{value}
+\showargs
+\begin{params}
+\parameter{istat}{returns success or failure of equality}
+\parameter{param}{the STRING or KEYWORD parameter to check}
+\parameter{value}{the string value to compare against}
+\end{params}
+\begin{discussion}
+This function compares a Cactus parameter of type STRING or KEYWORD against a
+given string value. The comparison is performed case-independent,
+returning a non-zero value if the strings are the same, and zero if they differ.
+
+Note that in Fortran code, STRING or KEYWORD parameters are passed as C pointers,
+and can not be treated as normal Fortran strings. Thus {\t CCTK\_Equals()}
+should be used to check the value of such a parameter.
+\end{discussion}
+\end{CCTKFunc}
+
+% CommOverloadables.c
+\begin{CCTKFunc}{CCTK\_Exit}{Exit the code cleanly}
+\label{CCTK-Exit}
+\subroutine{int}{integer}{istat}
+\argument{cGH *}{CCTK\_POINTER}{cctkGH}
+\argument{int}{integer}{value}
+\showargs
+\begin{params}
+\parameter{cctkGH}{pointer to CCTK grid hierarchy}
+\parameter{value}{the return code to abort with}
+\end{params}
+\begin{discussion}
+This routine causes an immediate, regular termination of Cactus.
+It never returns to the caller.
+\end{discussion}
+\end{CCTKFunc}
+
+
+
+
+%%%%%
+% FFF
+%%%%%
+
+
+% Groups.c
+\begin{CCTKFunc}{CCTK\_FirstVarIndex}{Given a group name returns the first variable index in the group}
+\label{CCTK-FirstVarIndex}
+\subroutine{int}{integer}{firstvar}
+\argument{const char *}{character*(*)}{group}
+\showargs
+\begin{params}
+\parameter{firstvar}{The the first variable index in the given group}
+\parameter{group}{The group name}
+\end{params}
+\begin{discussion}
+
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t firstvar = CCTK\_FirstVarIndex("evolve::scalars") ;}
+\\
+\hfill {\bf Fortran} && {\t call CCTK\_GroupIndex(index,"evolve::scalars")}\\
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+\begin{CCTKFunc}{CCTK\_FirstVarIndexI}{Given a group index returns the first variable index in the group}
+\label{CCTK-FirstVarIndexI}
+\subroutine{int}{integer}{firstvar}
+\argument{int}{integer}{group}
+\showargs
+\begin{params}
+\parameter{firstvar}{The the first variable index in the given group}
+\parameter{group}{The group index}
+\end{params}
+\begin{discussion}
+
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t index = CCTK\_GroupIndex("evolve::scalars")}\\
+               &&{\t firstvar = CCTK\_FirstVarIndexI(index) ;}
+\\
+\hfill {\bf Fortran} && {\t call CCTK\_GroupIndex(index,3)}\\
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+\begin{CCTKFunc}{CCTK\_FortranString}{Changes a C string into a Fortran string}
+\label{CCTK-FortranString}
+\subroutine{int}{integer}{nchar}
+\argument{const char *}{character*(*)}{strout}
+\argument{const char *}{CCTK\_STRING}{strin}
+\showargs
+\begin{params}
+\parameter{nchar}{The number of characters in the C string, not counting the null terminator}
+\parameter{strout}{The fortran string which on output contains the C string as the first nchar characters}
+\parameter{strin}{The (pointer to the) C string containing the null terminator}
+\end{params}
+\begin{discussion}
+String or keyword parameters in Cactus are passed into Fortran routines as
+pointers to C strings. This means that they cannot be directly used as Fortran
+strings. This routine allows a Fortran string to be created from such a C string. Note that the Fortran string must be defined to have at least the same expected length as the C string. This routine is only callable from Fortran.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf Fortran} && \\
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+
+% Groups.c
+\begin{CCTKFunc}{CCTK\_FullName}{Given a variable index, returns the full name of the variable}
+\label{CCTK-FullName}
+\subroutine{char *}{integer}{fullname}
+\argument{int}{integer}{index}
+\showcargs
+\begin{params}
+\parameter{implementation}{The full variable name}
+\parameter{index}{The variable index}
+\end{params}
+\begin{discussion}
+No Fortran routine exists at the moment. The full variable name is in
+the form {\t <implementation>::<variable>}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t index = CCTK\_VarIndex("evolve::phi")}\\
+               &&{\t fullname = CCTK\_FullName(index) ;}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+
+%%%%%
+% GGG
+%%%%%
+
+% cctk_GHExtensions.h
+\begin{CCTKFunc}{CCTK\_GHExtension}{Get the pointer to a registered extension to the Cactus GH structure}
+\label{CCTK-GHExtension}
+\subroutine{int}{integer}{extension}
+\argument{GH *}{CCTK\_POINTER}{cctkGH}
+\showcargs
+\begin{params}
+\parameter{extension}{The pointer to the GH extension}
+\parameter{cctkGH}{The pointer to the CCTK grid hierarchy}
+\parameter{name}{The name of the GH extension}
+\end{params}
+\begin{discussion}
+No Fortran routine exists at the moment.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t extension = CCTK\_GHExtension("myExtension");}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+A NULL pointer is returned if an invalid extension name was given.
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+% cctk_GHExtensions.h
+\begin{CCTKFunc}{CCTK\_GHExtensionHandle}{Get the handle associated with a extension to the Cactus GH structure}
+\label{CCTK-GHExtensionHandle}
+\subroutine{int}{integer}{handle}
+\argument{const char *}{character*(*)}{name}
+\showargs
+\begin{params}
+\parameter{handle}{The GH extension handle}
+\parameter{group}{The name of the GH extension}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t handle =  CCTK\_GHExtension("myExtension") ;}
+\\
+\hfill {\bf Fortran} && {\t call CCTK\_GHExtension(handle,"myExtension")}\\
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+% Groups.c
+\begin{CCTKFunc}{CCTK\_GroupTypeFromVarI}{Provides group type index from the group index}
+\label{CCTK-GroupTypeFromVarI}
+\subroutine{int}{integer}{type}
+\argument{int}{integer}{index}
+\showargs
+\begin{params}
+\parameter{type}{The group type index}
+\parameter{group}{The group index}
+\end{params}
+\begin{discussion}
+The group type index indicates the type of variables in the group.
+Either scalars, grid functions or arrays. The group type can be checked
+with the Cactus provided macros for {\t GROUP\_SCALAR}, {\t GROUP\_GF}, {\t GROUP\_ARRAY}.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t index = CCTK\_GroupIndex("evolve::scalars")}\\
+               &&{\t array = (GROUP\_ARRAY == CCTK\_GroupTypeFromVarI(index)) ;}
+\\
+\hfill {\bf Fortran} && {\t call CCTK\_GROUPTYPEFROMVARI(type,3)}\\
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+
+% Groups.c
+\begin{CCTKFunc}{CCTK\_GroupName}{Given a group index, returns the group name}
+\label{CCTK-GroupName}
+\subroutine{char *}{integer}{name}
+\argument{int}{integer}{index}
+\showcargs
+\begin{params}
+\parameter{name}{The group name}
+\parameter{index}{The group index}
+\end{params}
+\begin{discussion}
+No Fortran routine exists at the moment.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t index = CCTK\_GroupIndex("evolve::scalars")}\\
+               &&{\t name = CCTK\_GroupName(index) ;}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+
+
+% Groups.c
+\begin{CCTKFunc}{CCTK\_GroupData}{Given a group index, returns information about the variables held in the group.}
+\label{CCTK-GroupData}
+\function{int}{}{ierr}
+\argument{int}{}{group}
+\argument{cGroup *}{}{pgroup}
+\showcargs
+\begin{params}
+\parameter{ierr}{0 for success, negative for failure}
+\parameter{group}{group index}
+\parameter{pgroup}{returns a pointer to a structure containing group information}
+\end{params}
+\begin{discussion}
+The cGroup structure contains the information
+\begin{itemize}
+\item grouptype: The group type
+\item vartype: The type of variables in the group
+\item stagtype: The type of grid staggering for arrays
+\item dim: The dimension of variables in the group
+\item numvars: The number of variables in the group
+\item ntimelevels: The number of timelevels for variables in the group
+\end{itemize}
+No Fortran routine exists at the moment.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t cGroup pgroup;}\\
+               && {\t index = CCTK\_GroupIndex("evolve::scalars")}\\
+               &&{\t ierr = CCTK\_GroupData(index,\&pgroup);}\\
+               && {\t vtype = pgroup.vartype;}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+% Groups.c
+\begin{CCTKFunc}{CCTK\_GroupNameFromVarI}{Given a variable index, return the name of the associated group}
+\label{CCTK-GroupNameFromVarI}
+\subroutine{char *}{character*(*)}{group}
+\argument{int}{integer}{varindex}
+\showcargs
+\begin{params}
+\parameter{group}{The name of the group}
+\parameter{varindex}{The index of the variable}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t index = CCTK\_VarIndex("evolve::phi");} \\
+               && {\t group = CCTK\_GroupNameFromVarI(index) ;}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+% Groups.c
+\begin{CCTKFunc}{CCTK\_GroupIndexFromVarI}{Given a variable index, returns the index of the associated group}
+\label{CCTK-GroupIndexFromVarI}
+\subroutine{int}{integer}{groupindex}
+\argument{int}{integer}{varindex}
+\showargs
+\begin{params}
+\parameter{groupindex}{The index of the group}
+\parameter{varindex}{The index of the variable}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t index = CCTK\_VarIndex("evolve::phi");} \\
+               && {\t groupindex = CCTK\_GroupIndexFromVarI(index) ;}
+\\
+\hfill {\bf Fortran} && {\t call CCTK\_VARINDEX("evolve::phi")}\\
+                     &&call {\t CCTK\_GROUPINDEXFROMVARI(groupindex,index)}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+% Groups.c
+\begin{CCTKFunc}{CCTK\_GroupIndexFromVar}{Given a variable name, returns the index of the associated group}
+\label{CCTK-GroupIndexFromVar}
+\subroutine{int}{integer}{groupindex}
+\argument{const char *}{character*(*)}{name}
+\showargs
+\begin{params}
+\parameter{groupindex}{The index of the group}
+\parameter{name}{The full name of the variable}
+\end{params}
+\begin{discussion}
+The variable name should be in the form {\t <implementation>::<variable>}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t groupindex = CCTK\_GroupIndexFromVar("evolve::phi") ;}
+\\
+\hfill {\bf Fortran} && {\t call CCTK\_GROUPINDEXFROMVAR(groupindex,"evolve::phi")}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+
+% Groups.c
+\begin{CCTKFunc}{CCTK\_GroupIndex}{Get the index number for a group name}
+\label{CCTK-GroupIndex}
+\subroutine{int}{integer}{index}
+\argument{const char *}{character*(*)}{groupname}
+\showargs
+\begin{params}
+\parameter{groupname}{The name of the group}
+\end{params}
+\begin{discussion}
+The group name should be the given in its fully qualified form, that is {\t <implementation>::<group>} for a public or protected group, and {\t <thornname>::<group>} for a private group.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t index = CCTK\_GroupIndex("evolve::scalars") };
+\\
+\hfill {\bf Fortran} && call {\t CCTK\_GroupIndex(index,"evolve::scalars")}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+%%%%%
+% HHH
+%%%%%
+
+%%%%%
+% III
+%%%%%
+
+
+
+
+
+% Groups.c
+\begin{CCTKFunc}{CCTK\_ImpFromVarI}{Given a variable index, returns the implementation name}
+\label{CCTK-ImpFromVarI}
+\subroutine{char *}{integer}{implementation}
+\argument{int}{integer}{index}
+\showcargs
+\begin{params}
+\parameter{implementation}{The implementation name}
+\parameter{index}{The variable index}
+\end{params}
+\begin{discussion}
+No Fortran routine exists at the moment
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t index = CCTK\_VarIndex("evolve::phi");}\\
+               &&{\t implementation = CCTK\_ImpFromVarI(index);}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+
+
+% WarnLevel.c
+\begin{CCTKFunc}{CCTK\_INFO}{Prints an information message}
+\label{CCTK-INFO}
+\subroutine{}{}{}
+\argument{const char *}{character*(*)}{message}
+\showargs
+\begin{params}
+\parameter{message}{The information message}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t CCTK\_INFO("Entering interpolator") };
+\\
+\hfill {\bf Fortran} && {\t call CCTK\_INFO("Inside interpolator")}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%notyet%\begin{FunctionDescription}{CCTK\_InterpGridArrays}
+%notyet%\label{CCTK-InterpGridArrays}
+%notyet%Interpolate a list of distributed grid arrays.
+%notyet%(This function is currently being implemented; it should be available
+%notyet%early in 2002, and will eventually replace \verb|CCTK_InterpGV()|.
+%notyet%See the Cactus web pages ``Development'' section for further details.)
+%notyet%
+%notyet%\begin{Synopsis}{C}
+%notyet%\begin{verbatim}
+%notyet%#include "cctk.h"
+%notyet%int status = CCTK_InterpGridArrays(const cGH *GH,
+%notyet%                                   int N_dims,
+%notyet%                                   int operator_handle,
+%notyet%                                   int param_table_handle,
+%notyet%                                   int coord_system_handle,
+%notyet%                                   int N_interp_points,
+%notyet%                                   const CCTK_INT interp_coord_type_codes[],
+%notyet%                                   const void *const interp_coords[],
+%notyet%                                   int N_input_arrays,
+%notyet%                                   const CCTK_INT
+%notyet%                                      input_array_variable_indices[],
+%notyet%                                   int N_output_arrays,
+%notyet%                                   const CCTK_INT output_array_type_codes[],
+%notyet%                                   void *const output_arrays[]);
+%notyet%\end{verbatim}
+%notyet%\end{Synopsis}
+%notyet%
+%notyet%\begin{Result}{\rm 0}
+%notyet%success
+%notyet%\end{Result}
+%notyet%
+%notyet%\begin{Parameter}{GH ($\ne$ NULL)}
+%notyet%Pointer to a valid Cactus grid hierarchy.
+%notyet%\end{Parameter}
+%notyet%\begin{Parameter}{N\_dims ($\ge 1$)}
+%notyet%Number of dimensions in which to interpolate.
+%notyet%Note that this may be less than the number of dimensions of the
+%notyet%input arrays if the storage is set up appropriately.  For example,
+%notyet%we might want to interpolate along 1-D lines or in 2-D planes of a
+%notyet%3-D input array; here \verb|N_dims| would be 1 or 2 respectively.
+%notyet%See the discussion of the \verb|input_array_strides| optional parameter
+%notyet%(passed in the parameter table) for details.
+%notyet%\end{Parameter}
+%notyet%\begin{Parameter}{operator\_handle ($\ge 0$)}
+%notyet%\hbox{}
+%notyet%Handle to the interpolation operator.
+%notyet%\end{Parameter}
+%notyet%\begin{Parameter}{param\_table\_handle ($\ge 0$)}
+%notyet%\hbox{}
+%notyet%Handle to a key-value table containing additional parameters for
+%notyet%the interpolator.
+%notyet%\end{Parameter}
+%notyet%\begin{Parameter}{coord\_system\_handle ($\ge 0$)}
+%notyet%\hbox{}
+%notyet%Cactus coordinate system handle defining the mapping between
+%notyet%physical coordinates and integer grid subscripts.
+%notyet%\end{Parameter}
+%notyet%\begin{Parameter}{N\_interp\_points ($\ge 0$)}
+%notyet%\hbox{}
+%notyet%The number of points at which interpolation is to be done.
+%notyet%\end{Parameter}
+%notyet%\begin{Parameter}{interp\_coord\_type\_codes ($\ne$ NULL)}
+%notyet%\hbox{}
+%notyet%(Pointer to) an array of \verb|N_dims| \verb|CCTK_VARIABLE_|* type codes
+%notyet%giving the data types of the interpolation-point coordinate arrays
+%notyet%pointed to by \verb|interp_coords[]|.
+%notyet%\end{Parameter}
+%notyet%\begin{Parameter}{interp\_coords ($\ne$ NULL)}
+%notyet%\hbox{}
+%notyet%(Pointer to) an array of \verb|N_dims| pointers to arrays giving the
+%notyet%physical coordinates of the interpolation points.
+%notyet%\end{Parameter}
+%notyet%\begin{Parameter}{N\_input\_arrays ($\ge 0$)}
+%notyet%\hbox{}The number of input arrays to be interpolated.
+%notyet%Note that if the parameter table entry \verb|operand_indices|
+%notyet%is used to specify a 1-to-many mapping of input arrays to output arrays,
+%notyet%only the unique set of input arrays should be given here.
+%notyet%\end{Parameter}
+%notyet%\begin{Parameter}{input\_array\_variable\_indices ($\ne$ NULL)}
+%notyet%\hbox{}
+%notyet%(Pointer to) an array of \verb|N_input_arrays| Cactus variable
+%notyet%indices specifying the input grid arrays for the interpolation.
+%notyet%\end{Parameter}
+%notyet%\begin{Parameter}{N\_output\_arrays ($\ge 0$)}
+%notyet%\hbox{}
+%notyet%The number of output arrays from the interpolation.
+%notyet%\end{Parameter}
+%notyet%\begin{Parameter}{output\_array\_type\_codes ($\ne$ NULL)}
+%notyet%\hbox{}
+%notyet%(Pointer to) an array of \verb|N_output_arrays| \verb|CCTK_VARIABLE_|*
+%notyet%type codes giving the data types of the output arrays pointed to by
+%notyet%\verb|output_arrays[]|.
+%notyet%\end{Parameter}
+%notyet%\begin{Parameter}{output\_arrays ($\ne$ NULL)}
+%notyet%\hbox{}
+%notyet%(Pointer to) an array of \verb|N_output_arrays| pointers to the
+%notyet%output arrays for the interpolation.
+%notyet%\end{Parameter}
+%notyet%
+%notyet%\begin{Discussion}
+%notyet%This function interpolates a list of distributed grid arrays.
+%notyet%The computation is optimized for the case of interpolating a
+%notyet%number of arrays at a time; in this case the same coefficients can
+%notyet%be used for all the arrays.
+%notyet%
+%notyet%Details of the operation performed, and what (if any) inputs and/or
+%notyet%outputs are specified in the parameter table, depend on which driver
+%notyet%thorn and interpolation operator you use.  See the documentation on
+%notyet%individual driver thorns (eg.~\verb|PUGHInterp|) for details.
+%notyet%
+%notyet%One common parameter-table option, which a number of interpolation
+%notyet%operators are likely to support, is \verb|order|, a \verb|CCTK_INT|
+%notyet%specifying the order of the (presumably polynomial) interpolation
+%notyet%(1=linear, 2=quadratic, 3=cubic, etc).
+%notyet%\end{Discussion}
+%notyet%
+%notyet%\begin{SeeAlso}{Util\_InterpLocalArrays()}
+%notyet%Interpolate a list of processor-local arrays.
+%notyet%\end{SeeAlso}
+%notyet%
+%notyet%\begin{Error}{UTIL\_ERROR\_BAD\_INPUT}
+%notyet%one or more of the inputs is invalid (eg.~\verb|NULL| pointer)
+%notyet%\end{Error}
+%notyet%\begin{Error}{UTIL\_ERROR\_NO\_MEMORY}
+%notyet%unable to allocate memory
+%notyet%\end{Error}
+%notyet%\begin{Error}{UTIL\_ERROR\_BAD\_HANDLE}
+%notyet%parameter table handle is invalid
+%notyet%\end{Error}
+%notyet%
+%notyet%\begin{Example}{C}
+%notyet%Here's a simple example to do quartic 3-D interpolation of a real
+%notyet%and a complex grid array, at 1000 interpolation points:
+%notyet%\begin{verbatim}
+%notyet%#include "cctk.h"
+%notyet%#include "util_Table.h"
+%notyet%
+%notyet%#define N_DIMS          3
+%notyet%#define N_INTERP_POINTS 1000
+%notyet%#define N_INPUT_ARRAYS  2
+%notyet%#define N_OUTPUT_ARRAYS 2
+%notyet%const cGH *GH;
+%notyet%int operator_handle, coord_system_handle;
+%notyet%
+%notyet%/* interpolation points */
+%notyet%CCTK_REAL interp_x[N_INTERP_POINTS],
+%notyet%          interp_y[N_INTERP_POINTS],
+%notyet%          interp_z[N_INTERP_POINTS];
+%notyet%static const CCTK_INT interp_coord_type_codes[N_DIMS]
+%notyet%        = { CCTK_VARIABLE_REAL, CCTK_VARIABLE_REAL, CCTK_VARIABLE_REAL };
+%notyet%const void *interp_coords[N_DIMS];
+%notyet%
+%notyet%/* input and output arrays */
+%notyet%CCTK_INT input_array_variable_indices[N_INPUT_ARRAYS];
+%notyet%static const CCTK_INT output_array_type_codes[N_OUTPUT_ARRAYS]
+%notyet%        = { CCTK_VARIABLE_REAL, CCTK_VARIABLE_COMPLEX };
+%notyet%void *output_arrays[N_OUTPUT_ARRAYS];
+%notyet%CCTK_REAL    output_for_real_array   [N_INTERP_POINTS];
+%notyet%CCTK_COMPLEX output_for_complex_array[N_INTERP_POINTS];
+%notyet%
+%notyet%operator_handle = CCTK_InterpHandle("generalized polynomial");
+%notyet%if (operator_handle < 0)
+%notyet%        CCTK_WARN(-1, "can't get operator handle!");
+%notyet%
+%notyet%coord_system_handle = CCTK_CoordSystemHandle("cart3d");
+%notyet%if (coord_system_handle < 0)
+%notyet%        CCTK_WARN(-1, "can't get coordinate-system handle!");
+%notyet%
+%notyet%interp_coords[0] = (const void *) interp_x;
+%notyet%interp_coords[1] = (const void *) interp_y;
+%notyet%interp_coords[2] = (const void *) interp_z;
+%notyet%input_array_variable_indices[0] = CCTK_VarIndex("my_thorn::real_array");
+%notyet%input_array_variable_indices[1] = CCTK_VarIndex("my_thorn::complex_array");
+%notyet%output_arrays[0] = (void *) output_for_real_array;
+%notyet%output_arrays[1] = (void *) output_for_complex_array;
+%notyet%
+%notyet%if (CCTK_InterpGridArrays(GH, N_DIMS,
+%notyet%                          operator_handle,
+%notyet%                          Util_TableCreateFromString("order=4"),
+%notyet%                          coord_system_handle,
+%notyet%                          N_INTERP_POINTS, interp_coord_type_codes,
+%notyet%                                           interp_coords,
+%notyet%                          N_INPUT_ARRAYS, input_array_variable_indices,
+%notyet%                          N_OUTPUT_ARRAYS, output_array_type_codes,
+%notyet%                                           output_arrays) < 0)
+%notyet%        CCTK_WARN(-1, "error return from interpolator!");
+%notyet%\end{verbatim}
+%notyet%\end{Example}
+%notyet%\end{FunctionDescription}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Interp.c
+\begin{CCTKFunc}{CCTK\_InterpGV}%%%
+{Perform an interpolation on a list of distributed CCTK grid variables,
+using a chosen interpolation operator}
+%notyet%\\[\baselineskip]
+%notyet%This function is being phased out; it will eventually be replaced by
+%notyet%{\t CCTK\_InterpGridArrays()}.
+\label{CCTK-InterpGV}
+\subroutine{int}{integer}{ierr}
+\argument{cGH *}{CCTK\_POINTER}{cctkGH}
+\argument{int}{integer}{operator\_handle}
+\argument{int}{integer}{coord\_system\_handle}
+\argument{int}{integer}{num\_points}
+\argument{int}{integer}{num\_in\_array\_indices}
+\argument{int}{integer}{num\_out\_arrays}
+\argument{...}{...}{}
+\argument{{\it num\_dims} * void *}{{\it num\_dims} * CCTK\_POINTER}{interp\_coord\_arrays}
+\argument{{\it num\_dims} * int}{{\it num\_dims} * integer}{interp\_coord\_array\_types}
+\argument{{\it num\_array\_indices} * int}{{\it num\_array\_indices} * integer}{in\_array\_indices}
+\argument{{\it num\_out\_arrays} * void *}{{\it num\_out\_arrays} * CCTK\_POINTER}{out\_arrays}
+\argument{{\it num\_out\_arrays} * int}{{\it num\_out\_arrays} * integer}{out\_array\_types}
+\showargs
+\begin{params}
+\parameter{cctkGH}{Pointer to the CCTK grid hierarchy}
+\parameter{operator\_handle}{Handle for the interpolation operator}
+\parameter{coord\_system\_handle}{Handle for the coordinate system.\newline
+This handle denotes the coordinate system to use for locating the points to
+interpolate at.}
+\parameter{num\_points}{Number of points to be interpolated on this processor}
+\parameter{num\_in\_array\_indices}{Number of passed input array indices}
+\parameter{num\_out\_arrays}{Number of passed output arrays}
+\parameter{...}{Variable argument list, with arguments as following}
+\parameter{interp\_coord\_arrays}{List of coordinate arrays for points to interpolate at ({\it num\_dims} is the number of dimensions of the coordinate system)}
+\parameter{interp\_coord\_array\_types}{List of CCTK datatypes for coordinate arrays}
+\parameter{in\_array\_indices}{List of CCTK grid variables to interpolate (given by their indices)}
+\parameter{out\_arrays}{List of output arrays}
+\parameter{out\_array\_types}{List of CCTK datatypes for output arrays}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t
+int interp\_handle, coord\_system\_handle;
+CCTK\_REAL coord\_x[NUM\_POINTS], coord\_y[NUM\_POINTS];
+int my\_grid\_fn1,  my\_grid\_fn2;
+CCTK\_REAL my\_out\_array1[NUM\_POINTS];
+CCTK\_COMPLEX  my\_out\_array2[NUM\_POINTS];\linebreak
+interp\_handle =\vfill
+\hspace{2ex} CCTK\_InterpHandle("my interpolation operator");
+coord\_system\_handle =\vfill
+\hspace{2ex} CCTK\_CoordSystemHandle("my 2D coordinate system");
+my\_grid\_fn1 = CCTK\_VarIndex("myThorn::myGF1");
+my\_grid\_fn2 = CCTK\_VarIndex("myThorn::myGF2");\linebreak
+ierr = CCTK\_InterpGV(cctkGH,\vfill
+\hspace{2ex} interp\_handle, coord\_system\_handle,\vfill
+\hspace{2ex} NUM\_POINTS, 2, 2,\vfill
+\hspace{2ex} coord\_x, coord\_y,\vfill
+\hspace{2ex} CCTK\_VARIABLE\_REAL, CCTK\_VARIABLE\_REAL,\vfill
+\hspace{2ex} my\_grid\_fn1,  my\_grid\_fn2,\vfill
+\hspace{2ex} my\_out\_array1, my\_out\_array2,\vfill
+\hspace{2ex} CCTK\_VARIABLE\_REAL, CCTK\_VARIABLE\_COMPLEX);
+}
+\\
+\hfill {\bf Fortran} && {\t
+integer interp\_handle, coord\_system\_handle
+CCTK\_REAL coord(NUM\_POINTS)
+integer my\_grid\_fn1,  my\_grid\_fn2, my\_grid\_fn3
+CCTK\_REAL my\_out\_array1(NUM\_POINTS)
+CCTK\_COMPLEX  my\_out\_array2(NUM\_POINTS)
+CCTK\_INT my\_out\_array3(NUM\_POINTS)\linebreak
+call CCTK\_InterpHandle(interp\_handle,\vfill\hspace{2ex}"my interpolation operator")
+call CCTK\_CoordSystemHandle(coord\_system\_handle,\vfill\hspace{2ex}"my 1D coordinate system")
+call CCTK\_VarIndex(my\_grid\_fn1, "myThorn::myGF1")
+call CCTK\_VarIndex(my\_grid\_fn2, "myThorn::myGF2")
+call CCTK\_VarIndex(my\_grid\_fn2, "myThorn::myGF3")\linebreak
+call CCTK\_InterpGV(ierr, cctkGH,\vfill
+\hspace{2ex} interp\_handle, coord\_system\_handle,\vfill
+\hspace{2ex} NUM\_POINTS, 3, 3,\vfill
+\hspace{2ex} coord,\vfill
+\hspace{2ex} CCTK\_VARIABLE\_REAL,\vfill
+\hspace{2ex} my\_grid\_fn1,  my\_grid\_fn2, my\_grid\_fn3,\vfill
+\hspace{2ex} my\_out\_array1, my\_out\_array2, my\_out\_array3,\vfill
+\hspace{2ex} CCTK\_VARIABLE\_REAL, CCTK\_VARIABLE\_COMPLEX, CCTK\_VARIABLE\_INT)
+}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\begin{tabular}{l}
+A negative return code indicates an error condition:
+\end{tabular}
+\begin{tabular}{ll}
+-1 & Invalid interpolation operator handle passed\\
+-2 & Invalid coordinate system handle passed\\
+\end{tabular}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+% Interp.c
+\begin{CCTKFunc}{CCTK\_InterpHandle}{Return the handle for a given interpolation operator}
+\label{CCTK-InterpHandle}
+\subroutine{int}{integer}{handle}
+\argument{const char *}{character*(*)}{operator}
+\showargs
+\begin{params}
+\parameter{handle}{Handle for the interpolation operator}
+\parameter{operator}{Name of interpolation operator}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t handle =  CCTK\_InterpHandle("my interpolation operator");}
+\\
+\hfill {\bf Fortran} && {\t call CCTK\_InterpHandle(handle,"my interpolation operator")}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\begin{tabular}{l}
+A negative value is returned for invalid/unregistered interpolation operator names.
+\end{tabular}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+% Interp.c
+\begin{CCTKFunc}{CCTK\_InterpLocal}%%%
+{Perform an interpolation on a list of processor-local arrays,
+using a chosen interpolation operator}
+%notyet%\\[\baselineskip]
+%notyet%This function is being phased out; it will eventually be replaced by
+%notyet%{\t CCTK\_InterpLocalArrays()}.
+\label{CCTK-InterpLocal}
+\subroutine{int}{integer}{ierr}
+\argument{cGH *}{CCTK\_POINTER}{cctkGH}
+\argument{int}{integer}{operator\_handle}
+\argument{int}{integer}{num\_points}
+\argument{int}{integer}{num\_dims}
+\argument{int}{integer}{num\_in\_arrays}
+\argument{int}{integer}{num\_out\_arrays}
+\argument{...}{...}{}
+\argument{{\it num\_dims} * int}{{\it num\_dims} * integer}{dims}
+\argument{{\it num\_dims} * void *}{{\it num\_dims} * CCTK\_POINTER}{coord\_arrays}
+\argument{{\it num\_dims} * int}{{\it num\_dims} * integer}{coord\_array\_types}
+\argument{{\it num\_dims} * void *}{{\it num\_dims} * CCTK\_POINTER}{interp\_coord\_arrays}
+\argument{{\it num\_dims} * int}{{\it num\_dims} * integer}{interp\_coord\_array\_types}
+\argument{{\it num\_in\_arrays} * void *}{{\it num\_in\_arrays} * CCTK\_POINTER}{in\_arrays}
+\argument{{\it num\_in\_arrays} * int}{{\it num\_in\_arrays} * integer}{in\_array\_types}
+\argument{{\it num\_out\_arrays} * void *}{{\it num\_out\_arrays} * CCTK\_POINTER}{out\_arrays}
+\argument{{\it num\_out\_arrays} * int}{{\it num\_out\_arrays} * integer}{out\_array\_types}
+\showargs
+\begin{params}
+\parameter{cctkGH}{Pointer to the CCTK grid hierarchy}
+\parameter{operator\_handle}{Handle for the interpolation operator}
+\parameter{num\_points}{Number of points to be interpolated on this processor}
+\parameter{num\_dims}{Number of dimensions of the coordinate system}
+\parameter{num\_in\_arrays}{Number of passed input arrays}
+\parameter{num\_out\_arrays}{Number of passed output arrays}
+\parameter{...}{Variable argument list, with arguments as following}
+\parameter{dims}{Dimensions of the underlying coordinate system}
+\parameter{coord\_arrays}{List of coordinate arrays describing the coordinate system}
+\parameter{coord\_array\_types}{List of CCTK datatypes for coordinate arrays}
+\parameter{interp\_coord\_arrays}{List of interpolation coordinate arrays}
+\parameter{interp\_coord\_array\_types}{List of CCTK datatypes for interpolation coordinate arrays}
+\parameter{in\_arrays}{List of input arrays to interpolate}
+\parameter{in\_array\_types}{List of CCTK datatypes for input arrays}
+\parameter{out\_arrays}{List of output arrays}
+\parameter{out\_array\_types}{List of CCTK datatypes for output arrays}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t
+int interp\_handle;
+CCTK\_REAL coord\_x[XDIM], coord\_y[YDIM];
+CCTK\_REAL interp\_coord\_x[NUM\_POINTS], interp\_coord\_y[NUM\_POINTS];
+CCTK\_REAL my\_in\_array1[NUM\_POINTS];
+CCTK\_COMPLEX  my\_in\_array2[NUM\_POINTS];
+CCTK\_REAL my\_out\_array1[NUM\_POINTS];
+CCTK\_COMPLEX  my\_out\_array2[NUM\_POINTS];\linebreak
+interp\_handle =\vfill
+\hspace{2ex} CCTK\_InterpHandle("my interpolation operator");
+ierr = CCTK\_InterpLocal(cctkGH,\vfill
+\hspace{2ex} interp\_handle, NUM\_POINTS, 2, 2, 2,\vfill
+\hspace{2ex} XDIM, YDIM, coord\_x, coord\_y,\vfill
+\hspace{2ex} CCTK\_VARIABLE\_REAL, CCTK\_VARIABLE\_REAL,\vfill
+\hspace{2ex} interp\_coord\_x, interp\_coord\_y,\vfill
+\hspace{2ex} CCTK\_VARIABLE\_REAL, CCTK\_VARIABLE\_REAL,\vfill
+\hspace{2ex} my\_in\_array1, my\_in\_array2,\vfill
+\hspace{2ex} CCTK\_VARIABLE\_REAL, CCTK\_VARIABLE\_COMPLEX);
+\hspace{2ex} my\_out\_array1, my\_out\_array2,\vfill
+\hspace{2ex} CCTK\_VARIABLE\_REAL, CCTK\_VARIABLE\_COMPLEX);
+}
+\\
+\hfill {\bf Fortran} && {\t
+integer interp\_handle
+CCTK\_REAL coord(XDIM)
+CCTK\_REAL interp\_coord(NUM\_POINTS)
+CCTK\_REAL my\_in\_array1(NUM\_POINTS), my\_out\_array1(NUM\_POINTS)
+CCTK\_COMPLEX my\_in\_array2(NUM\_POINTS), my\_out\_array2(NUM\_POINTS)
+CCTK\_INT my\_in\_array3(NUM\_POINTS), my\_out\_array3(NUM\_POINTS)\linebreak
+call CCTK\_InterpHandle(interp\_handle,\vfill\hspace{2ex}"my interpolation operator")
+call CCTK\_InterpLocal(ierr, cctkGH,\vfill
+\hspace{2ex} interp\_handle, NUM\_POINTS, 1, 3, 3,\vfill
+\hspace{2ex} XDIM, coord,\vfill
+\hspace{2ex} CCTK\_VARIABLE\_REAL,\vfill
+\hspace{2ex} interp\_coord,\vfill
+\hspace{2ex} CCTK\_VARIABLE\_REAL,\vfill
+\hspace{2ex} my\_in\_array1, my\_in\_array2, my\_in\_array3,\vfill
+\hspace{2ex} CCTK\_VARIABLE\_REAL, CCTK\_VARIABLE\_COMPLEX,\vfill
+\hspace{2ex} CCTK\_VARIABLE\_INT,\vfill
+\hspace{2ex} my\_out\_array1, my\_out\_array2, my\_out\_array3,\vfill
+\hspace{2ex} CCTK\_VARIABLE\_REAL, CCTK\_VARIABLE\_COMPLEX,\vfill
+\hspace{2ex} CCTK\_VARIABLE\_INT)
+}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\begin{tabular}{l}
+A negative return code indicates an error condition:
+\end{tabular}
+\begin{tabular}{ll}
+-1 & Invalid interpolation operator handle passed\\
+\end{tabular}
+\end{errorcodes}
+\end{CCTKFunc}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%notyet%\begin{FunctionDescription}{CCTK\_InterpLocalArrays}
+%notyet%\label{CCTK-InterpLocalArrays}
+%notyet%Interpolate a list of processor-local arrays.
+%notyet%(This function is currently being implemented; it should be available
+%notyet%early in 2002, and will eventually replace \verb|CCTK_InterpLocal()|.
+%notyet%See the Cactus web pages ``Development'' section for further details.)
+%notyet%
+%notyet%\begin{Synopsis}{C}
+%notyet%\begin{verbatim}
+%notyet%#include "cctk.h"
+%notyet%int status = CCTK_InterpLocalArrays(int N_dims,
+%notyet%                                    int operator_handle,
+%notyet%                                    int param_table_handle,
+%notyet%                                    const CCTK_REAL coord_system_origin[],
+%notyet%                                    const CCTK_REAL grid_spacing[],
+%notyet%                                    int N_interp_points,
+%notyet%                                    const CCTK_INT interp_coord_type_codes[],
+%notyet%                                    const void *const interp_coords[],
+%notyet%                                    int N_input_arrays,
+%notyet%                                    const CCTK_INT input_array_dims[],
+%notyet%                                    const CCTK_INT input_array_type_codes[],
+%notyet%                                    const void *const input_arrays[],
+%notyet%                                    int N_output_arrays,
+%notyet%                                    const CCTK_INT output_array_type_codes[],
+%notyet%                                    void *const output_arrays[]);
+%notyet%\end{verbatim}
+%notyet%\end{Synopsis}
+%notyet%
+%notyet%\begin{Result}{\rm 0}
+%notyet%success
+%notyet%\end{Result}
+%notyet%
+%notyet%\begin{Parameter}{N\_dims ($\ge 1$)}
+%notyet%Number of dimensions in which to interpolate.
+%notyet%Note that this may be less than the number of dimensions of the
+%notyet%input arrays if the storage is set up appropriately.  For example,
+%notyet%we might want to interpolate along 1-D lines or in 2-D planes of a
+%notyet%3-D input array; here \verb|N_dims| would be 1 or 2 respectively.
+%notyet%See the discussion of the \verb|input_array_strides| optional parameter
+%notyet%(passed in the parameter table) for details.
+%notyet%\end{Parameter}
+%notyet%\begin{Parameter}{operator\_handle ($\ge 0$)}
+%notyet%\hbox{}
+%notyet%Handle to the interpolation operator.
+%notyet%\end{Parameter}
+%notyet%\begin{Parameter}{param\_table\_handle ($\ge 0$)}
+%notyet%\hbox{}
+%notyet%Handle to a key-value table containing additional parameters for
+%notyet%the interpolator.
+%notyet%\end{Parameter}
+%notyet%\begin{Parameter}{coord\_system\_origin ($\ne$ NULL)}
+%notyet%\hbox{}
+%notyet%(Pointer to) an array giving the physical coordinates of the grid point
+%notyet%with integer grid subscripts 0, 0, \dots, 0.  (It doesn't matter whether
+%notyet%or not this grid point actually exists in the grid.)  See the description
+%notyet%of \verb|grid_spacing| for more on how \verb|coord_system_origin| is
+%notyet%actually used.
+%notyet%\end{Parameter}
+%notyet%\begin{Parameter}{grid\_spacing ($\ne$ NULL)}
+%notyet%\hbox{}
+%notyet%(Pointer to) an array giving the physical-coordinate grid spacing.
+%notyet%Thus, for example, in 3-D the physical coordinates of the grid point
+%notyet%with integer grid subscripts \verb|i,j,k| are
+%notyet%$x = \verb|coord_system_origin[0] + i*grid_spacing[0]|$,
+%notyet%$y = \verb|coord_system_origin[1] + j*grid_spacing[1]|$, and
+%notyet%$z = \verb|coord_system_origin[2] + k*grid_spacing[2]|$.
+%notyet%\end{Parameter}
+%notyet%\begin{Parameter}{N\_interp\_points ($\ge 0$)}
+%notyet%\hbox{}
+%notyet%The number of points at which interpolation is to be done.
+%notyet%\end{Parameter}
+%notyet%\begin{Parameter}{interp\_coord\_type\_codes ($\ne$ NULL)}
+%notyet%\hbox{}
+%notyet%(Pointer to) an array of \verb|N_dims| \verb|CCTK_VARIABLE_|* type codes
+%notyet%giving the data types of the interpolation-point coordinate arrays
+%notyet%pointed to by \verb|interp_coords[]|.
+%notyet%\end{Parameter}
+%notyet%\begin{Parameter}{interp\_coords ($\ne$ NULL)}
+%notyet%\hbox{}
+%notyet%(Pointer to) an array of \verb|N_dims| pointers to arrays giving the
+%notyet%physical coordinates of the interpolation points.
+%notyet%\end{Parameter}
+%notyet%\begin{Parameter}{N\_input\_arrays ($\ge 0$)}
+%notyet%\hbox{}
+%notyet%The number of input arrays to be interpolated.
+%notyet%Note that if the parameter table entry \verb|operand_indices|
+%notyet%is used to specify a 1-to-many mapping of input arrays to output arrays,
+%notyet%only the unique set of input arrays should be given here.
+%notyet%\end{Parameter}
+%notyet%\begin{Parameter}{input\_array\_dims ($\ne$ NULL)}
+%notyet%\hbox{}
+%notyet%(Pointer to) an array of \verb|N_dims| integers giving the dimensions
+%notyet%of the input array.  By default all the input arrays are taken to have
+%notyet%these dimensions, with \verb|[0]| the most contiguous axis and
+%notyet%\verb|[N_dims-1]| the least contiguous axis, and array subscripts in the
+%notyet%range \verb|0 <= subscript < dims[axis]|.  See the discussion of the
+%notyet%\verb|input_array_strides| optional parameter (passed in the parameter table)
+%notyet%for details of how this can be overridden.
+%notyet%\end{Parameter}
+%notyet%\begin{Parameter}{input\_array\_type\_codes ($\ne$ NULL)}
+%notyet%\hbox{}
+%notyet%(Pointer to) an array of \verb|N_input_arrays| \verb|CCTK_VARIABLE_|*
+%notyet%type codes giving the data types of the input arrays pointed to by
+%notyet%\verb|input_arrays[]|.
+%notyet%\end{Parameter}
+%notyet%\begin{Parameter}{input\_arrays ($\ne$ NULL)}
+%notyet%\hbox{}
+%notyet%(Pointer to) an array of \verb|N_input_arrays| pointers to the
+%notyet%input arrays for the interpolation.
+%notyet%\end{Parameter}
+%notyet%\begin{Parameter}{N\_output\_arrays ($\ge 0$)}
+%notyet%\hbox{}
+%notyet%The number of output arrays from the interpolation.
+%notyet%\end{Parameter}
+%notyet%\begin{Parameter}{output\_array\_type\_codes ($\ne$ NULL)}
+%notyet%\hbox{}
+%notyet%(Pointer to) an array of \verb|N_output_arrays| \verb|CCTK_VARIABLE_|*
+%notyet%type codes giving the data types of the output arrays pointed to by
+%notyet%\verb|output_arrays[]|.
+%notyet%\end{Parameter}
+%notyet%\begin{Parameter}{output\_arrays ($\ne$ NULL)}
+%notyet%\hbox{}
+%notyet%(Pointer to) an array of \verb|N_output_arrays| pointers to the
+%notyet%output arrays for the interpolation.
+%notyet%\end{Parameter}
+%notyet%
+%notyet%\begin{Discussion}
+%notyet%This function interpolates a list of processor-local arrays.
+%notyet%The computation is optimized for the case of interpolating a
+%notyet%number of arrays at a time; in this case the same coefficients can
+%notyet%be used for all the arrays.
+%notyet%
+%notyet%Details of the operation performed, and what (if any) inputs and/or
+%notyet%outputs are specified in the parameter table, depend on which driver
+%notyet%thorn and interpolation operator you use.  See the documentation on
+%notyet%individual driver thorns (eg.~\verb|PUGHInterp|) for details.
+%notyet%
+%notyet%One common parameter-table option, which a number of interpolation
+%notyet%operators are likely to support, is \verb|order|, a \verb|CCTK_INT|
+%notyet%specifying the order of the (presumably polynomial) interpolation
+%notyet%(1=linear, 2=quadratic, 3=cubic, etc).
+%notyet%\end{Discussion}
+%notyet%
+%notyet%\begin{SeeAlso}{Util\_InterpGridArrays()}
+%notyet%Interpolate a list of distributed grid arrays.
+%notyet%\end{SeeAlso}
+%notyet%
+%notyet%\begin{Error}{UTIL\_ERROR\_BAD\_INPUT}
+%notyet%one or more of the inputs is invalid (eg.~\verb|NULL| pointer)
+%notyet%\end{Error}
+%notyet%\begin{Error}{UTIL\_ERROR\_NO\_MEMORY}
+%notyet%unable to allocate memory
+%notyet%\end{Error}
+%notyet%\begin{Error}{UTIL\_ERROR\_BAD\_HANDLE}
+%notyet%parameter table handle is invalid
+%notyet%\end{Error}
+%notyet%
+%notyet%\begin{Example}{C}
+%notyet%Here's a simple example to do quartic 3-D interpolation of a real and
+%notyet%a complex $20 \times 30 \times 40$ array, at 1000 interpolation points:
+%notyet%\begin{verbatim}
+%notyet%#include "cctk.h"
+%notyet%#include "util_Table.h"
+%notyet%
+%notyet%#define N_DIMS          3
+%notyet%#define NX              20      /* x dimension of input arrays */
+%notyet%#define NY              30      /* y */
+%notyet%#define NZ              40      /* z */
+%notyet%#define N_INTERP_POINTS 1000
+%notyet%#define N_INPUT_ARRAYS  2
+%notyet%#define N_OUTPUT_ARRAYS 2
+%notyet%int operator_handle;
+%notyet%CCTK_REAL coord_system_origin[N_DIMS], grid_spacing[N_DIMS];
+%notyet%
+%notyet%/* interpolation points */
+%notyet%CCTK_REAL interp_x[N_INTERP_POINTS],
+%notyet%          interp_y[N_INTERP_POINTS],
+%notyet%          interp_z[N_INTERP_POINTS];
+%notyet%static const CCTK_INT interp_coord_type_codes[N_DIMS]
+%notyet%        = { CCTK_VARIABLE_REAL, CCTK_VARIABLE_REAL, CCTK_VARIABLE_REAL };
+%notyet%const void *interp_coords[N_DIMS];
+%notyet%
+%notyet%/* input and output arrays */
+%notyet%CCTK_REAL    real_array   [NZ][NY][NX]; /* n.b. x is contiguous */
+%notyet%CCTK_COMPLEX complex_array[NZ][NY][NX]; /* (Fortran storage order) */
+%notyet%static const CCTK_INT input_array_dims[N_DIMS] = { NX, NY, NZ };
+%notyet%static const CCTK_INT input_and_output_array_type_codes[N_OUTPUT_ARRAYS]
+%notyet%        = { CCTK_VARIABLE_REAL, CCTK_VARIABLE_COMPLEX };
+%notyet%const void * input_arrays[N_OUTPUT_ARRAYS];
+%notyet%      void *output_arrays[N_OUTPUT_ARRAYS];
+%notyet%CCTK_REAL    output_for_real_array   [N_INTERP_POINTS];
+%notyet%CCTK_COMPLEX output_for_complex_array[N_INTERP_POINTS];
+%notyet%
+%notyet%operator_handle = CCTK_InterpHandle("generalized polynomial");
+%notyet%if (operator_handle < 0)
+%notyet%        CCTK_WARN(-1, "can't get operator handle!");
+%notyet%
+%notyet%interp_coords[0] = (const void *) interp_x;
+%notyet%interp_coords[1] = (const void *) interp_y;
+%notyet%interp_coords[2] = (const void *) interp_z;
+%notyet%input_arrays[0] = (void *) real_array;
+%notyet%input_arrays[1] = (void *) complex_array;
+%notyet%output_arrays[0] = (void *) output_for_real_array;
+%notyet%output_arrays[1] = (void *) output_for_complex_array;
+%notyet%
+%notyet%if (CCTK_InterpLocalArrays(N_DIMS,
+%notyet%                           operator_handle,
+%notyet%                           Util_TableCreateFromString("order=4"),
+%notyet%                           coord_system_origin, grid_spacing
+%notyet%                           N_INTERP_POINTS, interp_coord_type_codes,
+%notyet%                                            interp_coords,
+%notyet%                           N_INPUT_ARRAYS, input_array_dims,
+%notyet%                                           input_array_type_codes,
+%notyet%                                           input_arrays,
+%notyet%                           N_OUTPUT_ARRAYS, output_array_type_codes,
+%notyet%                                            output_arrays) < 0)
+%notyet%        CCTK_WARN(-1, "error return from interpolator!");
+%notyet%\end{verbatim}
+%notyet%\end{Example}
+%notyet%\end{FunctionDescription}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Interp.c
+\begin{CCTKFunc}{CCTK\_InterpRegisterOperatorGV}{Register a routine as an
+interpolation operator for distributed CCTK grid variables}
+\label{CCTK-InterpRegisterOperatorGV}
+\subroutine{int}{}{ierr}
+\argument{cInterpOperatorGV}{}{operator}
+\argument{const char *}{}{name}
+\showcargs
+\begin{params}
+\parameter{operator}{Routine to be registered as the interpolation operator}
+\parameter{name}{Name of interpolation operator}
+\end{params}
+\begin{discussion}
+Only C routines can be registered as interpolation operators.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t
+extern int my\_operator (cGH *GH,\vfill
+\hspace{29ex}const char *coord\_system,\vfill
+\hspace{29ex}int num\_points,\vfill
+\hspace{29ex}int num\_in\_array\_indices,\vfill
+\hspace{29ex}int num\_out\_arrays,\vfill
+\hspace{29ex}void *interp\_coord\_arrays[],\vfill
+\hspace{29ex}int interp\_coord\_array\_types[],\vfill
+\hspace{29ex}int in\_array\_indices[],\vfill
+\hspace{29ex}void *out\_arrays[],\vfill
+\hspace{29ex}int out\_array\_types[]);\linebreak
+ierr = CCTK\_InterpRegisterOperatorGV(my\_operator,\vfill
+\hspace{2ex}"my interpolation operator");}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\begin{tabular}{l}
+A negative return code indicates an error condition:
+\end{tabular}
+\begin{tabular}{ll}
+-1 & NULL pointer was passed as interpolation operator routine\\
+-2 & interpolation handle could not be allocated\\
+-3 & Interpolation operator with this name already exists\\
+\end{tabular}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+% Interp.c
+\begin{CCTKFunc}{CCTK\_InterpRegisterOperatorLocal}{Register a routine as an
+interpolation operator for processor-local arrays}
+\label{CCTK-InterpRegisterOperatorLocal}
+\subroutine{int}{}{ierr}
+\argument{cInterpOperatorLocal}{}{operator}
+\argument{const char *}{}{name}
+\showcargs
+\begin{params}
+\parameter{operator}{Routine to be registered as the interpolation operator}
+\parameter{name}{Name of interpolation operator}
+\end{params}
+\begin{discussion}
+Only C routines can be registered as interpolation operators.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t
+extern int my\_operator (cGH *GH,\vfill
+\hspace{29ex}int num\_points,\vfill
+\hspace{29ex}int num\_dims,\vfill
+\hspace{29ex}int num\_in\_arrays,\vfill
+\hspace{29ex}int num\_out\_arrays,\vfill
+\hspace{29ex}int coord\_dims[],\vfill
+\hspace{29ex}void *coord\_arrays[],\vfill
+\hspace{29ex}int coord\_array\_types[],\vfill
+\hspace{29ex}void *interp\_coord\_arrays[],\vfill
+\hspace{29ex}int interp\_coord\_array\_types[],\vfill
+\hspace{29ex}void *in\_arrays[],\vfill
+\hspace{29ex}int in\_array\_types[],\vfill
+\hspace{29ex}void *out\_arrays[],\vfill
+\hspace{29ex}int out\_array\_types[]);\linebreak
+ierr = CCTK\_InterpRegisterOperatorLocal(my\_operator,\vfill
+\hspace{2ex}"my interpolation operator");}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\begin{tabular}{l}
+A negative return code indicates an error condition:
+\end{tabular}
+\begin{tabular}{ll}
+-1 & NULL pointer was passed as interpolation operator routine\\
+-2 & interpolation handle could not be allocated\\
+-3 & Interpolation operator with this name already exists\\
+\end{tabular}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+% ActiveThorns.c
+\begin{CCTKFunc}{CCTK\_IsThornActive}{Reports whether a thorn was activated in a parameter file}
+\label{CCTK-IsThornActive}
+\function{int}{integer}{istat}
+\argument{const char *}{character*(*)}{thornname}
+\showargs
+\begin{params}
+\parameter{istat}{the return status}
+\parameter{thorname}{the name of the thorn to check}
+\end{params}
+\begin{discussion}
+This function returns a non-zero value if the thorn given by {\it thornname}
+was activated in a parameter file, and zero otherwise.
+\end{discussion}
+\end{CCTKFunc}
+
+
+%%%%%
+% JJJ
+%%%%%
+
+%%%%%
+% KKK
+%%%%%
+
+%%%%%
+% LLL
+%%%%%
+
+%%%%%
+% MMM
+%%%%%
+
+
+% CommOverloadables.c
+\begin{CCTKFunc}{CCTK\_MyProc}{Returns the number of the local processor for a parallel run}
+\label{CCTK-MyProc}
+\function{int}{integer}{myproc}
+\argument{const cGH *}{CCTK\_POINTER}{cctkGH}
+\showargs
+\begin{params}
+\parameter{cctkGH}{pointer to CCTK grid hierarchy}
+\end{params}
+\begin{discussion}
+For a single processor run this call will return zero. For multiprocessor
+runs, this call will return $0\leq myproc < {\t CCTK\_nProcs(cctkGH)}$.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+
+% Groups.c
+\begin{CCTKFunc}{CCTK\_MaxDim}{Get the maximum dimension of any grid variable }
+\label{CCTK-MaxDim}
+\subroutine{int}{integer}{dim}
+\showargs
+\begin{params}
+\parameter{dim}{The maximum dimension}
+\end{params}
+\begin{discussion}
+Note that the maximum dimension will depend on the compiled thorn list,
+and not the active thorn list.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t dim = CCTK\_MaxDim() };
+\\
+\hfill {\bf Fortran} && {\t call  CCTK\_MaxDim(dim)}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+%%%%%
+% NNN
+%%%%%
+
+
+
+% CommOverloadables.c
+\begin{CCTKFunc}{CCTK\_nProcs}{Returns the number of processors being used for a parallel run}
+\label{CCTK-nProcs}
+\function{int}{integer}{nprocs}
+\argument{const cGH *}{CCTK\_POINTER}{cctkGH}
+\showargs
+\begin{params}
+\parameter{cctkGH}{pointer to CCTK grid hierarchy}
+\end{params}
+\begin{discussion}
+For a single processor run this call will return one.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+% Groups.c
+\begin{CCTKFunc}{CCTK\_NumTimeLevelsFromVarI}{Gives the number of timelevels for a variable}
+\label{CCTK-NumTimeLevelsFromVarI}
+\subroutine{int}{integer}{numlevels}
+\argument{int}{integer}{index}
+\showargs
+\begin{params}
+\parameter{numlevels}{The number of timelevels}
+\parameter{index}{The variable index}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t index = CCTK\_VarIndex("evolve::phi")}\\
+               &&{\t numlevels = CCTK\_NumTimeLevelsFromVarI(index) ;}
+\\
+\hfill {\bf Fortran} && {\t call CCTK\_NUMTIMELEVELSFROMVARI(numlevels,3)}\\
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+
+% Groups.c
+\begin{CCTKFunc}{CCTK\_NumTimeLevelsFromVar}{Gives the number of timelevels for a variable}
+\label{CCTK-NumTimeLevelsFromVar}
+\subroutine{int}{integer}{numlevels}
+\argument{const char *}{character*(*)}{name}
+\showargs
+\begin{params}
+\parameter{name}{The full variable name}
+\parameter{numlevels}{The number of timelevels}
+\end{params}
+\begin{discussion}
+The variable name should be in the form {\t <implementation>::<variable>}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t numlevels = CCTK\_NumTimeLevelsFromVar("evolve::phi") ;}
+\\
+\hfill {\bf Fortran} && {\t call CCTK\_NUMTIMELEVELSFROMVAR(numlevels,"evolve::phi")}\\
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+
+% Groups.c
+\begin{CCTKFunc}{CCTK\_NumVarsInGroupI}{Provides the number of variables in a group from the group index}
+\label{CCTK-NumVarsInGroupI}
+\subroutine{int}{integer}{num}
+\argument{int}{integer}{index}
+\showargs
+\begin{params}
+\parameter{num}{The number of variables in the group}
+\parameter{group}{The group index}
+\end{params}
+\begin{discussion}
+
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t index = CCTK\_GroupIndex("evolve::scalars")}\\
+               &&{\t firstvar = CCTK\_NumVarsInGroupI(index) ;}
+\\
+\hfill {\bf Fortran} && {\t call CCTK\_NUMVARSINGROUPI(firstvar,3)}\\
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+
+% Groups.c
+\begin{CCTKFunc}{CCTK\_NumVarsInGroup}{Provides the number of variables in a group from the group name}
+\label{CCTK-NumVarsInGroup}
+\subroutine{int}{integer}{num}
+\argument{const char *}{character*(*)}{name}
+\showargs
+\begin{params}
+\parameter{num}{The number of variables in the group}
+\parameter{group}{The full group name}
+\end{params}
+\begin{discussion}
+The group name should be given in the form {\t <implementation>::<group>}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t numvars = CCTK\_NumVarsInGroup("evolve::scalars") ;}
+\\
+\hfill {\bf Fortran} && {\t call CCTK\_NUMVARSINGROUP(numvars,"evolve::scalars")}\\
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+% Groups.c
+\begin{CCTKFunc}{CCTK\_NumGroups}{Get the number of groups of variables compiled in the code}
+\label{CCTK-NumGroups}
+\subroutine{int}{integer}{number}
+\showargs
+\begin{params}
+\parameter{number}{The number of groups compiled from the thorns {\t interface.ccl} files}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t number = CCTK\_NumGroups() };
+\\
+\hfill {\bf Fortran} && call {\t CCTK\_NumGroups(number)};
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+% Groups.c
+\begin{CCTKFunc}{CCTK\_NumVars}{Get the number of grid variables compiled in the code}
+\label{CCTK-NumVars}
+\subroutine{int}{integer}{number}
+\showargs
+\begin{params}
+\parameter{number}{The number of grid variables compiled from the thorns {\t interface.ccl} files}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t number = CCTK\_NumVars() };
+\\
+\hfill {\bf Fortran} && call {\t CCTK\_NumVars(number)}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+
+%%%%%
+% OOO
+%%%%%
+
+\begin{FunctionDescription}{CCTK\_NumIOMethods}
+\label{CCTK-NumIOMethods}
+\begin{Synopsis}{C}
+\begin{verbatim}
+int num_methods = CCTK_NumIOMethods (void);
+\end{verbatim}
+\end{Synopsis}
+\begin{Synopsis}{Fortran}
+\begin{verbatim}
+call CCTK_NumIOMethods (num_methods)
+
+integer num_methods
+\end{verbatim}
+\end{Synopsis}
+\begin{Parameter}{num\_methods}number of registered IO methods\end{Parameter}
+\begin{Discussion}
+Returns the total number of IO methods registered with the flesh.
+\end{Discussion}
+\end{FunctionDescription}
+
+
+% IOOverloadables.h
+\begin{FunctionDescription}{CCTK\_OutputVarAs}
+\label{CCTK-OutputVarAs}
+\begin{Synopsis}{C}
+\begin{verbatim}
+int istat = CCTK_OutputVarAs (const cGH *cctkGH,
+                              const char *variable,
+                              const char *alias);
+\end{verbatim}
+\end{Synopsis}
+\begin{Synopsis}{Fortran}
+\begin{verbatim}
+call CCTK_OutputVarAsByMethod (istat, cctkGH, variable, alias)
+
+integer istat
+CCTK_POINTER cctkGH
+character*(*) variable
+character*(*) alias
+\end{verbatim}
+\end{Synopsis}
+\begin{Parameter}{istat}return status\end{Parameter}
+\begin{Parameter}{cctkGH}pointer to CCTK grid hierarchy\end{Parameter}
+\begin{Parameter}{variable}full name of variable to output\end{Parameter}
+\begin{Parameter}{alias}alias name to base the output filename on\end{Parameter}
+\begin{Discussion}
+Output a variable {\t variable} looping over all registered IO methods.
+The output should take place if at all possible.
+If the appropriate file exists the data is appended, otherwise a new
+file is created. Uses {\t alias} as the name of the variable for the purpose
+of constructing a filename.
+\end{Discussion}
+\begin{Error}{positive}the number of IO methods which did output of {\t variable}\end{Error}
+\begin{Error}{0}for success\end{Error}
+\begin{Error}{negative}if no IO methods were registered\end{Error}
+\end{FunctionDescription}
+
+
+% IOOverloadables.h
+\begin{FunctionDescription}{CCTK\_OutputVarAsByMethod}
+\label{CCTK-OutputVarAsByMethod}
+\begin{Synopsis}{C}
+\begin{verbatim}
+int istat = CCTK_OutputVarAsByMethod (const cGH *cctkGH,
+                                      const char *variable,
+                                      const char *method,
+                                      const char *alias);
+\end{verbatim}
+\end{Synopsis}
+\begin{Synopsis}{Fortran}
+\begin{verbatim}
+call CCTK_OutputVarAsByMethod (istat, cctkGH, variable, method, alias)
+
+integer istat
+CCTK_POINTER cctkGH
+character*(*) variable
+character*(*) method
+character*(*) alias
+\end{verbatim}
+\end{Synopsis}
+\begin{Parameter}{istat}return status\end{Parameter}
+\begin{Parameter}{cctkGH}pointer to CCTK grid hierarchy\end{Parameter}
+\begin{Parameter}{variable}full name of variable to output\end{Parameter}
+\begin{Parameter}{method}method to use for output\end{Parameter}
+\begin{Parameter}{alias}alias name to base the output filename on\end{Parameter}
+\begin{Discussion}
+Output a variable {\t variable} using the method {\t method} if it is
+registered. Uses {\t alias} as the name of the variable for the purpose
+of constructing a filename. The output should take place if at all possible.
+If the appropriate file exists the data is appended, otherwise a new
+file is created.
+\end{Discussion}
+\begin{Error}{0}for success\end{Error}
+\begin{Error}{negative}indicating some error (eg. IO method is not registered)\end{Error}
+\end{FunctionDescription}
+
+% IOOverloadables.h
+\begin{FunctionDescription}{CCTK\_OutputVarByMethod}
+\label{CCTK-OutputVarByMethod}
+\begin{Synopsis}{C}
+\begin{verbatim}
+int istat = CCTK_OutputVarByMethod (const cGH *cctkGH,
+                                    const char *variable,
+                                    const char *method);
+\end{verbatim}
+\end{Synopsis}
+\begin{Synopsis}{Fortran}
+\begin{verbatim}
+call CCTK_OutputVarByMethod (istat, cctkGH, variable, method)
+
+integer istat
+CCTK_POINTER cctkGH
+character*(*) variable
+character*(*) method
+\end{verbatim}
+\end{Synopsis}
+\begin{Parameter}{istat}return status\end{Parameter}
+\begin{Parameter}{cctkGH}pointer to CCTK grid hierarchy\end{Parameter}
+\begin{Parameter}{variable}full name of variable to output\end{Parameter}
+\begin{Parameter}{method}method to use for output\end{Parameter}
+\begin{Discussion}
+Output a variable {\t variable} using the IO method {\t method} if it is
+registered. The output should take place if at all possible.
+if the appropriate file exists the data is appended, otherwise a new
+file is created.
+\end{Discussion}
+\begin{Error}{0}for success\end{Error}
+\begin{Error}{negative}indicating some error (eg. IO method is not registered)\end{Error}
+\end{FunctionDescription}
+
+% IOOverloadables.h
+\begin{FunctionDescription}{CCTK\_OutputVar}
+\label{CCTK-OutputVar}
+\begin{Synopsis}{C}
+\begin{verbatim}
+int istat = CCTK_OutputVar (const cGH *cctkGH,
+                            const char *variable);
+\end{verbatim}
+\end{Synopsis}
+\begin{Synopsis}{Fortran}
+\begin{verbatim}
+call CCTK_OutputVar (istat, cctkGH, variable)
+
+integer istat
+CCTK_POINTER cctkGH
+character*(*) variable
+\end{verbatim}
+\end{Synopsis}
+\begin{Parameter}{istat}return status\end{Parameter}
+\begin{Parameter}{cctkGH}pointer to CCTK grid hierarchy\end{Parameter}
+\begin{Parameter}{variable}full name of variable to output\end{Parameter}
+\begin{Discussion}
+Output a variable {\t variable} looping over all registered methods.
+The output should take place if at all possible.
+If the appropriate file exists the data is appended, otherwise a new
+file is created.
+\end{Discussion}
+\begin{Error}{0}for success\end{Error}
+\begin{Error}{negative}for some error condition (eg. IO method is not registered)\end{Error}
+\end{FunctionDescription}
+
+
+% IOOverloadables.h
+\begin{FunctionDescription}{CCTK\_OutputGH}
+\label{CCTK-OutputGH}
+\begin{Synopsis}{C}
+\begin{verbatim}
+int istat = CCTK_OutputGH (const cGH *cctkGH);
+\end{verbatim}
+\end{Synopsis}
+\begin{Synopsis}{Fortran}
+\begin{verbatim}
+call CCTK_OutputGH (istat, cctkGH)
+
+integer istat
+CCTK_POINTER cctkGH
+\end{verbatim}
+\end{Synopsis}
+\begin{Parameter}{istat}return status\end{Parameter}
+\begin{Parameter}{cctkGH}pointer to CCTK grid hierarchy\end{Parameter}
+\begin{Discussion}
+Output all variables living on the GH looping over all registered IO methods.
+The IO methods decide themselfes whether it is time to do output now or not.
+\end{Discussion}
+\begin{Error}{positive}total number of variables for which output was done by all IO methods\end{Error}
+\begin{Error}{0}if it wasn't time to output anything yet by any IO method\end{Error}
+\begin{Error}{-1}if no IO methods were registered\end{Error}
+\end{FunctionDescription}
+
+
+
+%%%%%
+% PPP
+%%%%%
+
+
+
+
+% CommOverloadables.c
+\begin{CCTKFunc}{CCTK\_ParallelInit}{Initialize the parallel subsystem}
+\label{CCTK-ParallelInit}
+\subroutine{int}{integer}{istat}
+\argument{cGH *}{CCTK\_POINTER}{cctkGH}
+\showcargs
+\begin{params}
+\parameter{cctkGH}{pointer to CCTK grid hierarchy}
+\end{params}
+\begin{discussion}
+Initializes the parallel subsystem.
+\end{discussion}
+\end{CCTKFunc}
+
+
+
+% Groups.c
+\begin{CCTKFunc}{CCTK\_PrintGroup}{Prints a group name from its index}
+\label{CCTK-PrintGroup}
+\subroutine{}{}{}
+\argument{int}{integer}{index}
+\showargs
+\begin{params}
+\parameter{index}{The group index}
+\end{params}
+\begin{discussion}
+This routine is for debugging purposes for Fortran programmers.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t CCTK\_PrintGroup(1) ;}
+\\
+\hfill {\bf Fortran} && {\t call CCTK\_PRINTGROUP(1)}\\
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+% Groups.c
+\begin{CCTKFunc}{CCTK\_PrintString}{Prints a Cactus string}
+\label{CCTK-PrintString}
+\subroutine{}{}{}
+\argument{char *}{CCTK\_STRING}{string}
+\showargs
+\begin{params}
+\parameter{string}{The string to print}
+\end{params}
+\begin{discussion}
+This routine can be used to print Cactus string variables and parameters
+from Fortran.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t CCTK\_PrintString(string\_param) ;}
+\\
+\hfill {\bf Fortran} && {\t call CCTK\_PRINTSTRING(string\_param)}\\
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+
+% Groups.c
+\begin{CCTKFunc}{CCTK\_PrintVar}{Prints a variable name from its index}
+\label{CCTK-PrintVar}
+\subroutine{}{}{}
+\argument{int}{integer}{index}
+\showargs
+\begin{params}
+\parameter{index}{The variable index}
+\end{params}
+\begin{discussion}
+This routine is for debugging purposes for Fortran programmers.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t CCTK\_PrintVar(1) ;}
+\\
+\hfill {\bf Fortran} && {\t call CCTK\_PRINTVAR(1)}\\
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+% WarnLevel.c
+\begin{CCTKFunc}{CCTK\_PARAMWARN}{Prints a warning from parameter checking, and possibly stops the code}
+\label{CCTK-PARAMWARN}
+\subroutine{}{}{}
+\argument{const char *}{character*(*)}{message}
+\showargs
+\begin{params}
+\parameter{message}{The warning message}
+\end{params}
+\begin{discussion}
+The call should be used in routines registered at the schedule point {\t CCTK\_PARAMCHECK}
+to indicate that there is parameter error or conflict and the code should
+terminate. The code will terminate only after all the parameters have been
+checked.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t CCTK\_PARAMWARN("Mass cannot be negative") };
+\\
+\hfill {\bf Fortran} && {\t call  CCTK\_PARAMWARN("Inside interpolator")}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+%%%%%
+% QQQ
+%%%%%
+
+
+% cctk_Comm.h
+\begin{CCTKFunc}{CCTK\_QueryGroupStorage}{Query storage for a group given by its group name}
+\label{CCTK-QueryGroupStorage}
+\subroutine{int}{integer}{istat}
+\argument{const cGH *}{CCTK\_POINTER}{cctkGH}
+\argument{const char *}{character*(*)}{groupname}
+\showargs
+\begin{params}
+\parameter{cctkGH}{pointer to CCTK grid hierarchy}
+\parameter{groupname}{the group to query, given by its full name}
+\parameter{istat}{the return code}
+\end{params}
+\begin{discussion}
+This routine queries whether the variables in a group have storage assigned.
+If so it returns true (a non-zero value), otherwise false (zero).
+\end{discussion}
+\begin{errorcodes}
+\begin{tabular}{l}
+A negative error code is returned for an invalid group name.
+\end{tabular}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+% cctk_Comm.h
+\begin{CCTKFunc}{CCTK\_QueryGroupStorageI}{Query storage for a group given by its group index}
+\label{CCTK-QueryGroupStorageI}
+\subroutine{int}{integer}{istat}
+\argument{const cGH *}{}{cctkGH}
+\argument{int}{integer}{groupindex}
+\showargs
+\begin{params}
+\parameter{cctkGH}{pointer to CCTK grid hierarchy}
+\parameter{groupindex}{the group to query, given by its index}
+\parameter{istat}{the return code}
+\end{params}
+\begin{discussion}
+This routine queries whether the variables in a group have storage assigned.
+If so it returns true (a non-zero value), otherwise false (zero).
+\end{discussion}
+\begin{errorcodes}
+\begin{tabular}{l}
+A negative error code is returned for an invalid group name.
+\end{tabular}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+% CommOverloadables.h
+\begin{CCTKFunc}{CCTK\_QueryGroupStorageB}{}
+\label{CCTK-QueryGroupStorageB}
+\subroutine{int}{}{storage}
+\argument{const cGH *}{}{cctkGH}
+\argument{int}{}{groupindex}
+\argument{const char *}{}{groupname}
+\showcargs
+\begin{params}
+\parameter{cctkGH}{pointer to CCTK grid hierarchy}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+%%%%%
+% RRR
+%%%%%
+
+\begin{CCTKFunc}{CCTK\_ReductionHandle}{Handle for given reduction method}
+\label{CCTK-ReductionHandle}
+\function{int}{integer}{handle}
+\argument{const char *}{character*(*)}{reduction}
+\showargs
+\begin{params}
+\parameter{handle}{handle returned for this method}
+\parameter{name}{name of the reduction method required}
+\end{params}
+\begin{discussion}
+Reduction methods should be registered at {\t CCTK\_STARTUP}. Note that
+integer reduction handles are used to call {\t CCTK\_Reduce} to avoid
+problems with passing Fortran strings. Note that the name of the reduction
+operator is case dependent.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t handle = CCTK\_ReductionHandle("maximum") };
+\\
+\hfill {\bf Fortran} && {\t call CCTK\_ReductionHandle(handle,"maximum")}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+\begin{CCTKFunc}{CCTK\_RegisterIOMethod}{Register a new I/O method}
+\label{CCTK-RegisterIOMethod}
+\function{int}{integer}{handle}
+\argument{const char *}{}{name}
+\showargs
+\begin{params}
+\parameter{handle}{handle returned by registration}
+\parameter{name}{name of the I/O method}
+\end{params}
+\begin{discussion}
+IO methods should be registered at {\t CCTK\_STARTUP}.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+% cctk_IOMethods.h
+\begin{CCTKFunc}{CCTK\_RegisterIOMethodOutputGH}{Register a routine for an I/O method which will be called from {\tt CCTK\_OutputGH}.}
+\label{CCTK-RegisterIOMethodOutputGH}
+\function{int}{integer}{istat}
+\argument{int}{}{handle}
+\argument{int}{}{(* func)(const cGH *)}
+\showcargs
+\begin{params}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+% cctk_IOMethods.h
+\begin{CCTKFunc}{CCTK\_RegisterIOMethodTimeToOutput}{Register a routine for an I/O method which will decide if it is time for the method to output.}
+\label{CCTK-RegisterIOMethodTimeToOutput}
+\function{int}{integer}{istat}
+\argument{int}{}{handle}
+\argument{int}{}{(* func)(const cGH *,int)}
+\showcargs
+\begin{params}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+% cctk_IOMethods.h
+\begin{CCTKFunc}{CCTK\_RegisterIOMethodTriggerOutput}{Register a routine for an I/O method which will handle trigger output}
+\label{CCTK-RegisterIOMethodTriggerOutput}
+\function{int}{integer}{istat}
+\argument{int}{}{handle}
+\argument{int}{}{(* func)(const cGH *,int)}
+\showcargs
+\begin{params}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+% cctk_IOMethods.h
+\begin{CCTKFunc}{CCTK\_RegisterIOMethodOutputVarAs}{Register a routine for an I/O method which will provide aliased variable output}
+\label{CCTK-RegisterIOMethodOutputVarAs}
+\function{int}{integer}{istat}
+\argument{int}{}{handle}
+\argument{int}{}{(* func)(const cGH *,const char*, const char *)}
+\showcargs
+\begin{params}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+% cctk_GHExtensions.h
+\begin{CCTKFunc}{CCTK\_RegisterGHExtension}{Register an extension to the CactusGH}
+\label{CCTK-RegisterGHExtension}
+\function{int}{}{istat}
+\argument{const char *}{}{name}
+\showcargs
+\begin{params}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+% cctk_GHExtensions.h
+\begin{CCTKFunc}{CCTK\_RegisterGHExtensionSetupGH}{Register a function which will set up a given extension to the Cactus GH}
+\label{CCTK-RegisterGHExtensionSetupGH}
+\function{int}{}{istat}
+\argument{int}{}{handle}
+\argument{void *}{}{(*func)(tFleshConfig *, int, cGH *)}
+\showcargs
+\begin{params}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+% cctk_GHExtensions.h
+\begin{CCTKFunc}{CCTK\_RegisterGHExtensionInitGH}{Register a function which will initialise a given extension to the Cactus GH}
+\label{CCTK-RegisterGHExtensionInitGH}
+\function{int}{}{istat}
+\argument{int}{}{handle}
+\argument{void *}{}{(*func)(cGH *)}
+\showcargs
+\begin{params}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+% cctk_GHExtensions.h
+\begin{CCTKFunc}{CCTK\_RegisterGHExtensionScheuldeTraverseGH}{Register a GH extension schedule traversal routine}
+\label{CCTK-RegisterGHExtensionScheduleTraverseGH}
+\function{int}{}{istat}
+\argument{int}{}{handle}
+\argument{int}{}{(*func)(cGH *,const char *)}
+\showcargs
+\begin{params}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+% Coord.c
+\begin{CCTKFunc}{CCTK\_RegisterBanner}{Register a banner for a thorn}
+\label{CCTK-RegisterBanner}
+\subroutine{void}{}{}
+\argument{const char *}{character*(*)}{message}
+\showargs
+\begin{params}
+\parameter{message}{String which will be displayed as a banner}
+\end{params}
+\begin{discussion}
+The banner must be registered during {\t CCTK\_STARTUP}. The banners are
+displayed in the order in which they are registered.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t CCTK\_RegisterBanner("My Thorn: Does Something Useful")};
+\\
+\hfill {\bf Fortran} && {\t call CCTK\_REGISTERBANNER("*** MY THORN ***")}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+%%%%%
+% SSS
+%%%%%
+
+
+% CommOverloadables.c
+\begin{CCTKFunc}{CCTK\_SetupGH}{Setup a new GH}
+\label{CCTK-SetupGH}
+\subroutine{cGH *}{}{cctkGH}
+\argument{tFleshConfig}{}{config}
+\argument{int}{}{convlevel}
+\showcargs
+\begin{params}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+
+% CommOverloadables.c
+\begin{CCTKFunc}{CCTK\_SyncGroup}{Synchronise the ghostzones for a group of grid variables}
+\label{CCTK-SyncGroup}
+\subroutine{int}{integer}{istat}
+\argument{cGH *}{CCTK\_POINTER}{cctkGH}
+\argument{const char *}{character*(*)}{group}
+\showargs
+\begin{params}
+\parameter{cctkGH}{pointer to CCTK grid hierarchy}
+\end{params}
+\begin{discussion}
+Only those grid variables which have communication enabled
+will be synchronised. This is usually equivalent to the variables
+which have storage assigned, unless communication has been explicitly
+turned off with a call to {\tt CCTK\_DisableGroupComm}.
+
+Note that an alternative to calling {\tt CCTK\_SyncGroup} explicitly
+from within a thorn, is to use the {\tt SYNC} keyword in a thorns
+{\tt schedule.ccl} file to indicate which groups of variables need
+to be synchronised on exit from the routine. This latter method is
+the preferred method from synchronising variables.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+%%%%%
+% TTT
+%%%%%
+
+%%%%%
+% UUU
+%%%%%
+
+%%%%%
+% VVV
+%%%%%
+
+
+\begin{CCTKFunc}{CCTK\_VarDataPtr}{Returns the data pointer for a grid variable}
+\label{CCTK-VarDataPtr}
+\subroutine{void *}{}{ptr}
+\argument{const cGH *}{}{cctkGH}
+\argument{int}{}{timelevel}
+\argument{char *}{}{name}
+\showcargs
+\begin{params}
+\parameter{cctkGH}{pointer to CCTK grid hierarchy}
+\parameter{timelevel}{The timelevel of the grid variable}
+\parameter{name}{The full name of the variable}
+\end{params}
+\begin{discussion}
+The variable name should be in the form {\t <implementation>::<variable>}.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t myVar = (CCTK\_REAL *)(CCTK\_VarDataPtr(GH,0,"imp::realvar"))}\\
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+\begin{CCTKFunc}{CCTK\_VarDataPtrB}{Returns the data pointer for a grid variable from the variable index or the variable name}
+\label{CCTK-VarDataPtrB}
+\subroutine{void *}{}{ptr}
+\argument{const cGH *}{}{cctkGH}
+\argument{int}{}{timelevel}
+\argument{int}{}{index}
+\argument{char *}{}{name}
+\showcargs
+\begin{params}
+\parameter{ptr}{a void pointer to the grid variable data}
+\parameter{cctkGH}{}
+\parameter{timelevel}{The timelevel of the grid variable}
+\parameter{index}{The index of the variable}
+\parameter{name}{The full name of the variable}
+\end{params}
+\begin{discussion}
+If the name if {\t NULL} the index will be used, if the index is negative the name will be used.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t myVar = (CCTK\_REAL *)(CCTK\_VarDataPtrB(GH,0,CCTK\_VarIndex("imp::realvar"),NULL))}\\
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+\begin{CCTKFunc}{CCTK\_VarDataPtrI}{Returns the data pointer for a grid variable from the variable index}
+\label{CCTK-VarDataPtrI}
+\subroutine{void *}{}{ptr}
+\argument{const cGH *}{}{cctkGH}
+\argument{int}{}{timelevel}
+\argument{int}{}{index}
+\showcargs
+\begin{params}
+\parameter{cctkGH}{}
+\parameter{timelevel}{The timelevel of the grid variable}
+\parameter{index}{The index of the variable}
+\end{params}
+\begin{discussion}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t myVar = (CCTK\_REAL *)(CCTK\_VarDataPtr(GH,0,CCTK\_VarIndex("imp::realvar")))}\\
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+% Groups.c
+\begin{CCTKFunc}{CCTK\_VarIndex}{Get the index for a variable}
+\label{CCTK-VarIndex}
+\subroutine{int}{integer}{index}
+\argument{const char *}{character*(*)}{varname}
+\showargs
+\begin{params}
+\parameter{varname}{The name of the variable}
+\end{params}
+\begin{discussion}
+The variable name should be the given in its fully qualified form, that is {\t <implementation>::<variable>} for a public or protected variabe, and {\t <thornname>::<variable>} for a private variable.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t index = CCTK\_VarIndex("evolve::phi") };
+\\
+\hfill {\bf Fortran} && {\t call CCTK\_VarIndex(index,"evolve::phi")}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+
+% Groups.c
+\begin{CCTKFunc}{CCTK\_VarName}{Given a variable index, returns the variable name}
+\label{CCTK-VarName}
+\subroutine{char *}{integer}{name}
+\argument{int}{integer}{index}
+\showcargs
+\begin{params}
+\parameter{name}{The  variable name}
+\parameter{index}{The variable index}
+\end{params}
+\begin{discussion}
+No Fortran routine exists at the moment.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t index = CCTK\_VarIndex("evolve::phi")}\\
+               &&{\t name = CCTK\_VarName(index) ;}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+
+% Groups.c
+\begin{CCTKFunc}{CCTK\_VarTypeI}{Provides variable type index from the variable index}
+\label{CCTK-VarTypeI}
+\subroutine{int}{integer}{type}
+\argument{int}{integer}{index}
+\showargs
+\begin{params}
+\parameter{type}{The variable type index}
+\parameter{group}{The variable index}
+\end{params}
+\begin{discussion}
+The variable type index indicates the type of the variable.
+Either character, int, complex or real. The group type can be checked
+with the Cactus provided macros for {\t CCTK\_VARIABLE\_INT}, {\t CCTK\_VARIABLE\_REAL}, {\t CCTK\_VARIABLE\_COMPLEX} or {\t CCTK\_VARIABLE\_CHAR}.
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t index = CCTK\_VarIndex("evolve::phi")}\\
+               &&{\t real = (CCTK\_VARIABLE\_REAL == CCTK\_VarTypeI(index)) ;}
+\\
+\hfill {\bf Fortran} && {\t call CCTK\_VARTYPEI(type,3)}\\
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+
+
+%%%%%
+% WWW
+%%%%%
+
+
+
+% WarnLevel.c
+\begin{CCTKFunc}{CCTK\_WARN}{Prints a warning message and possibly stops the code}
+\label{CCTK-WARN}
+\subroutine{}{}{}
+\argument{int}{integer}{level}
+\argument{const char *}{character*(*)}{warning}
+\showargs
+\begin{params}
+\parameter{level}{The warning level, lower numbers are the severest warnings}
+\parameter{warning}{The warning message}
+\end{params}
+\begin{discussion}
+By default Cactus stops on a level 0 warning, and prints any level 1 warnings
+to standard error. This behaviour can be changed on the command line using
+the flags -W and -E (see \ref{sec:coliop} for full details). Note that
+{\tt CCTK\_WARN} is in fact a macro for the underlying function {\tt
+CCTK\_Warn}, the macro automatically including details about the origin
+of the warning, for example the thorn name, and the source code file
+name and line number. For this reason it is important that the function
+is called with capitalised letters, otherwise the macro will not be invoked
+and the function call will contain the wrong number of arguments. A call to
+{\tt CCTK\_WARN(level,message)} actually expands internally to
+{\tt
+\begin{verbatim}
+CCTK_Warn(level,__LINE__,__FILE__,CCTK_THORNNAME,message)
+\end{verbatim}
+}
+it is recommended that the macro version {\tt CCTK\_WARN} is used rather
+than {\tt CCTK\_VWarn}.
+The flesh parameter {\tt cctk\_full\_warnings}
+determines whether all the details about the warning origin are shown.
+To include variables in warning messages is more troublesome. From C, the
+variable argument list
+function {\tt CCTK\_VWarn} can be used to include variables using standard printf format strings. Unfortunately, a macro can no
+longer be provided to automatically include the origin details of the warning,
+and the syntax is for example,
+{\tt
+\begin{verbatim}
+CCTK_VWarn(1,__LINE__,__FILE__,CCTK_THORNNAME,
+  "Your warning message, including %f and %d",
+  myreal,myint);
+\end{verbatim}
+}
+To include variables from Fortran, a string must be constructed and passed
+to the standard function {\tt CCTK\_WARN}, for example
+{\tt
+\begin{verbatim}
+ character*200 warnline
+ write(warnline,'(A32,G12.7,A5,I8)')
+&  'Your warning message, including ',myreal,' and ',myint
+ call CCTK_WARN(1,warnline)
+\end{verbatim}
+}
+\end{discussion}
+\begin{examples}
+\begin{tabular}{@{}p{3cm}cp{11cm}}
+\hfill {\bf C} && {\t CCTK\_WARN(1,"This is not a good idea") };
+\\
+\hfill {\bf Fortran} && {\t call CCTK\_WARN(0,"Divide by zero")}
+\\
+\end{tabular}
+\end{examples}
+\begin{errorcodes}
+\end{errorcodes}
+\end{CCTKFunc}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Utility Functions}
+\label{sect-FunctionReference/UtilityFunctions}
+
+In this section all \hbox{{\tt Util\_}*} Cactus utility functions are
+described.  These are low-level functions mainly for more complicated
+programming, which are used by the rest of Cactus, but don't depend
+heavily on it.  Some of them are callable from Fortran or C, but
+many are C-only.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Functions Alphabetically}
+
+\begin{Lentry}
+
+%%\item[Util\_asprintf]
+%%     [\pageref{Util-asprintf}]
+
+%%\item[Util\_BinTreeFindNode]
+%%     [\pageref{Util-BinTreeFindNode}]
+
+%%\item[Util\_BinTreePrintNodes]
+%%     [\pageref{Util-BinTreePrintNodes}]
+
+%%\item[Util\_BinTreeStoreData]
+%%     [\pageref{Util-BinTreeStoreData}]
+
+%%\item[Util\_BinTreeTraverseInorder]
+%%     [\pageref{Util-BinTreeTraverseInorder}]
+
+%%\item[Util\_BinTreeTraversePostorder]
+%%     [\pageref{Util-BinTreeTraversePostorder}]
+
+%%\item[Util\_BinTreeTraversePreorder]
+%%     [\pageref{Util-BinTreeTraversePreorder}]
+
+%%\item[Util\_CacheMalloc]
+%%     [\pageref{Util-CacheMalloc}]
+
+%%\item[Util\_CurrentDate]
+%%     [\pageref{Util-CurrentDate}]
+
+%%\item[Util\_CurrentTime]
+%%     [\pageref{Util-CurrentTime}]
+
+%%\item[Util\_DeleteHandle]
+%%     [\pageref{Util-DeleteHandle}]
+
+%%\item[Util\_DoubleInRange]
+%%     [\pageref{Util-DoubleInRange}]
+
+%%\item[Util\_DoubleInRangeList]
+%%     [\pageref{Util-DoubleInRangeList}]
+
+%%\item[Util\_GetHandle]
+%%     [\pageref{Util-GetHandle}]
+
+%%\item[Util\_GetHandleName]
+%%     [\pageref{Util-GetHandleName}]
+
+%%\item[Util\_GetHandledData]
+%%     [\pageref{Util-GetHandledData}]
+
+%%\item[Util\_GetHostName]
+%%     [\pageref{Util-GetHostName}]
+
+%%\item[Util\_HashAdd]
+%%     [\pageref{Util-HashAdd}]
+
+%%\item[Util\_HashCreate]
+%%     [\pageref{Util-HashCreate}]
+
+%%\item[Util\_HashData]
+%%     [\pageref{Util-HashData}]
+
+%%\item[Util\_HashDelete]
+%%     [\pageref{Util-HashDelete}]
+
+%%\item[Util\_HashDestroy]
+%%     [\pageref{Util-HashDestroy}]
+
+%%\item[Util\_HashHash]
+%%     [\pageref{Util-HashHash}]
+
+%%\item[Util\_HashStore]
+%%     [\pageref{Util-HashStore}]
+
+%%\item[Util\_InList]
+%%     [\pageref{Util-InList}]
+
+%%\item[Util\_IntInRange]
+%%     [\pageref{Util-IntInRange}]
+
+%%\item[Util\_IntInRangeList]
+%%     [\pageref{Util-IntInRangeList}]
+
+%%\item[Util\_NewHandle]
+%%     [\pageref{Util-NewHandle}]
+
+%%\item[Util\_NullTerminateString]
+%%     [\pageref{Util-NullTerminateString}]
+
+%%\item[Util\_SplitFilename]
+%%     [\pageref{Util-SplitFilename}]
+
+%%\item[Util\_SplitString]
+%%     [\pageref{Util-SplitString}]
+
+%%\item[Util\_StrCmpi]
+%%     [\pageref{Util-StrCmpi}]
+
+%%\item[Util\_Strdup]
+%%     [\pageref{Util-Strdup}]
+
+%%\item[Util\_StringListAdd]
+%%     [\pageref{Util-StringListAdd}]
+
+%%\item[Util\_StringListCreate]
+%%     [\pageref{Util-StringListCreate}]
+
+%%\item[Util\_StringListDestroy]
+%%     [\pageref{Util-StringListDestroy}]
+
+%%\item[Util\_StringListNext]
+%%     [\pageref{Util-StringListNext}]
+
+\item[Util\_TableCreate]
+     [\pageref{Util-TableCreate}]
+Creates a new (empty) table
+
+\item[Util\_TableCreateFromString]
+     [\pageref{Util-TableCreateFromString}]
+Creates a new table (with the case-insensitive flag set) and sets
+values in it based on a string argument (interpreted with
+``parameter-file'' semantics)
+
+\item[Util\_TableDeleteKey]
+     [\pageref{Util-TableDeleteKey}]
+Deletes a specified key/value entry from a table
+
+\item[Util\_TableDestroy]
+     [\pageref{Util-TableDestroy}]
+Destroys a table
+
+\item[Util\_TableGet*]
+     [\pageref{Util-TableGet*}]
+Get the single (1-element array) value, or more generally the first
+array element of the value, associated with a specified key in a
+key/value table.
+
+\item[Util\_TableGet*Array]
+     [\pageref{Util-TableGet*Array}]
+This is a family of functions, one for each Cactus data type, to get
+a copy of the value associated with a specified key, and store it
+(more accurately, as much of it as will fit) in a specified array
+
+\item[Util\_TableGetString]
+     [\pageref{Util-TableGetString}]
+Gets a copy of the character-string value associated with a specified
+key in a table, and stores it (more accurately, as much of it as will fit)
+in a specified character string
+
+\item[Util\_TableItAdvance]
+     [\pageref{Util-TableItAdvance}]
+Advance a table iterator to the next entry in the table
+
+\item[Util\_TableItCreate]
+     [\pageref{Util-TableItCreate}]
+Create a new table iterator
+
+\item[Util\_TableItDestroy]
+     [\pageref{Util-TableItDestroy}]
+Destroy a table iterator
+
+\item[Util\_TableItQueryIsNonNull]
+     [\pageref{Util-TableItQueryIsNonNull}]
+Query whether a table iterator is {\em not\/} in the ``null-pointer'' state
+
+\item[Util\_TableItQueryIsNull]
+     [\pageref{Util-TableItQueryIsNull}]
+Query whether a table iterator is in the ``null-pointer'' state
+
+\item[Util\_TableItQueryKeyValueInfo]
+     [\pageref{Util-TableItQueryKeyValueInfo}]
+Query the key and the type and number of elements of the value
+corresponding to that key, of the table entry to which an iterator points
+
+\item[Util\_TableItQueryTableHandle]
+     [\pageref{Util-TableItQueryTableHandle}]
+Query what table a table iterator iterates over
+
+\item[Util\_TableItResetToStart]
+     [\pageref{Util-TableItResetToStart}]
+Reset a table iterator to point to the starting table entry
+
+\item[Util\_TableItSetToKey]
+     [\pageref{Util-TableItSetToKey}]
+Set a key/value iterator to point to a specified entry in the table.
+
+\item[Util\_TableItSetToNull]
+     [\pageref{Util-TableItSetToNull}]
+Set a key/value iterator to the "null-pointer" state.
+
+\item[Util\_TableQueryFlags]
+     [\pageref{Util-TableQueryFlags}]
+Queries a table's flags word
+
+\item[Util\_TableQueryValueInfo]
+     [\pageref{Util-TableQueryValueInfo}]
+Queries whether or not a specified key is in the table, and optionally
+the type and/or number of elements of the value corresponding to this key
+
+\item[Util\_TableQueryMaxKeyLength]
+     [\pageref{Util-TableQueryMaxKeyLength}]
+Queries the maximum key length in a table
+
+\item[Util\_TableQueryNKeys]
+     [\pageref{Util-TableQueryNKeys}]
+Queries the number of key/value entries in a table
+
+\item[Util\_TableSet*]
+     [\pageref{Util-TableSet*}]
+This is a family of functions, one for each Cactus data type,
+to set the value associated with a specified key to be a specified
+single (1-element array) value
+
+\item[Util\_TableSet*Array]
+     [\pageref{Util-TableSet*Array}]
+This is a family of functions, one for each Cactus data type,
+to set the value associated with a specified key to be a copy
+of a specified array
+
+\item[Util\_TableSetFromString]
+     [\pageref{Util-TableSetFromString}]
+Sets values in a table based on a string argument (interpreted with
+``parameter-file'' semantics)
+
+\item[Util\_TableSetString]
+     [\pageref{Util-TableSetString}]
+Sets the value associated with a specified key in a table, to be
+a copy of a specified C-style null-terminated character string
+
+\end{Lentry}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Full Description of Functions}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{FunctionDescription}{Util\_TableCreate}
+\label{Util-TableCreate}
+Creates a new (empty) table
+
+\begin{Synopsis}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+int handle = Util_TableCreate(int flags);
+\end{verbatim}
+\end{Synopsis}
+
+\begin{Result}{handle ($\ge 0$)}
+A handle to the newly-created table
+\end{Result}
+
+\begin{Parameter}{flags ($\ge 0$)}
+A flags word for the table.  This should be the inclusive-or of zero
+or more of the \verb|UTIL_TABLE_FLAGS_|* bit masks (defined in
+\verb|"util_Table.h"|).  For Fortran users, note that inclusive-or
+is the same as sum here, since the bit masks are all disjoint.
+\end{Parameter}
+
+\begin{Discussion}
+We require the flags word to be non-negative so that other
+functions can distinguish flags from (negative) error codes.
+\NewPar
+Any User-defined flag words should use only bit positions at or above
+\verb|UTIL_TABLE_FLAGS_USER_DEFINED_BASE|, i.e. all bit positions
+below this are reserved for present of future Cactus use.
+\end{Discussion}
+
+\begin{SeeAlso}{Util\_TableCreateFromString()}
+convenience routine to create a table and set key/value entries
+in it based on a parameter-file--like character string
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableDestroy()}
+destroy a table
+\end{SeeAlso}
+
+\begin{Error}{UTIL\_ERROR\_NO\_MEMORY}
+unable to allocate memory
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_TABLE\_BAD\_FLAGS}
+flags word is negative
+\end{Error}
+
+\begin{Example}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+
+/* create a table, simplest case */
+int handle = Util_TableCreate(UTIL_TABLE_FLAGS_DEFAULT);
+
+/* create a table whose keys will be treated as case-insensitive */
+int handle2 = Util_TableCreate(UTIL_TABLE_FLAGS_CASE_INSENSITIVE);
+\end{verbatim}
+\end{Example}
+\end{FunctionDescription}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{FunctionDescription}{Util\_TableCreateFromString}
+\label{Util-TableCreateFromString}
+Creates a new table (with the case-insensitive flag set) and sets
+values in it based on a string argument (interpreted with
+``parameter-file'' semantics)
+
+\begin{Synopsis}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+int handle = Util_TableCreateFromString(const char *string);
+\end{verbatim}
+\end{Synopsis}
+
+\begin{Result}{handle ($\ge 0$)}
+a handle to the newly-created table
+\end{Result}
+
+\begin{Parameter}{string}
+a pointer to a C-style null-terminated string specifying the table
+contents; see the description for \verb|Util_TableSetFromString()|
+for a full description of the syntax and semantics of this string
+\end{Parameter}
+
+\begin{SeeAlso}{Util\_TableCreate()}
+create a table
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSetFromString()}
+sets values in a table based on a string argument
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSetInt()}
+store a \verb|CCTK_INT| value in a table
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSetReal()}
+store a \verb|CCTK_REAL| value in a table
+\end{SeeAlso}
+
+\begin{Error}{UTIL\_ERROR\_NO\_MEMORY}
+unable to allocate memory
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_BAD\_INPUT}
+invalid input: can't parse input string
+\end{Error}
+\begin{Error}{\rm other error codes}
+this function may also return any error codes returned by
+\verb|Util_TableCreate()| or \verb|Util_TableSetFromString()|
+\end{Error}
+
+\begin{Example}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+
+int handle = Util_TableCreateFromString("order=3 myparam=42.314159");
+
+/* equivalent code to the above */
+int handle = Util_TableCreate(UTIL_TABLE_FLAGS_CASE_INSENSITIVE);
+Util_TableSetFromString(handle, "order=3 myparam=42.314159");
+
+/* also equivalent to the above */
+int handle = Util_TableCreate(UTIL_TABLE_FLAGS_CASE_INSENSITIVE);
+Util_TableSetInt(handle, 3, "order");
+Util_TableSetReal(handle, 42.314159, "myparam");
+\end{verbatim}
+\end{Example}
+\end{FunctionDescription}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{FunctionDescription}{Util\_TableDeleteKey}
+\label{Util-TableDeleteKey}
+Deletes a specified key/value entry from a table
+
+\begin{Synopsis}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+int key_exists = Util_TableDeleteKey(int handle, const char *key);
+\end{verbatim}
+\end{Synopsis}
+
+\begin{Result}{\rm 0}
+ok (key existed before this call, and has now been deleted)
+\end{Result}
+
+\begin{Parameter}{handle ($\ge 0$)}
+handle to the table
+\end{Parameter}
+\begin{Parameter}{key}
+a pointer to the key (a C-style null-terminated string)
+\end{Parameter}
+
+\begin{Discussion}
+This function invalidates any iterators for the table which are
+not in the ``null-pointer'' state.
+\end{Discussion}
+
+\begin{Error}{UTIL\_ERROR\_BAD\_HANDLE}
+handle is invalid
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_TABLE\_BAD\_KEY}
+key contains '/' character
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_TABLE\_NO\_SUCH\_KEY}
+no such key in table
+\end{Error}
+\end{FunctionDescription}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{FunctionDescription}{Util\_TableDestroy}
+\label{Util-TableDestroy}
+Destroys a table
+
+\begin{Synopsis}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+int status = Util_TableDestroy(int handle);
+\end{verbatim}
+\end{Synopsis}
+
+\begin{Result}{\rm 0}
+ok
+\end{Result}
+
+\begin{Parameter}{handle ($\ge 0$)}
+handle to the table
+\end{Parameter}
+
+\begin{Discussion}
+Of course, this function invalidates any and all iterators for the table. :)
+\end{Discussion}
+
+\begin{SeeAlso}{Util\_TableCreate()}
+create a table
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableCreateFromString()}
+convenience routine to create a table and set key/value entries
+in it based on a parameter-file--like character string
+\end{SeeAlso}
+
+\begin{Error}{UTIL\_ERROR\_BAD\_HANDLE}
+handle is invalid
+\end{Error}
+
+\begin{Example}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+
+/* create a table */
+int handle = Util_TableCreate(UTIL_TABLE_FLAGS_DEFAULT);
+
+/* do things with the table: put values in it, */
+/* pass its handle to other functions, etc etc */
+/* ... */
+
+/* at this point we (and all other functions we */
+/* may call in the future) are done with the table */
+Util_TableDestroy(handle);
+\end{verbatim}
+\end{Example}
+\end{FunctionDescription}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{FunctionDescription}{Util\_TableGet*}
+\label{Util-TableGet*}
+Get the single (1-element array) value, or more generally the first
+array element of the value, associated with a specified key in a
+key/value table.
+
+\begin{Synopsis}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+int N_elements = Util_TableGetXxx(int handle,
+                                  CCTK_XXX *value,
+                                  const char *key);
+\end{verbatim}
+where \verb|XXX| is one of
+   \verb|POINTER|, \verb|FN_POINTER|,
+   \verb|CHAR|,
+   \verb|INT|, \verb|INT2|, \verb|INT4|, \verb|INT8|,
+   \verb|REAL|, \verb|REAL4|, \verb|REAL8|, \verb|REAL16|,
+   \verb|COMPLEX|, \verb|COMPLEX8|, \verb|COMPLEX16|, \verb|COMPLEX32|
+(not all of these may be supported on any given system)
+\end{Synopsis}
+
+\begin{Result}{N\_elements}
+the number of array elements in the value
+\end{Result}
+
+\begin{Parameter}{handle ($\ge 0$)}
+handle to the table
+\end{Parameter}
+\begin{Parameter}{value}
+a pointer to where this function should store a copy of the value
+(or more generally the first array element of the value) associated
+with the specified key,
+or NULL pointer to skip storing this
+\end{Parameter}
+\begin{Parameter}{key}
+a pointer to the key (a C-style null-terminated string)
+\end{Parameter}
+
+\begin{Discussion}
+Note that it is {\em not\/} an error for the value to actually have
+$> 1$ array elements; in this case only the first element is stored.
+The rationale for this design is that the caller may know or suspect
+that the value is a large array, but may only want the first array
+element; in this case this design avoids the caller having to allocate
+a large buffer unnecessarily.
+
+In contrast, it {\em is\/} an error for the value to actually be
+an empty (0-length) array, because then there is no ``first array element''
+to get.
+\end{Discussion}
+
+\begin{SeeAlso}{Util\_TableCreateFromString()}
+convenience routine to create a table and set key/value entries
+in it based on a parameter-file--like character string
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableGet*Array()}
+get an array value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableGet*String()}
+get a character-string value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSet*()}
+set a single (1-element array) value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSet*Array()}
+set an array value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSetFromString()}
+convenience routine to set key/value entries in a table based on a
+parameter-file--like character string
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSetString()}
+set a character-string value
+\end{SeeAlso}
+
+\begin{Error}{UTIL\_ERROR\_BAD\_HANDLE}
+handle is invalid
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_TABLE\_BAD\_KEY}
+key contains '/' character
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_TABLE\_NO\_SUCH\_KEY}
+no such key in table
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_TABLE\_WRONG\_DATA\_TYPE}
+value has data type other than \verb|CCTK_TYPE|
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_TABLE\_VALUE\_IS\_EMPTY}
+value is an empty (0-element) array
+\end{Error}
+
+\begin{Example}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+
+#define N_DIGITS        5
+static const CCTK_INT pi_digits[N_DIGITS] = {3, 14, 159, 2653, 58979};
+
+int N;
+CCTK_INT x;
+int handle = Util_TableCreate(UTIL_TABLE_FLAGS_DEFAULT);
+
+Util_TableSetIntArray(handle, N_DIGITS, pi_digits, "digits of pi");
+Util_TableSetIntArray(handle, 0, pi_digits, "empty array");
+
+/* gets N = 5, x = 3 */
+N = Util_TableGetInt(handle, &x, "the answer");
+
+/* gets N = UTIL_ERROR_TABLE_VALUE_IS_EMPTY */
+N = Util_TableGetInt(handle, &x, "empty array");
+\end{verbatim}
+\end{Example}
+\end{FunctionDescription}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{FunctionDescription}{Util\_TableGet*Array}
+\label{Util-TableGet*Array}
+This is a family of functions, one for each Cactus data type, to get
+a copy of the value associated with a specified key, and store it
+(more accurately, as much of it as will fit) in a specified array
+
+\begin{Synopsis}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+int N_elements = Util_TableGetXxxArray(int handle,
+                                       int N_array, CCTK_XXX array[],
+                                       const char *key);
+\end{verbatim}
+where \verb|XXX| is one of
+   \verb|POINTER|, \verb|FN_POINTER|,
+   \verb|CHAR|,
+   \verb|INT|, \verb|INT2|, \verb|INT4|, \verb|INT8|,
+   \verb|REAL|, \verb|REAL4|, \verb|REAL8|, \verb|REAL16|,
+   \verb|COMPLEX|, \verb|COMPLEX8|, \verb|COMPLEX16|, \verb|COMPLEX32|
+(not all of these may be supported on any given system)
+\end{Synopsis}
+
+\begin{Result}{N\_elements}
+the number of array elements in the value
+\end{Result}
+
+\begin{Parameter}{handle ($\ge 0$)}
+handle to the table
+\end{Parameter}
+\begin{Parameter}{N\_array}
+the number of array elements in \verb|array[]|
+(must be $\ge 0$ if \verb|array != NULL|)
+\end{Parameter}
+\begin{Parameter}{array}
+a pointer to where this function should store (up to \verb|N_array|
+elements of) a copy of the value associated with the specified key,
+or NULL pointer to skip storing this
+\end{Parameter}
+\begin{Parameter}{key}
+a pointer to the key (a C-style null-terminated string)
+\end{Parameter}
+
+\begin{Discussion}
+Note that it is {\em not\/} an error for the value to actually have
+$> \verb|N_array|$ array elements; in this case only the first \verb|N_array|
+elements are stored.  The caller can detect this by comparing the
+return value with \verb|N_array|.
+The rationale for this design is that the caller may know or suspect
+that the value is a large array, but may only want the first few array
+elements; in this case this design avoids the caller having to allocate
+a large buffer unnecessarily.
+
+It is also {\em not\/} an error for the value to actually have
+$< \verb|N_array|$ array elements; again the caller can detect this by
+comparing the return value with \verb|N_array|.
+\end{Discussion}
+
+\begin{SeeAlso}{Util\_TableCreateFromString()}
+convenience routine to create a table and set key/value entries
+in it based on a parameter-file--like character string
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableGet*()}
+get a single (1-element array) value,
+or more generally the first array element of an array value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableGet*String()}
+get a character-string value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSet*()}
+set a single (1-element array) value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSet*Array()}
+set an array value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSetFromString()}
+convenience routine to set key/value entries in a table based on a
+parameter-file--like character string
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSetString()}
+set a character-string value
+\end{SeeAlso}
+
+\begin{Error}{UTIL\_ERROR\_BAD\_HANDLE}
+handle is invalid
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_TABLE\_BAD\_KEY}
+key contains '/' character
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_BAD\_INPUT}
+\verb|array != NULL| and \verb|N_array| $< 0$
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_TABLE\_NO\_SUCH\_KEY}
+no such key in table
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_TABLE\_WRONG\_DATA\_TYPE}
+value has data type other than \verb|CCTK_TYPE|
+\end{Error}
+
+\begin{Example}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+
+#define N_STUFF         3
+static const CCTK_REAL stuff[N_STUFF] = {42.0, 69.0, 105.5};
+
+#define N_OUTPUT        2
+CCTK_INT output[N_OUTPUT];
+
+int N;
+int handle = Util_TableCreate(UTIL_TABLE_FLAGS_DEFAULT);
+
+Util_TableSetIntArray(handle, N_STUFF, stuff, "blah blah blah");
+
+/* gets N = 3, output[0] = 42.0, output[1] = 69.0 */
+N = Util_TableGetRealArray(handle, N_OUTPUT, output, "blah blah blah");
+\end{verbatim}
+\end{Example}
+\end{FunctionDescription}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{FunctionDescription}{Util\_TableGetString}
+\label{Util-TableGetString}
+Gets a copy of the character-string value associated with a specified
+key in a table, and stores it (more accurately, as much of it as will fit)
+in a specified character string
+
+\begin{Synopsis}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+int length = Util_TableGetString(int handle,
+                                 int buffer_length, char buffer[],
+                                 const char *key);
+\end{verbatim}
+\end{Synopsis}
+
+\begin{ResultNote}
+Results are the same as all the other \verb|Util_TableGet|* functions:
+\end{ResultNote}
+\begin{Result}{length}
+the length of the string\\
+(C \verb|strlen()| semantics, \ie{} {\em not\/} including
+the terminating null character)
+\end{Result}
+
+\begin{Parameter}{handle ($\ge 0$)}
+handle to the table
+\end{Parameter}
+\begin{Parameter}{buffer\_length}
+the length (\verb|sizeof()|) of \verb|buffer[]|
+(must be $\ge 1$ if \verb|buffer != NULL|)
+\end{Parameter}
+\begin{Parameter}{buffer}
+a pointer to a buffer into which this function should store
+(at most \verb|buffer_length-1|  characters of) the value,
+terminated by a null character as usual for C strings,
+or NULL pointer to skip storing this
+\end{Parameter}
+\begin{Parameter}{key}
+a pointer to the key (a C-style null-terminated string)
+\end{Parameter}
+
+\begin{Discussion}
+This function assumes that the string is stored as an array of
+\verb|CCTK_CHAR|s, {\em not\/} including a terminating null character.
+\NewPar
+This function differs from \verb|Util_TableGetCharArray()| in two ways:
+It explicitly provides a terminating null character for C-style strings,
+and it explicitly checks for the string being too long to fit in the buffer
+(in which case it returns \verb|UTIL_ERROR_TABLE_STRING_TRUNCATED|).
+\end{Discussion}
+
+\begin{SeeAlso}{Util\_TableCreateFromString()}
+convenience routine to create a table and set key/value entries
+in it based on a parameter-file--like character string
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableGet*()}
+get a single (1-element array) value,
+or more generally the first array element of an array value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableGet*Array()}
+get an array value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableGetCharArray()}
+get an array-of-\verb|CCTK_CHAR| value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSet*()}
+set a single (1-element array) value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSet*Array()}
+set an array value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSetString()}
+set a character-string value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSetFromString()}
+convenience routine to set key/value entries in a table based on a
+parameter-file--like character string
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSetCharArray()}
+set an array-of-\verb|CCTK_CHAR| value
+\end{SeeAlso}
+
+\begin{Error}{UTIL\_ERROR\_BAD\_HANDLE}
+handle is invalid
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_TABLE\_BAD\_KEY}
+key contains '/' character
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_BAD\_INPUT}
+\verb|buffer != NULL| and \verb|buffer_length| $\le 0$
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_TABLE\_NO\_SUCH\_KEY}
+no such key in table
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_TABLE\_WRONG\_DATA\_TYPE}
+value has data type other than \verb|CCTK_CHAR|
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_TABLE\_STRING\_TRUNCATED}
+\quad
+\verb|buffer != NULL| and value was truncated to fit in \verb|buffer[]|
+\end{Error}
+
+\begin{Example}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+
+#define N_BUFFER        100
+char buffer[N_BUFFER];
+
+int handle = Util_TableCreate(UTIL_TABLE_FLAGS_DEFAULT);
+Util_TableSetString(handle, "relativity", "Einstein");
+
+/* get length of string (= 10 here) */
+int length = Util_TableGetString(handle, 0, NULL, "Einstein");
+
+/* get null-terminated string into buffer, also returns 10 */
+Util_TableGetString(handle, N_BUFFER, buffer, "Einstein");
+\end{verbatim}
+\end{Example}
+\end{FunctionDescription}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{FunctionDescription}{Util\_TableItAdvance}
+\label{Util-TableItAdvance}
+Advance a table iterator to the next entry in the table
+
+\begin{Synopsis}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+int is_nonnull = Util_TableItAdvance(int ihandle);
+\end{verbatim}
+\end{Synopsis}
+
+\begin{Result}{\rm 1}
+ok (iterator now points to some table entry)
+\end{Result}
+\begin{Result}{\rm 0}
+ok (iterator has just advanced past the last table entry,
+    and is now in the "null-pointer" state)
+\end{Result}
+
+\begin{Parameter}{ihandle ($\ge 0$)}
+handle to the iterator
+\end{Parameter}
+
+\begin{Discussion}
+If we view an iterator as an abstraction of a pointer into the table,
+then this function is the abstraction of the C \verb|++| operation applied
+to the pointer, except that this function automagically sets the iterator
+to the "null-pointer" state when it advances past the last table entry.
+\NewPar
+Note that bad things (garbage results, core dumps) may happen if
+you call this function on an iterator which has been invalidated
+by a change in the table's contents.
+\end{Discussion}
+
+\begin{Error}{UTIL\_ERROR\_BAD\_HANDLE}
+iterator handle is invalid
+\end{Error}
+
+\begin{Example}{C}
+\begin{verbatim}
+/* walk through all entries of a table */
+int ihandle;
+
+        for ( ihandle = Util_TableItCreate(handle) ;
+              Util_TableItQueryIsNull(ihandle) ;
+              Util_TableItAdvance(ihandle) )
+        {
+        /* do something with the table entry */
+        }
+
+Util_TableItDestroy(ihandle);
+\end{verbatim}
+\end{Example}
+\end{FunctionDescription}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{FunctionDescription}{Util\_TableItCreate}
+\label{Util-TableItCreate}
+Create a new table iterator
+
+\begin{Synopsis}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+int ihandle = Util_TableItCreate(int handle);
+\end{verbatim}
+\end{Synopsis}
+
+\begin{Result}{ihandle ($\ge 0$)}
+handle to the iterator
+\end{Result}
+
+\begin{Parameter}{handle ($\ge 0$)}
+handle to the table over which the iterator should iterate
+\end{Parameter}
+
+\begin{Discussion}
+This function creates a new table iterator.  The iterator initially
+points at the starting table entry.
+\end{Discussion}
+
+\begin{SeeAlso}{Util\_TableItDestroy()}
+destroy a table iterator
+\end{SeeAlso}
+
+\begin{Error}{UTIL\_ERROR\_BAD\_HANDLE}
+table handle is invalid
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_NO\_MEMORY}
+unable to allocate memory
+\end{Error}
+
+\begin{Example}{C}
+\begin{verbatim}
+/* walk through all entries of a table */
+int ihandle;
+
+        for ( ihandle = Util_TableItCreate(handle) ;
+              Util_TableItQueryIsNull(ihandle) ;
+              Util_TableItAdvance(ihandle) )
+        {
+        /* do something with the table entry */
+        }
+
+Util_TableItDestroy(ihandle);
+\end{verbatim}
+\end{Example}
+\end{FunctionDescription}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{FunctionDescription}{Util\_TableItDestroy}
+\label{Util-TableItDestroy}
+Destroy a table iterator
+
+\begin{Synopsis}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+int status = Util_TableItDestroy(int ihandle);
+\end{verbatim}
+\end{Synopsis}
+
+\begin{Result}{\rm 0}
+ok
+\end{Result}
+
+\begin{Parameter}{ihandle ($\ge 0$)}
+handle to the iterator
+\end{Parameter}
+
+\begin{Discussion}
+\end{Discussion}
+
+\begin{SeeAlso}{Util\_TableItCreate()}
+create a table iterator
+\end{SeeAlso}
+
+\begin{Error}{UTIL\_ERROR\_BAD\_HANDLE}
+iterator handle is invalid
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_NO\_MEMORY}
+unable to allocate memory
+\end{Error}
+
+\begin{Example}{C}
+\begin{verbatim}
+/* walk through all entries of a table */
+int ihandle;
+
+        for ( ihandle = Util_TableItCreate(handle) ;
+              Util_TableItQueryIsNull(ihandle) ;
+              Util_TableItAdvance(ihandle) )
+        {
+        /* do something with the table entry */
+        }
+
+Util_TableItDestroy(ihandle);
+\end{verbatim}
+\end{Example}
+\end{FunctionDescription}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{FunctionDescription}{Util\_TableItQueryIsNonNull}
+\label{Util-TableItQueryIsNonNull}
+Query whether a table iterator is {\em not\/} in the ``null-pointer'' state
+
+\begin{Synopsis}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+int status = Util_TableItQueryIsNonNull(int ihandle);
+\end{verbatim}
+\end{Synopsis}
+
+\begin{Result}{\rm 1}
+iterator is {\em not\/} in the ``null-pointer'' state,
+\ie{} iterator points to some table entry
+\end{Result}
+\begin{Result}{\rm 0}
+iterator is in the ``null-pointer'' state
+\end{Result}
+
+\begin{Parameter}{ihandle ($\ge 0$)}
+handle to the iterator
+\end{Parameter}
+
+\begin{Discussion}
+If no errors occur,
+\verb|Util_TableItQueryIsNonNull(ihandle)|
+is the same as
+\verb|1 - Util_TableItQueryIsNull(ihandle)|.
+\NewPar
+Note that bad things (garbage results, core dumps) may happen if
+you call this function on an iterator which has been invalidated
+by a change in the table's contents.
+\end{Discussion}
+
+\begin{SeeAlso}{Util\_TableItQueryIsNull()}
+query whether a table iterator is in the ``null-pointer'' state
+\end{SeeAlso}
+
+\begin{Error}{UTIL\_ERROR\_BAD\_HANDLE}
+iterator handle is invalid
+\end{Error}
+
+\begin{Example}{C}
+\begin{verbatim}
+/* walk through all entries of a table */
+int ihandle;
+
+        for ( ihandle = Util_TableItCreate(handle) ;
+              Util_TableItQueryIsNonNull(ihandle) ;
+              Util_TableItAdvance(ihandle) )
+        {
+        /* do something with the table entry */
+        }
+
+Util_TableItDestroy(ihandle);
+\end{verbatim}
+\end{Example}
+\end{FunctionDescription}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{FunctionDescription}{Util\_TableItQueryIsNull}
+\label{Util-TableItQueryIsNull}
+Query whether a table iterator is in the ``null-pointer'' state
+
+\begin{Synopsis}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+int status = Util_TableItQueryIsNull(int ihandle);
+\end{verbatim}
+\end{Synopsis}
+
+\begin{Result}{\rm 1}
+iterator is in the ``null-pointer'' state
+\end{Result}
+\begin{Result}{\rm 0}
+iterator is {\em not\/} in the ``null-pointer'' state,
+\ie{} iterator points to some table entry
+\end{Result}
+
+\begin{Parameter}{ihandle ($\ge 0$)}
+handle to the iterator
+\end{Parameter}
+
+\begin{Discussion}
+If no errors occur,
+\verb|Util_TableItQueryIsNull(ihandle)|
+is the same as
+\verb|1 - Util_TableItQueryIsNonNull(ihandle)|.
+\NewPar
+Note that bad things (garbage results, core dumps) may happen if
+you call this function on an iterator which has been invalidated
+by a change in the table's contents.
+\end{Discussion}
+
+\begin{SeeAlso}{Util\_TableItQueryIsNonNull()}
+query whether a table iterator is {\em not\/} in the ``null-pointer'' state,
+\ie{} whether the iterator points to some table entry
+\end{SeeAlso}
+
+\begin{Error}{UTIL\_ERROR\_BAD\_HANDLE}
+iterator handle is invalid
+\end{Error}
+
+\begin{Example}{C}
+\begin{verbatim}
+/* variant code to walk through all entries of a table */
+int ihandle;
+
+        for ( ihandle = Util_TableItCreate(handle) ;
+              ! Util_TableItQueryIsNull(ihandle) ;
+              Util_TableItAdvance(ihandle) )
+        {
+        /* do something with the table entry */
+        }
+
+Util_TableItDestroy(ihandle);
+\end{verbatim}
+\end{Example}
+\end{FunctionDescription}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{FunctionDescription}{Util\_TableItQueryKeyValueInfo}
+\label{Util-TableItQueryKeyValueInfo}
+Query the key and the type and number of elements of the value
+corresponding to that key, of the table entry to which an iterator points
+
+\begin{Synopsis}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+int key_length =
+ Util_TableItQueryKeyValueInfo(int ihandle,
+                               int key_buffer_length, char key_buffer[],
+                               CCTK_INT *type_code, CCTK_INT *N_elements)
+\end{verbatim}
+\end{Synopsis}
+
+\begin{Result}{key\_length}
+The string length of the key
+(this has C {\t strlen()} semantics, \ie{} it does not
+include a terminating null character)
+\end{Result}
+
+\begin{Parameter}{handle ($\ge 0$)}
+handle to the table iterator
+\end{Parameter}
+\begin{Parameter}{key\_buffer\_length}
+\quad
+the length (\verb|sizeof()|) of \verb|key_buffer[]|
+(must be $\ge 1$ if \verb|key_buffer != NULL|)
+\end{Parameter}
+\begin{Parameter}{key\_buffer}
+a pointer to a buffer into which this function should store
+(at most \verb|key_buffer_length-1| characters of) the key,
+terminated by a null character as usual for C strings,
+or NULL pointer to skip storing this
+\end{Parameter}
+\begin{Parameter}{type\_code}
+a pointer to where this function should store the value's type code
+(one of the \verb|CCTK_VARIABLE_|* constants from \verb|"cctk_Types.h"|),
+or a NULL pointer to skip storing this.
+\end{Parameter}
+\begin{Parameter}{N\_elements}
+a pointer to where this function should store
+the number of array elements in the value,
+or a NULL pointer to skip storing this.
+\end{Parameter}
+
+\begin{Discussion}
+The usual use of an iterator is to iterate through all the entries
+of a table, calling this function on each entry, then taking further
+action based on the results.
+\NewPar
+Note that bad things (garbage results, core dumps) may happen if
+you call this function on an iterator which has been invalidated
+by a change in the table's contents.
+\end{Discussion}
+
+\begin{SeeAlso}{Util\_TableQueryValueInfo()}
+perform a similar query using the key instead of an iterator
+\end{SeeAlso}
+
+\begin{Error}{UTIL\_ERROR\_BAD\_HANDLE}
+handle is invalid
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_TABLE\_ITERATOR\_IS\_NULL}
+\quad
+iterator is in "null-pointer" state
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_TABLE\_STRING\_TRUNCATED}
+\quad
+\verb|key_buffer != NULL| and key was truncated to fit in \verb|key_buffer|
+\end{Error}
+
+\begin{Example}{C}
+\begin{verbatim}
+/* print out all entries in a table */
+/* return 0 for ok, type code for any types we can't handle, */
+/*                  -ve for other errors */
+#include <stdio.h>
+#include <stdlib.h>
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+#include "cctk.h"
+
+int print_table(int handle)
+{
+int max_key_length, N_key_buffer, ihandle;
+char *key_buffer;
+
+max_key_length = Util_TableQueryMaxKeyLength(handle);
+if (max_key_length < 0)
+        return max_key_length;
+
+N_key_buffer = max_key_length + 1;
+key_buffer = (char *) malloc(N_key_buffer);
+if (key_buffer == NULL)
+        return UTIL_ERROR_NO_MEMORY;
+
+        for ( ihandle = Util_TableItCreate(handle) ;
+              Util_TableItQueryIsNonNull(ihandle) ;
+              Util_TableItAdvance(ihandle) )
+        {
+        CCTK_INT type_code, N_elements;
+        CCTK_INT value_int;
+        CCTK_REAL value_real;
+
+        Util_TableItQueryKeyValueInfo(ihandle,
+                                      N_key_buffer, key_buffer,
+                                      &type_code, &N_elements);
+        printf("key = \"%s\"\n", key_buffer);
+
+        switch  (type_code)
+                {
+        case CCTK_VARIABLE_INT:
+                Util_TableGetInt(handle, &value_int, key_buffer);
+                printf("value[int] = %d\n", (int)value_int);
+                break;
+        case CCTK_VARIABLE_REAL:
+                Util_TableGetReal(handle, &value_real, key_buffer);
+                printf("value[real] = %g\n", (double)value_real);
+                break;
+        default:
+                /* we don't know how to handle this type */
+                return type_code;
+                }
+        }
+
+Util_TableItDestroy(ihandle);
+free(key_buffer);
+return 0;
+}
+\end{verbatim}
+\end{Example}
+\end{FunctionDescription}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{FunctionDescription}{Util\_TableItQueryTableHandle}
+\label{Util-TableItQueryTableHandle}
+Query what table a table iterator iterates over
+
+\begin{Synopsis}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+int handle = Util_TableItQueryTableHandle(int ihandle);
+\end{verbatim}
+\end{Synopsis}
+
+\begin{Parameter}{ihandle ($\ge 0$)}
+handle to the iterator
+\end{Parameter}
+
+\begin{Result}{handle ($\ge 0$)}
+handle to the table over which the iterator iterates
+\end{Result}
+
+\begin{Discussion}
+Note that it is always ok to call this function, regardless of
+whether or not the iterator is in the ``null-pointer'' state.
+\NewPar
+It's also ok to call this function even when the iterator has been
+invalidated by a change in the table's contents.
+\end{Discussion}
+
+\begin{SeeAlso}{Util\_TableItCreate()}
+create an iterator (which iterates over a specified table)
+\end{SeeAlso}
+
+\begin{Error}{UTIL\_ERROR\_BAD\_HANDLE}
+iterator handle is invalid
+\end{Error}
+\end{FunctionDescription}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{FunctionDescription}{Util\_TableItResetToStart}
+\label{Util-TableItResetToStart}
+Reset a table iterator to point to the starting table entry
+
+\begin{Synopsis}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+int status = Util_TableItResetToStart(int ihandle);
+\end{verbatim}
+\end{Synopsis}
+
+\begin{ResultNote}
+Results are the same as calling \verb|Util_TableItQueryIsNonNull()|
+on the iterator after the reset:
+\end{ResultNote}
+\begin{Result}{\rm 1}
+iterator is {\em not\/} in the ``null-pointer'' state,
+\ie{} iterator points to some table entry
+\end{Result}
+\begin{Result}{\rm 0}
+iterator is in the ``null-pointer'' state
+(this happens if and only if the table is empty)
+\end{Result}
+
+\begin{Parameter}{ihandle ($\ge 0$)}
+handle to the iterator
+\end{Parameter}
+
+\begin{Discussion}
+Note that it is always ok to call this function, regardless of
+whether or not the iterator is in the ``null-pointer'' state.
+\NewPar
+It's also ok to call this function even when the iterator has been
+invalidated by a change in the table's contents.
+\end{Discussion}
+
+\begin{SeeAlso}{Util\_TableItSetToNull()}
+set an iterator to the ``null-pointer'' state
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableItSetToKey()}
+set an iterator to point to a specified table entry
+\end{SeeAlso}
+
+\begin{Error}{UTIL\_ERROR\_BAD\_HANDLE}
+iterator handle is invalid
+\end{Error}
+\end{FunctionDescription}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{FunctionDescription}{Util\_TableItSetToKey}
+\label{Util-TableItSetToKey}
+set a table iterator to point to a specified table entry
+
+\begin{Synopsis}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+int status = Util_TableItSetToKey(int ihandle, const char *key);
+\end{verbatim}
+\end{Synopsis}
+
+\begin{Result}{\rm 0}
+ok
+\end{Result}
+
+\begin{Parameter}{ihandle ($\ge 0$)}
+handle to the iterator
+\end{Parameter}
+
+\begin{Discussion}
+This function has the same effect as calling \verb|Util_TableItResetToStart()|
+followed by calling \verb|Util_TableItAdvance()| zero or more times
+to make the iterator point to the desired table entry.  However, this
+function will typically be more efficient than that sequence.
+\NewPar
+Note that it is always ok to call this function, regardless of
+whether or not the iterator is in the ``null-pointer'' state.
+\NewPar
+It's also ok to call this function even when the iterator has been
+invalidated by a change in the table's contents.
+\end{Discussion}
+
+\begin{SeeAlso}{Util\_TableItResetToStart()}
+reset an iterator to point to the starting table entry
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableItSetToNull()}
+set a table iterator to the "null-pointer" state
+\end{SeeAlso}
+
+\begin{Error}{UTIL\_ERROR\_BAD\_HANDLE}
+iterator handle is invalid
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_TABLE\_BAD\_KEY}
+key contains '/' character
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_TABLE\_NO\_SUCH\_KEY}
+no such key in table
+\end{Error}
+\end{FunctionDescription}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{FunctionDescription}{Util\_TableItSetToNull}
+\label{Util-TableItSetToNull}
+set a table iterator to the "null-pointer" state
+
+\begin{Synopsis}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+int handle = Util_TableItSetToNull(int ihandle);
+\end{verbatim}
+\end{Synopsis}
+
+\begin{Result}{\rm 0}
+ok
+\end{Result}
+
+\begin{Parameter}{ihandle ($\ge 0$)}
+handle to the iterator
+\end{Parameter}
+
+\begin{Discussion}
+Note that it is always ok to call this function, regardless of
+whether or not the iterator is already in the ``null-pointer'' state.
+\NewPar
+It's also ok to call this function even when the iterator has been
+invalidated by a change in the table's contents.
+\end{Discussion}
+
+\begin{SeeAlso}{Util\_TableItResetToStart()}
+reset an iterator to point to the starting table entry
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableItSetToKey()}
+set an iterator to point to a specified table entry
+\end{SeeAlso}
+
+\begin{Error}{UTIL\_ERROR\_BAD\_HANDLE}
+iterator handle is invalid
+\end{Error}
+\end{FunctionDescription}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{FunctionDescription}{Util\_TableQueryFlags}
+Queries a table's flags word
+\label{Util-TableQueryFlags}
+
+\begin{Synopsis}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+int flags = Util_TableQueryFlags(int handle);
+\end{verbatim}
+\end{Synopsis}
+
+\begin{Result}{flags ($\ge 0$)}
+the flags word
+\end{Result}
+
+\begin{Parameter}{handle ($\ge 0$)}
+handle to the table
+\end{Parameter}
+
+\begin{Discussion}
+\end{Discussion}
+
+\begin{SeeAlso}{Util\_TableCreate()}
+create a table (flags word specified explicitly)
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableCreateFromString()}
+convenience routine to create a table (with certain default flags)
+and set key/value entries in it based on a parameter-file--like
+character string
+\end{SeeAlso}
+
+\begin{Error}{UTIL\_ERROR\_BAD\_HANDLE}
+handle is invalid
+\end{Error}
+
+\begin{Example}{C}
+\begin{verbatim}
+#include <string.h>
+#include "util_ErrorCodes.h"
+#include "util_String.h"
+#include "util_Table.h"
+
+/* compare two strings, doing the comparison with the same */
+/* case-sensitive/insensitive semantics as a certain table uses */
+int compare_strings(int handle, const char *str1, const char *str2)
+{
+int flags = Util_TableQueryFlags(int handle);
+return (flags & UTIL_TABLE_FLAGS_CASE_INSENSITIVE)
+       ? Util_StrCmpi(str1, str2)
+       :      strcmp (str1, str2);
+}
+\end{verbatim}
+\end{Example}
+\end{FunctionDescription}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{FunctionDescription}{Util\_TableQueryValueInfo}
+\label{Util-TableQueryValueInfo}
+Queries whether or not a specified key is in the table, and optionally
+the type and/or number of elements of the value corresponding to this key
+
+\begin{Synopsis}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+int key_exists =
+ Util_TableQueryValueInfo(int handle,
+                          CCTK_INT *type_code, CCTK_INT *N_elements,
+                          const char *key);
+\end{verbatim}
+\end{Synopsis}
+
+\begin{Result}{\rm 1}
+ok (key is in table)
+\end{Result}
+\begin{Result}{\rm 0}
+ok (no such key in table)\\
+(in this case nothing is stored in \verb|*type_code| and \verb|*N_elements|)
+\end{Result}
+
+\begin{Parameter}{handle ($\ge 0$)}
+handle to the table
+\end{Parameter}
+\begin{Parameter}{type\_code}
+a pointer to where this function should store the value's type code
+(one of the \verb|CCTK_VARIABLE_|* constants from \verb|"cctk_Types.h"|),
+or a NULL pointer to skip storing this.
+\end{Parameter}
+\begin{Parameter}{N\_elements}
+a pointer to where this function should store
+the number of array elements in the value,
+or a NULL pointer to skip storing this.
+\end{Parameter}
+\begin{Parameter}{key}
+a pointer to the key (a C-style null-terminated string)
+\end{Parameter}
+
+\begin{Discussion}
+Unlike all the other table query functions, this function returns
+0 for ``no such key in table''.  The rationale for this design is that
+by passing NULL pointers for \verb|type_code| and \verb|N_elements|, this
+function is then a Boolean ``is key in table?'' predicate.
+\end{Discussion}
+
+\begin{SeeAlso}{Util\_TableItQueryKeyValueInfo()}
+perform a similar query using an iterator instead of the key
+\end{SeeAlso}
+
+\begin{Error}{UTIL\_ERROR\_BAD\_HANDLE}
+handle is invalid
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_TABLE\_BAD\_KEY}
+key contains '/' character
+\end{Error}
+
+\begin{Example}{C}
+\begin{verbatim}
+#include <stdio.h>
+#include <assert.h>
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+
+static const int data[] = {314, 159, 265};
+#define N_DATA  (sizeof(data) / sizeof(data[0]))
+
+CCTK_INT type_code, N_elements;
+
+/* see whether or not "key" is in table */
+if (Util_TableQueryValueInfo(handle, NULL, NULL, "key"))
+        {
+        /* key is in the table */
+        }
+   else {
+        /* key is not in the table */
+        }
+
+/* put "data" in table as 3-element integer array */
+Util_TableSetIntArray(handle, N_DATA, data, "data");
+
+/* query info about "data" value */
+assert( Util_TableQueryValueInfo(handle,
+                                 &type_code, &N_elements,
+                                 "data") == 1 );
+assert( type_code == CCTK_VARIABLE_INT );
+assert( N_elements == N_DATA );
+\end{verbatim}
+\end{Example}
+\end{FunctionDescription}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{FunctionDescription}{Util\_TableQueryMaxKeyLength}
+\label{Util-TableQueryMaxKeyLength}
+Queries the maximum key length in a table
+
+\begin{Synopsis}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+int max_key_length = Util_TableQueryMaxKeyLength(int handle);
+\end{verbatim}
+\end{Synopsis}
+
+\begin{Result}{max\_key\_length ($\ge 0$)}
+\quad\quad\quad
+The string length of the longest key in the table
+(this has C {\t strlen()} semantics, \ie{} it does not
+include a terminating null character)
+\end{Result}
+
+\begin{Parameter}{handle ($\ge 0$)}
+handle to the table
+\end{Parameter}
+
+\begin{Discussion}
+This function is useful if you're going to iterate through a table,
+and you want to allocate a buffer which is guaranteed to be big enough
+to hold any key in the table.
+\end{Discussion}
+
+\begin{Error}{UTIL\_ERROR\_BAD\_HANDLE}
+handle is invalid
+\end{Error}
+
+\begin{Example}{C}
+\begin{verbatim}
+#include <stdlib.h>
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+#include "cctk.h"
+
+int max_key_length = Util_TableQueryMaxKeyLength(handle);
+int N_buffer = max_key_length + 1;
+char *const buffer = (char *) malloc(N_buffer);
+if (buffer == NULL)
+        {
+        CCTK_WARN(-1, "couldn't allocate memory for table key buffer!");
+        abort();        /* CCTK_Abort() would be better */
+                        /* if we have a cGH* available */
+        }
+
+/* now buffer is guaranteed to be */
+/* big enough for any key in the table */
+\end{verbatim}
+\end{Example}
+\end{FunctionDescription}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{FunctionDescription}{Util\_TableQueryNKeys}
+\label{Util-TableQueryNKeys}
+Queries the number of key/value entries in a table
+
+\begin{Synopsis}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+int N_Keys = Util_TableQueryNKeys(int handle);
+\end{verbatim}
+\end{Synopsis}
+
+\begin{Result}{N\_Keys ($\ge 0$)}
+the number of key/value entries in the table
+\end{Result}
+
+\begin{Parameter}{handle ($\ge 0$)}
+handle to the table
+\end{Parameter}
+
+\begin{Discussion}
+\end{Discussion}
+
+\begin{Error}{UTIL\_ERROR\_BAD\_HANDLE}
+handle is invalid
+\end{Error}
+\end{FunctionDescription}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{FunctionDescription}{Util\_TableSet*}
+\label{Util-TableSet*}
+This is a family of functions, one for each Cactus data type,
+to set the value associated with a specified key to be a specified
+single (1-element array) value
+
+\begin{Synopsis}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+int status = Util_TableSetXxx(int handle,
+                              CCTK_XXX value,
+                              const char *key);
+\end{verbatim}
+where \verb|XXX| is one of
+   \verb|POINTER|, \verb|FN_POINTER|,
+   \verb|CHAR|,
+   \verb|INT|, \verb|INT2|, \verb|INT4|, \verb|INT8|,
+   \verb|REAL|, \verb|REAL4|, \verb|REAL8|, \verb|REAL16|,
+   \verb|COMPLEX|, \verb|COMPLEX8|, \verb|COMPLEX16|, \verb|COMPLEX32|
+(not all of these may be supported on any given system)
+\end{Synopsis}
+
+\begin{Result}{\rm 1}
+ok (key was already in table before this call, old value was replaced)\\
+   (it doesn't matter what the old value's \verb|type_code| and
+    \verb|N_elements| were, \ie{} these do {\em not\/} have to match
+    the new value)
+\end{Result}
+\begin{Result}{\rm 0}
+ok (key was not in table before this call)
+\end{Result}
+
+\begin{Parameter}{handle ($\ge 0$)}
+handle to the table
+\end{Parameter}
+\begin{Parameter}{value}
+the value to be associated with the key
+\end{Parameter}
+\begin{Parameter}{key}
+a pointer to the key (a C-style null-terminated string)
+\end{Parameter}
+
+\begin{Discussion}
+The value is stored as a 1-element array.
+\NewPar
+This function invalidates any iterators for the table which are
+not in the ``null-pointer'' state.
+\end{Discussion}
+
+\begin{SeeAlso}{Util\_TableCreateFromString()}
+convenience routine to create a table and set key/value entries
+in it based on a parameter-file--like character string
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableGet*()}
+get a single (1-element array) value,
+or more generally the first array element of an array value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableGet*Array()}
+get an array value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableGet*String()}
+get a character-string value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSet*Array()}
+set an array value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSetFromString()}
+convenience routine to set key/value entries in a table based on a
+parameter-file--like character string
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSetString()}
+set a character-string value
+\end{SeeAlso}
+
+\begin{Error}{UTIL\_ERROR\_BAD\_HANDLE}
+handle is invalid
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_TABLE\_BAD\_KEY}
+key contains '/' character
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_NO\_MEMORY}
+unable to allocate memory
+\end{Error}
+
+\begin{Example}{C}
+\begin{verbatim}
+#include <math.h>
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+
+CCTK_COMPLEX16 z;
+int handle = Util_TableCreate(UTIL_TABLE_FLAGS_DEFAULT);
+
+Util_TableSetInt(handle, 42, "the answer");
+Util_TableSetReal(handle, 299792458.0, "speed of light");
+
+z.Re = cos(0.37);       z.Im = sin(0.37);
+Util_TableSetComplex16(handle, z, "my complex number");
+\end{verbatim}
+\end{Example}
+\end{FunctionDescription}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{FunctionDescription}{Util\_TableSet*Array}
+\label{Util-TableSet*Array}
+This is a family of functions, one for each Cactus data type,
+to set the value associated with a specified key to be a copy
+of a specified array
+
+\begin{Synopsis}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+int status = Util_TableSetXxxArray(int handle,
+                                   int N_elements,
+                                   const CCTK_XXX array[],
+                                   const char *key);
+\end{verbatim}
+where \verb|XXX| is one of
+   \verb|POINTER|, \verb|FN_POINTER|,
+   \verb|CHAR|,
+   \verb|INT|, \verb|INT2|, \verb|INT4|, \verb|INT8|,
+   \verb|REAL|, \verb|REAL4|, \verb|REAL8|, \verb|REAL16|,
+   \verb|COMPLEX|, \verb|COMPLEX8|, \verb|COMPLEX16|, \verb|COMPLEX32|
+(not all of these may be supported on any given system)
+\end{Synopsis}
+
+\begin{Result}{\rm 1}
+ok (key was already in table before this call, old value was replaced)\\
+   (it doesn't matter what the old value's \verb|type_code| and
+    \verb|N_elements| were, \ie{} these do {\em not\/} have to match
+    the new value)
+\end{Result}
+\begin{Result}{\rm 0}
+ok (key was not in table before this call)
+\end{Result}
+
+\begin{Parameter}{handle ($\ge 0$)}
+handle to the table
+\end{Parameter}
+\begin{Parameter}{N\_elements ($\ge 0$)}
+the number of array elements in \verb|array[]|
+\end{Parameter}
+\begin{Parameter}{array}
+a pointer to the array (a copy of which) is to be associated with the key
+\end{Parameter}
+\begin{Parameter}{key}
+a pointer to the key (a C-style null-terminated string)
+\end{Parameter}
+
+\begin{Discussion}
+Note that empty (0-element) arrays are ok.
+\NewPar
+This function invalidates any iterators for the table which are
+not in the ``null-pointer'' state.
+\end{Discussion}
+
+\begin{SeeAlso}{Util\_TableCreateFromString()}
+convenience routine to create a table and set key/value entries
+in it based on a parameter-file--like character string
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableGet*()}
+get a single (1-element array) value,
+or more generally the first array element of an array value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableGet*Array()}
+get an array value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableGet*String()}
+get a character-string value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSet*()}
+set a single (1-element array) value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSetFromString()}
+convenience routine to set key/value entries in a table based on a
+parameter-file--like character string
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSetString()}
+set a character-string value
+\end{SeeAlso}
+
+\begin{Error}{UTIL\_ERROR\_BAD\_HANDLE}
+handle is invalid
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_TABLE\_BAD\_KEY}
+key contains '/' character
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_BAD\_INPUT}
+\verb|N_elements| $< 0$
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_NO\_MEMORY}
+unable to allocate memory
+\end{Error}
+
+\begin{Example}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+
+#define N_DIGITS        5
+static const CCTK_INT pi_digits[N_DIGITS] = {3, 14, 159, 2653, 58979};
+int handle = Util_TableCreate(UTIL_TABLE_FLAGS_DEFAULT);
+
+Util_TableSetIntArray(handle, N_DIGITS, pi_digits, "digits of pi");
+\end{verbatim}
+\end{Example}
+\end{FunctionDescription}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{FunctionDescription}{Util\_TableSetFromString}
+\label{Util-TableSetFromString}
+Sets values in a table based on a string argument, which is interpreted
+with ``parameter-file'' semantics
+
+\begin{Synopsis}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+int count = Util_TableSetFromString(int handle, const char *string);
+\end{verbatim}
+\end{Synopsis}
+
+\begin{Result}{count ($\ge 0$)}
+the number of key/value entries set
+\end{Result}
+
+\begin{Parameter}{string}
+a pointer to a C-style null-terminated string specifying the table
+entries to be set (see below for details on the string contents)
+\end{Parameter}
+
+\begin{Discussion}
+The string should contain a sequence of zero or more \verb|key=value|
+``assignments'', separated by whitespace.  This function processes
+these assignments in left-to-right order, setting corresponding key/value
+entries in the table.\\
+
+The present implementation only recognises integer or real values
+(not pointer, complex, character, or string), and only scalars
+(not arrays).  To be precise, the string must match the following BNF:\\
+\quad
+\begin{tabular}{l@{\quad$\rightarrow$\quad}p{9cm}}
+string & assign*                                                        \\
+assign & whitespace* key = value ;? whitespace*                         \\
+value  & int\_value                                                     \\
+value  & real\_value                                                    \\
+int\_value & contains only characters \verb|+-0123456789|
+             and is recognized as valid by \verb|sscanf()| with a
+             \verb|"%d"| format                                          \\
+real\_value & contains one or more characters not in \verb|+-0123456789|
+              and is recognized as valid by \verb|sscanf()| with a
+              \verb|"%lf"| format                                        %%%\\
+\end{tabular}\\
+where\\[0ex]
+* denotes 0 or more repetitions, and\\
+? denotes optional items, i.e. 0 or 1 repetitions.\\
+
+Note that no whitespace may appear within a \verb|key=value| assignment.
+In particular, do {\em not\/} put whitespace around the ``\verb|=|''!
+\end{Discussion}
+
+\begin{SeeAlso}{Util\_TableCreateFromString()}
+convenience routine to create a table and set key/value entries
+in it based on a parameter-file--like character string
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableGet*()}
+get a single (1-element array) value,
+or more generally the first array element of an array value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableGet*Array()}
+get an array value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableGet*String()}
+get a character-string value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSet*()}
+set a single (1-element array) value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSet*Array()}
+set an array value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSetFromString()}
+convenience routine to set key/value entries in a table based on a
+parameter-file--like character string
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSetString()}
+set a character-string value
+\end{SeeAlso}
+
+\begin{Error}{UTIL\_ERROR\_NO\_MEMORY}
+unable to allocate memory
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_BAD\_INPUT}
+invalid input: can't parse input string
+\end{Error}
+\begin{Error}{\rm other error codes}
+this function may also return any error codes returned by
+\verb|Util_TableSetInt()| or \verb|Util_TableSetReal()|.
+\end{Error}
+
+\begin{Example}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+
+/* suppose we have a table referred to by  handle */
+
+/* then the call... */
+int count = Util_TableSetFromString(handle, "n=6 dx=4.0e-5 pi=3.1");
+/* ... will return count=3 ... */
+
+/* ... and is otherwise equivalent to the three calls ... */
+Util_TableSetInt(handle, 6, "n");
+Util_TableSetReal(handle, 4.0e-5, "dx");
+Util_TableSetReal(handle, 3.1, "pi");
+\end{verbatim}
+\end{Example}
+\end{FunctionDescription}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{FunctionDescription}{Util\_TableSetString}
+\label{Util-TableSetString}
+Sets the value associated with a specified key in a table, to be
+a copy of a specified C-style null-terminated character string
+
+\begin{Synopsis}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+int status = Util_TableSetString(int handle,
+                                 const char *string,
+                                 const char *key);
+\end{verbatim}
+\end{Synopsis}
+
+\begin{ResultNote}
+Results are the same as all the other \verb|Util_TableSet|* functions:
+\end{ResultNote}
+\begin{Result}{\rm 1}
+ok (key was already in table before this call, old value was replaced)\\
+   (it doesn't matter what the old value's \verb|type_code| and
+    \verb|N_elements| were, \ie{} these do {\em not\/} have to match
+    the new value)
+\end{Result}
+\begin{Result}{\rm 0}
+ok (key was not in table before this call)
+\end{Result}
+
+\begin{Parameter}{handle ($\ge 0$)}
+handle to the table
+\end{Parameter}
+\begin{Parameter}{string}
+a pointer to the string (a C-style null-terminated string)
+\end{Parameter}
+\begin{Parameter}{key}
+a pointer to the key (a C-style null-terminated string)
+\end{Parameter}
+
+\begin{Discussion}
+The string is stored as an array of \verb|strlen(string)|
+\verb|CCTK_CHAR|s.  It does {\em not\/} include a terminating
+null character.
+\NewPar
+This function is very similar to \verb|Util_TableSetCharArray()|.
+\NewPar
+This function invalidates any iterators for the table which are
+not in the ``null-pointer'' state.
+\end{Discussion}
+
+\begin{SeeAlso}{Util\_TableCreateFromString()}
+convenience routine to create a table and set key/value entries
+in it based on a parameter-file--like character string
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableGet*()}
+get a single (1-element array) value,
+or more generally the first array element of an array value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableGet*Array()}
+get an array value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableGet*String()}
+get a character-string value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSetCharArray()}
+get an array-of-\verb|CCTK_CHAR| value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSet*()}
+set a single (1-element array) value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSet*Array()}
+set an array value
+\end{SeeAlso}
+\begin{SeeAlso}{Util\_TableSetCharArray()}
+set an array-of-\verb|CCTK_CHAR| value
+\end{SeeAlso}
+
+\begin{Error}{UTIL\_ERROR\_BAD\_HANDLE}
+handle is invalid
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_TABLE\_BAD\_KEY}
+key contains '/' character
+\end{Error}
+\begin{Error}{UTIL\_ERROR\_NO\_MEMORY}
+unable to allocate memory
+\end{Error}
+
+\begin{Example}{C}
+\begin{verbatim}
+#include "util_ErrorCodes.h"
+#include "util_Table.h"
+
+static const CCTK_CHAR array[]
+        = {'r', 'e', 'l', 'a', 't', 'i', 'v', 'i', 't', 'y'};
+#define N_ARRAY (sizeof(array) / sizeof(array[0]))
+int handle = Util_TableCreate(UTIL_TABLE_FLAGS_DEFAULT);
+
+Util_TableSetString(handle, "relativity", "Einstein");
+
+/* this produces the same table entry as the Util_TableSetString() */
+Util_TableSetCharArray(handle, N_ARRAY, array, "Einstein");
+\end{verbatim}
+\end{Example}
+\end{FunctionDescription}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{cactuspart}

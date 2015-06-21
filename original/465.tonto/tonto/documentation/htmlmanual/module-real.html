@@ -1,0 +1,420 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>The REAL module</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Examples of simple TONTO programs"
+HREF="example-programs.html"><LINK
+REL="PREVIOUS"
+TITLE="The STRVEC module"
+HREF="module-strvec.html"><LINK
+REL="NEXT"
+TITLE="The REALVEC module"
+HREF="module-vec.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="module-strvec.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="module-vec.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="MODULE-REAL"
+></A
+>The <TT
+CLASS="LITERAL"
+>REAL</TT
+> module</H1
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>REAL</TT
+> module is concerned with double precision
+numbers. In this program we illustrate how functions which take and return a
+double precision number may be minimised.</P
+><P
+ALIGN="justify"
+>The actual functions to be minimised are provided in a separate module
+<TT
+CLASS="LITERAL"
+>TEST</TT
+>.  Note that the routines are all maked
+<TT
+CLASS="LITERAL"
+>[selfless]</TT
+> which means, unlike every other routine in
+TONTO, there is no <TT
+CLASS="LITERAL"
+>self</TT
+> variable automatically declared as
+the first variable.</P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="CODE-REAL"
+></A
+>Code</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>program run_real
+
+   use TYPES
+   use SYSTEM
+   use REAL
+   use TEXTFILE
+   use TEST
+
+#  include "macros"
+
+   implicit none
+  
+   REAL :: val,x,y
+   REAL :: a,b,c,fa,fb,fc,fx
+   INT :: i
+
+   tonto.initialize
+   stdout.create_stdout
+   stdout.open
+
+   stdout.text("10 random numbers:")
+   stdout.flush
+   do i=1,10
+     a.to_random_normal
+     stdout.put(a,flush=1)
+   end
+
+
+   stdout.flush
+   stdout.text("Find an initial bracket for the function (x-1)^2 + 1")
+   stdout.text("which contains its minimum value")
+   stdout.flush
+
+   a = 1.8
+   b = 1.5
+   c = 1.3
+   stdout.text("Initially")
+   stdout.show("a  =",a)
+   stdout.show("b  =",b)
+   stdout.show("c  =",c)
+   stdout.show("fa =",func(a))
+   stdout.show("fb =",func(b))
+   stdout.show("fc =",func(c))
+
+   func.find_initial_bracket(a,b,c,fa,fb,fc)
+
+   stdout.flush
+   stdout.text("Finally")
+   stdout.show("a  =",a)
+   stdout.show("b  =",b)
+   stdout.show("c  =",c)
+   stdout.show("fa =",fa)
+   stdout.show("fb =",fb)
+   stdout.show("fc =",fc)
+
+   stdout.flush
+   stdout.text("Now minimise the function ...")
+   stdout.flush
+
+   func.minimise_brent(a,b,c,x,fx,0.00001d0)
+
+   stdout.show("x_min  =",x)
+   stdout.show("f_min  =",fx)
+
+   stdout.flush
+   stdout.text("Now integrate it from 1-&#62;2:")
+   stdout.flush
+
+   val = func.integrate_adaptive_trapezoid(1.0d0,2.0d0,TOL(8))
+   stdout.show("Answer =",val)
+
+   stdout.flush
+   stdout.text("Integrate arcsin using adaptive trapezoid method")
+   stdout.text("from 0-&#62;1/2")
+   stdout.flush
+
+   val = arcsin.integrate_adaptive_trapezoid(0.0d0,0.5d0,TOL(8))
+   stdout.show("Answer =",val)
+
+   stdout.flush
+   stdout.text("Integrate arcsin using adaptive simpson method")
+   stdout.text("from 0-&#62;1/2")
+   stdout.flush
+
+   val = arcsin.integrate_adaptive_simpson(0.0d0,0.5d0,TOL(8))
+   stdout.show("Answer =",val)
+
+end </PRE
+></TD
+></TR
+></TABLE
+><P
+ALIGN="justify"
+>And here is the relevant part of the <TT
+CLASS="LITERAL"
+>TEST</TT
+>
+module:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>module TEST
+
+   use TYPES
+   use SYSTEM
+   use REALVEC
+   use REALMAT
+
+   implicit none
+
+#  include "macros"
+
+   public func
+   public arcsin
+
+contains
+
+   func(x) result (res) [selfless]
+   !  A test function for minimising
+      REAL :: x,res
+      res = (x-1)*(x-1) + 1
+   end
+
+   arcsin(x) result (res) [selfless]
+   ! Return the arcsin for x. Corrects bug for numbers close to 1.
+      REAL :: x,res
+      if (abs(abs(x)-ONE)&lt;TOL(5)) then
+         if (x&lt;0) then; res = -PI/TWO
+         else;             res = +PI/TWO
+         end
+      else
+         res = asin(x)
+      end
+   end
+
+end</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RESULTS-REAL"
+></A
+>Results</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>10 random numbers:
+
+         0.905442547
+        -0.350476891
+        -0.945527330
+        -1.354792694
+         0.992321475
+        -0.643725104
+         0.177373302
+        -1.877569698
+         0.126510113
+         0.281241703
+
+Find an initial bracket for the function (x-1)^2 + 1
+which contains its minimum value
+
+Initially
+a  =         1.800000000
+b  =         1.500000000
+c  =         1.300000000
+fa =         1.640000000
+fb =         1.250000000
+fc =         1.090000000
+
+Finally
+a  =         0.229179586
+b  =         1.014589798
+c  =         1.500000000
+fa =         1.594164111
+fb =         1.000212862
+fc =         1.250000000
+
+Now minimise the function ...
+
+x_min  =         1.000000000
+f_min  =         1.000000000
+
+Now integrate it from 1-&#62;2:
+
+Answer =         1.333333333
+
+Integrate arcsin using adaptive trapezoid method
+from 0-&gt;1/2
+
+Answer =         0.127824792
+
+Integrate arcsin using adaptive simpson method
+from 0-&gt;1/2
+
+Answer =         0.127824792</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="module-strvec.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="module-vec.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>The <TT
+CLASS="LITERAL"
+>STRVEC</TT
+> module</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="example-programs.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>The <TT
+CLASS="LITERAL"
+>REALVEC</TT
+> module</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,400 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>How foo works</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="The foo preprocessor"
+HREF="foo-chap.html"><LINK
+REL="PREVIOUS"
+TITLE="The foo preprocessor"
+HREF="foo-chap.html"><LINK
+REL="NEXT"
+TITLE="Rules for valid foo preprocessor code"
+HREF="foo-rules.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="foo-chap.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="foo-rules.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="HOW-FOO-WORKS"
+></A
+>How <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> works</H1
+><P
+ALIGN="justify"
+>Currently, <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> is implemented as a <SPAN
+CLASS="ACRONYM"
+>UNIX</SPAN
+>
+<TT
+CLASS="LITERAL"
+>csh</TT
+> script, which makes use of the <TT
+CLASS="LITERAL"
+>perl</TT
+>
+text processing language which comes standard with
+<SPAN
+CLASS="ACRONYM"
+>UNIX</SPAN
+><A
+NAME="AEN6795"
+HREF="#FTN.AEN6795"
+>[1]</A
+>.  You
+will rarely, if ever, need to use <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> on its own. </P
+><P
+ALIGN="justify"
+>If you write a new module, you will place the module file with a
+<TT
+CLASS="LITERAL"
+>.foo</TT
+> extension in the <TT
+CLASS="LITERAL"
+>foofiles</TT
+> directory.
+After modifying the <TT
+CLASS="LITERAL"
+>Makefile</TT
+> to place your module in the
+correct hierarchical position, you just type <TT
+CLASS="LITERAL"
+>make</TT
+>.</P
+><P
+ALIGN="justify"
+>You can, if you wish, apply the <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> preprocessor separately.</P
+><P
+ALIGN="justify"
+>When the <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> command is applied to a file <TT
+CLASS="LITERAL"
+>x.foo</TT
+> with
+the <TT
+CLASS="LITERAL"
+>.foo</TT
+>  extension, the <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> code in this file is changed
+into Fortran95 code which includes some C-preprocessor macros, and this code is
+written to a specified file. In addition, another file is generated which
+contains the Fortran95 generic interfaces which are required if you want to
+program using TONTO.</P
+><P
+ALIGN="justify"
+>In order to work, the <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> command uses two files:
+<TT
+CLASS="LITERAL"
+>foo.perl</TT
+> and <TT
+CLASS="LITERAL"
+>types.foo</TT
+>.  The file
+<TT
+CLASS="LITERAL"
+>foo.perl</TT
+> contains instructions that the
+<TT
+CLASS="LITERAL"
+>perl</TT
+> language needs to change <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> code into Fortran95. The
+<TT
+CLASS="LITERAL"
+>types.foo</TT
+> file contains type information which is relevant to
+the TONTO system. </P
+><DIV
+CLASS="INFORMALEXAMPLE"
+><A
+NAME="AEN6819"
+></A
+><P
+></P
+><P
+ALIGN="justify"
+>The TONTO file gaussian.foo contains code which describes gaussian
+functions which are commonly used in quantum chemistry.  To use the <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+>
+preprocessor on the file <TT
+CLASS="LITERAL"
+>gaussian.foo</TT
+>, and to see what the
+emitted Fortran95 code looks like, type:
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>perl -w scripts/foo.perl foofiles/gaussian.foo gaussian.f90 gaussian.int</PRE
+></TD
+></TR
+></TABLE
+>
+The file <TT
+CLASS="LITERAL"
+>foofiles/gaussian.foo</TT
+> is the inputted <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> code.
+The script <TT
+CLASS="LITERAL"
+>foo.perl</TT
+> assumes that the
+<TT
+CLASS="LITERAL"
+>types.foo</TT
+> file resides in the <TT
+CLASS="LITERAL"
+>foofiles</TT
+>
+directory.  <TT
+CLASS="LITERAL"
+>gaussian.f90</TT
+> contains the emitted Fortran95 code.
+The file <TT
+CLASS="LITERAL"
+>gaussian.int</TT
+> contains a list of the generic
+interfaces for this module. You can use your editor to examine these outputted
+files. </P
+><P
+></P
+></DIV
+></DIV
+><H3
+CLASS="FOOTNOTES"
+>Notes</H3
+><TABLE
+BORDER="0"
+CLASS="FOOTNOTES"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.AEN6795"
+HREF="how-foo-works.html#AEN6795"
+>[1]</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+ALIGN="justify"
+>However, there is no guarantee that
+future versions of <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> will be implemented in this way</P
+></TD
+></TR
+></TABLE
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="foo-chap.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="foo-rules.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>The <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> preprocessor</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="foo-chap.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Rules for valid <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> preprocessor code</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

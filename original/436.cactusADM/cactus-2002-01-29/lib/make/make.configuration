@@ -1,0 +1,256 @@
+#/*@@
+#  @file      make.configuration
+#  @date      Sun Jan 17 22:15:23 1999
+#  @author    Tom Goodale
+#  @desc
+#  Makes the CCTK executable for a particular configuration
+#  @enddesc
+#  @version $Id: make.configuration,v 1.61 2002/01/03 22:41:57 tradke Exp $
+# @@*/
+
+# Silence all but designated output
+#.SILENT:
+
+# Some configuration variables
+CONFIG = $(TOP)/config-data
+BINDINGS_DIR = $(TOP)/bindings
+FLESH_DIR = $(CCTK_HOME)/src
+
+# Scratch build area - need this to make sure F90 module files end up all
+# in one directory.
+export SCRATCH_BUILD=$(TOP)/scratch
+
+DATESTAMP = $(CCTK_HOME)/src/datestamp.c
+
+export MAKE_DIR  = $(CCTK_HOME)/lib/make
+
+FLESHLIB = Cactus
+BINDINGSLIB= CactusBindings
+
+CACTUSLIBS = $(FLESHLIB) $(BINDINGSLIB)
+
+# Dividers to make the screen output slightly nicer
+DIVEL   =  __________________
+DIVIDER =  $(DIVEL)$(DIVEL)$(DIVEL)$(DIVEL)
+
+# Include the definitions for this configuration
+include $(CONFIG)/make.config.defn
+
+# Put this in temporarily to make sure that people with existing
+# configurations aren't disturbed
+
+ifeq ($(strip $(LIBNAME_PREFIX)),)
+ifeq ($(strip $(LIBNAME_SUFFIX)),)
+LIBNAME_PREFIX = lib#
+LIBNAME_SUFFIX = .a
+endif
+endif
+
+# Include the list of thorns to be built
+# (Use -include to prevent warnings messages, as the file will be built if
+# it is missing .)
+# We don't want to include this file if doing something like a make clean
+# as, if the file didn't exist, it would first be made, which would be
+# pretty confusing during a make clean !
+
+ifeq ($(strip $(MAKECMDGOALS)),)
+-include $(CONFIG)/make.thornlist
+endif
+
+ifeq ($(strip $(MAKECMDGOALS)), utils)
+-include $(CONFIG)/make.thornlist
+endif
+
+ifeq ($(strip $(MAKECMDGOALS)), build)
+-include $(CONFIG)/make.thornlist
+endif
+
+# Allow each thorn to include some global definitions
+ifneq ($(strip $(THORNS)),)
+-include $(THORNS:%=$(PACKAGE_DIR)/%/src/make.configuration.defn)
+endif
+
+ifeq ($(strip $(UTILS)),)
+override UTILS = $(ALL_UTILS)
+endif
+
+UTIL_DIR=$(EXEDIR)$(DIRSEP)$(CONFIG_NAME)
+
+# REMOVE IN BETA 12
+ifeq ($(strip $(THORN_LINKLIST)),)
+THORN_LINKLIST = $(THORNS) $(THORNS)
+endif
+
+# Build the list of all libraries
+ALLCACTUSLIBS = $(notdir $(CACTUSLIBS) $(THORN_LINKLIST) $(CACTUSLIBS))
+
+
+# Use a phony main target to make sure we print a nice ending message 8-)
+.PHONY: main
+
+main: $(EXEDIR)$(DIRSEP)$(EXE)
+	@echo All done !
+	@echo $(DIVIDER)
+
+# Build the executable
+
+$(EXEDIR)$(DIRSEP)$(EXE): $(CONFIG)/make.thornlist $(CONFIG)/cctki_version.h $(patsubst %,$(CCTK_LIBDIR)/$(LIBNAME_PREFIX)%$(LIBNAME_SUFFIX),$(notdir $(THORNS) $(CACTUSLIBS)))
+	@echo $(DIVIDER)
+	@echo Creating $(EXE) in $(EXEDIR) from $(THORNS)
+	$(CC) $(OPTIMISE_C) $(DEBUG_C) $(CFLAGS) $(CCOMPILEONLY)$(OPTIONSEP)$(TOP)$(DIRSEP)datestamp.o -I$(subst /,$(DIRSEP),$(CCTK_HOME)/src/include) -I$(CONFIG) $(subst /,$(DIRSEP),$(DATESTAMP))
+	if [ ! -d $(EXEDIR) ]; then $(MKDIR) $(MKDIRFLAGS) $(EXEDIR) ; fi
+	$(LD) $(CREATEEXE)$(OPTIONSEP)$(subst /,$(DIRSEP),$@) $(DEBUG_LD) $(LDFLAGS) $(EXTRAFLAGS) $(subst /,$(DIRSEP), $(TOP)/datestamp.o) $(CACTUSLIBLINKLINE) $(GENERAL_LIBRARIES)
+	@echo $(DIVIDER)
+
+# Version file
+$(CONFIG)/cctki_version.h: $(CCTK_HOME)/Makefile
+	echo "#ifndef _CCTKI_VERSION_H_" > $@
+	echo "#define _CCTKI_VERSION_H_" >> $@
+	echo "#define CCTK_VERSION_MAJOR $(CCTK_VERSION_MAJOR)" >> $@
+	echo "#define CCTK_VERSION_MINOR $(CCTK_VERSION_MINOR)" >> $@
+	echo "#define CCTK_VERSION_OTHER $(CCTK_VERSION_OTHER)" >> $@
+	echo "#define CCTK_VERSION       $(CCTK_VERSION)" >> $@
+	echo "#endif /* _CCTKI_VERSION_H_*/" >> $@
+
+# Build a thorn library
+# Libraries go into the appropriate library directory
+# Each thorn's object files go into $(BUILD_DIR)/<thorn>
+# This makes sure the appropriate build directories exist
+# Also checks for the existance of Makefile in the thorn's
+# src directory, and calls that rather than the default makefile
+# used for making thorn libraries.
+#
+# Checks if the library is Cactus, in which case it uses the main source
+# directory.
+
+$(CCTK_LIBDIR)/$(LIBNAME_PREFIX)%$(LIBNAME_SUFFIX): update
+	@echo $(DIVIDER)
+	@echo Checking status of $(notdir $@)
+    # protect the following mkdir against parallel makes
+	if [ ! -d $(SCRATCH_BUILD) ]; then msg=`$(MKDIR) $(MKDIRFLAGS) $(SCRATCH_BUILD) 2>&1`; if [ -d $(SCRATCH_BUILD) ]; then exit 0; else echo "$$msg"; exit 1; fi; fi
+	if [ ! -d $(BUILD_DIR) ]; then msg=`$(MKDIR) $(MKDIRFLAGS) $(BUILD_DIR) 2>&1`; if [ -d $(BUILD_DIR) ]; then exit 0; else echo "$$msg"; exit 1; fi; fi
+	thorn_name=$(@:$(CCTK_LIBDIR)/$(LIBNAME_PREFIX)%$(LIBNAME_SUFFIX)=%); \
+	if [ "$$thorn_name" = "Cactus" ] ; then src_dir=$(CCTK_HOME)/src ; \
+	else if [ "$$thorn_name" = "CactusBindings" ] ; then src_dir=$(BINDINGS_DIR) ; \
+	else src_dir=$(PACKAGE_DIR)/$(@:$(CCTK_LIBDIR)/$(LIBNAME_PREFIX)%$(LIBNAME_SUFFIX)=$(filter %/$(@:$(CCTK_LIBDIR)/$(LIBNAME_PREFIX)%$(LIBNAME_SUFFIX)=%), $(THORNS)))/src ; fi ; fi ;\
+	if [ ! -d $(BUILD_DIR)/$$thorn_name ]; then $(MKDIR) $(MKDIRFLAGS) $(BUILD_DIR)/$$thorn_name ; fi ; \
+	cd $(BUILD_DIR)/$$thorn_name ; \
+	if [ -r "$$src_dir/Makefile" ] ; then  make_file=$$src_dir/Makefile ; \
+	                  else make_file=$(MAKE_DIR)/make.thornlib ; fi ; \
+	$(MAKE) TOP=$(TOP) SRCDIR=$$src_dir CONFIG=$(CONFIG) NAME=$@ THORN=$$thorn_name -f $$make_file $(FPARFLAGS)
+	@echo $(DIVIDER)
+
+
+# Include any extra dependencies
+
+include $(CONFIG)/make.config.deps
+
+# Rule to build the make.thornlist file from the ThornList file
+
+$(CONFIG)/make.thornlist: $(TOP)/ThornList $(foreach lib, $(CCTK_HOME)/src $(THORNS:%=$(PACKAGE_DIR)/%), $(lib)/param.ccl $(lib)/interface.ccl $(lib)/schedule.ccl) $(CONFIG_THORNS:%=$(PACKAGE_DIR)/%/configuration.ccl)
+	if [ -r $@ ] ; then echo Reconfiguring thorns ; rm $@ ;\
+	else echo Processing CCL files ; fi
+	$(PERL) -s $(CST) -config_dir=$(CONFIG) -cctk_home=$(CCTK_HOME) -top=$(TOP) $<
+
+# Rule to build ThornList
+
+$(TOP)/ThornList:
+	@echo Creating compiled ThornList containing all thorns in the arrangements directory
+	$(PERL) -s $(BUILD_ACTIVETHORNS) $(CCTK_HOME)/arrangements > $@
+	if test "x$(PROMPT)" = "xyes" ; then \
+	action="yes"; if [ "x$$EDITOR" = "x" ] ; then EDITOR=vi ; fi; \
+	while [ "x$$action" = "xyes" -o "x$$action" = "xy" -o "x$$action" = "xYES" -o "x$$action" = "xY" ] ; \
+	do \
+	echo The thorn list is ; \
+	echo $(DIVIDER) ; \
+	cat $@ ; \
+	echo $(DIVIDER) ; \
+	echo Edit this list \(no\) \? ; \
+	read action rest ; \
+	if [ "x$$action" = "xyes" -o "x$$action" = "xy" -o "x$$action" = "xYES" -o "x$$action" = "xY" ] ; \
+	then $$EDITOR $@ ; fi ; \
+	done; \
+	fi
+	@echo $(DIVIDER)
+
+# Allow each thorn to include some global dependencies
+ifneq ($(strip $(THORNS)),)
+-include $(THORNS:%=$(PACKAGE_DIR)/%/src/make.configuration.deps)
+endif
+
+# Catch the special case of a thorn being removed from the disk entirely.
+$(foreach lib, $(CCTK_HOME)/src $(THORNS:%=$(PACKAGE_DIR)/%), $(lib)/param.ccl $(lib)/interface.ccl $(lib)/schedule.ccl) $(CONFIG_THORNS:%=$(PACKAGE_DIR)/%/configuration.ccl):
+	@echo "Missing file $@"
+	@echo "Possibly from a thorn deleted from an arrangement"
+	@echo "Deleting make.thornlist"
+	rm  $(CONFIG)/make.thornlist
+	@echo "Please try building again"
+	exit 1
+
+
+# Phony targets.
+
+.PHONY:update editthorns clean cleandeps cleanobjs realclean build
+
+# This phony target forces an update.
+update:
+
+editthorns:
+	if test ! -r $(TOP)/ThornList ; then \
+	echo "Creating compiled ThornList containing all thorns in the arrangements directory" \
+	$(PERL) -s $(BUILD_ACTIVETHORNS) $(CCTK_HOME)/arrangements > $@ ; fi
+	action="yes"; if [ "x$$EDITOR" = "x" ] ; then EDITOR=vi ; fi; \
+	while [ "x$$action" = "xyes" -o "x$$action" = "xy" -o "x$$action" = "xYES" -o "x$$action" = "xY" ] ; \
+	do \
+	echo The thorn list is ; \
+	echo $(DIVIDER) ; \
+	cat $(TOP)/ThornList ; \
+	echo $(DIVIDER) ; \
+	echo Edit this list \(no\) \? ; \
+	read action rest ; \
+	if [ "x$$action" = "xyes" -o "x$$action" = "xy" -o "x$$action" = "xYES" -o "x$$action" = "xY" ] ; \
+	then $$EDITOR $(TOP)/ThornList ; fi ; \
+	done
+	@echo $(DIVIDER)
+
+clean:
+	@echo Deleting all object and dependency files in $(TOP)
+	find $(TOP) \( -name '*.[od]' -o -name '*.a' \) -exec rm {} \;
+	rm -rf $(TOP)/scratch/*
+
+cleandeps:
+	@echo Deleting all dependency files in $(TOP)
+	find $(TOP) \( -name '*.[d]' -o -name '*.a' \) -exec rm {} \;
+
+cleanobjs:
+	@echo Deleting all object files in $(TOP)
+	find $(TOP) \( -name '*.[o]' -o -name '*.a' \) -exec rm {} \;
+	rm -rf $(TOP)/scratch/*
+
+realclean:
+	@echo Deleting all built files in $(TOP)
+	rm -rf $(TOP)/build
+	rm -rf $(TOP)/bindings
+	rm -rf $(TOP)/config-data/make.thornlist
+	rm -rf $(TOP)/lib/*
+	rm -rf $(TOP)/scratch/*
+	rm -f datestamp.o
+
+# This target will build only a subset of the thorns for a given configuration.
+# It also warns about thorns which don't exist.
+THORN_BUILDLIST = $(filter $(ALLCACTUSLIBS), $(BUILDLIST))
+UNKNOWN_THORNS = $(filter-out $(ALLCACTUSLIBS), $(BUILDLIST))
+
+build: $(CONFIG)/make.thornlist $(CONFIG)/cctki_version.h $(patsubst %, $(CCTK_LIBDIR)/$(LIBNAME_PREFIX)%$(LIBNAME_SUFFIX), $(THORN_BUILDLIST))
+	if test "x$(UNKNOWN_THORNS)" != "x"; then \
+	  echo "WARNING: Don't know anything about '$(UNKNOWN_THORNS)' !"; \
+      echo $(DIVIDER); \
+	fi
+
+
+# This target allows thorns to add to $(ALL_UTILS) and then
+# have them built by a make utils
+
+.PHONY: utils
+
+utils: $(UTILS:%=$(UTIL_DIR)$(DIRSEP)%)

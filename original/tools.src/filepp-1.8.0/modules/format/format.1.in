@@ -1,0 +1,50 @@
+.\"  Hey Emacs! This file is -*- nroff -*- source.
+.\" __FILEPP_INPUT__ version __VERSION__
+.\" filepp is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program; see the file COPYING.  If not, write to
+.\" the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+.\"
+.SH FORMAT MODULE - format.pm
+This module provides a set of macros for formating strings and
+numbers.
+.PP
+The format module provides the following macros:
+.TP
+.BR "printf(format, arg1, arg2, ...)"
+The \fBprintf\fP macro behaves in the same way as the Perl/C function
+printf.  It takes in a format string followed by a list of arguments
+to print.  See the \fBprintf\fP(3) man page or Perl documentation for
+full details of the \fBprintf\fP function.
+.TP
+.BR "toupper(string)"
+Converts input string to upper case.
+.TP
+.BR "toupperfirst(string)"
+Converts first character of input string to upper case.
+.TP
+.BR "tolower(string)"
+Converts input string to lower case.
+.TP
+.BR "tolowerfirst(string)"
+Converts first character of input string to lower case.
+.TP
+.BR "substr(string, offset, length)"
+Extracts a substring from input \fIstring\fP.  \fBsubstr\fP behaves in
+the same way as the Perl substr function.  \fIoffset\fP is used to
+specifiy the first character of the string to output (negative for
+offset from end of string), \fIlength\fP is the length of the string
+to output.  If length is omitted everything from the offset is
+returned.  For further information on \fBsubstr\fP see the Perl
+documentation.
+.PP
+The format macros are implemented using the \fBfunction.pm\fP module.

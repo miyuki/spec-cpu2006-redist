@@ -1,0 +1,114 @@
+#!/usr/bin/perl -w
+
+my $NUM_SCORESETS = 4;
+
+my ($scoreset,$oldscores,$newscores) = @ARGV;
+
+$scoreset = int($scoreset) if defined $scoreset;
+if (!defined $newscores || $scoreset < 0 || $scoreset >= $NUM_SCORESETS ) {
+  die "usage: rewrite-cf-with-new-scores scoreset oldscores.cf newscores.cf\n";
+}
+
+system ("./parse-rules-for-masses -s $scoreset") and die;
+if (-e "tmp/rules.pl") {
+  # Note, the spaces need to stay in front of the require to work around a RPM 4.1 problem
+  require "./tmp/rules.pl";
+}
+else {
+  die "parse-rules-for-masses had no error but no tmp/rules.pl!?!";
+}
+
+# now read the evolved scores
+my @gascoreorder = ();
+my %gascorelines = ();
+open (STDIN, "<$newscores") or die "cannot open $newscores";
+while (<STDIN>) {
+  /^score\s+(\S+)\s+(-?\d+(?:\.\d+)?)/ or next;
+  my $name = $1;  my $score = $2;
+  next unless (exists ($rules{$name}) && $rules{$name}->{issubrule} == 0);
+  next if ($name =~ /^__/);
+  next if ($name eq '(null)');	# er, oops ;)
+
+  $gascorelines{$name} = $score;
+  push (@gascoreorder, $name);
+}
+
+open (IN, "<$oldscores") or die "cannot open $oldscores";
+my $out = '';
+my $pre = '';
+
+# read until '# Start of GA-evolved scores', removing scores from our
+# new list if we come across them.
+while (<IN>) {
+  if (/^\s*score\s+(\S+)\s/) {
+    delete $gascorelines{$1};
+    next unless (exists ($rules{$name}) && $rules{$name}->{issubrule} == 0);
+  }
+  $pre .= $_;
+  /^# Start of GA-evolved scores/ and last;
+}
+
+# now skip until '# End of GA-evolved scores'
+while (<IN>) {
+  if (/^\s*score\s+\S+/) {
+    my($score,$name,@scores) = split;
+    @{$oldscores{$name}} = @scores;
+  }
+
+  /^# End of GA-evolved scores/ and last;
+}
+if (defined $_) {
+  $out .= $_;
+}
+
+# and read until EOF, again removing scores from our list as we find 'em.
+while (<IN>) {
+  if (/^\s*score\s+\S+/) {
+    my($score,$name,@scores) = split;
+
+    next unless (exists ($rules{$name}) && $rules{$name}->{issubrule} == 0);
+    if (defined $gascorelines{$name}) {
+      # Set appropriate scoreset value
+      $scores[$scoreset] = $gascorelines{$name};
+
+      # Create new score line
+      $_ = join(" ","score",$name,generate_scores(@scores))."\n";
+    }
+    delete $gascorelines{$name};
+  }
+  $out .= $_;
+}
+close IN;
+
+# and output the lot
+print $pre, "\n";
+foreach my $name (@gascoreorder) {
+  $_ = $gascorelines{$name};
+  next unless (defined ($_));
+
+  # Use the old scores if they existed
+  my @scores = ();
+  @scores = @{$oldscores{$name}} if ( exists $oldscores{$name} );
+
+  # Set appropriate scoreset value
+  $scores[$scoreset] = $_;
+
+  # Create new score line
+  print join(" ","score",$name,generate_scores(@scores)),"\n";
+}
+print "\n", $out, "\n";
+
+sub generate_scores {
+  my (@scores) = @_;
+
+  # Set defaults if not already set
+  $scores[0] ||= 0;
+  my $flag = 1;
+  for(my $i=1;$i<$NUM_SCORESETS;$i++) {
+    $scores[$i] = $scores[0] unless defined $scores[$i];
+    $flag = 0 if ( $scores[$i] != $scores[$i-1] );
+  };
+  splice @scores, 1 if $flag;
+
+  return @scores;
+}

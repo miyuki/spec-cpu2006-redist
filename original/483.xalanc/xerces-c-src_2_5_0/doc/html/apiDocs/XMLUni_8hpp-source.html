@@ -1,0 +1,353 @@
+<HTML><HEAD><SCRIPT language="JavaScript" src="../resources/script.js" type="text/javascript"></SCRIPT><TITLE>XMLUni.hpp Source File</TITLE><link href="XercesApi.css" rel="stylesheet" type="text/css"></HEAD><BODY alink="#ff0000" bgcolor="#ffffff" leftmargin="4" link="#0000ff" marginheight="4" marginwidth="4" text="#000000" topmargin="4" vlink="#0000aa"><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" height="60" rowspan="3" valign="top" width="135"><IMG border="0" height="60" hspace="0" src="../resources/logo.gif" vspace="0" width="135"></TD><TD align="left" colspan="4" height="5" valign="top" width="456"><IMG border="0" height="5" hspace="0" src="../resources/line.gif" vspace="0" width="456"></TD><TD align="left" height="60" rowspan="3" valign="top" width="29"><IMG border="0" height="60" hspace="0" src="../resources/right.gif" vspace="0" width="29"></TD></TR><TR><TD align="left" bgcolor="#0086b2" colspan="4" height="35" valign="top" width="456"><IMG alt="" border="0" height="35" hspace="0" src="../graphics/api-header.jpg" vspace="0" width="456"></TD></TR><TR><TD align="left" height="20" valign="top" width="168"><IMG border="0" height="20" hspace="0" src="../resources/bottom.gif" vspace="0" width="168"></TD><TD align="left" height="20" valign="top" width="96"><A href="http://xml.apache.org/" onMouseOut="rolloverOff('xml');" onMouseOver="rolloverOn('xml');" target="new"><IMG alt="http://xml.apache.org/" border="0" height="20" hspace="0" name="xml" onLoad="rolloverLoad('xml','../resources/button-xml-hi.gif','../resources/button-xml-lo.gif');" src="../resources/button-xml-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.apache.org/" onMouseOut="rolloverOff('asf');" onMouseOver="rolloverOn('asf');" target="new"><IMG alt="http://www.apache.org/" border="0" height="20" hspace="0" name="asf" onLoad="rolloverLoad('asf','../resources/button-asf-hi.gif','../resources/button-asf-lo.gif');" src="../resources/button-asf-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.w3.org/" onMouseOut="rolloverOff('w3c');" onMouseOver="rolloverOn('w3c');" target="new"><IMG alt="http://www.w3.org/" border="0" height="20" hspace="0" name="w3c" onLoad="rolloverLoad('w3c','../resources/button-w3c-hi.gif','../resources/button-w3c-lo.gif');" src="../resources/button-w3c-lo.gif" vspace="0" width="96"></A></TD></TR></TABLE><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" valign="top" width="120"><IMG border="0" height="14" hspace="0" src="../resources/join.gif" vspace="0" width="120"><BR>
+  <A href="../../index.html" onMouseOut="rolloverOff('side-ext-2');" onMouseOver="rolloverOn('side-ext-2');"><IMG alt="Home" border="0" height="12" hspace="0" name="side-ext-2" onLoad="rolloverLoad('side-ext-2','../graphics/ext-2-label-2.jpg','../graphics/ext-2-label-3.jpg');" src="../graphics/ext-2-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../index.html" onMouseOut="rolloverOff('side-index');" onMouseOver="rolloverOn('side-index');"><IMG alt="Readme" border="0" height="12" hspace="0" name="side-index" onLoad="rolloverLoad('side-index','../graphics/index-label-2.jpg','../graphics/index-label-3.jpg');" src="../graphics/index-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../releases.html" onMouseOut="rolloverOff('side-releases');" onMouseOver="rolloverOn('side-releases');"><IMG alt="Release Info" border="0" height="12" hspace="0" name="side-releases" onLoad="rolloverLoad('side-releases','../graphics/releases-label-2.jpg','../graphics/releases-label-3.jpg');" src="../graphics/releases-label-3.jpg" vspace="0" width="120"></A><BR>
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../install.html" onMouseOut="rolloverOff('side-install');" onMouseOver="rolloverOn('side-install');"><IMG alt="Installation" border="0" height="12" hspace="0" name="side-install" onLoad="rolloverLoad('side-install','../graphics/install-label-2.jpg','../graphics/install-label-3.jpg');" src="../graphics/install-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://xml.apache.org/dist/xerces-c/" onMouseOut="rolloverOff('side-ext-18');" onMouseOver="rolloverOn('side-ext-18');"><IMG alt="Download" border="0" height="12" hspace="0" name="side-ext-18" onLoad="rolloverLoad('side-ext-18','../graphics/ext-18-label-2.jpg','../graphics/ext-18-label-3.jpg');" src="../graphics/ext-18-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../build.html" onMouseOut="rolloverOff('side-build');" onMouseOver="rolloverOn('side-build');"><IMG alt="Build" border="0" height="12" hspace="0" name="side-build" onLoad="rolloverLoad('side-build','../graphics/build-label-2.jpg','../graphics/build-label-3.jpg');" src="../graphics/build-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../faqs.html" onMouseOut="rolloverOff('side-faqs');" onMouseOver="rolloverOn('side-faqs');"><IMG alt="FAQs" border="0" height="12" hspace="0" name="side-faqs" onLoad="rolloverLoad('side-faqs','../graphics/faqs-label-2.jpg','../graphics/faqs-label-3.jpg');" src="../graphics/faqs-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../samples.html" onMouseOut="rolloverOff('side-samples');" onMouseOver="rolloverOn('side-samples');"><IMG alt="Samples" border="0" height="12" hspace="0" name="side-samples" onLoad="rolloverLoad('side-samples','../graphics/samples-label-2.jpg','../graphics/samples-label-3.jpg');" src="../graphics/samples-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../api.html" onMouseOut="rolloverOff('side-api');" onMouseOver="rolloverOn('side-api');"><IMG alt="API Docs" border="0" height="12" hspace="0" name="side-api" onLoad="rolloverLoad('side-api','../graphics/api-label-2.jpg','../graphics/api-label-3.jpg');" src="../graphics/api-label-3.jpg" vspace="0" width="120"></A><BR>  
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../ApacheDOMC++Binding.html" onMouseOut="rolloverOff('side-ext-64');" onMouseOver="rolloverOn('side-ext-64');"><IMG alt="DOM C++ Binding" border="0" height="12" hspace="0" name="side-ext-64" onLoad="rolloverLoad('side-ext-64','../graphics/ext-64-label-2.jpg','../graphics/ext-64-label-3.jpg');" src="../graphics/ext-64-label-3.jpg" vspace="0" width="120"></A><BR> 
+  <A href="../program.html" onMouseOut="rolloverOff('side-program');" onMouseOver="rolloverOn('side-program');"><IMG alt="Programming" border="0" height="12" hspace="0" name="side-program" onLoad="rolloverLoad('side-program','../graphics/program-label-2.jpg','../graphics/program-label-3.jpg');" src="../graphics/program-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../migrate.html" onMouseOut="rolloverOff('side-migrate');" onMouseOver="rolloverOn('side-migrate');"><IMG alt="Migration Guide" border="0" height="12" hspace="0" name="side-migrate" onLoad="rolloverLoad('side-migrate','../graphics/migrate-label-2.jpg','../graphics/migrate-label-3.jpg');" src="../graphics/migrate-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../feedback.html" onMouseOut="rolloverOff('side-feedback');" onMouseOver="rolloverOn('side-feedback');"><IMG alt="Feedback" border="0" height="12" hspace="0" name="side-feedback" onLoad="rolloverLoad('side-feedback','../graphics/feedback-label-2.jpg','../graphics/feedback-label-3.jpg');" src="../graphics/feedback-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../bug-report.html" onMouseOut="rolloverOff('side-bug-report');" onMouseOver="rolloverOn('side-bug-report');"><IMG alt="Bug-Reporting" border="0" height="12" hspace="0" name="side-bug-report" onLoad="rolloverLoad('side-bug-report','../graphics/bug-report-label-2.jpg','../graphics/bug-report-label-3.jpg');" src="../graphics/bug-report-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../pdf.html" onMouseOut="rolloverOff('side-pdf');" onMouseOver="rolloverOn('side-pdf');"><IMG alt="PDF Document" border="0" height="12" hspace="0" name="side-pdf" onLoad="rolloverLoad('side-pdf','../graphics/pdf-label-2.jpg','../graphics/pdf-label-3.jpg');" src="../graphics/pdf-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="http://xml.apache.org/websrc/cvsweb.cgi/xml-xerces/c/" onMouseOut="rolloverOff('side-ext-96');" onMouseOver="rolloverOn('side-ext-96');"><IMG alt="CVS Repository" border="0" height="12" hspace="0" name="side-ext-96" onLoad="rolloverLoad('side-ext-96','../graphics/ext-96-label-2.jpg','../graphics/ext-96-label-3.jpg');" src="../graphics/ext-96-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://marc.theaimsgroup.com/?l=xerces-c-dev" onMouseOut="rolloverOff('side-ext-98');" onMouseOver="rolloverOn('side-ext-98');"><IMG alt="Mail Archive" border="0" height="12" hspace="0" name="side-ext-98" onLoad="rolloverLoad('side-ext-98','../graphics/ext-98-label-2.jpg','../graphics/ext-98-label-3.jpg');" src="../graphics/ext-98-label-3.jpg" vspace="0" width="120"></A><BR>
+
+<IMG border="0" height="14" hspace="0" src="../resources/close.gif" vspace="0" width="120"><BR></TD><TD align="left" valign="top" width="500"><TABLE border="0" cellpadding="3" cellspacing="0"><TR><TD>
+    <TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#FFFFFF" colspan="2" width="494"><TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#039acc" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#039acc" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#039acc" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" width="492"><FONT color="#ffffff" face="arial,helvetica,sanserif" size="+1"><IMG border="0" height="2" hspace="0" src="../resources/void.gif" vspace="0" width="2"><B>API Docs for SAX and DOM</B></FONT></TD><TD bgcolor="#017299" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#017299" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#017299" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></TD></TR><TR><TD width="10">&nbsp;</TD><TD width="484"><FONT color="#000000" face="arial,helvetica,sanserif">
+
+	    <P>
+<!-- Generated by Doxygen 1.2.14 -->
+<center>
+<a class="qindex" href="index.html">Main Page</a> &nbsp; <a class="qindex" href="hierarchy.html">Class Hierarchy</a> &nbsp; <a class="qindex" href="classes.html">Alphabetical List</a> &nbsp; <a class="qindex" href="annotated.html">Compound List</a> &nbsp; <a class="qindex" href="files.html">File List</a> &nbsp; <a class="qindex" href="functions.html">Compound Members</a> &nbsp; <a class="qindex" href="globals.html">File Members</a> &nbsp; </center>
+<hr><h1>XMLUni.hpp</h1><a href="XMLUni_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><pre>00001 <font class="comment">/*</font>
+00002 <font class="comment"> * The Apache Software License, Version 1.1</font>
+00003 <font class="comment"> *</font>
+00004 <font class="comment"> * Copyright (c) 1999-2003 The Apache Software Foundation.  All rights</font>
+00005 <font class="comment"> * reserved.</font>
+00006 <font class="comment"> *</font>
+00007 <font class="comment"> * Redistribution and use in source and binary forms, with or without</font>
+00008 <font class="comment"> * modification, are permitted provided that the following conditions</font>
+00009 <font class="comment"> * are met:</font>
+00010 <font class="comment"> *</font>
+00011 <font class="comment"> * 1. Redistributions of source code must retain the above copyright</font>
+00012 <font class="comment"> *    notice, this list of conditions and the following disclaimer.</font>
+00013 <font class="comment"> *</font>
+00014 <font class="comment"> * 2. Redistributions in binary form must reproduce the above copyright</font>
+00015 <font class="comment"> *    notice, this list of conditions and the following disclaimer in</font>
+00016 <font class="comment"> *    the documentation and/or other materials provided with the</font>
+00017 <font class="comment"> *    distribution.</font>
+00018 <font class="comment"> *</font>
+00019 <font class="comment"> * 3. The end-user documentation included with the redistribution,</font>
+00020 <font class="comment"> *    if any, must include the following acknowledgment:</font>
+00021 <font class="comment"> *       "This product includes software developed by the</font>
+00022 <font class="comment"> *        Apache Software Foundation (http://www.apache.org/)."</font>
+00023 <font class="comment"> *    Alternately, this acknowledgment may appear in the software itself,</font>
+00024 <font class="comment"> *    if and wherever such third-party acknowledgments normally appear.</font>
+00025 <font class="comment"> *</font>
+00026 <font class="comment"> * 4. The names "Xerces" and "Apache Software Foundation" must</font>
+00027 <font class="comment"> *    not be used to endorse or promote products derived from this</font>
+00028 <font class="comment"> *    software without prior written permission. For written</font>
+00029 <font class="comment"> *    permission, please contact apache\@apache.org.</font>
+00030 <font class="comment"> *</font>
+00031 <font class="comment"> * 5. Products derived from this software may not be called "Apache",</font>
+00032 <font class="comment"> *    nor may "Apache" appear in their name, without prior written</font>
+00033 <font class="comment"> *    permission of the Apache Software Foundation.</font>
+00034 <font class="comment"> *</font>
+00035 <font class="comment"> * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED</font>
+00036 <font class="comment"> * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES</font>
+00037 <font class="comment"> * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE</font>
+00038 <font class="comment"> * DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR</font>
+00039 <font class="comment"> * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,</font>
+00040 <font class="comment"> * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT</font>
+00041 <font class="comment"> * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF</font>
+00042 <font class="comment"> * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND</font>
+00043 <font class="comment"> * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,</font>
+00044 <font class="comment"> * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT</font>
+00045 <font class="comment"> * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF</font>
+00046 <font class="comment"> * SUCH DAMAGE.</font>
+00047 <font class="comment"> * ====================================================================</font>
+00048 <font class="comment"> *</font>
+00049 <font class="comment"> * This software consists of voluntary contributions made by many</font>
+00050 <font class="comment"> * individuals on behalf of the Apache Software Foundation, and was</font>
+00051 <font class="comment"> * originally based on software copyright (c) 1999, International</font>
+00052 <font class="comment"> * Business Machines, Inc., http://www.ibm.com .  For more information</font>
+00053 <font class="comment"> * on the Apache Software Foundation, please see</font>
+00054 <font class="comment"> * &lt;http://www.apache.org/&gt;.</font>
+00055 <font class="comment"> */</font>
+00056 
+00057 <font class="comment">/*</font>
+00058 <font class="comment"> * $Id: XMLUni.hpp,v 1.33 2004/01/29 11:48:47 cargilld Exp $</font>
+00059 <font class="comment"> */</font>
+00060 
+00061 
+00062 <font class="comment">// ---------------------------------------------------------------------------</font>
+00063 <font class="comment">//  This file contains the grunt work constants for Unicode characters and</font>
+00064 <font class="comment">//  common Unicode constant strings. These cannot be created normally because</font>
+00065 <font class="comment">//  we have to compile on systems that cannot do the L"" style prefix. So</font>
+00066 <font class="comment">//  they must be created as constant values for Unicode code points and the</font>
+00067 <font class="comment">//  strings built up as arrays of those constants.</font>
+00068 <font class="comment">// ---------------------------------------------------------------------------</font>
+00069 
+00070 <font class="preprocessor">#if !defined(XMLUNI_HPP)</font>
+<a name="l00071"></a><a class="code" href="XMLUni_8hpp.html#a0">00071</a> <font class="preprocessor"></font><font class="preprocessor">#define XMLUNI_HPP</font>
+00072 <font class="preprocessor"></font>
+00073 <font class="preprocessor">#include &lt;<a class="code" href="XercesDefs_8hpp.html">xercesc/util/XercesDefs.hpp</a>&gt;</font>
+00074 
+00075 <a class="code" href="XercesDefs_8hpp.html#a2">XERCES_CPP_NAMESPACE_BEGIN</a>
+00076 
+<a name="l00077"></a><a class="code" href="classXMLUni.html">00077</a> <font class="keyword">class </font><a class="code" href="XercesDefs_8hpp.html#a8"></a> <a class="code" href="classXMLUni.html">XMLUni</a>
+00078 {
+00079 <font class="keyword">public</font> :
+00080     <font class="comment">// -----------------------------------------------------------------------</font>
+00081     <font class="comment">//  These are constant strings that are common in XML data. Because</font>
+00082     <font class="comment">//  of the limitation of the compilers we have to work with, these are</font>
+00083     <font class="comment">//  done as arrays of XMLCh characters, not as constant strings.</font>
+00084     <font class="comment">// -----------------------------------------------------------------------</font>
+<a name="l00085"></a><a class="code" href="classXMLUni.html#p0">00085</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgAnyString[];
+<a name="l00086"></a><a class="code" href="classXMLUni.html#p1">00086</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgAttListString[];
+<a name="l00087"></a><a class="code" href="classXMLUni.html#p2">00087</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgCommentString[];
+<a name="l00088"></a><a class="code" href="classXMLUni.html#p3">00088</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgCDATAString[];
+<a name="l00089"></a><a class="code" href="classXMLUni.html#p4">00089</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgDefaultString[];
+<a name="l00090"></a><a class="code" href="classXMLUni.html#p5">00090</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgDocTypeString[];
+<a name="l00091"></a><a class="code" href="classXMLUni.html#p6">00091</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgEBCDICEncodingString[];
+<a name="l00092"></a><a class="code" href="classXMLUni.html#p7">00092</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgElemString[];
+<a name="l00093"></a><a class="code" href="classXMLUni.html#p8">00093</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgEmptyString[];
+<a name="l00094"></a><a class="code" href="classXMLUni.html#p9">00094</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgEncodingString[];
+<a name="l00095"></a><a class="code" href="classXMLUni.html#p10">00095</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgEntitString[];
+<a name="l00096"></a><a class="code" href="classXMLUni.html#p11">00096</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgEntityString[];
+<a name="l00097"></a><a class="code" href="classXMLUni.html#p12">00097</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgEntitiesString[];
+<a name="l00098"></a><a class="code" href="classXMLUni.html#p13">00098</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgEnumerationString[];
+<a name="l00099"></a><a class="code" href="classXMLUni.html#p14">00099</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgExceptDomain[];
+<a name="l00100"></a><a class="code" href="classXMLUni.html#p15">00100</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgFixedString[];
+<a name="l00101"></a><a class="code" href="classXMLUni.html#p16">00101</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgIBM037EncodingString[];
+<a name="l00102"></a><a class="code" href="classXMLUni.html#p17">00102</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgIBM037EncodingString2[];
+<a name="l00103"></a><a class="code" href="classXMLUni.html#p18">00103</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgIBM1047EncodingString[];
+<a name="l00104"></a><a class="code" href="classXMLUni.html#p19">00104</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgIBM1047EncodingString2[];
+<a name="l00105"></a><a class="code" href="classXMLUni.html#p20">00105</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgIBM1140EncodingString[];
+<a name="l00106"></a><a class="code" href="classXMLUni.html#p21">00106</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgIBM1140EncodingString2[];
+<a name="l00107"></a><a class="code" href="classXMLUni.html#p22">00107</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgIBM1140EncodingString3[];
+<a name="l00108"></a><a class="code" href="classXMLUni.html#p23">00108</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgIBM1140EncodingString4[];
+<a name="l00109"></a><a class="code" href="classXMLUni.html#p24">00109</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgIESString[];
+<a name="l00110"></a><a class="code" href="classXMLUni.html#p25">00110</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgIDString[];
+<a name="l00111"></a><a class="code" href="classXMLUni.html#p26">00111</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgIDRefString[];
+<a name="l00112"></a><a class="code" href="classXMLUni.html#p27">00112</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgIDRefsString[];
+<a name="l00113"></a><a class="code" href="classXMLUni.html#p28">00113</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgImpliedString[];
+<a name="l00114"></a><a class="code" href="classXMLUni.html#p29">00114</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgIgnoreString[];
+<a name="l00115"></a><a class="code" href="classXMLUni.html#p30">00115</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgIncludeString[];
+<a name="l00116"></a><a class="code" href="classXMLUni.html#p31">00116</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgISO88591EncodingString[];
+<a name="l00117"></a><a class="code" href="classXMLUni.html#p32">00117</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgISO88591EncodingString2[];
+<a name="l00118"></a><a class="code" href="classXMLUni.html#p33">00118</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgISO88591EncodingString3[];
+<a name="l00119"></a><a class="code" href="classXMLUni.html#p34">00119</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgISO88591EncodingString4[];
+<a name="l00120"></a><a class="code" href="classXMLUni.html#p35">00120</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgISO88591EncodingString5[];
+<a name="l00121"></a><a class="code" href="classXMLUni.html#p36">00121</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgISO88591EncodingString6[];
+<a name="l00122"></a><a class="code" href="classXMLUni.html#p37">00122</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgISO88591EncodingString7[];
+<a name="l00123"></a><a class="code" href="classXMLUni.html#p38">00123</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgISO88591EncodingString8[];
+<a name="l00124"></a><a class="code" href="classXMLUni.html#p39">00124</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgISO88591EncodingString9[];
+<a name="l00125"></a><a class="code" href="classXMLUni.html#p40">00125</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgISO88591EncodingString10[];
+<a name="l00126"></a><a class="code" href="classXMLUni.html#p41">00126</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgISO88591EncodingString11[];
+<a name="l00127"></a><a class="code" href="classXMLUni.html#p42">00127</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgISO88591EncodingString12[];
+<a name="l00128"></a><a class="code" href="classXMLUni.html#p43">00128</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgLocalHostString[];
+<a name="l00129"></a><a class="code" href="classXMLUni.html#p44">00129</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgNoString[];
+<a name="l00130"></a><a class="code" href="classXMLUni.html#p45">00130</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgNotationString[];
+<a name="l00131"></a><a class="code" href="classXMLUni.html#p46">00131</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgNDATAString[];
+<a name="l00132"></a><a class="code" href="classXMLUni.html#p47">00132</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgNmTokenString[];
+<a name="l00133"></a><a class="code" href="classXMLUni.html#p48">00133</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgNmTokensString[];
+<a name="l00134"></a><a class="code" href="classXMLUni.html#p49">00134</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgPCDATAString[];
+<a name="l00135"></a><a class="code" href="classXMLUni.html#p50">00135</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgPIString[];
+<a name="l00136"></a><a class="code" href="classXMLUni.html#p51">00136</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgPubIDString[];
+<a name="l00137"></a><a class="code" href="classXMLUni.html#p52">00137</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgRefString[];
+<a name="l00138"></a><a class="code" href="classXMLUni.html#p53">00138</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgRequiredString[];
+<a name="l00139"></a><a class="code" href="classXMLUni.html#p54">00139</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgStandaloneString[];
+<a name="l00140"></a><a class="code" href="classXMLUni.html#p55">00140</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgVersion1_0[];
+<a name="l00141"></a><a class="code" href="classXMLUni.html#p56">00141</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgVersion1_1[];
+<a name="l00142"></a><a class="code" href="classXMLUni.html#p57">00142</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgSysIDString[];
+<a name="l00143"></a><a class="code" href="classXMLUni.html#p58">00143</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgUnknownURIName[];
+<a name="l00144"></a><a class="code" href="classXMLUni.html#p59">00144</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgUCS4EncodingString[];
+<a name="l00145"></a><a class="code" href="classXMLUni.html#p60">00145</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgUCS4EncodingString2[];
+<a name="l00146"></a><a class="code" href="classXMLUni.html#p61">00146</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgUCS4EncodingString3[];
+<a name="l00147"></a><a class="code" href="classXMLUni.html#p62">00147</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgUCS4BEncodingString[];
+<a name="l00148"></a><a class="code" href="classXMLUni.html#p63">00148</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgUCS4BEncodingString2[];
+<a name="l00149"></a><a class="code" href="classXMLUni.html#p64">00149</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgUCS4LEncodingString[];
+<a name="l00150"></a><a class="code" href="classXMLUni.html#p65">00150</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgUCS4LEncodingString2[];
+<a name="l00151"></a><a class="code" href="classXMLUni.html#p66">00151</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgUSASCIIEncodingString[];
+<a name="l00152"></a><a class="code" href="classXMLUni.html#p67">00152</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgUSASCIIEncodingString2[];
+<a name="l00153"></a><a class="code" href="classXMLUni.html#p68">00153</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgUSASCIIEncodingString3[];
+<a name="l00154"></a><a class="code" href="classXMLUni.html#p69">00154</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgUSASCIIEncodingString4[];
+<a name="l00155"></a><a class="code" href="classXMLUni.html#p70">00155</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgUTF8EncodingString[];
+<a name="l00156"></a><a class="code" href="classXMLUni.html#p71">00156</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgUTF8EncodingString2[];
+<a name="l00157"></a><a class="code" href="classXMLUni.html#p72">00157</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgUTF16EncodingString[];
+<a name="l00158"></a><a class="code" href="classXMLUni.html#p73">00158</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgUTF16EncodingString2[];
+<a name="l00159"></a><a class="code" href="classXMLUni.html#p74">00159</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgUTF16EncodingString3[];
+<a name="l00160"></a><a class="code" href="classXMLUni.html#p75">00160</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgUTF16EncodingString4[];
+<a name="l00161"></a><a class="code" href="classXMLUni.html#p76">00161</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgUTF16EncodingString5[];
+<a name="l00162"></a><a class="code" href="classXMLUni.html#p77">00162</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgUTF16BEncodingString[];
+<a name="l00163"></a><a class="code" href="classXMLUni.html#p78">00163</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgUTF16BEncodingString2[];
+<a name="l00164"></a><a class="code" href="classXMLUni.html#p79">00164</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgUTF16LEncodingString[];
+<a name="l00165"></a><a class="code" href="classXMLUni.html#p80">00165</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgUTF16LEncodingString2[];
+<a name="l00166"></a><a class="code" href="classXMLUni.html#p81">00166</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgVersionString[];
+<a name="l00167"></a><a class="code" href="classXMLUni.html#p82">00167</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgValidityDomain[];
+<a name="l00168"></a><a class="code" href="classXMLUni.html#p83">00168</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgWin1252EncodingString[];
+<a name="l00169"></a><a class="code" href="classXMLUni.html#p84">00169</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXMLChEncodingString[];
+<a name="l00170"></a><a class="code" href="classXMLUni.html#p85">00170</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXMLDOMMsgDomain[];
+<a name="l00171"></a><a class="code" href="classXMLUni.html#p86">00171</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXMLString[];
+<a name="l00172"></a><a class="code" href="classXMLUni.html#p87">00172</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXMLStringSpace[];
+<a name="l00173"></a><a class="code" href="classXMLUni.html#p88">00173</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXMLStringHTab[];
+<a name="l00174"></a><a class="code" href="classXMLUni.html#p89">00174</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXMLStringCR[];
+<a name="l00175"></a><a class="code" href="classXMLUni.html#p90">00175</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXMLStringLF[];
+<a name="l00176"></a><a class="code" href="classXMLUni.html#p91">00176</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXMLStringSpaceU[];
+<a name="l00177"></a><a class="code" href="classXMLUni.html#p92">00177</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXMLStringHTabU[];
+<a name="l00178"></a><a class="code" href="classXMLUni.html#p93">00178</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXMLStringCRU[];
+<a name="l00179"></a><a class="code" href="classXMLUni.html#p94">00179</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXMLStringLFU[];
+<a name="l00180"></a><a class="code" href="classXMLUni.html#p95">00180</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXMLDeclString[];
+<a name="l00181"></a><a class="code" href="classXMLUni.html#p96">00181</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXMLDeclStringSpace[];
+<a name="l00182"></a><a class="code" href="classXMLUni.html#p97">00182</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXMLDeclStringHTab[];
+<a name="l00183"></a><a class="code" href="classXMLUni.html#p98">00183</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXMLDeclStringLF[];
+<a name="l00184"></a><a class="code" href="classXMLUni.html#p99">00184</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXMLDeclStringCR[];
+<a name="l00185"></a><a class="code" href="classXMLUni.html#p100">00185</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXMLDeclStringSpaceU[];
+<a name="l00186"></a><a class="code" href="classXMLUni.html#p101">00186</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXMLDeclStringHTabU[];
+<a name="l00187"></a><a class="code" href="classXMLUni.html#p102">00187</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXMLDeclStringLFU[];
+<a name="l00188"></a><a class="code" href="classXMLUni.html#p103">00188</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXMLDeclStringCRU[];
+<a name="l00189"></a><a class="code" href="classXMLUni.html#p104">00189</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXMLNSString[];
+<a name="l00190"></a><a class="code" href="classXMLUni.html#p105">00190</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXMLNSColonString[];
+<a name="l00191"></a><a class="code" href="classXMLUni.html#p106">00191</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXMLNSURIName[];
+<a name="l00192"></a><a class="code" href="classXMLUni.html#p107">00192</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXMLErrDomain[];
+<a name="l00193"></a><a class="code" href="classXMLUni.html#p108">00193</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXMLURIName[];
+<a name="l00194"></a><a class="code" href="classXMLUni.html#p109">00194</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgYesString[];
+<a name="l00195"></a><a class="code" href="classXMLUni.html#p110">00195</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgZeroLenString[];
+<a name="l00196"></a><a class="code" href="classXMLUni.html#p111">00196</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgDTDEntityString[];
+<a name="l00197"></a><a class="code" href="classXMLUni.html#p112">00197</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgAmp[];
+<a name="l00198"></a><a class="code" href="classXMLUni.html#p113">00198</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgLT[];
+<a name="l00199"></a><a class="code" href="classXMLUni.html#p114">00199</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgGT[];
+<a name="l00200"></a><a class="code" href="classXMLUni.html#p115">00200</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgQuot[];
+<a name="l00201"></a><a class="code" href="classXMLUni.html#p116">00201</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgApos[];
+<a name="l00202"></a><a class="code" href="classXMLUni.html#p117">00202</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgWFXMLScanner[];
+<a name="l00203"></a><a class="code" href="classXMLUni.html#p118">00203</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgIGXMLScanner[];
+<a name="l00204"></a><a class="code" href="classXMLUni.html#p119">00204</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgSGXMLScanner[];
+<a name="l00205"></a><a class="code" href="classXMLUni.html#p120">00205</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgDGXMLScanner[];
+<a name="l00206"></a><a class="code" href="classXMLUni.html#p121">00206</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgCDataStart[];
+<a name="l00207"></a><a class="code" href="classXMLUni.html#p122">00207</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgCDataEnd[];
+00208 
+00209     <font class="comment">// Exception Name</font>
+<a name="l00210"></a><a class="code" href="classXMLUni.html#p123">00210</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgArrayIndexOutOfBoundsException_Name[];
+<a name="l00211"></a><a class="code" href="classXMLUni.html#p124">00211</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgEmptyStackException_Name[];
+<a name="l00212"></a><a class="code" href="classXMLUni.html#p125">00212</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgIllegalArgumentException_Name[];
+<a name="l00213"></a><a class="code" href="classXMLUni.html#p126">00213</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgInvalidCastException_Name[];
+<a name="l00214"></a><a class="code" href="classXMLUni.html#p127">00214</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgIOException_Name[];
+<a name="l00215"></a><a class="code" href="classXMLUni.html#p128">00215</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgNoSuchElementException_Name[];
+<a name="l00216"></a><a class="code" href="classXMLUni.html#p129">00216</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgNullPointerException_Name[];
+<a name="l00217"></a><a class="code" href="classXMLUni.html#p130">00217</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXMLPlatformUtilsException_Name[];
+<a name="l00218"></a><a class="code" href="classXMLUni.html#p131">00218</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgRuntimeException_Name[];
+<a name="l00219"></a><a class="code" href="classXMLUni.html#p132">00219</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgTranscodingException_Name[];
+<a name="l00220"></a><a class="code" href="classXMLUni.html#p133">00220</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgUnexpectedEOFException_Name[];
+<a name="l00221"></a><a class="code" href="classXMLUni.html#p134">00221</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgUnsupportedEncodingException_Name[];
+<a name="l00222"></a><a class="code" href="classXMLUni.html#p135">00222</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgUTFDataFormatException_Name[];
+<a name="l00223"></a><a class="code" href="classXMLUni.html#p136">00223</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgNetAccessorException_Name[];
+<a name="l00224"></a><a class="code" href="classXMLUni.html#p137">00224</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgMalformedURLException_Name[];
+<a name="l00225"></a><a class="code" href="classXMLUni.html#p138">00225</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgNumberFormatException_Name[];
+<a name="l00226"></a><a class="code" href="classXMLUni.html#p139">00226</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgParseException_Name[];
+<a name="l00227"></a><a class="code" href="classXMLUni.html#p140">00227</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgInvalidDatatypeFacetException_Name[];
+<a name="l00228"></a><a class="code" href="classXMLUni.html#p141">00228</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgInvalidDatatypeValueException_Name[];
+<a name="l00229"></a><a class="code" href="classXMLUni.html#p142">00229</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgSchemaDateTimeException_Name[];
+<a name="l00230"></a><a class="code" href="classXMLUni.html#p143">00230</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXPathException_Name[];
+<a name="l00231"></a><a class="code" href="classXMLUni.html#p144">00231</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXSerializationException_Name[];
+00232 
+00233     <font class="comment">// Numerical String</font>
+<a name="l00234"></a><a class="code" href="classXMLUni.html#p145">00234</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgNegINFString[];
+<a name="l00235"></a><a class="code" href="classXMLUni.html#p146">00235</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgNegZeroString[];
+<a name="l00236"></a><a class="code" href="classXMLUni.html#p147">00236</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgPosZeroString[];
+<a name="l00237"></a><a class="code" href="classXMLUni.html#p148">00237</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgPosINFString[];
+<a name="l00238"></a><a class="code" href="classXMLUni.html#p149">00238</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgNaNString[];
+<a name="l00239"></a><a class="code" href="classXMLUni.html#p150">00239</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgEString[];
+<a name="l00240"></a><a class="code" href="classXMLUni.html#p151">00240</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgZeroString[];
+<a name="l00241"></a><a class="code" href="classXMLUni.html#p152">00241</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgNullString[];
+00242 
+00243     <font class="comment">// Xerces features/properties names</font>
+<a name="l00244"></a><a class="code" href="classXMLUni.html#p153">00244</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXercesDynamic[];
+<a name="l00245"></a><a class="code" href="classXMLUni.html#p154">00245</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXercesSchema[];
+<a name="l00246"></a><a class="code" href="classXMLUni.html#p155">00246</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXercesSchemaFullChecking[];
+<a name="l00247"></a><a class="code" href="classXMLUni.html#p156">00247</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXercesSchemaExternalSchemaLocation[];
+<a name="l00248"></a><a class="code" href="classXMLUni.html#p157">00248</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXercesSchemaExternalNoNameSpaceSchemaLocation[];
+<a name="l00249"></a><a class="code" href="classXMLUni.html#p158">00249</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXercesSecurityManager[];
+<a name="l00250"></a><a class="code" href="classXMLUni.html#p159">00250</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXercesLoadExternalDTD[];
+<a name="l00251"></a><a class="code" href="classXMLUni.html#p160">00251</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXercesContinueAfterFatalError[];
+<a name="l00252"></a><a class="code" href="classXMLUni.html#p161">00252</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXercesValidationErrorAsFatal[];
+<a name="l00253"></a><a class="code" href="classXMLUni.html#p162">00253</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXercesUserAdoptsDOMDocument[];
+<a name="l00254"></a><a class="code" href="classXMLUni.html#p163">00254</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXercesCacheGrammarFromParse[];
+<a name="l00255"></a><a class="code" href="classXMLUni.html#p164">00255</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXercesUseCachedGrammarInParse[];
+<a name="l00256"></a><a class="code" href="classXMLUni.html#p165">00256</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXercesScannerName[];
+<a name="l00257"></a><a class="code" href="classXMLUni.html#p166">00257</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXercesParserUseDocumentFromImplementation[];
+<a name="l00258"></a><a class="code" href="classXMLUni.html#p167">00258</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXercesCalculateSrcOfs[];
+<a name="l00259"></a><a class="code" href="classXMLUni.html#p168">00259</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgXercesStandardUriConformant[];
+00260 
+00261     <font class="comment">// SAX2 features/properties names</font>
+<a name="l00262"></a><a class="code" href="classXMLUni.html#p169">00262</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgSAX2CoreValidation[];
+<a name="l00263"></a><a class="code" href="classXMLUni.html#p170">00263</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgSAX2CoreNameSpaces[];
+<a name="l00264"></a><a class="code" href="classXMLUni.html#p171">00264</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgSAX2CoreNameSpacePrefixes[];
+00265 
+00266     <font class="comment">// Introduced in DOM Level 3</font>
+00267     <font class="comment">// DOMBuilder features</font>
+<a name="l00268"></a><a class="code" href="classXMLUni.html#p172">00268</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgDOMCanonicalForm[];
+<a name="l00269"></a><a class="code" href="classXMLUni.html#p173">00269</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgDOMCDATASections[];
+<a name="l00270"></a><a class="code" href="classXMLUni.html#p174">00270</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgDOMComments[];
+<a name="l00271"></a><a class="code" href="classXMLUni.html#p175">00271</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgDOMCharsetOverridesXMLEncoding[];
+<a name="l00272"></a><a class="code" href="classXMLUni.html#p176">00272</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgDOMDatatypeNormalization[];
+<a name="l00273"></a><a class="code" href="classXMLUni.html#p177">00273</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgDOMEntities[];
+<a name="l00274"></a><a class="code" href="classXMLUni.html#p178">00274</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgDOMInfoset[];
+<a name="l00275"></a><a class="code" href="classXMLUni.html#p179">00275</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgDOMNamespaces[];
+<a name="l00276"></a><a class="code" href="classXMLUni.html#p180">00276</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgDOMNamespaceDeclarations[];
+<a name="l00277"></a><a class="code" href="classXMLUni.html#p181">00277</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgDOMSupportedMediatypesOnly[];
+<a name="l00278"></a><a class="code" href="classXMLUni.html#p182">00278</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgDOMValidateIfSchema[];
+<a name="l00279"></a><a class="code" href="classXMLUni.html#p183">00279</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgDOMValidation[];
+<a name="l00280"></a><a class="code" href="classXMLUni.html#p184">00280</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgDOMWhitespaceInElementContent[];
+00281 
+00282     <font class="comment">// Introduced in DOM Level 3</font>
+00283     <font class="comment">// DOMWriter feature</font>
+<a name="l00284"></a><a class="code" href="classXMLUni.html#p185">00284</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgDOMWRTCanonicalForm[];
+<a name="l00285"></a><a class="code" href="classXMLUni.html#p186">00285</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgDOMWRTDiscardDefaultContent[];
+<a name="l00286"></a><a class="code" href="classXMLUni.html#p187">00286</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgDOMWRTEntities[];
+<a name="l00287"></a><a class="code" href="classXMLUni.html#p188">00287</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgDOMWRTFormatPrettyPrint[];
+<a name="l00288"></a><a class="code" href="classXMLUni.html#p189">00288</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgDOMWRTNormalizeCharacters[];
+<a name="l00289"></a><a class="code" href="classXMLUni.html#p190">00289</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgDOMWRTSplitCdataSections[];
+<a name="l00290"></a><a class="code" href="classXMLUni.html#p191">00290</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgDOMWRTValidation[];
+<a name="l00291"></a><a class="code" href="classXMLUni.html#p192">00291</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgDOMWRTWhitespaceInElementContent[];
+<a name="l00292"></a><a class="code" href="classXMLUni.html#p193">00292</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgDOMWRTBOM[];
+<a name="l00293"></a><a class="code" href="classXMLUni.html#p194">00293</a>     <font class="keyword">static</font> <font class="keyword">const</font> XMLCh fgDOMXMLDeclaration[];
+00294 
+00295 
+00296     <font class="comment">// Locale</font>
+<a name="l00297"></a><a class="code" href="classXMLUni.html#p195">00297</a>     <font class="keyword">static</font> <font class="keyword">const</font> <font class="keywordtype">char</font>  fgXercescDefaultLocale[];
+00298 
+00299 <font class="keyword">private</font>:
+00300     <font class="comment">// -----------------------------------------------------------------------</font>
+00301     <font class="comment">//  Unimplemented constructors and operators</font>
+00302     <font class="comment">// -----------------------------------------------------------------------</font>
+00303     <a class="code" href="classXMLUni.html">XMLUni</a>();
+00304 };
+00305 
+00306 <a class="code" href="XercesDefs_8hpp.html#a3">XERCES_CPP_NAMESPACE_END</a>
+00307 
+00308 <font class="preprocessor">#endif</font>
+</pre></div>    </FONT></TD></TR></TABLE><BR>
+</TD></TR></TABLE></TD></TR></TABLE><BR><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD bgcolor="#0086b2"><IMG height="1" src="images/dot.gif" width="1" alt=""></TD></TR><TR><TD align="center"><FONT color="#0086b2" size="-1"><I>
+              Copyright &copy; 2004 The Apache Software Foundation.
+              All Rights Reserved.
+            </I></FONT></TD></TR></TABLE></BODY></HTML>

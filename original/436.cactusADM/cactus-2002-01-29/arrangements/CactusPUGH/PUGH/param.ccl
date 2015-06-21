@@ -1,0 +1,283 @@
+# Parameter definitions for thorn pugh
+# $Header: /cactus/CactusPUGH/PUGH/param.ccl,v 1.35 2001/10/28 08:34:15 allen Exp $
+
+
+shares: cactus
+USES KEYWORD terminate
+
+USES REAL cctk_initial_time 
+
+USES REAL cctk_final_time 
+
+USES INT cctk_itlast 
+
+USES BOOLEAN terminate_next
+
+############################# Restricted Parameters #########################
+restricted:
+   
+INT global_nx "The size of the grid in the x direction"
+{
+    0:*     :: "Grid of this size distributed across all processors"
+} 10
+
+INT global_ny "The size of the grid in the y direction"
+{
+    0:*     :: "Grid of this size distributed across all processors"
+} 10
+
+INT global_nz "The size of the grid in the z direction"
+{
+    0:*     :: "Grid of this size distributed across all processors"
+} 10
+
+INT global_nsize "The size of the grid in each spatial direction"
+{
+    -1:*     :: "Grid of this size in each dir distributed across all processors"
+} -1
+
+INT ghost_size_x "The width of the ghost zone in the x direction"
+{
+    0:*     :: "Must be a positive integer"
+} 1
+
+INT ghost_size_y "The width of the ghost zone in the y direction"
+{
+    0:*     :: "Must be a positive integer"
+} 1
+
+INT ghost_size_z "The width of the ghost zone in the z direction"
+{
+    0:*     :: "Must be a positive integer"
+} 1
+
+INT ghost_size "The width of the ghost zone in each direction"
+{
+    -1:*     :: "Any positive number to override the ghost_size_[xyz] parameters"
+} -1
+
+BOOLEAN periodic "Periodic boundary conditions"
+{
+} "no"
+
+BOOLEAN periodic_x "Periodic boundary conditions in x-direction"
+{
+} "yes"
+
+BOOLEAN periodic_y "Periodic boundary conditions in y-direction"
+{
+} "yes"
+
+BOOLEAN periodic_z "Periodic boundary conditions in z-direction"
+{
+} "yes"
+
+
+############################# Private Parameters ############################
+private:
+
+KEYWORD info "Provide additional information about what PUGH is doing"
+{
+  "none" :: "No extra information"
+  "load" :: "Load on each processor"
+} "none"
+
+INT local_nx "The size of the grid in the x direction"
+{
+    -1:*     :: "Grid of this size on each processor"
+} -1
+
+INT local_ny "The size of the grid in the y direction"
+{
+    -1:*     :: "Grid of this size on each processor"
+} -1
+
+INT local_nz "The size of the grid in the z direction"
+{
+    -1:*     :: "Grid of this size on each processor"
+} -1
+
+INT local_nsize "The size of the grid in each spatial direction"
+{
+    -1:*     :: "Grid of this size in each dir on each processor"
+} -1
+
+BOOLEAN enable_all_storage "Enable storage for all GFs?"
+{
+} "no"
+
+# Processor topology
+
+KEYWORD processor_topology "How to determine the processor topology"
+{
+  "manual"    :: "Specified by proc_top_nx etc"
+  "automatic" :: "Automatically generated"
+} "automatic"
+
+INT processor_topology_1d_x "No of Procs in X direction"
+{
+  0:*  :: "See proc_topology"
+} 0
+
+INT processor_topology_2d_x "No of Procs in X direction"
+{
+  0:*  :: "See proc_topology"
+} 0
+
+INT processor_topology_2d_y "No of Procs in X direction"
+{
+  0:*  :: "See proc_topology"
+} 0
+
+INT processor_topology_3d_x "No of Procs in X direction"
+{
+  0:*  :: "See proc_topology"
+} 0
+
+INT processor_topology_3d_y "No of Procs in X direction"
+{
+  0:*  :: "See proc_topology"
+} 0
+
+INT processor_topology_3d_z "No of Procs in X direction"
+{
+  0:*  :: "See proc_topology"
+} 0
+
+
+# padding stuff
+
+BOOLEAN padding_active "Padd 3D arrays so they line up on cache lines?"
+{
+} yes
+
+
+INT padding_cacheline_bits "Number of bits which have to be unique to padd properly for cache lines"
+{
+  1:*  :: "Any positive number"
+} 12
+
+INT padding_size "How many CCTK_REALs to pad by; we have to noodle around with the starting address, so if there isn't enough space we may not be able to pad"
+{
+  0:*  ::  "Any positive number"
+} 4112
+
+INT padding_address_spacing "Number of CCTK_REALs to space starting addresses in lowest padding_cacheline_bits bits"
+{
+  0:*  ::  "Any positive number"
+} 24
+
+KEYWORD initialize_memory "How to initialize memory for grid variables at allocation time" STEERABLE = ALWAYS
+{
+  "none" :: "Do not initialize storage for allocated grid variables (default)"
+  "zero" :: "Zero out all elements of all allocated grid variables"
+  "NaN"  :: "Set all elements of allocated floating point grid variables to Not-a-Number values"
+} "none"
+
+
+KEYWORD partition "Is the partition manual"
+{
+ "automatic"    :: "even"
+ "manual"       :: "specified by partition_XYZ .."
+} "automatic"
+
+STRING partition_1d_x "Tells how to partition on direction X"
+{
+.* :: "A regex which matches anything"
+} ""
+
+STRING partition_2d_x "Tells how to partition on direction X"
+{
+.* :: "A regex which matches anything"
+} ""
+
+STRING partition_2d_y "Tells how to partition on direction y"
+{
+.* :: "A regex which matches anything"
+} ""
+
+STRING partition_3d_x "Tells how to partition on direction X"
+{
+.* :: "A regex which matches anything"
+} ""
+
+STRING partition_3d_y "Tells how to partition on direction y"
+{
+.* :: "A regex which matches anything"
+} ""
+
+STRING partition_3d_z "Tells how to partition on direction z"
+{
+.* :: "A regex which matches anything"
+} ""
+
+KEYWORD storage_verbose "Report on memory assignment" STEERABLE = ALWAYS
+{
+  "yes"    :: "Standard storage information"
+  "report" :: "Provide a report of storage every storage_report_every iterations and at termination"
+  "no"     :: "Provide no information"
+} "no"
+
+INT storage_report_every "How often to provide a report on storage information" STEERABLE = ALWAYS
+{
+  0:0 :: "Never report"
+  1:* :: "Report at intervals"
+} 0
+
+BOOLEAN timer_output  "Print time spent in communication"
+{
+} "no"
+
+INT cacheline_mult "Multiplier for cacheline number"
+{
+  0:*  ::  "Any positive number"
+} 4001
+
+# Provide ability to switch of overloading of individual driver functions
+
+BOOLEAN overloadevolve "Overload Evolve driver function"
+{
+} "yes"
+BOOLEAN overloadsyncgroup "Overload SyncGroup driver function"
+{
+} "yes"
+BOOLEAN overloadenablegroupstorage "Overload EnableGroupStorage driver function"
+{
+} "yes"
+BOOLEAN overloaddisablegroupstorage "Overload DisableGroupStorage driver function"
+{
+} "yes"
+BOOLEAN overloadenablegroupcomm "Overload EnableGroupComm driver function"
+{
+} "yes"
+BOOLEAN overloaddisablegroupcomm "Overload DisableGroupComm driver function"
+{
+} "yes"
+BOOLEAN overloadbarrier "Overload Barrier driver function"
+{
+} "yes"
+BOOLEAN overloadparallelinit "Overload ParallelInit driver function"
+{
+} "yes"
+BOOLEAN overloadexit "Overload Exit driver function"
+{
+} "yes"
+BOOLEAN overloadabort "Overload Abort driver function"
+{
+} "yes"
+BOOLEAN overloadmyproc "Overload MyProc driver function"
+{
+} "yes"
+BOOLEAN overloadnprocs "Overload nProcs driver function"
+{
+} "yes"
+BOOLEAN overloadarraygroupsizeb "Overload ArrayGroupSizeB driver function"
+{
+} "yes"
+BOOLEAN overloadquerygroupstorageb "Overload QueryGroupStorageB driver function"
+{
+} "yes"
+BOOLEAN overloadgroupdynamicdata "Overload GroupDynamicData driver function"
+{
+} "yes"
+

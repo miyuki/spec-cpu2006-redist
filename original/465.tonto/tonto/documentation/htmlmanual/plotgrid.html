@@ -1,0 +1,1470 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>PLOTGRID</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Keyword documentation for TONTO"
+HREF="keywords.html"><LINK
+REL="PREVIOUS"
+TITLE="MOL"
+HREF="mol.html"><LINK
+REL="NEXT"
+TITLE="POINTGROUP"
+HREF="pointgroup.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="mol.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="pointgroup.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="PLOTGRID"
+></A
+><TT
+CLASS="LITERAL"
+>PLOTGRID</TT
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLOTGRID-PURPOSE"
+></A
+>Purpose</H2
+><P
+ALIGN="justify"
+>An object representing an evenly spaced rectilinear grid used for making
+plots</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLOTGRID-SYNOPSIS"
+></A
+>Synopsis</H2
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>PLOTGRID</TT
+> is comprised mainly of three axis
+directions.  The number of points along the <TT
+CLASS="LITERAL"
+>x</TT
+>-axis of the
+plot is given, while the number of points along remaining axes are derived so
+that the points are evenly spaced.</P
+><P
+ALIGN="justify"
+>Normally a plotgrid will be two dimensional, but three dimensional plots
+can also be represented.</P
+><P
+ALIGN="justify"
+>There are also datum stored representing the kind of plot the grid is for;
+and if an orbital based plot is desired, the index of the orbital desired for
+plotting.</P
+><P
+ALIGN="justify"
+>It is also possible to define a <TT
+CLASS="LITERAL"
+>PLOTGRID</TT
+> relative to
+specific <TT
+CLASS="LITERAL"
+>ATOM</TT
+> positions, or relative to a
+<TT
+CLASS="LITERAL"
+>CRYSTAL</TT
+> axis system.</P
+><P
+ALIGN="justify"
+>A plotgrid should never be used until the <TT
+CLASS="LITERAL"
+>update</TT
+>
+routine has been called.  Modules which call <TT
+CLASS="LITERAL"
+>PLOTGRID</TT
+> always
+ensure that this is done.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLOTGRID-INPUT"
+></A
+>Default input data order</H2
+><P
+ALIGN="justify"
+>There is no associated PLOTGRIDVEC type; an input data order has not been
+defined.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="PLOTGRID-KEYWORDS"
+></A
+>Listing of keywords</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>centre= REALVEC(3)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the center position of the plot</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is <TT
+CLASS="LITERAL"
+>(0,0,0)</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>See <TT
+CLASS="LITERAL"
+>x_width=</TT
+>, <TT
+CLASS="LITERAL"
+>y_width=</TT
+> or
+<TT
+CLASS="LITERAL"
+>z_width=</TT
+> to specify the plot widths</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>See <TT
+CLASS="LITERAL"
+>x_points=</TT
+> to specify the number of points
+desired on the <TT
+CLASS="LITERAL"
+>x</TT
+> axis</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The number of points on the remaining axes are evaluated from
+their widths and the condition that the points are evenly
+spaced.</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>centre_atom= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the index of the center atom of the plot</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>To fully define all the parameters of the plotgrid, the user
+must supply <TT
+CLASS="LITERAL"
+>ATOMVEC</TT
+> information</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>See the <TT
+CLASS="LITERAL"
+>update</TT
+> routine</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>crystal_plane= REALVEC(3)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the desired crystal plane for plotting</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This is equivalent to the <TT
+CLASS="LITERAL"
+>z_axis=</TT
+> keyword</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>It should only be used when the <TT
+CLASS="LITERAL"
+>kind</TT
+> of the
+is <TT
+CLASS="LITERAL"
+>crystal</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to the <TT
+CLASS="LITERAL"
+>kind=</TT
+> keyword</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>kind= STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the kind of plot the grid represents</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is the blank string</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The allowed kinds are:
+<P
+></P
+><TABLE
+BORDER="0"
+><TBODY
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>electron_density</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>laplacian_density</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>orbital_density</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>orbital</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>difference_density</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>fermi_mobility</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>crystal_error_map</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>qq_plot</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>spin_density</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>current_density</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>j_density</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>jp_density</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>jd_density</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>elf</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>electric_potential</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>solenoidal_jp</TT
+></TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>laplacian_density</TT
+> is a plot of
+<TT
+CLASS="LITERAL"
+>&nabla;<SUP
+>2</SUP
+> &rho;</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>difference density</TT
+> is a plot of
+<TT
+CLASS="LITERAL"
+>&rho;- &rho;<SUB
+>promol</SUB
+></TT
+> where
+<TT
+CLASS="LITERAL"
+>&rho;<SUB
+>promol</SUB
+></TT
+> is evaluated as a sum of
+spherically averaged atomic UHF densities calculated in the same basis
+set</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><TT
+CLASS="LITERAL"
+>fermi_mobility</TT
+> is a plot of Luken's fermi
+mobility function</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><TT
+CLASS="LITERAL"
+>crystal_error_map</TT
+> is a plot of the inverse
+fourier synthesis of the differences between the calculated and (phased)
+observed structure factors of the electron density</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><TT
+CLASS="LITERAL"
+>qq_plot</TT
+> is a plot of the ranked
+sigma-normalised deviations of predicted and observed structure factor
+magnitudes plotted against those expected from a normal distribution; also known
+as an Abraham-Skeev plot</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><TT
+CLASS="LITERAL"
+>current_density</TT
+> and
+<TT
+CLASS="LITERAL"
+>j_density</TT
+> are equivalent; a general complex density matrix
+must exist</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><TT
+CLASS="LITERAL"
+>jp_density</TT
+> is a plot of the paramagnetic
+current density</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><TT
+CLASS="LITERAL"
+>jd_density</TT
+> is a plot of the diamagnetic
+current density</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><TT
+CLASS="LITERAL"
+>elf</TT
+> is a plot of the electron localisation
+function</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><TT
+CLASS="LITERAL"
+>solenoidal_jp</TT
+> is a plot of the solenoidal
+part of the paramagnetic current density</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>maximum_cell_distance= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the maximum cell distance for a crystal-section plot</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is 5</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>This is currently only used with
+<TT
+CLASS="LITERAL"
+>crystal_error_map</TT
+> plots.</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>max_cell_distance= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Equivalent to <TT
+CLASS="LITERAL"
+>maximum_cell_distance=</TT
+></P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>normal= REALVEC(3)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Equivalent to <TT
+CLASS="LITERAL"
+>z_axis=</TT
+> or
+<TT
+CLASS="LITERAL"
+>crystal_plane=</TT
+></P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>orbital= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read in the integer of the orbital to be used in an orbital-type
+plot</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Must be greater than 0</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Print out information about the <TT
+CLASS="LITERAL"
+>PLOTGRID</TT
+> to
+the <TT
+CLASS="LITERAL"
+>stdout</TT
+> file in human readable form</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>type= STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Equivalent to <TT
+CLASS="LITERAL"
+>kind=</TT
+></P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>units= STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read a string which describes the units of the next inputted
+numerical entity; that is, the next real or complex number, real or complex
+vector, or real or complex matrix.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default atomic units are restored after the numerical entity
+has been inputted</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Warning: if the next inputted datum is not a numerical entity,
+the new units keyword remains in force</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>x_axis= REALVEC(3)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read in the <TT
+CLASS="LITERAL"
+>x</TT
+>-axis direction of the
+plot</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is <TT
+CLASS="LITERAL"
+>(1,0,0)</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Note: the default can have different interpretation in a
+<TT
+CLASS="LITERAL"
+>crystal</TT
+> axis system</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Note: if <TT
+CLASS="LITERAL"
+>z_axis=</TT
+> is defined, then the
+<TT
+CLASS="LITERAL"
+>x</TT
+> axis is orthogonalised to the entered <TT
+CLASS="LITERAL"
+>z</TT
+>
+axis of the plot.</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>x_axis_atoms= INTVEC(2)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read in the indices of two atoms which lie along the
+<TT
+CLASS="LITERAL"
+>x</TT
+>-axis</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>To evaluate all data in the <TT
+CLASS="LITERAL"
+>PLOTGRID</TT
+> some
+<TT
+CLASS="LITERAL"
+>ATOMVEC</TT
+> information must be supplied</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to the <TT
+CLASS="LITERAL"
+>update</TT
+> routine</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>x_axis_offset= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read a number with which to displace the
+<TT
+CLASS="LITERAL"
+>PLOTGRID</TT
+> along the <TT
+CLASS="LITERAL"
+>x</TT
+>-axis</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is 0</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>x_points= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read in the number of points wanted along the
+<TT
+CLASS="LITERAL"
+>x</TT
+>-axis</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is 51</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The number of points should be odd; if not, the plot grid will
+increase the even number by one</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The number of points on the remaining axes are evaluated from
+their widths and the condition that the points are evenly
+spaced.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>See <TT
+CLASS="LITERAL"
+>y_width=</TT
+> or <TT
+CLASS="LITERAL"
+>z_width=</TT
+>
+to specify the plot widths</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The number of points on the <TT
+CLASS="LITERAL"
+>y</TT
+> and
+<TT
+CLASS="LITERAL"
+>z</TT
+> axes is also made to be odd; thus the center of the plot
+corresponds exactly to a grid point</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>x_width= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Specify the width of the plot along the <TT
+CLASS="LITERAL"
+>x</TT
+>
+axis</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is 2</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The value is used to calculate the spacing of the points
+along the <TT
+CLASS="LITERAL"
+>x</TT
+> axis</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The total number of points in the plot is evaluade from the
+remaining widths of the plot, assuming even spacing</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>See <TT
+CLASS="LITERAL"
+>y_width=</TT
+> and
+<TT
+CLASS="LITERAL"
+>z_width=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>y_axis= REALVEC(3)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the direction of the <TT
+CLASS="LITERAL"
+>y</TT
+> axis of the
+plot</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is <TT
+CLASS="LITERAL"
+>(0,1,0)</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Note: the default can have different interpretation in a
+<TT
+CLASS="LITERAL"
+>crystal</TT
+> axis system</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Note: if the <TT
+CLASS="LITERAL"
+>y</TT
+> axis is not orthogonal to the
+<TT
+CLASS="LITERAL"
+>x</TT
+> axis, then it is orthogonalised to the <TT
+CLASS="LITERAL"
+>x</TT
+>
+axis</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Note: if <TT
+CLASS="LITERAL"
+>z_axis=</TT
+> is defined, then the
+<TT
+CLASS="LITERAL"
+>y</TT
+> axis is set to the cross product of the
+<TT
+CLASS="LITERAL"
+>z</TT
+> axis and the orthogonalised <TT
+CLASS="LITERAL"
+>x</TT
+> axis of
+the plot</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>y_axis_atoms= INTVEC(2)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read in the indices of two atoms which lie along the
+<TT
+CLASS="LITERAL"
+>y</TT
+>-axis</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>To evaluate all data in the <TT
+CLASS="LITERAL"
+>PLOTGRID</TT
+> some
+<TT
+CLASS="LITERAL"
+>ATOMVEC</TT
+> information must be supplied</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to the <TT
+CLASS="LITERAL"
+>update</TT
+> routine</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>y_axis_offset= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read a number with which to displace the
+<TT
+CLASS="LITERAL"
+>PLOTGRID</TT
+> along the <TT
+CLASS="LITERAL"
+>y</TT
+>-axis</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is 0</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>y_width= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Specify the width of the plot along the <TT
+CLASS="LITERAL"
+>y</TT
+>
+axis</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is 2</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The value is used to calculate the number of points along the
+<TT
+CLASS="LITERAL"
+>y</TT
+> axis, and the total number of points in the
+grid</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>x_width=</TT
+> and
+<TT
+CLASS="LITERAL"
+>x_points=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>z_axis= REALVEC(3)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the direction of the <TT
+CLASS="LITERAL"
+>z</TT
+> axis of the
+plot</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is <TT
+CLASS="LITERAL"
+>(0,0,1)</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Note: the default can have different interpretation in a
+<TT
+CLASS="LITERAL"
+>crystal</TT
+> axis system</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>If this keyword is used, the <TT
+CLASS="LITERAL"
+>y</TT
+> axis is set to
+the cross product of the <TT
+CLASS="LITERAL"
+>z</TT
+> axis and the orthogonalised
+<TT
+CLASS="LITERAL"
+>x</TT
+> axis of the plot</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>z_axis_offset= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read a number with which to displace the
+<TT
+CLASS="LITERAL"
+>PLOTGRID</TT
+> along the <TT
+CLASS="LITERAL"
+>z</TT
+>-axis</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is 0</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>z_width= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Specify the width of the plot along the <TT
+CLASS="LITERAL"
+>z</TT
+>
+axis</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is 0</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>This is used to calculate the number of points along the
+<TT
+CLASS="LITERAL"
+>z</TT
+> axis, and the total number of points in the
+grid</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>x_width=</TT
+> and
+<TT
+CLASS="LITERAL"
+>x_points=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="mol.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="pointgroup.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>MOL</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="keywords.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>POINTGROUP</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

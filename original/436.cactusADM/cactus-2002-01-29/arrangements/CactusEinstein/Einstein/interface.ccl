@@ -1,0 +1,93 @@
+# Interface definition for thorn Einstein
+# $Header: /cactus/CactusEinstein/Einstein/Attic/interface.ccl,v 1.20 2002/01/04 09:49:59 allen Exp $
+
+implements: einstein
+inherits: grid time
+
+USES INCLUDE: CalcTmunu.inc
+USES INCLUDE: CalcTmunu_temps.inc
+USES INCLUDE: CalcTmunu_rfr.inc
+
+USES INCLUDE HEADER: Symmetry.h
+
+INCLUDES HEADER: Slicing.h in Slicing.h
+
+
+public:
+
+int flags type = SCALAR
+{
+  shift_state
+  conformal_state
+} "State information on shift, conformal and the chosen slicing"
+
+int slicing_flags type = SCALAR
+{
+  active_slicing_handle
+} "Slicing"
+
+real metric type = GF
+{
+  gxx,gxy,gxz,gyy,gyz,gzz
+} "ADM 3-metric"
+
+real curv type = GF
+{
+  kxx,kxy,kxz,kyy,kyz,kzz
+} "ADM extrinsic curvature"
+
+real lapse type = GF
+{
+  alp
+} "ADM lapse function"
+
+real shift type = GF
+{
+  betax,betay,betaz
+} "ADM shift function"
+
+real confac type = GF
+{
+  psi
+} "Conformal factor"
+
+real confac_1derivs type = GF
+{
+  psix, psiy, psiz
+} "First spatial derivatives of conformal factor divided by psi"
+
+real confac_2derivs type = GF
+{
+  psixx, psixy, psixz, psiyy, psiyz, psizz
+} "Second spatial derivatives of conformal factor divided by psi"
+
+real mask type = GF
+{
+  emask
+} "Mask"
+
+private:
+
+# For evaltrK.F
+real trace_of_K type = GF
+{
+  trK 
+} "trace of extrinsic curvature"
+
+real detofg type = GF
+{
+  detg 
+} "determinant of the conformal metric"
+
+# For carttoshpere.F (p=phi, q=theta)
+real spherical_metric type = GF
+{
+  grr,gqq,gpp,grq,grp,gqp
+} "Metric in spherical coordinates"
+
+real spherical_curv type = GF
+{
+  krr,kqq,kpp,krq,krp,kqp
+} "extrinsic curvature in spherical coordinates"
+
+

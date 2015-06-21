@@ -1,0 +1,316 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>Writing Fortran modules for TONTO</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="DERIVED-DATA"
+HREF="derived-data.html"><LINK
+REL="NEXT"
+TITLE="Aesthetic requirements"
+HREF="aesthetic-requirements.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="CHAPTER"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="derived-data.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="aesthetic-requirements.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="FORTRAN-MODULES"
+></A
+><TT
+CLASS="LITERAL"
+>Writing Fortran modules for TONTO</TT
+></H1
+><P
+ALIGN="justify"
+>The overriding principle which is used in writing modules in TONTO is
+this:
+<DIV
+CLASS="INFORMALEXAMPLE"
+><A
+NAME="AEN6599"
+></A
+><P
+></P
+><P
+ALIGN="justify"
+>      A module is used to describe a single data type. 
+      That is, all the routines within the module concern 
+      manipulations on the data type. </P
+><P
+></P
+></DIV
+>
+This is a very general principal. In practice, there are a number of
+<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>critical requirements</I
+></SPAN
+> which need to be specified so that
+different users can make use of each others work in an effective way. 
+There are also <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>aesthetic requirements</I
+></SPAN
+> which make the code
+more uniform and easily read. </P
+><P
+ALIGN="justify"
+>The <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> preprocessor automatically generated code which conforms 
+to both the critical and aesthetic requirements, but you are not
+required to use it; this Chapter will be useful for those programmers
+who want to use only Fortran.</P
+><P
+ALIGN="justify"
+>The <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> preprocessor, and how to write <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> modules for TONTO are
+described in separate Chapters.</P
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="CRITICAL-REQUIREMENTS"
+></A
+><TT
+CLASS="LITERAL"
+>Critical requirements</TT
+></H1
+><P
+ALIGN="justify"
+>Here is the list of critical requirements which are used in TONTO :
+
+<P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The first argument of each routine in a module is always a
+variable of the data type used in that module. </P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Every module routine is private, but appears in at least one
+public generic interface. The generic name is the same as the routine name with
+and underscore appended.</P
+></LI
+></UL
+></P
+><P
+ALIGN="justify"
+>The reason for making every routine in the module private is to prevent
+namespace pollution.  For example, the routine <TT
+CLASS="LITERAL"
+>get_item</TT
+> may
+be a common possibility for a routine name; using the <TT
+CLASS="LITERAL"
+>private</TT
+>
+attribute prevents any possible name clash, since the routine may not be used.
+Instead, only the generic name may be used. Indeed, the provision of a generic
+interface means that other modules may deliberately re-use the name of the
+routine without a name conflict.  This is called
+<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>overloading</I
+></SPAN
+>.  Overloading a generic name in different
+modules should be employed whenever the overloaded routine name performs a
+similar function in the different modules. </P
+><P
+ALIGN="justify"
+>For example, suppose <TT
+CLASS="LITERAL"
+>REALMAT</TT
+> and <TT
+CLASS="LITERAL"
+>CPXMAT</TT
+>
+are two modules which describe matrices of real and complex numbers,
+respectively. The same generic interface name <TT
+CLASS="LITERAL"
+>trace_</TT
+> might be
+used in both modules to describe a routine which returns the trace of the
+matrix, whether real or complex.  If every procedure in <TT
+CLASS="LITERAL"
+>REALMAT</TT
+>
+had a corresponding procedure in <TT
+CLASS="LITERAL"
+>CPXMAT</TT
+> with the same generic
+name, any code written initially using real matrices using the
+<TT
+CLASS="LITERAL"
+>trace_</TT
+> routine will also work for complex matrices, if the
+variables involved are redeclared.  This is a simple example of the concept of
+<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>code inheritance</I
+></SPAN
+>.</P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="derived-data.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="aesthetic-requirements.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>DERIVED-DATA</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>Aesthetic requirements</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

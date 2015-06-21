@@ -1,0 +1,481 @@
+<HTML><HEAD><SCRIPT language="JavaScript" src="../resources/script.js" type="text/javascript"></SCRIPT><TITLE>Parser class Reference</TITLE><link href="XercesApi.css" rel="stylesheet" type="text/css"></HEAD><BODY alink="#ff0000" bgcolor="#ffffff" leftmargin="4" link="#0000ff" marginheight="4" marginwidth="4" text="#000000" topmargin="4" vlink="#0000aa"><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" height="60" rowspan="3" valign="top" width="135"><IMG border="0" height="60" hspace="0" src="../resources/logo.gif" vspace="0" width="135"></TD><TD align="left" colspan="4" height="5" valign="top" width="456"><IMG border="0" height="5" hspace="0" src="../resources/line.gif" vspace="0" width="456"></TD><TD align="left" height="60" rowspan="3" valign="top" width="29"><IMG border="0" height="60" hspace="0" src="../resources/right.gif" vspace="0" width="29"></TD></TR><TR><TD align="left" bgcolor="#0086b2" colspan="4" height="35" valign="top" width="456"><IMG alt="" border="0" height="35" hspace="0" src="../graphics/api-header.jpg" vspace="0" width="456"></TD></TR><TR><TD align="left" height="20" valign="top" width="168"><IMG border="0" height="20" hspace="0" src="../resources/bottom.gif" vspace="0" width="168"></TD><TD align="left" height="20" valign="top" width="96"><A href="http://xml.apache.org/" onMouseOut="rolloverOff('xml');" onMouseOver="rolloverOn('xml');" target="new"><IMG alt="http://xml.apache.org/" border="0" height="20" hspace="0" name="xml" onLoad="rolloverLoad('xml','../resources/button-xml-hi.gif','../resources/button-xml-lo.gif');" src="../resources/button-xml-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.apache.org/" onMouseOut="rolloverOff('asf');" onMouseOver="rolloverOn('asf');" target="new"><IMG alt="http://www.apache.org/" border="0" height="20" hspace="0" name="asf" onLoad="rolloverLoad('asf','../resources/button-asf-hi.gif','../resources/button-asf-lo.gif');" src="../resources/button-asf-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.w3.org/" onMouseOut="rolloverOff('w3c');" onMouseOver="rolloverOn('w3c');" target="new"><IMG alt="http://www.w3.org/" border="0" height="20" hspace="0" name="w3c" onLoad="rolloverLoad('w3c','../resources/button-w3c-hi.gif','../resources/button-w3c-lo.gif');" src="../resources/button-w3c-lo.gif" vspace="0" width="96"></A></TD></TR></TABLE><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" valign="top" width="120"><IMG border="0" height="14" hspace="0" src="../resources/join.gif" vspace="0" width="120"><BR>
+  <A href="../../index.html" onMouseOut="rolloverOff('side-ext-2');" onMouseOver="rolloverOn('side-ext-2');"><IMG alt="Home" border="0" height="12" hspace="0" name="side-ext-2" onLoad="rolloverLoad('side-ext-2','../graphics/ext-2-label-2.jpg','../graphics/ext-2-label-3.jpg');" src="../graphics/ext-2-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../index.html" onMouseOut="rolloverOff('side-index');" onMouseOver="rolloverOn('side-index');"><IMG alt="Readme" border="0" height="12" hspace="0" name="side-index" onLoad="rolloverLoad('side-index','../graphics/index-label-2.jpg','../graphics/index-label-3.jpg');" src="../graphics/index-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../releases.html" onMouseOut="rolloverOff('side-releases');" onMouseOver="rolloverOn('side-releases');"><IMG alt="Release Info" border="0" height="12" hspace="0" name="side-releases" onLoad="rolloverLoad('side-releases','../graphics/releases-label-2.jpg','../graphics/releases-label-3.jpg');" src="../graphics/releases-label-3.jpg" vspace="0" width="120"></A><BR>
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../install.html" onMouseOut="rolloverOff('side-install');" onMouseOver="rolloverOn('side-install');"><IMG alt="Installation" border="0" height="12" hspace="0" name="side-install" onLoad="rolloverLoad('side-install','../graphics/install-label-2.jpg','../graphics/install-label-3.jpg');" src="../graphics/install-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://xml.apache.org/dist/xerces-c/" onMouseOut="rolloverOff('side-ext-18');" onMouseOver="rolloverOn('side-ext-18');"><IMG alt="Download" border="0" height="12" hspace="0" name="side-ext-18" onLoad="rolloverLoad('side-ext-18','../graphics/ext-18-label-2.jpg','../graphics/ext-18-label-3.jpg');" src="../graphics/ext-18-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../build.html" onMouseOut="rolloverOff('side-build');" onMouseOver="rolloverOn('side-build');"><IMG alt="Build" border="0" height="12" hspace="0" name="side-build" onLoad="rolloverLoad('side-build','../graphics/build-label-2.jpg','../graphics/build-label-3.jpg');" src="../graphics/build-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../faqs.html" onMouseOut="rolloverOff('side-faqs');" onMouseOver="rolloverOn('side-faqs');"><IMG alt="FAQs" border="0" height="12" hspace="0" name="side-faqs" onLoad="rolloverLoad('side-faqs','../graphics/faqs-label-2.jpg','../graphics/faqs-label-3.jpg');" src="../graphics/faqs-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../samples.html" onMouseOut="rolloverOff('side-samples');" onMouseOver="rolloverOn('side-samples');"><IMG alt="Samples" border="0" height="12" hspace="0" name="side-samples" onLoad="rolloverLoad('side-samples','../graphics/samples-label-2.jpg','../graphics/samples-label-3.jpg');" src="../graphics/samples-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../api.html" onMouseOut="rolloverOff('side-api');" onMouseOver="rolloverOn('side-api');"><IMG alt="API Docs" border="0" height="12" hspace="0" name="side-api" onLoad="rolloverLoad('side-api','../graphics/api-label-2.jpg','../graphics/api-label-3.jpg');" src="../graphics/api-label-3.jpg" vspace="0" width="120"></A><BR>  
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../ApacheDOMC++Binding.html" onMouseOut="rolloverOff('side-ext-64');" onMouseOver="rolloverOn('side-ext-64');"><IMG alt="DOM C++ Binding" border="0" height="12" hspace="0" name="side-ext-64" onLoad="rolloverLoad('side-ext-64','../graphics/ext-64-label-2.jpg','../graphics/ext-64-label-3.jpg');" src="../graphics/ext-64-label-3.jpg" vspace="0" width="120"></A><BR> 
+  <A href="../program.html" onMouseOut="rolloverOff('side-program');" onMouseOver="rolloverOn('side-program');"><IMG alt="Programming" border="0" height="12" hspace="0" name="side-program" onLoad="rolloverLoad('side-program','../graphics/program-label-2.jpg','../graphics/program-label-3.jpg');" src="../graphics/program-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../migrate.html" onMouseOut="rolloverOff('side-migrate');" onMouseOver="rolloverOn('side-migrate');"><IMG alt="Migration Guide" border="0" height="12" hspace="0" name="side-migrate" onLoad="rolloverLoad('side-migrate','../graphics/migrate-label-2.jpg','../graphics/migrate-label-3.jpg');" src="../graphics/migrate-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../feedback.html" onMouseOut="rolloverOff('side-feedback');" onMouseOver="rolloverOn('side-feedback');"><IMG alt="Feedback" border="0" height="12" hspace="0" name="side-feedback" onLoad="rolloverLoad('side-feedback','../graphics/feedback-label-2.jpg','../graphics/feedback-label-3.jpg');" src="../graphics/feedback-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../bug-report.html" onMouseOut="rolloverOff('side-bug-report');" onMouseOver="rolloverOn('side-bug-report');"><IMG alt="Bug-Reporting" border="0" height="12" hspace="0" name="side-bug-report" onLoad="rolloverLoad('side-bug-report','../graphics/bug-report-label-2.jpg','../graphics/bug-report-label-3.jpg');" src="../graphics/bug-report-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../pdf.html" onMouseOut="rolloverOff('side-pdf');" onMouseOver="rolloverOn('side-pdf');"><IMG alt="PDF Document" border="0" height="12" hspace="0" name="side-pdf" onLoad="rolloverLoad('side-pdf','../graphics/pdf-label-2.jpg','../graphics/pdf-label-3.jpg');" src="../graphics/pdf-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="http://xml.apache.org/websrc/cvsweb.cgi/xml-xerces/c/" onMouseOut="rolloverOff('side-ext-96');" onMouseOver="rolloverOn('side-ext-96');"><IMG alt="CVS Repository" border="0" height="12" hspace="0" name="side-ext-96" onLoad="rolloverLoad('side-ext-96','../graphics/ext-96-label-2.jpg','../graphics/ext-96-label-3.jpg');" src="../graphics/ext-96-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://marc.theaimsgroup.com/?l=xerces-c-dev" onMouseOut="rolloverOff('side-ext-98');" onMouseOver="rolloverOn('side-ext-98');"><IMG alt="Mail Archive" border="0" height="12" hspace="0" name="side-ext-98" onLoad="rolloverLoad('side-ext-98','../graphics/ext-98-label-2.jpg','../graphics/ext-98-label-3.jpg');" src="../graphics/ext-98-label-3.jpg" vspace="0" width="120"></A><BR>
+
+<IMG border="0" height="14" hspace="0" src="../resources/close.gif" vspace="0" width="120"><BR></TD><TD align="left" valign="top" width="500"><TABLE border="0" cellpadding="3" cellspacing="0"><TR><TD>
+    <TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#FFFFFF" colspan="2" width="494"><TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#039acc" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#039acc" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#039acc" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" width="492"><FONT color="#ffffff" face="arial,helvetica,sanserif" size="+1"><IMG border="0" height="2" hspace="0" src="../resources/void.gif" vspace="0" width="2"><B>API Docs for SAX and DOM</B></FONT></TD><TD bgcolor="#017299" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#017299" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#017299" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></TD></TR><TR><TD width="10">&nbsp;</TD><TD width="484"><FONT color="#000000" face="arial,helvetica,sanserif">
+
+	    <P>
+<!-- Generated by Doxygen 1.2.14 -->
+<center>
+<a class="qindex" href="index.html">Main Page</a> &nbsp; <a class="qindex" href="hierarchy.html">Class Hierarchy</a> &nbsp; <a class="qindex" href="classes.html">Alphabetical List</a> &nbsp; <a class="qindex" href="annotated.html">Compound List</a> &nbsp; <a class="qindex" href="files.html">File List</a> &nbsp; <a class="qindex" href="functions.html">Compound Members</a> &nbsp; <a class="qindex" href="globals.html">File Members</a> &nbsp; </center>
+<hr><h1>Parser  Class Reference</h1>Basic interface for SAX (Simple API for XML) parsers. 
+<a href="#_details">More...</a>
+<p>
+Inheritance diagram for Parser:<p><center><img src="classParser__inherit__graph.gif" border="0" usemap="#Parser__inherit__map" alt="Inheritance graph"></center>
+<map name="Parser__inherit__map">
+<area href="classSAXParser.html" shape="rect" coords="7,105,87,87" alt="">
+</map>
+<center><font size="2">[<a href="graph_legend.html">legend</a>]</font></center><a href="classParser-members.html">List of all members.</a><table border=0 cellpadding=0 cellspacing=0>
+<tr><td colspan=2><br><h2>Public Methods</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Constructors and Destructor</div></td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classParser.html#z430_0">Parser</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>The default constructor.</em> <a href="#z430_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual&nbsp;</td><td valign=bottom><a class="el" href="classParser.html#z430_1">~Parser</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>The destructor.</em> <a href="#z430_1">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan="2"><div class="groupHeader">The parser interfaces</div></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classParser.html#z431_0">setEntityResolver</a> (<a class="el" href="classEntityResolver.html">EntityResolver</a> *const resolver)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Allow an application to register a custom entity resolver.</em> <a href="#z431_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classParser.html#z431_1">setDTDHandler</a> (<a class="el" href="classDTDHandler.html">DTDHandler</a> *const handler)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Allow an application to register a DTD event handler.</em> <a href="#z431_1">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classParser.html#z431_2">setDocumentHandler</a> (<a class="el" href="classDocumentHandler.html">DocumentHandler</a> *const handler)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Allow an application to register a document event handler.</em> <a href="#z431_2">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classParser.html#z431_3">setErrorHandler</a> (<a class="el" href="classErrorHandler.html">ErrorHandler</a> *const handler)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Allow an application to register an error event handler.</em> <a href="#z431_3">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classParser.html#z431_4">parse</a> (const <a class="el" href="classInputSource.html">InputSource</a> &amp;source)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Parse an XML document.</em> <a href="#z431_4">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classParser.html#z431_5">parse</a> (const XMLCh *const systemId)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Parse an XML document from a system identifier (URI).</em> <a href="#z431_5">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classParser.html#z431_6">parse</a> (const char *const systemId)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Parse an XML document from a system identifier (URI).</em> <a href="#z431_6">More...</a><em></em></font><br><br></td></tr>
+</table>
+<hr><a name="_details"></a><h2>Detailed Description</h2>
+Basic interface for SAX (Simple API for XML) parsers.
+<p>
+All SAX parsers must implement this basic interface: it allows applications to register handlers for different types of events and to initiate a parse from a URI, or a character stream.
+<p>
+All SAX parsers must also implement a zero-argument constructor (though other constructors are also allowed).
+<p>
+SAX parsers are reusable but not re-entrant: the application may reuse a parser object (possibly with a different input source) once the first parse has completed successfully, but it may not invoke the <a class="el" href="classParser.html#z431_4">parse</a>() methods recursively within a parse.
+<p>
+<dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classEntityResolver.html#z414_0">EntityResolver::EntityResolver</a> , <a class="el" href="classDTDHandler.html#z412_0">DTDHandler::DTDHandler</a> , <a class="el" href="classDocumentHandler.html#z410_0">DocumentHandler::DocumentHandler</a> , <a class="el" href="classErrorHandler.html#z416_0">ErrorHandler::ErrorHandler</a> , <a class="el" href="classHandlerBase.html#a0">HandlerBase::HandlerBase</a> , <a class="el" href="classInputSource.html#z427_0">InputSource::InputSource</a> </dl>
+<p>
+<hr><h2>Constructor &amp; Destructor Documentation</h2>
+<a name="z430_0" doxytag="Parser::Parser"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> Parser::Parser </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+The default constructor.
+<p>
+    </td>
+  </tr>
+</table>
+<a name="z430_1" doxytag="Parser::~Parser"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual Parser::~Parser </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+The destructor.
+<p>
+    </td>
+  </tr>
+</table>
+<hr><h2>Member Function Documentation</h2>
+<a name="z431_6" doxytag="Parser::parse"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void Parser::parse </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const char *const&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>systemId</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Parse an XML document from a system identifier (URI).
+<p>
+This method is a shortcut for the common case of reading a document from a system identifier. It is the exact equivalent of the following:
+<p>
+parse(new URLInputSource(systemId));
+<p>
+If the system identifier is a URL, it must be fully resolved by the application before it is passed to the parser.<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>systemId</em>&nbsp;</td><td>
+The system identifier (URI). </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em><a class="el" href="classSAXException.html">SAXException</a></em>&nbsp;</td><td>
+ Any SAX exception, possibly wrapping another exception. </td></tr>
+<tr><td valign=top><em><a class="el" href="classXMLException.html">XMLException</a></em>&nbsp;</td><td>
+ An exception from the parser or client handler code. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+See also: </b><dd>
+parse(InputSource) </dl>
+<p>
+Implemented in <a class="el" href="classSAXParser.html#z457_2">SAXParser</a>.    </td>
+  </tr>
+</table>
+<a name="z431_5" doxytag="Parser::parse"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void Parser::parse </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *const&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>systemId</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Parse an XML document from a system identifier (URI).
+<p>
+This method is a shortcut for the common case of reading a document from a system identifier. It is the exact equivalent of the following:
+<p>
+parse(new URLInputSource(systemId));
+<p>
+If the system identifier is a URL, it must be fully resolved by the application before it is passed to the parser.<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>systemId</em>&nbsp;</td><td>
+The system identifier (URI). </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em><a class="el" href="classSAXException.html">SAXException</a></em>&nbsp;</td><td>
+ Any SAX exception, possibly wrapping another exception. </td></tr>
+<tr><td valign=top><em><a class="el" href="classXMLException.html">XMLException</a></em>&nbsp;</td><td>
+ An exception from the parser or client handler code. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+See also: </b><dd>
+parse(InputSource) </dl>
+<p>
+Implemented in <a class="el" href="classSAXParser.html#z457_1">SAXParser</a>.    </td>
+  </tr>
+</table>
+<a name="z431_4" doxytag="Parser::parse"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void Parser::parse </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const <a class="el" href="classInputSource.html">InputSource</a> &amp;&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>source</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Parse an XML document.
+<p>
+The application can use this method to instruct the SAX parser to begin parsing an XML document from any valid input source (a character stream, a byte stream, or a URI).
+<p>
+Applications may not invoke this method while a parse is in progress (they should create a new Parser instead for each additional XML document). Once a parse is complete, an application may reuse the same Parser object, possibly with a different input source.<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>source</em>&nbsp;</td><td>
+The input source for the top-level of the XML document. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em><a class="el" href="classSAXException.html">SAXException</a></em>&nbsp;</td><td>
+ Any SAX exception, possibly wrapping another exception. </td></tr>
+<tr><td valign=top><em><a class="el" href="classXMLException.html">XMLException</a></em>&nbsp;</td><td>
+ An exception from the parser or client handler code. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classInputSource.html#z427_0">InputSource::InputSource</a> , <a class="el" href="classParser.html#z431_0">setEntityResolver</a> , <a class="el" href="classParser.html#z431_1">setDTDHandler</a> , <a class="el" href="classParser.html#z431_2">setDocumentHandler</a> , <a class="el" href="classParser.html#z431_3">setErrorHandler</a> </dl>
+<p>
+Implemented in <a class="el" href="classSAXParser.html#z457_0">SAXParser</a>.    </td>
+  </tr>
+</table>
+<a name="z431_2" doxytag="Parser::setDocumentHandler"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void Parser::setDocumentHandler </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classDocumentHandler.html">DocumentHandler</a> *const&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>handler</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Allow an application to register a document event handler.
+<p>
+If the application does not register a document handler, all document events reported by the SAX parser will be silently ignored (this is the default behaviour implemented by <a class="el" href="classHandlerBase.html">HandlerBase</a>).
+<p>
+Applications may register a new or different handler in the middle of a parse, and the SAX parser must begin using the new handler immediately.<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>handler</em>&nbsp;</td><td>
+The document handler. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classDocumentHandler.html#z410_0">DocumentHandler::DocumentHandler</a> , <a class="el" href="classHandlerBase.html#a0">HandlerBase::HandlerBase</a> </dl>
+<p>
+Implemented in <a class="el" href="classSAXParser.html#z457_3">SAXParser</a>.    </td>
+  </tr>
+</table>
+<a name="z431_1" doxytag="Parser::setDTDHandler"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void Parser::setDTDHandler </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classDTDHandler.html">DTDHandler</a> *const&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>handler</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Allow an application to register a DTD event handler.
+<p>
+If the application does not register a DTD handler, all DTD events reported by the SAX parser will be silently ignored (this is the default behaviour implemented by <a class="el" href="classHandlerBase.html">HandlerBase</a>).
+<p>
+Applications may register a new or different handler in the middle of a parse, and the SAX parser must begin using the new handler immediately.<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>handler</em>&nbsp;</td><td>
+The DTD handler. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classDTDHandler.html#z412_0">DTDHandler::DTDHandler</a> , <a class="el" href="classHandlerBase.html#a0">HandlerBase::HandlerBase</a> </dl>
+<p>
+Implemented in <a class="el" href="classSAXParser.html#z457_4">SAXParser</a>.    </td>
+  </tr>
+</table>
+<a name="z431_0" doxytag="Parser::setEntityResolver"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void Parser::setEntityResolver </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classEntityResolver.html">EntityResolver</a> *const&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>resolver</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Allow an application to register a custom entity resolver.
+<p>
+If the application does not register an entity resolver, the SAX parser will resolve system identifiers and open connections to entities itself (this is the default behaviour implemented in <a class="el" href="classHandlerBase.html">HandlerBase</a>).
+<p>
+Applications may register a new or different entity resolver in the middle of a parse, and the SAX parser must begin using the new resolver immediately.<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>resolver</em>&nbsp;</td><td>
+The object for resolving entities. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classEntityResolver.html#z414_0">EntityResolver::EntityResolver</a> , <a class="el" href="classHandlerBase.html#a0">HandlerBase::HandlerBase</a> </dl>
+<p>
+Implemented in <a class="el" href="classSAXParser.html#z457_7">SAXParser</a>.    </td>
+  </tr>
+</table>
+<a name="z431_3" doxytag="Parser::setErrorHandler"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void Parser::setErrorHandler </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classErrorHandler.html">ErrorHandler</a> *const&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>handler</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Allow an application to register an error event handler.
+<p>
+If the application does not register an error event handler, all error events reported by the SAX parser will be silently ignored, except for fatalError, which will throw a <a class="el" href="classSAXException.html">SAXException</a> (this is the default behaviour implemented by <a class="el" href="classHandlerBase.html">HandlerBase</a>).
+<p>
+Applications may register a new or different handler in the middle of a parse, and the SAX parser must begin using the new handler immediately.<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>handler</em>&nbsp;</td><td>
+The error handler. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classErrorHandler.html#z416_0">ErrorHandler::ErrorHandler</a> , <a class="el" href="classSAXException.html#z432_0">SAXException::SAXException</a> , <a class="el" href="classHandlerBase.html#a0">HandlerBase::HandlerBase</a> </dl>
+<p>
+Implemented in <a class="el" href="classSAXParser.html#z457_5">SAXParser</a>.    </td>
+  </tr>
+</table>
+<hr>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="Parser_8hpp-source.html">Parser.hpp</a></ul>
+    </FONT></TD></TR></TABLE><BR>
+</TD></TR></TABLE></TD></TR></TABLE><BR><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD bgcolor="#0086b2"><IMG height="1" src="images/dot.gif" width="1" alt=""></TD></TR><TR><TD align="center"><FONT color="#0086b2" size="-1"><I>
+              Copyright &copy; 2004 The Apache Software Foundation.
+              All Rights Reserved.
+            </I></FONT></TD></TR></TABLE></BODY></HTML>

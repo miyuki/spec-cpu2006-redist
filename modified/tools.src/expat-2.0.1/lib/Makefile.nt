@@ -1,0 +1,159 @@
+# Microsoft Developer Studio Generated NMAKE File, Based on expat_static.dsp
+CFG=expat_static - Win32 Release
+
+!IF "$(OS)" == "Windows_NT"
+NULL=
+!ELSE 
+NULL=nul
+!ENDIF 
+
+!IF  "$(CFG)" == "expat_static - Win32 Release"
+
+OUTDIR=.
+INTDIR=.
+
+ALL : "$(OUTDIR)\libexpatMT.lib"
+
+CLEAN :
+	-@erase "$(INTDIR)\xmlparse.obj"
+	-@erase "$(INTDIR)\xmlrole.obj"
+	-@erase "$(INTDIR)\xmltok.obj"
+	-@erase "$(OUTDIR)\libexpatMT.lib"
+
+"$(OUTDIR)" :
+    if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
+
+CPP=cl.exe
+CPP_PROJ=/nologo /MT /W3 /EHsc /O2 /D "WIN32" /D "_WINDOWS" /D "NDEBUG" /D "_MBCS" /D "_LIB" /D "COMPILED_FROM_DSP" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /c 
+
+.c{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cpp{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cxx{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.c{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cpp{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cxx{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+LIB32=link.exe -lib
+LIB32_FLAGS=/nologo /out:"$(OUTDIR)\libexpatMT.lib" 
+LIB32_OBJS= \
+	"$(INTDIR)\xmlparse.obj" \
+	"$(INTDIR)\xmlrole.obj" \
+	"$(INTDIR)\xmltok.obj"
+
+"$(OUTDIR)\libexpatMT.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
+    $(LIB32) @<<
+  $(LIB32_FLAGS) $(DEF_FLAGS) $(LIB32_OBJS)
+<<
+
+!ELSEIF  "$(CFG)" == "expat_static - Win32 Debug"
+
+OUTDIR=.
+INTDIR=.
+
+ALL : "$(OUTDIR)\libexpatMT.lib"
+
+
+CLEAN :
+	-@erase "$(INTDIR)\xmlparse.obj"
+	-@erase "$(INTDIR)\xmlparse.sbr"
+	-@erase "$(INTDIR)\xmlrole.obj"
+	-@erase "$(INTDIR)\xmlrole.sbr"
+	-@erase "$(INTDIR)\xmltok.obj"
+	-@erase "$(INTDIR)\xmltok.sbr"
+	-@erase "$(OUTDIR)\expat_static.bsc"
+	-@erase "$(OUTDIR)\libexpatMT.lib"
+
+"$(OUTDIR)" :
+    if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
+
+CPP=cl.exe
+CPP_PROJ=/nologo /MT /W3 /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "COMPILED_FROM_DSP" /D "_MBCS" /D "_LIB" /FR"$(INTDIR)\\" /Fo"$(INTDIR)\\" /Fd"$(INTDIR)\\" /FD /GZ /c 
+
+.c{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cpp{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cxx{$(INTDIR)}.obj::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.c{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cpp{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+.cxx{$(INTDIR)}.sbr::
+   $(CPP) @<<
+   $(CPP_PROJ) $< 
+<<
+
+
+LIB32=link.exe -lib
+LIB32_FLAGS=/nologo /out:"$(OUTDIR)\libexpatMT.lib" 
+LIB32_OBJS= \
+	"$(INTDIR)\xmlparse.obj" \
+	"$(INTDIR)\xmlrole.obj" \
+	"$(INTDIR)\xmltok.obj"
+
+"$(OUTDIR)\libexpatMT.lib" : "$(OUTDIR)" $(DEF_FILE) $(LIB32_OBJS)
+    $(LIB32) @<<
+  $(LIB32_FLAGS) $(DEF_FLAGS) $(LIB32_OBJS)
+<<
+
+!ENDIF 
+
+
+!IF "$(NO_EXTERNAL_DEPS)" != "1"
+!IF EXISTS("expat_static.dep")
+!INCLUDE "expat_static.dep"
+!ELSE 
+!MESSAGE Warning: cannot find "expat_static.dep"
+!ENDIF 
+!ELSE 
+
+
+SOURCE=.\xmlparse.c
+"$(INTDIR)\xmlparse.obj" : $(SOURCE) "$(INTDIR)"
+
+SOURCE=.\xmlrole.c
+"$(INTDIR)\xmlrole.obj" : $(SOURCE) "$(INTDIR)"
+
+SOURCE=.\xmltok.c
+"$(INTDIR)\xmltok.obj" : $(SOURCE) "$(INTDIR)"
+!ENDIF 
+

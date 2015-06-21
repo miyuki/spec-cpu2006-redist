@@ -1,0 +1,1206 @@
+<HTML><HEAD><SCRIPT language="JavaScript" src="../resources/script.js" type="text/javascript"></SCRIPT><TITLE>XSModel class Reference</TITLE><link href="XercesApi.css" rel="stylesheet" type="text/css"></HEAD><BODY alink="#ff0000" bgcolor="#ffffff" leftmargin="4" link="#0000ff" marginheight="4" marginwidth="4" text="#000000" topmargin="4" vlink="#0000aa"><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" height="60" rowspan="3" valign="top" width="135"><IMG border="0" height="60" hspace="0" src="../resources/logo.gif" vspace="0" width="135"></TD><TD align="left" colspan="4" height="5" valign="top" width="456"><IMG border="0" height="5" hspace="0" src="../resources/line.gif" vspace="0" width="456"></TD><TD align="left" height="60" rowspan="3" valign="top" width="29"><IMG border="0" height="60" hspace="0" src="../resources/right.gif" vspace="0" width="29"></TD></TR><TR><TD align="left" bgcolor="#0086b2" colspan="4" height="35" valign="top" width="456"><IMG alt="" border="0" height="35" hspace="0" src="../graphics/api-header.jpg" vspace="0" width="456"></TD></TR><TR><TD align="left" height="20" valign="top" width="168"><IMG border="0" height="20" hspace="0" src="../resources/bottom.gif" vspace="0" width="168"></TD><TD align="left" height="20" valign="top" width="96"><A href="http://xml.apache.org/" onMouseOut="rolloverOff('xml');" onMouseOver="rolloverOn('xml');" target="new"><IMG alt="http://xml.apache.org/" border="0" height="20" hspace="0" name="xml" onLoad="rolloverLoad('xml','../resources/button-xml-hi.gif','../resources/button-xml-lo.gif');" src="../resources/button-xml-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.apache.org/" onMouseOut="rolloverOff('asf');" onMouseOver="rolloverOn('asf');" target="new"><IMG alt="http://www.apache.org/" border="0" height="20" hspace="0" name="asf" onLoad="rolloverLoad('asf','../resources/button-asf-hi.gif','../resources/button-asf-lo.gif');" src="../resources/button-asf-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.w3.org/" onMouseOut="rolloverOff('w3c');" onMouseOver="rolloverOn('w3c');" target="new"><IMG alt="http://www.w3.org/" border="0" height="20" hspace="0" name="w3c" onLoad="rolloverLoad('w3c','../resources/button-w3c-hi.gif','../resources/button-w3c-lo.gif');" src="../resources/button-w3c-lo.gif" vspace="0" width="96"></A></TD></TR></TABLE><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" valign="top" width="120"><IMG border="0" height="14" hspace="0" src="../resources/join.gif" vspace="0" width="120"><BR>
+  <A href="../../index.html" onMouseOut="rolloverOff('side-ext-2');" onMouseOver="rolloverOn('side-ext-2');"><IMG alt="Home" border="0" height="12" hspace="0" name="side-ext-2" onLoad="rolloverLoad('side-ext-2','../graphics/ext-2-label-2.jpg','../graphics/ext-2-label-3.jpg');" src="../graphics/ext-2-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../index.html" onMouseOut="rolloverOff('side-index');" onMouseOver="rolloverOn('side-index');"><IMG alt="Readme" border="0" height="12" hspace="0" name="side-index" onLoad="rolloverLoad('side-index','../graphics/index-label-2.jpg','../graphics/index-label-3.jpg');" src="../graphics/index-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../releases.html" onMouseOut="rolloverOff('side-releases');" onMouseOver="rolloverOn('side-releases');"><IMG alt="Release Info" border="0" height="12" hspace="0" name="side-releases" onLoad="rolloverLoad('side-releases','../graphics/releases-label-2.jpg','../graphics/releases-label-3.jpg');" src="../graphics/releases-label-3.jpg" vspace="0" width="120"></A><BR>
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../install.html" onMouseOut="rolloverOff('side-install');" onMouseOver="rolloverOn('side-install');"><IMG alt="Installation" border="0" height="12" hspace="0" name="side-install" onLoad="rolloverLoad('side-install','../graphics/install-label-2.jpg','../graphics/install-label-3.jpg');" src="../graphics/install-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://xml.apache.org/dist/xerces-c/" onMouseOut="rolloverOff('side-ext-18');" onMouseOver="rolloverOn('side-ext-18');"><IMG alt="Download" border="0" height="12" hspace="0" name="side-ext-18" onLoad="rolloverLoad('side-ext-18','../graphics/ext-18-label-2.jpg','../graphics/ext-18-label-3.jpg');" src="../graphics/ext-18-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../build.html" onMouseOut="rolloverOff('side-build');" onMouseOver="rolloverOn('side-build');"><IMG alt="Build" border="0" height="12" hspace="0" name="side-build" onLoad="rolloverLoad('side-build','../graphics/build-label-2.jpg','../graphics/build-label-3.jpg');" src="../graphics/build-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../faqs.html" onMouseOut="rolloverOff('side-faqs');" onMouseOver="rolloverOn('side-faqs');"><IMG alt="FAQs" border="0" height="12" hspace="0" name="side-faqs" onLoad="rolloverLoad('side-faqs','../graphics/faqs-label-2.jpg','../graphics/faqs-label-3.jpg');" src="../graphics/faqs-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../samples.html" onMouseOut="rolloverOff('side-samples');" onMouseOver="rolloverOn('side-samples');"><IMG alt="Samples" border="0" height="12" hspace="0" name="side-samples" onLoad="rolloverLoad('side-samples','../graphics/samples-label-2.jpg','../graphics/samples-label-3.jpg');" src="../graphics/samples-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../api.html" onMouseOut="rolloverOff('side-api');" onMouseOver="rolloverOn('side-api');"><IMG alt="API Docs" border="0" height="12" hspace="0" name="side-api" onLoad="rolloverLoad('side-api','../graphics/api-label-2.jpg','../graphics/api-label-3.jpg');" src="../graphics/api-label-3.jpg" vspace="0" width="120"></A><BR>  
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../ApacheDOMC++Binding.html" onMouseOut="rolloverOff('side-ext-64');" onMouseOver="rolloverOn('side-ext-64');"><IMG alt="DOM C++ Binding" border="0" height="12" hspace="0" name="side-ext-64" onLoad="rolloverLoad('side-ext-64','../graphics/ext-64-label-2.jpg','../graphics/ext-64-label-3.jpg');" src="../graphics/ext-64-label-3.jpg" vspace="0" width="120"></A><BR> 
+  <A href="../program.html" onMouseOut="rolloverOff('side-program');" onMouseOver="rolloverOn('side-program');"><IMG alt="Programming" border="0" height="12" hspace="0" name="side-program" onLoad="rolloverLoad('side-program','../graphics/program-label-2.jpg','../graphics/program-label-3.jpg');" src="../graphics/program-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../migrate.html" onMouseOut="rolloverOff('side-migrate');" onMouseOver="rolloverOn('side-migrate');"><IMG alt="Migration Guide" border="0" height="12" hspace="0" name="side-migrate" onLoad="rolloverLoad('side-migrate','../graphics/migrate-label-2.jpg','../graphics/migrate-label-3.jpg');" src="../graphics/migrate-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../feedback.html" onMouseOut="rolloverOff('side-feedback');" onMouseOver="rolloverOn('side-feedback');"><IMG alt="Feedback" border="0" height="12" hspace="0" name="side-feedback" onLoad="rolloverLoad('side-feedback','../graphics/feedback-label-2.jpg','../graphics/feedback-label-3.jpg');" src="../graphics/feedback-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../bug-report.html" onMouseOut="rolloverOff('side-bug-report');" onMouseOver="rolloverOn('side-bug-report');"><IMG alt="Bug-Reporting" border="0" height="12" hspace="0" name="side-bug-report" onLoad="rolloverLoad('side-bug-report','../graphics/bug-report-label-2.jpg','../graphics/bug-report-label-3.jpg');" src="../graphics/bug-report-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../pdf.html" onMouseOut="rolloverOff('side-pdf');" onMouseOver="rolloverOn('side-pdf');"><IMG alt="PDF Document" border="0" height="12" hspace="0" name="side-pdf" onLoad="rolloverLoad('side-pdf','../graphics/pdf-label-2.jpg','../graphics/pdf-label-3.jpg');" src="../graphics/pdf-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="http://xml.apache.org/websrc/cvsweb.cgi/xml-xerces/c/" onMouseOut="rolloverOff('side-ext-96');" onMouseOver="rolloverOn('side-ext-96');"><IMG alt="CVS Repository" border="0" height="12" hspace="0" name="side-ext-96" onLoad="rolloverLoad('side-ext-96','../graphics/ext-96-label-2.jpg','../graphics/ext-96-label-3.jpg');" src="../graphics/ext-96-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://marc.theaimsgroup.com/?l=xerces-c-dev" onMouseOut="rolloverOff('side-ext-98');" onMouseOver="rolloverOn('side-ext-98');"><IMG alt="Mail Archive" border="0" height="12" hspace="0" name="side-ext-98" onLoad="rolloverLoad('side-ext-98','../graphics/ext-98-label-2.jpg','../graphics/ext-98-label-3.jpg');" src="../graphics/ext-98-label-3.jpg" vspace="0" width="120"></A><BR>
+
+<IMG border="0" height="14" hspace="0" src="../resources/close.gif" vspace="0" width="120"><BR></TD><TD align="left" valign="top" width="500"><TABLE border="0" cellpadding="3" cellspacing="0"><TR><TD>
+    <TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#FFFFFF" colspan="2" width="494"><TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#039acc" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#039acc" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#039acc" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" width="492"><FONT color="#ffffff" face="arial,helvetica,sanserif" size="+1"><IMG border="0" height="2" hspace="0" src="../resources/void.gif" vspace="0" width="2"><B>API Docs for SAX and DOM</B></FONT></TD><TD bgcolor="#017299" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#017299" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#017299" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></TD></TR><TR><TD width="10">&nbsp;</TD><TD width="484"><FONT color="#000000" face="arial,helvetica,sanserif">
+
+	    <P>
+<!-- Generated by Doxygen 1.2.14 -->
+<center>
+<a class="qindex" href="index.html">Main Page</a> &nbsp; <a class="qindex" href="hierarchy.html">Class Hierarchy</a> &nbsp; <a class="qindex" href="classes.html">Alphabetical List</a> &nbsp; <a class="qindex" href="annotated.html">Compound List</a> &nbsp; <a class="qindex" href="files.html">File List</a> &nbsp; <a class="qindex" href="functions.html">Compound Members</a> &nbsp; <a class="qindex" href="globals.html">File Members</a> &nbsp; </center>
+<hr><h1>XSModel  Class Reference</h1>Inheritance diagram for XSModel:<p><center><img src="classXSModel__inherit__graph.gif" border="0" usemap="#XSModel__inherit__map" alt="Inheritance graph"></center>
+<map name="XSModel__inherit__map">
+<area href="classXMemory.html" shape="rect" coords="7,36,76,17" alt="">
+</map>
+<center><font size="2">[<a href="graph_legend.html">legend</a>]</font></center>Collaboration diagram for XSModel:<p><center><img src="classXSModel__coll__graph.gif" border="0" usemap="#XSModel__coll__map" alt="Collaboration graph"></center>
+<map name="XSModel__coll__map">
+<area href="classXMemory.html" shape="rect" coords="36,35,105,17" alt="">
+<area href="classXSNamedMap.html" shape="rect" coords="92,217,273,198" alt="">
+<area href="classXSNamedMap.html" shape="rect" coords="108,126,257,107" alt="">
+<area href="classMemoryManager.html" shape="rect" coords="281,35,391,17" alt="">
+</map>
+<center><font size="2">[<a href="graph_legend.html">legend</a>]</font></center><a href="classXSModel-members.html">List of all members.</a><table border=0 cellpadding=0 cellspacing=0>
+<tr><td colspan=2><br><h2>Public Methods</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Constructors</div></td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#z357_0">XSModel</a> (<a class="el" href="classXMLGrammarPool.html">XMLGrammarPool</a> *grammarPool, <a class="el" href="classMemoryManager.html">MemoryManager</a> *const manager=<a class="el" href="classXMLPlatformUtils.html#z477_4">XMLPlatformUtils::fgMemoryManager</a>)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>The constructor to be used when a grammar pool contains all needed info.</em> <a href="#z357_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#z357_1">XSModel</a> (XSModel *baseModel, GrammarResolver *grammarResolver, <a class="el" href="classMemoryManager.html">MemoryManager</a> *const manager=<a class="el" href="classXMLPlatformUtils.html#z477_4">XMLPlatformUtils::fgMemoryManager</a>)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>The constructor to be used when the XSModel must represent all components in the union of an existing XSModel and a newly-created Grammar(s) from the GrammarResolver.</em> <a href="#z357_1">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#z358_0">~XSModel</a> ()</td></tr>
+<tr><td colspan="2"><div class="groupHeader">XSModel methods</div></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="XSConstants_8hpp.html#a9">StringList</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#z359_0">getNamespaces</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Convenience method.</em> <a href="#z359_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="XSConstants_8hpp.html#a6">XSNamespaceItemList</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#z359_1">getNamespaceItems</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>A set of namespace schema information information items ( of type <code><a class="el" href="classXSNamespaceItem.html">XSNamespaceItem</a></code>), one for each namespace name which appears as the target namespace of any schema component in the schema used for that assessment, and one for absent if any schema component in the schema had no target namespace.</em> <a href="#z359_1">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classXSNamedMap.html">XSNamedMap</a>&lt; <a class="el" href="classXSObject.html">XSObject</a> &gt; *&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#z359_2">getComponents</a> (<a class="el" href="classXSConstants.html#s26">XSConstants::COMPONENT_TYPE</a> objectType)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>[schema components]: a list of top-level components, i.e.</em> <a href="#z359_2">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classXSNamedMap.html">XSNamedMap</a>&lt; <a class="el" href="classXSObject.html">XSObject</a> &gt; *&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#z359_3">getComponentsByNamespace</a> (<a class="el" href="classXSConstants.html#s26">XSConstants::COMPONENT_TYPE</a> objectType, const XMLCh *compNamespace)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Convenience method.</em> <a href="#z359_3">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="XSConstants_8hpp.html#a2">XSAnnotationList</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#z359_4">getAnnotations</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>[annotations]: a set of annotations.</em> <a href="#z359_4">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classXSElementDeclaration.html">XSElementDeclaration</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#z359_5">getElementDeclaration</a> (const XMLCh *name, const XMLCh *compNamespace)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Convenience method.</em> <a href="#z359_5">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classXSAttributeDeclaration.html">XSAttributeDeclaration</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#z359_6">getAttributeDeclaration</a> (const XMLCh *name, const XMLCh *compNamespace)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Convenience method.</em> <a href="#z359_6">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classXSTypeDefinition.html">XSTypeDefinition</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#z359_7">getTypeDefinition</a> (const XMLCh *name, const XMLCh *compNamespace)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Convenience method.</em> <a href="#z359_7">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classXSAttributeGroupDefinition.html">XSAttributeGroupDefinition</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#z359_8">getAttributeGroup</a> (const XMLCh *name, const XMLCh *compNamespace)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Convenience method.</em> <a href="#z359_8">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classXSModelGroupDefinition.html">XSModelGroupDefinition</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#z359_9">getModelGroupDefinition</a> (const XMLCh *name, const XMLCh *compNamespace)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Convenience method.</em> <a href="#z359_9">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classXSNotationDeclaration.html">XSNotationDeclaration</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#z359_10">getNotationDeclaration</a> (const XMLCh *name, const XMLCh *compNamespace)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Convenience method.</em> <a href="#z359_10">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classXSObject.html">XSObject</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#z359_11">getXSObjectById</a> (unsigned int compId, <a class="el" href="classXSConstants.html#s26">XSConstants::COMPONENT_TYPE</a> compType)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Optional.</em> <a href="#z359_11">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan="2"><div class="groupHeader"></div></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="XSNamedMap_8hpp.html#a1">XMLStringPool</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#z360_0">getURIStringPool</a> ()</td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classXSNamespaceItem.html">XSNamespaceItem</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#z360_1">getNamespaceItem</a> (const XMLCh *const key)</td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classXSObject.html">XSObject</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#z360_2">getXSObject</a> (void *key)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Get the <a class="el" href="classXSObject.html">XSObject</a> (i.e.</em> <a href="#z360_2">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan=2><br><h2>Protected Attributes</h2></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classMemoryManager.html">MemoryManager</a> *const&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#n0">fMemoryManager</a></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="XSConstants_8hpp.html#a9">StringList</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#n1">fNamespaceStringList</a></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="XSConstants_8hpp.html#a6">XSNamespaceItemList</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#n2">fXSNamespaceItemList</a></td></tr>
+<tr><td nowrap align=right valign=top>RefVectorOf&lt; <a class="el" href="classXSElementDeclaration.html">XSElementDeclaration</a> &gt; *&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#n3">fElementDeclarationVector</a></td></tr>
+<tr><td nowrap align=right valign=top>RefVectorOf&lt; <a class="el" href="classXSAttributeDeclaration.html">XSAttributeDeclaration</a> &gt; *&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#n4">fAttributeDeclarationVector</a></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="classXSNamedMap.html">XSNamedMap</a>&lt; <a class="el" href="classXSObject.html">XSObject</a> &gt; *&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#n5">fComponentMap</a> [XSConstants::MULTIVALUE_FACET]</td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="XSNamedMap_8hpp.html#a1">XMLStringPool</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#n6">fURIStringPool</a></td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="XSConstants_8hpp.html#a2">XSAnnotationList</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#n7">fXSAnnotationList</a></td></tr>
+<tr><td nowrap align=right valign=top>RefHashTableOf&lt; <a class="el" href="classXSNamespaceItem.html">XSNamespaceItem</a> &gt; *&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#n8">fHashNamespace</a></td></tr>
+<tr><td nowrap align=right valign=top>XSObjectFactory *&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#n9">fObjFactory</a></td></tr>
+<tr><td nowrap align=right valign=top>RefVectorOf&lt; <a class="el" href="classXSNamespaceItem.html">XSNamespaceItem</a> &gt; *&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#n10">fDeleteNamespace</a></td></tr>
+<tr><td nowrap align=right valign=top>XSModel *&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#n11">fParent</a></td></tr>
+<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#n12">fDeleteParent</a></td></tr>
+<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#n13">fAddedS4SGrammar</a></td></tr>
+<tr><td colspan=2><br><h2>Friends</h2></td></tr>
+<tr><td nowrap align=right valign=top>class&nbsp;</td><td valign=bottom><a class="el" href="classXSModel.html#l0">XSObjectFactory</a></td></tr>
+</table>
+<hr><h2>Constructor &amp; Destructor Documentation</h2>
+<a name="z357_0" doxytag="XSModel::XSModel"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> XSModel::XSModel </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classXMLGrammarPool.html">XMLGrammarPool</a> *&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>grammarPool</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classMemoryManager.html">MemoryManager</a> *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>manager</em> = <a class="el" href="classXMLPlatformUtils.html#z477_4">XMLPlatformUtils::fgMemoryManager</a></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+The constructor to be used when a grammar pool contains all needed info.
+<p>
+<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>grammarPool</em>&nbsp;</td><td>
+the grammar pool containing the underlying data structures </td></tr>
+<tr><td valign=top><em>manager</em>&nbsp;</td><td>
+The configurable memory manager </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="z357_1" doxytag="XSModel::XSModel"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> XSModel::XSModel </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">XSModel *&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>baseModel</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>GrammarResolver *&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>grammarResolver</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classMemoryManager.html">MemoryManager</a> *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>manager</em> = <a class="el" href="classXMLPlatformUtils.html#z477_4">XMLPlatformUtils::fgMemoryManager</a></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+The constructor to be used when the XSModel must represent all components in the union of an existing XSModel and a newly-created Grammar(s) from the GrammarResolver.
+<p>
+<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>baseModel</em>&nbsp;</td><td>
+the XSModel upon which this one is based </td></tr>
+<tr><td valign=top><em>grammarResolver</em>&nbsp;</td><td>
+the grammar(s) whose components are to be merged </td></tr>
+<tr><td valign=top><em>manager</em>&nbsp;</td><td>
+The configurable memory manager </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="z358_0" doxytag="XSModel::~XSModel"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> XSModel::~XSModel </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<hr><h2>Member Function Documentation</h2>
+<a name="z359_4" doxytag="XSModel::getAnnotations"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="XSConstants_8hpp.html#a2">XSAnnotationList</a>* XSModel::getAnnotations </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+[annotations]: a set of annotations.
+<p>
+    </td>
+  </tr>
+</table>
+<a name="z359_6" doxytag="XSModel::getAttributeDeclaration"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classXSAttributeDeclaration.html">XSAttributeDeclaration</a>* XSModel::getAttributeDeclaration </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>name</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const XMLCh *&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>compNamespace</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Convenience method.
+<p>
+Returns a top-level attribute declaration.  <dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>name</em>&nbsp;</td><td>
+The name of the declaration. </td></tr>
+<tr><td valign=top><em>compNamespace</em>&nbsp;</td><td>
+The namespace of the declaration, null if absent. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+A top-level attribute declaration or <code>null</code> if such  declaration does not exist. </dl>    </td>
+  </tr>
+</table>
+<a name="z359_8" doxytag="XSModel::getAttributeGroup"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classXSAttributeGroupDefinition.html">XSAttributeGroupDefinition</a>* XSModel::getAttributeGroup </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>name</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const XMLCh *&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>compNamespace</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Convenience method.
+<p>
+Returns a top-level attribute group definition.  <dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>name</em>&nbsp;</td><td>
+The name of the definition. </td></tr>
+<tr><td valign=top><em>compNamespace</em>&nbsp;</td><td>
+The namespace of the declaration, null if absent. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+A top-level attribute group definition or <code>null</code> if  such definition does not exist. </dl>    </td>
+  </tr>
+</table>
+<a name="z359_2" doxytag="XSModel::getComponents"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classXSNamedMap.html">XSNamedMap</a>&lt;<a class="el" href="classXSObject.html">XSObject</a>&gt;* XSModel::getComponents </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classXSConstants.html#s26">XSConstants::COMPONENT_TYPE</a>&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>objectType</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+[schema components]: a list of top-level components, i.e.
+<p>
+element  declarations, attribute declarations, etc.  <dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>objectType</em>&nbsp;</td><td>
+The type of the declaration, i.e.  <code>ELEMENT_DECLARATION</code>,  <code>TYPE_DEFINITION</code> and any other component type that may be a property of a schema component. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+A list of top-level definition of the specified type in  <code>objectType</code> or <code>null</code>. </dl>    </td>
+  </tr>
+</table>
+<a name="z359_3" doxytag="XSModel::getComponentsByNamespace"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classXSNamedMap.html">XSNamedMap</a>&lt;<a class="el" href="classXSObject.html">XSObject</a>&gt;* XSModel::getComponentsByNamespace </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classXSConstants.html#s26">XSConstants::COMPONENT_TYPE</a>&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>objectType</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const XMLCh *&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>compNamespace</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Convenience method.
+<p>
+Returns a list of top-level component declarations  that are defined within the specified namespace, i.e. element  declarations, attribute declarations, etc.  <dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>objectType</em>&nbsp;</td><td>
+The type of the declaration, i.e.  <code>ELEMENT_DECLARATION</code>. </td></tr>
+<tr><td valign=top><em>compNamespace</em>&nbsp;</td><td>
+The namespace to which declaration belongs or  <code>null</code> (for components with no target namespace). </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+A list of top-level definitions of the specified type in  <code>objectType</code> and defined in the specified  <code>namespace</code> or <code>null</code>. </dl>    </td>
+  </tr>
+</table>
+<a name="z359_5" doxytag="XSModel::getElementDeclaration"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classXSElementDeclaration.html">XSElementDeclaration</a>* XSModel::getElementDeclaration </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>name</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const XMLCh *&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>compNamespace</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Convenience method.
+<p>
+Returns a top-level element declaration.  <dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>name</em>&nbsp;</td><td>
+The name of the declaration. </td></tr>
+<tr><td valign=top><em>compNamespace</em>&nbsp;</td><td>
+The namespace of the declaration, null if absent. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+A top-level element declaration or <code>null</code> if such  declaration does not exist. </dl>    </td>
+  </tr>
+</table>
+<a name="z359_9" doxytag="XSModel::getModelGroupDefinition"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classXSModelGroupDefinition.html">XSModelGroupDefinition</a>* XSModel::getModelGroupDefinition </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>name</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const XMLCh *&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>compNamespace</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Convenience method.
+<p>
+Returns a top-level model group definition.  <dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>name</em>&nbsp;</td><td>
+The name of the definition. </td></tr>
+<tr><td valign=top><em>compNamespace</em>&nbsp;</td><td>
+The namespace of the declaration, null if absent. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+A top-level model group definition definition or  <code>null</code> if such definition does not exist. </dl>    </td>
+  </tr>
+</table>
+<a name="z360_1" doxytag="XSModel::getNamespaceItem"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classXSNamespaceItem.html">XSNamespaceItem</a>* XSModel::getNamespaceItem </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *const&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>key</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="z359_1" doxytag="XSModel::getNamespaceItems"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="XSConstants_8hpp.html#a6">XSNamespaceItemList</a> * XSModel::getNamespaceItems </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+A set of namespace schema information information items ( of type <code><a class="el" href="classXSNamespaceItem.html">XSNamespaceItem</a></code>), one for each namespace name which appears as the target namespace of any schema component in the schema used for that assessment, and one for absent if any schema component in the schema had no target namespace.
+<p>
+For more information see  schema information.     </td>
+  </tr>
+</table>
+<a name="z359_0" doxytag="XSModel::getNamespaces"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="XSConstants_8hpp.html#a9">StringList</a> * XSModel::getNamespaces </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Convenience method.
+<p>
+Returns a list of all namespaces that belong to  this schema. The value <code>null</code> is not a valid namespace  name, but if there are components that don't have a target namespace,  <code>null</code> is included in this list.     </td>
+  </tr>
+</table>
+<a name="z359_10" doxytag="XSModel::getNotationDeclaration"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classXSNotationDeclaration.html">XSNotationDeclaration</a>* XSModel::getNotationDeclaration </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>name</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const XMLCh *&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>compNamespace</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Convenience method.
+<p>
+Returns a top-level notation declaration.  <dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>name</em>&nbsp;</td><td>
+The name of the declaration. </td></tr>
+<tr><td valign=top><em>compNamespace</em>&nbsp;</td><td>
+The namespace of the declaration, null if absent. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+A top-level notation declaration or <code>null</code> if such  declaration does not exist. </dl>    </td>
+  </tr>
+</table>
+<a name="z359_7" doxytag="XSModel::getTypeDefinition"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classXSTypeDefinition.html">XSTypeDefinition</a>* XSModel::getTypeDefinition </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>name</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const XMLCh *&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>compNamespace</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Convenience method.
+<p>
+Returns a top-level simple or complex type  definition.  <dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>name</em>&nbsp;</td><td>
+The name of the definition. </td></tr>
+<tr><td valign=top><em>compNamespace</em>&nbsp;</td><td>
+The namespace of the declaration, null if absent. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+An <code><a class="el" href="classXSTypeDefinition.html">XSTypeDefinition</a></code> or <code>null</code> if such  definition does not exist. </dl>    </td>
+  </tr>
+</table>
+<a name="z360_0" doxytag="XSModel::getURIStringPool"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="XSNamedMap_8hpp.html#a1">XMLStringPool</a> * XSModel::getURIStringPool </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="z360_2" doxytag="XSModel::getXSObject"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classXSObject.html">XSObject</a>* XSModel::getXSObject </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">void *&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>key</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Get the <a class="el" href="classXSObject.html">XSObject</a> (i.e.
+<p>
+<a class="el" href="classXSElementDeclaration.html">XSElementDeclaration</a>) that corresponds to to a schema grammar component (i.e. SchemaElementDecl) <dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>key</em>&nbsp;</td><td>
+schema component object</td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+the corresponding <a class="el" href="classXSObject.html">XSObject</a> </dl>    </td>
+  </tr>
+</table>
+<a name="z359_11" doxytag="XSModel::getXSObjectById"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classXSObject.html">XSObject</a>* XSModel::getXSObjectById </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">unsigned int&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>compId</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classXSConstants.html#s26">XSConstants::COMPONENT_TYPE</a>&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>compType</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Optional.
+<p>
+Return a component given a component type and a unique Id.  May not be supported for all component types. <dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>compId</em>&nbsp;</td><td>
+unique Id of the component within its type </td></tr>
+<tr><td valign=top><em>compType</em>&nbsp;</td><td>
+type of the component </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+the component of the given type with the given Id, or 0 if no such component exists or this is unsupported for this type of component. </dl>    </td>
+  </tr>
+</table>
+<hr><h2>Friends And Related Function Documentation</h2>
+<a name="l0" doxytag="XSModel::XSObjectFactory"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> friend class XSObjectFactory<code> [friend]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<hr><h2>Member Data Documentation</h2>
+<a name="n13" doxytag="XSModel::fAddedS4SGrammar"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool XSModel::fAddedS4SGrammar<code> [protected]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="n4" doxytag="XSModel::fAttributeDeclarationVector"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> RefVectorOf&lt;<a class="el" href="classXSAttributeDeclaration.html">XSAttributeDeclaration</a>&gt;* XSModel::fAttributeDeclarationVector<code> [protected]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="n5" doxytag="XSModel::fComponentMap"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classXSNamedMap.html">XSNamedMap</a>&lt;<a class="el" href="classXSObject.html">XSObject</a>&gt;* XSModel::fComponentMap[XSConstants::MULTIVALUE_FACET]<code> [protected]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="n10" doxytag="XSModel::fDeleteNamespace"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> RefVectorOf&lt;<a class="el" href="classXSNamespaceItem.html">XSNamespaceItem</a>&gt;* XSModel::fDeleteNamespace<code> [protected]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="n12" doxytag="XSModel::fDeleteParent"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool XSModel::fDeleteParent<code> [protected]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="n3" doxytag="XSModel::fElementDeclarationVector"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> RefVectorOf&lt;<a class="el" href="classXSElementDeclaration.html">XSElementDeclaration</a>&gt;* XSModel::fElementDeclarationVector<code> [protected]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="n8" doxytag="XSModel::fHashNamespace"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> RefHashTableOf&lt;<a class="el" href="classXSNamespaceItem.html">XSNamespaceItem</a>&gt;* XSModel::fHashNamespace<code> [protected]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="n0" doxytag="XSModel::fMemoryManager"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="classMemoryManager.html">MemoryManager</a>* const XSModel::fMemoryManager<code> [protected]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="n1" doxytag="XSModel::fNamespaceStringList"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="XSConstants_8hpp.html#a9">StringList</a>* XSModel::fNamespaceStringList<code> [protected]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="n9" doxytag="XSModel::fObjFactory"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> XSObjectFactory* XSModel::fObjFactory<code> [protected]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="n11" doxytag="XSModel::fParent"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> XSModel* XSModel::fParent<code> [protected]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="n6" doxytag="XSModel::fURIStringPool"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="XSNamedMap_8hpp.html#a1">XMLStringPool</a>* XSModel::fURIStringPool<code> [protected]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="n7" doxytag="XSModel::fXSAnnotationList"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="XSConstants_8hpp.html#a2">XSAnnotationList</a>* XSModel::fXSAnnotationList<code> [protected]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="n2" doxytag="XSModel::fXSNamespaceItemList"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="XSConstants_8hpp.html#a6">XSNamespaceItemList</a>* XSModel::fXSNamespaceItemList<code> [protected]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<hr>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="XSModel_8hpp-source.html">XSModel.hpp</a></ul>
+    </FONT></TD></TR></TABLE><BR>
+</TD></TR></TABLE></TD></TR></TABLE><BR><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD bgcolor="#0086b2"><IMG height="1" src="images/dot.gif" width="1" alt=""></TD></TR><TR><TD align="center"><FONT color="#0086b2" size="-1"><I>
+              Copyright &copy; 2004 The Apache Software Foundation.
+              All Rights Reserved.
+            </I></FONT></TD></TR></TABLE></BODY></HTML>

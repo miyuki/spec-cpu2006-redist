@@ -1,0 +1,278 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>SIMPLE-DATA</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="The TONTO input file: technical specification"
+HREF="tech-input.html"><LINK
+REL="PREVIOUS"
+TITLE="The input file: KEYWORD and
+DATA"
+HREF="input-data.html"><LINK
+REL="NEXT"
+TITLE="SIMPLE-ARRAY-DATA"
+HREF="simple-array-data.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="input-data.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="simple-array-data.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="SIMPLE-DATA"
+></A
+><TT
+CLASS="LITERAL"
+>SIMPLE-DATA</TT
+></H1
+><P
+ALIGN="justify"
+>There are five kinds of <TT
+CLASS="LITERAL"
+>SIMPLE-DATA</TT
+>,</P
+><P
+ALIGN="justify"
+><TT
+CLASS="LITERAL"
+>SIMPLE-DATA -&#62; STR|BIN|INT|REAL|CPX</TT
+></P
+><P
+ALIGN="justify"
+>These <TT
+CLASS="LITERAL"
+>SIMPLE-DATA</TT
+> correspond to the five basic types in
+Fortran: <TT
+CLASS="LITERAL"
+>STR</TT
+> represents strings, <TT
+CLASS="LITERAL"
+>BIN</TT
+>
+represents binary or logical values, <TT
+CLASS="LITERAL"
+>INT</TT
+> represents integers,
+<TT
+CLASS="LITERAL"
+>REAL</TT
+> represents 8-byte real numbers, and
+<TT
+CLASS="LITERAL"
+>CPX</TT
+> represents 8-byte complex numbers. The Fortran kind of
+each of these basic types is set when the program is compiled, and defined in
+the <TT
+CLASS="LITERAL"
+>macros</TT
+> file. It can be changed.</P
+><P
+ALIGN="justify"
+>The following are the specific definitions which you may type to
+have valid representations of these <TT
+CLASS="LITERAL"
+>SIMPLE-DATA</TT
+>:
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>STR  -&#62; &lcub;^BLANK&rcub;*|"&lcub;^"&rcub;*"
+BIN  -&#62; true|t|yes|y|false|f|no|n
+INT  -&#62; [+|-] POSITIVE-INT
+REAL  -&#62; PLAIN-REAL [UNIT-SPECIFIER]
+CPX -&#62; PLAIN-REAL PLAIN-REAL [UNIT-SPECIFIER]
+
+PLAIN-REAL      -&#62; INT[.[POSITIVE-INT]][d|eINT]
+UNIT-SPECIFIER -&#62; angstrom|angstrom^2|meter|amu|wavenumber|ev|
+                  kelvin|joule|kilojoule|kjoule|kj|kcal/mol|</PRE
+></TD
+></TR
+></TABLE
+>
+Examples of input for these basic types may be found in <A
+HREF="input-files.html#SIMPLE-DATA-TABLE"
+>Table 2 in the Section called <I
+>How do I enter data?</I
+> in the chapter called <I
+>Using TONTO to do calculations</I
+></A
+>&#62;.</P
+><P
+ALIGN="justify"
+>Note that <TT
+CLASS="LITERAL"
+>REAL</TT
+> and <TT
+CLASS="LITERAL"
+>CPX</TT
+> quantities
+may be followed by a <TT
+CLASS="LITERAL"
+>UNIT-SPECIFIER</TT
+>, which defined that
+number with respect to a specific units system. For example, the following would
+be a valid <TT
+CLASS="LITERAL"
+>REAL</TT
+> token:</P
+><P
+ALIGN="justify"
+>2.5 angstrom</P
+><P
+ALIGN="justify"
+>The program will convert such numbers followed by a unit specifier into a
+standard unit system, usually atomic units, or for angles, the generic unit
+system is radians. Programmers should note that it is illegal for any keyword to
+be the same as a <TT
+CLASS="LITERAL"
+>UNIT-SPECIFIER</TT
+>.</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="input-data.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="simple-array-data.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>The input file: <TT
+CLASS="LITERAL"
+>KEYWORD</TT
+> and
+<TT
+CLASS="LITERAL"
+>DATA</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="tech-input.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>SIMPLE-ARRAY-DATA</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

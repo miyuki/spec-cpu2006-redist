@@ -1,0 +1,610 @@
+% /*@@
+%   @file      UsersGuide.tex
+%   @date      27 Jan 1999
+%   @author    Tom Goodale, Gabrielle Allen, Gerd Lanferman
+%   @desc 
+%   Main file for the Cactus User's Guide
+%   @enddesc 
+%   @version $Header: /cactus/Cactus/doc/UsersGuide/UsersGuide.tex,v 1.32 2001/12/20 16:59:28 jthorn Exp $      
+% @@*/
+
+\documentclass{report}
+\usepackage{fancyhdr,ifthen,calc}
+
+\newif\ifpdf
+\ifx\pdfoutput\undefined
+\pdffalse % we are not running PDFLaTeX
+\else
+\pdfoutput=1 % we are running PDFLaTeX
+\pdftrue
+\fi
+
+\ifpdf
+\usepackage[pdftex]{graphicx}
+\else
+\usepackage{graphicx}
+\fi
+
+
+\makeatletter
+\@addtoreset{chapter}{part}
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\parskip = 0 pt
+\parindent = 0pt
+\oddsidemargin = 0 cm
+\textwidth = 16 cm
+\topmargin = -1 cm
+\textheight = 24 cm
+
+\usepackage{tocloft}
+\addtolength{\cftchapnumwidth}{0.5em}
+\addtolength{\cftsecnumwidth}{0.5em}
+\addtolength{\cftsubsecnumwidth}{0.5em}
+\addtolength{\cftsubsubsecnumwidth}{0.5em}
+
+\def\q{\bf QUERY: }
+\def\t{\tt \obeylines }
+\def\ie{\hbox{i.e.\hbox{}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newenvironment{CCTKroutine}{\newpage}{}
+\newenvironment{CCTKsyn}{\noindent\begin{tabular}{@{}p{3cm}cp{11cm}}&&\\{\bf Synopsis} \hfill&&\\}{\end{tabular}}
+% The above needs to be fixed -- sometimes it runs off the page (e.g. with cctk_complex arguments...)
+\newenvironment{CCTKpar}{\noindent\begin{tabular}{@{}p{3cm}cp{11cm}}&&\\{\bf Parameters} \hfill&&\\}{\end{tabular}}
+\newcommand{\CCTKname}[1]{\noindent{\t #1}\hrule}
+\newcommand{\CCTKdesc}[1]{\vskip .3cm \noindent #1}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Define some saveboxes to hold data
+\newsavebox{\cctkbox}
+\newsavebox{\cctkcargbox}
+\newsavebox{\cctkfargbox}
+\newsavebox{\cctkfargdefs}
+\newsavebox{\cctkcsepbox}
+\newsavebox{\cctkfsepbox}
+\newsavebox{\cctkfdefssep}
+\newsavebox{\cctkcprefix}
+\newsavebox{\cctkfprefix}
+\newsavebox{\cctkparambox}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MANPAGE like description setting for options, use as 
+% \begin{Lentry} \item[text] text  \end{Lentry}
+
+\newcommand{\entrylabel}[1]{\mbox{\textsf{#1}}\hfil}
+\newenvironment{entry}
+  {\begin{list}{}
+    {\renewcommand{\makelabel}{\entrylabel}
+      \setlength{\labelwidth}{90pt}
+      \setlength{\leftmargin}{\labelwidth+\labelsep}
+    }
+  }
+  {\end{list}}
+
+\newlength{\Mylen}
+\newcommand{\Lentrylabel}[1]{%
+  \settowidth{\Mylen}{\textsf{#1}}%
+  \ifthenelse{\lengthtest{\Mylen > \labelwidth}}%
+    {\parbox[b]{\labelwidth} %  term > labelwidth
+      {\makebox[0pt][l]{\textsf{#1}}\\}} %
+    {\textsf{#1}} %
+
+  \hfil\relax}
+\newenvironment{Lentry}
+  {\renewcommand{\entrylabel}{\Lentrylabel}
+   \begin{entry}}
+  {\end{entry}}
+%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newenvironment{CCTKFunc}[2]
+        {\sbox{\cctkbox}{#1}
+         \newpage
+         \noindent{\t #1}\hrule 
+         \vskip .3cm \noindent #2\\
+%Clear the saveboxes - this may not be neccessary
+         \sbox{\cctkcargbox}{}
+         \sbox{\cctkfargbox}{}
+         \sbox{\cctkfargdefs}{}
+         \sbox{\cctkcsepbox}{}
+         \sbox{\cctkfsepbox}{}
+         \sbox{\cctkfdefssep}{}
+         \sbox{\cctkcprefix}{}
+         \sbox{\cctkfprefix}{}
+%A command to add an argument - takes ctype, ftype, name
+         \newcommand{\argument}[3]
+         {\sbox{\cctkcargbox}{\usebox{\cctkcargbox}\usebox{\cctkcsepbox} ##1 ##3} 
+          \sbox{\cctkcsepbox}{,}
+          \sbox{\cctkfargbox}{\usebox{\cctkfargbox}\usebox{\cctkfsepbox} ##3} 
+          \sbox{\cctkfsepbox}{,}
+          \sbox{\cctkfargdefs}{\noindent{}\vbox{\noindent\usebox{\cctkfargdefs}\noindent\usebox{\cctkfdefssep}\noindent {}  ##2 ##3}}
+          \sbox{\cctkfdefssep}{\\}
+         }
+%Use this command if it is a subroutine, same args as \argument
+         \newcommand{\subroutine}[3]
+         {\sbox{\cctkcprefix}{##1 ##3 =}
+          \sbox{\cctkfprefix}{call}
+          \sbox{\cctkfargbox}{##3\usebox{\cctkfsepbox} \usebox{\cctkfargbox}} 
+          \sbox{\cctkfsepbox}{,}
+          \sbox{\cctkfargdefs}{\noindent{}\vbox{\noindent ##2 ##3 \usebox{\cctkfdefssep}\noindent{}\usebox{\cctkfargdefs}}}
+          \sbox{\cctkfdefssep}{\\}
+         }
+
+%Use this command if it is a function, same args as \argument
+         \newcommand{\function}[3]
+         {\sbox{\cctkcprefix}{##1 ##3 =}
+          \sbox{\cctkfprefix}{##3 = }
+          \sbox{\cctkfargdefs}{\noindent{}\vbox{\noindent ##2 ##3 \usebox{\cctkfdefssep}\noindent{}\usebox{\cctkfargdefs}}}
+          \sbox{\cctkfdefssep}{\\}
+         }
+
+%Use this to display the arguments
+         \newcommand{\showargs}
+         {\noindent
+          \begin{tabular}{@{}p{3cm}cp{11cm}}&&\\
+{\bf Synopsis} \hfill&&\\ 
+\hfill {\bf C} && {\t \usebox{\cctkcprefix} \usebox{\cctkbox}(\usebox{\cctkcargbox})}\\
+\hfill {\bf Fortran} && 
+{\t \usebox{\cctkfprefix} \usebox{\cctkbox}(\usebox{\cctkfargbox} ) }\\
+&&\noindent\usebox{\cctkfargdefs}
+\end{tabular}\\
+}
+
+%Use this to display the C arguments
+         \newcommand{\showcargs}
+         {\noindent
+          \begin{tabular}{@{}p{3cm}cp{11cm}}&&\\
+{\bf Synopsis} \hfill&&\\ 
+\hfill {\bf C} && {\t \usebox{\cctkcprefix} \usebox{\cctkbox}(\usebox{\cctkcargbox})}\\
+\end{tabular}\\
+}
+
+
+%Environment for describing parameters
+          \newenvironment{params}{
+             \noindent\begin{tabular}{@{}p{3cm}cp{11cm}}&&\\{\bf Parameters} \hfill&&\\}{\end{tabular}\\}
+%Command to describe a parameter, takes name and description
+          \newcommand{\parameter}[2]{
+\\
+\hfill {\t ##1} &-&##2
+\\
+}
+%Environment for discussion
+    \newenvironment{discussion}
+    {\noindent
+     \begin{tabular}{@{}p{14cm}}
+     \\{\bf Discussion} \hfill\\
+    }
+    {
+     \end{tabular}\\
+    }
+%Environment for examples
+    \newenvironment{examples}
+    {\noindent
+     \begin{tabular}{@{}p{14cm}}
+     \\{\bf Examples} \hfill\\
+    }
+    {
+     \end{tabular}\\\\
+    }
+
+%Environment for describing errors
+     \newenvironment{errorcodes}
+    {\noindent
+     \begin{tabular}{@{}p{6cm}cp{10cm}}&&\\
+     {\bf Errors} \hfill&&\\}
+    {\end{tabular}\\}
+%Command to describe an errorcode, takes name and description
+          \newcommand{\errorcode}[2]{
+\\
+\hfill {\t ##1} &-&##2
+\\
+}
+
+}% end of \begin{CCTKFunc} expansion
+{}% \end{CCTKFunc} expansion
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%
+% Alternate environments/macros to define function descriptions
+% (can/should be used to replace CCTKFunc environment)
+% Jonathan Thornburg, 10 Nov 2001
+%
+% Usage:
+%	\begin{FunctionDescription}{name}
+%	\label{label}
+%	Synopsis for this function			(running text rules)
+%
+%	\begin{Synopsis}{C}
+%	text of C function synopsis			(running text rules)
+%	\end{Synopsis}
+%	\begin{Synopsis}{Fortran}
+%	text of Fortran function synopsis		(running text rules)
+%	\end{Synopsis}
+%
+%	\begin{ResultNote}
+%	note to go at the beginning of all results	(running text rules
+%	(this is optional; omit the ResultNote environment if not needed)
+%	\end{ResultNote}
+%	\begin{Result}{name or value (automatically in \tt font)}
+%	desription of what the result means in general,
+%	or of what this particular result value means	(running text rules)
+%	\end{Result}
+%
+%	\begin{Parameter}{name (automatically in \tt font)}
+%	desription of parameter				(running text rules)
+%	\end{Parameter}
+%	\begin{Parameter}{name2 (automatically in \tt font)}
+%	desription of another parameter			(running text rules)
+%	\end{Parameter}
+%	\begin{Discussion}
+%	discussion					(running text rules)
+%	\NewPar
+%	another paragraph of discussion			(running text rules)
+%	\NewPar
+%	yet another paragraph of discussion		(running text rules)
+%	\end{Discussion}
+%
+%	\begin{SeeAlso}{name (automatically in \tt font)
+%	cross-references to other function of that name (running text rules)
+%	\end{SeeAlso}
+%	\begin{SeeAlso}{name2 (automatically in \tt font)
+%	cross-references to another function            (running text rules)
+%	\end{SeeAlso}
+%
+%	\begin{Error}{error\_code (automatically in \tt font)}
+%	description of what this error code means	(running text rules)
+%	\end{Error}
+%	\begin{Error}{error\_code2 (automatically in \tt font)}
+%	description of what next error code means	(running text rules)
+%	\end{Error}
+%
+%	\begin{Example}{C}
+%	example C code					(running text rules)
+%	\end{Example}
+%	\begin{Example}{Fortran}
+%	example Fortran code				(running text rules)
+%	\end{Example}
+%
+% For arguments which are automatically in \tt font, \rm may be used
+% to switch back to normal Roman font (eg for a numerical value), and
+% $...$ may be used for math mode (eg  ($\ge 0$)  to mark a result
+% which is always non-negative).
+%
+% Each "running text rules" item is the body of a latex environment,
+% so it may include multiple lines or even paragraphs.  Normally
+% underscore must be escaped (\_), but  \verb|...|  and/or
+%	\begin{verbatim}
+%	...
+%	\end{verbatim}
+% or similar constructs (which can't be used inside a macro argument)
+% may also be used (in which case _ { } \ etc need not be escaped).
+%
+% Within a multi-paragraph "running text rules" item, \NewPar should be
+% used at the start of each new paragraph.
+%
+% All the subsections are optional.
+%
+% Bugs:
+% - There are various hardcoded lengths which should ideally be global
+%   style parameters, and/or be determined from other style parameters
+%   and \textwidth
+% - It would be nice if we could avoid having to escape underscore
+%   within arguments.
+% - Error checking: if you have to ask, there isn't enough for you! :)
+% - The vertical spacing is a bit of a hack.  Notably, having to use
+%   \NewPar is an awful kludge -- \par should be redefined to do this
+%   automagically.
+% - There are no controls to prevent a page break falling between the
+%   line "C" or "Fortran", and an immediately following example generated
+%   by the Example subenvironment.  In fact, LaTeX seems to like doing
+%   this. :(
+% - It would be nice to have a "...continued" legend at the bottom of
+%   all but the last page of a multi-page description.
+% - The running header giving the function name, only appears for the
+%   first page of a multi-page description.
+% - In some ideal world, "See Also" would generate pdf hotlinks.
+% - Footnotes don't work properly -- they come out at the bottom of
+%   the individual section, not at the bottom of the page.
+%   
+\newenvironment{FunctionDescription}[1]
+{
+\def\NewPar{\vskip0.5\baselineskip}
+\newpage
+\noindent{\t #1}
+\vskip1mm
+\hrule 
+\vskip3mm
+%
+% We define all the subenvironments inside the main one, so they won't
+% interfere with any conflicting global definitions.
+%
+% We want to generate a heading for the *first* Synopsis, Result, Parameter,
+% SeeAlso, Error, or Example environment, but not for later ones, so for
+% each of these environments we first \gdef the desired heading, then have
+% the environment redefine it to be empty (or just some vspace).
+%
+\gdef\SynopsisHeading{{\bf Synopsis}\\}%%%
+\newenvironment{Synopsis}[1]
+               {%%%
+               \par
+               \noindent\SynopsisHeading
+               \gdef\SynopsisHeading{{\bf \ }\\[-0.5\baselineskip]}%%%
+               \hbox to 25mm{\hfill\bf ##1}\quad\begin{minipage}[t]{125mm}
+               }
+               {%%%
+               \end{minipage}
+               \hrule height0ex depth0ex	% advance vertically down to
+				               % end of above minipage box
+               }
+\gdef\ResultHeading{{\bf Result}\\}%%%
+\newenvironment{ResultNote}
+               {%%%
+               \par
+               \noindent\ResultHeading
+               \gdef\ResultHeading{{\bf \ }\\[-0.5\baselineskip]}%%%
+               \begin{minipage}[t]{150mm}
+               }
+               {%%%
+               \end{minipage}
+               \hrule height0ex depth0ex	% advance vertically down to
+						% end of above minipage box
+               }
+\newenvironment{Result}[1]
+               {%%%
+               \par
+               \noindent\ResultHeading
+               \gdef\ResultHeading{{\bf \ }\\[-0.5\baselineskip]}%%%
+               \hbox to 25mm{\hfill\t ##1}\quad\begin{minipage}[t]{125mm}
+               }
+               {%%%
+               \end{minipage}
+               \hrule height0ex depth0ex	% advance vertically down to
+						% end of above minipage box
+               }
+\gdef\ParameterHeading{{\bf Parameters}\\}%%%
+\newenvironment{Parameter}[1]
+               {%%%
+               \par
+               \noindent\ParameterHeading
+               \gdef\ParameterHeading{{\bf \ }\\[-0.5\baselineskip]}%%%
+               \hbox to 25mm{\hfill\t ##1}\quad\begin{minipage}[t]{125mm}
+               }
+               {%%%
+               \end{minipage}
+               \hrule height0ex depth0ex	% advance vertically down to
+						% end of above minipage box
+               }
+\newenvironment{Discussion}
+               {%%%
+               \par
+               \noindent{\bf Discussion}\\
+               \hbox to 25mm{\hfill}\quad\begin{minipage}[t]{125mm}
+               }
+               {%%%
+               \end{minipage}
+               \hrule height0ex depth0ex	% advance vertically down to
+						% end of above minipage box
+               }
+\gdef\SeeAlsoHeading{{\bf See Also}\\}%%%
+\newenvironment{SeeAlso}[1]
+               {%%%
+               \par
+               \noindent\SeeAlsoHeading
+               \gdef\SeeAlsoHeading{{\bf \ }\\[-0.5\baselineskip]}%%%
+               \hbox to 55mm{\hfill\t ##1}\quad\begin{minipage}[t]{95mm}
+               }
+               {%%%
+               \end{minipage}
+               \hrule height0ex depth0ex	% advance vertically down to
+						% end of above minipage box
+               }
+\gdef\ErrorHeading{{\bf Errors}\\}%%%
+\newenvironment{Error}[1]
+               {%%%
+               \par
+               \ErrorHeading
+               \gdef\ErrorHeading{{\bf \ }\\[-0.5\baselineskip]}%%%
+               \hbox to 55mm{\hfill\t ##1}\quad\begin{minipage}[t]{95mm}
+               }
+               {%%%
+               \end{minipage}
+               \hrule height0ex depth0ex	% advance vertically down to
+						% end of above minipage box
+               }
+\gdef\ExampleHeading{{\bf Examples}\\}%%%
+\newenvironment{Example}[1]
+               {%%%
+               \par
+               \ExampleHeading
+               \gdef\ExampleHeading{{\bf \ }\\[-0.5\baselineskip]}%%%
+               \hbox to 25mm{\hfill\bf ##1}\\	% put #1 on a line by itself
+               \hbox to 25mm{\hfill}\quad\begin{minipage}[t]{125mm}
+               }
+               {%%%
+               \end{minipage}
+               \hrule height0ex depth0ex	% advance vertically down to
+						% end of above minipage box
+               }
+}% end of \begin{FunctionDescription} expansion
+{}% \end{FunctionDescription} expansion is empty
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Takes three arguments - the name of the document, the revision, and
+% the date.
+% Additionally ther eis an optional first argument with the version number
+
+\newcommand{\cactustitlepage}[4][4.0]
+{
+\thispagestyle{empty}
+\setlength{\parindent}{0mm}
+\setlength{\parskip}{0mm}
+\vspace*{\stretch{1}}
+\rule{\linewidth}{1mm}
+\begin{flushright}
+  \Huge Cactus #1\\[5mm]
+        #2
+\end{flushright}
+\rule{\linewidth}{1mm}
+\vspace*{\stretch{2}}
+\begin{center}
+\ifpdf
+\else
+\includegraphics[angle=0,width=5cm]{bincactus2.eps}
+\fi
+\end{center}
+\vspace*{\stretch{2}}
+\begin{center}
+   \Large #3 \\[3mm]
+          #4
+\end{center}
+\newpage
+\setlength{\parindent}{0mm}
+\setlength{\parskip}{0mm}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newenvironment{cactuspart}[4]
+{
+  \clearpage
+  \renewcommand{\thepage}{\Alph{part}\arabic{page}}
+  % Redefine the plain style
+  \fancypagestyle{plain}
+  {
+    \fancyhf{} % Clear all header and footer fields
+    \lfoot{#3}
+    \cfoot{#4}
+    \rfoot{\thepage/\pageref{lastpage:\thepart}}
+    \renewcommand{\headrulewidth}{0.0pt}  
+    \renewcommand{\footrulewidth}{0.4pt}  
+    \renewcommand{\thepage}{\Alph{part}\arabic{page}}
+  }
+
+  % Make sure it's arabic numbering
+  \pagenumbering{arabic}
+  % Start the page counter at 1
+  \setcounter{page}{1}
+  % Start a new part
+  \renewcommand{\thepage}{\Alph{part}\arabic{page}}
+  \part{#2}
+  \setcounter{part}{#1}
+  % Redefine the page
+  % Set up fancy headings.
+  \lfoot{#3}
+  \cfoot{#4}
+  \rfoot{\thepage/\pageref{lastpage:\thepart}}
+  \renewcommand{\headrulewidth}{0.4pt}
+  \renewcommand{\footrulewidth}{0.4pt}
+}
+{
+  % Remember the last page of the 
+  \label{lastpage:\thepart}
+  \clearpage
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\ifpdf
+\DeclareGraphicsExtensions{.pdf, .jpg}
+\else
+\DeclareGraphicsExtensions{.eps, .jpg}
+\fi
+
+\cactustitlepage{Users' Guide}{$$Revision: 1.32 $$}{$$Date: 2001/12/20 16:59:28 $$}
+
+\setcounter{page}{1}
+
+% Table of contents
+\pagenumbering{roman}
+
+\tableofcontents
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\renewcommand{\thepart}{\Alph{part}}
+\renewcommand{\thechapter}{\Alph{part}\arabic{chapter}}
+\renewcommand{\thepage}{\Alph{part}\arabic{page}}
+\pagestyle{fancy}
+\parskip = 10 pt
+\parindent = 0pt
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\include{Preface}
+
+\include{RunningCactus}
+
+\include{ThornWriters}
+
+\include{UtilityRoutines}
+
+\include{Infrastructure}
+
+\include{FunctionReference}
+
+\include{Appendices}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% The rest is just odd bits for use in future documents.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\part{Infrastructure Thorn Writing}
+
+      a) Adding to the GH structure
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\part{The Base Package}
+
+      a) thorn\_IO
+      b) thorn\_PUGH
+      c) ...
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\part{Flesh Maintenance}
+
+Cactus uses GNU autoconf to build the files configure and config.h.in which
+come with the distribution (these files are created by the Cactus
+maintainers by running autoconf and autoheader respectively).
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

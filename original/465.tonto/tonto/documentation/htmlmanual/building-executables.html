@@ -1,0 +1,321 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>How TONTO builds executables</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Which C-preprocessor options to use?"
+HREF="c-preprocessor.html"><LINK
+REL="NEXT"
+TITLE="Machine specific code in TONTO"
+HREF="code-portability.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="CHAPTER"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="c-preprocessor.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="code-portability.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="BUILDING-EXECUTABLES"
+></A
+>How TONTO builds executables</H1
+><P
+ALIGN="justify"
+>This section is for programmers who want to understand how the TONTO
+system builds executables using <TT
+CLASS="LITERAL"
+>perl -w Makefile.pl</TT
+> and then
+the <TT
+CLASS="LITERAL"
+>make</TT
+> program. </P
+><P
+ALIGN="justify"
+>In particular, how TONTO deals with machine dependencies, and how it
+avoids unnecessary recompilation.</P
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="MAKE"
+></A
+>The make program and the Makefile</H1
+><P
+ALIGN="justify"
+><TT
+CLASS="LITERAL"
+>make</TT
+> is a program that controls how a program is
+compiled.</P
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>Makefile</TT
+> is a database used by the
+<TT
+CLASS="LITERAL"
+>make</TT
+> program to provide the instructions to compile
+TONTO.</P
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>Makefile</TT
+> is comprised of the following important
+sections:
+<P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>A part defining the machine specific compilation options to be
+used, and where the executable is to be installed.</P
+><P
+ALIGN="justify"
+>---This part is changed by the <TT
+CLASS="LITERAL"
+>Makefile.pl</TT
+> program as
+detailed in the next section.</P
+><P
+ALIGN="justify"
+>---This part is the part that is changed by hand to make customised
+versions of TONTO.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>A part defining where the all the required files are located;
+that is, the locations of the <SPAN
+CLASS="QUOTE"
+>"<TT
+CLASS="LITERAL"
+>foo</TT
+>"</SPAN
+> source code,
+fortran code, fortran interface files, object code, module files, dependency
+files, documentation directories, and compile scripts.  The directories which
+contain all these files are easily identified.</P
+><P
+ALIGN="justify"
+>---These names of these directories are never altered.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>A part listing the object files in hierarchical module order;
+that is, arranged in an order such that the objects which use other objects come
+later in the ordered list.</P
+><P
+ALIGN="justify"
+>---You will only need to modify hierarchical object files if you are
+writing a new module.  If you want to do this you should refer to 
+<A
+HREF="fortran-modules.html"
+>the chapter called <I
+><TT
+CLASS="LITERAL"
+>Writing Fortran modules for TONTO</TT
+></I
+></A
+>&#62; or to <A
+HREF="foo-modules.html"
+>the chapter called <I
+>Writing <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> modules for TONTO</I
+></A
+>&#62;.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>A part which includes a <TT
+CLASS="LITERAL"
+>dependfile</TT
+> containing
+the dependencies of each of the listed object files. These dependencies are
+found in the <TT
+CLASS="LITERAL"
+>dependencies</TT
+> directory, and are make by the
+<TT
+CLASS="LITERAL"
+>make_dependencies.perl</TT
+> script.</P
+><P
+ALIGN="justify"
+>---You will only need to modify the <TT
+CLASS="LITERAL"
+>dependfile</TT
+> file if
+you are writing a Fortran module. If you are writing a <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> module, which is
+the recommended procedure, then this is done automatically.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>A part describing how to make the dependency files, fortran,
+html documentation, object, module, and executable files.</P
+><P
+ALIGN="justify"
+>---This section makes use of <B
+CLASS="COMMAND"
+>make</B
+> <SPAN
+CLASS="QUOTE"
+>"pattern
+rules"</SPAN
+>. You should not need to alter this section unless your compiler
+makes unusual files which need to be included.  For example, the
+<TT
+CLASS="LITERAL"
+>SGI</TT
+> compiler produces module files with capitalised
+names.</P
+></LI
+></UL
+></P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="c-preprocessor.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="code-portability.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Which C-preprocessor options to use?</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Machine specific code in TONTO</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

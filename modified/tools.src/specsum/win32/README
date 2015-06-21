@@ -1,0 +1,15 @@
+All of the include files in the mingw/ subdirectory were generated using
+the standard build system on a system with both MinGW GCC and MSYS installed.
+Normally you'd think that this would be the way to go (hey, just use
+the regular old buildtools!), and normally you'd be right... But in this case
+we don't want to have dependencies on DLLs distributed only with MSYS.
+
+The MinGW-specific Makefile is pretty simple (except for the pattern rules
+that enable building all the binaries) and was constructed by observing
+the output of make from the MSYS build.
+
+Other than the GNUlib stuff, the Windows emulation of dirent (dirent.[ch])
+was taken from the GNU make 3.82 distribution.  dirent.h was modified
+slightly because it assumed that MinGW ==> MSYS, which is not true.
+
+- Cloyce D. Spradling, 17 Feb 2011

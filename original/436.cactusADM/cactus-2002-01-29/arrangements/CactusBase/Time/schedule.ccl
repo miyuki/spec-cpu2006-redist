@@ -1,0 +1,37 @@
+# Schedule definitions for thorn Time
+# $Header: /cactus/CactusBase/Time/schedule.ccl,v 1.8 2001/08/26 14:33:45 tradke Exp $
+
+STORAGE: speedvars, couranttemps
+
+schedule Time_Initialise at CCTK_BASEGRID before (Time_Simple, Time_Given)
+{
+  LANG: C
+} "Initialise Time variables"
+
+if (CCTK_Equals (timestep_method, "courant_static"))
+{
+  schedule Time_Simple at CCTK_BASEGRID after SpatialCoordinates
+  {
+    LANG: C
+  } "Set timestep based on Courant condition"
+}
+else if (CCTK_Equals (timestep_method, "courant_speed") ||
+         CCTK_Equals (timestep_method, "courant_time"))
+{
+  schedule Time_Simple at CCTK_BASEGRID after SpatialCoordinates
+  {
+    LANG: C
+  } "Set timestep based on Courant condition"
+
+  schedule Time_Courant at CCTK_PRESTEP
+  {
+    LANG: C
+  } "Reset timestep each iteration"
+}
+else
+{
+  schedule Time_Given at CCTK_BASEGRID
+  {
+    LANG: C
+  } "Set fixed timestep"
+}

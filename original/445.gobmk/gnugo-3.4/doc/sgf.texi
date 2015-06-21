@@ -1,0 +1,101 @@
+@cindex SGF files in memory
+
+@dfn{SGF} - Smart Game Format - is a file format which is used for storing
+game records for a number of different games, among them chess and
+go. The format is a framework with special adaptions to each game. This
+is not a description of the file format standard. Too see the exact
+definition of the file format, see @url{http://www.red-bean.com/sgf/}.
+
+GNU Go contains a library to handle go game records in the SGF format in
+memory and to read and write SGF files. This library - @code{libsgf.a} -
+is in the @code{sgf} subdirectory. To use the SGF routines, include the
+file @file{sgftree.h}.
+
+Each game record is stored as a tree of @dfn{nodes}, where each node
+represents a state of the game, often after some move is made. Each node
+contains zero or more @dfn{properties}, which gives meaning to the
+node. There can also be a number of @dfn{child nodes} which are
+different variations of the game tree. The first child node is the main
+variation. 
+
+Here is the definition of @code{SGFNode}, and @code{SGFProperty}, the
+data structures which are used to encode the game tree. 
+
+@example
+@group
+
+typedef struct SGFProperty_t @{
+  struct SGFProperty_t *next;
+  short  name;
+  char   value[1];
+@} SGFProperty;
+
+@end group
+@group
+
+typedef struct SGFNode_t @{
+  SGFProperty      *props;
+  struct SGFNode_t *parent;
+  struct SGFNode_t *child;
+  struct SGFNode_t *next;
+@} SGFNode;
+
+@end group
+@end example
+
+Each node of the SGF tree is stored in an @code{SGFNode} struct. It has
+a pointer to a linked list of properties (see below) called
+@code{props}. It also has a pointer to a linked list of children, where
+each child is a variation which starts at this node. The variations are
+linked through the @code{next} pointer and each variation continues
+through the @code{child} pointer. Each and every node also has a pointer
+to its parent node (the @code{parent} field), except the top node whose
+parent pointer is @code{NULL}.
+
+An SGF property is encoded in the @code{SGFPoperty} struct. It is linked
+in a list through the @code{next} field.  A property has a @code{name}
+which is encoded in a short int.  Symbolic names of properties can be
+found in @file{sgf_properties.h}.
+
+Some properties also have a value, which could be an integer, a floating
+point value, a character or a string. These values can be accessed or
+set through special functions.
+
+@section The SGFTree datatype
+
+Sometimes we just want to record an ongoing game or something similarly
+simple and not do any sofisticated tree manipulation.  In that case we
+can use the simplified interface provided by @code{SGFTree} below. 
+
+@example
+@group
+
+typedef struct SGFTree_t @{
+  SGFNode *root;
+  SGFNode *lastnode;
+@} SGFTree;
+
+@end group
+@end example
+
+An @code{SGFTree} contains a pointer to the root node of an SGF tree and
+a pointer to the node that we last accessed. Most of the time this will
+be the last move of an ongoing game.
+
+Most of the functions which manipulate an @code{SGFTree} work exactly
+like their @code{SGFNode} counterparts, except that they work on the
+current node of the tree.
+
+All the functions below that take arguments @code{tree} and @code{node}
+will work on:
+
+@enumerate
+@item
+@code{node} if non-@code{NULL}
+@item
+@code{tree->lastnode} if non-@code{NULL}
+@item
+The current end of the game tree.
+@end enumerate
+in that order.
+

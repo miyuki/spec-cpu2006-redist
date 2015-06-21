@@ -1,0 +1,434 @@
+\documentclass{article}
+\usepackage{latexsym}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{Einstein}
+\author{AEI/NCSA/WashU Relativity Groups}
+\date{1997-1999\\$ $Id: documentation.tex,v 1.6 2001/09/27 11:12:33 lanfer Exp $ $}
+\maketitle
+
+\abstract{Base thorn for Einstein arrangement}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Purpose}
+The Einstein thorn defines the standard relativity variables and
+parameters, in addition to a number of scheduled and utility routines
+relevant for any thorn using them.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Grid Functions}
+
+Einstein defines 3D grid functions for the 
+\begin{itemize}
+\item	conformal or physical 3-metric, depending on the
+	{\tt conformal\_state} grid scalar described below
+	($g_{ij}$ or $\hat{g}_{ij} = $\{{\tt gxx,gxy,gxz,gyy,gyz,gzz}\}),
+\item	extrinsic curvature ($K_{ij} = $\{{\tt kxx,kxy,kxz,kyy,kyz,kzz}\}), 
+\item	time-independent conformal factor ($\Psi = ${\tt psi}),
+\item	spatial 1st and 2nd derivatives of the conformal factor \\
+	($\Psi_{,i} = $\{{\tt psix,psiy,psiz}\}), \\
+	($\Psi_{,ij}= $\{{\tt psixx,psixy,psixz,psiyy,psiyz,psizz}\}).
+\item	lapse function ($\alpha=${\tt alp}) 
+\item	shift function ($\beta^i= $\{{\tt betax,betay,betaz}\})
+\end{itemize}
+
+The conformal 3-metric $g_{ij}$ is related to the physical 3-metric
+$\hat{g}_{ij}$ by 
+$$
+\hat{g}_{ij}(t,x^i) = \Psi^4(x^i) g_{ij}(t,x^i)
+$$
+The grid scalar {\tt conformal\_state} is used to keep track of
+what the 3-metric grid functions \{{\tt gxx,gxy,gxz,gyy,gyz,gzz}\}
+mean.  {\tt conformal\_state} should be set to one of the following
+(integer) constants defined in the header file {\tt Einstein.h}:
+\begin{description}
+\item[{\tt CONFORMAL\_METRIC}]
+	$\Rightarrow$ the grid functions are the conformal 3-metric
+	$g_{ij}$.
+\item[{\tt NOCONFORMAL\_METRIC}]
+	$\Rightarrow$ the grid functions are the physical 3-metric
+	$\hat{g}_{ij}$.
+\end{description}
+
+The utility routines
+\begin{verbatim}
+   ConfToPhys(nx,ny,nz, psi, gxx,gxy,gxz,gyy,gyz,gzz)
+   PhysToConf(nx,ny,nz, psi, gxx,gxy,gxz,gyy,gyz,gzz)
+\end{verbatim}
+may be used to change the values of the 3-metric grid functions
+from one to the other everywhere in the grid, i.e.{} to update the
+3-metric grid functions via ${\tt g}ij \leftarrow \Psi^{\pm 4} {\tt g}ij$
+everywhere in the grid.%%%
+\footnote{%%%
+	 Strictly speaking, these routines actually update
+	 the grid functions in this way only for the current
+	 processor's chunk of the grid; you call these
+	 routines on each processor to update the grid
+	 functions everywhere in the grid.%%%
+	 }%%%
+{}  You may call these routines as often as you like to switch the
+3-metric grid functions back and forth.  Note that these routines
+do {\em not\/} alter {\tt conformal\_state}; you must to keep this
+up-to-date yourself!
+
+In theory all thorns which use the 3-metric should honor honor
+{\tt conformal\_state}, i.e. it should be ok to invoke any thorn
+with {\tt conformal\_state} and the grid functions in either state.
+But to be on the safe side, it's probably wise for thorns to save
+the initial value of {\tt conformal\_state}, and restore things to
+that state before they return to the flesh.
+
+Einstein provides analysis routines to calculate the
+\begin{itemize}
+\item	trace of the extrinsic curvature ({\tt trK})
+\item	determinant of the conformal 3-metric ({\tt detg}),
+\item	components of the conformal 3-metric in 
+	spherical polar coordinates ({\tt grr,grp,grq,gpp,gqp,gqq})
+\item	components of the extrinsic curvature in 
+	spherical polar coordinates ({\tt krr,krp,krq,kpp,kqp,kqq})
+\end{itemize}
+
+There are also utility routines to register slicing conditions;
+these are discussed in detail in sections~\ref{sect-slicing-conditions}
+and~\ref{sect-programming-details}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Comments}
+
+Activating the Einstein thorn provides storage for the metric,
+extrinsic curvature, lapse and shift grid functions. Storage
+for the shift and conformal factor variables is assigned 
+depending on the parameters {\tt use\_shift} and {\tt use\_conformal}.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Slicing Conditions}
+\label{sect-slicing-conditions}
+
+Einstein does not itself implement any slicing conditions
+however it does hold the parameter 
+{\tt slicing} which other thorns may extend.
+Thorns extending this parameter should
+respect the following definitions for slicings
+
+\begin{itemize}
+
+\item{\tt geodesic}
+
+This specifies so-called "geodesic" slicing, which corresponds 
+to keeping the lapse fixed to one for the whole evolution. It is called geodesic slicing
+because one can prove that in this case, the world-lines of the observers that move
+normal to the spatial hypersurfaces are geodesics. This slicing
+is the standard one when one considers non-relativistic theories.
+In General Relativity however, it is well known to be generally a bad choice, 
+since obdervers moving along geodesics (i.e. in free fall) can
+easily focus and collide. Whenever this happens our slicing
+becomes singular, and the code will crash.
+
+Geodesic slicing can be very useful for testing the evolution in
+some limited regimes.
+
+\item{\tt static}
+
+This condition is similar to {\tt geodesic} slicing in the
+fact that the lapse does not evolve with time, but now it is allowed
+to have an initial profile that is different from one. This
+initial profile is controlled by the parameter 
+{\tt initial\_lapse} which will be discussed below.
+
+\item{\tt power\_law}
+
+This generalised slicing condition includes as special cases
+harmonic, 1+log, detg and the Bona-Masso family of slicings. 
+The general form is
+$$
+\partial_t \alpha = - \alpha^n f {\mbox tr} K
+$$
+where ${\mbox tr}K$ is the trace of the extrinsic curvature tensor,
+and $f$ is a real positive constant.
+
+\item{\tt harmonic}
+
+Harmonic slicing is a just {\tt power\_law} slicing with {\tt n}=2.
+The name harmonic slicing comes from the fact that it 
+corresponds to a harmonic time coordinate,
+i.e. one that satisfies the equation
+$$
+\Box t = 0
+$$
+
+\item{\tt 1+log}
+
+This "generalised 1+log slicing'' corresponds to
+{\tt power\_law} with ${\tt n}=1$. The name {\tt 1+log}
+comes from the fact that one can integrate
+the evolution equation for the lapse to find that
+$$
+\alpha = H(x^i) + \log(g^{f/2})
+$$
+with $H$ a function of space only (in many cases taken to be one),
+and $g$ the determinant of the spatial metric (the `{\it volume
+element}).
+
+
+\item{\tt maximal}
+
+Maximal slicing corresponds to the condition
+$$
+{\mbox tr}K = \partial_t {\mbox tr} K = 0
+$$
+which leads to the following elliptic equation for the lapse
+$$
+\nabla^2\alpha = \alpha K_{ij} K^{ij}
+$$
+
+Since the lapse is solved via an elliptic equation, no initial lapse
+profile is necessary.
+All that one needs to specify is a boundary condition and elliptic solver.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Courant Condition}
+
+Einstein provides routines for calculating the wave speeds on the grid,
+so that a Courant condition for the timestep can be implemented by
+thorn {\tt CactusBase/Time}. This can only be used for generalised harmonic 
+or generalised 1+log slicings. For these slicing, the characteristic
+wave speeds on the grid, in the direction $x^i$ are
+$$
+v_p^i = \alpha \sqrt(g^{ii})-\beta^i
+$$
+for the physical degrees of freedom, and
+$$
+v_g^i = \alpha f \sqrt(g^{ii})-\beta^i
+$$
+for the gauge degrees of freedom. Here $g^{ii}$ refers to the $xx$, $yy$ or $zz$ component of
+the {\it physical} metric, and $f$ is the parameter {\tt harmonic\_f}.
+ The maximum wavespeed is then the maximum of all these speeds,
+over the grid, over all directions. This is the value of {\tt courant\_wave\_speed} which
+is passed to thorn {\tt CactusBase/Time}.  We also need to calculate the minumum time for
+a wave to cross a zone, passed as {\tt courant\_time} to {\tt CactusBase/Time}. This is
+given by the minimum of $\Delta x^i/v_p^i$ and $\Delta x^i/v_g^i$. 
+
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Programming Details}
+\label{sect-programming-details}
+
+\subsection{Slicing registration}
+To allow for a flexible and expandable way of conditionally executing slicing
+routines we integrated a slicing registration structure into the Einstein
+thorn. The slicing registry works this way:
+We assume an evolution routine that offers some slicing algorithm as
+part of its evolution routine and an external thorn's slicing algorithm, e.g.
+maximal slicing. Each of these slicing is registered by name and
+obtains a unique number (``{\em handle}''). Before the evolution routine is
+carried out, the slicing parameters (and conditional functions (see
+below)) are evaluted and a (global) grid scalar is set to the handle
+of the slicing which is {\em active} during the next iterative step.
+
+Within the evolution routine, the code has to check if it is time to
+execute any of the slicings it offers or make a pass. In the code, the 
+programmer gets the handle for a particular slicing and compares it
+to {\tt active\_slicing\_handle}. It it matches, it can execute the
+slicing code, otherwise he continues, comparing to the next slicing he offers.
+
+Two parameters are used by the slicing mechanism: {\tt slicing}, which 
+can hold {\bf one} slicing name or the keyword {\tt mixed}. If {\tt
+mixed} is set, the second parameter {\tt mixed\_slicing} may be used to 
+specify more than one slicing, where priorities decrease with order/position.
+The use of conditional slicing functions is explained in the next section.
+
+
+\subsection{Using slicing registration}
+Here we give a detailed programming guide on how to incorporate a slicing and 
+a conditional function.
+\begin{enumerate}
+\item{\bf active\_slicing\_handle}: this grid scalar can be understood
+as global integer, that takes the handle of next active slicing. It is 
+set by the routine {\tt  Einstein\_SetNextSlicing}, scheduled at
+CCTK\_PRESTEP. This routine evaluates {\tt slicing}, {\tt
+mixed\_slicing} and any conditional slicing functions registered
+for any of the slicings mentioned in  {\tt mixed\_slicing}. Note that
+you cannot have a conditional slicing function for the single slicing mentioned 
+in the parameter {\tt slicing}.
+
+\item{\bf conditional slicing function} this is a function which is
+registered together with a slicing. This function must return the values
+{\tt SLICING\_YES}, {\tt SLICING\_DONTCARE} or {\tt SLICING\_NO}, (defined
+in {\tt ./Einstein/src/Slicing.h}). Depending of these return value, a 
+slicing is ``activated'': its handle is assigned to {\em
+active\_slicing\_handle}. Should more than one slicing insists on being
+activated, the slicing which is mentioned first in {\tt mixes\_slicing} 
+is given priority.
+
+\item{\bf Register slicing}: Initially, a thorn or evolution routine
+registers the slicing it offers with the slicing database {\em by name}.
+A index number (``{\em handle}'')is assigned to each of the
+slicings. The name under which the slicing is referenced in the
+database {\em has to be the same} as the value taken by the parameter
+{\tt slicing} ( same applies to{\tt mixed\_slicing}). For example in {\tt param.ccl}: 
+\begin{verbatim}
+shares:einstein
+
+EXTENDS KEYWORD slicing ""
+{
+   "static"   :: "Lapse is not evolved"
+   "geodesic" :: "Lapse is set to unity"
+}
+\end{verbatim}
+These slicing can now be registered with the slicing database in {\tt Startup.c}
+
+\begin{verbatim}
+#include "CactusEinstein/Einstein/src/Slicing.h"
+
+void MyEvol_RegisterSlicing(void) {
+  DECLARE_CCTK_PARAMETERS
+  handle = Einstein_RegisterSlicing("geodesic");
+  handle = Einstein_RegisterSlicing("static");
+}
+\end{verbatim}
+The function {\tt MyEvol\_RegisterSlicing(void)} can be scheduled at CCTK\_INITIAL
+FIXME. In this example,  the handle of the slicing is returned by the
+registration call but
+not used any further. Note that the slicing has to be coded, there is
+no check by system if this slicing code exists.
+
+\item{\bf Register ``time-to-slice'' function}: in addition, a
+conditional function can be associated with the slicing handle and 
+will be evalutated everytime that slicing is activated. This allows
+for simple conditionals (``use this slicing every second iteration'')
+to rather complex slicing conditionals (``use this slicing, when the
+lapse has collapsed in the center''). An extension of the example
+above could read:
+\begin{verbatim}
+ 
+#include "CactusEinstein/Einstein/src/Slicing.h"
+
+void MyEvol_RegisterSlicing(void) {
+  DECLARE_CCTK_PARAMETERS
+
+  int LapseHasCollapsed(cGH *GH);
+  int SliceEverySecondIteration(cGH *GH);
+
+  handle = Einstein_RegisterSlicing("default_slice");
+
+  handle = Einstein_RegisterSlicing("geodesic");
+  active = Einstein_RegisterTimeToSlice(handle, SliceEverySecondIteration);	
+
+  handle = Einstein_RegisterSlicing("static");
+  active = Einstein_RegisterTimeToSlice(handle, LapseHasCollapsed);	
+
+}
+
+
+int SliceEverySoManyIteration(cGH *GH) {
+  DECLARE_PARAMETER
+  if (cGH->cctk_iteration%geodesic_every==0) 
+    return(SLICING_YES);
+  else 
+    return(SLICING_NO);
+}
+
+int LapseHasCollapsed(cGH *GH) {
+  if (CheckLapse(GH)) 
+    return(SLICING_YES)
+  else
+    return(SLICING_DONTCARE)
+}
+
+\end{verbatim}
+Note that we include the Slicing.h, which defines our return values
+for the conditional functions. 
+
+In the example above we register two
+slicings and combine them with a condition:
+Slicing {\em geodesic} is activated only if the associated function
+{\tt SliceEverySoManyIteration} returns {\tt SLICING\_YES}. (This is
+the case if the iteration number modulo the value set in the parameter 
+{\tt geodesic\_every} is zero.)
+Otherwise, this slicing is {\em not} executed and the default slicing
+has to kick in. This default slicing could 
+be a slicing that has either {\em no} conditional function or its
+conditional function returns a {\tt SLICING\_DONTCARE}.
+
+Slicing {\em static} is activated, if the associated function returns
+{\tt SLICING\_YES}, which is the case if the lapse has collapsed 
+(as signaled by {\tt CheckLapse(GH)}). If the associated function returns
+the value {\tt SLICING\_DONTCARE} for a failed laps check,
+this slicing will be executed if no other slicing insists on being
+activated. 
+
+
+If two slicings insist on being activated ({\tt SLICING\_YES}) or two
+slicings don't care ({\tt SLICING\_DONTCARE}), the slicing mentioned in
+the parameter {\tt mixed\_slicing} is given priority. 
+
+\item{\bf Using the parameters}
+For the example above, the slicing section of the parameter file could 
+look like this:
+\begin{verbatim}
+einstein::slicing         =  ``mixed''
+einstein::mixed_slicing   =  ``default_slice geodesic static''
+einstein::geodesic_every  =  2
+\end{verbatim}
+Here we would execute {\em default\_slice} by default and+ every second
+iteration {\em geodesic} would kick in. Once the lapse has collapsed,
+{\em static} is executed, overriding the default, but {\em not}
+overriding {\em geodesic}, which is still activated every second
+iteration because it's positioned {\em before} the {\em static}.
+
+\item{\bf Set active slicing} The {\em active\_slicing\_handle} is set
+at {\tt CCTK\_BASEGRID} and {\tt CCTK\_PRESTEP}, {\em before} the
+evolution routine.
+
+\item{\bf Checking the for the active slicing}: Within the program,
+which provides a slicing, a check for the active slicing has to be
+done. Assuming a Fortran code has registered the two slicings
+``geodesic'' and ``static'', the code would like this:
+\begin{verbatim}
+subroutine MY_EVOLUTION(CCTK_ARGUMENTS)
+
+c     declare this function
+      INTEGER Einstein_GetSlicingHandle
+
+c     compare the handle for ``geodesic'' to active_slicing_handle
+      if (active_slicing_handle .eq. 
+     .    Einstein_GetSlicingHandle("geodesic")) then
+        <EXECUTE GEODESIC>
+      else if (active_slicing_handle .eq. 
+     .         Einstein_GetSlicingHandle("static")) then
+        <EXECUTE STATIC>
+      else if (Einstein_GetSlicingHandle(slicing).lt.0)
+         call CCTK_WARN(0,"ERROR: slicing in parfile not registered")
+      endif
+\end{verbatim}
+Here we first check for if the active handle corresponds to ``{\em
+geodesic}'', then ``{\em static}'' and if that fails, we do some
+primitive error management and check if the value of slicing is
+actually the key to a slicing in the database.
+
+\end{enumerate}
+
+
+
+% Automatically created from the ccl files by using gmake thorndoc
+\include{interface}
+\include{param}
+\include{schedule}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{document}

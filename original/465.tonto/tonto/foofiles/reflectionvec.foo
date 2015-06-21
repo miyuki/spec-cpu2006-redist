@@ -1,0 +1,957 @@
+!---------------------------------------------------------------------------
+!
+!  REFLECTIONVEC: a vector of crystal reflection data
+!
+! Copyright (C) Daniel Grimwood, 2000
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: reflectionvec.foo,v 1.11.2.3 2003/11/13 05:36:07 reaper Exp $
+!---------------------------------------------------------------------------
+
+module REFLECTIONVEC
+
+   implicit none
+
+   saved_self :: SELF_TYPE*, private  DEFAULT_NULL
+
+contains
+
+!*******************************************************************************
+!                           Create and Destroy Routines
+!*******************************************************************************
+
+   create(dim)
+   ! Create space for a reflection vector
+     self :: PTR
+     dim :: INT, IN
+     nullify(self)
+     allocate(self(dim))
+     ADD_MEMORY(dim*REFLECTION_SIZE)
+     .set_defaults
+   end
+
+   create_copy(vec) ::: get_from(OBJECTVEC)
+   ! Create a replica copy of "vec".
+      vec :: SELF_TYPE, IN
+      self :: PTR
+   end
+
+   copy(vec) ::: get_from(OBJECTVEC)
+   ! Copy "vec".
+      vec :: SELF_TYPE, IN
+   end
+
+   destroy
+   ! Destroy space for a reflection vector
+     self :: PTR
+     dim :: INT
+     if (.destroyed) return
+     dim = size(self)
+     DELETE_MEMORY(size(self)*REFLECTION_SIZE)
+     deallocate(self)
+   end
+
+   set_defaults
+   ! Set defaults
+      n :: INT
+     do n = 1,size(self)
+       self(n).set_defaults
+     end
+   end
+
+!*******************************************************************************
+!                           Data changing routines
+!*******************************************************************************
+
+   set_indices(h,k,l)
+   ! Set the reflection data from the vector.
+     self :: target
+     h,k,l :: INTVEC, IN
+     ref :: REFLECTION*
+     n :: INT
+     do n=1,.n_refl
+       ref => self(n)
+       ref.h       = h(n)
+       ref.k       = k(n)
+       ref.l       = l(n)
+     end
+   end
+
+   set_F_calc(F_calc)
+   ! Set the reflection data from the vector.
+     self :: target
+     F_calc :: CPXVEC, IN
+      n :: INT
+     do n=1,.n_refl
+       self(n).F_calc = F_calc(n)
+     end
+   end
+
+   set_F_pred(F_pred)
+   ! Set the reflection data from the vector.
+     self :: target
+     F_pred :: REALVEC, IN
+      n :: INT
+     do n=1,.n_refl
+       self(n).F_pred = F_pred(n)
+     end
+   end
+
+   set_F_exp(F_exp)
+   ! Set the reflection data from the vector.
+     self :: target
+     F_exp :: REALVEC, IN
+      n :: INT
+     do n=1,.n_refl
+       self(n).F_exp = F_exp(n)
+     end
+   end
+
+   set_F_sigma(F_sigma)
+   ! Set the reflection data from the vector.
+     self :: target
+     F_sigma :: REALVEC, IN
+      n :: INT
+     do n=1,.n_refl
+       self(n).F_sigma = F_sigma(n)
+     end
+   end
+
+   set_I_pred(I_pred)
+   ! Set the reflection data from the vector.
+     self :: target
+     I_pred :: REALVEC, IN
+      n :: INT
+     do n=1,.n_refl
+       self(n).I_pred = I_pred(n)
+     end
+   end
+
+   set_I_exp(I_exp)
+   ! Set the reflection data from the vector.
+     self :: target
+     I_exp :: REALVEC, IN
+      n :: INT
+     do n=1,.n_refl
+       self(n).I_exp = I_exp(n)
+     end
+   end
+
+   set_I_sigma(I_sigma)
+   ! Set the reflection data from the vector.
+     self :: target
+     I_sigma :: REALVEC, IN
+      n :: INT
+     do n=1,.n_refl
+       self(n).I_sigma = I_sigma(n)
+     end
+   end
+
+   set(ref)
+   ! Set the reflection data from.
+     self :: target
+     ref :: REFLECTIONVEC, target
+     ref1,self1 :: REFLECTION*
+      n :: INT
+     do n=1,.n_refl
+       self1 => self(n)
+       ref1  => ref(n)
+       self1.h       = ref1.h
+       self1.k       = ref1.k
+       self1.l       = ref1.l
+       self1.F_exp   = ref1.F_exp
+       self1.F_pred  = ref1.F_pred
+       self1.F_calc  = ref1.F_calc
+       self1.F_sigma = ref1.F_sigma
+       self1.I_exp   = ref1.I_exp
+       self1.I_pred  = ref1.I_pred
+       self1.I_sigma = ref1.I_sigma
+     end
+   end
+
+   scale_F_pred(fac)
+   ! Scale the predicted structure factors
+     self :: INOUT
+     fac :: REAL, IN
+      n :: INT
+     do n=1,size(self)
+       self(n).F_pred = self(n).F_pred * fac
+     end
+   end
+
+   scale_F_calc(fac)
+   ! Scale the calculated structure factors
+     self :: INOUT
+     fac :: REAL, IN
+      n :: INT
+     do n=1,size(self)
+       self(n).F_calc = self(n).F_calc * fac
+     end
+   end
+
+   scale_F_exp(fac)
+   ! Scale the experimental structure factors
+     self :: INOUT
+     fac :: REAL, IN
+      n :: INT
+     do n=1,size(self)
+       self(n).F_exp = self(n).F_exp * fac
+     end
+   end
+
+   scale_F_sigma(fac)
+   ! Scale the structure factor errors
+     self :: INOUT
+     fac :: REAL, IN
+      n :: INT
+     do n=1,size(self)
+       self(n).F_sigma = self(n).F_sigma * fac
+     end
+   end
+
+!*******************************************************************************
+!                             Enquiry Routines
+!*******************************************************************************
+
+!   created result(res)
+!   ! Returns true if self has been created
+!     self :: PTR
+!     res :: BIN
+!     res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!     self :: PTR
+!     res :: BIN
+!     res = NOT associated(self)
+!   end
+
+   n_refl result (res) ::: pure
+   ! The number of reflections
+     self :: IN
+     res :: INT
+     res = size(self)
+   end
+
+   have_F_calc result (res) ::: pure
+   ! Whether we have any calculated structure factors
+     self :: IN
+     res :: BIN
+      n :: INT
+     res = FALSE
+     do n=1,size(self)
+       if (abs(self(n).F_calc) > TOL(10)) then
+         res = TRUE
+         exit
+       end
+     end
+   end
+
+   have_F_pred result (res) ::: pure
+   ! Whether we have any predicted structure factors
+     self :: IN
+     res :: BIN
+      n :: INT
+     res = FALSE
+     do n=1,size(self)
+       if (abs(self(n).F_pred) > TOL(10)) then
+         res = TRUE
+         exit
+       end
+     end
+   end
+
+   have_F_exp result (res) ::: pure
+   ! Whether we have any experimental structure factors
+     self :: IN
+     res :: BIN
+      n :: INT
+     res = FALSE
+     do n=1,size(self)
+       if (abs(self(n).F_exp) > TOL(10)) then
+         res = TRUE
+         exit
+       end
+     end
+   end
+
+   have_F_sigma result (res) ::: pure
+   ! Whether we have any errors in the structure factors
+     self :: IN
+     res :: BIN
+      n :: INT
+     res = FALSE
+     do n=1,size(self)
+       if (abs(self(n).F_sigma) > TOL(10)) then
+         res = TRUE
+         exit
+       end
+     end
+   end
+
+   have_I_pred result (res) ::: pure
+   ! Whether we have any predicted intensities
+     self :: IN
+     res :: BIN
+      n :: INT
+     res = FALSE
+     do n=1,size(self)
+       if (abs(self(n).I_pred) > TOL(10)) then
+         res = TRUE
+         exit
+       end
+     end
+   end
+
+   have_I_exp result (res) ::: pure
+   ! Whether we have any experimental intensities
+     self :: IN
+     res :: BIN
+      n :: INT
+     res = FALSE
+     do n=1,size(self)
+       if (abs(self(n).I_exp) > TOL(10)) then
+         res = TRUE
+         exit
+       end
+     end
+   end
+
+   have_I_sigma result (res) ::: pure
+   ! Whether we have any errors in the intensities
+     self :: IN
+     res :: BIN
+      n :: INT
+     res = FALSE
+     do n=1,size(self)
+       if (abs(self(n).I_sigma) > TOL(10)) then
+         res = TRUE
+         exit
+       end
+     end
+   end
+
+   have_indices result (res) ::: pure
+   ! Whether we have the Miller indices
+     self :: IN
+     res :: BIN
+      n :: INT
+     res = FALSE
+     do n=1,size(self)
+       if (self(n).h /= 0 OR self(n).k /= 0 OR self(n).l /= 0) then
+         res = TRUE
+         exit
+       end
+     end
+   end
+
+   indices(n) result (res) ::: pure
+   ! Return the miller indices of reflection n.
+     self :: IN
+      n :: INT, IN
+     res :: INTVEC(3)
+     res = (/ self(n).h, self(n).k, self(n).l /)
+   end
+
+!*******************************************************************************
+!                              Statistical Routines
+!*******************************************************************************
+
+   F_chi2 result (res) ::: pure
+   ! chi2 for the structure factors
+     self :: IN
+     res :: REAL
+     z :: REAL
+     n :: INT
+     ENSURE(.have_F_pred,"no predicted structure factors")
+     ENSURE(.have_F_sigma,"no experimental structure factor errors")
+     ENSURE(.have_F_exp,"no experimental structure factors")
+     res = ZERO
+     do n=1,size(self)
+       z = self(n).F_z
+       res = res + z*z
+     end
+     res = res / max(.n_refl - 1,1)
+   end
+
+   I_chi2 result (res) ::: pure
+   ! chi2 for the intensities
+     self :: IN
+     res :: REAL
+     z :: REAL
+     n :: INT
+     res = ZERO
+     ENSURE(.have_I_pred,"no predicted structure factors")
+     ENSURE(.have_I_sigma,"no experimental structure factor errors")
+     ENSURE(.have_I_exp,"no experimental structure factors")
+     do n=1,size(self)
+       z = self(n).I_z
+       res = res + z*z
+     end
+     res = res / max(.n_refl - 1,1)
+   end
+
+   F_goodness_of_fit result (res) ::: pure
+   ! goodness_of_fit for the structure factors
+     self :: IN
+     res :: REAL
+     res = sqrt(.F_chi2)
+   end
+
+   I_goodness_of_fit result (res) ::: pure
+   ! goodness_of_fit for the intensities
+     self :: IN
+     res :: REAL
+     res = sqrt(.I_chi2)
+   end
+
+   F_r_factor result (res) ::: pure
+   ! r factor for the structure factors
+     self :: IN
+     res :: REAL
+     top,bot :: REAL
+     ENSURE(.have_F_pred,"no predicted structure factors")
+     ENSURE(.have_F_sigma,"no experimental structure factor errors")
+     ENSURE(.have_F_exp,"no experimental structure factors")
+     n :: INT
+     top = ZERO
+     bot = ZERO
+     do n=1,size(self)
+       top = top + abs(self(n).F_pred - self(n).F_exp)
+       bot = bot + abs(self(n).F_exp)
+     end
+     res = top / bot
+   end
+
+   I_r_factor result (res) ::: pure
+   ! r factor for the intensities
+     self :: IN
+     res :: REAL
+     top,bot :: REAL
+     n :: INT
+     ENSURE(.have_I_pred,"no predicted structure factors")
+     ENSURE(.have_I_sigma,"no experimental structure factor errors")
+     ENSURE(.have_I_exp,"no experimental structure factors")
+     top = ZERO
+     bot = ZERO
+     do n=1,size(self)
+       top = top + abs(self(n).I_pred - self(n).I_exp)
+       bot = bot + abs(self(n).I_exp)
+     end
+     res = top / bot
+   end
+
+   F_weighted_r_factor result (res) ::: pure
+   ! weighted r factor for the structure factors
+     self :: IN
+     res :: REAL
+     top,bot,z,b :: REAL
+     n :: INT
+     ENSURE(.have_F_pred,"no predicted structure factors")
+     ENSURE(.have_F_sigma,"no experimental structure factor errors")
+     ENSURE(.have_F_exp,"no experimental structure factors")
+     top = ZERO
+     bot = ZERO
+     do n=1,size(self)
+       z = self(n).F_z
+       b = self(n).F_exp / self(n).F_sigma
+       top = top + z*z
+       bot = bot + b*b
+     end
+     res = sqrt(top / bot)
+   end
+
+   I_weighted_r_factor result (res) ::: pure
+   ! weighted r factor for the intensities
+     self :: IN
+     res :: REAL
+     top,bot,z,b :: REAL
+     n :: INT
+     ENSURE(.have_I_pred,"no predicted structure factors")
+     ENSURE(.have_I_sigma,"no experimental structure factor errors")
+     ENSURE(.have_I_exp,"no experimental structure factors")
+     top = ZERO
+     bot = ZERO
+     do n=1,size(self)
+       z = self(n).I_z
+       b = self(n).I_exp / self(n).I_sigma
+       top = top + z*z
+       bot = bot + b*b
+     end
+     res = sqrt(top / bot)
+   end
+
+   F_calc result (res) ::: pure
+   ! return the calculated structure factors
+     self :: IN
+     res :: CPXVEC(size(self))
+     res(:) = self(:).F_calc
+   end
+
+   F_pred result (res) ::: pure
+   ! return the predicted structure factors
+     self :: IN
+     res :: REALVEC(size(self))
+     res(:) = self(:).F_pred
+   end
+
+   F_exp result (res) ::: pure
+   ! return the experimental structure factors
+     self :: IN
+     res :: REALVEC(size(self))
+     res(:) = self(:).F_exp
+   end
+
+   I_pred result (res) ::: pure
+   ! return the predicted intensities
+     self :: IN
+     res :: REALVEC(size(self))
+     res(:) = self(:).I_pred
+   end
+
+   F_sigma result (res) ::: pure
+   ! return the errors in the experimental structure factors
+     self :: IN
+     res :: REALVEC(size(self))
+     res(:) = self(:).F_sigma
+   end
+
+! ***********************
+! List-based I/O Routines
+! ***********************
+
+   read_list_keywords ::: get_from(OBJECTVEC), recursive, leaky
+   ! Read in and process list-based keywords from "stdin". List-based keywords
+   ! are those that are intended to apply to each individual element of the list
+   ! through a list of "keys" stored in the associated list-element type module.
+   ! NOTE: this routine will create the list, if required.
+     self :: PTR
+   end
+
+   process_list_keyword(keyword) ::: get_from(OBJECTVEC), leaky
+   ! Process a list-type "keyword", common to all list-type objects.
+     self :: PTR
+     keyword :: STR(*), IN
+   end
+
+   read_data(ignore_braces) ::: get_from(OBJECTVEC), leaky
+   ! Process the keywords list to read data or commands. If "ignore_braces" is
+   ! present then the opening and closing braces, which are normally required,
+   ! are ignored.
+     self :: PTR
+     ignore_braces :: BIN, optional
+   end
+
+   data_length result (length) ::: get_from(OBJECTVEC)
+   ! Read ahead in stdin to get the "length" of the data list, i.e. the number
+   ! of data items in the list. The data must begin with the first data item,
+   ! *not* a "{" symbol.  The order of data items comprising the list is given
+   ! by keys defined in the associated list-element type module. The data list
+   ! must be terminated by a "}" symbol.
+     self :: PTR
+     length :: INT
+   end
+
+   read_altered_data ::: get_from(OBJECTVEC), leaky
+   ! Read in a sublist of the complete list, and alter the data for that
+   ! sublist.  The order of the data items in the sublist is given by the "keys"
+   ! defined in the associated list-element type module.
+     self :: PTR
+   end
+
+   read_append_data ::: get_from(OBJECTVEC), leaky
+   ! Read in a set of data to append to an existing set.
+     self :: PTR
+   end
+
+   process_keys ::: get_from(OBJECTVEC), leaky
+   ! Process the "keys" on each element of the list.
+     self :: PTR
+   end
+
+   keys_created result (res) ::: get_from(OBJECTVEC)
+   ! Return TRUE if the list-element keys are created.
+      self :: PTR
+      res :: BIN
+   end
+
+   set_keys(the_keys) ::: get_from(OBJECTVEC)
+   ! This is for setting the "keys" externally.
+     self :: PTR
+     the_keys :: STRVEC(len=*,:)
+   end
+
+   clear_keys ::: get_from(OBJECTVEC)
+   ! This is for destroying the "keys" externally.
+     self :: PTR
+   end
+
+   read_keys ::: get_from(OBJECTVEC)
+   ! Read a new set of keys
+      self :: PTR
+   end
+
+   put_keys_table ::: get_from(OBJECTVEC)
+   ! Output a generic table based on the "keys"
+     self :: PTR
+   end
+
+   put_table_header ::: get_from(OBJECTVEC)
+   ! Put out a table header based on "keys"
+      self :: PTR
+   end
+
+   put_table_footer ::: get_from(OBJECTVEC)
+   ! Put out a table footer based on "keys"
+      self :: PTR
+   end
+
+   redirect ::: get_from(OBJECT), leaky
+   ! Redirect input
+     self :: PTR
+   end
+
+   revert ::: get_from(OBJECT), leaky
+   ! Revert back to previous stdin file
+     self :: PTR
+   end
+
+! ***************************
+! Non-list based I/O routines
+! ***************************
+
+   read_keywords ::: leaky
+   ! Read in and process normal (non list-type) keywords from "stdin".
+     self :: PTR
+     word :: STR
+     ENSURE(stdin.next_item=="{","expecting open bracket symbol, {")
+     stdin.read(word)
+     do                 ! Loop over input keywords
+       stdin.read(word)
+       word.to_lower_case
+       if (word=="}")      exit
+       if (stdin.reverted) exit
+       .process_keyword(word)
+     end
+   end
+
+   process_keyword(keyword)
+   ! Process a normal (non list-type) "keyword".
+     self :: PTR
+     keyword :: STR
+     word :: STR
+     word = keyword
+     word.to_lower_case
+     select case (word)
+       case("}") ! do nothing.
+       case("add_random_error         "); .add_random_error
+       case("put                      "); .put
+       case("put_f_exp_data           "); .put_F_exp_data
+       case("put_f_pred_data          "); .put_F_pred_data
+       case("put_f_stats              "); .put_F_stats
+       case("put_i_exp_data           "); .put_I_exp_data
+       case("put_i_stats              "); .put_I_stats
+       case("put_intensity_data       "); .put_intensity_data
+       case("put_structure_factor_data"); .put_structure_factor_data
+       case("redirect                 "); .redirect
+       case("revert                   "); .revert
+       case("simulate_new_f_exp       "); .simulate_new_F_exp
+       case default;     UNKNOWN(word)
+     end
+   end
+
+   shrink(dim) ::: get_from(OBJECTVEC), leaky
+   ! Shrink self to dimension dim.  Contents are retained.
+     self :: PTR
+     dim :: INT, IN
+   end
+
+   expand(dim) ::: get_from(OBJECTVEC), leaky
+   ! Expand the vector "self" to "dim". New slots are left undefined.
+     self :: PTR
+     dim :: INT, IN
+   end
+
+   append(v) ::: get_from(OBJECTVEC), leaky
+   ! Expands self and appends the contents of vector "v".
+     self :: PTR
+     v :: SELF_TYPE, IN
+   end
+
+   append(value) ::: get_from(OBJECTVEC), leaky
+   ! Expands self by 1, and appends the single scalar "value" onto the end.
+     self :: PTR
+     value :: ELEMENT_TYPE, IN
+   end
+
+!*******************************************************************************
+!                                  Output routines
+!*******************************************************************************
+
+   put
+   ! Output the reflection data.
+     self :: PTR
+     stdout.flush
+     stdout.text("Reflection data:")
+     stdout.flush
+     stdout.show("Number of reflections is ",size(self))
+     stdout.flush
+     if (.have_F_pred) then
+       if (.have_F_exp) then
+         .put_structure_factor_data
+       else
+         .put_F_pred_data
+       end
+     else
+       if (.have_F_exp) .put_F_exp_data
+     end
+     if (.have_I_pred) then
+       if (.have_I_exp) then
+         .put_intensity_data
+       else
+         .put_I_pred_data
+       end
+     else
+       if (.have_I_exp) .put_I_exp_data
+     end
+   end
+
+   put_structure_factor_data
+   ! Output the structure factor data
+     self :: PTR
+     .put_F_stats
+     .set_keys(["put_indices", &
+                "put_F_calc ", &
+                "put_F_pred ", &
+                "put_F_exp  ", &
+                "put_F_sigma", &
+                "flush      "] )
+     .put_keys_table
+   end
+
+   put_F_pred_data
+   ! Output only the predicted structure factor data
+     self :: PTR
+     .set_keys(["put_indices", &
+                "put_F_calc ", &
+                "put_F_pred ", &
+                "flush      "] )
+     .put_keys_table
+   end
+
+   put_F_exp_data
+   ! Output only the experimental structure factor data
+     self :: PTR
+     .set_keys(["put_indices", &
+                "put_F_exp  ", &
+                "put_F_sigma", &
+                "flush      "] )
+     .put_keys_table
+   end
+
+   put_intensity_data
+   ! Output the structure factor data
+     self :: PTR
+     .put_I_stats
+     .set_keys(["put_indices", &
+                "put_I_pred ", &
+                "put_I_exp  ", &
+                "put_I_sigma", &
+                "flush      "] )
+     .put_keys_table
+   end
+
+   put_I_pred_data
+   ! Output only the predicted structure factor data
+     self :: PTR
+     .set_keys(["put_indices", &
+                "put_I_calc ", &
+                "put_I_pred ", &
+                "flush      "] )
+     .put_keys_table
+   end
+
+   put_I_exp_data
+   ! Output only the experimental intensity data
+     self :: PTR
+     .set_keys(["put_indices", &
+                "put_I_exp  ", &
+                "put_I_sigma", &
+                "flush      "] )
+     .put_keys_table
+   end
+
+   put_F_stats
+   ! Output the structure factor goodness of fit statistics
+     chi2 :: REAL
+     stdout.flush
+     if (NOT .have_F_pred) &
+     stdout.text("Note that the F_pred are all set to zero!")
+     chi2 = .F_chi2
+     stdout.text("Goodness of fit parameters based on Structure Factors:",flush=2)
+     stdout.show("R factor                    =", .F_r_factor)
+     stdout.show("Weighted R factor           =", .F_weighted_r_factor)
+     stdout.show("chi**2                      =", chi2)
+     stdout.show("Goodness of fit             =", sqrt(chi2))
+   end
+
+   put_I_stats
+   ! Output the intensity goodness of fit statistics
+     chi2 :: REAL
+     chi2 = .I_chi2
+     stdout.flush
+     stdout.text("Goodness of fit parameters based on Intensities:",flush=2)
+     stdout.show("R factor                    =", .I_r_factor)
+     stdout.show("Weighted R factor           =", .I_weighted_r_factor)
+     stdout.show("chi**2                      =", chi2)
+     stdout.show("Goodness of fit             =", sqrt(chi2))
+   end
+
+!*******************************************************************************
+!                                    QQ plots
+!*******************************************************************************
+
+   put_F_qq_plot(name)
+   ! Output a qq plot to the text file.
+   ! It is a plot of the experimental quantile vs expected quantile.
+     name :: STR, optional
+     arch :: ARCHIVE
+     grid :: REALMAT*
+     grid.create(.n_refl,2)
+     .make_F_qq_plot_grid(grid)
+     arch.set(root_name=name,name="qq_plot",format="ascii")
+     arch.write(grid,order="by_row")
+     arch.close
+     grid.destroy
+   end
+
+   put_labelled_F_qq_plot(name)
+   ! Output a qq plot to the text file.
+   ! It is a plot of the experimental quantile vs expected quantile.
+     name :: STR, optional
+     tf :: TEXTFILE*
+     grid :: REALMAT*
+     hkl :: INTMAT*
+      n :: INT
+     hkl.create(.n_refl,3)
+     do n=1,.n_refl
+       hkl(n,:) = .indices(n)
+     end
+     grid.create(.n_refl,2)
+     .make_F_qq_plot_grid(grid,hkl)
+     tf.create(trim(name) // ":qq_plot_labelled")
+     tf.open(for="write")
+     tf.set_use_labels(FALSE)
+     do n=1,.n_refl
+       tf.put(grid(n,1))
+       tf.put(grid(n,2))
+       tf.put(hkl(n,1))
+       tf.put(hkl(n,2))
+       tf.put(hkl(n,3))
+       tf.flush
+     end
+     tf.close
+     tf.destroy
+     grid.destroy
+     hkl.destroy
+   end
+
+   make_F_qq_plot_grid(grid,hkl)
+   ! Make the grid for the Q-Q plot, which is a plot of the deviations X-Y
+   ! versus the expected deviations, assuming that the expected devaitions
+   ! are normally distributed. grid(1,:) contains the expected deviation d0j,
+   ! grid(2,:) contains actual deviation dj.
+     self :: target
+     grid :: REALMAT, target
+     hkl :: INTMAT, optional
+     d,e :: REALVEC*
+     ref :: REFLECTION*
+     p :: REAL
+     n_refl,i,j :: INT
+     n_refl = size(self)
+     ENSURE(size(grid,1)==n_refl, "grid wrong size")
+     ENSURE(size(grid,2)==2,      "grid wrong size")
+
+     e => grid(:,1) ! theoretical z's
+     d => grid(:,2) ! calculated z's
+
+     do i=1,n_refl
+       ref => self(i)
+       d(i)  = ref.F_z * sign(ONE,real(ref.F_calc))
+     end
+
+    ! sort array from lowest z to highest
+     if (present(hkl)) then
+       ENSURE(size(hkl,1)==n_refl, "size of index array incorrect")
+       ENSURE(size(hkl,2)==3,      "size of index array incorrect")
+       do i=1,n_refl-1
+         do j=i+1,n_refl
+           if (d(j) < d(i)) then
+             d.swap_elements(i,j)
+             hkl.swap_columns(i,j)
+           end
+         end
+       end
+     else
+       d.sort
+     end
+
+     do j=1,n_refl                    ! expected quantile, d0j
+       p = (TWO*(n_refl-j)+ONE)/(TWO*n_refl) ! cumulative probability
+       e(n_refl-j+1) = p.z_from_p
+     end
+
+   end
+
+   simulate_new_F_exp
+   ! Set the reflection data to be the experimental reflection data plus an
+   ! error.  The errors are normally distributed, with the experimental errors
+   ! being their standard deviations.
+     n :: INT
+     dF :: REAL
+     stdout.flush
+     stdout.text("*************************************************")
+     stdout.text("adding normally distributed random error to F_exp")
+     stdout.text("*************************************************")
+     do n=1,.n_refl
+       dF.to_random_normal ! dF has mean zero, standard deviation one
+       self(n).F_exp = self(n).F_exp + dF*self(n).F_sigma
+     end
+   end
+
+   add_random_error
+   ! Set the reflection data to be the experimental reflection data plus an
+   ! error.  The errors are normally distributed, with the experimental errors
+   ! being their standard deviations multiplied by a scale factor which is read
+   ! from stdin.
+     n :: INT
+     dF,scale :: REAL
+     stdout.flush
+     stdout.text("*************************************************")
+     stdout.text("adding normally distributed random error to F_exp")
+     stdout.text("*************************************************")
+     stdin.read(scale)
+     stdout.show("normal distribution scaled by ",scale)
+     do n=1,.n_refl
+       dF.to_random_normal ! dF has mean zero, standard deviation one
+       dF=dF*scale
+       self(n).F_exp = self(n).F_exp + dF*self(n).F_sigma
+     end
+   end
+
+end

@@ -1,0 +1,118 @@
+! Copyright (C) Dylan Jayatilaka, 1999
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: run_shell4.foo,v 1.11.2.3 2003/11/13 06:32:40 reaper Exp $
+
+program run_SHELL4
+
+   use TYPES
+   use SYSTEM
+
+   implicit none
+
+   s :: SHELL4*
+   I1,I2 :: REALMAT4*
+   al,bl,cl,dl :: INT
+   maxi :: REAL
+
+   tonto.initialize
+   stdout.create_stdout
+   stdout.open
+
+   stdout.set_real_style("f")
+   stdout.set_real_precision(9)
+   stdout.set_real_width(15)
+   stdout.set_int_width(3)
+
+   stdout.flush
+   stdout.text("ERI integrals for various shell4's, to test all shell4 ERI routines")
+   do al=0,3
+     do bl=0,3
+       do cl=0,3
+         do dl=0,3
+           s.create
+           s.a.n_cc = 2
+           s.b.n_cc = 2
+           s.c.n_cc = 2
+           s.d.n_cc = 2
+           s.a.cc.create(2)
+           s.b.cc.create(2)
+           s.c.cc.create(2)
+           s.d.cc.create(2)
+           s.a.cc(1) = ONE
+           s.b.cc(1) = ONE
+           s.c.cc(1) = THREE
+           s.d.cc(1) = ONE
+           s.a.cc(2) = ONE
+           s.b.cc(2) = THREE
+           s.c.cc(2) = TWO
+           s.d.cc(2) = TWO
+           s.a.ex.create(2)
+           s.b.ex.create(2)
+           s.c.ex.create(2)
+           s.d.ex.create(2)
+           s.a.ex(1) = 2d0
+           s.b.ex(1) = 1d0
+           s.c.ex(1) = 50d0
+           s.d.ex(1) = 0.1d0
+           s.a.ex(2) = 20d0
+           s.b.ex(2) = 10d0
+           s.c.ex(2) = 5d0
+           s.d.ex(2) = 1d0
+           s.a.l = al
+           s.b.l = bl
+           s.c.l = cl
+           s.d.l = dl
+           s.a.n_comp = s.a.l.n_comp
+           s.b.n_comp = s.b.l.n_comp
+           s.c.n_comp = s.c.l.n_comp
+           s.d.n_comp = s.d.l.n_comp
+           s.a.pos = [0.0d0, 0.2d0, 0.0d0]
+           s.b.pos = [0.3d0,-0.3d0, 0.6d0]
+           s.c.pos = [0.8d0, 0.5d0, 0.2d0]
+           s.d.pos = [0.0d0, 0.2d0,-0.3d0]
+
+           stdout.text("*************************************************************")
+           s.put
+           I1.create(s.a.n_comp,s.b.n_comp,s.c.n_comp,s.d.n_comp)
+           I2.create(s.a.n_comp,s.b.n_comp,s.c.n_comp,s.d.n_comp)
+           stdout.flush
+           stdout.text("Calculated using Roland Lindh's method:")
+           stdout.flush
+           s.get_ERI(I1)
+           stdout.put(I1)
+           stdout.flush
+           stdout.text("Calculated using the HONDO Rys method:")
+           stdout.flush
+           s.make_ERI_ints(I2)
+           stdout.put(I2)
+           stdout.flush
+           maxi = maxval(abs(I1-I2))
+           stdout.set_real_style("d")
+           stdout.show("Maximum difference between ERI's = ",maxi)
+           stdout.set_real_style("f")
+           stdout.flush
+           I2.destroy
+           I1.destroy
+           s.destroy
+         end
+       end
+     end
+   end
+
+end
+

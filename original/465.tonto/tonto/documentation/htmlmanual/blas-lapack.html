@@ -1,0 +1,254 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>Compiling the BLAS and LAPACK libraries</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Compiling and Installing TONTO"
+HREF="compile-install.html"><LINK
+REL="PREVIOUS"
+TITLE="What to do if compiling TONTO fails"
+HREF="compile-fail.html"><LINK
+REL="NEXT"
+TITLE="What you can do if a site_config file does not exist for your
+system"
+HREF="makefiles.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="compile-fail.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="makefiles.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="BLAS-LAPACK"
+></A
+>Compiling the BLAS and LAPACK libraries</H1
+><P
+ALIGN="justify"
+>If you do not have BLAS and LAPACK, you will have to download and install
+them.  Note that if your vendor has their own version, you should use that as it
+is probably much faster.</P
+><P
+ALIGN="justify"
+>BLAS can be obtained from <A
+HREF="http://www.netlib.org/blas/"
+TARGET="_top"
+>http://www.netlib.org/blas/</A
+>.</P
+><P
+ALIGN="justify"
+>LAPACK can be obtained from <A
+HREF="http://www.netlib.org/lapack/"
+TARGET="_top"
+>http://www.netlib.org/lapack/</A
+>.</P
+><P
+ALIGN="justify"
+>Building BLAS and LAPACK should create the files
+<TT
+CLASS="LITERAL"
+>libblas.a</TT
+> and <TT
+CLASS="LITERAL"
+>liblapack.a</TT
+>. These are the
+archived BLAS and LAPACK libraries.</P
+><P
+ALIGN="justify"
+>To ensure these libraries are located, you will need to modify your
+specific <TT
+CLASS="LITERAL"
+>site_config</TT
+> file.  Modify the
+<TT
+CLASS="LITERAL"
+>LIBS</TT
+> variable to read like this:
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>   LIBS = -L/path/to/libs -llapack -lblas</PRE
+></TD
+></TR
+></TABLE
+>
+You must replace the string <TT
+CLASS="LITERAL"
+>/path/to/libs</TT
+> with the directory
+name where you have installed <TT
+CLASS="LITERAL"
+>libblas.a</TT
+> and
+<TT
+CLASS="LITERAL"
+>liblapack.a</TT
+>.
+
+If you compile the BLAS and LAPACK libraries using GNU g77, then you must
+specify some additional library flags such as
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>LIBS    := -L usr/lib/gcc-lib/i386-redhat-linux/2.96 -lg2c -llapack -lblas</PRE
+></TD
+></TR
+></TABLE
+>
+This will vary depending on your operating system / distribution.</P
+><P
+ALIGN="justify"
+>See <A
+HREF="compiler-options.html#LIBS"
+>the Section called <I
+>The <TT
+CLASS="LITERAL"
+>LIBS</TT
+> variable</I
+> in the chapter called <I
+>Compiling customised versions of TONTO</I
+></A
+>&#62; for more information.</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="compile-fail.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="makefiles.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>What to do if compiling TONTO fails</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="compile-install.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>What you can do if a site_config file does not exist for your
+system</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

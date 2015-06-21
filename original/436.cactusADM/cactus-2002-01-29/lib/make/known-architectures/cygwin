@@ -1,0 +1,176 @@
+#! /bin/sh
+# /*@@
+#   @file      cygwin
+#   @date      Thu Jun 24 22:56:51 1999
+#   @author    Tom Goodale
+#   @desc 
+#   First stab at a know architecture file for cygwin from
+#   examination of Joan's changes.
+#   @enddesc 
+#   @version $Header: /cactus/Cactus/lib/make/known-architectures/cygwin,v 1.25 2001/08/23 14:47:47 kcamarda Exp $
+# @@*/
+
+if test "$CCTK_CONFIG_STAGE" = "preferred-compilers" ; then
+
+  if test -z "$CC"; then
+    echo Setting C compiler to cl
+    CC="cl"
+  fi
+
+  if test -z "$CXX"; then
+    echo Setting C++ compiler to cl
+    CXX="cl /TP"
+  fi
+
+  if test -z "$LD"; then
+    LD='$(CC)'
+  fi
+
+else
+
+  CCTK_WriteLine cctk_Archdefs.h '/* WIN stuff */'
+  CCTK_WriteLine cctk_Archdefs.h '#define WIN32'
+
+
+# /Gd means use __cdecl, it's /Gz for __stdcall
+
+  if test -z "$CFLAGS"; then
+    CFLAGS="/nologo /Gd"
+  fi
+
+  if test -z "$CXXFLAGS" ; then 
+    CXXFLAGS="/nologo /Gd"
+  fi
+
+# Set the optimization flags
+  C_OPTIMISE_FLAGS="/Oxy-"
+  CXX_OPTIMISE_FLAGS="/Oxy-"
+
+  CREATEEXE="/Fe"
+  CCOMPILEONLY="/c /Fo"
+
+# Determine which Fortran 90 compiler is in use
+  CYGWIN_F90_COMP=
+
+  if test -n "$F90" ; then 
+    if test "`$F90 2>&1 | grep -i digital`" ; then 
+        CYGWIN_F90_COMP=digital
+    elif test "`$F90 2>&1 | grep -i compaq`" ; then 
+        CYGWIN_F90_COMP=compaq
+    elif test "`$F90 2>&1 | grep -i intel`" ; then 
+        CYGWIN_F90_COMP=intel
+    else
+        echo Unknown Windows f90 compiler.
+        echo Please add appropriate information to 
+        echo $srcdir/known-architectures/cygwin
+        echo and send the updated file to CactusMaint
+        echo We will try anyway ...
+       CYGWIN_F90_COMP=none
+    fi
+  else
+    CYGWIN_F90_COMP=none
+  fi
+
+  case "$CYGWIN_F90_COMP" in
+     digital)
+     : ${F90_LIBS="dfor dfconsol dfport"} 
+     : ${FCOMPILEONLY="/compile_only /object:"}
+     : ${F90FLAGS="/fast /iface:cref"}
+     : ${F77FLAGS="/fast /iface:cref"}
+     CCTK_WriteLine cctk_Archdefs.h '#define WIN32_DIGITAL_FORTRAN'
+     ;;
+     compaq)
+     : ${F90_LIBS="dfor dfconsol dfport"} 
+     : ${FCOMPILEONLY="/compile_only /object:"}
+     : ${F90FLAGS="/fast /iface:cref"}
+     : ${F77FLAGS="/fast /iface:cref"}
+     CCTK_WriteLine cctk_Archdefs.h "#define WIN32_DIGITAL_FORTRAN"
+     ;;
+     intel)
+     : ${F90_LIBS=""} 
+     : ${FCOMPILEONLY="/c /Fo"}
+     : ${F90FLAGS="/nologo"}
+     : ${F77FLAGS="/nologo"}
+     ;;
+     *)
+     :
+     ;;
+  esac
+
+  DIRSEP="\\\\"
+
+  OPTIONSEP="# not even a single a single space under cygwin"
+
+# Convert //a to a: 
+  GET_WD="pwd | sed 's,^/cygdrive/\(.\)/,\1:/,' | sed 's,^//\(.\)/,\1:/,' | sed 's,/,\\\\\\,g' "
+
+# The -nostdinc stops it picking stdio.h, etc, from the GNU headers.
+  C_DEPEND='$(CPP) -E -MM -nostdinc -D_WIN32 $(CPPFLAGS) '
+  CXX_DEPEND='$(CPP) -E -MM -nostdinc -D_WIN32 $(CPPFLAGS) '
+
+# Add in system include dirs from $(INCLUDE).  These may contain spaces.
+# The -D_M_IX86 is necessary for things like winnt.h.  Since this is
+# only used for generating dependencies, it shouldn't make a difference
+# if we use this same flag on ia64.
+  C_DEPEND_OUT='-D_M_IX86 -I"$(strip $(subst ;," -I",$(INCLUDE)))" > $@'
+  CXX_DEPEND_OUT='-D_M_IX86 -I"$(strip $(subst ;," -I",$(INCLUDE)))" > $@'
+
+  MKDIR="mkdir "
+  MKDIRFLAGS=" -p "
+
+  LIBNAME_PREFIX=""
+  LIBNAME_SUFFIX=".lib"
+  CACTUSLIBLINKLINE='/link /libpath:$(subst /,$(DIRSEP),$(CCTK_LIBDIR)) $(foreach lib,$(ALLCACTUSLIBS), $(LIBNAME_PREFIX)$(lib)$(LIBNAME_SUFFIX))'
+
+# Don't need the /link here since it's already in CACTUSLIBLINKLINE
+  GENERAL_LIBRARIES='$(LIBDIRS:%=/libpath:$(subst /,$(DIRSEP),%)) $(LIBS:%=%.lib) /NODEFAULTLIB:libcd /NODEFAULTLIB:libcmt' 
+
+  : ${LIBS="$F90_LIBS wsock32"}
+
+# The Windows file system requires perl backup files to be made when
+# doing in place editing
+  PERL_BACKUP_NECESSARY='yes'
+
+  if test "x$cross_compiling" = "xyes" ; then
+    case "$host_cpu" in
+      i?86)
+        ENDIAN=little
+        SIZEOF_LONG_LONG=8
+        SIZEOF_LONG_INT=4
+        SIZEOF_INT=4
+        SIZEOF_SHORT_INT=2
+
+        SIZEOF_LONG_DOUBLE=8
+        SIZEOF_DOUBLE=8
+        SIZEOF_FLOAT=4
+
+        SIZEOF_POINTER=4
+      ;;
+      ia64)
+        ENDIAN=little
+        SIZEOF_LONG_LONG=8
+        SIZEOF_LONG_INT=8
+        SIZEOF_INT=4
+        SIZEOF_SHORT_INT=2
+
+        SIZEOF_LONG_DOUBLE=8
+        SIZEOF_DOUBLE=8
+        SIZEOF_FLOAT=4
+
+        SIZEOF_POINTER=8
+      ;;
+      *)
+        echo "Don't know details for cross-compilation to $host_cpu"
+    esac
+  fi
+
+# MPI stuff
+#
+# Windows has no native MPI, so we don't set any NATIVE_MPI_XXX variables.
+# This is caught by lib/make/extras/MPI/NATIVE then.
+
+fi
+
+
+
+

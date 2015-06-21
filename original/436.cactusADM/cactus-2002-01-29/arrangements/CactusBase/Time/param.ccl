@@ -1,0 +1,40 @@
+# Parameter definitions for thorn Time
+# $Header: /cactus/CactusBase/Time/param.ccl,v 1.5 2001/07/10 10:29:13 allen Exp $
+
+restricted:
+
+KEYWORD timestep_method "Method for calculating timestep"
+{
+ "given"          :: "Use given timestep"
+ "courant_static" :: "Courant condition at BASEGRID"
+ "courant_speed"  :: "Courant condition at PRESTEP (using wavespeed)"
+ "courant_time"   :: "Courant condition at PRESTEP (using min time)"
+} "courant_static"
+
+BOOLEAN timestep_outonly "Don't set a dynamic timestep, just output what it would be"
+{
+} "no"
+
+private:
+
+REAL timestep "Absolute value for timestep"
+{
+ *:* :: "Could be anything"
+} 0.0
+
+REAL dtfac "The standard timestep condition dt = dtfac*max(delta_space)"
+{
+ 0:* :: "For positive timestep"
+ *:0 :: "For negative timestep"
+} 0.5 
+
+REAL courant_fac "The courant timestep condition dt = courant_fac*max(delta_space)/speed/sqrt(dim)"
+{
+ 0:* :: "For positive timestep"
+ *:0 :: "For negative timestep"
+} 0.9
+
+INT outtimestep_every "How often to output courant timestep"
+{
+ 0:* :: "Zero means no output"
+} 0

@@ -1,0 +1,21 @@
+#define macro1 test
+#defplus macro1 another test
+Next line should be "test another test":
+macro1
+
+#define macro2 this that
+#defplus macro2 this
+#defplus macro2 this
+Next line should be "this that this this"
+macro2
+
+#defplus macro3 one good macro
+#defplus macro3 deserves another
+Next line should be "one good macro deserves another"
+macro3
+
+#defplus macro4 this won't appear
+#undef macro4
+#defplus macro4 a new day
+Next line should be "a new day"
+macro4

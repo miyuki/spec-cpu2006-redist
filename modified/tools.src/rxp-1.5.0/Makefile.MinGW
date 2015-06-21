@@ -1,0 +1,43 @@
+#
+# Makefile for rxp, a validating XML parser
+# Copyright 2009-2011 Standard Performance Evaluation Corporation
+#
+# $Id: Makefile.MinGW 6361 2011-03-03 22:29:36Z cloyce $
+
+all: specrxp.exe
+
+CC=gcc
+CFLAGS=-O2 -g -I. -Iinclude -Icatalog -DHAVE_CONFIG_H -DCHAR_SIZE=16
+
+LIBSRC = $(addprefix catalog/, \
+            catalog.c catalog_dtd.c catutil.c resolve.c entityopener.c \
+          ) \
+         $(addprefix src/, \
+            charset.c ctype16.c dtd.c hash.c http.c infoset-print.c input.c \
+            namespaces.c nf16check.c nf16data.c stdio16.c string16.c \
+            system.c url.c version.c xmlparser.c \
+          )
+
+LIBOBJS = $(LIBSRC:.c=.o)
+
+config.h: config.h.win32
+	copy config.h.win32 config.h
+
+specrxp.exe: src/rxp.o librxp.a 
+	$(CC) $(CFLAGS) -o $@ src/rxp.o -L. -lrxp -lws2_32
+
+librxp.a: $(LIBOBJS) config.h
+	$(AR) r $@ $(LIBOBJS)
+
+cleanos:
+	del /s /q /f catalog\*.o src\*.o *.o *.pdb *.a
+
+clean: cleanos
+	del specrxp.exe config.h
+
+distclean: clean
+
+src/rxp.o: src/rxp.c include/xmlparser.h include/input.h include/dtd.h include/charset.h include/stdio16.h include/string16.h include/namespaces.h config.h
+
+src/xmlparser.o: src/xmlparser.c include/xmlparser.h include/input.h include/dtd.h include/charset.h include/stdio16.h include/string16.h include/ctype16.h include/namespaces.h include/nf16check.h config.h
+

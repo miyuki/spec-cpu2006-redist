@@ -1,0 +1,337 @@
+#
+# The Apache Software License, Version 1.1
+#
+# Copyright (c) 1999-2000 The Apache Software Foundation.  All rights
+# reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with the
+#    distribution.
+#
+# 3. The end-user documentation included with the redistribution,
+#    if any, must include the following acknowledgment:
+#       "This product includes software developed by the
+#        Apache Software Foundation (http://www.apache.org/)."
+#    Alternately, this acknowledgment may appear in the software itself,
+#    if and wherever such third-party acknowledgments normally appear.
+#
+# 4. The names "Xerces" and "Apache Software Foundation" must
+#    not be used to endorse or promote products derived from this
+#    software without prior written permission. For written
+#    permission, please contact apache\@apache.org.
+#
+# 5. Products derived from this software may not be called "Apache",
+#    nor may "Apache" appear in their name, without prior written
+#    permission of the Apache Software Foundation.
+#
+# THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
+# WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+# OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR
+# ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+# USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+# OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+# SUCH DAMAGE.
+# ====================================================================
+#
+# This software consists of voluntary contributions made by many
+# individuals on behalf of the Apache Software Foundation, and was
+# originally based on software copyright (c) 1999, International
+# Business Machines, Inc., http://www.ibm.com .  For more information
+# on the Apache Software Foundation, please see
+# <http://www.apache.org/>.
+#
+#
+# $Id: Makefile.in,v 1.17 2003/11/20 16:59:23 peiyongz Exp $
+#
+
+###################################################################
+#                    IMPORTANT NOTE                               #
+###################################################################
+# Before you try to run the Makefile, make sure you have two      #
+# environment variables set.                                      #
+#                                                                 #
+# export XERCESCROOT=<the directory where you installed XERCES-C> #
+#     export ICUROOT=<the directory where you installed ICU>      #
+#                                                                 #
+###################################################################
+#all these setting come from the arguments passed in to runConfigure.
+PLATFORM = @platform@
+CC  = @cc@
+CXX = @cxx@
+PREFIX = @prefix@
+MESSAGELOADER=@messageloader@
+TRANSCODER=@transcoder@
+
+GCC = @GCC@
+GXX = @GXX@
+
+#MACROS defining commands
+MKDIR=mkdir
+CP=cp
+CD=cd
+RM=rm
+CHMODE=chmod
+
+include ../../version.incl
+include Makefile.incl
+
+UTIL_DIR = util
+SAX_DIR = sax
+SAX2_DIR = sax2
+INTERNAL_DIR = internal
+FRAMEWORK_DIR = framework
+DOM_DIR = dom
+PARSERS_DIR = parsers
+VALIDATORS_DIR = validators
+
+LIBNAME = libxerces-c
+ifeq (${PLATFORM},CYGWIN)
+CYGNAME = cygxerces-c
+endif
+
+PRODUCTNAME=xerces
+PRODUCTVERSION=${VER}
+BINTARGETNAME=${PRODUCTNAME}-c-${PLATFORM}-${CXX}-${PRODUCTVERSION}
+BINTARGETDIR=${HOME}/${BINTARGETNAME}
+
+all:: lib
+
+compile:: Prepare Util Sax Internal Framework Parsers Sax2 Dom Validators
+
+ifeq (${PLATFORM},CYGWIN)
+lib:: ${FQ_SO_NAME}
+else
+lib:: ${FQ_REAL_NAME}
+endif
+
+Prepare::
+	@echo Preparing the directory structure for a build ...
+	-${MKDIR} -p ${XML_OBJ_DIR}
+	-${MKDIR} -p ${XML_LIB_DIR}
+	${MAKE} -C $(UTIL_DIR) includes
+	${MAKE} -C $(SAX_DIR) includes
+	${MAKE} -C $(SAX2_DIR) includes
+	${MAKE} -C $(INTERNAL_DIR) includes
+	${MAKE} -C $(FRAMEWORK_DIR) includes
+	${MAKE} -C $(PARSERS_DIR) includes
+	${MAKE} -C $(VALIDATORS_DIR) includes
+	${MAKE} -C $(DOM_DIR) includes
+
+Util::
+	@echo Building "util"
+	${MAKE} -C $(UTIL_DIR) $(MAKE_FLAGS)
+
+Sax::
+	@echo Building "sax"
+	${MAKE} -C $(SAX_DIR) $(MAKE_FLAGS)
+
+
+Internal::
+	@echo Building "internal"
+	${MAKE} -C $(INTERNAL_DIR) $(MAKE_FLAGS)
+
+Framework::
+	@echo Building "framework"
+	${MAKE} -C $(FRAMEWORK_DIR) $(MAKE_FLAGS)
+
+Parsers::
+	@echo Building "parsers"
+	${MAKE} -C $(PARSERS_DIR) $(MAKE_FLAGS)
+
+Sax2::
+	@echo Building "sax2"
+	${MAKE} -C $(SAX2_DIR) $(MAKE_FLAGS)
+
+Dom::
+	@echo Building "dom"
+	${MAKE} -C $(DOM_DIR) $(MAKE_FLAGS)
+
+Validators::
+	@echo Building "validators"
+	${MAKE} -C $(VALIDATORS_DIR) $(MAKE_FLAGS)
+
+ifeq (${PLATFORM},CYGWIN)
+${FQ_SO_NAME}:: compile
+	@echo Building ${FQ_SO_NAME}
+	${MAKE} -C $(XML_OBJ_DIR)/.. -k $(MAKE_FLAGS)
+else
+${FQ_REAL_NAME}:: compile
+	@echo Building ${FQ_REAL_NAME}
+	${MAKE} -C $(XML_OBJ_DIR)/.. -k $(MAKE_FLAGS)
+endif
+
+install::
+	${MAKE} -C $(UTIL_DIR) $@
+	${MAKE} -C $(SAX_DIR) $@
+	${MAKE} -C $(SAX2_DIR) $@
+	${MAKE} -C $(INTERNAL_DIR) $@
+	${MAKE} -C $(FRAMEWORK_DIR) $@
+	${MAKE} -C $(PARSERS_DIR) $@
+	${MAKE} -C $(DOM_DIR) $@
+	${MAKE} -C $(VALIDATORS_DIR) $@
+	${MAKE} -C $(XML_OBJ) $@
+
+clean::
+	${MAKE} -C $(UTIL_DIR) $@
+	${MAKE} -C $(SAX_DIR) $@
+	${MAKE} -C $(SAX2_DIR) $@
+	${MAKE} -C $(INTERNAL_DIR) $@
+	${MAKE} -C $(FRAMEWORK_DIR) $@
+	${MAKE} -C $(PARSERS_DIR) $@
+	${MAKE} -C $(DOM_DIR) $@
+	${MAKE} -C $(VALIDATORS_DIR) $@
+	${MAKE} -C $(XML_OBJ) $@
+
+distclean::
+	${MAKE} -C $(UTIL_DIR) $@
+	${MAKE} -C $(SAX_DIR) $@
+	${MAKE} -C $(SAX2_DIR) $@
+	${MAKE} -C $(INTERNAL_DIR) $@
+	${MAKE} -C $(FRAMEWORK_DIR) $@
+	${MAKE} -C $(PARSERS_DIR) $@
+	${MAKE} -C $(DOM_DIR) $@
+	${MAKE} -C $(VALIDATORS_DIR) $@
+	${MAKE} -C $(XML_OBJ) $@
+	rm -f Makefile config.cache config.log config.status
+	find . -name Makefile -print -exec rm -f {} \;
+	rm -f *~ core
+
+#docs::
+
+samples::
+	${MAKE} -C ../../samples
+
+copy:: lib samples
+	@echo Make the target directory and its main subdirectories
+	-${MKDIR} ${BINTARGETDIR}
+	-${MKDIR} ${BINTARGETDIR}/bin
+	-${MKDIR} ${BINTARGETDIR}/etc
+	-${MKDIR} ${BINTARGETDIR}/lib
+ifeq (${MESSAGELOADER},ICU)
+	-${MKDIR} ${BINTARGETDIR}/msg
+endif
+ifeq (${MESSAGELOADER},ICONV)
+	-${MKDIR} ${BINTARGETDIR}/msg
+endif
+	-${MKDIR} ${BINTARGETDIR}/include
+	-${MKDIR} ${BINTARGETDIR}/samples
+	-${MKDIR} ${BINTARGETDIR}/doc
+	-${MKDIR} ${BINTARGETDIR}/doc/html
+
+	@echo Populate the include output directory
+	@echo Copying headers files ...
+	-${CP} -Rf ${XERCESCROOT}/include/* ${BINTARGETDIR}/include
+	-${RM} -rf ${BINTARGETDIR}/include/xercesc/dom/impl
+ifeq (${TRANSCODER},ICU)
+	-${CP} -Rf ${ICUROOT}/include/* ${BINTARGETDIR}/include
+else
+   ifeq (${MESSAGELOADER},ICU)
+	-${CP} -Rf ${ICUROOT}/include/* ${BINTARGETDIR}/include
+   endif
+endif
+
+	@echo Populate the binary output directory
+	@echo Copying binary outputs ...
+	-${CP} -Rf ${XERCESCROOT}/bin/* ${BINTARGETDIR}/bin
+	-${CP} -Rf ${XERCESCROOT}/src/xercesc/config.status ${BINTARGETDIR}/etc
+	-${CP} -Rf ${XERCESCROOT}/bin/obj/*.map ${BINTARGETDIR}/etc
+	-${CP} -Rf ${XERCESCROOT}/lib/${REAL_NAME} ${BINTARGETDIR}/lib
+	-${CD} ${BINTARGETDIR}/lib; ln -s ${REAL_NAME} ${SO_NAME}; ln -s ${REAL_NAME} ${LINK_NAME}
+ifeq (${TRANSCODER},ICU)
+	-${CP} -Rf ${ICUROOT}/lib/libicudata26.1.so ${BINTARGETDIR}/lib
+	-${CP} -Rf ${ICUROOT}/lib/libicudata.so.26.1 ${BINTARGETDIR}/lib
+	-${CP} -Rf ${ICUROOT}/lib/libicudata.sl.26.1 ${BINTARGETDIR}/lib
+	-${CD} ${BINTARGETDIR}/lib; find . -name 'libicudata26.1.so' -exec ln -s {} libicudata.so \;
+	-${CD} ${BINTARGETDIR}/lib; find . -name 'libicudata26.1.so' -exec ln -s {} libicudata26.so \;
+	-${CD} ${BINTARGETDIR}/lib; find . -name 'libicudata.so.26.1' -exec ln -s {} libicudata.so \;
+	-${CD} ${BINTARGETDIR}/lib; find . -name 'libicudata.so.26.1' -exec ln -s {} libicudata.so.26 \;
+	-${CD} ${BINTARGETDIR}/lib; find . -name 'libicudata.sl.26.1' -exec ln -s {} libicudata.sl \;
+	-${CD} ${BINTARGETDIR}/lib; find . -name 'libicudata.sl.26.1' -exec ln -s {} libicudata.sl.26 \;
+	-${CP} -Rf ${ICUROOT}/lib/libicuuc26.1.so ${BINTARGETDIR}/lib
+	-${CP} -Rf ${ICUROOT}/lib/libicuuc.so.26.1 ${BINTARGETDIR}/lib
+	-${CP} -Rf ${ICUROOT}/lib/libicuuc.sl.26.1 ${BINTARGETDIR}/lib
+	-${CD} ${BINTARGETDIR}/lib; find . -name 'libicuuc26.1.so' -exec ln -s {} libicuuc.so \;
+	-${CD} ${BINTARGETDIR}/lib; find . -name 'libicuuc26.1.so' -exec ln -s {} libicuuc26.so \;
+	-${CD} ${BINTARGETDIR}/lib; find . -name 'libicuuc.so.26.1' -exec ln -s {} libicuuc.so \;
+	-${CD} ${BINTARGETDIR}/lib; find . -name 'libicuuc.so.26.1' -exec ln -s {} libicuuc.so.26 \;
+	-${CD} ${BINTARGETDIR}/lib; find . -name 'libicuuc.sl.26.1' -exec ln -s {} libicuuc.sl \;
+	-${CD} ${BINTARGETDIR}/lib; find . -name 'libicuuc.sl.26.1' -exec ln -s {} libicuuc.sl.26 \;
+else
+   ifeq (${MESSAGELOADER},ICU)
+	-${CP} -Rf ${ICUROOT}/lib/libicudata26.1.so ${BINTARGETDIR}/lib
+	-${CP} -Rf ${ICUROOT}/lib/libicudata.so.26.1 ${BINTARGETDIR}/lib
+	-${CP} -Rf ${ICUROOT}/lib/libicudata.sl.26.1 ${BINTARGETDIR}/lib
+	-${CD} ${BINTARGETDIR}/lib; find . -name 'libicudata26.1.so' -exec ln -s {} libicudata.so \;
+	-${CD} ${BINTARGETDIR}/lib; find . -name 'libicudata26.1.so' -exec ln -s {} libicudata26.so \;
+	-${CD} ${BINTARGETDIR}/lib; find . -name 'libicudata.so.26.1' -exec ln -s {} libicudata.so \;
+	-${CD} ${BINTARGETDIR}/lib; find . -name 'libicudata.so.26.1' -exec ln -s {} libicudata.so.26 \;
+	-${CD} ${BINTARGETDIR}/lib; find . -name 'libicudata.sl.26.1' -exec ln -s {} libicudata.sl \;
+	-${CD} ${BINTARGETDIR}/lib; find . -name 'libicudata.sl.26.1' -exec ln -s {} libicudata.sl.26 \;
+	-${CP} -Rf ${ICUROOT}/lib/libicuuc26.1.so ${BINTARGETDIR}/lib
+	-${CP} -Rf ${ICUROOT}/lib/libicuuc.so.26.1 ${BINTARGETDIR}/lib
+	-${CP} -Rf ${ICUROOT}/lib/libicuuc.sl.26.1 ${BINTARGETDIR}/lib
+	-${CD} ${BINTARGETDIR}/lib; find . -name 'libicuuc26.1.so' -exec ln -s {} libicuuc.so \;
+	-${CD} ${BINTARGETDIR}/lib; find . -name 'libicuuc26.1.so' -exec ln -s {} libicuuc26.so \;
+	-${CD} ${BINTARGETDIR}/lib; find . -name 'libicuuc.so.26.1' -exec ln -s {} libicuuc.so \;
+	-${CD} ${BINTARGETDIR}/lib; find . -name 'libicuuc.so.26.1' -exec ln -s {} libicuuc.so.26 \;
+	-${CD} ${BINTARGETDIR}/lib; find . -name 'libicuuc.sl.26.1' -exec ln -s {} libicuuc.sl \;
+	-${CD} ${BINTARGETDIR}/lib; find . -name 'libicuuc.sl.26.1' -exec ln -s {} libicuuc.sl.26 \;
+   endif
+endif
+ifeq (${MESSAGELOADER},ICU)
+	-${CP} -f ${XERCESCROOT}/msg/*.res ${BINTARGETDIR}/msg
+endif
+ifeq (${MESSAGELOADER},ICONV)
+	-${CP} -f ${XERCESCROOT}/msg/*.cat ${BINTARGETDIR}/msg
+endif
+	-${RM} -rf ${BINTARGETDIR}/bin/obj
+
+	@echo Populate the samples directory
+	@echo Copying sample files ...
+	-${CP} -Rf ${XERCESCROOT}/samples/* 	${BINTARGETDIR}/samples
+	-${RM2} `find ${BINTARGETDIR}/samples -name Makefile`
+
+	@echo Populate the docs directory
+	@echo Copying documentation ..
+	-${CP} -f ${XERCESCROOT}/doc/index.html ${BINTARGETDIR}/doc
+	-${CP} -Rf ${XERCESCROOT}/doc/html/* ${BINTARGETDIR}/doc/html
+	-${CP} -f ${XERCESCROOT}/*.html ${BINTARGETDIR}
+	-${CP} -f ${XERCESCROOT}/*.txt ${BINTARGETDIR}
+	-${CP} -f ${XERCESCROOT}/version.incl ${BINTARGETDIR}
+
+	@echo Change the directory permissions
+	-${CHMODE} 644 `find ${BINTARGETDIR} -type f`
+	-${CHMODE} 755 ${BINTARGETDIR}/bin/* ${BINTARGETDIR}/lib/*
+	-${CHMODE} +x ${BINTARGETDIR}/samples/runConfigure ${BINTARGETDIR}/samples/configure ${BINTARGETDIR}/samples/install-sh
+	-${CHMODE} +x ${BINTARGETDIR}/samples/config.sub ${BINTARGETDIR}/samples/config.guess ${BINTARGETDIR}/samples/config.status
+	-${CHMODE} 755 `find ${BINTARGETDIR} -type d`
+
+tarball:: copy
+	@echo Now package it all up using tar
+	@echo TARing up all files ...
+	cd ${BINTARGETDIR}/..; tar -cvf ${BINTARGETDIR}.tar ${BINTARGETNAME}/
+	@echo Finally compress the files
+	@echo Compressing ${BINTARGETDIR}.tar ...
+	gzip ${BINTARGETDIR}.tar
+
+zip:: copy
+	${CD} ${BINTARGETDIR}/..
+	@echo ZIPping up all files ...
+	zip -r ${BINTARGETDIR}.zip ${BINTARGETDIR}
+
+
+package_bin:: zip tarball
+

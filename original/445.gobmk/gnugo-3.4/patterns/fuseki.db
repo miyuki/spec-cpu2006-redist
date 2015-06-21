@@ -1,0 +1,2676 @@
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# This is GNU Go, a Go program. Contact gnugo@gnu.org, or see       #
+# http://www.gnu.org/software/gnugo/ for more information.          #
+#                                                                   #
+# Copyright 1999, 2000, 2001, 2002 and 2003                         #
+# by the Free Software Foundation.                                  #
+#                                                                   #
+# This program is free software; you can redistribute it and/or     #
+# modify it under the terms of the GNU General Public License       #
+# as published by the Free Software Foundation - version 2.         #
+#                                                                   #
+# This program is distributed in the hope that it will be useful,   #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of    #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU #
+# General Public License in file COPYING for more details.          #
+#                                                                   #
+# You should have received a copy of the GNU General Public License #
+# along with this program; if not, write to the Free Software       #
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111,  #
+# USA.                                                              #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#
+#  The General Fuseki Pattern Database, fuseki.db
+#
+#  Further documentation may be found in the Texinfo documentation
+#
+#  First there is a pattern title of the form: Pattern [string]. The
+#  string is used for identifying the pattern while tuning or debugging.
+#
+#  Then a block of the following characters representing the pattern
+#  itself.
+#  
+#  ?     : don't care
+#  .     : empty
+#  X     : your piece,
+#  O     : my piece,
+#  x     : your piece or empty
+#  o     : my piece or empty
+#  *     : my next move
+#  -, |  : edge of board
+#  +     : corner of board
+#
+#  If a pattern must not match at the edge of the board,
+#  an extra row of ?'s in the pattern may be added. (This
+#  will not add to the time taken to check the pattern.)
+#
+#################
+#
+#  After the pattern, some supplementary information in the format:
+#
+# :trfno, classification, [values], helper_function
+#   
+#  These and other aspects of the pattern database are documented
+#  in the Texinfo documentation.
+#
+#################
+#
+#  Any line beginning with #, or any part of a line following
+#  whitespace is a comment. 
+#
+#  The patterns are classified into two different categories:
+#  
+#  F     fuseki
+#  J     joseki
+#
+#  The patterns are grouped in the file by category. New patterns
+#  should be added close to a similar pattern or at the end of the
+#  category where it belongs. When a new pattern is added, the names
+#  of later patterns in the category should usually not be changed.
+#  This can be accomplished by introducing names like F10b and so on.
+#
+
+
+######################################################################
+#
+# Fuseki patterns
+#
+# These patterns need to be revised.
+#
+# Various corner enclosures, kakaris, and extensions along the edges.
+#
+# These patterns are further subdivided into the following classes
+#
+# Approach moves
+# Corner enclosures
+# Edge extensions from corner positions
+# Center extensions from wide positions
+# Edge extensions
+# Edge extensions combined with approach moves
+# Pincers
+# Invasions in the middle of the edge
+# Jumps
+#
+######################################################################
+
+
+goal_elements none
+callback_data XOxo
+
+
+################
+# Approach moves
+################
+
+
+#### Low (keima) kakari
+
+
+Pattern F1
+
+|..???...ooo   approach star
+|...X.....O.
+|.....*.....
+|...........
+|...........
++-----------
+
+:8,FEad
+
+
+Pattern F2
+# Made attack dependent on extension space (3.1.25) /ab
+
+|..???.ooo   low kakari against star
+|...X.....
+|.....*...
+|.........
+|.........
++---------
+
+:8,FeE
+
+
+Pattern F3
+
+|..???.oooo   low kakari against star with space for extension
+|...X......
+|.....*...o
+|..........
+|..........
++----------
+
+:8,FeEat,shape(1)
+
+
+Pattern F3h
+# db added (3.3.9)
+
+|..........     keima kakari against star, high handicap game
+|...X.....x
+|.....*...x
+|..........
+|..........
++----------
+
+:8,FEj,shape(.025)
+
+|..........
+|...X.....a
+|.....*...b
+|..........
+|..........
++----------
+
+; x_alive_somewhere(a,b)
+
+
+#### High (ikken taka) kakari
+#### not so good in relation to the corner since the
+####     3-3 point relationship is inferior.
+
+
+Pattern F4
+# Made attack dependent on extension space (3.1.25) /ab
+
+|.........   high kakari against star
+|...X.*...
+|.........
+|.........
+|.........
++---------
+
+:8,FE
+
+
+Pattern F4a
+
+|.........oo   high kakari against star
+|...X.*...oo
+|.........oo
+|...........
+|...........
++-----------
+
+:8,FEa
+
+
+Pattern F5d
+# db added (3.3.9)
+
+|..........      high kakari against star
+|...X.*...x
+|.........x
+|..........
+|..........
++----------
+
+:8,FEj
+
+|..........
+|...X.*...a
+|.........b
+|..........
+|..........
++----------
+
+; x_alive_somewhere(a,b)
+
+
+#### Two space high (nikken taka) kakari
+
+
+Pattern F5
+# Made attack dependent on extension space (3.1.25) /ab
+
+|.........   far high kakari against star
+|...X..*..
+|.........
+|.........
+|.........
++---------
+
+:8,FE
+
+
+Pattern F5a
+
+|.........oo   far high kakari against star
+|...X..*..oo
+|.........oo
+|.........oo
+|.........oo
++-----------
+
+:8,FEa
+
+
+Pattern F5h
+# db added (3.3.9)
+
+|..........   far high kakari against star
+|...X..*..x
+|.........x
+|..........
+|..........
++----------
+
+:8,FEj,shape(.01)
+
+|..........
+|...X..*..a
+|.........b
+|..........
+|..........
++----------
+
+; x_alive_somewhere(a,b)
+
+
+Pattern F6
+
+|....??   3-3 point invasion
+|.....?
+|...X..
+|..*...
+|......
+|......
++------
+
+:/,FI
+
+
+Pattern F7
+# similar to F6, but the difference makes it worthwhile to have both
+
+|...??         san san
+|...X?
+|..*..
+|.....
+|.....
++-----
+
+:/,FI,shape(-2)
+
+
+Pattern F8
+
+|.......   Low kakari against 3-4
+|.......
+|..X....
+|....*..
+|.......
+|.......
++-------
+
+:8,FeEaj
+
+
+Pattern F9
+
+|.........   Low kakari against 3-4
+|.........
+|..X.....o
+|....*...o
+|.........
+|.........
++---------
+
+:8,FeEaj,shape(4)
+
+
+Pattern F10
+
+|.......   High kakari against 3-4
+|.......
+|..X.*..
+|.......
+|.......
+|.......
++-------
+
+:8,FeEaj
+
+
+Pattern F11
+
+|.........   High kakari against 3-4
+|.........
+|..X.*..oo
+|.......oo
+|.........
+|.........
++---------
+
+:8,FeEaj,shape(4)
+
+
+Pattern F12
+
+|..????   3-3 point invasion under 5-3
+|....??
+|....??
+|..*.X?
+|.....?
+|......
++------
+
+:8,FIj,shape(2)
+
+
+Pattern F13
+
+|......  3-4 point kakari against 5-3
+|......
+|......
+|..*..?
+|....X?
+|.....?
+|......
++------
+
+:8,FeEaj,shape(1)
+
+
+Pattern F14a
+
+|......  high kakari against 5-3
+|......
+|......
+|......
+|......
+|...*..
+|.....?
+|....X?
+|.....?
+|......
++------
+
+:8,FeEaj,shape(1)
+
+
+Pattern F14b
+
+|......      takamoku joseki
+|...X..
+|......
+|...*..
+|......
+|......
++------
+
+:8,FeEaj,shape(2)
+
+
+Pattern F15
+
+|..????  3-3 point invasion under 5-4
+|...???
+|...X??
+|......
+|..*...
+|......
+|......
++------
+
+:8,FIj,shape(1)
+
+
+Pattern F16a
+
+|......   shoulder hit on san-san
+|......
+|...*..
+|..X...
+|......
+|......
++------
+
+:/,FEaj,shape(1)
+
+
+Pattern F16b
+
+|........   ogeima approach to san-san
+|........
+|........
+|........
+|...*....
+|........
+|........
+|..X.....
+|........
+|........
++--------
+
+:8,FEaj,shape(1)
+
+
+Pattern F17
+
+|..oo......   low kakari against star with space for extension
+|..........
+|..........
+|..........
+|...X.....o
+|.....*...o
+|..........
+|..........
++----------
+
+:8,FeEaj,shape(3)
+
+
+Pattern F18
+
+|..oo......   high kakari against star with space for extension
+|..........
+|..........
+|..........
+|...X.*...o
+|.........o
+|..........
+|..........
++----------
+
+# The shape value is carefully chosen so that the low kakari will be
+# played much more often, but not always.
+:8,FeEaj,shape(2.98)
+
+
+###################
+# Corner enclosures
+###################
+
+Pattern F101
+
+|......        ikken shimari
+|......
+|..*.O.
+|......
+|......
+|......
++------
+
+:8,FeEj,shape(3)
+
+
+Pattern F102
+
+|.........        lower shimari is better if X can approach
+|.........        at 7-3 (left of a) too easily
+|..O.*.ooo
+|......ooo
+|.........
+|.........
++---------
+
+:8,FeEj,shape(3)
+
+|.........
+|.........
+|..O.*.ooo
+|......oao
+|.........
+|.........
++---------
+
+;!xmoyo(a)
+
+
+Pattern F103
+
+|.......        kogeima shimari
+|.......
+|..O....
+|....*..
+|.......
+|.......
++-------
+
+:8,FeEj,shape(3)
+
+
+Pattern F104
+
+|........        ogeima shimari
+|........
+|..O.....
+|.....*..
+|........
+|........
++--------
+
+:8,Fj,shape(1)
+
+
+Pattern F105
+
+|.......        kogeima shimari
+|.......
+|..*....
+|....O..
+|.......
+|.......
++-------
+
+:8,FeEj,shape(3)
+
+
+Pattern F106
+
+|...O..        defend corner from star
+|......
+|...O..
+|....*.
+|......
+|......
++------
+
+:8,Fet,shape(-3)
+
+
+Pattern F107a
+# This is a large move since it closes the corner. It
+# is not large enough to warrant the j classification.
+
+|..O...        defend corner from star
+|......
+|...O..
+|....*.
+|......
+|......
++------
+
+:8,Fet,shape(-1)
+
+
+Pattern F107b
+
+|..O...        defend corner from star
+|......
+|......
+|...O..
+|...*..
+|......
+|......
++------
+
+:8,Fet,shape(-1)
+
+
+Pattern F108
+
+|..O...        defend corner from star
+|......
+|...O..
+|.....X
+|...*..
+|......
++------
+
+:8,Fet
+
+
+Pattern F109
+# gf Added constraint. (3.1.22)
+# See nngs:1030.
+
+|.......       enclosure from star
+|..*....
+|.......
+|...O...
+|.......
+|.......
+|.......
++-------
+
+:8,FEt,shape(-2)
+
+|...a...
+|..*....
+|.......
+|...O...
+|.......
+|.......
+|.......
++-------
+
+;!omoyo(a)
+
+
+Pattern F109b
+# gf New pattern. (3.1.22)
+
+|.......       enclosure from star
+|.......
+|.......
+|.......
+|..*....
+|.......
+|...O...
+|.......
+|.......
+|.......
++-------
+
+:8,FEt,shape(-2)
+
+
+Pattern F110
+
+|..xx......       extend between two stones on 4-th line
+|..........
+|...O.....O
+|.....*....
+|..........
+|..........
++----------
+
+:8,FEt,shape(-1)
+
+
+#######################################
+# Edge extensions from corner positions
+#######################################
+
+Pattern F201
+# gf Increased value. (3.1.17)
+
+|...O.........    wide extension from ikken shimari
+|.............
+|...O.....*...
+|.............
+|.............
++-------------
+
+:8,FeEj,shape(0.5)
+
+
+Pattern F202
+# gf Increased value. (3.1.17)
+
+|..O..........    wide extension from kogeima shimari
+|.............
+|...O.....*...
+|.............
+|.............
++-------------
+
+:8,FeEj,shape(0.5)
+
+
+Pattern F203
+
+.O......         4 space extension from 1 space jump
+........
+.O....*.
+........
+........
+--------
+
+:8,FeEt
+
+
+Pattern F204
+
+O.......?         4 space extension from knight's move
+........?
+.O....*..
+........?
+........?
+---------
+
+:8,FeEt
+
+
+Pattern F205
+
+O........         4 space extension from knight's move
+.........
+.O....*.X
+.........
+.........
+---------
+
+:8,FeEt,shape(1)
+
+
+Pattern F206
+
+|.............    wide extension from ikken shimari
+|..O.O........
+|.........*...
+|.............
+|.............
++-------------
+
+:8,FEt
+
+
+Pattern F207
+
+|.............    wide extension from kogeima shimari
+|..O..........
+|....O....*...
+|.............
+|.............
++-------------
+
+:8,FEt,shape(-1)
+
+
+Pattern F208
+
+.O.......         3 space extension from 1 space jump
+.....*...
+.O......O
+.........
+.........
+---------
+
+:8,FeEt,shape(-2)
+
+
+Pattern F209
+
+|...................|      San ren sei!
+|...................|
+|...O.....*.....O...|
+|...................|
+|...................|
+|...................|
++-------------------+
+
+:8,FEt,shape(3)
+
+
+Pattern F210
+
+|............      Wide extension from star
+|............
+|............
+|...O.....*..
+|............
+|............
+|............
++------------
+
+:8,FEt,shape(1)
+
+
+#######################################
+# Center extensions from wide positions
+#######################################
+
+
+Pattern F301
+
+?????.??    jump up to claim space from 4 point extension
+?....*..
+........
+O....O.X
+........
+........
+--------
+
+:8,FEt
+
+
+Pattern F302
+
+.......	   jump up to claim space from 4 point extension
+?....*.
+.......
+O....O.
+.......
+.......
+-------
+
+:8,FEt
+
+
+Pattern F303
+
+......      seal the largest area
+..*...
+O....O
+......
+O....O
+......
+......
+------
+
+:8,FEt,shape(-2)
+
+
+Pattern F304
+
+......       light reducing move
+......
+.....X
+.*....
+X....X
+......
+......
+------
+
+:8,FEt
+
+
+Pattern F305
+
+X.*oo         usually bad
+...oo
+.O.oo
+.....
+.....
+-----
+
+:8,F,shape(-5)
+
+
+Pattern F306
+
+oo......       jump to expand
+oo...*..
+oo.....x
+.....O.x
+........
+........
+--------
+
+:8,Ft
+
+oo......
+oo...*..
+ab.....x
+.....O.x
+........
+........
+--------
+
+; o_alive_somewhere(a,b)
+
+
+Pattern F307
+
+?......o        stand to defend extension
+X.*..ooo
+.XO..ooo
+........
+........
+--------
+
+:8,FJ
+
+?......o
+X.*..abc
+.XO..def
+........
+........
+--------
+
+; o_alive_somewhere(a,b,c,d,e,f)
+
+
+#################
+# Edge extensions
+#################
+
+
+Pattern F401
+
+x......xx     make 2 space extension on third row
+x.*..O.xx
+.......??
+.......??
+---------
+
+:8,edj
+
+x......ab
+x.*..O.cd
+.......??
+.......??
+---------
+
+; x_alive_somewhere(a,b,c,d)
+
+
+Pattern F402
+
+......x?    make 2 space extension on third row
+.O..*.x?
+......x?
+........
+--------
+
+:8,edt,jump_out_helper
+
+
+Pattern F403
+# This should only be j or J if the O stones do not already
+#      have a base, t otherwise. But they usually do not
+#      have a base as this pattern most naturally comes up.
+
+......o?  make 3 space extension from two stones
+......O?
+..*...O?
+?.......
+?.......
+--------
+
+:8,Fedj,shape(1)
+
+
+Pattern F404
+
+......o?  make 3 space extension from two stones
+..*...O?
+......O?
+?.......
+?.......
+--------
+
+:8,FEdj,shape(1)
+
+
+Pattern F405
+# FIXME: This seems overconcentrated.  See also F406
+#   Probably best to remove this pattern.
+
+?.....o?
+...*..O?  make 3 space extension from two stones
+O.....O?
+........
+........
+--------
+
+:8,Fedt
+
+?.....o?
+...*..O?
+O..a..O?
+........
+........
+--------
+
+;!oterri(*) && !oterri(a)
+
+
+# tm Removed (3.1.24)  This is just overconcentrated.
+#Pattern F406
+## dee trevord:1000
+#
+#......o?  make 2 space extension from two stones
+#O..*..O?
+#......O?
+#.......o
+#........
+#--------
+#
+#:8,FtEd
+
+
+
+Pattern F407
+#tm modified (3.1.20) 
+#     (see nngs:1150, nngs:1030, nngs:1230)
+
+.....???
+......??   make 2 space extension on third row
+.O..*...
+......??
+......??
+--------
+
+:8,edt
+
+
+Pattern F408
+# gf Added constraint to avoid overconcentration. See 13x13:12,
+#    13x13b:42. (3.3.17)
+
+.......        extend
+oO..*..
+.......
+.......
+-------
+
+:8,edt
+
+.....a.
+oO..*..
+.......
+.......
+-------
+
+;!omoyo(a)
+
+
+Pattern F409
+
+?......??     3 space high extension
+.....*...
+.O.......
+.........
+.........
+---------
+
+:8,FEt,shape(1)
+
+
+Pattern F410
+
+???......?            extend
+???.O....?
+???....*.?
+???.......
+???.......
+----------
+
+:8,FEd
+
+
+Pattern F410a
+
+?xx......?            extend
+?xx.O....?
+?xx....*.?
+?xx.......
+?xx.......
+----------
+
+:8,FEdt,shape(3)
+
+?xx......?
+?ab.O....?
+?cd....*.?
+?xx.......
+?xx.......
+----------
+
+; x_alive_somewhere(a,b,c,d)
+
+
+Pattern F410b
+# gf Made constraint diagram consistent with main diagram. (3.1.18)
+
+x........??           extend
+x...O....xx
+x......*..?
+x.........?
+x.........?
+-----------
+
+:8,FEdj,shape(2)
+
+x........??
+a...O....xx
+b......*..?
+x.........?
+x.........?
+-----------
+
+; x_alive_somewhere(a,b)
+
+
+Pattern F410c
+
+x.........xx
+x.........xx
+x..........?
+x...O.....O.
+x.......*...
+x...........
+x...........
+------------
+
+:8,FEdj
+
+x.........cd
+x.........ef
+x..........?
+a...O.....O.
+b.......*...
+x...........
+x...........
+------------
+
+; x_alive_somewhere(a,b,c,d,e,f)
+
+
+Pattern F410d
+# gf Revised pattern. (3.3.15)
+
+o......xxx      extend while limiting opponent
+oO.....xxx
+o...*..xxx
+..........
+..........
+----------
+
+:8,Fedt
+
+o......xxx
+oO.....abx
+o...*..cdx
+..........
+..........
+----------
+
+; x_alive_somewhere(a,b,c,d)
+
+
+Pattern F410e
+
+......xxx      extend while limiting opponent
+......xxx
+O..*..xxx
+.........
+.........
+---------
+
+:8,edt
+
+......xxx
+......abx
+O..*..cdx
+.........
+.........
+---------
+
+; x_alive_somewhere(a,b,c,d)
+
+
+Pattern F411
+# gf Revised pattern. (3.3.17)
+
+.......       extend between two stones on 4-th line
+O..*..O
+.......
+.......
+.......
+-------
+
+:|,FEd,shape(-2)
+
+
+Pattern F412
+
+?xX.??       short extension
+......
+.O.*..
+......
+......
+......
+------
+
+:8,FEadj,shape(-1)
+
+
+Pattern F413
+
+.........      2 space extension is less urgent if both sides are open
+.........
+....O..*.
+.........
+.........
+---------
+
+:8,F,shape(-5)
+
+
+Pattern F420
+
+|..........     Take an empty corner in high handicap games ...
+|..........
+|..*.......
+|..........
+|...O.....O    
+|..........     
+|..........     
+|..........
++----------
+
+:8,FEt,shape(-2)
+
+
+Pattern F421
+
+|..........
+|..........       ... close that corner so it stays closed ...
+|..O.......
+|..........
+|...O.....O
+|...*......
+|..........
+|..........
++----------
+
+:8,FeEt,shape(-3)
+
+
+Pattern F423
+
+|.............      ... make an iron pillar ...
+|.............
+|..O..........
+|.............
+|...O.....O...
+|...O.....*...
+|.............
+|.............
++-------------
+
+:8,FEt,shape(-3)
+
+
+Pattern F424
+
+|.............      ... and jump out!
+|.............
+|..O......*...
+|.............
+|...O.....O...
+|...O.....O...
+|.............
+|.............
++-------------
+
+:8,FEt,shape(-4)
+
+
+Pattern F425
+
+xxX......       two space jump
+XxOO..*.x
+x........
+.........
+---------
+
+:8,Fj
+
+
+Pattern F426
+
+xxX..*...        stabilize the side
+XxOO....O
+x........
+.........
+---------
+
+:8,Fj
+
+
+##############################################
+# Edge extensions combined with approach moves
+##############################################
+
+
+Pattern F501
+
+X......  make 2 space extension on third row combined with approach move
+..*..O.
+.......
+.......
+-------
+
+:8,eadj
+
+
+Pattern F502
+
+.......  make 2 space extension on third row combined with approach move
+X.*..O.
+.......
+.......
+-------
+
+:8,eadt,shape(1)
+
+
+Pattern F504
+
+xx.....O.
+xx.*....O
+.........
+.........
+---------
+
+:8,Feadj
+
+ac.....O.
+bd.*....O
+.........
+.........
+---------
+
+; x_alive_somewhere(a,b,c,d)
+
+
+Pattern F505
+
+.......        extend
+.O.....
+....*.X
+.......
+-------
+
+:8,Feadt,shape(1)
+
+
+Pattern F506
+
+......     Extend along edge
+O..*.X
+o....x
+......
+------
+
+:8,Feadt,shape(1)
+
+
+#########
+# Pincers
+#########
+
+Pattern F601
+
+.......         prevent extension
+.*..X.O
+....XO.
+.......
+.......
+-------
+
+:8,FEaj
+
+
+Pattern F602
+
+........o      block extension
+O.X.*...o
+.........
+.........
+---------
+
+:8,Feaj
+
+
+Pattern F603
+
+xxx..        time to defend
+.....
+O.*.O
+.....
+.....
+.....
+-----
+
+:8,Fj
+
+abc..
+.....
+O.*.O
+.....
+.....
+.....
+-----
+
+;x_alive_somewhere(a,b,c)
+
+
+#####################################
+# Invasions in the middle of the edge
+#####################################
+
+Pattern F701
+
+X.........xx    invade with space to extend in both directions
+x....*....xx
+............
+............
+------------
+
+:8,sFIt,shape(1)
+
+X.........ab
+x....*....cd
+............
+............
+------------
+
+; x_alive_somewhere(a,b,c,d)
+
+
+Pattern F702
+
+x.........xx    invade with space to extend in both directions
+X....*....xx
+............
+............
+------------
+
+:8,sFIt,shape(1)
+
+x.........ab
+X....*....cd
+............
+............
+------------
+
+; x_alive_somewhere(a,b,c,d)
+
+
+Pattern F703
+
+X.......X    invade
+....*....
+.........
+.........
+---------
+
+:8,sFIt
+
+
+Pattern F704
+# gf Added constraint. (3.1.22)
+# See nngs:1030.
+
+???????
+?.....?       invade 4 space extension
+.X.....
+....*.X
+.......
+.......
+-------
+
+:8,sFIt,shape(-1)
+
+???c?d?
+?.....?
+.A.....
+....*.B
+.......
+.......
+-------
+
+;weak(A) || weak(B) || !xmoyo(c) || !xmoyo(d)
+
+
+Pattern F705
+
+?......?       invade 5 space extension
+.X......
+...*...X
+........
+........
+--------
+
+:8,sFIt
+
+
+Pattern F706
+
+O..O..O         respond to an invasion
+o..X*..
+o......
+.......
+-------
+
+:8,sFIj
+
+
+# tm - removed (3.1.20)
+# This is almost an antisuji, much less a joseki move!
+#Pattern F707
+#
+#.....         attack to make local shape
+#O.X.O
+#..*..
+#.....
+#.....
+#-----
+#
+#:8,FsjE
+
+
+################
+# Jumps
+################
+
+
+Pattern F709
+# gf Revised and devalued. See 13x13b:26.
+
+?......      urgent jump
+?..*..?
+xX....?
+x..O..X
+x......
+.......
+-------
+
+:8,FEj
+
+
+############################################
+# Stop edge extensions from corner positions
+############################################
+
+
+Pattern F801
+
+|...X..........    stop wide extension from ikken shimari
+|............oo
+|...X.....*..oo
+|..............
+|..............
++--------------
+
+:8,FEj,shape(2)
+
+
+Pattern F802
+
+|...X..........    stop wide extension from ikken shimari
+|.........*..oo
+|...X........oo
+|..............
+|..............
++--------------
+
+:8,FEj,shape(2)
+
+
+Pattern F803
+
+|..X...........    stop wide extension from kogeima shimari
+|............oo
+|...X.....*..oo
+|..............
+|..............
++--------------
+
+:8,FEj,shape(2)
+
+
+Pattern F804
+
+|..X...........    stop wide extension from kogeima shimari
+|.........*..oo
+|...X........oo
+|..............
+|..............
++--------------
+
+:8,FEj,shape(2)
+
+
+Pattern F805
+
+|..............    stop wide extension from ikken shimari
+|..X.X.......oo
+|.........*..oo
+|..............
+|..............
++--------------
+
+:8,FEt,shape(4)
+
+
+Pattern F806
+
+|..............    stop wide extension from kogeima shimari
+|..X.........oo
+|....X....*..oo
+|..............
+|..............
++--------------
+
+:8,FEt,shape(3)
+
+
+Pattern F807
+
+|...................|      Invade nirensei.
+|...................|
+|...X.....*.....X...|
+|...................|
+|...................|
+|...................|
++-------------------+
+
+:8,FEj,shape(1)
+
+
+Pattern F808
+
+|...................|      Invade nirensei.
+|...................|
+|...X...........X...|
+|.........*.........|
+|...................|
+|...................|
++-------------------+
+
+:8,FEj,shape(1)
+
+
+Pattern F809
+
+|...X..........    approach shimari and strengthen own stone
+|.........o.xxx
+|...X..*..o.xxx
+|..............
+|..............
++--------------
+
+:8,FEj,shape(4)
+
+|...X..........
+|.........g.abc
+|...X..*..h.def
+|..............
+|..............
++--------------
+
+;x_alive_somewhere(a,b,c,d,e,f) && o_alive_somewhere(g,h)
+
+
+Pattern F810
+
+|...X...........    approach shimari and strengthen own stone
+|..........o.xxx
+|....X..*..o.xxx
+|...............
+|...............
++---------------
+
+:8,FEj,shape(4)
+
+|...X...........
+|..........g.abc
+|....X..*..h.def
+|...............
+|...............
++---------------
+
+;x_alive_somewhere(a,b,c,d,e,f) && o_alive_somewhere(g,h)
+
+
+Pattern F811
+
+|..............    approach shimari and strengthen own stone
+|..X.x......xxx
+|....x.*..O.xxx
+|..............
+|..............
++--------------
+
+:8,FEj,shape(4)
+
+|..............
+|..X.g......abc
+|....h.*..O.def
+|..............
+|..............
++--------------
+
+;x_alive_somewhere(a,b,c,d,e,f) && x_alive_somewhere(g,h)
+
+
+Pattern F812
+
+|..xxx.........xxx..|             wariuchi
+|..xxx.........xxx..|
+|..xxx.........xxx..|
+|..Xxx....*....xxx..|
+|...................|
+|...................|
++-------------------+
+
+:8,Fj
+
+|..xxx.........xxx..|             wariuchi
+|..xxx.........abc..|
+|..xxx.........def..|
+|..Xxx....*....ghi..|
+|...................|
+|...................|
++-------------------+
+
+; x_somewhere(a,b,c,d,e,f,g,h,i)
+
+
+Pattern F813
+
+|..xxx.........xxx..|             wariuchi
+|..xxx.........xxx..|
+|..xxx.........xxx..|
+|..xXx....*....xxx..|
+|...................|
+|...................|
++-------------------+
+
+:8,Fj
+
+|..xxx.........xxx..|             wariuchi
+|..xxx.........abc..|
+|..xxx.........def..|
+|..xXx....*....ghi..|
+|...................|
+|...................|
++-------------------+
+
+; x_somewhere(a,b,c,d,e,f,g,h,i)
+
+
+Pattern F814
+
+|..xxx.........xxx..|             wariuchi
+|..xxx.........xxx..|
+|..xxx.........xxx..|
+|..xxX....*....xxx..|
+|...................|
+|...................|
++-------------------+
+
+:8,Fj
+
+|..xxx.........xxx..|             wariuchi
+|..xxx.........abc..|
+|..xxx.........def..|
+|..xxX....*....ghi..|
+|...................|
+|...................|
++-------------------+
+
+; x_somewhere(a,b,c,d,e,f,g,h,i)
+
+
+
+Pattern F815
+
+|..xxx.........xxx..|             wariuchi
+|..xxx.........xxx..|
+|..xXx.........xxx..|
+|..xxx....*....xxx..|
+|...................|
+|...................|
++-------------------+
+
+:8,Fj
+
+|..xxx.........xxx..|
+|..xxx.........abc..|
+|..xXx.........def..|
+|..xxx....*....ghi..|
+|...................|
+|...................|
++-------------------+
+
+; x_somewhere(a,b,c,d,e,f,g,h,i)
+
+
+
+Pattern F816
+
+|..xxx.........xxx..|             wariuchi
+|..xxx.........xxx..|
+|..xxX.........xxx..|
+|..xxx....*....xxx..|
+|...................|
+|...................|
++-------------------+
+
+:8,Fj
+
+|..xxx.........xxx..|
+|..xxx.........abc..|
+|..xxX.........def..|
+|..xxx....*....ghi..|
+|...................|
+|...................|
++-------------------+
+
+; x_somewhere(a,b,c,d,e,f,g,h,i)
+
+
+
+################
+# Miscellaneous
+################
+
+Pattern F901
+
+......x     mandatory reinforcement
+......x
+....*.X
+.O..OX.
+.......
+.......
+-------
+
+:8,FEdJ
+
+
+Pattern F902
+
+......x     mandatory reinforcement
+......x
+o...*.X
+o...OX.
+.......
+.......
+-------
+
+:8,FEdJ
+
+......x
+......x
+a...*.X
+b...OX.
+.......
+.......
+-------
+
+;o_alive_somewhere(a,b)
+
+
+######################################################################
+#
+# Joseki patterns.
+#
+# Corner joseki moves. Notice that the very first approach move in a
+# corner is not classified as a joseki move but as a fuseki move.
+#
+# The bulk of our Joseki patterns are automatically built from
+# the files patterns/*.sgf. Sometimes it is easier to add a pattern
+# here.
+#
+######################################################################
+
+
+Pattern J1
+
+|.....?        hane if attached under hoshi stone
+|...O.x
+|..*X.?
+|.....?
+|.....?
++------
+
+:8,sFedJ
+
+
+Pattern J2
+
+|.......   don't tenuki when star is approached
+|...X...
+|.......
+|...O.*.
+|.......
+|.......
+|.......
++-------
+
+:8,sFadJ
+
+
+Pattern J3
+
+|....???   don't tenuki when star is approached
+|...X...
+|.......
+|.......
+|...O.*.
+|.......
+|.......
+|.......
++-------
+
+:8,sFadJ
+
+
+Pattern J4
+
+|....???   don't tenuki when star is approached
+|..X....
+|.......
+|..*....
+|...O...
+|.......
+|.......
+|.......
++-------
+
+:8,sFadJ
+
+
+Pattern J5
+
+|..X???   defend slide with kosumi
+|......
+|.X.O.O
+|..*...
+|......
+|......
++------
+
+:8,sFeadJ
+
+
+Pattern J6
+
+|.......        jump to 3-3
+|..O....
+|.......
+|...X...
+|..*..O.
+|.......
+|.......
++-------
+
+:8,sFeJ
+
+
+Pattern J7
+
+|......           block after 3-3 invasion
+|......
+|...O..
+|..X*..
+|......
+|......
++------
+
+:8,sFedJ
+
+
+Pattern J8
+
+|.....          defend when pressed
+|.....
+|..*X.
+|..O..
+|....X
+|.....
+|.....
++-----
+
+:8,sFedJ
+
+
+Pattern J9
+
+.X......           follow up the slide with extension
+X..O..*.
+.O......
+........
+--------
+
+:8,sFedJ
+
+
+Pattern J10
+
+|.xxx....???	    cap the kogeima shimari with double wing formation
+|.xxx....???
+|.xxx....???
+|...........
+|...........
+|...........
+|..X.*......
+|........xxx
+|...X....xxx
+|........xxx
+|...........
++-----------
+
+:8,sFEj
+
+|.abc....???
+|.def....???
+|.ghi....???
+|...........
+|...........
+|...........
+|..X.*......
+|........jkl
+|...X....mnp
+|........qrs
+|...........
++-----------
+
+;x_alive_somewhere(a,b,c,d,e,f,g,h,i) && x_alive_somewhere(j,k,l,m,n,p,q,r,s)
+
+
+Pattern J11
+
+|.....      defend san san
+|.....
+|..*X.
+|..Ox.
+|.....
+|.....
++-----
+
+:8,sFedJ
+
+
+Pattern J12
+
+|.......        attach at 3-3 point
+|.......
+|..X.O..
+|..*....
+|.......
+|.......
++-------
+
+:8,sFedJ
+
+
+Pattern J13
+
+|.......        defend at 3-3
+|..X....
+|.......
+|.X.O...
+|..*..O.
+|.......
+|.......
++-------
+
+:8,sFedJ
+
+
+Pattern J14
+
+|.......   Joseki move
+|.......
+|.......
+|...*...
+|..O....
+|....X..
+|.......
+|.......
++-------
+
+:8,sFEadj
+
+
+Pattern J15
+
+|.......   Joseki move
+|.......
+|...*...
+|.......
+|..O....
+|....X..
+|.......
+|.......
++-------
+
+:8,sFEdj
+
+
+Pattern J16
+
+|.......   Joseki move
+|.......
+|.......
+|.......
+|..O.*..
+|....X..
+|.......
+|.......
++-------
+
+:8,sFEdj
+
+
+Pattern J17
+
+|..........   Joseki move
+|..........
+|..........
+|..O......o
+|....X.*..o
+|..........
+|..........
++----------
+
+:8,FEaj
+
+
+Pattern J18
+# pincer or attachment below X might be best in many cases
+
+|...X..             follow up the slide by taking the corner
+|..*..O
+|...O..
+|......
++------
+
+:8,Fedj,shape(-1)
+
+
+Pattern J19
+
+|.........    joseki move
+|...X*XO..
+|.....OX..
+|.........
+|.........
++---------
+
+:8,Fadj,shape(5)
+
+
+Pattern J20
+
+|.xx?????      make life in the corner
+|.Xx?????
+|.OXXxx??
+|.OOOX...
+|....*...
+|........
++--------
+
+:8,FedJ
+
+
+Pattern J21
+
+|..X.??          sente and not aji keshi
+|......
+|...X*.
+|..XO.O
+|..XO..
+|......
++------
+
+:8,FEdj
+
+
+Pattern J22
+
+|.xX.??          sente and not aji keshi
+|......
+|...X*.
+|..XO.O
+|..XOO.
+|...X..
++------
+
+:8,FEdj
+
+
+Pattern J23
+
+|..X.       both attack and defense          
+|....
+|.X.O
+|.*O.
+|....
+|....
++----
+
+:8,Fead,shape(2)
+
+
+Pattern J24
+
+|..X.X...     knight's move to defend
+|.....*..
+|...O....
+|........
+|........
++--------
+
+:8,FJ
+
+
+Pattern J25
+
+|..O.O...     enclose the opponent
+|........
+|...X.*..
+|........
+|........
+|........
++--------
+
+:8,FJ,value(30)
+
+
+Pattern J26
+
+|..X.X...     don't get enclosed!
+|........
+|...O.*..
+|........
+|........
+|........
++--------
+
+:8,FJ,value(30)
+
+
+Pattern J27
+
+|..X.???      limit X to small life in corner
+|....???
+|..*O.??
+|..XO.??
+|.......
+|.......
++-------
+
+:8,FU
+
+|..X.???
+|....???
+|..*O.ab
+|..XO.cd
+|.......
+|.......
++-------
+
+; x_alive_somewhere(a,b,c,d)
+
+
+Pattern J28
+
+|..X.....
+|........
+|..*..???
+|...O.???
+|........
+|........
++--------
+
+:8,FJ
+
+|..X.....
+|........
+|..*..abc
+|...O.def
+|........
+|........
++--------
+
+; x_alive_somewhere(a,b,c,d,e,f)
+
+
+Pattern J29
+# The owl code should be able to read this out correctly now.
+
+|.xx???           Defend correctly (leaves ko)
+|.Xx???
+|.OXX??
+|.OOX??
+|...OXx
+|..*...
++------
+
+:8,F,value(35)
+
+|.xx???
+|.Xx???
+|.OXX??
+|.OOX??
+|..aOXx
+|..*...
++------
+
+> antisuji(a);
+
+
+Pattern J30
+
+?.....         block before cutting
+?..O..
+?O.OX.
+..*X..
+......
+......
+------
+
+:8,FadJ
+
+?.....
+?..O..
+?O.OX.
+..*Xa.
+......
+......
+------
+
+> antisuji(a)
+
+
+Pattern J31
+
+|...X.....          make bamboo joint
+|...*.O...
+|...O.OX..
+|...OXX...
+|.........
+|.........
++---------
+
+:8,FU
+
+
+Pattern J32
+
+|..X......          take corner to secure group when pressed
+|.........
+|.X.O.....
+|.*O..O.X.
+|.........
+|.........
++---------
+
+:8,FJ
+
+
+Pattern J33
+
+|..X....
+|...X...
+|..XO*..
+|..O..oo
+|.......
+|.......
++-------
+
+:8,FJ
+
+|..X....
+|...X...
+|..XO*..
+|..O..ab
+|.......
+|.......
++-------
+
+; o_alive_somewhere(a,b)
+
+
+Pattern J34
+
+|..X....         atari first
+|...X...
+|.*XO.O.
+|..O....
+|.......
+|.......
++-------
+
+:8,FJ
+
+
+Pattern J35
+
+|..X....        connect for safety
+|.xxX...
+|.OXO.O.
+|..O*...
+|.......
+|.......
++-------
+
+:8,FJ
+
+
+Pattern J36
+
+|..oo?      large!
+|...o?
+|...O?
+|..OXX
+|..*..
+|.....
++-----
+
+:8,Fadj
+
+
+Pattern J37
+
+|..oo??       seal the corner
+|...O??
+|....*X
+|....OX
+|......
++------
+
+:8,Ft
+
+|..oo??
+|...O??
+|....*X
+|....OX
+|.....a
++------
+
+> antisuji(a)
+
+
+Pattern J38
+
+|......         atari to build up the top
+|....*.
+|..OOX.
+|..OXO.
+|..XX..
+
+:8,FJ
+
+
+Pattern J39
+
+|.......        push again to build up the top
+|....O*.
+|..OOXX.
+|..OXO..
+|..XX...
+
+:8,Fj
+
+
+Pattern J40
+# db added (3.1.4)
+
+|..Xx.....
+|..o....x.       seal the side      
+|..oO.O...
+|..o..*.X.
+|.........
+|.........
++---------
+
+:8,FJ
+
+
+Pattern J41
+# db added (3.3.3)
+# see nngs1:48
+
+|......          Play the Joseki!
+|......
+|..*X..
+|..OX.O
+|......
+|......
++------
+
+:8,J
+
+|......
+|.....a
+|..*X..
+|..OX.O
+|......
+|......
++------
+
+> replace(a,*)
+
+
+Pattern J42
+# db added (3.3.6)
+# see strategy5:17
+
+|...XX??          attack positively
+|....OO.
+|..O....
+|.......
+|.......
+|..X....
+|...*...
+|..O....
+|.......
+
+:8,j
+
+|...XX??
+|....OO.
+|..O....
+|.......
+|.......
+|..X....
+|.a.*...
+|..O....
+|.......
+
+> replace(a,*)
+
+
+Pattern J43
+# db added (3.3.6)
+
++-------        attach to defend cut
+|.......
+|.......
+|..*XX.X
+|....OO.
+|..O....
+|...xxxx
+|...????
+
+:8,J
+
++-------
+|.......
+|.......
+|..*XX.X
+|....OO.
+|..O....
+|...abcd
+|...efgh
+
+; x_alive_somewhere(a,b,c,d,e,f,g,h)
+
+> replace(c,*);
+> replace(d,*)
+
+
+Pattern J44
+# added 3.3.12 evand
+
+?O....??         fixing this defect is often urgent
+XO.*..??
+xXO...??
+xx....??
+--------
+
+:8,j
+
+?O...ab?
+XO.*..??
+xcO...??
+xx....??
+--------
+
+; (!omoyo(a) || !omoyo(b)) && !attack(c)
+
+
+Pattern J45
+# added 3.3.12 evand
+
+???.....???          develop the side
+??o......??
+?oO........
+oO.....*...
+...........
+...........
+-----------
+
+:8,j
+
+
+Pattern J46
+# nn added 3.3.14
+
+------+            needed generalization of a hoshi.db pattern
+?.....|
+?.....|
+?.....|
+?.X...|
+...X..|
+.*XO..|
+..O...|
+......|
+
+:8,J
+
+
+Pattern J47
+# db added (3.3.14)
+
++-------        general hanetsugi
+|.......
+|...*...
+|..OX.O.
+|..OX.??
+|..ox.??
+|..??...
+
+:8,J
+
+
+Pattern J47b
+# db added (3.3.14)
+
++-------        general hanetsugi
+|.......
+|..*OX..
+|..OX.O.
+|..OX.??
+|..ox.??
+|..??...
+
+:8,J
+
+
+Pattern J48
+# db added (3.3.14)
+
++--------        stabilize the corner
+|........
+|..O.*...
+|..XO....
+|..X.....
+|...X....
+
+:8,J
+
+
+# END OF FILE

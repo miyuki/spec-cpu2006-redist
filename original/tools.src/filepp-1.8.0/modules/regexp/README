@@ -1,0 +1,79 @@
+	regexp - simple regular expression replacement module
+
+This filepp module provides to module: regexp
+
+This module allows Perl regular expression replacements to be done
+with filepp.
+
+Regular expressions are defined with the regexp keyword:
+
+#regexp /regexp/replacement/
+
+Each regular expression will be done on each line of the input files
+using the Perl command:
+
+	$line =~ s/regexp/replacement/g;
+
+For those who don't understand Perl, this means replace all occurrences
+of "regexp" in the current line with "replacement".
+
+Regular expressions can be any Perl style regular expression, see the
+Perl documentation for more information on this or the test file
+included with this file for some examples.
+
+Regular expressions are evaluated in the order they are defined.
+
+A single regular expression can also be defined on the command line
+using the REGEXP macro, for example:
+
+filepp -DREGEXP=/regexp/replacement/ -m regexp.pm inputfile
+
+Note: the REGEXP macro must be defined BEFORE the regexp module is
+loaded, putting -DREGEXP... after -m regexp.pm will not work.  When
+using the command line approach, if the REGEXP macro is sucessfully
+parsed as a regular expression it will be undefined from the normal
+filepp macro list before processing starts.
+Care should obviously be taken when escaping special characters in the
+shell with command line regexp's.
+
+Regular expressions can be removed with the rmregexp keyword as
+follows:
+
+#rmregexp /regexp/replacement/
+
+In debugging mode the current list of regular expressions can be
+viewed using the pragma keyword:
+
+#pragma filepp ShowRegexp
+
+When not in debugging mode, this will produce no output.
+
+Examplex of regular expressions can be found in the test file in this
+directory.  Use the command:
+
+filepp -m regexp.pm test.in
+
+to see the results of parsing the file.
+
+For full documentation on how to use filepp and the regexp module read
+the filepp man page. 
+
+  Copyright (C) 2000-2007 Darren Miller
+
+  filepp is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+Comments are welcome.
+
+	- Darren Miller <darren@cabaret.demon.co.uk>

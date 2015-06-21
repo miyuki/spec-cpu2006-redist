@@ -1,0 +1,30 @@
+#define SOMETHING 1 /* hmmm... */
+
+/* SOMETHING fishy */
+
+SOMETHING
+
+#define SOMETHING 1
+
+#ifdef SOMETHING
+this should be visible...
+#if (SOMETHING==1)
+... and this should be visible too
+#endif
+#endif
+
+#ifdef NOTHING
+this should not be visible...
+#if (NOTHING==1)
+... and this should be invisible too
+#endif
+#endif
+
+#include "cpptest2.h"
+
+/* comments */
+// r
+/* really
+ * really
+// great */
+End of file

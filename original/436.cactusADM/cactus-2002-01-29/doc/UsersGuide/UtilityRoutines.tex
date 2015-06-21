@@ -1,0 +1,411 @@
+% /*@@
+%   @file      UtilityRoutines.tex
+%   @date      27 Jan 1999
+%   @author    Jonathan Thornburg
+%   @desc 
+%   Description of the Util_* utility routines for the Cactus User's Guide.
+%   @enddesc 
+%   @version $Header: /cactus/Cactus/doc/UsersGuide/UtilityRoutines.tex,v 1.6 2002/01/21 16:04:49 jthorn Exp $
+% @@*/
+\begin{cactuspart}{3}{Utility Routines}{$RCSfile: UtilityRoutines.tex,v $}{$Revision: 1.6 $}
+\renewcommand{\thepage}{\Alph{part}\arabic{page}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Introduction} 
+
+As well as the high-level \verb|CCTK_|* routines, Cactus also
+provides a set of lower-level \verb|Util_|* utility routines, which
+are mostly independent of the rest of Cactus.  This chapter gives a
+general overview of programming with these utility routines.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Key/Value Tables}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Motivation}
+
+Various Cactus functions need to pass information through a generic
+interface.  In the past we have used various ad-hoc means to do this,
+and we often had trouble passing "extra" information that wasn't
+anticipated in the original design.  For example, for interpolation
+\verb|CCTK_InterpLocal()| and \verb|CCTK_InterpGV()| require that
+any parameters (such as the order of the interpolant) be encoded
+into the interpolator's character string name.  Similarly, elliptic
+solvers often need to pass various parameters, but we don't have a
+good way to do this.
+
+Key/value tables (``tables'' for short) provide a clean solution
+to these problems.  They're implemented by the \verb|Util_Table|*
+functions (described in detail in
+section~\ref{sect-FunctionReference/UtilityFunctions}).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{The Basic Idea}
+
+Basically, a table is an object which maps strings to almost-arbitrary
+user-defined data.  (If you know Perl, a table is very much like a
+Perl hash table.)%%%
+\footnote{%%%
+	 However, the present Cactus tables implementation
+	 is optimized for a relatively small number of
+	 distinct keys in any one table.  It will still
+	 work ok for huge numbers of keys, but it will be
+	 slow.
+	 }%%%
+
+More formally, a table is an object which stores a set of ``keys''
+and a corresponding set of ``values''.
+
+Keys are C-style null-terminated character strings, with the slash
+character \verb|'/'| reserved for future expansion.%%%
+\footnote{%%%
+	 Think of hierarchical tables for storing
+	 tree-like data structures.%%%
+	 }%%%
+
+Values are 1-dimensional arrays of any of the usual Cactus data types
+described in section~\ref{sect-ThornWriting/DataTypes}.
+A string can be stored by treating it as a 1-dimensional array of
+\verb|CCTK_CHAR| (there's an example of this below).
+
+The basic ``life cycle'' of a table is that you first create it
+with \verb|Util_TableCreate()|, then set values in it with one or
+more of the \verb|Util_TableSet*()| and/or \verb|Util_TableSet*Array()|
+functions, then later on some other piece of code can get (copies of)
+the values you set from the table with one or more of the
+\verb|Util_TableGet*()| and/or \verb|Util_TableGet*Array()| functions.
+Finally, when you're through with a table you destroy it with
+\verb|Util_TableDestroy()|.
+
+For simple uses, there's also a short-cut function
+\verb|Util_TableCreateFromString()|, which creates a table and
+sets some integer or real values in it, based on a parameter-file--style
+string.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{A Simple Example}
+
+Here's a simple example (in C)%%%
+\footnote{%%%
+	 In theory tables should be usable from both
+	 C and Fortran, but noone has written the Fortran
+	 wrappers yet, so at present tables are C-only.
+	 }%%%
+{} of how to use a table:
+\begin{verbatim}
+#include "util_Table.h"
+#include "cctk.h"
+
+/* create a table and set some values in it */
+int handle = Util_TableCreate(UTIL_TABLE_FLAGS_DEFAULT);
+Util_TableSetInt(handle, 2, "two");
+Util_TableSetReal(handle, 3.14, "pi");
+
+...
+
+/* get the values from the table */
+CCTK_INT two_value;
+CCTK_REAL pi_value;
+Util_TableGetInt(handle, &two_value, "two");    /* sets two_value = 2 */
+Util_TableGetReal(handle, &pi_value, "pi");     /* sets pi_value = 3.14 */
+\end{verbatim}
+
+Actually, you shouldn't write code like this -- in the real world
+errors sometimes happen, and it's not at all nice to have your program
+crash.  The {\em right\/} thing to do is to always check for errors.
+To allow this, all the table routines return a status, which is
+zero or positive for a successful return, but negative if and only
+if some sort of error has occured.%%%
+\footnote{%%%
+	 Often (as in the examples here) you don't care
+	 about the details of which error occured.  But if
+	 you do, there are various error codes defined in
+	 {\t "util\_Table.h"} and {\t "util\_ErrorCodes.h"};
+	 the detailed function descriptions in
+	 section~\ref{sect-FunctionReference/UtilityFunctions}
+	 say which error codes each function can return.
+	 }%%%
+{}  So, the above example can (should) be rewritten like this:
+
+\begin{verbatim}
+#include <util_Table.h>
+
+/* create a table and set some values in it */
+int handle = Util_TableCreate(UTIL_TABLE_FLAGS_DEFAULT);
+if (handle < 0)
+        CCTK_WARN(-1, "couldn't create table!");
+
+/* try to set two_value = 2 and set pi_value = 3.14 */
+if (Util_TableSetInt(handle, 2, "two") < 0)
+        CCTK_WARN(-1, "couldn't set integer value in table!");
+if (Util_TableSetReal(handle, 3.14, "pi") < 0)
+        CCTK_WARN(-1, "couldn't set real value in table!");
+
+...
+
+/* get the values from the table */
+CCTK_INT two_value;
+CCTK_REAL pi_value;
+/* try to get two_value and pi_value from the table */
+if (Util_TableGetInt(handle, &two_value, "two") < 0)
+        CCTK_WARN(-1, "couldn't get integer value from table!");
+if (Util_TableGetReal(handle, &pi_value, "pi") < 0)
+        CCTK_WARN(-1, "couldn't get integer value from table!");
+
+/* now two_value = 2 and pi_value = 3.14 */
+\end{verbatim}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Convenience Routines}
+
+There are also convenience routines for the common case of setting
+values in a table based on a string.
+
+For example, the following code sets up exactly the same table as the
+previous example:
+
+\begin{verbatim}
+#include <util_Table.h>
+
+/* create a table and set some values in it */
+int handle = Util_TableCreate(UTIL_TABLE_FLAGS_DEFAULT);
+if (handle < 0)
+        CCTK_WARN(-1, "couldn't create table!");
+
+/* try to set two_value = 2 and set pi_value = 3.14 */
+if (Util_TableSetFromString(handle, "two=2 pi=3.14") != 2)
+        CCTK_WARN(-1, "couldn't set values in table!");
+\end{verbatim}
+
+There is also an even higher-level convenience function
+\verb|Util_TableCreateFromString()|: this creates a table with the
+case-insensitive flag set (to match Cactus parameter-file semantics),
+then (assuming no errors occured) calls \verb|Util_TableSetFromString()|
+to set values in the table.  For example, apart from the case-insensitive
+flag, the following code sets up exactly the same table as the
+previous two examples:
+
+\begin{verbatim}
+#include <util_Table.h>
+
+int handle = Util_TableCreateFromString("two=2 pi=3.14");
+if (handle < 0)
+        CCTK_WARN(-1, "couldn't create table from string!");
+\end{verbatim}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Arrays as Table Values}
+
+As well as a single numbers (or characters or pointers), tables can
+also store 1-dimensional arrays of numbers (or characters or pointers).%%%
+\footnote{%%%
+	 The table makes (stores) a {\em copy\/} of the array
+	 you pass in, so you probably shouldn't use tables to
+	 store really big arrays like grid functions.  But it's
+	 fine to store things like parameters and coefficients.
+	 (If you do have a really big array, consider storing
+	 a pointer to it.)%%%
+	 }%%%
+
+For example (continuing the previous example):
+\begin{verbatim}
+static const CCTK_INT a[3] = { 42, 69, 105 };
+if (Util_TableSetIntArray(handle, 3, a, "my array") < 0)
+        CCTK_WARN(-1, "couldn't set integer array value in table!");
+
+...
+
+CCTK_INT blah[10];
+int count = Util_TableGetIntArray(handle, 10, blah, "my array");
+if (count < 0)
+        CCTK_WARN(-1, "couldn't get integer array value from table!");
+/* now count = 3, blah[0] = 42, blah[1] = 69, blah[2] = 105, */
+/*     and all remaining elements of blah[] are unchanged */
+\end{verbatim}
+As you can see, a table entry remembers the length of any array
+value that has been stored in it.%%%
+\footnote{%%%
+	 In fact, actually {\em all\/} table values are
+	 arrays -- setting or getting a single value is
+	 just the special case where the array length is 1.
+	 }%%%
+{}
+
+If you only want the first few values of a larger array, just pass
+in the appropriate length of your array:
+that's ok:
+\begin{verbatim}
+CCTK_INT blah2[2];
+int count = Util_TableGetIntArray(handle, 2, blah2, "my array");
+if (count < 0)
+        CCTK_WARN(-1, "couldn't get integer array value from table!");
+/* now count = 3, blah2[0] = 42, blah2[1] = 69 */
+\end{verbatim}
+You can even ask for just the first value:
+\begin{verbatim}
+CCTK_INT blah1;
+int count = Util_TableGetInt(handle, blah1, "my array");
+if (count < 0)
+        CCTK_WARN(-1, "couldn't get integer array value from table!");
+/* now count = 3, blah1 = 42 */
+\end{verbatim}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Character Strings}
+
+One very common thing you might want to store in a table is a
+character string.  While you could do this by explicitly storing
+an array of \verb|CCTK_CHAR|, there are also more-convenient routines
+specially for setting and getting strings:
+\begin{verbatim}
+if (Util_TableSetString(handle, "black holes are fun", "bh") < 0)
+        CCTK_WARN(-1, "couldn't set string value in table!");
+
+...
+char buffer[50];
+if (Util_TableGetString(handle, 50, buffer, "bh") < 0)
+        CCTK_WARN(-1, "couldn't get string value from table!");
+
+/* now buffer[] contains the string "black holes are fun" */
+\end{verbatim}
+
+\verb|Util_TableGetString()| guarantees that the string is
+terminated by a null character (\verb|'\0'|), and also returns an
+error if the string is too long for the buffer.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Table Options}
+
+A table has an integer ``flags word'' which may be used to specify
+various options, via bit flags defined in \verb|"util_Table.h"|.
+At present there is only a single option:
+\begin{description}
+\item[Keys May be Case-Sensitive or Case-Insensitive:]
+	By default keys are treated as C-style character strings,
+	and the table functions compare them with the standard C
+	\verb|strcmp()| function.
+	However, by setting the \verb|UTIL_TABLE_FLAGS_CASE_INSENSITIVE|
+	bit in the flags word, this table's keys may be made
+	case-insensitive, \ie{} the table routines then compare
+	this table's keys with \verb|Util_StrCmpi()|.%%%
+\footnote{%%%
+ 	 It's not entirely clear how non-ASCII characters
+	 like \c{c}, \'{e}, \ss, \dots should be handled in
+	 this case (some of them have only a single case).
+	 And what about the 16-bit Asian character sets
+	 used for Chinese, Japanese, Korean, \dots.
+	 In general, Cactus basically just ignores
+	 internationalization issues.  Sigh\dots
+	 }%%%
+{}
+	Note that keys are still {\em stored\/} exactly as
+	the caller specifies them (\ie{} they are {\em not\/}
+	forced into a canonical case); it's only their
+	{\em comparison\/} that's affected by this flag.
+\end{description}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Table Iterators}
+
+In the examples up to now, the code which wanted to get values from
+the table knew what the keys were.  It's also useful to be able to
+write generic code which can operate on a table without knowing the
+keys.  ``Table iterators'' (``iterators'' for short) are used for this.
+
+An iterator is an abstraction of a pointer to a particular table entry.
+Iterators are to the \verb|DIR *| pointers used by the POSIX
+\verb|opendir()|, \verb|readdir()|, \verb|closedir()|, and similar
+functions, to Perl hash tables' \verb|each()|, \verb|keys()|,
+and \verb|values|, and to the C++ Standard Template Library's
+forward iterators.
+
+At any time the entries in a table may be considered to be in some
+arbitrary (implementation-defined) order; an iterator may be used to
+walk through some or all of the table entries in this order.  This
+order is guaranteed to remain unchanged for any given table so long
+as no changes are made to that table, \ie{} so long as no
+\verb|Util_TableSet*()|, \verb|Util_TableSet*Array()|,
+\verb|Util_TableSetString()|, or \verb|Util_TableDeleteKey()| calls
+are made on that table (making such calls on other tables doesn't matter).
+The order may change if there is any change in the table, and it
+may differ even between different tables with identical key/value
+contents.%%%
+\footnote{%%%
+	 For example, if tables were implemented by hashing,
+	 the internal order could be that of the hash buckets,
+	 and the hash function could depend on the internal
+	 table address.
+	 }%%%
+{}  
+
+Any change in the table also invalidates all iterators pointing
+anywhere in the table; using any such iterator is an error.
+Multiple iterators may point into the same table; they all use the
+same order, and (unlike in Perl) they're all independent.
+
+The detailed function description
+(section~\ref{sect-FunctionReference/UtilityFunctions})
+for \verb|Util_TableItQueryKeyValueInfo()| has an example of
+using an iterator to print out all the entries in a table.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Multithreading and Multiprocessor Issues}
+
+{\bf At the moment, the table functions are {\em not\/} thread-safe
+in a multithreaded environment!}  However, this should change in
+the not-too-distant future: then all the table functions will default
+to being thread-safe.  That is, user code will be able call these
+functions concurrently from multiple threads, with the table functions
+automatically doing any necessary locking.%%%
+\footnote{%%%
+	 For the implementation, this means that we will need a
+	 reader/writer lock for each table and for each iterator:
+	 any number of threads will be able to concurrently read
+	 the data structure, but any write will require exclusive
+	 access.
+	 }%%%
+{}  (We may add a flags-word bit to suppress this for maximum
+performance if you know you won't be making concurrent calls from
+multiple threads.)
+
+Note that tables and iterators will still be process-wide, i.e. all
+threads see the same tables and iterators (think of them as like the
+Unix current working directory, with the various routines which modify
+the table or change iterators acting like a Unix \verb|chdir()| system
+call).
+
+In a multiprocessor environment, tables are always processor-local.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Metadata about All Tables}
+
+We have decided that tables do not {\em themselves\/} have names or other
+attributes.  However, at some time in the future we may add some special
+``system tables'' by Cactus itself to store this sort of information
+for those cases where it's needed.
+
+For example, at some time in the future we may add support for a
+``checkpoint me'' bit in a table's flags word, so that if you want a
+table to be checkpointed, you just need to set this bit.
+In this case the table will probably get a system-generated name in
+the checkpoint dump file.  But if you want the table to have some
+other name in the dump file, then you need to tell the checkpointing
+code that by setting an appropriate entry in a checkpoint table.
+(You would find the checkpoing table by looking in a special
+``master system table'' that records handles of other interesting tables.)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{cactuspart}

@@ -1,0 +1,1200 @@
+!---------------------------------------------------------------------------
+!
+!  SCFDATA: Store SCF data and deal with iteration control ......
+!
+! Copyright (C) Daniel Grimwood, 1998
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: scfdata.foo,v 1.67.2.8 2003/10/06 02:26:39 reaper Exp $
+!---------------------------------------------------------------------------
+
+module SCFDATA
+
+   implicit none
+
+contains
+
+!  *******************
+!  Allocation routines
+!  *******************
+
+   create
+   ! Create space for an SCF type
+     self :: PTR
+     nullify(self)
+     allocate(self)
+     ADD_MEMORY(SCFDATA_SIZE)
+     .nullify_ptr_part
+     .set_defaults
+   end
+
+   destroy
+   ! Destroy space for an SCF type
+     self :: PTR
+     if (NOT .destroyed) then
+       .destroy_ptr_part
+       DELETE_MEMORY(SCFDATA_SIZE)
+       deallocate(self)
+     end
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   nullify_ptr_part
+   ! Nullify the pointer parts of self
+      .diis.nullify_ptr_part
+   end
+
+   destroy_ptr_part
+   ! Destroy the pointer parts of self
+      .diis.destroy_ptr_part
+   end
+
+   create_copy(scfdata)
+   ! Create a copy of the "scfdata" object
+      self :: PTR
+      scfdata :: SCFDATA
+      .create
+      .copy(scfdata)
+   end
+
+   copy(scfdata) ::: leaky
+   ! Make a copy of the "scfdata" object
+      scfdata :: SCFDATA
+      self = scfdata
+      .diis.copy(scfdata.diis)
+   end
+
+   delete_diis_archives
+   ! Delete the DIIS archives on disk
+     .diis.delete_archives
+   end
+
+   cleanup_diis
+   ! Delete the DIIS archives on disk, and restore the DIIS object so it can be
+   ! reused.  Does not go back to the default DIIS parameters.
+     .diis.cleanup
+   end
+
+!  ************
+!  Set routines
+!  ************
+
+   set_defaults
+   ! Set default SCF data values
+     .kind                    = " " ! Purposely set blank so diis comes later
+     .dft_exchange              = "slater"
+     .dft_correlation           = "lyp"
+     .dft_non_local_exchange    = FALSE
+     .dft_non_local_correlation = TRUE
+     .initial_density         = "core"
+     .initial_mos             = " "
+     .nuclear_energy          = ZERO
+     .kinetic_energy          = ZERO
+     .energy                  = ZERO
+     .old_energy              = ZERO
+     .dft_energy_correction   = ZERO
+     .difference              = ZERO
+     .convergence             = SCFDATA_CONVERGENCE             ! TOL(4)
+     .diis_convergence        = SCFDATA_DIIS_CONVERGENCE        ! TOL(4)
+     .diis_start_iteration    = SCFDATA_DIIS_START_ITERATION    ! 3
+     .using_rough_convergence = SCFDATA_USING_ROUGH_CONVERGENCE ! TRUE
+     .rough_convergence       = SCFDATA_ROUGH_CONVERGENCE       ! TOL(2)
+     .rough_diis_convergence  = SCFDATA_ROUGH_DIIS_CONVERGENCE  ! TOL(2)
+     .iteration               = 0
+     .total_iterations        = 0
+     .lambda_iteration        = 0
+     .min_iterations          = SCFDATA_MIN_ITERATIONS
+     .max_iterations          = SCFDATA_MAX_ITERATIONS
+     .lambda                  = 0
+     .lambda_max              = 0
+     .lambda_step             = 1
+     .fit_value               = ZERO
+     .old_fit_value           = ZERO
+     .F_chi2                  = ZERO
+     .old_F_chi2              = ZERO
+     .F_gof                   = ZERO
+     .F_r_factor              = ZERO
+     .F_weighted_r_factor     = ZERO
+     .test                    = FALSE
+     .direct                  = FALSE
+     .using_delta_build       = FALSE
+     .using_fock_diis         = TRUE
+     .using_MO_diis           = FALSE
+     .using_damping           = SCFDATA_USING_DAMPING ! TRUE
+     .using_level_shift       = SCFDATA_USING_LEVEL_SHIFT ! TRUE
+     .using_camp_king         = FALSE
+     .camp_king_iters         = 0
+     .using_dynamic_damping   = FALSE
+     .dynamic_damp_factor     = ZERO
+     .diis.set_defaults
+     .diis_error              = ZERO
+     .old_diis_error          = ZERO
+     .using_diis_auto_start   = FALSE
+     .damp_finish             = SCFDATA_DIIS_START_ITERATION
+     .damp_factor             = SCFDATA_DAMP_FACTOR
+     .level_shift             = SCFDATA_LEVEL_SHIFT
+     .level_shift_finish      = SCFDATA_DIIS_START_ITERATION
+     .output                  = TRUE
+     .nddo                    = FALSE
+     .nudo                    = FALSE
+     .pie                     = FALSE
+     .using_bl_term           = TRUE
+     .using_bs_term           = TRUE
+     .using_bs_t_term         = TRUE
+     .using_aa_term           = TRUE
+     .using_1e_sl_term        = TRUE
+     .using_1e_srxa_term      = TRUE
+     .using_2e_sl_term        = TRUE
+     .using_1e_zora_term      = FALSE
+     .sl_1e_factor            = ONE
+     .sl_2e_factor            = ONE
+     .eri_limit               = SCFDATA_ERI_LIMIT
+     .old_eri_cutoff          = SCFDATA_ERI_LIMIT
+     .quantization_axis       = (/ ZERO, ZERO, ONE /)
+     .group                   = FALSE
+     .using_MO_gradient_update= FALSE
+     .MO_gradient_stepsize    = 0.01d0
+     .max_update_stepsize     = 0.01d0
+   end
+
+   set(nuclear_energy,energy,kinetic_energy,dft_energy_correction,crystal)
+   ! Set various parts of the scfdata type.
+     nuclear_energy,energy,kinetic_energy,dft_energy_correction :: REAL, IN, optional
+     crystal :: CRYSTAL*, optional
+     if (present(nuclear_energy))        .nuclear_energy = nuclear_energy
+     if (present(dft_energy_correction)) .dft_energy_correction = dft_energy_correction
+     if (present(crystal)) then
+     if (associated(crystal)) then
+       if (associated(crystal.reflections)) then
+         .old_F_chi2 = .F_chi2
+         .F_chi2 = crystal.F_chi2
+         .F_gof = crystal.F_goodness_of_fit
+         .F_r_factor = crystal.F_r_factor
+         .F_weighted_r_factor = crystal.F_weighted_r_factor
+       end
+     end
+     end
+     if (present(energy)) then
+       .energy = energy
+       if (.fitting) .fit_value = energy + .lambda * .F_chi2
+     end
+     if (present(kinetic_energy))    .kinetic_energy = kinetic_energy
+   end
+
+   reset(nuclear_energy,energy,kinetic_energy,dft_energy_correction,crystal)
+   ! Reset SCF energy and iteration data , but don't change
+   ! nuclear_energy, convergence, direct, or max_it options
+      nuclear_energy,energy,kinetic_energy,dft_energy_correction :: REAL, IN, optional
+      crystal :: CRYSTAL*, optional
+     .energy                = ZERO
+     .fit_value             = ZERO
+     .old_fit_value         = ZERO
+     .kinetic_energy        = ZERO
+     .old_energy            = ZERO
+     .dft_energy_correction = ZERO
+     .iteration             = 0
+     .total_iterations      = 0
+     .lambda_iteration      = 0
+     .F_chi2                = ZERO
+     .F_gof                 = ZERO
+     .F_r_factor            = ZERO
+     .F_weighted_r_factor   = ZERO
+     .old_eri_cutoff        = .eri_cutoff
+     .set(nuclear_energy,energy,kinetic_energy,dft_energy_correction,crystal)
+     if (present(energy)) .difference = energy
+     if (present(crystal)) .old_fit_value = ZERO
+     if (present(dft_energy_correction)) .dft_energy_correction = dft_energy_correction
+   end
+
+   update_lambda
+   ! Increments lambda by lambda_step
+     .lambda           = .lambda + .lambda_step
+     .lambda_iteration = .lambda_iteration + 1
+     .iteration        = 0
+     .old_fit_value    = .old_energy + .lambda * .old_F_chi2
+     .fit_value        = .energy + .lambda * .F_chi2
+   end
+
+   update(energy,kinetic_energy,dft_energy_correction,crystal)
+   ! Update the SCF energy and/or chi2 and increment iteration and any other
+   ! data of use in the SCF calculation.
+     energy,kinetic_energy,dft_energy_correction :: REAL, IN, optional
+     crystal :: CRYSTAL*, optional
+     .old_fit_value = .fit_value
+     .old_energy = .energy
+     .set(energy=energy,kinetic_energy=kinetic_energy, &
+                dft_energy_correction=dft_energy_correction,crystal=crystal)
+     .iteration = .iteration + 1
+     .total_iterations = .total_iterations + 1
+     .difference = .energy - .old_energy
+     ! For updating the fock matrix in incremental builds
+     .old_eri_cutoff = .eri_cutoff
+   end
+
+   set_diis_error(err)
+   ! Set the DIIS error and the starting iteration for automatic DIIS start
+     err :: REAL, IN
+     set_start :: BIN
+     .old_diis_error = .diis_error
+     .diis_error = err
+     set_start = .using_diis_auto_start AND &
+                 .diis_start_iteration == .max_iterations AND &
+                (.diis_error<.rough_diis_convergence)
+!     if (set_start) .diis.set_start(.iteration)
+   end
+
+   spinorbital_kind(scf_kind) result(res)
+   ! Return the kind of spinorbitals used in a particular "scf_kind"
+   ! (i.e. for the fock_matrix and density_matrix, but not neccesarily the mo's)
+     scf_kind :: STR(*), optional
+     res :: STR
+     s_kind :: STR
+     s_kind = .kind
+     if (present(scf_kind)) s_kind = scf_kind
+     select case (s_kind)
+       case("rhf","rdft","restricted_hartree_fock"); res = "restricted"
+       case("rohf", "restricted_open_shell_hartree_fock"); res = "unrestricted"
+       case("uhf","udft","unrestricted_hartree_fock");    res = "unrestricted"
+       case("ghf","general_hartree_fock");         res = "general"
+       case("rchf","crhf", &
+            "restricted_complex_hartree_fock", &
+            "complex_restricted_hartree_fock");    res = "restricted_complex"
+       case("uchf","cuhf", &
+            "unrestricted_complex_hartree_fock", &
+            "complex_unrestricted_hartree_fock");  res = "unrestricted_complex"
+       case("gchf","cghf", &
+            "general_complex_hartree_fock", &
+            "complex_general_hartree_fock");       res = "general_complex"
+       case("xray_rhf", &
+            "xray_restricted_hartree_fock");       res = "restricted"
+       case("xray_rks");                           res = "restricted"
+       case("xray_rdft");                          res = "restricted"
+       case("xray_udft");                          res = "unrestricted"
+       case("rdvpt","restricted_dvpt");            res = "restricted"
+       case("noninteracting-group-rhf");           res = "restricted"
+       case default; DIE("unknown scf kind")
+     end
+   end
+
+   molecular_orbital_kind(scf_kind) result(res)
+   ! Return the kind of spinorbitals used for the molecular orbitals in a
+   ! particular "scf_kind"
+     scf_kind :: STR(*), optional
+     res :: STR
+     s_kind :: STR
+      s_kind = .kind
+     if (present(scf_kind)) s_kind = scf_kind
+     select case (s_kind)
+       case("rhf","rdft","restricted_hartree_fock"); res = "restricted"
+       case("rohf", &
+            "restricted_open_shell_hartree_fock"); res = "restricted"
+       case("uhf","udft", "unrestricted_hartree_fock");    res = "unrestricted"
+       case("ghf","general_hartree_fock");         res = "general"
+       case("rchf","crhf", &
+            "restricted_complex_hartree_fock", &
+            "complex_restricted_hartree_fock");    res = "restricted_complex"
+       case("uchf","cuhf", &
+            "unrestricted_complex_hartree_fock", &
+            "complex_unrestricted_hartree_fock");  res = "unrestricted_complex"
+       case("gchf","cghf", &
+            "general_complex_hartree_fock", &
+            "complex_general_hartree_fock");       res = "general_complex"
+       case("xray_rhf", &
+            "xray_restricted_hartree_fock");       res = "restricted"
+       case("xray_rks");                           res = "restricted"
+       case("xray_rdft");                          res = "restricted"
+       case("xray_udft");                          res = "unrestricted"
+       case("rdvpt","restricted_dvpt");            res = "restricted"
+       case("noninteracting-group-rhf");           res = "restricted"
+       case default; DIE("unknown scf kind")
+     end
+   end
+
+   orbital_energy_kind(scf_kind) result(res)
+   ! Return the kind of vectors used for the orbital energies in a
+   ! particular "scf_kind"
+      scf_kind :: STR(*), optional
+      res :: STR
+      res = .orbital_energies_kind(scf_kind)
+   end
+
+   orbital_energies_kind(scf_kind) result(res)
+   ! Return the kind of vectors used for the orbital energies in a
+   ! particular "scf_kind"
+      scf_kind :: STR(*), optional
+      res :: STR
+      s_kind :: STR
+      s_kind = .kind
+      if (present(scf_kind)) s_kind = scf_kind
+      select case (s_kind)
+         case("rhf","rdft","restricted_hartree_fock");      res = "restricted"
+         case("rohf","restricted_open_shell_hartree_fock"); res = "restricted"
+         case("uhf","udft", "unrestricted_hartree_fock");   res = "unrestricted"
+         case("ghf","general_hartree_fock");                res = "general"
+         case("rchf","crhf", &
+              "restricted_complex_hartree_fock", &
+              "complex_restricted_hartree_fock");           res = "restricted"
+         case("uchf","cuhf", &
+              "unrestricted_complex_hartree_fock", &
+              "complex_unrestricted_hartree_fock");         res = "unrestricted"
+         case("gchf","cghf", &
+              "general_complex_hartree_fock", &
+              "complex_general_hartree_fock");              res = "general"
+         case("xray_rhf","xray_restricted_hartree_fock");   res = "restricted"
+         case("xray_rks");                                  res = "restricted"
+         case("xray_rdft");                                 res = "restricted"
+         case("xray_udft");                                 res = "unrestricted"
+         case("rdvpt","restricted_dvpt");                   res = "restricted"
+         case("noninteracting-group-rhf");                  res = "restricted"
+         case default; DIE("unknown scf kind")
+      end
+   end
+
+   number_kind result(res)
+   ! Return the kind of numbers used for a particular "kind" of scf calculation
+      res :: STR
+      select case (.kind)
+         case("rhf","rdft","rohf","uhf","udft", "ghf");    res = "real"
+         case("rchf","uchf","gchf");                       res = "complex"
+         case("restricted_hartree_fock");                  res = "real"
+         case("restricted_open_shell_hartree_fock");       res = "real"
+         case("unrestricted_hartree_fock");                res = "real"
+         case("general_hartree_fock");                     res = "real"
+         case("restricted_complex_hartree_fock");          res = "complex"
+         case("unrestricted_complex_hartree_fock");        res = "complex"
+         case("general_complex_hartree_fock");             res = "complex"
+         case("xray_rhf","xray_restricted_hartree_fock");  res = "real"
+         case("xray_rks");                                 res = "real"
+         case("xray_rdft","xray_udft");                    res = "real"
+         case("rdvpt","restricted_dvpt");                  res = "real"
+         case("noninteracting-group-rhf");                 res = "real"
+         case default; DIE("unknown scf kind")
+      end
+   end
+
+!  *************
+!  Input methods
+!  *************
+
+   read_keywords ::: recursive, leaky
+   ! Read data from "stdin" using keyword style input.
+      word :: STR
+      stdin.read(word)
+   ENSURE(word=="{","expecting an open bracket symbol, {")
+      .set_defaults
+      read_loop: do             ! Loop over keywords
+         stdin.read(word)
+         if (word=="}")         exit read_loop
+         if (stdin.reverted)    exit read_loop
+         .process_keyword(word)
+      end do read_loop
+      .finalize
+   end
+
+   process_keyword(keyword) ::: leaky
+   ! Process a command "keyword". Data is inputted from "stdin", unless
+   ! "word" is a sequence of blank separated strings. In this case,
+   ! the sequence is processed as if it were a separate file.
+      keyword :: STR(*)
+      word :: STR
+      word = keyword
+      word.to_lower_case
+      if (word.includes(" ")) then
+         stdin.redirect([word])
+         .read_keywords
+         stdin.revert
+      else
+         select case (word)
+            case ("}                       ")  ! exit case
+            case ("1e_sl_factor=           "); stdin.read(.sl_1e_factor)
+            case ("2e_sl_factor=           "); stdin.read(.sl_2e_factor)
+            case ("camp-king=              "); stdin.read(.using_camp_king)
+            case ("convergence=            "); .read_convergence
+            case ("converge=               "); .read_convergence
+            case ("damp_factor=            "); stdin.read(.damp_factor)
+            case ("damp_finish=            "); stdin.read(.damp_finish)
+            case ("dft_correlation=        "); .read_dft_correlation
+            case ("dft_exchange=           "); .read_dft_exchange
+            case ("diis=                   "); .read_fock_diis
+            case ("diis_auto_start=        "); .read_diis_auto_start
+            case ("diis_convergence=       "); .read_diis_convergence
+            case ("diis_keep=              "); .read_diis_keep
+            case ("diis_start=             "); .read_diis_start
+            case ("direct=                 "); .read_direct
+            case ("dynamic_damping=        "); stdin.read(.using_dynamic_damping)
+            case ("eri_cutoff=             "); .read_eri_limit
+            case ("eri_limit=              "); .read_eri_limit
+            case ("fock_diis=              "); .read_fock_diis
+            case ("guess=                  "); .read_initial_density
+            case ("initial_density=        "); .read_initial_density
+            case ("initial_guess=          "); .read_initial_density
+            case ("initial_lambda=         "); stdin.read(.lambda)
+            case ("initial_mos=            "); .read_initial_mos
+            case ("kind=                   "); .read_kind
+            case ("lambda_max=             "); stdin.read(.lambda_max)
+            case ("lambda_min=             "); stdin.read(.lambda)
+            case ("lambda_step=            "); stdin.read(.lambda_step)
+            case ("level_shift=            "); stdin.read(.level_shift)
+            case ("level_shift_finish=     "); stdin.read(.level_shift_finish)
+            case ("min_iterations=         "); .read_min_iterations
+            case ("min_it=                 "); .read_min_iterations
+            case ("max_iterations=         "); .read_max_iterations
+            case ("max_it=                 "); .read_max_iterations
+            case ("max_update_stepsize=    "); stdin.read(.max_update_stepsize)
+            case ("mo_diis=                "); .read_mo_diis
+            case ("mo_gradient_stepsize=   "); stdin.read(.MO_gradient_stepsize)
+            case ("nddo=                   "); stdin.read(.nddo)
+            case ("nudo=                   "); stdin.read(.nudo)
+            case ("output=                 "); stdin.read(.output)
+            case ("pie=                    "); stdin.read(.pie)
+            case ("quantization_axis=      "); stdin.read(.quantization_axis)
+            case ("rough_convergence=      "); .read_rough_convergence
+            case ("rough_diis_convergence= "); .read_rough_diis_convergence
+            case ("scf_kind=               "); .read_kind
+            case ("scf_type=               "); .read_kind
+            case ("sl_1e_factor=           "); stdin.read(.sl_1e_factor)
+            case ("sl_2e_factor=           "); stdin.read(.sl_2e_factor)
+            case ("test=                   "); stdin.read(.test)
+            case ("use_1e_sl_term=         "); stdin.read(.using_1e_sl_term)
+            case ("use_1e_s(rxa)_term=     "); stdin.read(.using_1e_srxa_term)
+            case ("use_1e_zora_term=       "); stdin.read(.using_1e_zora_term)
+            case ("use_2e_sl_term=         "); stdin.read(.using_2e_sl_term)
+            case ("use_aa_term=            "); stdin.read(.using_aa_term)
+            case ("use_bl_term=            "); stdin.read(.using_bl_term)
+            case ("use_bs_term=            "); stdin.read(.using_bs_term)
+            case ("use_bs_t_term=          "); stdin.read(.using_bs_t_term)
+            case ("use_damping=            "); stdin.read(.using_damping)
+            case ("use_delta_build=        "); .read_delta_build
+            case ("use_diis=               "); .read_fock_diis
+            case ("use_fock_diis=          "); .read_fock_diis
+            case ("use_mo_diis=            "); .read_MO_diis
+            case ("use_mo_gradient_update= "); .read_MO_gradient_update
+            case ("use_level_shifting=     "); stdin.read(.using_level_shift)
+            case ("use_level_shift=        "); stdin.read(.using_level_shift)
+            case ("use_rough_convergence=  "); stdin.read(.using_rough_convergence)
+            case default;           UNKNOWN(word)
+         end
+      end
+   end
+
+   finalize
+   ! Make sure the input satisfies sanity checks and generate
+   ! any other missing data
+   ENSURE(.kind/=" ","no scf kind specified")
+   ENSURE(.max_iterations>=.min_iterations,"max_it must be greater than min_it!")
+      if (.initial_mos/=" ")   .initial_density = "--using MO's--"
+      if (.using_1e_zora_term) .using_1e_sl_term = FALSE
+      if (.using_1e_sl_term)   .using_1e_zora_term = FALSE
+      if (.kind=="noninteracting-group-rhf") .group = TRUE
+      if (NOT .direct)         .using_rough_convergence = FALSE
+      if (.using_fock_diis OR .using_MO_diis) then
+         ENSURE(.diis.keep>0,"DIIS_keep must be > 0 for MO_gradient_update")
+      end
+      if (.using_MO_diis) then
+         .diis.set_archive_name("DIIS_molecular_orbitals")
+      else if (.using_fock_diis) then
+         .diis.set_archive_name("DIIS_fock_matrix")
+      end
+      if (.using_diis_auto_start) .diis_start_iteration = .max_iterations
+   end
+
+   read_dft_exchange
+   ! Read the SCF type
+      stdin.read(.dft_exchange)
+      .dft_exchange.to_lower_case
+      select case (.dft_exchange)
+         case("none                              "); .dft_non_local_exchange=FALSE
+         case("slater                            "); .dft_non_local_exchange=FALSE
+         case("xalpha                            "); .dft_non_local_exchange=FALSE
+         case("becke88                           "); .dft_non_local_exchange=TRUE
+         case("gill96                            "); .dft_non_local_exchange=TRUE
+         case default;    UNKNOWN(.dft_exchange)
+      end
+   end
+
+   read_dft_correlation
+   ! Read the SCF type
+      stdin.read(.dft_correlation)
+      .dft_correlation.to_lower_case
+      select case (.dft_correlation)
+         case("none                              "); .dft_non_local_correlation=FALSE
+         case("vwn                               "); .dft_non_local_correlation=FALSE
+         case("lyp                               "); .dft_non_local_correlation=TRUE
+         case default;    UNKNOWN(.dft_correlation)
+      end
+   end
+
+   read_kind
+   ! Read the SCF type
+      stdin.read(.kind)
+      select case (.kind)
+         case("rhf                               ")
+         case("rdft                              ")
+         case("udft                              ")
+         case("restricted_hartree_fock           ")
+         case("xray_rhf                          ")
+         case("xray_rdft                         ")
+         case("xray_udft                         ")
+         case("rohf                              ")
+         case("restricted_open_shell_hartree_fock")
+         case("uhf                               ")
+         case("unrestricted_hartree_fock         ")
+         case("ghf                               ")
+         case("general_hartree_fock              ")
+         case("rchf                              ")
+         case("restricted_complex_hartree_fock   ")
+         case("uchf                              ")
+         case("unrestricted_complex_hartree_fock ")
+         case("gchf                              ")
+         case("general_complex_hartree_fock      ")
+         case("noninteracting-group-rhf          ")
+         case default;    UNKNOWN(.kind)
+      end
+   end
+
+   read_initial_density
+   ! Read the initial density guess
+      stdin.read(.initial_density)
+      select case (.initial_density)
+         case("core                ")
+         case("fock                ")
+         case("atom                ")
+         case("group               ")
+         case("restricted          ")
+         case("unrestricted        ")
+         case("general             ")
+         case("restricted_complex  ")
+         case("complex_unrestricted")
+         case("unrestricted_complex")
+         case("general_complex     ")
+         case("complex_general     ")
+         case default;  UNKNOWN(.initial_density)
+      end
+      ! User inputted guesses are usually converged, so stay accurate.
+    ! .using_rough_convergence = FALSE
+    ! WARN("Rough convergence switched off by initial_density= option")
+   end
+
+   read_initial_mos
+   ! Read the initial density guess
+      stdin.read(.initial_mos)
+      select case (.initial_mos)
+         case("restricted          ")
+         case("unrestricted        ")
+         case("general             ")
+         case("restricted_complex  ")
+         case("complex_unrestricted")
+         case("unrestricted_complex")
+         case("general_complex     ")
+         case("complex_general     ")
+         case default;   UNKNOWN(.initial_mos)
+      end
+      ! User inputted guesses are usually converged, so stay accurate.
+      if (.using_rough_convergence) then
+        .using_rough_convergence = FALSE
+        WARN("Rough convergence switched off by initial_mos= option")
+      end
+   end
+
+   read_min_iterations
+   ! Read the minimum no. of SCF interations
+      stdin.read(.min_iterations)
+   ENSURE(.min_iterations>=0,"min_iteration must be non-negative")
+   end
+
+   read_max_iterations
+   ! Read the maximum no. of SCF interations
+      stdin.read(.max_iterations)
+   ENSURE(.max_iterations>=0,"must be non-negative")
+   ENSURE(.max_iterations>=.min_iterations,"smaller than min_iterations!")
+   end
+
+   read_convergence
+   ! Read the SCF convergence criteria
+      stdin.read(.convergence)
+   ENSURE(.convergence>0,"convergence must be positive")
+      WARN_IF(.convergence<TOL(11),"convergence may be too small")
+   end
+
+   read_rough_convergence
+   ! Read the rough SCF convergence criteria
+      stdin.read(.rough_convergence)
+   ENSURE(.rough_convergence>0,"must be positive")
+   ENSURE(.rough_convergence>.convergence,"smaller than convergence!")
+      WARN_IF(.rough_convergence<TOL(11),"may be too small")
+   end
+
+   read_fock_diis
+   ! Read whether to use DIIS for fock matrix
+      stdin.read(.using_fock_diis)
+      if (.using_fock_diis) .using_MO_diis = FALSE
+   end
+
+   read_MO_diis
+   ! Read whether to use DIIS for molecular orbitals
+      stdin.read(.using_MO_diis)
+      if (.using_MO_diis) .using_fock_diis = FALSE
+   end
+
+   read_diis_convergence
+   ! Read the DIIS SCF convergence criteria
+      stdin.read(.diis_convergence)
+   ENSURE(.diis_convergence>0,"must be positive")
+      WARN_IF(.diis_convergence<TOL(11),"may be too small")
+   end
+
+   read_diis_keep
+   ! Read the number of DIIS vectors to keep
+     i :: INT
+     stdin.read(i)
+     .diis.set_keep(i)
+   end
+
+   read_diis_start
+   ! Read when to start DIIS
+     i :: INT
+     stdin.read(i)
+     .diis_start_iteration = i
+   end
+
+   read_diis_auto_start
+   ! Read whether to start DIIS automatically based on the diis error
+      stdin.read(.using_diis_auto_start)
+     .diis_start_iteration = .max_iterations
+   end
+
+   read_rough_diis_convergence
+   ! Read the rough DIIS SCF convergence criteria
+      stdin.read(.rough_diis_convergence)
+   ENSURE(.rough_diis_convergence>0,"must be positive")
+   ENSURE(.rough_diis_convergence>.diis_convergence,"too small")
+   WARN_IF(.rough_diis_convergence<TOL(11),"may be too small")
+   end
+
+   read_direct
+   ! Read whether to use direct SCF or not
+      stdin.read(.direct)
+      if (.direct) .using_delta_build = TRUE
+   end
+
+   read_delta_build
+   ! Read whether to use incremental fock build
+      stdin.read(.using_delta_build)
+   end
+
+   read_MO_gradient_update
+   ! Read whether to an MO gradient update method
+      stdin.read(.using_MO_gradient_update)
+   end
+
+   read_eri_limit
+   ! Read the ERI cutoff limit
+      stdin.read(.eri_limit)
+   end
+
+!  *****
+!  Tests
+!  *****
+
+   scf_done result(res)
+   ! Return TRUE if the scf procedure is done
+      res :: BIN
+      res = (.converged OR .exceeded_max_it) AND .exceeded_min_it
+   end
+
+   converged result(res)
+   ! Return TRUE if the SCFDATA appears to be converged
+      res :: BIN
+      res = .diff_converged AND .diis_converged &
+          AND NOT .apply_rough_convergence ! must use full accuracy integrals
+   end
+
+   roughly_converged result(res)
+   ! Return TRUE if the SCFDATA is roughly converged
+      res :: BIN
+     res = abs(.difference) < .rough_convergence AND &
+           abs(.diis_error) < .rough_diis_convergence
+   end
+
+   apply_rough_convergence result(res)
+   ! Return TRUE if applying rough integral convergence this iteration
+     res :: BIN
+     res = .using_rough_convergence AND .direct
+     res = res AND (NOT .roughly_converged) AND .lambda_iteration==0
+   end
+
+   diff_converged result(res)
+   ! Return TRUE if the energy difference has converged
+      res :: BIN
+      if (.fitting) then
+        res = abs(.fit_value-.old_fit_value) < .convergence
+      else
+        res = abs(.difference) < .convergence
+      end
+   end
+
+   diis_converged result(res)
+   ! Return TRUE if the gradient/DIIS error has converged
+      res :: BIN
+      res = abs(.diis_error) < .diis_convergence
+   end
+
+   exceeded_max_it result(res)
+   ! Return TRUE if the SCFDATA has exceeded the maximum iterations
+      res :: BIN
+      res = .iteration >= .max_iterations
+   end
+
+   exceeded_min_it result(res)
+   ! Return TRUE if the SCFDATA has exceeded the minimum iterations
+      res :: BIN
+      res = .iteration >= .min_iterations
+      if (.fitting) res = res AND (.iteration > 1)
+   end
+
+   exceeded_lambda_max result(res)
+   ! Return TRUE if the SCFDATA has exceeded the maximum lambda
+      res :: BIN
+      res = .lambda > (ONE+TOL(10)) * .lambda_max
+                         ! TOL(10) allows for roundoff errors
+   end
+
+   eri_cutoff result(res)
+   ! Return a value to eliminate small integrals in direct SCF calculations
+     res :: REAL
+     if (.apply_rough_convergence) then
+        res = SCFDATA_ERI_LIMIT_ROUGH
+     else
+        res = .eri_limit
+     end
+   end
+
+   eri_cutoff_altered result (res)
+   ! Return TRUE if the eri_cutoff has changed since the last .update.
+   ! This function is needed for recreating the fock matrix where
+   ! incremental builds are used.
+      res :: BIN
+      res = .old_eri_cutoff/=.eri_cutoff
+   end
+
+   do_delta_build result (res)
+   ! Return TRUE if a delta fock matrix build is allowed (assuming that the old
+   ! fock matrix and old density matrix are available)
+      res :: BIN
+      res = .using_delta_build AND NOT .eri_cutoff_altered
+      res = res AND NOT .kind.includes("dft")
+   end
+
+!  **********************
+!  DIIS tests. Be careful
+!  **********************
+
+   apply_fock_diis result(res)
+   ! Return TRUE if DIIS extrapolation is to be used for extrapolating
+   ! the fock matrix (this is the default). Currently the only alternative
+   ! is gradient extrapolation of the orbitals.
+      res :: BIN
+      res = .apply_diis AND .using_fock_diis
+   end
+
+   apply_MO_diis result(res)
+   ! Return TRUE if DIIS extrapolation is to be used for extrapolating
+   ! the fock matrix (this is the default). Currently the only alternative
+   ! is gradient extrapolation of the orbitals.
+      res :: BIN
+      res = .apply_diis AND .using_MO_diis
+   end
+
+   using_diis result(res)
+   ! Return TRUE if DIIS extrapolation is to be used
+      res :: BIN
+      res = .using_fock_diis OR .using_MO_diis
+   end
+
+   diis_used result(res)
+   ! Return TRUE if DIIS extrapolation has *really* been used this iteration
+   ! (The first time doesn't really count, see apply_diis below for that case)
+      res :: BIN
+      if (NOT .using_diis) then
+         res = FALSE
+      else
+         res = (.total_iterations > .diis_start_iteration) AND .diis.keep > 1
+      end
+   end
+
+   apply_diis result(res)
+   ! Return TRUE if DIIS extrapolation must be applied this iteration,
+   ! or has been applied this iteration.
+      res :: BIN
+      if (NOT .using_diis) then
+         res = FALSE
+      else
+         res = (.total_iterations >= .diis_start_iteration) AND .diis.keep > 1
+      end
+!      ! Do not have diis at lambda=0 between lambda increments.
+!      if (.fitting) then
+!        if (.iteration==0 AND .lambda_iteration>0) res = FALSE
+!      end
+   end
+
+   apply_camp_king result(res)
+   ! Return TRUE if Camp-King converger is to be used this iteration
+     res :: BIN
+!    res = .using_camp_king AND (.diis_error > .old_diis_error)
+     res = .using_camp_king AND .spinorbital_kind == "restricted"
+   end
+
+   apply_dynamic_damping result(res)
+   ! Return TRUE if Camp-King converger is to be used this iteration
+     res :: BIN
+     res = .using_dynamic_damping AND NOT .apply_damping
+   end
+
+   apply_damping result(res)
+   ! Return TRUE if density matrix damping is to be applied this iteration
+      res :: BIN
+      res = .using_damping AND .iteration < .damp_finish
+   end
+
+   apply_level_shifting result(res)
+   ! Return TRUE if level shifting must be applied this iteration
+      res :: BIN
+      res = NOT .level_shift.is_zero &
+            AND .using_level_shift AND .iteration < .level_shift_finish
+   end
+
+   fitting result(res)
+   ! Return true if we are fitting the wavefunction.
+     res :: BIN
+     select case (.kind)
+       case("xray_rhf","xray_restricted_hartree_fock");   res = TRUE
+       case("xray_rks");                                  res = TRUE
+       case("xray_rdft");                                 res = TRUE
+       case("xray_udft");                                 res = TRUE
+       case default;                                      res = FALSE
+     end
+   end
+
+ !  ***************
+ !  Output routines
+ !  ***************
+
+   put_banner
+   ! Prints out the nuclear energy and initial guess energy.
+     if (NOT .output) return
+     stdout.flush
+     stdout.text("***************")
+     stdout.text("SCF calculation")
+     stdout.text("***************")
+     stdout.flush
+     .put_summary
+   end
+
+   put_summary ::: private
+   ! Prints out a summary of what is stored in the scfdata object.
+     q :: REALVEC(3)
+     real_width :: BIN
+     real_width = TRUE
+     stdout.show("SCF kind                    = ", .kind)
+     if (.kind.includes("dft")) then
+     stdout.show("DFT Exchange                = ", .dft_exchange)
+     stdout.show("DFT Correlation             = ", .dft_correlation)
+     end
+     stdout.show("Direct                      = ", .direct,real_width)
+     stdout.set_real_style("e")
+     stdout.show("Integral cutoff             = ", .eri_limit)
+     stdout.set_real_style("f")
+     if (.nddo) &
+     stdout.show("NDDO                        = ", .nddo,real_width)
+     stdout.show("ZORA (1 electron) terms     = ", .using_1e_zora_term,real_width)
+     stdout.flush
+     stdout.text("Initial guess options:")
+     stdout.flush
+     stdout.show("Initial density             = ", .initial_density)
+     stdout.show("Initial MO's                = ", .initial_mos)
+     stdout.flush
+     stdout.text("Initial guess energies:")
+     stdout.flush
+     stdout.show("Nuclear Energy              = ", .nuclear_energy)
+     stdout.show("SCF Energy                  = ", .energy)
+     stdout.show("Kinetic Energy              = ", .kinetic_energy)
+     if (.kind.includes("dft")) then
+     stdout.show("DFT Energy                  = ", .energy+.dft_energy_correction)
+     end
+     stdout.flush
+     stdout.text("SCF termination criteria:")
+     stdout.flush
+     stdout.show("Convergence                 = ", .convergence)
+     stdout.show("Gradient/DIIS convergence   = ", .diis_convergence)
+     stdout.show("Minimum iterations          = ", .min_iterations,real_width)
+     stdout.show("Maximum iterations          = ", .max_iterations,real_width)
+     stdout.flush
+     stdout.text("Convergence acceleration options:")
+     stdout.flush
+     stdout.show("Using Rough Convergence     = ", .using_rough_convergence,real_width)
+     if (.using_rough_convergence) then
+     stdout.show("Rough Convergence           = ", .rough_convergence)
+     stdout.show("Rough DIIS Convergence      = ", .rough_diis_convergence)
+     end
+     stdout.show("Using level shift           = ", .using_level_shift,real_width)
+     if (.using_level_shift) then
+     stdout.show("Level shift                 = ", .level_shift)
+     stdout.show("Level shift  quits at       = ", .level_shift_finish,real_width)
+     end
+     stdout.show("Using density damping       = ", .using_damping,real_width)
+     if (.using_damping) then
+     stdout.show("Damping factor              = ", .damp_factor)
+     stdout.show("Damping quits at            = ", .damp_finish,real_width)
+     end
+     stdout.show("Using MO gradient update    = ", .using_MO_gradient_update,real_width)
+     if (.using_MO_gradient_update) then
+     stdout.show("MO gradient stepsize        = ", .MO_gradient_stepsize)
+     stdout.show("Maximum update stepsize     = ", .max_update_stepsize)
+     end
+     if (.using_dynamic_damping) then
+     stdout.show("Using Dynamic Damping       = ", .using_dynamic_damping,real_width)
+     end
+     if (.using_camp_king) then
+     stdout.show("Using Camp-King             = ", .using_camp_king)
+     end
+     stdout.show("Using DIIS                  = ", .using_diis,real_width)
+     stdout.show("Using Fock DIIS?            = ", .using_fock_diis,real_width)
+     stdout.show("Using MO DIIS?              = ", .using_MO_diis,real_width)
+     if (.using_diis) then
+     stdout.show("DIIS archive root name      = ", .diis.archive.root_name)
+     stdout.show("DIIS no. to keep            = ", .diis.keep,real_width)
+     stdout.show("DIIS automatic start?       = ", .using_diis_auto_start,real_width)
+     if (NOT .using_diis_auto_start) then
+     stdout.show("DIIS start iteration        = ", .diis_start_iteration,real_width)
+     end
+     end
+     if (.spinorbital_kind=="general_complex") then
+       stdout.flush
+       stdout.text("Magnetic/Relativistic terms:")
+       stdout.flush
+       q = .quantization_axis
+       stdout.show("Quantization axis           = ", q(1),q(2),q(3))
+       stdout.show("ZORA (1 electron) terms     = ", .using_1e_zora_term)
+       stdout.show("Using B:L term              = ", .using_bl_term)
+       stdout.show("Using B:S term              = ", .using_bs_term)
+       stdout.show("Using B:S T term            = ", .using_bs_t_term)
+       stdout.show("Using A:A term              = ", .using_aa_term)
+       stdout.show("Using 1e S:L term           = ", .using_1e_sl_term)
+       stdout.show("Using 1e S:(rxA) term       = ", .using_1e_srxa_term)
+       stdout.show("Using 2e S:L term           = ", .using_2e_sl_term)
+       stdout.show("Factor for 1e S:L term      = ", .sl_1e_factor)
+       stdout.show("Factor for 2e S:L term      = ", .sl_2e_factor)
+     end
+     if (.fitting) then
+       stdout.flush
+       stdout.text("Experimental wavefunction parameters:")
+       stdout.flush
+       stdout.show("Lambda fitting parameter    = ", .lambda)
+       stdout.show("Lambda max                  = ", .lambda_max)
+       stdout.show("Lambda step                 = ", .lambda_step)
+       .put_crystal
+     end
+   end
+
+   put_table_head ::: private
+   ! Prints out the table head for an SCF calculation
+     fields :: INT
+     if (NOT .output) return
+     fields = 3
+     if (.fitting)     fields = fields + 2
+     stdout.flush
+     stdout.dash(real_fields=fields,int_fields=1)
+     stdout.put("Iter",int_width=TRUE)
+     if (.fitting) then
+       stdout.put("lambda")
+       stdout.put("F_chi2")
+     end
+     stdout.put("Energy")
+     if (.fitting) then
+       stdout.put("d(E+l*chi2)")
+     else
+       stdout.put("difference")
+     end
+     stdout.put("Gradient/DIIS")
+     stdout.flush
+     stdout.dash(real_fields=fields,int_fields=1)
+   end
+
+   put_results
+   ! Print out the results for the current iteration. This routine must be
+   ! compatible with put_banner. This routine must be called at iteration 0.
+     fields,n,i,margin_pos :: INT
+     diis_converged,diff_converged,damping_on,damping_off :: BIN, save
+     level_on,level_off,diis_on,diis_up,rough_off :: BIN, save
+     info :: STRVEC(20)
+     if (NOT .output) return
+     ! This is the table head ...
+     if (.iteration == 0) then
+        if (.lambda_iteration == 0) .put_table_head
+        diff_converged = FALSE
+        rough_off = FALSE
+        diis_converged = FALSE
+        damping_on = FALSE
+        damping_off = FALSE
+        level_on = FALSE
+        level_off = FALSE
+        diis_on = FALSE
+        diis_up = FALSE
+ !       if (.lambda_iteration > 0) return
+     end
+     stdout.put(.iteration)
+     fields = 3
+     if (.fitting) then
+        fields = fields + 2
+        stdout.put(.lambda)
+        stdout.put(.F_chi2)
+     end
+     ! This is the important info ...
+     stdout.put(.energy)
+     if (.fitting) then
+       stdout.put(.fit_value-.old_fit_value)
+     else
+       stdout.put(.difference)
+     end
+     stdout.put(.diis_error)
+     ! Margin notes ...
+     if (NOT .scf_done) then
+        info = " "
+        n = 0
+        if (NOT diff_converged AND .diff_converged AND .iteration>0) then
+          n = n + 1
+          info(n) = " *Difference has converged"
+          diff_converged = TRUE
+        end
+        if (NOT diis_converged AND .diis_converged) then
+          n = n + 1
+          info(n) = " *Gradient has converged"
+          diis_converged = TRUE
+        end
+        if (NOT rough_off AND NOT .apply_rough_convergence AND .using_rough_convergence) then
+           n = n + 1
+           info(n) = " *Increasing integral accuracy"
+           rough_off = TRUE
+        end
+        if (.apply_damping AND NOT damping_on) then
+           n = n + 1
+           info(n) = " *Damping on"
+           damping_on = TRUE
+        else if (NOT .apply_damping AND NOT damping_off) then
+           n = n + 1
+           info(n) = " *Damping off"
+           damping_off = TRUE
+        end
+        if (.apply_level_shifting AND NOT level_on) then
+           n = n + 1
+           info(n) = " *Levelshift on"
+           level_on = TRUE
+        else if (NOT .apply_level_shifting AND NOT level_off) then
+           n = n + 1
+           info(n) = " *Levelshift off"
+           level_off = TRUE
+        end
+        if ((.using_diis AND NOT diis_on AND .apply_diis)) then
+           n = n + 1
+           info(n) = " *DIIS on"
+           diis_on = TRUE
+        end
+        if (NOT diis_up AND .apply_diis AND .diis.n_vec==.diis.keep) then
+           n = n + 1
+           info(n) = " *DIIS subspace saturated"
+           diis_up = TRUE
+        end
+        if (.camp_king_iters>0) then
+           n = n + 1
+           info(n) = " *Camp-King iterations = " // trim(.camp_king_iters.to_str)
+        end
+        if (.using_dynamic_damping AND .dynamic_damp_factor > TOL(7)) then
+           n = n + 1
+           info(n) = " *damp factor = " // &
+                     trim(.dynamic_damp_factor.to_str_no_zeros("f8.6"))
+        end
+        margin_pos = stdout.buffer.item_end
+        do i = 1,n
+          if (i>1) then
+          stdout.flush
+          stdout.tab(width=margin_pos)
+          end
+          stdout.put_text(trim(info(i)))
+        end
+        stdout.flush
+     ! This is the table foot ...
+     else
+        .put_table_foot
+     end
+   end
+
+   put_table_foot ::: private
+   ! Prints out the table foot for an SCF calculation, after convergence
+   ! or not as the case may be
+     fields :: INT
+     if (NOT .output) return
+     fields = 3
+     if (.fitting)     fields = fields + 2
+     stdout.flush
+     stdout.dash(real_fields=fields,int_fields=1)
+     if (.converged) then; stdout.text("* * * SCF has converged * * *",flush=1)
+     else;                 stdout.text("* * * SCF has not converged * * *",flush=1)
+     end
+     stdout.dash(real_fields=fields,int_fields=1)
+     stdout.show("SCF Energy                  = ", .energy)
+     stdout.show("Kinetic Energy              = ", .kinetic_energy)
+     if (.kind.includes("dft")) then
+     stdout.show("DFT Energy                  = ", .energy+.dft_energy_correction)
+     end
+     if (.fitting) .put_crystal
+     stdout.dash(real_fields=fields,int_fields=1)
+   end
+
+   put_crystal
+   ! Prints out the crystal structure factor statistics.
+     stdout.show("Chi^2 in F                  = ", .F_chi2)
+     stdout.show("Goodness of fit in F        = ", .F_gof)
+     stdout.show("R factor in F               = ", .F_r_factor)
+     stdout.show("Weighted R factor in F      = ", .F_weighted_r_factor)
+   end
+
+   put_constrained_scf_results(out)
+   ! Outputs SCF information to a file, which is useful for constrained
+   ! Hartree-Fock methods where you want to view the effects of the constraint
+   ! Lagrange multiplier.
+     out :: TEXTFILE
+     out.put(.lambda)
+     out.put(.F_chi2)
+     out.put(.energy)
+     out.put(.kinetic_energy)
+     out.put(.F_weighted_r_factor)
+   end
+
+end

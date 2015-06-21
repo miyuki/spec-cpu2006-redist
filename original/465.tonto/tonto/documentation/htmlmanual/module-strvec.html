@@ -1,0 +1,306 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>The STRVEC module</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Examples of simple TONTO programs"
+HREF="example-programs.html"><LINK
+REL="PREVIOUS"
+TITLE="The INT module"
+HREF="module-int.html"><LINK
+REL="NEXT"
+TITLE="The REAL module"
+HREF="module-real.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="module-int.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="module-real.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="MODULE-STRVEC"
+></A
+>The <TT
+CLASS="LITERAL"
+>STRVEC</TT
+> module</H1
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>STRVEC</TT
+> module is concerned lists of fixed size
+strings.  This illustrates basic conversions and sorting.</P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="CODE-STRVEC"
+></A
+>Code</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>program run_strvec
+
+   use TYPES
+   use SYSTEM
+   use STRVEC
+   use TEXTFILE
+
+#  include "macros"
+
+   implicit none
+
+   STRVEC* :: s 
+
+   tonto.initialize
+   stdout.create_stdout
+   stdout.open
+  
+   s.create( ["hello  ", "how    ", "are    ", "you    ", "finding", &#38;
+              "TONTO  ", "?      ", "hello  ", "?      ", "?      "] )
+
+   stdout.flush
+   stdout.text("Here is a vector of strings:")
+   stdout.flush
+   stdout.put(s,"column")
+
+   stdout.flush
+   stdout.text("Here are the same strings sorted in alpabetical order.")
+   stdout.text("In fortran, all capitals come before lower cases!")
+   stdout.flush
+   s.sort
+   stdout.put(s,"column")
+
+   stdout.flush
+   stdout.text("Here are the same strings in upper case:")
+   stdout.flush
+   s.to_upper_case
+   stdout.put(s,"column")
+
+   stdout.flush
+   stdout.text("Now I remove all repetitions:")
+   stdout.flush
+   s.remove_repetitions
+   stdout.put(s,"column")
+
+end </PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RESULTS-STRVEC"
+></A
+>Results</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>Here is a vector of strings:
+
+        1               hello
+        2                 how
+        3                 are
+        4                 you
+        5             finding
+        6               TONTO
+        7                   ?
+        8               hello
+        9                   ?
+       10                   ?
+
+Here are the same strings sorted in alpabetical order.
+In fortran, all capitals come before lower cases!
+
+        1                   ?
+        2                   ?
+        3                   ?
+        4               TONTO
+        5                 are
+        6             finding
+        7               hello
+        8               hello
+        9                 how
+       10                 you
+
+Here are the same strings in upper case:
+
+        1                   ?
+        2                   ?
+        3                   ?
+        4               TONTO
+        5                 ARE
+        6             FINDING
+        7               HELLO
+        8               HELLO
+        9                 HOW
+       10                 YOU
+
+Now I remove all repetitions:
+
+        1                   ?
+        2               TONTO
+        3                 ARE
+        4             FINDING
+        5               HELLO
+        6                 HOW
+        7                 YOU</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="module-int.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="module-real.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>The <TT
+CLASS="LITERAL"
+>INT</TT
+> module</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="example-programs.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>The <TT
+CLASS="LITERAL"
+>REAL</TT
+> module</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

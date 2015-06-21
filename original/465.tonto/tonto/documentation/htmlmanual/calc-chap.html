@@ -1,0 +1,257 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>Using TONTO to do calculations</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="What you can do if a site_config file does not exist for your
+system"
+HREF="makefiles.html"><LINK
+REL="NEXT"
+TITLE="Writing an input file: the basics"
+HREF="input-files.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="CHAPTER"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="makefiles.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="input-files.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="CALC-CHAP"
+></A
+>Using TONTO to do calculations</H1
+><P
+ALIGN="justify"
+>Using TONTO to do calculations consists of two parts. The first part is
+to write an <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>input file</I
+></SPAN
+> for the main program that you want
+to use.  The second part is to actually run the program.</P
+><P
+ALIGN="justify"
+>The second part is very easy and will be described first, in the next
+section.  The rest of the chapter will be concerned with how to write input
+files for the most common executables in the TONTO system.</P
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="RUN-CALC"
+></A
+>How to run a TONTO calculation</H1
+><P
+ALIGN="justify"
+>TONTO is different from most programs used in computational chemistry
+because it does not have a single <SPAN
+CLASS="QUOTE"
+>"main program"</SPAN
+> (although for
+convenience a few common <SPAN
+CLASS="QUOTE"
+>"main programs"</SPAN
+> are already set up for you
+to use).  Instead, TONTO consists of about fifty independent modules, and most
+of these can be compiled and executed to do calculations.</P
+><P
+ALIGN="justify"
+>By convention, the executable program associated with any module with name
+<TT
+CLASS="LITERAL"
+>XXXX</TT
+> is always called <TT
+CLASS="LITERAL"
+>run_xxxx.x</TT
+>.</P
+><P
+ALIGN="justify"
+>The module which probably will be used most often is
+<TT
+CLASS="LITERAL"
+>MOL</TT
+>, since it contains routines which deal with
+<SPAN
+CLASS="QUOTE"
+>"molecular data"</SPAN
+>.  The executable, or <SPAN
+CLASS="QUOTE"
+>"main program"</SPAN
+>
+associated with this module is called <TT
+CLASS="LITERAL"
+>run_mol.x</TT
+>.</P
+><P
+ALIGN="justify"
+>The procedure for running any main program is always the same. 
+Simply type the name of the executable program.</P
+><P
+ALIGN="justify"
+>For example, to run the <B
+CLASS="COMMAND"
+>run_mol.x</B
+> program, simply type
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>run_mol.x</PRE
+></TD
+></TR
+></TABLE
+></P
+><P
+ALIGN="justify"
+>The main program may, or may not, require an input file which contains
+instructions for what it is to do. If an input file is required,
+it must always be called <TT
+CLASS="LITERAL"
+>stdin</TT
+>.</P
+><P
+ALIGN="justify"
+>As part of its execution, the program will usually produce some output,
+which will be the results of the calculation. If output is produced,
+it will always be called <TT
+CLASS="LITERAL"
+>stdout</TT
+>. Note that other files may
+also be produced. The names of these files, and what is contained in them, will
+depend on the nature of the calculation specified in the input file.</P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="makefiles.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="input-files.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>What you can do if a site_config file does not exist for your
+system</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Writing an input file: the basics</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

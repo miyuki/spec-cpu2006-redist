@@ -1,0 +1,31 @@
+#define LIST yet, more, variables
+#foreach VALUE this, that, LIST, several at once
+VALUE
+#endforeach
+
+Start
+#foreach VALUE LIST
+VALUE
+#endforeach
+End
+
+#comment Set delimiter to any amount of white space
+#foreachdelim /\s+/
+
+#define LIST one two  three	four
+#foreach VALUE LIST
+VALUE
+#endforeach
+
+#foreach OUTER outone outtwo outthree 
+ #foreach INNER inone intwo inthree
+OUTER  __TAB__: INNER
+ #endforeach
+#endforeach
+
+
+#if 0
+#foreach OUTER outone outtwo outthree 
+OUTER  __TAB__: INNER
+#endforeach
+#endif

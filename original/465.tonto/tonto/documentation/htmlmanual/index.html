@@ -1,0 +1,1768 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>Tonto</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="NEXT"
+TITLE="An Overview of TONTO"
+HREF="overview.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="BOOK"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="BOOK"
+><A
+NAME="TONTO"
+></A
+><DIV
+CLASS="TITLEPAGE"
+><DIV
+CLASS="MEDIAOBJECT"
+><P
+><IMG
+SRC="../logo_400.png"></P
+></DIV
+><H3
+CLASS="AUTHOR"
+><A
+NAME="AEN12"
+></A
+>Dylan Jayatilaka</H3
+><H3
+CLASS="AUTHOR"
+><A
+NAME="AEN15"
+></A
+>Daniel James Grimwood</H3
+><P
+CLASS="COPYRIGHT"
+>Copyright &copy; 2000, 2001, 2002 by Dylan Jayatilaka</P
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="TOC"
+><DL
+><DT
+><B
+>Table of Contents</B
+></DT
+><DT
+><A
+HREF="overview.html"
+>An Overview of TONTO</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="overview.html#WELCOME-TO-TONTO"
+>Welcome to TONTO</A
+></DT
+><DT
+><A
+HREF="tonto-purpose.html"
+>The mission of TONTO</A
+></DT
+><DT
+><A
+HREF="tonto-who.html"
+>Who is TONTO for?</A
+></DT
+><DT
+><A
+HREF="tonto-compare.html"
+>How is TONTO different from other packages?</A
+></DT
+><DT
+><A
+HREF="tonto-what.html"
+>What can TONTO do&quest;</A
+></DT
+><DT
+><A
+HREF="how-to-get.html"
+>How do I get TONTO</A
+></DT
+><DT
+><A
+HREF="compile-requirements.html"
+>What do I need to compile and install TONTO</A
+></DT
+><DT
+><A
+HREF="calculations.html"
+>How do I use TONTO for calculations?</A
+></DT
+><DT
+><A
+HREF="start-programming.html"
+>What do I need to start programming in TONTO?</A
+></DT
+><DT
+><A
+HREF="contributing.html"
+>Contributing code to TONTO</A
+></DT
+><DT
+><A
+HREF="citation.html"
+>Citation and attribution in TONTO</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="compile-install.html"
+>Compiling and Installing TONTO</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="compile-install.html#COMPILER-REQUIREMENTS"
+>Compiler requirements for TONTO</A
+></DT
+><DT
+><A
+HREF="system-requirements.html"
+>System requirements for TONTO</A
+></DT
+><DT
+><A
+HREF="install-problems.html"
+>Known problems installing TONTO</A
+></DT
+><DT
+><A
+HREF="compiling-tonto.html"
+>Compiling TONTO</A
+></DT
+><DT
+><A
+HREF="making-documentation.html"
+>Making the TONTO html documentation</A
+></DT
+><DT
+><A
+HREF="installing-tonto.html"
+>Installing TONTO</A
+></DT
+><DT
+><A
+HREF="compile-fail.html"
+>What to do if compiling TONTO fails</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="compile-fail.html#AEN383"
+>Your system is not known to us</A
+></DT
+><DT
+><A
+HREF="compile-fail.html#AEN387"
+>You are missing the <SPAN
+CLASS="APPLICATION"
+>BLAS</SPAN
+> and
+<SPAN
+CLASS="APPLICATION"
+>LAPACK</SPAN
+> libraries</A
+></DT
+><DT
+><A
+HREF="compile-fail.html#AEN394"
+>There are Fortran compiler problems</A
+></DT
+><DT
+><A
+HREF="compile-fail.html#AEN407"
+>There are Fortran code problems</A
+></DT
+><DT
+><A
+HREF="compile-fail.html#AEN417"
+>There are <B
+CLASS="COMMAND"
+>foo</B
+> preprocessor problems</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="blas-lapack.html"
+>Compiling the BLAS and LAPACK libraries</A
+></DT
+><DT
+><A
+HREF="makefiles.html"
+>What you can do if a site_config file does not exist for your
+system</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="calc-chap.html"
+>Using TONTO to do calculations</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="calc-chap.html#RUN-CALC"
+>How to run a TONTO calculation</A
+></DT
+><DT
+><A
+HREF="input-files.html"
+>Writing an input file: the basics</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="input-files.html#AEN495"
+>What is an input file?</A
+></DT
+><DT
+><A
+HREF="input-files.html#AEN509"
+>What does an input file look like?</A
+></DT
+><DT
+><A
+HREF="input-files.html#AEN519"
+>How do I know which are the allowed input keywords?</A
+></DT
+><DT
+><A
+HREF="input-files.html#AEN560"
+>What about keywords which aren't in this manual?</A
+></DT
+><DT
+><A
+HREF="input-files.html#AEN568"
+>How do I know when to enter data?</A
+></DT
+><DT
+><A
+HREF="input-files.html#AEN582"
+>What kinds of data are there?</A
+></DT
+><DT
+><A
+HREF="input-files.html#AEN899"
+>How do I enter data?</A
+></DT
+><DT
+><A
+HREF="input-files.html#AEN1077"
+>How do I enter simple data?</A
+></DT
+><DT
+><A
+HREF="input-files.html#CHANGING-UNITS"
+>How do I change units with simple data?</A
+></DT
+><DT
+><A
+HREF="input-files.html#ENTERING-DERIVED-DATA"
+>How do I enter derived data?</A
+></DT
+><DT
+><A
+HREF="input-files.html#ENTERING-LISTS-OF-DERIVED-DATA"
+>How do I enter lists of derived data?</A
+></DT
+><DT
+><A
+HREF="input-files.html#ALTERING-INPUT-ORDER"
+>Altering the input order for lists of derived data</A
+></DT
+><DT
+><A
+HREF="input-files.html#EMBEDDED-COMMANDS"
+>Embedded commands in lists of derived data</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="example-derived-data.html"
+>Examples of derived data input</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="example-derived-data.html#EXAMPLE-GAUSSIAN"
+>Example input for a <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>GAUSSIAN</I
+></SPAN
+></A
+></DT
+><DT
+><A
+HREF="example-derived-data.html#EXAMPLE-SHELL"
+>Example input for a <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>SHELL</I
+></SPAN
+></A
+></DT
+></DL
+></DD
+></DL
+></DD
+><DT
+><A
+HREF="example-input-files.html"
+>Examples of TONTO input files</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="example-input-files.html#RHF"
+>A restricted Hartree-Fock calculation</A
+></DT
+><DT
+><A
+HREF="library-basis-sets.html"
+>Using the library basis sets</A
+></DT
+><DT
+><A
+HREF="gaussian-checkpoint-input.html"
+>Input from a gaussian checkpoint file</A
+></DT
+><DT
+><A
+HREF="output-morphy.html"
+>Outputting a MORPHY input file</A
+></DT
+><DT
+><A
+HREF="constrained-x-ray-calc.html"
+>A constrained X-ray wavefunction calculation</A
+></DT
+><DT
+><A
+HREF="pair-energy-decomposition.html"
+>An MO pair-energy decompisitoin</A
+></DT
+><DT
+><A
+HREF="morokuma-analysis.html"
+>Morokuma-like analysis</A
+></DT
+><DT
+><A
+HREF="spin-density-plot.html"
+>Spin density plot</A
+></DT
+><DT
+><A
+HREF="elf-plot.html"
+>ELF density plot</A
+></DT
+><DT
+><A
+HREF="zora-calc.html"
+>A ZORA relativistic calculation, g<SUB
+>zz</SUB
+> tensor
+calculation, and parity violating weak force energy shift calculation</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="keywords.html"
+>Keyword documentation for TONTO</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="keywords.html#ONLINE-DOC"
+>The online documentation</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="keywords.html#SHORT-DOCS"
+>The short documentation</A
+></DT
+><DT
+><A
+HREF="keywords.html#LONG-DOCS"
+>The long documentation</A
+></DT
+><DT
+><A
+HREF="keywords.html#FINDING-KEYWORDS"
+>Finding keywords in TONTO online</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="atom.html"
+><TT
+CLASS="LITERAL"
+>ATOM</TT
+></A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="atom.html#ATOM-PURPOSE"
+>Purpose</A
+></DT
+><DT
+><A
+HREF="atom.html#ATOM-SYNOPSIS"
+>Synopsis</A
+></DT
+><DT
+><A
+HREF="atom.html#ATOM-INPUT"
+>Default input data order</A
+></DT
+><DT
+><A
+HREF="atom.html#ATOM-KEYWORDS"
+>Listing of keywords</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="basis.html"
+><TT
+CLASS="LITERAL"
+>BASIS</TT
+></A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="basis.html#BASIS-PURPOSE"
+>Purpose</A
+></DT
+><DT
+><A
+HREF="basis.html#BASIS-SYNOPSIS"
+>Synopsis</A
+></DT
+><DT
+><A
+HREF="basis.html#BASIS-INPUT"
+>Default input data order</A
+></DT
+><DT
+><A
+HREF="basis.html#BASIS-KEYWORDS"
+>Listing of keywords</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="crystal.html"
+><TT
+CLASS="LITERAL"
+>CRYSTAL</TT
+></A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="crystal.html#CRYSTAL-PURPOSE"
+>Purpose</A
+></DT
+><DT
+><A
+HREF="crystal.html#CRYSTAL-SYNOPSIS"
+>Synopsis</A
+></DT
+><DT
+><A
+HREF="crystal.html#CRYSTAL-INPUT"
+>Default input data order</A
+></DT
+><DT
+><A
+HREF="crystal.html#CRYSTAL-KEYWORDS"
+>Listing of keywords</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="dftgrid.html"
+><TT
+CLASS="LITERAL"
+>DFTGRID</TT
+></A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="dftgrid.html#DFTGRID-PURPOSE"
+>Purpose</A
+></DT
+><DT
+><A
+HREF="dftgrid.html#DFTGRID-SYNOPSIS"
+>Synopsis</A
+></DT
+><DT
+><A
+HREF="dftgrid.html#DFTGRID-INPUT"
+>Default input data order</A
+></DT
+><DT
+><A
+HREF="dftgrid.html#DFTGRID-KEYWORDS"
+>Listing of keywords</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="gaussian.html"
+><TT
+CLASS="LITERAL"
+>GAUSSIAN</TT
+></A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="gaussian.html#GAUSSIAN-PURPOSE"
+>Purpose</A
+></DT
+><DT
+><A
+HREF="gaussian.html#GAUSSIAN-SYNOPSIS"
+>Synopsis</A
+></DT
+><DT
+><A
+HREF="gaussian.html#GAUSSIAN-INPUT"
+>Default input data order</A
+></DT
+><DT
+><A
+HREF="gaussian.html#GAUSSIAN-KEYWORDS"
+>Listing of keywords</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="mol.html"
+><TT
+CLASS="LITERAL"
+>MOL</TT
+></A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="mol.html#MOL-PURPOSE"
+>Purpose</A
+></DT
+><DT
+><A
+HREF="mol.html#MOL-SYNOPSIS"
+>Synopsis</A
+></DT
+><DT
+><A
+HREF="mol.html#MOL-NOTE"
+>Special note</A
+></DT
+><DT
+><A
+HREF="mol.html#MOL-INPUT"
+>Default input data order</A
+></DT
+><DT
+><A
+HREF="mol.html#MOL-KEYWORDS"
+>Listing of keywords</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="plotgrid.html"
+><TT
+CLASS="LITERAL"
+>PLOTGRID</TT
+></A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="plotgrid.html#PLOTGRID-PURPOSE"
+>Purpose</A
+></DT
+><DT
+><A
+HREF="plotgrid.html#PLOTGRID-SYNOPSIS"
+>Synopsis</A
+></DT
+><DT
+><A
+HREF="plotgrid.html#PLOTGRID-INPUT"
+>Default input data order</A
+></DT
+><DT
+><A
+HREF="plotgrid.html#PLOTGRID-KEYWORDS"
+>Listing of keywords</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="pointgroup.html"
+><TT
+CLASS="LITERAL"
+>POINTGROUP</TT
+></A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="pointgroup.html#POINTGROUP-PURPOSE"
+>Purpose</A
+></DT
+><DT
+><A
+HREF="pointgroup.html#POINTGROUP-SYNOPSIS"
+>Synopsis</A
+></DT
+><DT
+><A
+HREF="pointgroup.html#POINTGROUP-INPUT"
+>Default input data order</A
+></DT
+><DT
+><A
+HREF="pointgroup.html#POINTGROUP-KEYWORDS"
+>Listing of keywords</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="reflection.html"
+><TT
+CLASS="LITERAL"
+>REFLECTION</TT
+></A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="reflection.html#REFLECTION-PURPOSE"
+>Purpose</A
+></DT
+><DT
+><A
+HREF="reflection.html#REFLECTION-SYNOPSIS"
+>Synopsis</A
+></DT
+><DT
+><A
+HREF="reflection.html#REFLECTION-INPUT"
+>Default input data order</A
+></DT
+><DT
+><A
+HREF="reflection.html#REFLECTION-KEYWORDS"
+>Listing of keywords</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="scfdata.html"
+><TT
+CLASS="LITERAL"
+>SCFDATA</TT
+></A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="scfdata.html#SCFDATA-PURPOSE"
+>Purpose</A
+></DT
+><DT
+><A
+HREF="scfdata.html#SCFDATA-SYNOPSIS"
+>Synopsis</A
+></DT
+><DT
+><A
+HREF="scfdata.html#SCFDATA-INPUT"
+>Default input data order</A
+></DT
+><DT
+><A
+HREF="scfdata.html#SCFDATA-KEYWORDS"
+>Listing of keywords</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="shell.html"
+><TT
+CLASS="LITERAL"
+>SHELL</TT
+></A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="shell.html#SHELL-PURPOSE"
+>Purpose</A
+></DT
+><DT
+><A
+HREF="shell.html#SHELL-SYNOPSIS"
+>Synopsis</A
+></DT
+><DT
+><A
+HREF="shell.html#SHELL-INPUT"
+>Default input data order</A
+></DT
+><DT
+><A
+HREF="shell.html#SHELL-KEYWORDS"
+>Listing of keywords</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="shell1.html"
+><TT
+CLASS="LITERAL"
+>SHELL1</TT
+></A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="shell1.html#SHELL1-PURPOSE"
+>Purpose</A
+></DT
+><DT
+><A
+HREF="shell1.html#SHELL1-SYNOPSIS"
+>Synopsis</A
+></DT
+><DT
+><A
+HREF="shell1.html#SHELL1-INPUT"
+>Default input data order</A
+></DT
+><DT
+><A
+HREF="shell1.html#SHELL1-KEYWORDS"
+>Listing of keywords</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="spacegroup.html"
+><TT
+CLASS="LITERAL"
+>SPACEGROUP</TT
+></A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="spacegroup.html#SPACEGROUP-PURPOSE"
+>Purpose</A
+></DT
+><DT
+><A
+HREF="spacegroup.html#SPACEGROUP-SYNOPSIS"
+>Synopsis</A
+></DT
+><DT
+><A
+HREF="spacegroup.html#SPACEGROUP-REFERENCES"
+>References</A
+></DT
+><DT
+><A
+HREF="spacegroup.html#SPACEGROUP-INPUT"
+>Default input data order</A
+></DT
+><DT
+><A
+HREF="spacegroup.html#SPACEGROUP-KEYWORDS"
+>Listing of keywords</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="textfile.html"
+><TT
+CLASS="LITERAL"
+>TEXTFILE</TT
+></A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="textfile.html#TEXTFILE-PURPOSE"
+>Purpose</A
+></DT
+><DT
+><A
+HREF="textfile.html#TEXTFILE-SYNOPSIS"
+>Synopsis</A
+></DT
+><DT
+><A
+HREF="textfile.html#TEXTFILE-NOTE"
+>Important note</A
+></DT
+><DT
+><A
+HREF="textfile.html#TEXTFILE-INPUT"
+>Default input data order</A
+></DT
+><DT
+><A
+HREF="textfile.html#TEXTFILE-KEYWORDS"
+>Listing of keywords</A
+></DT
+></DL
+></DD
+></DL
+></DD
+><DT
+><A
+HREF="writing-programs.html"
+>Writing programs with TONTO</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="writing-programs.html#TONTO-DESIGN"
+>The design of TONTO</A
+></DT
+><DT
+><A
+HREF="tonto-modules.html"
+>Modules in TONTO</A
+></DT
+><DT
+><A
+HREF="foo.html"
+>The <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> language in TONTO</A
+></DT
+><DT
+><A
+HREF="documentation-style.html"
+>The documentation and style in TONTO</A
+></DT
+><DT
+><A
+HREF="conventional-routines.html"
+>Conventional routines</A
+></DT
+><DT
+><A
+HREF="customisability.html"
+>Customisability and efficiency of TONTO</A
+></DT
+><DT
+><A
+HREF="communication.html"
+>Communication and data storage in TONTO</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="customised-compilation.html"
+>Compiling customised versions of TONTO</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="customised-compilation.html#CUSTOMISING"
+>What can be customised, and what is the default?</A
+></DT
+><DT
+><A
+HREF="compiler-options.html"
+>Which Fortran compiler options to use?</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="compiler-options.html#FC"
+>The <TT
+CLASS="LITERAL"
+>FC</TT
+> variable</A
+></DT
+><DT
+><A
+HREF="compiler-options.html#FOPTNS"
+>The <TT
+CLASS="LITERAL"
+>FOPTNS</TT
+> variable</A
+></DT
+><DT
+><A
+HREF="compiler-options.html#FFLAGS"
+>The <TT
+CLASS="LITERAL"
+>FFLAGS</TT
+> variable</A
+></DT
+><DT
+><A
+HREF="compiler-options.html#FFAST"
+>The <TT
+CLASS="LITERAL"
+>FFAST</TT
+> variable</A
+></DT
+><DT
+><A
+HREF="compiler-options.html#FDEBUG"
+>The <TT
+CLASS="LITERAL"
+>FDEBUG</TT
+> variable</A
+></DT
+><DT
+><A
+HREF="compiler-options.html#FPROF"
+>The <TT
+CLASS="LITERAL"
+>FPROF</TT
+> variable</A
+></DT
+><DT
+><A
+HREF="compiler-options.html#FSUFFIX"
+>The <TT
+CLASS="LITERAL"
+>FSUFFIX</TT
+> variable</A
+></DT
+><DT
+><A
+HREF="compiler-options.html#PROGSUFFIX"
+>The <TT
+CLASS="LITERAL"
+>PROGSUFFIX</TT
+> variable</A
+></DT
+><DT
+><A
+HREF="compiler-options.html#MODSUFFIX"
+>The <TT
+CLASS="LITERAL"
+>MODSUFFIX</TT
+> variable</A
+></DT
+><DT
+><A
+HREF="compiler-options.html#OBJSUFFIX"
+>The <TT
+CLASS="LITERAL"
+>OBJSUFFIX</TT
+> variable</A
+></DT
+><DT
+><A
+HREF="compiler-options.html#LIBS"
+>The <TT
+CLASS="LITERAL"
+>LIBS</TT
+> variable</A
+></DT
+><DT
+><A
+HREF="compiler-options.html#MODCASE"
+>The <TT
+CLASS="LITERAL"
+>MODCASE</TT
+> variable</A
+></DT
+><DT
+><A
+HREF="compiler-options.html#DEFS"
+>The <TT
+CLASS="LITERAL"
+>DEFS</TT
+> variable</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="c-preprocessor.html"
+>Which C-preprocessor options to use?</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="c-preprocessor.html#USE-ERROR-MANAGEMENT"
+>The <TT
+CLASS="LITERAL"
+>USE_ERROR_MANAGEMENT</TT
+> switch</A
+></DT
+><DT
+><A
+HREF="c-preprocessor.html#USE-PRE-AND-POST-CONDITIONS"
+>The <TT
+CLASS="LITERAL"
+>USE_PRE_AND_POST_CONDITIONS</TT
+> switch</A
+></DT
+><DT
+><A
+HREF="c-preprocessor.html#USE-CALL-STACK-MANAGEMENT"
+>The <TT
+CLASS="LITERAL"
+>USE_CALL_STACK_MANAGEMENT</TT
+> switch</A
+></DT
+><DT
+><A
+HREF="c-preprocessor.html#LANGUAGE-FORTRAN-90"
+>The <TT
+CLASS="LITERAL"
+>LANGUAGE_FORTRAN_90</TT
+> switch</A
+></DT
+><DT
+><A
+HREF="c-preprocessor.html#BROKEN-TYPE-INITIALIZATION"
+>The <TT
+CLASS="LITERAL"
+>BROKEN_TYPE_INITIALIZATION</TT
+> switch</A
+></DT
+></DL
+></DD
+></DL
+></DD
+><DT
+><A
+HREF="building-executables.html"
+>How TONTO builds executables</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="building-executables.html#MAKE"
+>The make program and the Makefile</A
+></DT
+><DT
+><A
+HREF="code-portability.html"
+>Machine specific code in TONTO</A
+></DT
+><DT
+><A
+HREF="make-dependencies.html"
+>Code dependencies in TONTO</A
+></DT
+><DT
+><A
+HREF="module-recompilation.html"
+>The problem of unnecessary recompilation of Fortran90 modules</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="module-recompilation.html#AEN6329"
+><TT
+CLASS="LITERAL"
+>make</TT
+> and the recompilation strategy used in
+TONTO</A
+></DT
+></DL
+></DD
+></DL
+></DD
+><DT
+><A
+HREF="tech-input.html"
+>The TONTO input file: technical specification</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="tech-input.html#INPUT-RULES"
+>Rules to explain the rules for writing input file</A
+></DT
+><DT
+><A
+HREF="input-data.html"
+>The input file: <TT
+CLASS="LITERAL"
+>KEYWORD</TT
+> and
+<TT
+CLASS="LITERAL"
+>DATA</TT
+></A
+></DT
+><DT
+><A
+HREF="simple-data.html"
+><TT
+CLASS="LITERAL"
+>SIMPLE-DATA</TT
+></A
+></DT
+><DT
+><A
+HREF="simple-array-data.html"
+><TT
+CLASS="LITERAL"
+>SIMPLE-ARRAY-DATA</TT
+></A
+></DT
+><DT
+><A
+HREF="derived-data.html"
+><TT
+CLASS="LITERAL"
+>DERIVED-DATA</TT
+></A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="fortran-modules.html"
+><TT
+CLASS="LITERAL"
+>Writing Fortran modules for TONTO</TT
+></A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="fortran-modules.html#CRITICAL-REQUIREMENTS"
+><TT
+CLASS="LITERAL"
+>Critical requirements</TT
+></A
+></DT
+><DT
+><A
+HREF="aesthetic-requirements.html"
+><TT
+CLASS="LITERAL"
+>Aesthetic requirements</TT
+></A
+></DT
+><DT
+><A
+HREF="linking-code.html"
+><TT
+CLASS="LITERAL"
+>Linking your Fortran code</TT
+></A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="foo-chap.html"
+>The <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> preprocessor</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="foo-chap.html#WHY-FOO"
+>Key advantages of the <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> preprocessor</A
+></DT
+><DT
+><A
+HREF="how-foo-works.html"
+>How <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> works</A
+></DT
+><DT
+><A
+HREF="foo-rules.html"
+>Rules for valid <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> preprocessor code</A
+></DT
+><DT
+><A
+HREF="foo-to-f95.html"
+>What <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> does to produce Fortran95 code</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="foo-to-f95.html#AUTOMATIC-FUNCTIONS"
+>Automatic <TT
+CLASS="LITERAL"
+>function</TT
+> and <TT
+CLASS="LITERAL"
+>subroutine</TT
+>
+detection</A
+></DT
+><DT
+><A
+HREF="foo-to-f95.html#SELF-ARGUMENTS"
+>Automatic insertion of first argument to a routine</A
+></DT
+><DT
+><A
+HREF="foo-to-f95.html#END-COMPLETION"
+>Automatic <TT
+CLASS="LITERAL"
+>end</TT
+> keyword completion</A
+></DT
+><DT
+><A
+HREF="foo-to-f95.html#DOT-NOTATION"
+>Dot notation</A
+></DT
+><DT
+><A
+HREF="foo-to-f95.html#AUTOMATIC-OVERLOADING"
+>Automatic overloading and interface files</A
+></DT
+><DT
+><A
+HREF="foo-to-f95.html#EXPLICIT-OVERLOADING"
+>Explicit overloading</A
+></DT
+><DT
+><A
+HREF="foo-to-f95.html#FUNCTION-ATTRIBUTES"
+>New syntax for <TT
+CLASS="LITERAL"
+>recursive</TT
+>, <TT
+CLASS="LITERAL"
+>pure</TT
+> and
+<TT
+CLASS="LITERAL"
+>elemental</TT
+> routines</A
+></DT
+><DT
+><A
+HREF="foo-to-f95.html#FUNCTIONALS-SUBROUTINALS"
+>Functionals and subroutinals</A
+></DT
+><DT
+><A
+HREF="foo-to-f95.html#ERROR-MANAGEMENT"
+>Preconditions, postconditions, and error management facilities</A
+></DT
+><DT
+><A
+HREF="foo-to-f95.html#MEMORY-MANAGEMENT"
+>Memory and call-stack management</A
+></DT
+><DT
+><A
+HREF="foo-to-f95.html#C-PREPROCESSORT"
+>C-preprocessor macros and type definitions</A
+></DT
+></DL
+></DD
+></DL
+></DD
+><DT
+><A
+HREF="foo-modules.html"
+>Writing <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> modules for TONTO</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="foo-modules.html#MODULE-PURPOSE"
+>What is the module supposed to do?</A
+></DT
+><DT
+><A
+HREF="data-routines.html"
+>Deciding what is data and what should be a routine</A
+></DT
+><DT
+><A
+HREF="defining-types.html"
+>Defining the type in the <TT
+CLASS="FILENAME"
+>types.foo</TT
+> file</A
+></DT
+><DT
+><A
+HREF="preprocessor-modifications.html"
+>Modifying the <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> pre-processor</A
+></DT
+><DT
+><A
+HREF="array-type-modifications.html"
+>Pre-processor changes for array types</A
+></DT
+><DT
+><A
+HREF="write-conventional-routines.html"
+>The conventional routines</A
+></DT
+><DT
+><A
+HREF="well-designed-modules.html"
+>Principles for well designed modules</A
+></DT
+><DT
+><A
+HREF="large-modules.html"
+>Large modules</A
+></DT
+><DT
+><A
+HREF="function-arguments.html"
+>Function arguments</A
+></DT
+><DT
+><A
+HREF="run-xxxx.html"
+>Writing the main <TT
+CLASS="LITERAL"
+>run_XXXX</TT
+> program</A
+></DT
+><DT
+><A
+HREF="hypocrites.html"
+>Are we hypocrites?</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="example-programs.html"
+>Examples of simple TONTO programs</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="example-programs.html#MODULE-TEXTFILE"
+>The <TT
+CLASS="LITERAL"
+>TEXTFILE</TT
+> module</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="example-programs.html#CODE-TEXTFILE"
+>Code</A
+></DT
+><DT
+><A
+HREF="example-programs.html#RESULTS-TEXTFILE"
+>Results</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="module-buffer.html"
+>The <TT
+CLASS="LITERAL"
+>BUFFER</TT
+> module</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="module-buffer.html#CODE-BUFFER"
+>Code</A
+></DT
+><DT
+><A
+HREF="module-buffer.html#RESULTS-BUFFER"
+>Results</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="module-int.html"
+>The <TT
+CLASS="LITERAL"
+>INT</TT
+> module</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="module-int.html#CODE-INT"
+>Code</A
+></DT
+><DT
+><A
+HREF="module-int.html#RESULTS-INT"
+>Results</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="module-strvec.html"
+>The <TT
+CLASS="LITERAL"
+>STRVEC</TT
+> module</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="module-strvec.html#CODE-STRVEC"
+>Code</A
+></DT
+><DT
+><A
+HREF="module-strvec.html#RESULTS-STRVEC"
+>Results</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="module-real.html"
+>The <TT
+CLASS="LITERAL"
+>REAL</TT
+> module</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="module-real.html#CODE-REAL"
+>Code</A
+></DT
+><DT
+><A
+HREF="module-real.html#RESULTS-REAL"
+>Results</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="module-vec.html"
+>The <TT
+CLASS="LITERAL"
+>REALVEC</TT
+> module</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="module-vec.html#CODE-VEC"
+>Code</A
+></DT
+><DT
+><A
+HREF="module-vec.html#RESULTS-VEC"
+>Results</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="module-gaussian2.html"
+>The <TT
+CLASS="LITERAL"
+>GAUSSIAN2</TT
+> and <TT
+CLASS="LITERAL"
+>DFTGRID</TT
+> modules</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="module-gaussian2.html#CODE-GAUSSIAN2"
+>Code</A
+></DT
+><DT
+><A
+HREF="module-gaussian2.html#RESULTS-GAUSSIAN2"
+>Results</A
+></DT
+></DL
+></DD
+><DT
+><A
+HREF="module-shell4.html"
+>The <TT
+CLASS="LITERAL"
+>SHELL4</TT
+> module</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="module-shell4.html#CODE-SHELL4"
+>Code</A
+></DT
+><DT
+><A
+HREF="module-shell4.html#RESULTS-SHELL4"
+>Results</A
+></DT
+></DL
+></DD
+></DL
+></DD
+><DT
+><A
+HREF="philosophy.html"
+>The underlying philosophy of TONTO</A
+></DT
+><DD
+><DL
+><DT
+><A
+HREF="philosophy.html#COOPERATION"
+>Cooperation: naivet&eacute; or just good sense?</A
+></DT
+><DT
+><A
+HREF="final-word.html"
+>Final word</A
+></DT
+></DL
+></DD
+></DL
+></DIV
+><DIV
+CLASS="LOT"
+><DL
+CLASS="LOT"
+><DT
+><B
+>List of Tables</B
+></DT
+><DT
+>1. <A
+HREF="input-files.html#TABLE-OF-TONTO-TYPES"
+>Modules available in TONTO.</A
+></DT
+><DT
+>2. <A
+HREF="input-files.html#SIMPLE-DATA-TABLE"
+>Shorthand symbols for simple data with input examples</A
+></DT
+><DT
+>3. <A
+HREF="input-files.html#SIMPLE-VEC-DATA-TABLE"
+>Shorthand symbols for simple vector data with input examples</A
+></DT
+><DT
+>4. <A
+HREF="input-files.html#SIMPLE-MAT-DATA-TABLE"
+>Shorthand symbols for simple matrix data with input examples</A
+></DT
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="overview.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>An Overview of TONTO</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

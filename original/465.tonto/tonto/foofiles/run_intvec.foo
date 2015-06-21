@@ -1,0 +1,51 @@
+! Copyright (C) Dylan Jayatilaka, 1999
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: run_intvec.foo,v 1.2.2.1 2003/11/13 06:33:25 reaper Exp $
+
+program run_INTVEC
+
+   implicit none
+
+   list,indices :: INTVEC(10)
+
+   tonto.initialize
+
+   stdout.create_stdout
+   stdout.open
+
+   list = [ 10, 7, 8, 2, 9, 5, 4, 3, 1, 5 ]
+
+   stdout.flush
+   stdout.text("A list of numbers:")
+   stdout.put(list,"column")
+
+   stdout.text("List of sorted indices:")
+   list.quick_sort(indices)
+   stdout.put(indices,"column")
+
+   stdout.text("Sorted list:")
+   stdout.put(list(indices),"column")
+
+   stdout.text("List of reverse sorted indices:")
+   list.quick_sort(indices,decreasing_order=TRUE)
+   stdout.put(indices,"column")
+
+   stdout.text("Reverse sorted list:")
+   stdout.put(list(indices),"column")
+
+end

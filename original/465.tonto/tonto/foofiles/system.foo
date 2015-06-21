@@ -1,0 +1,944 @@
+!-------------------------------------------------------------------------------
+!
+! SYSTEM: Contains system level routines, including memory management and error
+! messages.  It allows for the graceful termination of a program.
+!
+! An error status is simply an integer, the value is set to 1 if the program
+! terminates, or -1 if a warning condition is encountered.
+!
+! The memory part stores the total and maximum memory used (in bytes), and the
+! the total and maximum number of blocks of memory allocated.
+! A memory limit is also stored.  It is a fatal error to use more than the
+! allocated limit.
+!
+! The file part contains the file name and record number of the last acessed
+! file, in the event that this file should cause an error, the exact position
+! will be known.
+!
+! A standard system object, "tonto", is provided to hold system information
+! in the current program. In most cases it should not be neccesary to
+! create any other system objects.
+!
+! Copyright (C) Dylan Jayatilaka, 1998
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: system.foo,v 1.28.2.8 2003/10/09 09:16:34 reaper Exp $
+!-------------------------------------------------------------------------------
+
+module SYSTEM
+
+#ifdef SERVICE_ROUTINES
+   USE service_routines, only: flush
+#endif
+#ifdef F90_UNIX_IO
+   USE f90_unix_io, only: flush
+#endif
+
+   implicit none
+
+#  undef STACK
+#  undef UNSTACK
+#  undef CHECK
+#  undef START_TIMER
+#  undef STOP_TIMER
+
+#  define STACK(X)
+#  define UNSTACK
+#  define CHECK
+#  define START_TIMER(X)
+#  define STOP_TIMER(X)
+
+#ifdef MPI
+#include "mpif.h"
+#endif
+
+   tonto :: SYSTEM, target, public, save
+   tonto_parallel :: PARALLEL, public, save
+
+contains
+
+!  *****************
+!  Creation routines
+!  *****************
+
+   create(memory_limit)
+   !  Create a memory manager object with soft limit given in "limit"
+      self :: PTR
+      memory_limit :: INT, optional
+      allocate(self)
+      .nullify_ptr_part
+      .set_defaults(memory_limit)
+      tonto.add_memory(SYSTEM_SIZE) ! increment internal memory manager
+   end
+
+   destroy
+   !  Destroy the memory manager object
+      self :: PTR
+      if (.destroyed) return
+      deallocate(self)
+      tonto.delete_memory(SYSTEM_SIZE)
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   nullify_ptr_part
+   ! Nullify the pointer parts of self
+      self :: INOUT
+      nullify(.io_file)
+      nullify(.call_stack)
+      nullify(.memory_used_stack)
+      nullify(.time_call_stack)
+      nullify(.time_strt_stack)
+      nullify(.time_for_routine)
+      nullify(.name_for_routine)
+   end
+
+   set_defaults(memory_limit)
+   !  Set defaults
+      self :: INOUT
+      memory_limit :: INT, optional
+      .error_status = 0
+      .error_output_unit = SYSTEM_ERROR_OUTPUT_UNIT
+      .memory_used = 0
+      .memory_blocks_used = 0
+      .max_memory_used = 0
+      .max_memory_blocks_used = 0
+      .memory_limit = SYSTEM_MEMORY_LIMIT
+      .memory_limit_exceeded = FALSE
+      .memory_leak_detected = FALSE
+      .memory_leak_level = 0
+      .memory_units = SYSTEM_MEMORY_UNITS
+      .stack_level = 0
+      .max_stack_level = 0
+      .stack_show_level = -1
+      .show_call_stack = FALSE
+      ! Timing stuff ...
+      .time_stack_level = 0
+      .n_timed_routines = 0
+      .time_limit = ZERO
+      if (present(memory_limit)) .memory_limit = memory_limit
+   end
+
+   initialize
+   !  Initialise the system object and set defaults
+      .nullify_ptr_part
+      .set_defaults
+   end
+
+   unit_conversion_factor result(res) ::: private
+   ! Change the units used to display the memory
+      self :: IN
+      res :: INT
+      select case(.memory_units)
+         case("Words");  res = 8
+         case("Bytes");  res = 1
+         case("MBytes"); res = 1000000
+         case("MWords"); res = 8000000
+      end
+   end
+
+!   reset_limit(limit)
+!   !  Reset memory limit for the memory manager
+!   !  "limit" is in bytes.
+!      self :: INOUT
+!      limit :: INT, IN
+!      fac :: INT
+!      fac = .unit_conversion_factor
+!      .memory_limit = fac*limit
+!   end
+
+!  ****************
+!  Error operations
+!  ****************
+
+!   reset_error_status
+!   ! Reset the error flag
+!      .error_status = 0
+!   end
+
+   set_error_output_unit(number)
+   ! Set the error unit "number"
+      number :: INT
+      .error_output_unit = number
+   end
+
+   set_error_output_file(file)
+   ! Set the error output file to "file"
+      file :: TEXTFILE
+      .error_output_unit = file.unit
+   end
+
+!  **************
+!  Error messages
+!  **************
+
+   die(message)
+   ! Set the error flag to 1 and terminate the program with a message
+      message :: STR(*)
+      .error_status = 1
+      if (tonto_parallel.rank == 0 OR (NOT tonto_parallel.do_parallel)) then
+        write(.error_output_unit,*)
+        write(.error_output_unit,"(a)") &
+         "Error in routine "// trim(message) ! message should include the routine name via foo
+      end
+      .report_stack_see_info
+      .report_io_file_info
+      .report_keyword_info
+      .report_stack_info
+#ifdef MPI
+      call MPI_abort(MPI_COMM_WORLD,.error_status,tonto_parallel.mpi_status)
+#endif
+      stop
+   end
+
+   die_if(condition,message)
+   ! Set the error flag to 1 and terminate the program with a message
+   ! provided "condition" is TRUE
+      condition :: BIN
+      message :: STR(*)
+      if (condition) .die(message)
+   end
+
+   unknown(word,name,options)
+   ! Set the error flag to 1 and terminate the program with a message
+   ! "Unknown option". The list of known keywords is dumped.
+      word :: STR(*), IN
+      name :: STR(*), IN
+      options :: STRVEC(len=*,:), IN
+      .error_status = 1
+      if (tonto_parallel.rank == 0 OR (NOT tonto_parallel.do_parallel)) then
+        write(.error_output_unit,*)
+        write(.error_output_unit,"(a)") &
+        "Error in routine "// trim(name) // " ... unknown option " // trim(word)
+      end
+      .report_stack_see_info
+      .report_io_file_info
+      .report_keyword_info(options)
+      .report_stack_info
+#ifdef MPI
+      call MPI_abort(MPI_COMM_WORLD,.error_status,tonto_parallel.mpi_status)
+#endif
+      stop
+   end
+
+   unknown(word,name)
+   ! Set the error flag to 1 and terminate the program with a message
+   ! "Unknown option". The list of known keywords is dumped.
+      word :: STR(*), IN
+      name :: STR(*), IN
+      .error_status = 1
+      if (tonto_parallel.rank == 0 OR (NOT tonto_parallel.do_parallel)) then
+        write(.error_output_unit,*)
+        write(.error_output_unit,"(a)") &
+        "Error in routine "// trim(name) // " ... unknown option " // trim(word)
+      end
+      .report_stack_see_info
+      .report_io_file_info
+      if (associated(.known_keywords)) .report_keyword_info(.known_keywords)
+      .report_stack_info
+#ifdef MPI
+      call MPI_abort(MPI_COMM_WORLD,.error_status,tonto_parallel.mpi_status)
+#endif
+      stop
+   end
+
+   warn(message,iostat,use_stack_name)
+   ! Set the error flag to -1 and issue a warning message.
+   ! If "use_stack_name" is present, the call stacl routine name is used
+   ! in the warning messsage, assuming that the call stack is associated.
+      message :: STR(*)
+      iostat :: INT, IN, optional
+      use_stack_name :: BIN, IN, optional
+      name :: STR
+      .error_status = -1
+      if (tonto_parallel.rank == 0 OR (NOT tonto_parallel.do_parallel)) then
+        write(.error_output_unit,*)
+      end
+      if (present(use_stack_name)) then
+         if (associated(.call_stack)) then
+            name = .call_stack(.stack_level)
+            if (tonto_parallel.rank == 0 OR (NOT tonto_parallel.do_parallel)) then
+              write(.error_output_unit,"(a)") &
+              "Warning in routine "// trim(name) // " ... " // trim(message)
+            end
+         else
+            if (tonto_parallel.rank == 0 OR (NOT tonto_parallel.do_parallel)) then
+              write(.error_output_unit,"(a)") &
+              "Warning: " // trim(message)
+            end
+         end
+      else
+        if (tonto_parallel.rank == 0 OR (NOT tonto_parallel.do_parallel)) then
+           write(.error_output_unit,"(a)") &
+           "Warning in routine "// trim(message) ! message should include the routine name
+        end
+      end
+!      .report_stack_see_info
+      if (present(iostat)) then
+        if (tonto_parallel.rank == 0 OR (NOT tonto_parallel.do_parallel)) then
+           write(.error_output_unit,"(a,i4)") "Fortran error ",iostat
+        end
+      end
+      .flush_buffer
+   end
+
+   warn_if(condition,message,iostat)
+   ! If "condition" is true, issue a warning and continue, but set the error
+   ! flag to -1 and
+      condition :: BIN, IN
+      message :: STR(*), IN
+      iostat :: INT, IN, optional
+      if (condition) .warn(message,iostat)
+   end
+
+   ensure(condition,message)
+   ! Ensure "condition" is true, otherwise set the error flag to 1 and
+   ! terminate the program with a "message"
+      condition :: BIN, IN
+      message :: STR(*), IN
+      if (NOT condition) .die(message)
+   end
+
+   report_stack_see_info ::: private
+   ! Report information about how to compile to see call stack management
+   ! information
+      unit :: INT
+      if (associated(.call_stack)) return
+      unit = .error_output_unit
+      if (tonto_parallel.rank == 0 OR (NOT tonto_parallel.do_parallel)) then
+        write(unit,"(a)") " "
+        write(unit,"(a)") "To see a routine call stack locating this error more precisely,"
+        write(unit,"(a)") "try compiling with the USE_CALL_STACK_MANAGEMENT macro. See the"
+        write(unit,"(a)") "manual for more details"
+      end
+   end
+
+!  *********************************************************
+!  Call stack management, memory reporting and leak checking
+!  *********************************************************
+
+   add_memory(used) ::: pure
+   !  Add memory usage data to the memory manager
+      self :: INOUT
+      used :: INT, IN
+      .memory_used = .memory_used + used
+      .max_memory_used = max(.memory_used,.max_memory_used)
+      .memory_blocks_used = .memory_blocks_used + 1
+      .max_memory_blocks_used = max(.memory_blocks_used,.max_memory_blocks_used)
+      .memory_used_stack(1:.stack_level) = .memory_used_stack(1:.stack_level) + used
+   end
+
+   delete_memory(used) ::: pure
+   !  Delete memory usage data to the memory manager
+      self :: INOUT
+      used :: INT, IN
+      .memory_used = .memory_used - used
+      .memory_blocks_used = .memory_blocks_used - 1
+      .memory_used_stack(1:.stack_level) = .memory_used_stack(1:.stack_level) - used
+   end
+
+   stack(routine_name)
+   ! Add another level to the call stack. Placed at the start of every
+   ! non-pure routine. (Pure routines may not have I/O which this has).
+      self :: INOUT
+      routine_name :: STR(*), optional
+      .stack_level = .stack_level + 1
+      .expand_all_stacks
+      .memory_used_stack(.stack_level) = 0
+      if (present(routine_name)) then
+        .call_stack(.stack_level) = routine_name
+      else
+        .call_stack(.stack_level) = "Unknown routine"
+      end
+      if (.show_call_stack) then
+        if (tonto_parallel.rank == 0 OR (NOT tonto_parallel.do_parallel)) then
+          write(.error_output_unit,"(a)") repeat("   ",.stack_level)//trim(routine_name)//" {"
+        end
+      end
+      .flush_buffer
+      .memory_leak_detected = FALSE ! reset any memory leaks
+      if (.stack_level<.memory_leak_level) .memory_leak_level = 0
+      ! allow leak reports again at higher levels
+   end
+
+   unstack
+   ! Remove a level from the call level. Placed at the end of every non-pure
+   ! routine, *including* leaky routines.  If the current level exceeds
+   ! stack_show_level then a stack report is produced --- provided that
+   ! show_call_stack is not set; but if it is set, then an indented stack report
+   ! is made instead.
+     self :: INOUT
+     report_stack,show_call_stack :: BIN
+     routine_name :: STR
+     mem :: INT
+     memory :: STR(9)
+     l :: INT
+     l = .stack_level
+     if (l<=0) then
+        if (tonto_parallel.rank == 0 OR (NOT tonto_parallel.do_parallel)) then
+          write(.error_output_unit,*)
+          write(.error_output_unit,"(a,I2)") &
+          "Warning in routine SYSTEM:unstack ... stack level is not positive, ", l
+        end
+        .report_io_file_info
+        .report_stack_info(full_report=TRUE)
+#ifdef MPI
+        call MPI_abort(MPI_COMM_WORLD,.error_status,tonto_parallel.mpi_status)
+#endif
+        stop
+     else if (l>.max_stack_level) then
+        write(.error_output_unit,*)
+        write(.error_output_unit,"(a,2I2)") &
+        "Warning in routine SYSTEM:unstack ... stack level greater than max, ", &
+        l,.max_stack_level
+#ifdef MPI
+        call MPI_abort(MPI_COMM_WORLD,.error_status,tonto_parallel.mpi_status)
+#endif
+        stop
+     else
+        show_call_stack =             & ! Show indented call stack if:
+           .show_call_stack           & ! ... switch was set
+        AND l >=.stack_show_level       ! ... stack is greater than check
+        report_stack =                & ! Report tabular stack info if:
+            l >= .stack_show_level    & ! ... greater than check level
+        AND .stack_show_level > 0     & ! ... check level was set
+        AND NOT show_call_stack         ! ... NOT doing indented view
+        if (report_stack) then
+           .report_stack_info
+        else if (show_call_stack) then
+           routine_name = .call_stack(l)
+           mem = .memory_used_stack(l)/.unit_conversion_factor
+           if (tonto_parallel.rank == 0 OR (NOT tonto_parallel.do_parallel)) then
+             write(memory,"(I9)") mem
+           end
+           if (mem==0) then
+             if (tonto_parallel.rank == 0 OR (NOT tonto_parallel.do_parallel)) then
+               write(.error_output_unit,"(a)") &
+                repeat("   ",l)//trim(routine_name)//" } "//adjustl(memory)
+             end
+           else
+             if (tonto_parallel.rank == 0 OR (NOT tonto_parallel.do_parallel)) then
+               write(.error_output_unit,"(a)") &
+                repeat("---",l)//trim(routine_name)//" } "//adjustl(memory)
+             end
+           end
+        end
+     end
+     .call_stack(l) = " "
+     .stack_level   = .stack_level - 1
+     .flush_buffer
+   end
+
+   check
+   ! Check for memory leaks at this level. Placed at the end of every non-pure,
+   ! non-leaky routine. A stack report is produced only if there is a leak, AND
+   ! if the level is greater than the check_level set by start_leak_test (since
+   ! for levels less or equal to than the check_level, unstack produces a stack
+   ! report).
+      if (.stack_level<=0) then
+        if (tonto_parallel.rank == 0 OR (NOT tonto_parallel.do_parallel)) then
+          write(.error_output_unit,*)
+          write(.error_output_unit,"(a,I2)") &
+          "Warning in routine SYSTEM:check ... stack level is not positive, ", &
+          .stack_level
+        end
+        .report_io_file_info
+        .report_stack_info(full_report=TRUE)
+#ifdef MPI
+        call MPI_abort(MPI_COMM_WORLD,.error_status,tonto_parallel.mpi_status)
+#endif
+        stop
+      end
+      .check_exceeded
+      .check_if_leaky
+      .unstack
+   end
+
+   check_exceeded ::: private
+   !  Checks whether memory limit is exceeded
+      name :: STR
+      name = .call_stack(.stack_level)
+      if (.memory_used>.memory_limit AND NOT .memory_limit_exceeded) then
+         .warn("Memory limit exceeded in routine "//trim(name))
+         .report
+         .memory_limit_exceeded = TRUE
+      end
+   end
+
+   check_if_leaky ::: private
+   ! Checks whether there is a memory leak, and if so produce a warning.
+   ! A stack report is made only if the stack_show_level was not set,
+   ! or if it was set, it the leak occurs below the stack_show_level
+   ! (since otherwise the unstack routine will make a stack report).
+      produce_warning,produce_report :: BIN
+      l :: INT
+      l = .stack_level
+      produce_warning =  &               ! produce warning if:
+         .memory_used_stack(l) /= 0    & ! ... there is a leak at this level,
+         AND NOT .memory_leak_detected & ! ... it hasn't yet been seen,
+         AND l > .memory_leak_level      ! ... it wasn't reported already
+      if (produce_warning) then
+         if (.memory_used_stack(l)>0) .warn("memory leak",use_stack_name=TRUE)
+         if (.memory_used_stack(l)<0) .warn("memory sink",use_stack_name=TRUE)
+         .memory_leak_detected = TRUE
+         if (.memory_leak_level==0) then
+            .memory_leak_level = .stack_level - 1
+         else
+            .memory_leak_level = min(.memory_leak_level,.stack_level-1)
+         end
+      end
+      produce_report  =  &               ! produce stack report if:
+         produce_warning               & ! ... there was a warning made AND
+         AND (0 > .stack_show_level    & ! ... stack level was not set OR
+         OR   l < .stack_show_level)     ! ... unstack makes no report
+      if (produce_report) then
+         .report_stack_info
+      end
+   end
+
+   ignore_memory_leak(memory_blocks_gained)
+   ! If called, this routine will reset any memory leak in the current
+   ! procedure at the point of call. This is highly dangerous and should be used
+   ! only in special cases when you are sure the leak can be tolerated.
+   ! "memory_blocks_gained" is the number of blocks that were gained in the leak
+   ! process: it is negative for a loss in memory, and positive for a gain in
+   ! memory.
+      memory_blocks_gained :: INT
+      if (NOT associated(.memory_used_stack)) return
+      .delete_memory(.memory_used_stack(.stack_level))
+      .memory_blocks_used = .memory_blocks_used + 1 - memory_blocks_gained
+   end
+
+   start_show(depth,show_call_stack)
+   ! Start printing out the memory stack for all routines that are called (i.e.
+   ! at the next level). This command is undone by the "end_show" routine. If
+   ! "depth" is present, the show starts at the current level plus "depth".
+   ! If "show_call_stack" is present and FALSE, then a tabular style output is
+   ! shown rather than the default indented style.
+      depth :: INT, optional
+      show_call_stack :: BIN, optional
+      .stack_show_level = .stack_level + 1
+      if (present(depth)) .stack_show_level = .stack_level + depth
+      .show_call_stack = TRUE
+      if (present(show_call_stack)) .show_call_stack = FALSE
+   end
+
+   end_show
+   ! Ends memory leak testing at this level
+      .stack_show_level = -1
+      .show_call_stack = FALSE
+   end
+
+   expand_all_stacks ::: private
+   ! Expand both stacks to a length at least equal to ".stack_level".
+      dim :: INT
+      dim = .stack_level - .max_stack_level
+      if (dim>0) then
+         .expand_int(.memory_used_stack,dim)
+         .expand_str(.call_stack,dim)
+         .max_stack_level = .stack_level
+      end
+   end
+
+   report(out)
+   !  Report memory usage
+     out :: TEXTFILE, optional
+     unit,fac :: INT
+     if (.max_memory_used /= 0) then
+       unit = tonto.error_output_unit
+       if (present(out)) unit = out.unit
+       fac = .unit_conversion_factor
+       if (tonto_parallel.rank == 0 OR (NOT tonto_parallel.do_parallel)) then
+         write(unit,'(/"SYSTEM: Memory usage report:"/)')
+         write(unit,'("Memory used                = ",i9," ",a6)') .memory_used/fac,.memory_units
+         write(unit,'("Maximum memory used        = ",i9," ",a6)') .max_memory_used/fac,.memory_units
+         write(unit,'("Memory blocks used         = ",i9)') .memory_blocks_used
+         write(unit,'("Maximum memory blocks used = ",i9)') .max_memory_blocks_used
+         write(unit,'("Call stack level           = ",i9)') .stack_level
+         write(unit,'("Maximum call stack depth   = ",i9)') .max_stack_level
+       end
+       .report_stack_info(out)
+       .report_timing_info 
+     end
+     .flush_buffer
+   end
+
+   report_stack_info(out,full_report) ::: private
+   ! Report memory stack usage. Use the unit number for file "out", if present.
+   ! If present and TRUE, "full_report" requests a full stack output.
+     out :: TEXTFILE, optional
+     full_report :: BIN, optional
+     unit,fac,l :: INT
+     full :: BIN
+     if (.max_stack_level /= 0) then
+       unit = tonto.error_output_unit
+       if (present(out)) unit = out.unit
+       full = FALSE
+       if (present(full_report)) full = full_report
+       fac = .unit_conversion_factor
+       if (.stack_level>0 AND associated(.call_stack)) then
+         if (tonto_parallel.rank == 0 OR (NOT tonto_parallel.do_parallel)) then
+           write(unit,*)
+           write(unit,'(a)') "Routine call stack:"
+           write(unit,*)
+           write(unit,'("   Call   Routine name        ",a37)') "Memory Used"
+         end
+         do l = 1,.stack_level
+           if (tonto_parallel.rank == 0 OR (NOT tonto_parallel.do_parallel)) then
+             write(unit,'(3x,i3,".",3x,a48,i9)') &
+                         l,adjustl(.call_stack(l)),.memory_used_stack(l)/fac
+           end
+         end
+       end
+       if (full AND .max_stack_level>.stack_level AND associated(.call_stack)) then
+           if (tonto_parallel.rank == 0 OR (NOT tonto_parallel.do_parallel)) then
+             write(unit, &
+           '("   ----------------------------------------------------------------")')
+           end
+         do l = .stack_level+1,.max_stack_level
+           if (tonto_parallel.rank == 0 OR (NOT tonto_parallel.do_parallel)) then
+              write(unit,'(3x,i3,".",3x,a48,i9)') &
+              l,adjustl(.call_stack(l)),.memory_used_stack(l)/fac
+           end
+         end
+       end
+     end
+     .flush_buffer
+   end
+
+   report_io_file_info ::: private
+   ! Report info about the most recent open file.
+     unit :: INT
+     cursor :: BSTR
+     item_end :: INT
+     if (NOT associated(.io_file)) return
+     unit = tonto.error_output_unit
+     item_end = max(1,.io_file.buffer.item_end)
+     if (item_end>0) cursor = repeat("-",item_end-1)//"^"
+     if (tonto_parallel.rank == 0 OR (NOT tonto_parallel.do_parallel)) then
+       write(unit,*)
+       write(unit,'("File name   = ",a)')  trim(.io_file.name)
+       write(unit,'("Line number = ",i4)') .io_file.record
+       write(unit,'("File buffer = ",a)')  trim(.io_file.buffer.string)
+     end
+     if (tonto_parallel.rank == 0 OR (NOT tonto_parallel.do_parallel)) then
+       if (item_end>0) then
+         write(unit,'("Cursor -------",a)')  trim(cursor)
+       end
+     end
+     .flush_buffer
+   end
+
+   report_keyword_info(options) ::: private
+   ! Report info about the most recent keywords used
+      options :: STRVEC(len=*,:), optional
+      n :: INT
+      unit :: INT
+      unit = tonto.error_output_unit
+      if (present(options)) then
+        if (tonto_parallel.rank == 0 OR (NOT tonto_parallel.do_parallel)) then
+          write(unit,*)
+          write(unit,'("Allowed keyword options:")')
+          write(unit,*)
+          do n = 1,size(options)
+            write(unit,'("   ",a)') trim(options(n))
+          end
+        end
+      end
+      .flush_buffer
+   end
+
+   start_timer(routine_name)
+   ! Start timing routine "routine_name". Placed at the start of every routine
+   ! when profiling is requested. 
+      routine_name :: STR(*)
+      start_time :: REAL
+      .time_stack_level = .time_stack_level + 1
+      call cpu_time(start_time)
+      .expand_time_stacks(routine_name,start_time) 
+   end
+
+   stop_timer(routine_name)
+   ! Start the timer for routine "routine_name". Placed at the start of every
+   ! routine profiling is requested. 
+      routine_name :: STR(*)
+      index,i :: INT
+      start_time,finish_time,elapsed_time,total_time,total :: REAL
+      ! Get the finishing time
+      call cpu_time(finish_time)
+      ! Get the starting time and elapsed time
+      start_time = .time_strt_stack(.time_stack_level)
+      elapsed_time = finish_time - start_time
+      ! Increment the elapsed time for the current routine
+      index = .index_for_routine(routine_name)
+      .time_for_routine(index) = .time_for_routine(index) + elapsed_time
+      ! Remove this elapsed time from all the parent routines 
+      do i = 1,.time_stack_level-1
+         index = .time_call_stack(i) ! This is a parent routine index
+         .time_for_routine(index) = .time_for_routine(index) - elapsed_time
+      end
+      ! See whether to stop program if total time exceeded
+      if (.time_limit>ZERO) then
+         ! Get total time: Add up total time so far
+         total_time = ZERO
+         do i = 1,.n_timed_routines
+            total = .time_for_routine(i)
+            if (total<ZERO) cycle ! These have not completed
+            total_time = total_time + total
+         end
+         ! Make a report and stop if total time exceeded 
+         if (total_time>.time_limit) then
+            .report_timing_info
+            stop
+         end
+      end
+      ! Remove the routine from the call stack
+      .time_call_stack(.time_stack_level) = 0
+      .time_stack_level = .time_stack_level - 1
+    ! write(*,*) "---- returning, time_stack_level=",.time_stack_level
+   end
+
+   expand_time_stacks(routine_name,start_time) ::: leaky, private
+   ! Expand all the time stacks (if required) by adding "routine_name" in the
+   ! ".name_for_routine" stack, for example. Also add the starting time.
+     routine_name :: STR(*)
+     start_time :: REAL
+     index,dim :: INT
+     ! First expand the list of akll timed routines
+     index = .index_for_routine(routine_name)
+     if (index==0) then  ! NEW routine. 
+        dim = .n_timed_routines
+        if (associated(.time_for_routine)) dim = dim - .time_for_routine.dim
+        if (dim>=0) then ! Not enough space? Expand stack ...
+           .expand_real(.time_for_routine,dim+1)
+           .expand_str( .name_for_routine,dim+1)
+        end
+        index = .n_timed_routines + 1
+        .n_timed_routines = index
+        .time_for_routine(index) = ZERO
+        .name_for_routine(index) = routine_name
+        write(*,*) "NEW=",index,"name=",trim(routine_name)
+     else
+        write(*,*) "old=",index,"name=",trim(routine_name)
+     end
+     ! Now expand the timed call stack ...
+     dim = .time_stack_level
+     if (associated(.time_call_stack)) dim = dim - .time_call_stack.dim
+     if (dim>0) then
+        .expand_int( .time_call_stack,dim)
+        .expand_real(.time_strt_stack,dim)
+     end
+     .time_call_stack(.time_stack_level) = index
+     .time_strt_stack(.time_stack_level) = start_time
+   end
+
+   index_for_routine(routine_name) result (index) ::: leaky, private
+   ! Return the "index" for routine "routine_name" in the ".name_for_routine"
+   ! stack. 
+     routine_name :: STR(*)
+     index :: INT
+     i :: INT
+     index = 0
+     do i = 1,.n_timed_routines
+        if (.name_for_routine(i)/=routine_name) cycle
+        index = i
+        exit
+     end
+   end
+
+   report_timing_info(out,full_report) ::: private
+   ! Report routine timing info i.e. a profile. If present, use the unit number for file
+   ! "out", otherwise use "tonto.error_output_unit".  If present and TRUE,
+   ! "full_report" requests a full stack output, otherwise only the top 20 are
+   ! reported.
+     out :: TEXTFILE, optional
+     full_report :: BIN, optional
+     full :: BIN
+     order :: INTVEC*
+     total_time,total :: REAL
+     unit,i,j,n_routine :: INT
+     if (.n_timed_routines == 0) return
+     if (tonto_parallel.rank > 0 AND tonto_parallel.do_parallel) return
+     ! Process arguments ...
+     unit = tonto.error_output_unit
+     if (present(out)) unit = out.unit
+     full = TRUE
+     if (present(full_report)) full = full_report
+     if (full) then; n_routine = .n_timed_routines
+     else;           n_routine = min(20,.n_timed_routines)
+     end
+     ! Set any negative times to zero and sort
+     total_time = ZERO
+     do i = 1,.n_timed_routines
+        total = .time_for_routine(i)
+        if (total<ZERO) .time_for_routine(i) = ZERO 
+        total_time = total_time + total
+     end
+     allocate(order(.n_timed_routines))
+     .quick_sort_decreasing(.time_for_routine,order)
+     write(unit,*)
+     write(unit,'(a)') "Routine call stack:"
+     write(unit,*)
+     write(unit,'("   Call   ",a43,a7,a7)') "   Time","% total"
+     do i = 1,n_routine
+        j = order(i) 
+        write(unit,'(3x,i3,".",3x,a43,f7.3,f7.3)') &
+                         i, &
+                         adjustl(.name_for_routine(i)), &
+                         .time_for_routine(i), &
+                         .time_for_routine(i)*100d0/total_time
+     end
+     deallocate(order)
+     .flush_buffer
+   end
+
+   flush_buffer(unit)
+   ! Flush the output
+     unit :: INT, IN, optional
+     f_unit :: INT
+     if (present(unit)) then
+       f_unit = unit
+     else
+       f_unit = tonto.error_output_unit
+     end
+     if (tonto_parallel.rank == 0 OR (NOT tonto_parallel.do_parallel)) then
+#ifdef FLUSH
+       call flush(f_unit)
+#endif
+     end
+   end
+
+! ************************************
+! These would be inherited if possible
+! ************************************
+
+   expand_real(stack,dim) ::: leaky, private
+   ! Expands "stack" by amount "dim". Contents are retained.
+   ! Elements added are set to zero.
+     stack :: REALVEC*
+     dim :: INT, IN
+     old_stack :: REALVEC*
+     n :: INT
+   ENSURE(dim>0,"cannot expand stack by less than 1")
+     if (NOT associated(stack)) then
+      ! write(*,*) "NOT associated, dim=",dim
+        allocate(stack(dim))
+        stack = ZERO
+     else
+        n = stack.dim
+        old_stack => stack
+      ! write(*,*) "Associated, copying, n=",n," dim=",dim
+        nullify(stack)
+        allocate(stack(n+dim))
+        stack(1:n) = old_stack
+        stack(n+1:n+dim) = ZERO
+        deallocate(old_stack)
+     end
+   end
+
+   expand_int(stack,dim) ::: leaky, private
+   ! Expands "stack" by amount "dim". Contents are retained.
+   ! Elements added are set to zero.
+     stack :: INTVEC*
+     dim :: INT, IN
+     old_stack :: INTVEC*
+     n :: INT
+   ENSURE(dim>0,"cannot expand stack by less than 1")
+     if (NOT associated(stack)) then
+        allocate(stack(dim))
+        stack = 0
+     else
+        n = stack.dim
+        old_stack => stack
+        nullify(stack)
+        allocate(stack(n+dim))
+        stack(1:n) = old_stack
+        stack(n+1:n+dim) = 0
+        deallocate(old_stack)
+     end
+   end
+
+   expand_str(stack,dim) ::: leaky, private
+   ! Expands "stack" by amount "dim". Contents are retained.
+   ! Elements added are set to blank.
+     stack :: STRVEC*
+     dim :: INT, IN
+     old_stack :: STRVEC*
+     n :: INT
+   ENSURE(dim>0,"cannot expand stack by less than 1")
+     if (NOT associated(stack)) then
+        allocate(stack(dim))
+        stack = " "
+     else
+        n = stack.dim
+        old_stack => stack
+        nullify(stack)
+        allocate(stack(n+dim))
+        stack(1:n) = old_stack
+        stack(n+1:n+dim) = " "
+        deallocate(old_stack)
+     end
+   end
+
+   quick_sort_decreasing(vec,indices) ::: recursive, private
+   ! Return the indices which sort vector from largest to smallest, i.e. on
+   ! return "vec(indices)" is sorted. NOTE: vec is *not* sorted.
+      vec :: REALVEC
+      indices :: INTVEC, INOUT
+      list,small,equal,large,small_indices,equal_indices,large_indices :: INTVEC*
+      n, i, ns, ne, nl :: INT
+      chosen :: REAL
+      if (indices.dim<=1) return
+      n = indices.dim
+      allocate(list(n)); list = [(i,i=1,n)]
+      chosen = vec(1)
+      ns = count(vec>chosen)
+      nl = count(vec<chosen)
+      ne = n - ns - nl
+      allocate(small(ns)); allocate(small_indices(ns))
+      allocate(equal(ne)); allocate(equal_indices(ne))
+      allocate(large(nl)); allocate(large_indices(nl))
+      small = pack(list,vec >chosen) ! indices of large vec elements
+      equal = pack(list,vec==chosen) ! indices of equal vec elements
+      large = pack(list,vec <chosen) ! indices of small vec elements
+      small_indices = indices(small)
+      equal_indices = indices(equal)
+      large_indices = indices(large)
+      if (ns>1) .quick_sort_decreasing(vec(small),small_indices)
+      if (nl>1) .quick_sort_decreasing(vec(large),large_indices)
+      indices(1:ns)       = small_indices
+      indices(ns+1:ns+ne) = equal_indices
+      indices(ns+ne+1:)   = large_indices
+      deallocate(large_indices); deallocate(large)
+      deallocate(equal_indices); deallocate(equal)
+      deallocate(small_indices); deallocate(small)
+      deallocate(list)
+   end
+
+end

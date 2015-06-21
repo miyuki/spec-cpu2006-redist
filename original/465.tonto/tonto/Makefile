@@ -1,0 +1,404 @@
+#==============================================================================
+#
+# >>> Makefile for the TONTO system
+#
+# You will need GNU make and perl for this to work.
+#
+# For basic installation just type
+#      "perl -w Makefile.pl"
+#      "make"
+#      "make install"
+#
+# There should be nothing in this file that you need to change.  To change
+# installation directories etc, use "Makefile.pl".
+#
+# Type "make help" for common options.
+#
+# Remember that this file gets overwritten each time "Makefile.pl" is run!
+#
+# (c) Dylan Jayatilaka, Daniel Grimwood 
+#     University of Western Australia, 1999-2002
+#
+# $Id: Makefile.in,v 1.33.2.5 2003/09/18 05:39:56 reaper Exp $
+#
+#==============================================================================
+
+#------------------------------------------------------------------------------
+# >>> Site specific information
+#
+# Where to install programs, and where the source files are located.
+# Utilities required are also listed here.
+#
+# This is all inserted by "Makefile.pl".
+#
+#------------------------------------------------------------------------------
+
+installdir  := /usr/local/bin
+srcdir      := .
+
+FC      := /opt/intel/compiler70/ia32/bin/ifc
+PERL    := /usr/bin/perl
+MAKE    := /usr/bin/make
+OS      := LINUX
+
+SITE_CONFIG := ./site_config/INTEL-ifc-on-LINUX
+COMPILER_VENDOR := INTEL-ifc-on-LINUX
+
+#------------------------------------------------------------------------------
+
+include $(SITE_CONFIG)
+
+#------------------------------------------------------------------------------
+# Set some defaults if not defined in the site_config file.
+#------------------------------------------------------------------------------
+ifndef FSUFFIX
+FSUFFIX := F95
+endif
+ifndef PROGSUFFIX
+PROGSUFFIX := exe
+endif
+ifndef MODSUFFIX
+MODSUFFIX := mod
+endif
+ifndef FOUTSYNTAX
+FOUTSYNTAX := -o
+endif
+ifndef OBJSUFFIX
+OBJSUFFIX := o
+endif
+ifndef LIBSUFFIX
+LIBSUFFIX := a
+endif
+ifndef MKLIB
+MKLIB := ar -ru
+endif
+
+#------------------------------------------------------------------------------
+# >>> Locations of important directories.
+#
+# TONTO places its files neatly in subdirectories with sensible names.
+#
+# Binary objects go into subdirectories related to the compiler/vendor name,
+# which is to allow building for multiple architectures using the same source
+# files.
+#
+# Changing these directories here may break scripts or other parts of the makefile.
+#
+#------------------------------------------------------------------------------
+
+bindir      := $(srcdir)/$(COMPILER_VENDOR)
+scriptdir   := $(srcdir)/scripts
+depdir      := $(srcdir)/dependencies
+foodir      := $(srcdir)/foofiles
+f95dir      := $(srcdir)/f95files
+objdir      := $(srcdir)/$(COMPILER_VENDOR)/objects
+moddir      := $(srcdir)/$(COMPILER_VENDOR)/modules
+intdir      := $(srcdir)/f95files
+usedir      := $(srcdir)/f95files
+docdir      := $(srcdir)/documentation
+f95docdir   := $(docdir)/f95files
+htmldir     := $(docdir)/htmlfiles
+htmldocdir  := $(docdir)/htmlmanual
+
+#------------------------------------------------------------------------------
+# >>> Construct lists of files.
+#
+# These are:
+#    the source code (foofiles),
+#    the object files (objfiles),
+#    the program files (runfiles),
+#    the html documentation files (htmlfiles),
+#    the dependecy files (htmlfiles),
+#
+# >>> Program source files must have a name starting with "run_".
+#
+#------------------------------------------------------------------------------
+
+foofiles    := $(wildcard $(foodir)/*.foo)
+objfiles    := $(patsubst $(foodir)/%.foo,$(objdir)/%.$(OBJSUFFIX),$(filter-out $(foodir)/run_%,$(foofiles)))
+runfiles    := $(patsubst $(foodir)/%.foo,$(bindir)/%.$(PROGSUFFIX),$(filter $(foodir)/run_%,$(foofiles)))
+htmlfiles   := $(patsubst $(foodir)/%.foo,$(htmldir)/%.html,$(foofiles))
+f95depfiles := $(patsubst $(foodir)/%.foo,$(depdir)/%.f95dep,$(foofiles))
+foodepfiles := $(patsubst $(foodir)/%.foo,$(depdir)/%.foodep,$(foofiles))
+intfiles    := $(patsubst $(foodir)/%.foo,$(intdir)/%.int,$(foofiles))
+usefiles    := $(patsubst $(foodir)/%.foo,$(usedir)/%.use,$(foofiles))
+f95files    := $(patsubst $(foodir)/%.foo,$(f95dir)/%.$(FSUFFIX),$(foofiles))
+f95docs     := $(patsubst $(f95dir)%,$(f95docdir)%,$(f95files))
+intdocs     := $(patsubst $(intdir)%,$(f95docdir)%,$(intfiles))
+usedocs     := $(patsubst $(usedir)%,$(f95docdir)%,$(usefiles))
+htmlshortfiles := $(patsubst %.html,%_short.html,$(htmlfiles))
+
+#------------------------------------------------------------------------------
+# >>> Miscellaneous makefile stuff
+#
+#------------------------------------------------------------------------------
+
+.DEFAULT :
+.DELETE_ON_ERROR :
+.SUFFIXES :
+.SUFFIXES : .$(OBJSUFFIX) .$(PROGSUFFIX) .$(FSUFFIX) .$(MODSUFFIX) .foodep .f90dep .foo .html
+.PHONY : clean distclean docsclean all directories install documentation \
+         help distribution manual-pdf manual-html blas lapack
+.SECONDARY : $(f95files)
+
+VPATH := $(scriptdir)
+vpath %.foo $(foodir)
+vpath %.$(FSUFFIX) $(f95dir)
+vpath %.foodep $(depdir)
+vpath %.f95dep $(depdir)
+vpath %.$(MODSUFFIX) $(moddir)
+
+#------------------------------------------------------------------------------
+# >>> Some useful functions.
+#------------------------------------------------------------------------------
+MKDIR := perl -MExtUtils::Command -e mkpath
+CP    := perl -MExtUtils::Command -e cp
+RMDIR := perl -w $(scriptdir)/rmdir.perl
+RM    := perl -w $(scriptdir)/rm.perl
+CAT   := perl -w $(scriptdir)/cat.perl
+
+#------------------------------------------------------------------------------
+# >>> Targets and dependencies
+#
+# Immediately below are high level targets that the user will type.
+#------------------------------------------------------------------------------
+
+all : $(bindir)/run_mol.$(PROGSUFFIX)
+
+help :
+	@echo 
+	@echo "Common arguments are:"
+	@echo 
+	@echo "    help            - displays this screen"
+	@echo "    documentation   - makes the html documentation"
+	@echo "    manual-pdf      - make the manual in pdf format"
+	@echo "    manual-html     - make the manual in html format"
+	@echo
+	@echo "    all             - builds the program run_mol.$(PROGSUFFIX)"
+	@echo "    run_mol.$(PROGSUFFIX)       - builds the program run_mol.$(PROGSUFFIX)"
+	@echo "    run_XXXXX.$(PROGSUFFIX)       - builds the program run_XXXXX.$(PROGSUFFIX)"
+	@echo "    install         - installs any compiled programs into $(installdir)"
+	@echo
+	@echo "    clean           - removes built program files"
+	@echo "    docsclean       - removes built documentation files"
+	@echo "    distclean       - removes all built files"
+	@echo 
+	@echo "    blas            - build basic BLAS library"
+	@echo "    lapack          - build basic LAPACK library"
+	@echo 
+
+install : $(wildcard $(COMPILER_VENDOR)/*.$(PROGSUFFIX))
+	@$(CP) $^ $(installdir)
+
+clean :
+	@$(RM) $(f95depfiles)
+	@$(RM) $(foodepfiles)
+	@$(RM) $(f95files)
+	@$(RM) $(intfiles)
+	@$(RM) $(usefiles)
+	@$(RM) $(objfiles)
+	@$(RM) $(runfiles)
+	@$(RM) $(srcdir)/foodependfile $(srcdir)/f95dependfile
+	@$(RM) $(objdir)/libtonto.$(LIBSUFFIX)
+	@$(RM) $(wildcard $(moddir)/*.$(MODSUFFIX))
+	@$(RM) $(wildcard $(moddir)/*.time)
+	@$(RM) $(wildcard $(objdir)/*.time)
+	@$(RMDIR) $(depdir) $(intdir) $(f95dir)
+	@$(RMDIR) $(objdir) $(moddir) $(srcdir)/$(COMPILER_VENDOR)
+
+docsclean :
+	@$(RM) $(htmlshortfiles)
+	@$(RM) $(htmlfiles)
+	@$(RM) $(f95docs)
+	@$(RM) $(intdocs)
+	@$(RM) $(usedocs)
+	@$(RMDIR) $(htmldir) $(f95docdir)
+
+distclean : clean docsclean
+	@$(RM) $(srcdir)/Makefile
+
+distribution :
+	$(scriptdir)/make_dist
+
+documentation : $(htmlfiles) $(docdir)/TONTO-nav-bar.html
+	@test -f $(docdir)/index.html && echo To read the documentation, open $(docdir)/index.html in your web browser
+
+manual-pdf : $(docdir)/tonto.pdf
+
+manual-html : $(htmldocdir)/index.html
+
+blas : $(objdir)/libblas.$(LIBSUFFIX)
+
+lapack : $(objdir)/liblapack.$(LIBSUFFIX)
+
+#------------------------------------------------------------------------------
+# >>> Documentation.
+#
+# The manual can be converted to various formats from the docbook source.
+#
+# The html documentation for each module is generated from the .foo source.
+# "foo.perl" also does this.
+#
+#------------------------------------------------------------------------------
+
+$(htmldocdir)/index.html : $(docdir)/tonto.docbook $(docdir)/tonto.dsl
+	@test -d $(htmldocdir) || $(MKDIR) $(htmldocdir)
+	@docbook2html -d $(docdir)/tonto.dsl#html -o $(htmldocdir) \
+	                $(docdir)/tonto.docbook
+
+$(docdir)/tonto.pdf : $(docdir)/tonto.docbook $(docdir)/tonto.dsl
+	@docbook2pdf -d $(docdir)/tonto.dsl#print -o $(docdir) \
+	                $(docdir)/tonto.docbook
+
+$(docdir)/TONTO-nav-bar.html : $(htmlfiles) $(srcdir)/make_navbar.perl
+	$(PERL) -w $(scriptdir)/make_navbar.perl $(htmldir) > $@
+
+$(htmldir)/%.html : $(foodir)/%.foo $(scriptdir)/foo.perl
+	@test -d $(htmldir) || $(MKDIR) $(htmldir)
+	@test -d $(f95docdir)  || $(MKDIR) $(f95docdir)
+	@echo Compiling the $(*F).foo code into html and Fortran  ...
+	@$(PERL) -w $(scriptdir)/foo.perl \
+		-htmlshort $(htmldir)/$(*F)_short.html \
+		-htmllong $@ $<
+
+#------------------------------------------------------------------------------
+# >>> Dependency rules.
+#
+# The "make_dependencies.perl" script makes a .dep file for each .foo file.
+# These .dep files are placed in the "dependencies" directory and are combined
+# together to form the main "dependfile" for the makefile.
+#
+# "make_dependencies.perl" is used to generate the .dep dependency rules.  
+#------------------------------------------------------------------------------
+
+skip_cmds := clean distclean docsclean distribution \
+             foodependfile f95dependfile \
+             documentation help manual-pdf manual-html blas lapack
+skip_depfile := $(filter $(skip_cmds),$(MAKECMDGOALS))
+ifeq ($(skip_depfile),)
+include $(srcdir)/f95dependfile
+include $(srcdir)/foodependfile
+endif
+
+$(srcdir)/foodependfile : $(foodepfiles)
+	@$(CAT) $^ > $@
+
+$(srcdir)/f95dependfile : $(f95depfiles)
+	@$(CAT) $^ > $@
+
+$(depdir)/%.f95dep : $(f95dir)/%.$(FSUFFIX) $(scriptdir)/make_dependencies.perl \
+	Makefile $(SITE_CONFIG)
+	@test -d $(depdir) || $(MKDIR) $(depdir)
+	@echo Making the $(shell echo $(*F) | tr a-z A-Z) Fortran dependency rules ...
+	@$(PERL) -w $(scriptdir)/make_dependencies.perl -I $(f95dir) -I . \
+       $(INCFLAGS) -prog_ext "$(PROGSUFFIX)" -mod_ext "$(MODSUFFIX)" \
+       -obj_ext "$(OBJSUFFIX)" -src "$<" $(MODCASE) -o "$@"
+
+$(depdir)/%.foodep : $(foodir)/%.foo $(scriptdir)/make_foo_dependencies.perl \
+	Makefile $(SITE_CONFIG)
+	@test -d $(depdir) || $(MKDIR) $(depdir)
+	@echo Making the $(shell echo $(*F) | tr a-z A-Z) Foo dependency rules ...
+	@$(PERL) -w $(scriptdir)/make_foo_dependencies.perl \
+                 -src "$<" -o "$@"
+
+#------------------------------------------------------------------------------
+# >>> Convert the foo code to Fortran.
+#
+# "foo.perl" is used to generate .f95/.F90 Fortran files from .foo source code. 
+#
+#------------------------------------------------------------------------------
+
+$(f95dir)/%.$(FSUFFIX) $(intdir)/%.int : $(foodir)/%.foo $(scriptdir)/foo.perl $(foodir)/types.foo macros Makefile $(scriptdir)/filepp $(scriptdir)/tonto.pm $(scriptdir)/literal.pm $(SITE_CONFIG)
+	@test -d $(f95dir) || $(MKDIR) $(f95dir)
+	@test -d $(intdir) || $(MKDIR) $(intdir)
+	@echo Compiling $(*F).foo into Fortran ...
+	@$(PERL) -I$(scriptdir) -w $(scriptdir)/foo.perl \
+                    -fortran $(*F).tmp \
+                    -fortranint $(intdir)/$(*F).int \
+                    -fortranuse $(usedir)/$(*F).use $<
+	@$(PERL) -w $(scriptdir)/filepp -w -I. -I$(intdir) -I$(usedir) -M$(scriptdir) $(INCFLAGS) -m literal.pm -m tonto.pm -o $@ $(DEFS) $(*F).tmp
+	@$(RM) -f $(*F).tmp
+
+#------------------------------------------------------------------------------
+# >>> Object files and module files
+#
+# Use the script compile_mod.perl - this may speed up compilation for
+# developers.  (The module files are only updated if required).
+#
+# The .$(OBJSUFFIX) files are placed in the "objects" directory and then added
+# to the "$(objdir)/libtonto.$(LIBSUFFIX)" library archive as they are made; the archive is
+# then used in the final link stage.
+#
+#------------------------------------------------------------------------------
+
+$(objdir)/%.$(OBJSUFFIX) : $(SITE_CONFIG)
+	@test -d $(objdir) || $(MKDIR) $(objdir)
+	@test -d $(moddir) || $(MKDIR) $(moddir)
+	@echo Making $@ ...
+	@$(if $^,,$(error "Don't know prerequisites for $@"))
+	@$(PERL) -w $(scriptdir)/compile_mod.perl \
+          -fc "$(FC) $(FFLAGS) $(FOPTNS) -c $(FOUTSYNTAX) $@ $(filter %.$(FSUFFIX),$^)" \
+          -provides "$($(@F).mods) $@" \
+          -requires "$^" \
+          -cmp "$(PERL) -w $(scriptdir)/compare_module_file.perl -compiler $(COMPILER_VENDOR)"
+
+$(moddir)/%.$(MODSUFFIX) : $(SITE_CONFIG)
+	@test -d $(objdir) || $(MKDIR) $(objdir)
+	@test -d $(moddir) || $(MKDIR) $(moddir)
+	@echo Making $@ ...
+	@$(if $^,,$(error "Don't know prerequisites for $@"))
+	@$(PERL) -w $(scriptdir)/compile_mod.perl \
+          -fc "$(FC) $(FFLAGS) $(FOPTNS) -c $(FOUTSYNTAX) $($(@F).$(OBJSUFFIX)) $(filter %.$(FSUFFIX),$^)" \
+          -provides "$($(@F).mods) $($(@F).$(OBJSUFFIX))" \
+          -requires "$^" \
+          -cmp "$(PERL) -w $(scriptdir)/compare_module_file.perl -compiler $(COMPILER_VENDOR)"
+
+#------------------------------------------------------------------------------
+# >>> Generate the main run_XXXX.$(PROGSUFFIX) executable
+#------------------------------------------------------------------------------
+
+$(bindir)/%.$(PROGSUFFIX) : $(SITE_CONFIG)
+	@test -d $(bindir) || $(MKDIR) $(bindir)
+	@echo 
+	@echo This is the final link phase ...
+	@echo Building $(objdir)/libtonto.$(LIBSUFFIX) from object files ...
+	@$(MKLIB) $(LIBOUT)$(objdir)/libtonto.$(LIBSUFFIX) $(wildcard $(objdir)/*.$(OBJSUFFIX))
+	@echo Making $@ ...
+	@echo "$(FC) $(FFLAGS) $(FOPTNS) $(FOUTSYNTAX) $@ $(filter %.$(FSUFFIX),$^) -L$(objdir) -ltonto $(LIBS)"
+	@$(FC) $(FFLAGS) $(FOPTNS) $(FOUTSYNTAX) $@ $(filter %.$(FSUFFIX),$^) -L$(objdir) -ltonto $(LIBS) || $(RM) $@
+	@$(RM) $(*F).$(OBJSUFFIX)
+	@test -f $@ && echo Successfully built $@
+
+#------------------------------------------------------------------------------
+# >>> Lapack, blas
+#------------------------------------------------------------------------------
+
+$(objdir)/libblas.$(LIBSUFFIX) : lapack/blas.f
+	@echo Building BLAS library
+	@test -d $(objdir) || $(MKDIR) $(objdir)
+	$(FC) $(FOPTNS) -c $(FOUTSYNTAX) blas.$(OBJSUFFIX) $^
+	$(MKLIB) $(LIBOUT)$@ blas.$(OBJSUFFIX)
+	@echo Deleting blas.$(OBJSUFFIX)
+	@$(RM) blas.$(OBJSUFFIX)
+	@echo Deleting blas.$(OBJSUFFIX)
+	@test -f $@ && echo Successfully built $@
+
+$(objdir)/liblapack.$(LIBSUFFIX) : lapack/lapack.f
+	@echo Building LAPACK library
+	@test -d $(objdir) || $(MKDIR) $(objdir)
+	$(FC) $(FOPTNS) -c $(FOUTSYNTAX) lapack.$(OBJSUFFIX) $^
+	$(MKLIB) $(LIBOUT)$@ lapack.$(OBJSUFFIX)
+	@echo Deleting lapack.$(OBJSUFFIX)
+	@$(RM) lapack.$(OBJSUFFIX)
+	@test -f $@ && echo Successfully built $@
+
+#------------------------------------------------------------------------------
+# >>> Lazy targets.
+#------------------------------------------------------------------------------
+
+%.$(PROGSUFFIX) :
+	@$(MAKE) $(bindir)/$(*F).$(PROGSUFFIX)
+
+%.$(OBJSUFFIX) :
+	@$(MAKE) $(objdir)/$(*F).$(OBJSUFFIX)
+

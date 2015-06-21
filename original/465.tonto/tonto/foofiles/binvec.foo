@@ -1,0 +1,130 @@
+!---------------------------------------------------------------------------
+!
+! BINVEC : Boolean vector operations ...
+!
+! Copyright (C) Daniel Grimwood, 1999
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: binvec.foo,v 1.6.2.1 2003/03/24 01:28:52 dylan Exp $
+!
+!---------------------------------------------------------------------------
+
+module BINVEC
+
+  implicit none
+
+contains
+
+   create(dim) ::: get_from(INTRINSICVEC), leaky
+   ! Create space for object
+      self :: PTR
+      dim :: INT, IN
+   end
+
+   create(lb,ub) ::: get_from(INTRINSICVEC), leaky
+   ! Create the vector with lower bound "lb", upper bound "ub"
+      self :: PTR
+      lb,ub :: INT, IN
+   end
+
+   create(bounds) ::: get_from(OBJECTVEC), leaky
+   ! Create the vector with "bounds"
+      self :: PTR
+      bounds :: INTVEC(2), IN
+   end
+
+   create_copy(vec) ::: get_from(INTRINSICVEC), leaky
+   ! Create a replica copy of vec.
+      vec :: SELF_TYPE, IN
+      self :: PTR
+   end
+
+   copy(vec) ::: get_from(INTRINSICVEC), leaky
+   ! Copy "vec".
+      vec :: SELF_TYPE, IN
+   end
+
+   destroy ::: get_from(INTRINSICVEC), leaky
+   ! Destroy space for object
+      self :: PTR
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!     self :: PTR
+!     res :: BIN
+!     res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!     self :: PTR
+!     res :: BIN
+!     res = NOT associated(self)
+!   end
+
+   n_true result(res)
+   ! Returns the number of true items in self.
+     res :: INT
+     res = count(self)
+   end
+
+   n_false result(res)
+   ! Returns the number of false items in self.
+     res :: INT
+     res = size(self) - count(self)
+   end
+
+   index_of_first_true_element result(res)
+   ! Returns the index of the first true element in self, or zero if there is no
+   ! true element.
+     res :: INT
+     i :: INT
+     res = 0
+     do i = 1,size(self)
+        if (self(i)) then
+           res = i
+           exit
+        end
+     end
+   end
+
+   shrink(dim) ::: get_from(INTRINSICVEC), leaky
+   ! Shrink self to dimension dim.  Contents are retained.
+     self :: PTR
+     dim :: INT, IN
+   end
+
+   expand(dim) ::: get_from(INTRINSICVEC), leaky
+   ! Expand self to dimension dim. New slots are left undefined.
+     self :: PTR
+     dim :: INT, IN
+   end
+
+   append(v) ::: get_from(INTRINSICVEC), leaky
+   ! Expands self and appends the contents of vector "v".
+     self :: PTR
+     v :: SELF_TYPE, IN
+   end
+
+   append(value) ::: get_from(INTRINSICVEC), leaky
+   ! Expands self by 1, and appends the single scalar "value" onto the end.
+     self :: PTR
+     value :: ELEMENT_TYPE, IN
+   end
+
+end

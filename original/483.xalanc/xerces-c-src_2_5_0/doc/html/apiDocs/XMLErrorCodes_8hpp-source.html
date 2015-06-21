@@ -1,0 +1,416 @@
+<HTML><HEAD><SCRIPT language="JavaScript" src="../resources/script.js" type="text/javascript"></SCRIPT><TITLE>XMLErrorCodes.hpp Source File</TITLE><link href="XercesApi.css" rel="stylesheet" type="text/css"></HEAD><BODY alink="#ff0000" bgcolor="#ffffff" leftmargin="4" link="#0000ff" marginheight="4" marginwidth="4" text="#000000" topmargin="4" vlink="#0000aa"><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" height="60" rowspan="3" valign="top" width="135"><IMG border="0" height="60" hspace="0" src="../resources/logo.gif" vspace="0" width="135"></TD><TD align="left" colspan="4" height="5" valign="top" width="456"><IMG border="0" height="5" hspace="0" src="../resources/line.gif" vspace="0" width="456"></TD><TD align="left" height="60" rowspan="3" valign="top" width="29"><IMG border="0" height="60" hspace="0" src="../resources/right.gif" vspace="0" width="29"></TD></TR><TR><TD align="left" bgcolor="#0086b2" colspan="4" height="35" valign="top" width="456"><IMG alt="" border="0" height="35" hspace="0" src="../graphics/api-header.jpg" vspace="0" width="456"></TD></TR><TR><TD align="left" height="20" valign="top" width="168"><IMG border="0" height="20" hspace="0" src="../resources/bottom.gif" vspace="0" width="168"></TD><TD align="left" height="20" valign="top" width="96"><A href="http://xml.apache.org/" onMouseOut="rolloverOff('xml');" onMouseOver="rolloverOn('xml');" target="new"><IMG alt="http://xml.apache.org/" border="0" height="20" hspace="0" name="xml" onLoad="rolloverLoad('xml','../resources/button-xml-hi.gif','../resources/button-xml-lo.gif');" src="../resources/button-xml-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.apache.org/" onMouseOut="rolloverOff('asf');" onMouseOver="rolloverOn('asf');" target="new"><IMG alt="http://www.apache.org/" border="0" height="20" hspace="0" name="asf" onLoad="rolloverLoad('asf','../resources/button-asf-hi.gif','../resources/button-asf-lo.gif');" src="../resources/button-asf-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.w3.org/" onMouseOut="rolloverOff('w3c');" onMouseOver="rolloverOn('w3c');" target="new"><IMG alt="http://www.w3.org/" border="0" height="20" hspace="0" name="w3c" onLoad="rolloverLoad('w3c','../resources/button-w3c-hi.gif','../resources/button-w3c-lo.gif');" src="../resources/button-w3c-lo.gif" vspace="0" width="96"></A></TD></TR></TABLE><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" valign="top" width="120"><IMG border="0" height="14" hspace="0" src="../resources/join.gif" vspace="0" width="120"><BR>
+  <A href="../../index.html" onMouseOut="rolloverOff('side-ext-2');" onMouseOver="rolloverOn('side-ext-2');"><IMG alt="Home" border="0" height="12" hspace="0" name="side-ext-2" onLoad="rolloverLoad('side-ext-2','../graphics/ext-2-label-2.jpg','../graphics/ext-2-label-3.jpg');" src="../graphics/ext-2-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../index.html" onMouseOut="rolloverOff('side-index');" onMouseOver="rolloverOn('side-index');"><IMG alt="Readme" border="0" height="12" hspace="0" name="side-index" onLoad="rolloverLoad('side-index','../graphics/index-label-2.jpg','../graphics/index-label-3.jpg');" src="../graphics/index-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../releases.html" onMouseOut="rolloverOff('side-releases');" onMouseOver="rolloverOn('side-releases');"><IMG alt="Release Info" border="0" height="12" hspace="0" name="side-releases" onLoad="rolloverLoad('side-releases','../graphics/releases-label-2.jpg','../graphics/releases-label-3.jpg');" src="../graphics/releases-label-3.jpg" vspace="0" width="120"></A><BR>
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../install.html" onMouseOut="rolloverOff('side-install');" onMouseOver="rolloverOn('side-install');"><IMG alt="Installation" border="0" height="12" hspace="0" name="side-install" onLoad="rolloverLoad('side-install','../graphics/install-label-2.jpg','../graphics/install-label-3.jpg');" src="../graphics/install-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://xml.apache.org/dist/xerces-c/" onMouseOut="rolloverOff('side-ext-18');" onMouseOver="rolloverOn('side-ext-18');"><IMG alt="Download" border="0" height="12" hspace="0" name="side-ext-18" onLoad="rolloverLoad('side-ext-18','../graphics/ext-18-label-2.jpg','../graphics/ext-18-label-3.jpg');" src="../graphics/ext-18-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../build.html" onMouseOut="rolloverOff('side-build');" onMouseOver="rolloverOn('side-build');"><IMG alt="Build" border="0" height="12" hspace="0" name="side-build" onLoad="rolloverLoad('side-build','../graphics/build-label-2.jpg','../graphics/build-label-3.jpg');" src="../graphics/build-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../faqs.html" onMouseOut="rolloverOff('side-faqs');" onMouseOver="rolloverOn('side-faqs');"><IMG alt="FAQs" border="0" height="12" hspace="0" name="side-faqs" onLoad="rolloverLoad('side-faqs','../graphics/faqs-label-2.jpg','../graphics/faqs-label-3.jpg');" src="../graphics/faqs-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../samples.html" onMouseOut="rolloverOff('side-samples');" onMouseOver="rolloverOn('side-samples');"><IMG alt="Samples" border="0" height="12" hspace="0" name="side-samples" onLoad="rolloverLoad('side-samples','../graphics/samples-label-2.jpg','../graphics/samples-label-3.jpg');" src="../graphics/samples-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../api.html" onMouseOut="rolloverOff('side-api');" onMouseOver="rolloverOn('side-api');"><IMG alt="API Docs" border="0" height="12" hspace="0" name="side-api" onLoad="rolloverLoad('side-api','../graphics/api-label-2.jpg','../graphics/api-label-3.jpg');" src="../graphics/api-label-3.jpg" vspace="0" width="120"></A><BR>  
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../ApacheDOMC++Binding.html" onMouseOut="rolloverOff('side-ext-64');" onMouseOver="rolloverOn('side-ext-64');"><IMG alt="DOM C++ Binding" border="0" height="12" hspace="0" name="side-ext-64" onLoad="rolloverLoad('side-ext-64','../graphics/ext-64-label-2.jpg','../graphics/ext-64-label-3.jpg');" src="../graphics/ext-64-label-3.jpg" vspace="0" width="120"></A><BR> 
+  <A href="../program.html" onMouseOut="rolloverOff('side-program');" onMouseOver="rolloverOn('side-program');"><IMG alt="Programming" border="0" height="12" hspace="0" name="side-program" onLoad="rolloverLoad('side-program','../graphics/program-label-2.jpg','../graphics/program-label-3.jpg');" src="../graphics/program-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../migrate.html" onMouseOut="rolloverOff('side-migrate');" onMouseOver="rolloverOn('side-migrate');"><IMG alt="Migration Guide" border="0" height="12" hspace="0" name="side-migrate" onLoad="rolloverLoad('side-migrate','../graphics/migrate-label-2.jpg','../graphics/migrate-label-3.jpg');" src="../graphics/migrate-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../feedback.html" onMouseOut="rolloverOff('side-feedback');" onMouseOver="rolloverOn('side-feedback');"><IMG alt="Feedback" border="0" height="12" hspace="0" name="side-feedback" onLoad="rolloverLoad('side-feedback','../graphics/feedback-label-2.jpg','../graphics/feedback-label-3.jpg');" src="../graphics/feedback-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../bug-report.html" onMouseOut="rolloverOff('side-bug-report');" onMouseOver="rolloverOn('side-bug-report');"><IMG alt="Bug-Reporting" border="0" height="12" hspace="0" name="side-bug-report" onLoad="rolloverLoad('side-bug-report','../graphics/bug-report-label-2.jpg','../graphics/bug-report-label-3.jpg');" src="../graphics/bug-report-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../pdf.html" onMouseOut="rolloverOff('side-pdf');" onMouseOver="rolloverOn('side-pdf');"><IMG alt="PDF Document" border="0" height="12" hspace="0" name="side-pdf" onLoad="rolloverLoad('side-pdf','../graphics/pdf-label-2.jpg','../graphics/pdf-label-3.jpg');" src="../graphics/pdf-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="http://xml.apache.org/websrc/cvsweb.cgi/xml-xerces/c/" onMouseOut="rolloverOff('side-ext-96');" onMouseOver="rolloverOn('side-ext-96');"><IMG alt="CVS Repository" border="0" height="12" hspace="0" name="side-ext-96" onLoad="rolloverLoad('side-ext-96','../graphics/ext-96-label-2.jpg','../graphics/ext-96-label-3.jpg');" src="../graphics/ext-96-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://marc.theaimsgroup.com/?l=xerces-c-dev" onMouseOut="rolloverOff('side-ext-98');" onMouseOver="rolloverOn('side-ext-98');"><IMG alt="Mail Archive" border="0" height="12" hspace="0" name="side-ext-98" onLoad="rolloverLoad('side-ext-98','../graphics/ext-98-label-2.jpg','../graphics/ext-98-label-3.jpg');" src="../graphics/ext-98-label-3.jpg" vspace="0" width="120"></A><BR>
+
+<IMG border="0" height="14" hspace="0" src="../resources/close.gif" vspace="0" width="120"><BR></TD><TD align="left" valign="top" width="500"><TABLE border="0" cellpadding="3" cellspacing="0"><TR><TD>
+    <TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#FFFFFF" colspan="2" width="494"><TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#039acc" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#039acc" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#039acc" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" width="492"><FONT color="#ffffff" face="arial,helvetica,sanserif" size="+1"><IMG border="0" height="2" hspace="0" src="../resources/void.gif" vspace="0" width="2"><B>API Docs for SAX and DOM</B></FONT></TD><TD bgcolor="#017299" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#017299" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#017299" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></TD></TR><TR><TD width="10">&nbsp;</TD><TD width="484"><FONT color="#000000" face="arial,helvetica,sanserif">
+
+	    <P>
+<!-- Generated by Doxygen 1.2.14 -->
+<center>
+<a class="qindex" href="index.html">Main Page</a> &nbsp; <a class="qindex" href="hierarchy.html">Class Hierarchy</a> &nbsp; <a class="qindex" href="classes.html">Alphabetical List</a> &nbsp; <a class="qindex" href="annotated.html">Compound List</a> &nbsp; <a class="qindex" href="files.html">File List</a> &nbsp; <a class="qindex" href="functions.html">Compound Members</a> &nbsp; <a class="qindex" href="globals.html">File Members</a> &nbsp; </center>
+<hr><h1>XMLErrorCodes.hpp</h1><a href="XMLErrorCodes_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><pre>00001 <font class="comment">// This file is generated, don't edit it!!</font>
+00002 
+00003 <font class="preprocessor">#if !defined(ERRHEADER_XMLErrs)</font>
+<a name="l00004"></a><a class="code" href="XMLErrorCodes_8hpp.html#a0">00004</a> <font class="preprocessor"></font><font class="preprocessor">#define ERRHEADER_XMLErrs</font>
+00005 <font class="preprocessor"></font>
+00006 <font class="preprocessor">#include &lt;<a class="code" href="XMLErrorReporter_8hpp.html">xercesc/framework/XMLErrorReporter.hpp</a>&gt;</font>
+00007 <font class="preprocessor">#include &lt;<a class="code" href="XercesDefs_8hpp.html">xercesc/util/XercesDefs.hpp</a>&gt;</font>
+00008 <font class="preprocessor">#include &lt;<a class="code" href="DOMError_8hpp.html">xercesc/dom/DOMError.hpp</a>&gt;</font>
+00009 
+00010 <a class="code" href="XercesDefs_8hpp.html#a2">XERCES_CPP_NAMESPACE_BEGIN</a>
+00011 
+<a name="l00012"></a><a class="code" href="classXMLErrs.html">00012</a> <font class="keyword">class </font><a class="code" href="classXMLErrs.html">XMLErrs</a>
+00013 {
+00014 <font class="keyword">public</font> :
+<a name="l00015"></a><a class="code" href="classXMLErrs.html#s308">00015</a>     <font class="keyword">enum</font> <a class="code" href="classXMLErrs.html#s308">Codes</a>
+00016     {
+00017         <a class="code" href="classXMLErrs.html#s308s0">NoError</a>                            = 0
+00018       , <a class="code" href="classXMLErrs.html#s308s1">W_LowBounds</a>                        = 1
+00019       , <a class="code" href="classXMLErrs.html#s308s2">NotationAlreadyExists</a>              = 2
+00020       , <a class="code" href="classXMLErrs.html#s308s3">AttListAlreadyExists</a>               = 3
+00021       , <a class="code" href="classXMLErrs.html#s308s4">ContradictoryEncoding</a>              = 4
+00022       , <a class="code" href="classXMLErrs.html#s308s5">UndeclaredElemInCM</a>                 = 5
+00023       , <a class="code" href="classXMLErrs.html#s308s6">UndeclaredElemInAttList</a>            = 6
+00024       , <a class="code" href="classXMLErrs.html#s308s7">XMLException_Warning</a>               = 7
+00025       , <a class="code" href="classXMLErrs.html#s308s8">W_HighBounds</a>                       = 8
+00026       , <a class="code" href="classXMLErrs.html#s308s9">E_LowBounds</a>                        = 9
+00027       , <a class="code" href="classXMLErrs.html#s308s10">FeatureUnsupported</a>                 = 10
+00028       , <a class="code" href="classXMLErrs.html#s308s11">TopLevelNoNameComplexType</a>          = 11
+00029       , <a class="code" href="classXMLErrs.html#s308s12">TopLevelNoNameAttribute</a>            = 12
+00030       , <a class="code" href="classXMLErrs.html#s308s13">NoNameRefAttribute</a>                 = 13
+00031       , <a class="code" href="classXMLErrs.html#s308s14">GlobalNoNameElement</a>                = 14
+00032       , <a class="code" href="classXMLErrs.html#s308s15">NoNameRefElement</a>                   = 15
+00033       , <a class="code" href="classXMLErrs.html#s308s16">NoNameRefGroup</a>                     = 16
+00034       , <a class="code" href="classXMLErrs.html#s308s17">NoNameRefAttGroup</a>                  = 17
+00035       , <a class="code" href="classXMLErrs.html#s308s18">AnonComplexTypeWithName</a>            = 18
+00036       , <a class="code" href="classXMLErrs.html#s308s19">AnonSimpleTypeWithName</a>             = 19
+00037       , <a class="code" href="classXMLErrs.html#s308s20">InvalidElementContent</a>              = 20
+00038       , <a class="code" href="classXMLErrs.html#s308s21">UntypedElement</a>                     = 21
+00039       , <a class="code" href="classXMLErrs.html#s308s22">SimpleTypeContentError</a>             = 22
+00040       , <a class="code" href="classXMLErrs.html#s308s23">ExpectedSimpleTypeInList</a>           = 23
+00041       , <a class="code" href="classXMLErrs.html#s308s24">ListUnionRestrictionError</a>          = 24
+00042       , <a class="code" href="classXMLErrs.html#s308s25">SimpleTypeDerivationByListError</a>    = 25
+00043       , <a class="code" href="classXMLErrs.html#s308s26">ExpectedSimpleTypeInRestriction</a>    = 26
+00044       , <a class="code" href="classXMLErrs.html#s308s27">DuplicateFacet</a>                     = 27
+00045       , <a class="code" href="classXMLErrs.html#s308s28">ExpectedSimpleTypeInUnion</a>          = 28
+00046       , <a class="code" href="classXMLErrs.html#s308s29">EmptySimpleTypeContent</a>             = 29
+00047       , <a class="code" href="classXMLErrs.html#s308s30">InvalidSimpleContent</a>               = 30
+00048       , <a class="code" href="classXMLErrs.html#s308s31">UnspecifiedBase</a>                    = 31
+00049       , <a class="code" href="classXMLErrs.html#s308s32">InvalidComplexContent</a>              = 32
+00050       , <a class="code" href="classXMLErrs.html#s308s33">SchemaElementContentError</a>          = 33
+00051       , <a class="code" href="classXMLErrs.html#s308s34">ContentError</a>                       = 34
+00052       , <a class="code" href="classXMLErrs.html#s308s35">UnknownSimpleType</a>                  = 35
+00053       , <a class="code" href="classXMLErrs.html#s308s36">UnknownComplexType</a>                 = 36
+00054       , <a class="code" href="classXMLErrs.html#s308s37">UnresolvedPrefix</a>                   = 37
+00055       , <a class="code" href="classXMLErrs.html#s308s38">RefElementNotFound</a>                 = 38
+00056       , <a class="code" href="classXMLErrs.html#s308s39">TypeNotFound</a>                       = 39
+00057       , <a class="code" href="classXMLErrs.html#s308s40">TopLevelAttributeNotFound</a>          = 40
+00058       , <a class="code" href="classXMLErrs.html#s308s41">InvalidChildInComplexType</a>          = 41
+00059       , <a class="code" href="classXMLErrs.html#s308s42">BaseTypeNotFound</a>                   = 42
+00060       , <a class="code" href="classXMLErrs.html#s308s43">NoAttributeInSchema</a>                = 43
+00061       , <a class="code" href="classXMLErrs.html#s308s44">DatatypeValidatorCreationError</a>     = 44
+00062       , <a class="code" href="classXMLErrs.html#s308s45">InvalidChildFollowingSimpleContent</a>   = 45
+00063       , <a class="code" href="classXMLErrs.html#s308s46">InvalidChildFollowingConplexContent</a>   = 46
+00064       , <a class="code" href="classXMLErrs.html#s308s47">InvalidComplexTypeBlockValue</a>       = 47
+00065       , <a class="code" href="classXMLErrs.html#s308s48">InvalidComplexTypeFinalValue</a>       = 48
+00066       , <a class="code" href="classXMLErrs.html#s308s49">AttributeDefaultFixedValue</a>         = 49
+00067       , <a class="code" href="classXMLErrs.html#s308s50">NotOptionalDefaultAttValue</a>         = 50
+00068       , <a class="code" href="classXMLErrs.html#s308s51">LocalAttributeWithNameRef</a>          = 51
+00069       , <a class="code" href="classXMLErrs.html#s308s52">GlobalAttributeWithNameRef</a>         = 52
+00070       , <a class="code" href="classXMLErrs.html#s308s53">DuplicateAttribute</a>                 = 53
+00071       , <a class="code" href="classXMLErrs.html#s308s54">AttributeWithTypeAndSimpleType</a>     = 54
+00072       , <a class="code" href="classXMLErrs.html#s308s55">AttributeSimpleTypeNotFound</a>        = 55
+00073       , <a class="code" href="classXMLErrs.html#s308s56">ElementWithFixedAndDefault</a>         = 56
+00074       , <a class="code" href="classXMLErrs.html#s308s57">DeclarationWithNameRef</a>             = 57
+00075       , <a class="code" href="classXMLErrs.html#s308s58">BadAttWithRef</a>                      = 58
+00076       , <a class="code" href="classXMLErrs.html#s308s59">InvalidDeclarationName</a>             = 59
+00077       , <a class="code" href="classXMLErrs.html#s308s60">GlobalElementWithRef</a>               = 60
+00078       , <a class="code" href="classXMLErrs.html#s308s61">ElementWithTypeAndAnonType</a>         = 61
+00079       , <a class="code" href="classXMLErrs.html#s308s62">NotSimpleOrMixedElement</a>            = 62
+00080       , <a class="code" href="classXMLErrs.html#s308s63">DisallowedSimpleTypeExtension</a>      = 63
+00081       , <a class="code" href="classXMLErrs.html#s308s64">InvalidSimpleContentBase</a>           = 64
+00082       , <a class="code" href="classXMLErrs.html#s308s65">InvalidComplexTypeBase</a>             = 65
+00083       , <a class="code" href="classXMLErrs.html#s308s66">InvalidChildInSimpleContent</a>        = 66
+00084       , <a class="code" href="classXMLErrs.html#s308s67">InvalidChildInComplexContent</a>       = 67
+00085       , <a class="code" href="classXMLErrs.html#s308s68">AnnotationError</a>                    = 68
+00086       , <a class="code" href="classXMLErrs.html#s308s69">DisallowedBaseDerivation</a>           = 69
+00087       , <a class="code" href="classXMLErrs.html#s308s70">SubstitutionRepeated</a>               = 70
+00088       , <a class="code" href="classXMLErrs.html#s308s71">UnionRepeated</a>                      = 71
+00089       , <a class="code" href="classXMLErrs.html#s308s72">ExtensionRepeated</a>                  = 72
+00090       , <a class="code" href="classXMLErrs.html#s308s73">ListRepeated</a>                       = 73
+00091       , <a class="code" href="classXMLErrs.html#s308s74">RestrictionRepeated</a>                = 74
+00092       , <a class="code" href="classXMLErrs.html#s308s75">InvalidBlockValue</a>                  = 75
+00093       , <a class="code" href="classXMLErrs.html#s308s76">InvalidFinalValue</a>                  = 76
+00094       , <a class="code" href="classXMLErrs.html#s308s77">InvalidSubstitutionGroupElement</a>    = 77
+00095       , <a class="code" href="classXMLErrs.html#s308s78">SubstitutionGroupTypeMismatch</a>      = 78
+00096       , <a class="code" href="classXMLErrs.html#s308s79">DuplicateElementDeclaration</a>        = 79
+00097       , <a class="code" href="classXMLErrs.html#s308s80">InvalidElementBlockValue</a>           = 80
+00098       , <a class="code" href="classXMLErrs.html#s308s81">InvalidElementFinalValue</a>           = 81
+00099       , <a class="code" href="classXMLErrs.html#s308s82">InvalidAttValue</a>                    = 82
+00100       , <a class="code" href="classXMLErrs.html#s308s83">AttributeRefContentError</a>           = 83
+00101       , <a class="code" href="classXMLErrs.html#s308s84">DuplicateRefAttribute</a>              = 84
+00102       , <a class="code" href="classXMLErrs.html#s308s85">ForbiddenDerivationByRestriction</a>   = 85
+00103       , <a class="code" href="classXMLErrs.html#s308s86">ForbiddenDerivationByExtension</a>     = 86
+00104       , <a class="code" href="classXMLErrs.html#s308s87">BaseNotComplexType</a>                 = 87
+00105       , <a class="code" href="classXMLErrs.html#s308s88">ImportNamespaceDifference</a>          = 88
+00106       , <a class="code" href="classXMLErrs.html#s308s89">ImportRootError</a>                    = 89
+00107       , <a class="code" href="classXMLErrs.html#s308s90">DeclarationNoSchemaLocation</a>        = 90
+00108       , <a class="code" href="classXMLErrs.html#s308s91">IncludeNamespaceDifference</a>         = 91
+00109       , <a class="code" href="classXMLErrs.html#s308s92">OnlyAnnotationExpected</a>             = 92
+00110       , <a class="code" href="classXMLErrs.html#s308s93">InvalidAttributeContent</a>            = 93
+00111       , <a class="code" href="classXMLErrs.html#s308s94">AttributeRequired</a>                  = 94
+00112       , <a class="code" href="classXMLErrs.html#s308s95">AttributeDisallowed</a>                = 95
+00113       , <a class="code" href="classXMLErrs.html#s308s96">InvalidMin2MaxOccurs</a>               = 96
+00114       , <a class="code" href="classXMLErrs.html#s308s97">AnyAttributeContentError</a>           = 97
+00115       , <a class="code" href="classXMLErrs.html#s308s98">NoNameGlobalElement</a>                = 98
+00116       , <a class="code" href="classXMLErrs.html#s308s99">NoCircularDefinition</a>               = 99
+00117       , <a class="code" href="classXMLErrs.html#s308s100">DuplicateGlobalType</a>                = 100
+00118       , <a class="code" href="classXMLErrs.html#s308s101">DuplicateGlobalDeclaration</a>         = 101
+00119       , <a class="code" href="classXMLErrs.html#s308s102">WS_CollapseExpected</a>                = 102
+00120       , <a class="code" href="classXMLErrs.html#s308s103">Import_1_1</a>                         = 103
+00121       , <a class="code" href="classXMLErrs.html#s308s104">Import_1_2</a>                         = 104
+00122       , <a class="code" href="classXMLErrs.html#s308s105">ElemIDValueConstraint</a>              = 105
+00123       , <a class="code" href="classXMLErrs.html#s308s106">NoNotationType</a>                     = 106
+00124       , <a class="code" href="classXMLErrs.html#s308s107">EmptiableMixedContent</a>              = 107
+00125       , <a class="code" href="classXMLErrs.html#s308s108">EmptyComplexRestrictionDerivation</a>   = 108
+00126       , <a class="code" href="classXMLErrs.html#s308s109">MixedOrElementOnly</a>                 = 109
+00127       , <a class="code" href="classXMLErrs.html#s308s110">InvalidContentRestriction</a>          = 110
+00128       , <a class="code" href="classXMLErrs.html#s308s111">ForbiddenDerivation</a>                = 111
+00129       , <a class="code" href="classXMLErrs.html#s308s112">AtomicItemType</a>                     = 112
+00130       , <a class="code" href="classXMLErrs.html#s308s113">MemberTypeNoUnion</a>                  = 113
+00131       , <a class="code" href="classXMLErrs.html#s308s114">GroupContentError</a>                  = 114
+00132       , <a class="code" href="classXMLErrs.html#s308s115">AttGroupContentError</a>               = 115
+00133       , <a class="code" href="classXMLErrs.html#s308s116">MinMaxOnGroupChild</a>                 = 116
+00134       , <a class="code" href="classXMLErrs.html#s308s117">DeclarationNotFound</a>                = 117
+00135       , <a class="code" href="classXMLErrs.html#s308s118">AllContentLimited</a>                  = 118
+00136       , <a class="code" href="classXMLErrs.html#s308s119">BadMinMaxAllCT</a>                     = 119
+00137       , <a class="code" href="classXMLErrs.html#s308s120">BadMinMaxAllElem</a>                   = 120
+00138       , <a class="code" href="classXMLErrs.html#s308s121">NoCircularAttGroup</a>                 = 121
+00139       , <a class="code" href="classXMLErrs.html#s308s122">DuplicateAttInDerivation</a>           = 122
+00140       , <a class="code" href="classXMLErrs.html#s308s123">NotExpressibleWildCardIntersection</a>   = 123
+00141       , <a class="code" href="classXMLErrs.html#s308s124">BadAttDerivation_1</a>                 = 124
+00142       , <a class="code" href="classXMLErrs.html#s308s125">BadAttDerivation_2</a>                 = 125
+00143       , <a class="code" href="classXMLErrs.html#s308s126">BadAttDerivation_3</a>                 = 126
+00144       , <a class="code" href="classXMLErrs.html#s308s127">BadAttDerivation_4</a>                 = 127
+00145       , <a class="code" href="classXMLErrs.html#s308s128">BadAttDerivation_5</a>                 = 128
+00146       , <a class="code" href="classXMLErrs.html#s308s129">BadAttDerivation_6</a>                 = 129
+00147       , <a class="code" href="classXMLErrs.html#s308s130">BadAttDerivation_7</a>                 = 130
+00148       , <a class="code" href="classXMLErrs.html#s308s131">BadAttDerivation_8</a>                 = 131
+00149       , <a class="code" href="classXMLErrs.html#s308s132">BadAttDerivation_9</a>                 = 132
+00150       , <a class="code" href="classXMLErrs.html#s308s133">AllContentError</a>                    = 133
+00151       , <a class="code" href="classXMLErrs.html#s308s134">RedefineNamespaceDifference</a>        = 134
+00152       , <a class="code" href="classXMLErrs.html#s308s135">Redefine_InvalidSimpleType</a>         = 135
+00153       , <a class="code" href="classXMLErrs.html#s308s136">Redefine_InvalidSimpleTypeBase</a>     = 136
+00154       , <a class="code" href="classXMLErrs.html#s308s137">Redefine_InvalidComplexType</a>        = 137
+00155       , <a class="code" href="classXMLErrs.html#s308s138">Redefine_InvalidComplexTypeBase</a>    = 138
+00156       , <a class="code" href="classXMLErrs.html#s308s139">Redefine_InvalidGroupMinMax</a>        = 139
+00157       , <a class="code" href="classXMLErrs.html#s308s140">Redefine_DeclarationNotFound</a>       = 140
+00158       , <a class="code" href="classXMLErrs.html#s308s141">Redefine_GroupRefCount</a>             = 141
+00159       , <a class="code" href="classXMLErrs.html#s308s142">Redefine_AttGroupRefCount</a>          = 142
+00160       , <a class="code" href="classXMLErrs.html#s308s143">Redefine_InvalidChild</a>              = 143
+00161       , <a class="code" href="classXMLErrs.html#s308s144">Notation_InvalidDecl</a>               = 144
+00162       , <a class="code" href="classXMLErrs.html#s308s145">Notation_DeclNotFound</a>              = 145
+00163       , <a class="code" href="classXMLErrs.html#s308s146">IC_DuplicateDecl</a>                   = 146
+00164       , <a class="code" href="classXMLErrs.html#s308s147">IC_BadContent</a>                      = 147
+00165       , <a class="code" href="classXMLErrs.html#s308s148">IC_KeyRefReferNotFound</a>             = 148
+00166       , <a class="code" href="classXMLErrs.html#s308s149">IC_KeyRefCardinality</a>               = 149
+00167       , <a class="code" href="classXMLErrs.html#s308s150">IC_XPathExprMissing</a>                = 150
+00168       , <a class="code" href="classXMLErrs.html#s308s151">AttUseCorrect</a>                      = 151
+00169       , <a class="code" href="classXMLErrs.html#s308s152">AttDeclPropCorrect3</a>                = 152
+00170       , <a class="code" href="classXMLErrs.html#s308s153">AttDeclPropCorrect5</a>                = 153
+00171       , <a class="code" href="classXMLErrs.html#s308s154">AttGrpPropCorrect3</a>                 = 154
+00172       , <a class="code" href="classXMLErrs.html#s308s155">InvalidTargetNSValue</a>               = 155
+00173       , <a class="code" href="classXMLErrs.html#s308s156">DisplayErrorMessage</a>                = 156
+00174       , <a class="code" href="classXMLErrs.html#s308s157">XMLException_Error</a>                 = 157
+00175       , <a class="code" href="classXMLErrs.html#s308s158">InvalidRedefine</a>                    = 158
+00176       , <a class="code" href="classXMLErrs.html#s308s159">InvalidNSReference</a>                 = 159
+00177       , <a class="code" href="classXMLErrs.html#s308s160">NotAllContent</a>                      = 160
+00178       , <a class="code" href="classXMLErrs.html#s308s161">InvalidAnnotationContent</a>           = 161
+00179       , <a class="code" href="classXMLErrs.html#s308s162">InvalidFacetName</a>                   = 162
+00180       , <a class="code" href="classXMLErrs.html#s308s163">InvalidXMLSchemaRoot</a>               = 163
+00181       , <a class="code" href="classXMLErrs.html#s308s164">CircularSubsGroup</a>                  = 164
+00182       , <a class="code" href="classXMLErrs.html#s308s165">SubsGroupMemberAbstract</a>            = 165
+00183       , <a class="code" href="classXMLErrs.html#s308s166">ELTSchemaNS</a>                        = 166
+00184       , <a class="code" href="classXMLErrs.html#s308s167">InvalidAttTNS</a>                      = 167
+00185       , <a class="code" href="classXMLErrs.html#s308s168">NSDeclInvalid</a>                      = 168
+00186       , <a class="code" href="classXMLErrs.html#s308s169">DOMLevel1Node</a>                      = 169
+00187       , <a class="code" href="classXMLErrs.html#s308s170">E_HighBounds</a>                       = 170
+00188       , <a class="code" href="classXMLErrs.html#s308s171">F_LowBounds</a>                        = 171
+00189       , <a class="code" href="classXMLErrs.html#s308s172">EntityExpansionLimitExceeded</a>       = 172
+00190       , <a class="code" href="classXMLErrs.html#s308s173">ExpectedCommentOrCDATA</a>             = 173
+00191       , <a class="code" href="classXMLErrs.html#s308s174">ExpectedAttrName</a>                   = 174
+00192       , <a class="code" href="classXMLErrs.html#s308s175">ExpectedNotationName</a>               = 175
+00193       , <a class="code" href="classXMLErrs.html#s308s176">NoRepInMixed</a>                       = 176
+00194       , <a class="code" href="classXMLErrs.html#s308s177">BadDefAttrDecl</a>                     = 177
+00195       , <a class="code" href="classXMLErrs.html#s308s178">ExpectedDefAttrDecl</a>                = 178
+00196       , <a class="code" href="classXMLErrs.html#s308s179">AttListSyntaxError</a>                 = 179
+00197       , <a class="code" href="classXMLErrs.html#s308s180">ExpectedEqSign</a>                     = 180
+00198       , <a class="code" href="classXMLErrs.html#s308s181">DupAttrName</a>                        = 181
+00199       , <a class="code" href="classXMLErrs.html#s308s182">BadIdForXMLLangAttr</a>                = 182
+00200       , <a class="code" href="classXMLErrs.html#s308s183">ExpectedElementName</a>                = 183
+00201       , <a class="code" href="classXMLErrs.html#s308s184">MustStartWithXMLDecl</a>               = 184
+00202       , <a class="code" href="classXMLErrs.html#s308s185">CommentsMustStartWith</a>              = 185
+00203       , <a class="code" href="classXMLErrs.html#s308s186">InvalidDocumentStructure</a>           = 186
+00204       , <a class="code" href="classXMLErrs.html#s308s187">ExpectedDeclString</a>                 = 187
+00205       , <a class="code" href="classXMLErrs.html#s308s188">BadXMLVersion</a>                      = 188
+00206       , <a class="code" href="classXMLErrs.html#s308s189">UnsupportedXMLVersion</a>              = 189
+00207       , <a class="code" href="classXMLErrs.html#s308s190">UnterminatedXMLDecl</a>                = 190
+00208       , <a class="code" href="classXMLErrs.html#s308s191">BadXMLEncoding</a>                     = 191
+00209       , <a class="code" href="classXMLErrs.html#s308s192">BadStandalone</a>                      = 192
+00210       , <a class="code" href="classXMLErrs.html#s308s193">UnterminatedComment</a>                = 193
+00211       , <a class="code" href="classXMLErrs.html#s308s194">PINameExpected</a>                     = 194
+00212       , <a class="code" href="classXMLErrs.html#s308s195">UnterminatedPI</a>                     = 195
+00213       , <a class="code" href="classXMLErrs.html#s308s196">InvalidCharacter</a>                   = 196
+00214       , <a class="code" href="classXMLErrs.html#s308s197">UnexpectedTextBeforeRoot</a>           = 197
+00215       , <a class="code" href="classXMLErrs.html#s308s198">UnterminatedStartTag</a>               = 198
+00216       , <a class="code" href="classXMLErrs.html#s308s199">ExpectedAttrValue</a>                  = 199
+00217       , <a class="code" href="classXMLErrs.html#s308s200">UnterminatedEndTag</a>                 = 200
+00218       , <a class="code" href="classXMLErrs.html#s308s201">ExpectedAttributeType</a>              = 201
+00219       , <a class="code" href="classXMLErrs.html#s308s202">ExpectedEndOfTagX</a>                  = 202
+00220       , <a class="code" href="classXMLErrs.html#s308s203">ExpectedMarkup</a>                     = 203
+00221       , <a class="code" href="classXMLErrs.html#s308s204">NotValidAfterContent</a>               = 204
+00222       , <a class="code" href="classXMLErrs.html#s308s205">ExpectedComment</a>                    = 205
+00223       , <a class="code" href="classXMLErrs.html#s308s206">ExpectedCommentOrPI</a>                = 206
+00224       , <a class="code" href="classXMLErrs.html#s308s207">ExpectedWhitespace</a>                 = 207
+00225       , <a class="code" href="classXMLErrs.html#s308s208">NoRootElemInDOCTYPE</a>                = 208
+00226       , <a class="code" href="classXMLErrs.html#s308s209">ExpectedQuotedString</a>               = 209
+00227       , <a class="code" href="classXMLErrs.html#s308s210">ExpectedPublicId</a>                   = 210
+00228       , <a class="code" href="classXMLErrs.html#s308s211">InvalidPublicIdChar</a>                = 211
+00229       , <a class="code" href="classXMLErrs.html#s308s212">UnterminatedDOCTYPE</a>                = 212
+00230       , <a class="code" href="classXMLErrs.html#s308s213">InvalidCharacterInIntSubset</a>        = 213
+00231       , <a class="code" href="classXMLErrs.html#s308s214">ExpectedCDATA</a>                      = 214
+00232       , <a class="code" href="classXMLErrs.html#s308s215">InvalidInitialNameChar</a>             = 215
+00233       , <a class="code" href="classXMLErrs.html#s308s216">InvalidNameChar</a>                    = 216
+00234       , <a class="code" href="classXMLErrs.html#s308s217">UnexpectedWhitespace</a>               = 217
+00235       , <a class="code" href="classXMLErrs.html#s308s218">InvalidCharacterInAttrValue</a>        = 218
+00236       , <a class="code" href="classXMLErrs.html#s308s219">ExpectedMarkupDecl</a>                 = 219
+00237       , <a class="code" href="classXMLErrs.html#s308s220">TextDeclNotLegalHere</a>               = 220
+00238       , <a class="code" href="classXMLErrs.html#s308s221">ConditionalSectInIntSubset</a>         = 221
+00239       , <a class="code" href="classXMLErrs.html#s308s222">ExpectedPEName</a>                     = 222
+00240       , <a class="code" href="classXMLErrs.html#s308s223">UnterminatedEntityDecl</a>             = 223
+00241       , <a class="code" href="classXMLErrs.html#s308s224">InvalidCharacterRef</a>                = 224
+00242       , <a class="code" href="classXMLErrs.html#s308s225">UnterminatedCharRef</a>                = 225
+00243       , <a class="code" href="classXMLErrs.html#s308s226">ExpectedEntityRefName</a>              = 226
+00244       , <a class="code" href="classXMLErrs.html#s308s227">EntityNotFound</a>                     = 227
+00245       , <a class="code" href="classXMLErrs.html#s308s228">NoUnparsedEntityRefs</a>               = 228
+00246       , <a class="code" href="classXMLErrs.html#s308s229">UnterminatedEntityRef</a>              = 229
+00247       , <a class="code" href="classXMLErrs.html#s308s230">RecursiveEntity</a>                    = 230
+00248       , <a class="code" href="classXMLErrs.html#s308s231">PartialMarkupInEntity</a>              = 231
+00249       , <a class="code" href="classXMLErrs.html#s308s232">UnterminatedElementDecl</a>            = 232
+00250       , <a class="code" href="classXMLErrs.html#s308s233">ExpectedContentSpecExpr</a>            = 233
+00251       , <a class="code" href="classXMLErrs.html#s308s234">ExpectedAsterisk</a>                   = 234
+00252       , <a class="code" href="classXMLErrs.html#s308s235">UnterminatedContentModel</a>           = 235
+00253       , <a class="code" href="classXMLErrs.html#s308s236">ExpectedSystemId</a>                   = 236
+00254       , <a class="code" href="classXMLErrs.html#s308s237">ExpectedSystemOrPublicId</a>           = 237
+00255       , <a class="code" href="classXMLErrs.html#s308s238">UnterminatedNotationDecl</a>           = 238
+00256       , <a class="code" href="classXMLErrs.html#s308s239">ExpectedSeqChoiceLeaf</a>              = 239
+00257       , <a class="code" href="classXMLErrs.html#s308s240">ExpectedChoiceOrCloseParen</a>         = 240
+00258       , <a class="code" href="classXMLErrs.html#s308s241">ExpectedSeqOrCloseParen</a>            = 241
+00259       , <a class="code" href="classXMLErrs.html#s308s242">ExpectedEnumValue</a>                  = 242
+00260       , <a class="code" href="classXMLErrs.html#s308s243">ExpectedEnumSepOrParen</a>             = 243
+00261       , <a class="code" href="classXMLErrs.html#s308s244">UnterminatedEntityLiteral</a>          = 244
+00262       , <a class="code" href="classXMLErrs.html#s308s245">MoreEndThanStartTags</a>               = 245
+00263       , <a class="code" href="classXMLErrs.html#s308s246">ExpectedOpenParen</a>                  = 246
+00264       , <a class="code" href="classXMLErrs.html#s308s247">AttrAlreadyUsedInSTag</a>              = 247
+00265       , <a class="code" href="classXMLErrs.html#s308s248">BracketInAttrValue</a>                 = 248
+00266       , <a class="code" href="classXMLErrs.html#s308s249">Expected2ndSurrogateChar</a>           = 249
+00267       , <a class="code" href="classXMLErrs.html#s308s250">ExpectedEndOfConditional</a>           = 250
+00268       , <a class="code" href="classXMLErrs.html#s308s251">ExpectedIncOrIgn</a>                   = 251
+00269       , <a class="code" href="classXMLErrs.html#s308s252">ExpectedINCLUDEBracket</a>             = 252
+00270       , <a class="code" href="classXMLErrs.html#s308s253">ExpectedTextDecl</a>                   = 253
+00271       , <a class="code" href="classXMLErrs.html#s308s254">ExpectedXMLDecl</a>                    = 254
+00272       , <a class="code" href="classXMLErrs.html#s308s255">UnexpectedEOE</a>                      = 255
+00273       , <a class="code" href="classXMLErrs.html#s308s256">PEPropogated</a>                       = 256
+00274       , <a class="code" href="classXMLErrs.html#s308s257">ExtraCloseSquare</a>                   = 257
+00275       , <a class="code" href="classXMLErrs.html#s308s258">PERefInMarkupInIntSubset</a>           = 258
+00276       , <a class="code" href="classXMLErrs.html#s308s259">EntityPropogated</a>                   = 259
+00277       , <a class="code" href="classXMLErrs.html#s308s260">ExpectedNumericalCharRef</a>           = 260
+00278       , <a class="code" href="classXMLErrs.html#s308s261">ExpectedOpenSquareBracket</a>          = 261
+00279       , <a class="code" href="classXMLErrs.html#s308s262">BadSequenceInCharData</a>              = 262
+00280       , <a class="code" href="classXMLErrs.html#s308s263">IllegalSequenceInComment</a>           = 263
+00281       , <a class="code" href="classXMLErrs.html#s308s264">UnterminatedCDATASection</a>           = 264
+00282       , <a class="code" href="classXMLErrs.html#s308s265">ExpectedNDATA</a>                      = 265
+00283       , <a class="code" href="classXMLErrs.html#s308s266">NDATANotValidForPE</a>                 = 266
+00284       , <a class="code" href="classXMLErrs.html#s308s267">HexRadixMustBeLowerCase</a>            = 267
+00285       , <a class="code" href="classXMLErrs.html#s308s268">DeclStringRep</a>                      = 268
+00286       , <a class="code" href="classXMLErrs.html#s308s269">DeclStringsInWrongOrder</a>            = 269
+00287       , <a class="code" href="classXMLErrs.html#s308s270">NoExtRefsInAttValue</a>                = 270
+00288       , <a class="code" href="classXMLErrs.html#s308s271">XMLDeclMustBeLowerCase</a>             = 271
+00289       , <a class="code" href="classXMLErrs.html#s308s272">ExpectedEntityValue</a>                = 272
+00290       , <a class="code" href="classXMLErrs.html#s308s273">BadDigitForRadix</a>                   = 273
+00291       , <a class="code" href="classXMLErrs.html#s308s274">EndedWithTagsOnStack</a>               = 274
+00292       , <a class="code" href="classXMLErrs.html#s308s275">AmbiguousContentModel</a>              = 275
+00293       , <a class="code" href="classXMLErrs.html#s308s276">NestedCDATA</a>                        = 276
+00294       , <a class="code" href="classXMLErrs.html#s308s277">UnknownPrefix</a>                      = 277
+00295       , <a class="code" href="classXMLErrs.html#s308s278">PartialTagMarkupError</a>              = 278
+00296       , <a class="code" href="classXMLErrs.html#s308s279">EmptyMainEntity</a>                    = 279
+00297       , <a class="code" href="classXMLErrs.html#s308s280">CDATAOutsideOfContent</a>              = 280
+00298       , <a class="code" href="classXMLErrs.html#s308s281">OnlyCharRefsAllowedHere</a>            = 281
+00299       , <a class="code" href="classXMLErrs.html#s308s282">Unexpected2ndSurrogateChar</a>         = 282
+00300       , <a class="code" href="classXMLErrs.html#s308s283">NoPIStartsWithXML</a>                  = 283
+00301       , <a class="code" href="classXMLErrs.html#s308s284">XMLDeclMustBeFirst</a>                 = 284
+00302       , <a class="code" href="classXMLErrs.html#s308s285">XMLVersionRequired</a>                 = 285
+00303       , <a class="code" href="classXMLErrs.html#s308s286">StandaloneNotLegal</a>                 = 286
+00304       , <a class="code" href="classXMLErrs.html#s308s287">EncodingRequired</a>                   = 287
+00305       , <a class="code" href="classXMLErrs.html#s308s288">TooManyColonsInName</a>                = 288
+00306       , <a class="code" href="classXMLErrs.html#s308s289">InvalidColonPos</a>                    = 289
+00307       , <a class="code" href="classXMLErrs.html#s308s290">ColonNotLegalWithNS</a>                = 290
+00308       , <a class="code" href="classXMLErrs.html#s308s291">SysException</a>                       = 291
+00309       , <a class="code" href="classXMLErrs.html#s308s292">XMLException_Fatal</a>                 = 292
+00310       , <a class="code" href="classXMLErrs.html#s308s293">UnexpectedEOF</a>                      = 293
+00311       , <a class="code" href="classXMLErrs.html#s308s294">UnexpectedError</a>                    = 294
+00312       , <a class="code" href="classXMLErrs.html#s308s295">BadSchemaLocation</a>                  = 295
+00313       , <a class="code" href="classXMLErrs.html#s308s296">NoGrammarResolver</a>                  = 296
+00314       , <a class="code" href="classXMLErrs.html#s308s297">SchemaScanFatalError</a>               = 297
+00315       , <a class="code" href="classXMLErrs.html#s308s298">IllegalRefInStandalone</a>             = 298
+00316       , <a class="code" href="classXMLErrs.html#s308s299">PEBetweenDecl</a>                      = 299
+00317       , <a class="code" href="classXMLErrs.html#s308s300">NoEmptyStrNamespace</a>                = 300
+00318       , <a class="code" href="classXMLErrs.html#s308s301">NoUseOfxmlnsAsPrefix</a>               = 301
+00319       , <a class="code" href="classXMLErrs.html#s308s302">NoUseOfxmlnsURI</a>                    = 302
+00320       , <a class="code" href="classXMLErrs.html#s308s303">PrefixXMLNotMatchXMLURI</a>            = 303
+00321       , <a class="code" href="classXMLErrs.html#s308s304">XMLURINotMatchXMLPrefix</a>            = 304
+00322       , <a class="code" href="classXMLErrs.html#s308s305">NoXMLNSAsElementPrefix</a>             = 305
+00323       , <a class="code" href="classXMLErrs.html#s308s306">CT_SimpleTypeChildRequired</a>         = 306
+00324       , <a class="code" href="classXMLErrs.html#s308s307">F_HighBounds</a>                       = 307
+00325     };
+00326 
+<a name="l00327"></a><a class="code" href="classXMLErrs.html#d0">00327</a>     <font class="keyword">static</font> <font class="keywordtype">bool</font> <a class="code" href="classXMLErrs.html#d0">isFatal</a>(<font class="keyword">const</font> <a class="code" href="classXMLErrs.html#s308">XMLErrs::Codes</a> toCheck)
+00328     {
+00329         <font class="keywordflow">return</font> ((toCheck &gt;= <a class="code" href="classXMLErrs.html#s308s171">F_LowBounds</a>) &amp;&amp; (toCheck &lt;= <a class="code" href="classXMLErrs.html#s308s307">F_HighBounds</a>));
+00330     }
+00331 
+<a name="l00332"></a><a class="code" href="classXMLErrs.html#d1">00332</a>     <font class="keyword">static</font> <font class="keywordtype">bool</font> <a class="code" href="classXMLErrs.html#d1">isWarning</a>(<font class="keyword">const</font> <a class="code" href="classXMLErrs.html#s308">XMLErrs::Codes</a> toCheck)
+00333     {
+00334         <font class="keywordflow">return</font> ((toCheck &gt;= <a class="code" href="classXMLErrs.html#s308s1">W_LowBounds</a>) &amp;&amp; (toCheck &lt;= <a class="code" href="classXMLErrs.html#s308s8">W_HighBounds</a>));
+00335     }
+00336 
+<a name="l00337"></a><a class="code" href="classXMLErrs.html#d2">00337</a>     <font class="keyword">static</font> <font class="keywordtype">bool</font> <a class="code" href="classXMLErrs.html#d2">isError</a>(<font class="keyword">const</font> <a class="code" href="classXMLErrs.html#s308">XMLErrs::Codes</a> toCheck)
+00338     {
+00339         <font class="keywordflow">return</font> ((toCheck &gt;= <a class="code" href="classXMLErrs.html#s308s9">E_LowBounds</a>) &amp;&amp; (toCheck &lt;= <a class="code" href="classXMLErrs.html#s308s170">E_HighBounds</a>));
+00340     }
+00341 
+<a name="l00342"></a><a class="code" href="classXMLErrs.html#d3">00342</a>     <font class="keyword">static</font> <a class="code" href="classXMLErrorReporter.html#s4">XMLErrorReporter::ErrTypes</a> <a class="code" href="classXMLErrs.html#d3">errorType</a>(<font class="keyword">const</font> <a class="code" href="classXMLErrs.html#s308">XMLErrs::Codes</a> toCheck)
+00343     {
+00344        <font class="keywordflow">if</font> ((toCheck &gt;= <a class="code" href="classXMLErrs.html#s308s1">W_LowBounds</a>) &amp;&amp; (toCheck &lt;= <a class="code" href="classXMLErrs.html#s308s8">W_HighBounds</a>))
+00345            <font class="keywordflow">return</font> <a class="code" href="classXMLErrorReporter.html#s4s0">XMLErrorReporter::ErrType_Warning</a>;
+00346        <font class="keywordflow">else</font> <font class="keywordflow">if</font> ((toCheck &gt;= <a class="code" href="classXMLErrs.html#s308s171">F_LowBounds</a>) &amp;&amp; (toCheck &lt;= <a class="code" href="classXMLErrs.html#s308s307">F_HighBounds</a>))
+00347             <font class="keywordflow">return</font> <a class="code" href="classXMLErrorReporter.html#s4s2">XMLErrorReporter::ErrType_Fatal</a>;
+00348        <font class="keywordflow">else</font> <font class="keywordflow">if</font> ((toCheck &gt;= <a class="code" href="classXMLErrs.html#s308s9">E_LowBounds</a>) &amp;&amp; (toCheck &lt;= <a class="code" href="classXMLErrs.html#s308s170">E_HighBounds</a>))
+00349             <font class="keywordflow">return</font> <a class="code" href="classXMLErrorReporter.html#s4s1">XMLErrorReporter::ErrType_Error</a>;
+00350        <font class="keywordflow">return</font> <a class="code" href="classXMLErrorReporter.html#s4s3">XMLErrorReporter::ErrTypes_Unknown</a>;
+00351     }
+<a name="l00352"></a><a class="code" href="classXMLErrs.html#d4">00352</a>     <font class="keyword">static</font> <a class="code" href="classDOMError.html#z68_0">DOMError::ErrorSeverity</a>  <a class="code" href="classXMLErrs.html#d4">DOMErrorType</a>(<font class="keyword">const</font> <a class="code" href="classXMLErrs.html#s308">XMLErrs::Codes</a> toCheck)
+00353     {
+00354        <font class="keywordflow">if</font> ((toCheck &gt;= <a class="code" href="classXMLErrs.html#s308s1">W_LowBounds</a>) &amp;&amp; (toCheck &lt;= <a class="code" href="classXMLErrs.html#s308s8">W_HighBounds</a>))
+00355            <font class="keywordflow">return</font> <a class="code" href="classDOMError.html#z68_0s0">DOMError::DOM_SEVERITY_WARNING</a>;
+00356        <font class="keywordflow">else</font> <font class="keywordflow">if</font> ((toCheck &gt;= <a class="code" href="classXMLErrs.html#s308s171">F_LowBounds</a>) &amp;&amp; (toCheck &lt;= <a class="code" href="classXMLErrs.html#s308s307">F_HighBounds</a>))
+00357             <font class="keywordflow">return</font> <a class="code" href="classDOMError.html#z68_0s2">DOMError::DOM_SEVERITY_FATAL_ERROR</a>;
+00358        <font class="keywordflow">else</font> <font class="keywordflow">return</font> <a class="code" href="classDOMError.html#z68_0s1">DOMError::DOM_SEVERITY_ERROR</a>;
+00359     }
+00360 
+00361 <font class="keyword">private</font>:
+00362     <font class="comment">// -----------------------------------------------------------------------</font>
+00363     <font class="comment">//  Unimplemented constructors and operators</font>
+00364     <font class="comment">// -----------------------------------------------------------------------</font>
+00365     <a class="code" href="classXMLErrs.html">XMLErrs</a>();
+00366 };
+00367 
+00368 <a class="code" href="XercesDefs_8hpp.html#a3">XERCES_CPP_NAMESPACE_END</a>
+00369 
+00370 <font class="preprocessor">#endif</font>
+00371 <font class="preprocessor"></font>
+</pre></div>    </FONT></TD></TR></TABLE><BR>
+</TD></TR></TABLE></TD></TR></TABLE><BR><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD bgcolor="#0086b2"><IMG height="1" src="images/dot.gif" width="1" alt=""></TD></TR><TR><TD align="center"><FONT color="#0086b2" size="-1"><I>
+              Copyright &copy; 2004 The Apache Software Foundation.
+              All Rights Reserved.
+            </I></FONT></TD></TR></TABLE></BODY></HTML>

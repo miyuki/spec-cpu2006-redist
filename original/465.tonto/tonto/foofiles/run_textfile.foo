@@ -1,0 +1,100 @@
+! Copyright (C) Dylan Jayatilaka, 1999
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: run_textfile.foo,v 1.7.2.4 2003/11/13 06:34:04 reaper Exp $
+
+program run_TEXTFILE
+
+   implicit none
+
+   in :: TEXTFILE*
+   junk,name :: STR
+   m :: REALMAT(2,2)
+
+   tonto_parallel.initialise
+   tonto.initialize
+
+   stdout.create_stdout
+   stdout.flush
+   stdout.flush
+   stdout.text('Hello! Welcome to TONTO!')
+   stdout.flush
+
+   stdout.flush
+   stdout.text('This message goes to the stdout -- unless I explicitly "open" the "stdout" file.')
+
+   stdout.flush
+   stdout.text('Now edit a file "in" and put your name in it, and also a matrix of four numbers.')
+   stdout.flush
+   stdout.text('Type ^Z now to suspend this program.')
+   stdout.text('When you are done editing the file, recommence the program')
+   stdout.text('by typing "fg" <return> and then "c" <return> to continue on.')
+
+   ! Pause a while by reading a junk string from "stdin". We can't do more than
+   ! this because fortran doesn't handle a stream very well yet.
+
+   stdin.create_stdin
+   stdin.read(junk)
+
+   ! Open the file "in" and read the info
+
+   stdout.flush
+   stdout.text('Explicitly opening the file "in" now ...')
+   stdout.flush
+   stdout.flush
+
+   in.create("in")
+   in.open(for="read")
+   in.read(name)
+   in.read(m)
+   in.close
+
+   stdout.flush
+   stdout.text('Hello ' // name.trim// '!')
+   stdout.flush
+   stdout.text('If you see this message that means you succesfully edited the file "in"!')
+   stdout.flush
+
+   stdout.flush
+   stdout.text('Here is the matrix you entered:')
+   stdout.flush
+   stdout.put(m)
+
+   stdout.flush
+   stdout.text('Here is the same matrix printed with a different number of decimal places:')
+   stdout.flush
+
+   stdout.set_real_precision(3)
+   stdout.set_real_width(8)
+   stdout.put(m)
+
+   stdout.flush
+   stdout.text('Here is the first column:')
+   stdout.flush
+   stdout.put(m(:,1),"column")
+
+   stdout.flush
+   stdout.text('Here is the second column:')
+   stdout.flush
+   stdout.put(m(:,2),"column")
+
+   stdout.flush
+   stdout.text('Good luck with the rest of TONTO ...')
+   stdout.flush
+
+   tonto_parallel.finalise
+end

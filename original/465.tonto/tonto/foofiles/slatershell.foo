@@ -1,0 +1,491 @@
+!-------------------------------------------------------------------------------
+!
+! SLATERSHELL: used to describe contracted slater shells.
+!
+! Copyright (C) Dylan Jayatilaka, 1997
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: slatershell.foo,v 1.1.2.4 2003/11/13 05:33:55 reaper Exp $
+!-------------------------------------------------------------------------------
+
+module SLATERSHELL
+
+   implicit none
+
+   keys :: STRVEC*, private DEFAULT_NULL
+
+contains
+
+! ***************************
+! Create and destroy routines
+! ***************************
+
+   create ::: get_from(OBJECT), leaky
+   ! Create an object
+      self :: PTR
+   end
+
+   destroy ::: get_from(OBJECT), leaky
+   ! Destroy an object
+      self :: PTR
+   end
+
+   nullify_ptr_part
+   ! Nullify the pointer parts of the atomvec
+      nullify(.n)
+      nullify(.z)
+      nullify(.c)
+      nullify(.kind)
+      nullify(.occupancy)
+   end
+
+   destroy_ptr_part
+   ! Destroy the pointer parts
+      .n.destroy
+      .z.destroy
+      .c.destroy
+      .kind.destroy
+      .occupancy.destroy
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   set_defaults
+   ! Set default values
+      .l = 0
+      .n_orb = 0
+      .n_prim = 0
+   end
+
+   copy(c) ::: leaky
+   ! Create a copy of c
+       c :: SELF_TYPE
+       self = c
+       if (c.n.created) .n.create_copy(c.n)
+       if (c.z.created) .z.create_copy(c.z)
+       if (c.c.created) .c.create_copy(c.c)
+       if (c.kind.created) .kind.create_copy(c.kind)
+       if (c.occupancy.created) .occupancy.create_copy(c.occupancy)
+   end
+
+   set_n_comp
+   ! Set the number of components
+      .n_comp = 2*.l+1
+   end
+
+! ***********
+! I/O methods
+! ***********
+
+   read_keywords ::: get_from(OBJECT), recursive, leaky
+   ! Read data from "stdin" using keyword style input.
+   end
+
+   process_keyword(keyword) ::: leaky
+   ! Process command "keyword". Data is inputted from "stdin", unless "keyword"
+   ! is a sequence of blank separated strings.  In this case, the sequence is
+   ! processed as if it were a separate file.
+     keyword :: STR(*), IN
+     word :: STR
+     word = keyword
+     word.to_lower_case
+     select case (word)
+        case ("}                          ")  ! exit case
+        case ("c=                         "); .read_c
+        case ("junk=                      "); .read_junk
+        case ("kind=                      "); .read_kind
+        case ("l=                         "); .read_l
+        case ("l_int=                     "); .read_l_int
+        case ("l_chr=                     "); .read_l_chr
+        case ("l,kind,n,z,c*=             "); .read_l_kind_n_z_c_ptr
+        case ("n=                         "); .read_n
+        case ("n_prim=                    "); .read_n_prim
+        case ("n_orb=                     "); .read_n_orb
+        case ("n,z,c*=                    "); .read_n_z_c_ptr
+        case ("occupancy=                 "); .read_occupancy
+        case ("units=                     "); .read_units
+        case ("z=                         "); .read_z
+        case  default;                        UNKNOWN(word)
+     end
+   end
+
+   read_units ::: get_from(OBJECT)
+   ! Read a string which describes the units to be used
+   end
+
+   read_junk ::: get_from(OBJECT)
+   ! Read in a junk string, useful for ignoring a field
+   end
+
+   read_l ::: get_from(SHELL)
+   ! Read in the l symbol
+   end
+
+   read_l_int ::: get_from(SHELL), private
+   ! Read in the l integer
+   end
+
+   read_l_chr ::: get_from(SHELL), private
+   ! Read in the l symbol
+   end
+
+   read_n_prim 
+   ! Read in the number of contraction coefficients
+      stdin.read(.n_prim)
+      ENSURE(.n_prim>0,"n_prim must be positive")
+   end
+
+   read_n_orb
+   ! Read in the number of generally contracted orbitals
+      stdin.read(.n_orb)
+      ENSURE(.n_orb>0,"n_orb must be positive")
+   end
+
+   read_n ::: leaky
+   ! Read in the "n" quantum numbers. NOTE: n_prim must already have been input.
+   ENSURE(.n_prim>0,"n_prim not set; use n_prim= before this command")
+      .n.destroy
+      .n.create(.n_prim)
+      stdin.read(.n)
+   end
+
+   read_c ::: leaky
+   ! Read in the "c" contraction coefficients. NOTE: n_orb must already have
+   ! been input.
+   ENSURE(.n_prim>0,"n_prim not set; use n_prim= before this command")
+   ENSURE(.n_orb>0,"n_orb not set; use n_orb= before this command")
+      .c.destroy
+      .c.create(.n_prim,.n_orb)
+      stdin.read(.c)
+   end
+
+   read_z ::: leaky
+   ! Read in the "z" slater function exponents. NOTE: n_prim must already have
+   ! been input.
+   ENSURE(.n_prim>0,"n_prim not set; use n_prim= before this command")
+      .z.destroy
+      .z.create(.n_prim)
+      stdin.read(.z)
+   end
+
+   read_kind ::: leaky
+   ! Read in the orbital kind ("1s", "2s", "2p" ....); also set zero
+   ! occupancies, if kinds are not set
+      if (.kind.created) .kind.destroy
+      stdin.read_ptr(.kind)
+      if (.n_orb>0) then; ENSURE(.n_orb==.kind.dim,"n_orb and kind length inconsistent")
+      else;               .n_orb = .kind.dim
+      end
+      if (.occupancy.created) then
+         WARN_IF(.n_orb/=.occupancy.dim,"n_orb and occupancy length inconsistent")
+      else
+         .occupancy.create(.n_orb)
+         .occupancy = 0
+      end
+   end
+
+   read_occupancy ::: leaky
+   ! Read in the occupancies; also set blank kinds, if kinds are not set.
+      if (.occupancy.created) .occupancy.destroy
+      stdin.read_ptr(.occupancy)
+      if (.n_orb>0) then; ENSURE(.n_orb==.kind.dim,"n_orb and kind length inconsistent")
+      else;               .n_orb = .kind.dim
+      end
+      if (.kind.created) then
+         WARN_IF(.n_orb/=.kind.dim,"n_orb and kind length inconsistent")
+      else
+         .kind.create(.n_orb)
+         .kind = " "
+      end
+   end
+
+   read_l_kind_n_z_c_ptr ::: leaky
+   ! Read in everything: l, kind, and then n,z,c in a table, as in an Ajit
+   ! Thakkar table
+      .read_l_chr
+      .read_kind
+      .read_n_z_c_ptr
+   end
+
+   read_n_z_c_ptr ::: leaky
+   ! Read in the "n", "z" and then "c" coefficients, across a line.
+      tmp :: REALVEC*
+      i,k :: INT
+   ENSURE(.n_orb>0,"n_orb not set; use n_orb= before this command")
+   ENSURE(.n_prim==0,"n_prim already defined!")
+      stdin.read_ptr(tmp)
+      ENSURE(mod(tmp.dim,(.n_orb+2))==0,"number of data not divisible by n_orb")
+      .n_prim =  tmp.dim/(.n_orb+2)
+      .n.destroy; .c.destroy; .z.destroy
+      .n.create(.n_prim)
+      .z.create(.n_prim)
+      .c.create(.n_prim,.n_orb)
+      k = 0
+      do i = 1,.n_prim
+         ENSURE(tmp(k+1).is_int,"n number is not integer")
+         .n(i)   = tmp(k+1)
+         .z(i)   = tmp(k+2)
+         .c(i,:) = tmp(k+2+1:k+2+.n_orb)
+         k = k + 2 + .n_orb 
+      end
+      tmp.destroy
+   end
+
+!  ********************
+!  Key related routines
+!  ********************
+
+   read_keys ::: get_from(OBJECT)
+   ! Read the "keys".
+   end
+
+   process_keys ::: get_from(OBJECT), leaky
+   ! Process each of the words in the "keys" list.
+   end
+
+   keys_created result (res) ::: get_from(OBJECT)
+   ! Return TRUE if the list-element keys are created.
+      res :: BIN
+   end
+
+   set_keys(the_keys) ::: get_from(OBJECT)
+   ! This is for setting the "keys" externally.
+     the_keys :: STRVEC(len=*,:)
+   end
+
+   clear_keys ::: get_from(OBJECT)
+   ! This is for destroying the "keys" externally.
+   end
+
+   put_table_footer ::: get_from(OBJECT)
+   ! Output a table footer from the list of "keys". NOTE: not all keywords need
+   ! contribute to the banner - any unrecognised keyword is skipped.
+   end
+
+   put_table_header
+   ! Output a table header from the list of "keys". NOTE: not all keywords need
+   ! contribute to the banner - any unrecognised keyword is skipped.
+     word :: STR
+     width,k :: INT
+     width = .table_width
+     if (width > 0) then
+       stdout.dash(width=width)
+       do k = 1,size(keys)
+         word = keys(k)
+         word.to_lower_case
+         select case (word)
+           case ("flush            "); stdout.flush; exit
+           case ("put_l            "); stdout.put("l",int_width=TRUE)
+           case ("put_n_prim       "); stdout.put("n_prim",int_width=TRUE)
+           case ("put_n_orb        "); stdout.put("n_orb",int_width=TRUE)
+           case ("put_configuration"); stdout.put("Config.")
+           case default
+         end
+         if (k==size(keys)) then
+           stdout.flush ! In case they didn't write one.
+           WARN("no flush keyword - you may later overrun the output buffer")
+         end
+       end
+       stdout.dash(width=width)
+     end
+   end
+
+   table_width result (res)
+   ! Return how wide a table is, based on "keys".  Note that not all keywords
+   ! need to contribute to the banner - any unrecognised keyword is skipped.
+     res :: INT
+     word :: STR
+     int_dash,real_dash,k :: INT
+     int_dash = 0
+     real_dash = 0
+     ENSURE(keys.created,"no keywords")
+     do k = 1,size(keys)
+       word = keys(k)
+       word.to_lower_case
+       select case (word)
+         case ("put_l            "); int_dash = int_dash + 1
+         case ("put_n_prim       "); int_dash = int_dash + 1
+         case ("put_n_orb        "); int_dash = int_dash + 1
+         case ("put_configuration"); real_dash = real_dash + 1
+         case ("flush            "); exit
+         case default
+       end
+     end
+     res = int_dash * stdout.int_width + real_dash * stdout.real_width
+   end
+
+! *******
+! Methods
+! *******
+
+   same_as(b) result(res)
+   ! Return TRUE if "self" is the same as "b".
+      self :: IN
+      b :: SELF_TYPE, IN
+      res :: BIN
+   ENSURE(.n.created,"no n quantum numbers")
+   ENSURE(.c.created,"no contraction coefficients")
+   ENSURE(.z.created,"no exponents")
+   ENSURE(b.n.created,"no n quantum numbers to compare to")
+   ENSURE(b.c.created,"no contraction coefficients to compare to")
+   ENSURE(b.z.created,"no exponents to compare to")
+      res = .l == b.l &
+            AND .n.same_as(b.n) &
+            AND .c.same_as(b.c) &
+            AND .z.same_as(b.z)
+      if (res AND .kind.created)      res = all(.kind==b.kind)
+      if (res AND .occupancy.created) res = all(.occupancy==b.occupancy)
+   end
+
+   l_chr result(res) ::: get_from(SHELL)
+   ! Return a character representation for the angular mtm
+      res :: STR(1)
+   end
+
+   no_of_basis_functions result (res) ::: pure
+   ! Work out and return the TOTAL number of generally contracted basis
+   ! functions , counting the agular part also.
+      self :: IN
+      res :: INT
+      res = .n_comp*.n_orb
+   end
+
+   no_of_primitives result (res) ::: pure
+   ! Work out and return the TOTAL number of primitives, counting the angular
+   ! part also.
+      self :: IN
+      res :: INT
+      res = .n_comp*.n_prim
+   end
+
+   density_value_at_radius(R) result(res)
+   ! Returns the value of the coppens orbital at radius "R".
+   ! SOme work can be save if the prefactor array is made.
+      R :: REAL, IN
+      res :: REAL
+      i :: INT
+      orb :: REAL
+      val :: REALVEC*
+      val.create(.n_prim)
+      val = R**(.n-1) * exp(-.z*R) ! save this
+      res = ZERO
+      do i = 1,.n_orb
+         orb = sum(.c(:,i) * val)
+         res = res + .occupancy(i)*orb*orb
+      end
+      val.destroy
+   end
+
+   density_values_at_radii(R) result(res)
+   ! Returns the values of the coppens density at all the radii "R".
+      R :: REALVEC, IN
+      res :: REALVEC(R.dim)
+      i,p :: INT
+      orb :: REAL
+      val :: REALVEC*
+      val.create(.n_prim)
+      do p = 1,R.dim
+         val = R(p)**(.n-1) * exp(-.z*R(p)) ! save this
+         res(p) = ZERO
+         do i = 1,.n_orb
+            orb = sum(.c(:,i) * val)
+            res(p) = res(p) + .occupancy(i)*orb*orb
+         end
+      end
+      val.destroy
+   end
+
+   density_values_at_points(pt,pos) result(res)
+   ! Make the orbital density values on the series of points specified in "pt",
+   ! assuming the orbital is at point "pos"; and put the results in "res".
+      pt :: REALMAT, IN
+      pos :: REALVEC(3), IN
+      res :: REALVEC(pt.dim1)
+      R :: REALVEC*
+      x,y,z  :: REAL
+      n,n_pt :: INT
+   ENSURE(pt.dim2==3,"incorrect second dimension, pt array")
+      n_pt = pt.dim1
+      R.create(n_pt)
+      do n = 1,n_pt
+         x = pt(n,1) - pos(1)
+         y = pt(n,2) - pos(2)
+         z = pt(n,3) - pos(3)
+         R(n) = sqrt(x*x + y*y + z*z)
+      end
+      res = .density_values_at_radii(R)
+      R.destroy
+   end
+
+   put
+   ! Put the orbital information to "stdout"
+      i :: INT
+      stdout.flush
+      stdout.show("L quantum no.     = ",.l)
+      stdout.show("No. of orbitals   = ",.n_orb)
+      stdout.show("No. of primitives = ",.n_prim)
+      .put_table
+   end
+
+   put_table
+   ! Put the orbital information to "stdout" in table format
+      i,j :: INT
+      stdout.flush
+      stdout.dash(int_fields=2,real_fields=.n_orb+1)
+      stdout.put("#",int_width=TRUE)
+      stdout.put("N",int_width=TRUE)
+      stdout.put("Exponent")
+      if (.kind.created AND .occupancy.created) then
+         do j = 1,.n_orb
+            stdout.put(.kind(j).trim//"("//.occupancy(j).to_str.trim//")")
+         end
+      else if (.kind.created) then
+         do j = 1,.n_orb
+            stdout.put(.kind(j).trim)
+         end
+      else
+         do j = 1,.n_orb
+            stdout.put("Orb. "//j.to_str.trim)
+         end
+      end
+      stdout.flush
+      stdout.dash(int_fields=2,real_fields=.n_orb+1)
+      do i = 1,.n_prim
+         stdout.put(i)
+         stdout.put(.n(i))
+         stdout.put(.z(i))
+         do j = 1,.n_orb
+            stdout.put(.c(i,j))
+         end
+         stdout.flush
+      end
+      stdout.dash(int_fields=2,real_fields=.n_orb+1)
+   end
+
+end

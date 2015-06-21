@@ -1,0 +1,3187 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>Writing an input file: the basics</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Using TONTO to do calculations"
+HREF="calc-chap.html"><LINK
+REL="PREVIOUS"
+TITLE="Using TONTO to do calculations"
+HREF="calc-chap.html"><LINK
+REL="NEXT"
+TITLE="Examples of derived data input"
+HREF="example-derived-data.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="calc-chap.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="example-derived-data.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="INPUT-FILES"
+></A
+>Writing an input file: the basics</H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN495"
+></A
+>What is an input file?</H2
+><P
+ALIGN="justify"
+>An input file begins with an open curly bracket <TT
+CLASS="LITERAL"
+>&lcub;</TT
+>
+and ends with a close curly bracket, <TT
+CLASS="LITERAL"
+>&rcub;</TT
+>.</P
+><P
+ALIGN="justify"
+>In between these brackets, it consists of <SPAN
+CLASS="QUOTE"
+>"words"</SPAN
+> and
+<SPAN
+CLASS="QUOTE"
+>"numbers"</SPAN
+> separated by blank spaces and possibly blank lines. One
+blank space is equivalent to any number of blank spaces or blank lines.</P
+><P
+ALIGN="justify"
+>The allowed <SPAN
+CLASS="QUOTE"
+>"words"</SPAN
+> may be <SPAN
+CLASS="QUOTE"
+>"keywords"</SPAN
+> which tell
+the computer to <SPAN
+CLASS="QUOTE"
+>"do"</SPAN
+> something, or they may actually be pieces of
+<SPAN
+CLASS="QUOTE"
+>"data"</SPAN
+> like <SPAN
+CLASS="QUOTE"
+>"numbers"</SPAN
+> which are to be stored.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN509"
+></A
+>What does an input file look like?</H2
+><P
+ALIGN="justify"
+>Below is an example showing the style of keywords and data used in
+TONTO.</P
+><P
+ALIGN="justify"
+>Note how data is usually grouped within matching curly brackets; and note
+that keywords ending in the <TT
+CLASS="LITERAL"
+>=</TT
+> sign are followed by some
+numerical or string-like data.</P
+><P
+ALIGN="justify"
+>Note also that repetive lists of data are inputted using a <TT
+CLASS="LITERAL"
+>list=
+&lcub; ... &rcub;</TT
+> construction.  Preceding these repetitive lists of
+data there is often a <TT
+CLASS="LITERAL"
+>list_order= &lcub; ... &rcub;</TT
+> keyword
+list; this keyword list specifies the order in which the data items in the list
+are to be interpreted.</P
+><P
+ALIGN="justify"
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>&lcub;&#13;  name=     nh3
+ 
+  charge=  0
+ 
+  multiplicity= 1
+
+ 
+  crystal= &lcub;
+ 
+    spacegroup_it_symbol=   P2_13
+    unit_cell_angles=      90.0   90.0   90.0       Degree
+    unit_cell_dimensions=   5.1305 5.1305 5.1305    Angstrom
+ 
+    thermal_smearing_model= stewart
+    partition_model= mulliken
+ 
+    reflection_data=  &lcub;
+   
+      ! Experimental data from Boese et al ...
+ 
+      list_order= &lcub; h= k= l= F_exp= F_sigma= &rcub;
+   
+      list= &lcub;
+
+      ! These are the real experimental data
+
+       1   1   0    18.093    0.118
+       1   1   1    63.470    0.446
+       0   2   0    53.079    0.434
+       1   2   0     2.864    0.084
+
+      &rcub;
+    &rcub; 
+  &rcub;
+
+   
+  atoms= &lcub;
+
+    list_order= 
+       &lcub; label= " &lcub; axis_system= crystal &rcub; " pos= basis_label= &rcub;
+
+    list= &lcub;
+
+    N  0.2103001   0.2103001   0.2103001  N_basis_set
+    H  0.3722001   0.2627001   0.1113001  H_basis_set
+    H  0.1113001   0.3722001   0.2627001  H_basis_set
+    H  0.2627001   0.1113001   0.3722001  H_basis_set
+
+    &rcub; 
+  &rcub;
+  
+  
+  basis_sets= &lcub;
+
+    list_order= &lcub; gamess-us= &rcub;
+
+    list= &lcub;
+
+    N_basis_set
+    &lcub;
+       S   3
+        1        30.63310000         0.1119060000     
+        2        7.026140000         0.9216660000     
+        3        2.112050000        -0.2569190000E-02 
+       P   3
+        1        30.63310000         0.3831190000E-01
+        2        7.026140000         0.2374030000    
+        3        2.112050000         0.8175920000    
+       D   1
+        1       0.913000000           1.00000000    
+    &rcub; 
+  
+    H_basis_set
+    &lcub;
+       S   1
+        1       0.3258400000         1.000000000    
+       P   1
+        1       0.750000000          1.00000000    
+    &rcub; 
+
+    &rcub;
+  &rcub;
+&rcub;</PRE
+></TD
+></TR
+></TABLE
+></P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN519"
+></A
+>How do I know which are the allowed input keywords?</H2
+><P
+ALIGN="justify"
+>If TONTO does not understand a keyword, it usually gives an error
+message and sufficient information to track down the error.</P
+><P
+ALIGN="justify"
+>To find out what keywords are allowed for any module
+<TT
+CLASS="LITERAL"
+>XXXX</TT
+>, look in <A
+HREF="keywords.html"
+>the chapter called <I
+>Keyword documentation for TONTO</I
+></A
+>&#62; in the subsection
+<SPAN
+CLASS="QUOTE"
+>"The <TT
+CLASS="LITERAL"
+>XXXX</TT
+> module"</SPAN
+>.</P
+><P
+ALIGN="justify"
+>For example, we might start by looking in the <SPAN
+CLASS="QUOTE"
+>"The
+<TT
+CLASS="LITERAL"
+>MOL</TT
+> module"</SPAN
+> section.  We find as a typical example the
+following line:</P
+><P
+ALIGN="justify"
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>name= STR
+
+The name of the molecule 
+
+&bull; The <TT
+CLASS="LITERAL"
+>name=</TT
+> keyword must be the first one in any input file. 
+&bull; The value of the inputted string is used to define the start of archive
+file names, so <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>do not</I
+></SPAN
+> use any spaces in it.</PRE
+></TD
+></TR
+></TABLE
+></P
+><P
+ALIGN="justify"
+>In the case above, the keyword is <TT
+CLASS="LITERAL"
+>name=</TT
+>.  You can type
+this into the input file.  Following the <TT
+CLASS="LITERAL"
+>name=</TT
+> keyword you
+must type a piece of data which is a <TT
+CLASS="LITERAL"
+>STR</TT
+>, i.e.  a string
+variable such as <SPAN
+CLASS="QUOTE"
+>"nh3"</SPAN
+>.</P
+><P
+ALIGN="justify"
+>Following this keyword is a description of what the keyword might do, if
+you type it in the input file.  In this case, <TT
+CLASS="LITERAL"
+>name=</TT
+> does not
+seem to <SPAN
+CLASS="QUOTE"
+>"do"</SPAN
+> anything at all, but seems to represent <SPAN
+CLASS="QUOTE"
+>"The
+name of the molecule"</SPAN
+>.  In smaller text still are some special comments
+about the usage of this keyword.</P
+><P
+ALIGN="justify"
+>Some keywords must be followed by data---perhaps a number or a string.
+These are called <SPAN
+CLASS="QUOTE"
+>"data keywords"</SPAN
+>. These are used to input data into
+the program.  Data keywords always end in an <TT
+CLASS="LITERAL"
+>=</TT
+> sign, so you
+know that some data has to follow them. There are also <SPAN
+CLASS="QUOTE"
+>"task
+keywords"</SPAN
+> which may or may not be followed by data. Task keywords do not
+end in an <TT
+CLASS="LITERAL"
+>=</TT
+> sign. They are used to perform a specific action
+or calculation.  The <SPAN
+CLASS="QUOTE"
+>"name="</SPAN
+> keyword is obviously a data
+keyword.</P
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Note that there cannot be any space between a keyword and the
+<TT
+CLASS="LITERAL"
+>=</TT
+> symbol.</I
+></SPAN
+></P
+><P
+ALIGN="justify"
+>There are two special keyword, which are the open and close braces,
+<TT
+CLASS="LITERAL"
+>&lcub;</TT
+> and <TT
+CLASS="LITERAL"
+>&rcub;</TT
+> respectively. They are
+always used to signify the beginning and end of input for a
+<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>list</I
+></SPAN
+> of data---perhaps a list of numbers, or a list of
+keywords.</P
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Note that braces <TT
+CLASS="LITERAL"
+>&lcub;</TT
+> and
+<TT
+CLASS="LITERAL"
+>&rcub;</TT
+> must have a space on both sides.</I
+></SPAN
+></P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN560"
+></A
+>What about keywords which aren't in this manual?</H2
+><P
+ALIGN="justify"
+>You will need to look in the online code documentation.</P
+><P
+ALIGN="justify"
+>This is explained in <A
+HREF="keywords.html"
+>the chapter called <I
+>Keyword documentation for TONTO</I
+></A
+>&#62; in <A
+HREF="keywords.html#ONLINE-DOC"
+>the Section called <I
+>The online documentation</I
+> in the chapter called <I
+>Keyword documentation for TONTO</I
+></A
+>&#62; <SPAN
+CLASS="QUOTE"
+>"Online documentation"</SPAN
+>.  A schematic
+procedure for finding out what keywords are available is given there, and what
+data the keywords require as input.</P
+><P
+ALIGN="justify"
+>Since TONTO changes quite often, this may often be your only
+alternative.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN568"
+></A
+>How do I know when to enter data?</H2
+><P
+ALIGN="justify"
+>If data is required to follow a particular keyword, in the documentation
+you will see immediately following the keyword a double colon, and some
+uppercase words, such as <TT
+CLASS="LITERAL"
+>STR</TT
+>, <TT
+CLASS="LITERAL"
+>REAL</TT
+>,
+<TT
+CLASS="LITERAL"
+>INT</TT
+>, <TT
+CLASS="LITERAL"
+>REALVEC(3)</TT
+>, or
+<TT
+CLASS="LITERAL"
+>ATOM</TT
+>.</P
+><P
+ALIGN="justify"
+>In the example above, the <TT
+CLASS="LITERAL"
+>name=</TT
+> data keyword is
+followed by <TT
+CLASS="LITERAL"
+>STR</TT
+>.  indicating  it must be followed by some
+data, and that this data must be of the <TT
+CLASS="LITERAL"
+>STR</TT
+> variety.
+<TT
+CLASS="LITERAL"
+>STR</TT
+> is a shorthand for <SPAN
+CLASS="QUOTE"
+>"string data"</SPAN
+>.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN582"
+></A
+>What kinds of data are there?</H2
+><P
+ALIGN="justify"
+>There are many kinds of data. You have already encountered
+<TT
+CLASS="LITERAL"
+>STR</TT
+> data.  There is also <TT
+CLASS="LITERAL"
+>REAL</TT
+> data, which
+represents <SPAN
+CLASS="QUOTE"
+>"real numbers"</SPAN
+>, <TT
+CLASS="LITERAL"
+>INT</TT
+> data which
+represents <SPAN
+CLASS="QUOTE"
+>"integers"</SPAN
+>, and <TT
+CLASS="LITERAL"
+>REALVEC(3)</TT
+> data, which
+represent 3 dimensional vectors, to name a few.</P
+><P
+ALIGN="justify"
+>However, there are also more complicated pieces of input data, like
+<TT
+CLASS="LITERAL"
+>ATOM</TT
+> data, which (naturally enough) represents <SPAN
+CLASS="QUOTE"
+>"atom
+data"</SPAN
+>.  Atom data might be represented by a collection of simple data,
+For example, there may be a <TT
+CLASS="LITERAL"
+>STR</TT
+>  piece of information
+representing the <SPAN
+CLASS="QUOTE"
+>"atom label"</SPAN
+> , and there may be a
+<TT
+CLASS="LITERAL"
+>REALVEC(3)</TT
+>  piece of data representing the <SPAN
+CLASS="QUOTE"
+>"atom
+position"</SPAN
+>. There is also <SPAN
+CLASS="QUOTE"
+>"molecule data"</SPAN
+>, or
+<TT
+CLASS="LITERAL"
+>MOL</TT
+> data for short. This might be composed of a
+<SPAN
+CLASS="QUOTE"
+>"list"</SPAN
+> or <SPAN
+CLASS="QUOTE"
+>"vector"</SPAN
+> of <TT
+CLASS="LITERAL"
+>ATOM</TT
+> data.
+These complicated data objects are called <SPAN
+CLASS="QUOTE"
+>"derived data"</SPAN
+>, or
+<SPAN
+CLASS="QUOTE"
+>"vectors of derived data"</SPAN
+>. </P
+><P
+ALIGN="justify"
+>All data in TONTO is described by modules. Thus, <TT
+CLASS="LITERAL"
+>ATOM</TT
+>
+data is described by a module with name <TT
+CLASS="LITERAL"
+>ATOM</TT
+>.  <A
+HREF="input-files.html#TABLE-OF-TONTO-TYPES"
+>Table 1</A
+>&#62; describes each of the modules (and hence data
+types) which are used in TONTO.</P
+><P
+ALIGN="justify"
+><DIV
+CLASS="TABLE"
+><A
+NAME="TABLE-OF-TONTO-TYPES"
+></A
+><P
+><B
+>Table 1. Modules available in TONTO.</B
+></P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Module name</TH
+><TH
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Description</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>ARCHIVE</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>For archiving objects (mainly matrices) to disk</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>ATOM</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A quantum mechanical atom</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>ATOMVEC</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A vector of <TT
+CLASS="LITERAL"
+>ATOM</TT
+>'s</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>BASIS</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Quantum mechanical basis sets</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>BASISVEC</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A vector of <TT
+CLASS="LITERAL"
+>BASIS</TT
+>sets</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>BINMAT</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A matrix of <TT
+CLASS="LITERAL"
+>BIN</TT
+></TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>BINVEC</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A vector of <TT
+CLASS="LITERAL"
+>BIN</TT
+></TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>BUFFER</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A string buffer</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>CPXMAT</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Complex matrices</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>CPXMAT3</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>3 dimensional complex matrices</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>CPXMAT4</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>4 dimensional complex matrices</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>CPXMAT5</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>5 dimensional complex matrices</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>COLOUR</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Converts colour names to RGB triples</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>COLOURFUNCTION</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Generates RGB triples from function values</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>CRYSTAL</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A crystal</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>CPXVEC</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Complex vectors</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>REAL</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Double precision numbers</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>DFTGRID</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>DFT integration grids</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>FILE</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>BINARY (unformatted) files</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>GAUSSIAN</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A gaussian function</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>GAUSSIAN2</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A pair of gaussian functions</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>GAUSSIAN4</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A quartet of gaussian functions</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>INTMAT</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Integer matrices</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>INTMAT3</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>3 dimensional integer matrices</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>INTMAT4</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>4 dimensional integer matrices</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>INT</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Integers</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>IRREP</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Point group irreps</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>IRREPVEC</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A vector of point group irreps</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>INTVEC</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Integer vectors</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>IVECMAT3</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A 3 dimensional matrix of integer vectors</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>IVECVEC</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A vector of integer vectors</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>MARCHINGCUBE</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Generates triangulated iso-surfaces using the marching cubes method</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>REALMAT</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Real Matrices</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>REALMAT3</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>3 dimensional matrices</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>REALMAT3VEC</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A vector of 3 dimensional matrices</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>REALMAT4</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>4 dimensional matrices</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>REALMAT4VEC</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A vector of 4 dimensional matrices</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>REALMAT5</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>5 dimensional matrices</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>REALMATVEC</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A vector of matrices</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>MOL</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A chemical molecule</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>OPMATRIX</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Operator matrices (restricted, unrestricted, complex, etc.)</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>OPVECTOR</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Diagonals of operator matrices</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>PLOTGRID</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Rectilinear grids for plots</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>POINTGROUP</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Symmetry pointgroups</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>REFLECTION</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A single reflection (scattering data) from a crystal</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>REFLECTIONS</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A vector of reflections</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>RYS</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Rys roots and weights for electron repulsion integrals</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>SCFDATA</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>SCF convergence data and results</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>SHELL</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A contracted shell of gaussian functions</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>SHELL1</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A contracted shell of gaussian functions, with a position</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>SHELLVEC</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A vector of <TT
+CLASS="LITERAL"
+>SHELL</TT
+>'s</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>SHELL2</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A <TT
+CLASS="LITERAL"
+>SHELL</TT
+>pair. Contains integral code</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>SHELL4</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A <TT
+CLASS="LITERAL"
+>SHELL</TT
+>quartet. Contains integral code</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>SHELLPAIR</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A pair of <TT
+CLASS="LITERAL"
+>SHELL</TT
+>s</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>SHELLQUARTET</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A quartet of <TT
+CLASS="LITERAL"
+>SHELL</TT
+>s</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>SHELL1QUARTET</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A quartet of <TT
+CLASS="LITERAL"
+>SHELL1</TT
+>s.  Contains heavily optimised
+integral code</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>SPACEGROUP</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Crystal spacegroup symmetry</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>STR</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Character strings</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>STRVEC</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Character strings</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>SYSTEM</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>System level routines</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>TEXTFILE</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A file containing ASCII text</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>TIME</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Current and elapsed time</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>TYPES</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Defines the various types in TONTO</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>UNITNUMBER</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Information about files currently open</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>VECDIIS</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A vector of DIIS</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>REALVEC</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A real vector</TD
+></TR
+><TR
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><TT
+CLASS="LITERAL"
+>REALVECVEC</TT
+></TD
+><TD
+WIDTH="50%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A vector of <TT
+CLASS="LITERAL"
+>REALVEC</TT
+>s</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN899"
+></A
+>How do I enter data?</H2
+><P
+ALIGN="justify"
+>Simply type the required piece of data immediately following the data
+keyword---remembering to leave at least one blank space between the keyword and
+the data.</P
+><P
+ALIGN="justify"
+>For the kind of <SPAN
+CLASS="QUOTE"
+>"simple data"</SPAN
+>, such as
+<TT
+CLASS="LITERAL"
+>STR</TT
+>, <TT
+CLASS="LITERAL"
+>REAL</TT
+>, <TT
+CLASS="LITERAL"
+>INT</TT
+>, or
+<TT
+CLASS="LITERAL"
+>REALVEC</TT
+>.  you can probably guess what you have to type in your
+input file. </P
+><P
+ALIGN="justify"
+>Examples for entering simple data are given in <A
+HREF="input-files.html#SIMPLE-DATA-TABLE"
+>Table 2</A
+>&#62;.  This is explained further in a section
+below.</P
+><P
+ALIGN="justify"
+>The simplest way to enter derived data like <TT
+CLASS="LITERAL"
+>ATOM</TT
+> data
+is to use keywords---and finding and using keywords has already been explained
+above. If the keyword is to be followed by data, it is either simple data (which
+is described below), or derived data (which can be inputted using keywords,
+already described above).</P
+><P
+ALIGN="justify"
+>There is also another way to enter vectors of derived data, without using
+keywords, which is also explained below.</P
+><P
+ALIGN="justify"
+><DIV
+CLASS="TABLE"
+><A
+NAME="SIMPLE-DATA-TABLE"
+></A
+><P
+><B
+>Table 2. Shorthand symbols for simple data with input examples</B
+></P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Kind of data</TH
+><TH
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Shorthand symbol</TH
+><TH
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Some examples of how to enter this data</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+ROWSPAN="3"
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Comment</TD
+><TD
+ROWSPAN="3"
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>-</TD
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>! A comment appears after an isolated exclamation</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>"!" Even this is a comment</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+># A hash will also begin a comment</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Logical</TD
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>BIN</TD
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>TRUE true F Yes "NO" False F f</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>String</TD
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>STR</TD
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>a-string-with-no-blanks "a string with blanks"</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Integer</TD
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>INT</TD
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>123 -10 +10 "666"</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Real number</TD
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>REAL</TD
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>123 -10.0 123.4 123.4e5 +123.4d-5</TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Complex number</TD
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>CPX</TD
+><TD
+WIDTH="33%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>12.3e5 56.7e8 ! A single complex number</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></P
+><P
+ALIGN="justify"
+><DIV
+CLASS="TABLE"
+><A
+NAME="SIMPLE-VEC-DATA-TABLE"
+></A
+><P
+><B
+>Table 3. Shorthand symbols for simple vector data with input examples</B
+></P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Kind of data</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Shorthand symbol</TH
+><TH
+COLSPAN="2"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Some examples of how to enter this data</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+ROWSPAN="2"
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Logical vector</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>BINVEC(4)</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>T T T<SPAN
+CLASS="QUOTE"
+>"f"</SPAN
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A logical vector, length 4</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>BINVEC*</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>&lcub; T T T &rcub;</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A logical vector, variable length</TD
+></TR
+><TR
+><TD
+ROWSPAN="2"
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>String vector</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>STRVEC(2)</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><SPAN
+CLASS="QUOTE"
+>"Hi"</SPAN
+> gorgeous</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A string vector, length 2</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>STRVEC*</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>&lcub; a b c d &rcub;</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A string vector, variables length</TD
+></TR
+><TR
+><TD
+ROWSPAN="2"
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Integer vector</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>INTVEC(5)</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>1 0 1 1 0</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>An integer vector, length 5</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>INTVEC*</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>&lcub; 66 99 33 &rcub;</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>An integer vector, variable length</TD
+></TR
+><TR
+><TD
+ROWSPAN="2"
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Real vector</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>REALVEC(3)</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>0 0.0 30.d-3</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A real vector, length 3</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>REALVEC*</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>&lcub; 1. 2. 3. &rcub;</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A real vector, variable length</TD
+></TR
+><TR
+><TD
+ROWSPAN="2"
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>String vector pair</TD
+><TD
+ROWSPAN="2"
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>STRVEC(3),STRVEC(3)</TD
+><TD
+ROWSPAN="2"
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+CLASS="LITERALLAYOUT"
+>x_1&nbsp;y_1<br>
+x_2&nbsp;y_2<br>
+x_3&nbsp;y_3</P
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Vector x in column 1</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Vector y in column 2</TD
+></TR
+><TR
+><TD
+ROWSPAN="2"
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Real vector, String vector pair</TD
+><TD
+ROWSPAN="2"
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>REALVEC(3),STRVEC(3)</TD
+><TD
+ROWSPAN="2"
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+CLASS="LITERALLAYOUT"
+>1.&nbsp;y_1<br>
+2.&nbsp;y_2<br>
+3.&nbsp;y_3</P
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Real vector in column 1</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>String vector in column 2</TD
+></TR
+><TR
+><TD
+ROWSPAN="2"
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Complex vector</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>CPXVEC(1)</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>0.0 1.0</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A complex vector, length 1</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>CPXVEC*</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>&lcub; 1. 2. 3 4 &rcub;</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A complex vector, variable length</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></P
+><P
+ALIGN="justify"
+><DIV
+CLASS="TABLE"
+><A
+NAME="SIMPLE-MAT-DATA-TABLE"
+></A
+><P
+><B
+>Table 4. Shorthand symbols for simple matrix data with input examples</B
+></P
+><TABLE
+BORDER="1"
+BGCOLOR="#E0E0E0"
+CELLSPACING="0"
+CELLPADDING="4"
+CLASS="CALSTABLE"
+><THEAD
+><TR
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Kind of data</TH
+><TH
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Shorthand symbol</TH
+><TH
+COLSPAN="2"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Some examples of how to enter this data</TH
+></TR
+></THEAD
+><TBODY
+><TR
+><TD
+ROWSPAN="2"
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>String matrix</TD
+><TD
+ROWSPAN="2"
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>STRMAT(2,2)</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+CLASS="LITERALLAYOUT"
+>a&nbsp;b<br>
+c&nbsp;<SPAN
+CLASS="QUOTE"
+>"d"</SPAN
+></P
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A string matrix, rank 2 x 2</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+CLASS="LITERALLAYOUT"
+>by_cloumn<br>
+a&nbsp;c<br>
+b&nbsp;<SPAN
+CLASS="QUOTE"
+>"d"</SPAN
+></P
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Same matrix, entered by column</TD
+></TR
+><TR
+><TD
+ROWSPAN="2"
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Integer matrix</TD
+><TD
+ROWSPAN="2"
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>INTMAT(2,2)</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+CLASS="LITERALLAYOUT"
+>1&nbsp;2<br>
+3&nbsp;"4"</P
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>An integer matrix, rank 2 x 2</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+CLASS="LITERALLAYOUT"
+>by_column<br>
+1&nbsp;3<br>
+2&nbsp;"4"</P
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Same matrix, entered by column</TD
+></TR
+><TR
+><TD
+ROWSPAN="2"
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Real matrix</TD
+><TD
+ROWSPAN="2"
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>REALMAT(2,2)</TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+CLASS="LITERALLAYOUT"
+>1&nbsp;2.<br>
+3&nbsp;4d+5</P
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>A real matrix, rank 2 x 2</TD
+></TR
+><TR
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+><P
+CLASS="LITERALLAYOUT"
+>by_column<br>
+1&nbsp;3<br>
+2.&nbsp;4d+5</P
+></TD
+><TD
+WIDTH="25%"
+ALIGN="LEFT"
+VALIGN="TOP"
+>Same matrix, entered by column</TD
+></TR
+></TBODY
+></TABLE
+></DIV
+></P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN1077"
+></A
+>How do I enter simple data?</H2
+><P
+ALIGN="justify"
+>Some examples of how to input simple kinds of data are shown in
+<A
+HREF="input-files.html#SIMPLE-DATA-TABLE"
+>Table 2 in the Section called <I
+>How do I enter data?</I
+></A
+>&#62;, <A
+HREF="input-files.html#SIMPLE-VEC-DATA-TABLE"
+>Table 3 in the Section called <I
+>How do I enter data?</I
+></A
+>&#62;
+and <A
+HREF="input-files.html#SIMPLE-MAT-DATA-TABLE"
+>Table 4 in the Section called <I
+>How do I enter data?</I
+></A
+>&#62;.  Some examples of input comments
+are also shown.</P
+><P
+ALIGN="justify"
+>In most cases, the input that you type is the same as that used for the
+Fortran language, except in the following respects related to the entry of
+vectors and arrays of data. </P
+><P
+ALIGN="justify"
+>Sometimes it is necessary to enter vector data where the size of the
+vector is not known by the program, beforehand. When entering these vector data
+with variable length, curly brackets <TT
+CLASS="LITERAL"
+>&lcub;</TT
+> and
+<TT
+CLASS="LITERAL"
+>&rcub;</TT
+> are used to enclose the vector or list.</P
+><P
+ALIGN="justify"
+>Sometimes, it is also convenient to enter a pair (or more) of vectors with
+the same length so that one alternates between the lists. This is called
+<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+> interleaved vector input</I
+></SPAN
+>. One represents this alternating
+sequence of vectors with a comma between the different types of vector data. For
+example, entering two 3 dimensional vectors
+<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+><TT
+CLASS="LITERAL"
+>x</TT
+></I
+></SPAN
+> and
+<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+><TT
+CLASS="LITERAL"
+>y</TT
+></I
+></SPAN
+> in the sequence
+<TT
+CLASS="LITERAL"
+>x<SUB
+>1</SUB
+> y<SUB
+>1</SUB
+>
+x<SUB
+>2</SUB
+> y<SUB
+>2</SUB
+> x<SUB
+>3</SUB
+>
+y<SUB
+>3</SUB
+></TT
+> would be represented by the data type
+<TT
+CLASS="LITERAL"
+>REALVEC(3),REALVEC(3)</TT
+>.</P
+><P
+ALIGN="justify"
+>Finally, when entering two dimensional matrix data, there is always the
+question of whether one should enter the data across rows, or by columns. The
+default is to read by rows, unless the matrix is preceded by a string
+<TT
+CLASS="LITERAL"
+>by_column</TT
+> or <TT
+CLASS="LITERAL"
+>column-wise</TT
+>. The row order
+can also be explicitly forced by preceding the matrix with the string
+<TT
+CLASS="LITERAL"
+>by_row</TT
+> or <TT
+CLASS="LITERAL"
+>row-wise</TT
+>. Multidimensional
+matrices are always entered in the Fortran order, <TT
+CLASS="LITERAL"
+>by_column</TT
+>.
+That is, so the first index of the matrix is incrementing most rapidly.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="CHANGING-UNITS"
+></A
+>How do I change units with simple data?</H2
+><P
+ALIGN="justify"
+>For any simple numerical data, simply append the new units string. For
+example, entering:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>1.3 angstrom</PRE
+></TD
+></TR
+></TABLE
+><P
+ALIGN="justify"
+>would cause TONTO to interpret the number !1.3! in Angstrom units, and
+TONTO would convert the number internally into default units, which
+are atomic units. This also applies to vectors and matrices of fixed length.
+For example,</P
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>1.0 2.0 3.0 angstrom</PRE
+></TD
+></TR
+></TABLE
+><P
+ALIGN="justify"
+>would represent <TT
+CLASS="LITERAL"
+>REALVEC(3)</TT
+> object in Angstrom units. To see
+the list of allowed units, look at the <TT
+CLASS="LITERAL"
+>is_known_unit</TT
+> routine
+in the <TT
+CLASS="LITERAL"
+>STR</TT
+> module.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ENTERING-DERIVED-DATA"
+></A
+>How do I enter derived data?</H2
+><P
+ALIGN="justify"
+>Any derived data is composed of a collection of simpler pieces of data,
+including, possibly, simpler kinds of derived data. Any one of these simpler
+pieces of data which make up the derived data is called a
+<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>component</I
+></SPAN
+>.  For example, for <TT
+CLASS="LITERAL"
+>ATOM</TT
+> data,
+there may be a <TT
+CLASS="LITERAL"
+>STR</TT
+> piece of information representing the
+<SPAN
+CLASS="QUOTE"
+>"atom label"</SPAN
+> , and there may be a <TT
+CLASS="LITERAL"
+>REALVEC(3)</TT
+> piece
+of data representing the <SPAN
+CLASS="QUOTE"
+>"atom position"</SPAN
+>.  Both of these are
+components.</P
+><P
+ALIGN="justify"
+>One way to enter derived data component information is to use keywords,
+which has been explained above.  <A
+NAME="AEN1127"
+HREF="#FTN.AEN1127"
+>[1]</A
+></P
+><P
+ALIGN="justify"
+>Another way to enter derived data component data is to type the 
+data for each component in order, without any keywords.
+For example, for <TT
+CLASS="LITERAL"
+>ATOM</TT
+> just discussed, first we could type
+a <TT
+CLASS="LITERAL"
+>STR</TT
+>, representing the atom label, then a
+<TT
+CLASS="LITERAL"
+>REALVEC(3)</TT
+>, representing the atom position, like this:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>oxygen-atom   0.0  0.0  0.0</PRE
+></TD
+></TR
+></TABLE
+><P
+ALIGN="justify"
+>But, we could equally well convey the same information by typing
+this:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>0.0  0.0  0.0 oxygen-atom</PRE
+></TD
+></TR
+></TABLE
+><P
+ALIGN="justify"
+>Clearly, it is important to know the correct order for the pieces 
+of information. The correct order for an <TT
+CLASS="LITERAL"
+>ATOM</TT
+> in the 
+<SPAN
+CLASS="QUOTE"
+>"Input documentation for module <TT
+CLASS="LITERAL"
+>ATOM</TT
+>"</SPAN
+>, under the
+heading <SPAN
+CLASS="QUOTE"
+>"Standard input data order"</SPAN
+>. It is usually the first thing
+that is mentioned. This style of input is called <SPAN
+CLASS="QUOTE"
+>"plain style
+input"</SPAN
+>.  <A
+NAME="AEN1143"
+HREF="#FTN.AEN1143"
+>[2]</A
+></P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>Note: </B
+>Plain style input is never used to input derived data.  It is only used to input
+arrays of derived data (although, keyword style input can also be used for
+arrays of derived data, if desired). Plain style input is used for arrays of
+derived data in order to save typing keywords for inputting long lists of data.</P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ENTERING-LISTS-OF-DERIVED-DATA"
+></A
+>How do I enter lists of derived data?</H2
+><P
+ALIGN="justify"
+>The way to input a list of plain style data is to begin with the
+<TT
+CLASS="LITERAL"
+>&lcub;</TT
+> symbol indicating that derived data is to follow.
+Thereafter, a list of plain style data is entered, as described above. This list
+is terminated by the <TT
+CLASS="LITERAL"
+>&rcub;</TT
+> symbol indicating the enf of the
+variable-length list.  For example, to enter a sequence of three
+<TT
+CLASS="LITERAL"
+>ATOM</TT
+> pieces of data---which is <TT
+CLASS="LITERAL"
+>ATOMVEC</TT
+>
+data---we would type:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>&lcub;&#13;   oxygen-atom   0.0  0.0  0.0
+   N             1.0  0.0  0.0
+   carbon        0.0  1.0  0.0
+&rcub;</PRE
+></TD
+></TR
+></TABLE
+><P
+ALIGN="justify"
+>The indentation in the above example is not required (nor are line
+breaks), but indentation is advised to improve readability.</P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>Note: </B
+>If <TT
+CLASS="LITERAL"
+>XXXX</TT
+> is the name of a data type, then
+<TT
+CLASS="LITERAL"
+>XXXXVEC</TT
+> is the name of the list or vector of those data
+types.</P
+></BLOCKQUOTE
+></DIV
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="ALTERING-INPUT-ORDER"
+></A
+>Altering the input order for lists of derived data</H2
+><P
+ALIGN="justify"
+>Sometimes, it is convenient to alter the order in which the components of
+plain data are inputted---for example, to read some other programs data, or to
+enter extra pieces of data.  This can be done using the
+<TT
+CLASS="LITERAL"
+>list_order=</TT
+> keyword.</P
+><P
+ALIGN="justify"
+>Following the <TT
+CLASS="LITERAL"
+>list_order=</TT
+> keyword is a list of allowed
+keywords which specifies the new input data order to be used for the plain data.
+As usual, this new list of keywords is enclosed by curly brackets
+<TT
+CLASS="LITERAL"
+>&lcub;</TT
+> and <TT
+CLASS="LITERAL"
+>&rcub;</TT
+>.  For example, if we
+wanted to enter the positions of the atoms before their atom labels, use the
+following input:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>{
+   list_order= { pos=           label= }
+                 0.0  0.0  0.0  oxygen-atom
+                 1.0  0.0  0.0  N
+                 0.0  1.0  0.0  carbon
+}</PRE
+></TD
+></TR
+></TABLE
+><P
+ALIGN="justify"
+>We could also enter the above data as follows, by explicitly labelling
+the listed data with an enclosing <TT
+CLASS="LITERAL"
+>list= &lcub; ... &rcub;</TT
+>
+descriptor which has been implied in the above example:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>{
+   list_order= { pos=           label= }
+   list= {
+                 0.0  0.0  0.0  oxygen-atom
+                 1.0  0.0  0.0  N
+                 0.0  1.0  0.0  carbon
+   }
+}</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="EMBEDDED-COMMANDS"
+></A
+>Embedded commands in lists of derived data</H2
+><P
+ALIGN="justify"
+>The list of keywords in a <TT
+CLASS="LITERAL"
+>list_order=</TT
+> statement need
+not be data keywords: commands or embedded data can also be placed in the list.
+This is useful, for example, for specifying operations on the data while the
+list of data is being processed.</P
+><P
+ALIGN="justify"
+>For example, we may wish to tell the program that the position coordinates
+are in Angstr&ouml;m units. When entering <TT
+CLASS="LITERAL"
+>ATOM</TT
+> data. This
+can be done by prefacing the <TT
+CLASS="LITERAL"
+>pos=</TT
+> keyword by <TT
+CLASS="LITERAL"
+>"&lcub;
+units= angstrom &rcub;"</TT
+> (see the <TT
+CLASS="LITERAL"
+>units=</TT
+>  keyword in
+module <TT
+CLASS="LITERAL"
+>ATOM</TT
+>---it is usually available in every module).
+Thus, to change the units for the entire list of <TT
+CLASS="LITERAL"
+>ATOM</TT
+> data in
+the example above, type:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>&lcub;&#13;list_order= &lcub; "&lcub; units= angstrom &rcub;" pos= label= &rcub;
+   0.0  0.0  0.0   oxygen-atom
+   1.0  0.0  0.0   N
+   0.0  1.0  0.0   carbon
+&rcub;</PRE
+></TD
+></TR
+></TABLE
+><P
+ALIGN="justify"
+>Note that <SPAN
+CLASS="QUOTE"
+>"<TT
+CLASS="LITERAL"
+>&lcub; units= angstrom &rcub;</TT
+>"</SPAN
+>
+must be enclosed in double quotes to ensure it is interpreted as a single unit.
+Likewise, curly brackets must be used because the contents of the quoted string
+are interpreted as derived data, which must always begin and end with curly
+brackets.</P
+><DIV
+CLASS="NOTE"
+><BLOCKQUOTE
+CLASS="NOTE"
+><P
+><B
+>Note: </B
+>The curly brackets must always appear as separate characters
+surrounded by blank space; or the curly bracket must be at the beginning or end
+of a string.</P
+></BLOCKQUOTE
+></DIV
+><P
+ALIGN="justify"
+>If in the above example only the <TT
+CLASS="LITERAL"
+>units=</TT
+> were to appear
+in the <TT
+CLASS="LITERAL"
+>data_order</TT
+>  section, then since the
+<TT
+CLASS="LITERAL"
+>units=</TT
+> keyword must be followed by a <TT
+CLASS="LITERAL"
+>STR</TT
+>
+unit identifier, this string must appear as the first data element within the
+plain data list. That is, we would have to type:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>&lcub;&#13;   list_order= &lcub; units= pos= label= &rcub;
+      angstrom 0.0  0.0  0.0   oxygen-atom
+      angstrom 1.0  0.0  0.0   N
+      angstrom 0.0  1.0  0.0   carbon
+&rcub;</PRE
+></TD
+></TR
+></TABLE
+><P
+ALIGN="justify"
+>This would defeat somewhat the purpose of using the plain data style,
+since the unit specifier <TT
+CLASS="LITERAL"
+>angstrom</TT
+> must be repeated. Likewise,
+since the units of each position can be changed using a post-facto units
+identifier, typing the following input would also have the same effect</P
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>&lcub;&#13;   list_order= &lcub; pos= label= &rcub;
+      0.0  0.0  0.0 angstrom  oxygen-atom
+      1.0  0.0  0.0 angstrom  N
+      0.0  1.0  0.0 angstrom  carbon
+&rcub;</PRE
+></TD
+></TR
+></TABLE
+><P
+ALIGN="justify"
+>In both cases the repetition of the "angstrom" string is rather
+tedious.</P
+></DIV
+></DIV
+><H3
+CLASS="FOOTNOTES"
+>Notes</H3
+><TABLE
+BORDER="0"
+CLASS="FOOTNOTES"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.AEN1127"
+HREF="input-files.html#AEN1127"
+>[1]</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+ALIGN="justify"
+>This component information is
+stored in <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+> type component variables</I
+></SPAN
+>.  Usually, the names of
+these variable are the same as, or similar to the names of the keywords used to
+input them.  It is good programming practice ensure that this is the
+case</P
+></TD
+></TR
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.AEN1143"
+HREF="input-files.html#AEN1143"
+>[2]</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+ALIGN="justify"
+>It should be pointed out that derived data, such
+as <TT
+CLASS="LITERAL"
+>ATOM</TT
+> data, may contain extra pieces of information which
+are not inputted.  For example, <TT
+CLASS="LITERAL"
+>ATOM</TT
+> data contains an
+<SPAN
+CLASS="QUOTE"
+>"atomic number"</SPAN
+> represented by an <TT
+CLASS="LITERAL"
+>INT</TT
+> variable.
+This atomic number is not inputted, but can be worked out from the <SPAN
+CLASS="QUOTE"
+>"atom
+label"</SPAN
+>---provided the label contains a string which clearly identifies
+which kind of atom it is.</P
+></TD
+></TR
+></TABLE
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="calc-chap.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="example-derived-data.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Using TONTO to do calculations</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="calc-chap.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Examples of derived data input</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

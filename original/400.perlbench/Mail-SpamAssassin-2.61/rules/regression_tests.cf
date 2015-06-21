@@ -1,0 +1,102 @@
+# SpamAssassin rules file: regression tests
+#
+# This file contains tests perfomed on `make test`. It should not be
+# distributed.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of either the Artistic License or the GNU General
+# Public License as published by the Free Software Foundation; either
+# version 1 of the License, or (at your option) any later version.
+#
+# See the file "License" in the top level of the SpamAssassin source
+# distribution for more details.
+#
+###########################################################################
+
+test DEAR_SOMETHING ok Dear IT professional,
+test DEAR_SOMETHING ok Dear Internet Investor:
+test DEAR_FRIEND ok Dear friend,
+test DEAR_FRIEND fail Dear Mr. Ithacus,
+
+test FROM_ENDS_IN_NUMS     ok   matt1234@sergeant.org
+test FROM_ENDS_IN_NUMS     fail matt@sergeant.org
+test FROM_STARTS_WITH_NUMS     ok   1234matt@sergeant.org
+test FROM_STARTS_WITH_NUMS     fail matt@sergeant.org
+test FORGED_YAHOO_RCVD fail by mf1.lng.yahoo.com (8.11.1/8.11.1) id g3SDfPH19426
+test NUMERIC_HTTP_ADDR ok http://123456789/foo/bar
+#test SEARCH_ENGINE_PROMO ok	evaluated for FREE for its keyword placement in the top twenty major search engines
+
+test US_DOLLARS fail $-$NFbMF$K!"A49q$+$iLd$$9g$o$;$,;&E~$7$F$$$^$9!#
+test US_DOLLARS ok Twenty Million Five Hundred Thousand United States Dollars
+test US_DOLLARS ok Eight million, Five Hundred United States dollars
+test US_DOLLARS ok One Million, Five Hundred Thousand U. S.  Dollars
+test US_DOLLARS ok EIHGTEEN MILLION UNITED STATE DOLLARS
+test US_DOLLARS ok 24million U.S dollars cash
+test US_DOLLARS ok 47 million US DOLLARS
+test US_DOLLARS ok FIVE MILLION FIVE HOUNDRED THOUSAND CANADIAN DOLLAS)
+
+test US_DOLLARS_2 fail JP charset test: this should not match: $1 $
+test US_DOLLARS_2 fail JP charset test: this should not match: $1$
+test US_DOLLARS_2 fail $-$NFbMF$K!"A49q$+$iLd$$9g$o$;$,;&E~$7$F$$$^$9!#
+test US_DOLLARS_2 ok of USD$17.4M only
+test US_DOLLARS_2 ok amount $21.5m represents
+test US_DOLLARS_2 ok of US$26.4 million
+test US_DOLLARS_2 ok the $21.5 million,
+
+test US_DOLLARS_3 fail $-$NFbMF$K!"A49q$+$iLd$$9g$o$;$,;&E~$7$F$$$^$9!#
+test US_DOLLARS_3 ok OF US$75,000,000.00 ( SEVENTYFIVE
+test US_DOLLARS_3 ok DOLLAR(USD$30,000,000,00.)
+test US_DOLLARS_3 ok ($21,500,000.)
+test US_DOLLARS_3 ok ($ 152,000.000.00)
+
+# note: have to use "." instead of "#", as it's the comment char
+
+test SAVE_ON_INSURANCE      ok Compare and Save Instantly On Your Auto Insurance
+
+test TRACKER_ID     ok          2174Hzdm0-105YUqT8863DiDg0-616mqbE4931HEBc0-732qBHd6314l52
+test TRACKER_ID     ok          ofsknxxdqgtgqvsoiytkivajvtj
+test TRACKER_ID     fail        <!-- ADMINISTRIVIA -->
+test TRACKER_ID     fail        Donau-Dampfschifffahrts-Kapitaen
+
+test __OBFUSCATING_COMMENT ok     This is a te<!--foo-->st
+test __OBFUSCATING_COMMENT fail   Not a <!-- problem --> here
+test __OBFUSCATING_COMMENT fail   or<!--problem--> here
+test __OBFUSCATING_COMMENT fail   This <tag><!-- neither --></tag> I hope
+
+test HIDE_WIN_STATUS ok <a href=foo onMouseOver="window.status='bar';>
+test HIDE_WIN_STATUS fail attributes like href=foo onMouseOver="window.status='bar'"
+test HIDE_WIN_STATUS fail attributes like href=foo onMouseOver="flashiness"
+
+test LINK_TO_NO_SCHEME ok <a href=www.foo.com/>foo</a>
+test LINK_TO_NO_SCHEME ok <a href='www.foo.com'>foo</a>
+test LINK_TO_NO_SCHEME ok <a href="www.geocities.com/somecrap">foo</a>
+test LINK_TO_NO_SCHEME fail <a href=http://www.foo.com/>foo</a>
+test LINK_TO_NO_SCHEME fail <a href="http://www.foo.com">foo</a>
+test LINK_TO_NO_SCHEME fail <a href="nextpage.html">foo</a>
+test LINK_TO_NO_SCHEME fail <a href="../index.html">foo</a>
+
+test HTML_WIN_OPEN ok <script> win=window.open("http://foo/") win.blur() window.focus() </script>
+test HTML_WIN_OPEN ok <body onload='win=window.open("http://foo/")'>
+test HTML_WIN_OPEN fail The window.open() function
+
+test HTML_WIN_BLUR ok <script> win=window.open("http://foo/") win.blur() window.focus() </script>
+test HTML_WIN_BLUR ok <body onload='win=window.open("http://foo/"); win.blur()'>
+test HTML_WIN_BLUR fail The win.blur() function
+
+test BAD_CREDIT ok   no credit checks
+test BAD_CREDIT ok   reestablish credit
+test BAD_CREDIT ok   establish good credit
+test BAD_CREDIT ok   repair your credit
+test BAD_CREDIT fail NOTICE: Your credit card company may place the words "San Antonio"
+
+test NEW_DOMAIN_EXTENSIONS ok   new domain extension
+test NEW_DOMAIN_EXTENSIONS ok   new .NAME domain extension
+test NEW_DOMAIN_EXTENSIONS ok   New TLD Extension
+test NEW_DOMAIN_EXTENSIONS ok   new extension
+test NEW_DOMAIN_EXTENSIONS fail newt extension
+test NEW_DOMAIN_EXTENSIONS fail renew extension
+
+test DOMAIN_BODY ok   Get .BIZ while it's hot!
+test DOMAIN_BODY ok   .info
+test DOMAIN_BODY ok   Get new .us domains
+test DOMAIN_BODY fail www.fobar.biz

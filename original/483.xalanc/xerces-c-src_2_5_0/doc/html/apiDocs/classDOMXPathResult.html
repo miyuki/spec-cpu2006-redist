@@ -1,0 +1,564 @@
+<HTML><HEAD><SCRIPT language="JavaScript" src="../resources/script.js" type="text/javascript"></SCRIPT><TITLE>DOMXPathResult class Reference</TITLE><link href="XercesApi.css" rel="stylesheet" type="text/css"></HEAD><BODY alink="#ff0000" bgcolor="#ffffff" leftmargin="4" link="#0000ff" marginheight="4" marginwidth="4" text="#000000" topmargin="4" vlink="#0000aa"><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" height="60" rowspan="3" valign="top" width="135"><IMG border="0" height="60" hspace="0" src="../resources/logo.gif" vspace="0" width="135"></TD><TD align="left" colspan="4" height="5" valign="top" width="456"><IMG border="0" height="5" hspace="0" src="../resources/line.gif" vspace="0" width="456"></TD><TD align="left" height="60" rowspan="3" valign="top" width="29"><IMG border="0" height="60" hspace="0" src="../resources/right.gif" vspace="0" width="29"></TD></TR><TR><TD align="left" bgcolor="#0086b2" colspan="4" height="35" valign="top" width="456"><IMG alt="" border="0" height="35" hspace="0" src="../graphics/api-header.jpg" vspace="0" width="456"></TD></TR><TR><TD align="left" height="20" valign="top" width="168"><IMG border="0" height="20" hspace="0" src="../resources/bottom.gif" vspace="0" width="168"></TD><TD align="left" height="20" valign="top" width="96"><A href="http://xml.apache.org/" onMouseOut="rolloverOff('xml');" onMouseOver="rolloverOn('xml');" target="new"><IMG alt="http://xml.apache.org/" border="0" height="20" hspace="0" name="xml" onLoad="rolloverLoad('xml','../resources/button-xml-hi.gif','../resources/button-xml-lo.gif');" src="../resources/button-xml-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.apache.org/" onMouseOut="rolloverOff('asf');" onMouseOver="rolloverOn('asf');" target="new"><IMG alt="http://www.apache.org/" border="0" height="20" hspace="0" name="asf" onLoad="rolloverLoad('asf','../resources/button-asf-hi.gif','../resources/button-asf-lo.gif');" src="../resources/button-asf-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.w3.org/" onMouseOut="rolloverOff('w3c');" onMouseOver="rolloverOn('w3c');" target="new"><IMG alt="http://www.w3.org/" border="0" height="20" hspace="0" name="w3c" onLoad="rolloverLoad('w3c','../resources/button-w3c-hi.gif','../resources/button-w3c-lo.gif');" src="../resources/button-w3c-lo.gif" vspace="0" width="96"></A></TD></TR></TABLE><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" valign="top" width="120"><IMG border="0" height="14" hspace="0" src="../resources/join.gif" vspace="0" width="120"><BR>
+  <A href="../../index.html" onMouseOut="rolloverOff('side-ext-2');" onMouseOver="rolloverOn('side-ext-2');"><IMG alt="Home" border="0" height="12" hspace="0" name="side-ext-2" onLoad="rolloverLoad('side-ext-2','../graphics/ext-2-label-2.jpg','../graphics/ext-2-label-3.jpg');" src="../graphics/ext-2-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../index.html" onMouseOut="rolloverOff('side-index');" onMouseOver="rolloverOn('side-index');"><IMG alt="Readme" border="0" height="12" hspace="0" name="side-index" onLoad="rolloverLoad('side-index','../graphics/index-label-2.jpg','../graphics/index-label-3.jpg');" src="../graphics/index-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../releases.html" onMouseOut="rolloverOff('side-releases');" onMouseOver="rolloverOn('side-releases');"><IMG alt="Release Info" border="0" height="12" hspace="0" name="side-releases" onLoad="rolloverLoad('side-releases','../graphics/releases-label-2.jpg','../graphics/releases-label-3.jpg');" src="../graphics/releases-label-3.jpg" vspace="0" width="120"></A><BR>
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../install.html" onMouseOut="rolloverOff('side-install');" onMouseOver="rolloverOn('side-install');"><IMG alt="Installation" border="0" height="12" hspace="0" name="side-install" onLoad="rolloverLoad('side-install','../graphics/install-label-2.jpg','../graphics/install-label-3.jpg');" src="../graphics/install-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://xml.apache.org/dist/xerces-c/" onMouseOut="rolloverOff('side-ext-18');" onMouseOver="rolloverOn('side-ext-18');"><IMG alt="Download" border="0" height="12" hspace="0" name="side-ext-18" onLoad="rolloverLoad('side-ext-18','../graphics/ext-18-label-2.jpg','../graphics/ext-18-label-3.jpg');" src="../graphics/ext-18-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../build.html" onMouseOut="rolloverOff('side-build');" onMouseOver="rolloverOn('side-build');"><IMG alt="Build" border="0" height="12" hspace="0" name="side-build" onLoad="rolloverLoad('side-build','../graphics/build-label-2.jpg','../graphics/build-label-3.jpg');" src="../graphics/build-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../faqs.html" onMouseOut="rolloverOff('side-faqs');" onMouseOver="rolloverOn('side-faqs');"><IMG alt="FAQs" border="0" height="12" hspace="0" name="side-faqs" onLoad="rolloverLoad('side-faqs','../graphics/faqs-label-2.jpg','../graphics/faqs-label-3.jpg');" src="../graphics/faqs-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../samples.html" onMouseOut="rolloverOff('side-samples');" onMouseOver="rolloverOn('side-samples');"><IMG alt="Samples" border="0" height="12" hspace="0" name="side-samples" onLoad="rolloverLoad('side-samples','../graphics/samples-label-2.jpg','../graphics/samples-label-3.jpg');" src="../graphics/samples-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../api.html" onMouseOut="rolloverOff('side-api');" onMouseOver="rolloverOn('side-api');"><IMG alt="API Docs" border="0" height="12" hspace="0" name="side-api" onLoad="rolloverLoad('side-api','../graphics/api-label-2.jpg','../graphics/api-label-3.jpg');" src="../graphics/api-label-3.jpg" vspace="0" width="120"></A><BR>  
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../ApacheDOMC++Binding.html" onMouseOut="rolloverOff('side-ext-64');" onMouseOver="rolloverOn('side-ext-64');"><IMG alt="DOM C++ Binding" border="0" height="12" hspace="0" name="side-ext-64" onLoad="rolloverLoad('side-ext-64','../graphics/ext-64-label-2.jpg','../graphics/ext-64-label-3.jpg');" src="../graphics/ext-64-label-3.jpg" vspace="0" width="120"></A><BR> 
+  <A href="../program.html" onMouseOut="rolloverOff('side-program');" onMouseOver="rolloverOn('side-program');"><IMG alt="Programming" border="0" height="12" hspace="0" name="side-program" onLoad="rolloverLoad('side-program','../graphics/program-label-2.jpg','../graphics/program-label-3.jpg');" src="../graphics/program-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../migrate.html" onMouseOut="rolloverOff('side-migrate');" onMouseOver="rolloverOn('side-migrate');"><IMG alt="Migration Guide" border="0" height="12" hspace="0" name="side-migrate" onLoad="rolloverLoad('side-migrate','../graphics/migrate-label-2.jpg','../graphics/migrate-label-3.jpg');" src="../graphics/migrate-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../feedback.html" onMouseOut="rolloverOff('side-feedback');" onMouseOver="rolloverOn('side-feedback');"><IMG alt="Feedback" border="0" height="12" hspace="0" name="side-feedback" onLoad="rolloverLoad('side-feedback','../graphics/feedback-label-2.jpg','../graphics/feedback-label-3.jpg');" src="../graphics/feedback-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../bug-report.html" onMouseOut="rolloverOff('side-bug-report');" onMouseOver="rolloverOn('side-bug-report');"><IMG alt="Bug-Reporting" border="0" height="12" hspace="0" name="side-bug-report" onLoad="rolloverLoad('side-bug-report','../graphics/bug-report-label-2.jpg','../graphics/bug-report-label-3.jpg');" src="../graphics/bug-report-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../pdf.html" onMouseOut="rolloverOff('side-pdf');" onMouseOver="rolloverOn('side-pdf');"><IMG alt="PDF Document" border="0" height="12" hspace="0" name="side-pdf" onLoad="rolloverLoad('side-pdf','../graphics/pdf-label-2.jpg','../graphics/pdf-label-3.jpg');" src="../graphics/pdf-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="http://xml.apache.org/websrc/cvsweb.cgi/xml-xerces/c/" onMouseOut="rolloverOff('side-ext-96');" onMouseOver="rolloverOn('side-ext-96');"><IMG alt="CVS Repository" border="0" height="12" hspace="0" name="side-ext-96" onLoad="rolloverLoad('side-ext-96','../graphics/ext-96-label-2.jpg','../graphics/ext-96-label-3.jpg');" src="../graphics/ext-96-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://marc.theaimsgroup.com/?l=xerces-c-dev" onMouseOut="rolloverOff('side-ext-98');" onMouseOver="rolloverOn('side-ext-98');"><IMG alt="Mail Archive" border="0" height="12" hspace="0" name="side-ext-98" onLoad="rolloverLoad('side-ext-98','../graphics/ext-98-label-2.jpg','../graphics/ext-98-label-3.jpg');" src="../graphics/ext-98-label-3.jpg" vspace="0" width="120"></A><BR>
+
+<IMG border="0" height="14" hspace="0" src="../resources/close.gif" vspace="0" width="120"><BR></TD><TD align="left" valign="top" width="500"><TABLE border="0" cellpadding="3" cellspacing="0"><TR><TD>
+    <TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#FFFFFF" colspan="2" width="494"><TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#039acc" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#039acc" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#039acc" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" width="492"><FONT color="#ffffff" face="arial,helvetica,sanserif" size="+1"><IMG border="0" height="2" hspace="0" src="../resources/void.gif" vspace="0" width="2"><B>API Docs for SAX and DOM</B></FONT></TD><TD bgcolor="#017299" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#017299" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#017299" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></TD></TR><TR><TD width="10">&nbsp;</TD><TD width="484"><FONT color="#000000" face="arial,helvetica,sanserif">
+
+	    <P>
+<!-- Generated by Doxygen 1.2.14 -->
+<center>
+<a class="qindex" href="index.html">Main Page</a> &nbsp; <a class="qindex" href="hierarchy.html">Class Hierarchy</a> &nbsp; <a class="qindex" href="classes.html">Alphabetical List</a> &nbsp; <a class="qindex" href="annotated.html">Compound List</a> &nbsp; <a class="qindex" href="files.html">File List</a> &nbsp; <a class="qindex" href="functions.html">Compound Members</a> &nbsp; <a class="qindex" href="globals.html">File Members</a> &nbsp; </center>
+<hr><h1>DOMXPathResult  Class Reference</h1>The <code>DOMXPathResult</code> interface represents the result of the evaluation of an XPath 1.0 expression within the context of a particular node. 
+<a href="#_details">More...</a>
+<p>
+<a href="classDOMXPathResult-members.html">List of all members.</a><table border=0 cellpadding=0 cellspacing=0>
+<tr><td colspan=2><br><h2>Public Types</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Public Contants</div></td></tr>
+<tr><td nowrap align=right valign=top>enum &nbsp;</td><td valign=bottom><a class="el" href="classDOMXPathResult.html#z202_0">resultType</a> { <br>
+&nbsp;&nbsp;<a class="el" href="classDOMXPathResult.html#z202_0s0">ANY_TYPE</a> =  0, 
+<a class="el" href="classDOMXPathResult.html#z202_0s1">NUMBER_TYPE</a> =  1, 
+<a class="el" href="classDOMXPathResult.html#z202_0s2">STRING_TYPE</a> =  2, 
+<a class="el" href="classDOMXPathResult.html#z202_0s3">BOOLEAN_TYPE</a> =  3, 
+<br>
+&nbsp;&nbsp;<a class="el" href="classDOMXPathResult.html#z202_0s4">UNORDERED_NODE_ITERATOR_TYPE</a> =  4, 
+<a class="el" href="classDOMXPathResult.html#z202_0s5">ORDERED_NODE_ITERATOR_TYPE</a> =  5, 
+<a class="el" href="classDOMXPathResult.html#z202_0s6">UNORDERED_NODE_SNAPSHOT_TYPE</a> =  6, 
+<a class="el" href="classDOMXPathResult.html#z202_0s7">ORDERED_NODE_SNAPSHOT_TYPE</a> =  7, 
+<br>
+&nbsp;&nbsp;<a class="el" href="classDOMXPathResult.html#z202_0s8">ANY_UNORDERED_NODE_TYPE</a> =  8, 
+<a class="el" href="classDOMXPathResult.html#z202_0s9">FIRST_ORDERED_NODE_TYPE</a> =  9
+<br>
+ }</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>ANY_TYPE This code does not represent a specific type.</em> <a href="#z202_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan=2><br><h2>Public Methods</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
+<tr><td nowrap align=right valign=top>virtual&nbsp;</td><td valign=bottom><a class="el" href="classDOMXPathResult.html#z201_0">~DOMXPathResult</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Destructor.</em> <a href="#z201_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Functions introduced in DOM Level 3</div></td></tr>
+<tr><td nowrap align=right valign=top>virtual bool&nbsp;</td><td valign=bottom><a class="el" href="classDOMXPathResult.html#z203_0">getBooleanValue</a> () const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Returns the boolean value of this result.</em> <a href="#z203_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual bool&nbsp;</td><td valign=bottom><a class="el" href="classDOMXPathResult.html#z203_1">getInvalidIteratorState</a> () const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Returns the state of the iterator.</em> <a href="#z203_1">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual double&nbsp;</td><td valign=bottom><a class="el" href="classDOMXPathResult.html#z203_2">getNumberValue</a> () const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Returns the number value of this result.</em> <a href="#z203_2">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual short&nbsp;</td><td valign=bottom><a class="el" href="classDOMXPathResult.html#z203_3">getResultType</a> () const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Returns the result type of this result.</em> <a href="#z203_3">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classDOMNode.html">DOMNode</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMXPathResult.html#z203_4">getSingleNodeValue</a> () const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Returns the single node value of this result.</em> <a href="#z203_4">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual unsigned long&nbsp;</td><td valign=bottom><a class="el" href="classDOMXPathResult.html#z203_5">getSnapshotLength</a> () const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Returns the snapshot length.</em> <a href="#z203_5">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual const XMLCh *&nbsp;</td><td valign=bottom><a class="el" href="classDOMXPathResult.html#z203_6">getStringValue</a> () const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Returns the string value of this result.</em> <a href="#z203_6">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classDOMNode.html">DOMNode</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMXPathResult.html#z203_7">iterateNext</a> () const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Iterates and returns the next node from the node set or nullif there are no more nodes.</em> <a href="#z203_7">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classDOMNode.html">DOMNode</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMXPathResult.html#z203_8">snapshotItem</a> (unsigned long index) const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Returns the indexth item in the snapshot collection.</em> <a href="#z203_8">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan=2><br><h2>Protected Methods</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Hidden constructors</div></td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classDOMXPathResult.html#z199_0">DOMXPathResult</a> ()</td></tr>
+</table>
+<hr><a name="_details"></a><h2>Detailed Description</h2>
+The <code>DOMXPathResult</code> interface represents the result of the evaluation of an XPath 1.0 expression within the context of a particular node.
+<p>
+Since evaluation of an XPath expression can result in various result types, this object makes it possible to discover and manipulate the type and value of the result. <dl compact><dt><b>
+Since: </b><dd>
+DOM Level 3 </dl>
+<p>
+<hr><h2>Member Enumeration Documentation</h2>
+<a name="z202_0" doxytag="DOMXPathResult::resultType"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> enum DOMXPathResult::resultType
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+ANY_TYPE This code does not represent a specific type.
+<p>
+An evaluation of an XPath  expression will never produce this type. If this type is requested, then  the evaluation returns whatever type naturally results from evaluation  of the expression. If the natural result is a node set when ANY_TYPE was requested, then  UNORDERED_NODE_ITERATOR_TYPE is always the resulting type. Any other  representation of a node set must be explicitly requested. ANY_UNORDERED_NODE_TYPE The result is a node set as defined by [XPath 1.0] and will be accessed as a single node, which may be nullif the node set is empty. Document modification does not invalidate the node, but may mean that the result  node no longer corresponds to the current document. This is a convenience that permits optimization since the implementation can stop once any node  in the resulting set has been found. If there is more than one node in the actual result, the single node  returned might not be the first in document order. BOOLEAN_TYPE The result is a boolean as defined by [XPath 1.0]. Document modification  does not invalidate the boolean, but may mean that reevaluation would not  yield the same boolean. FIRST_ORDERED_NODE_TYPE The result is a node set as defined by [XPath 1.0] and will be accessed as a single node, which may be null if the node set is empty. Document  modification does not invalidate the node, but may mean that the result  node no longer corresponds to the current document. This is a convenience that permits optimization since the implementation can stop once the first node in document order of the resulting set has been found. If there are more than one node in the actual result, the single node  returned will be the first in document order. NUMBER_TYPE The result is a number as defined by [XPath 1.0]. Document modification does not invalidate the number, but may mean that reevaluation would not yield the  same number. ORDERED_NODE_ITERATOR_TYPE The result is a node set as defined by [XPath 1.0] that will be accessed  iteratively, which will produce document-ordered nodes. Document modification  invalidates the iteration. ORDERED_NODE_SNAPSHOT_TYPE The result is a node set as defined by [XPath 1.0] that will be accessed as a snapshot list of nodes that will be in original document order. Document  modification does not invalidate the snapshot but may mean that reevaluation would not yield the same snapshot and nodes in the snapshot may have been altered, moved,  or removed from the document. STRING_TYPE The result is a string as defined by [XPath 1.0]. Document modification does not invalidate the string, but may mean that the string no longer corresponds to the  current document. UNORDERED_NODE_ITERATOR_TYPE The result is a node set as defined by [XPath 1.0] that will be accessed iteratively,  which may not produce nodes in a particular order. Document modification invalidates the iteration. This is the default type returned if the result is a node set and ANY_TYPE is requested. UNORDERED_NODE_SNAPSHOT_TYPE The result is a node set as defined by [XPath 1.0] that will be accessed as a snapshot list of nodes that may not be in a particular order. Document modification does not invalidate the snapshot but may mean that reevaluation would not yield the same snapshot and nodes in the snapshot may have been altered, moved, or removed from the document. <dl compact><dt><b>
+Enumeration values:</b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em><a name="z202_0s0" doxytag="ANY_TYPE"></a><em>ANY_TYPE</em></em>&nbsp;</td><td>
+</td></tr>
+<tr><td valign=top><em><a name="z202_0s1" doxytag="NUMBER_TYPE"></a><em>NUMBER_TYPE</em></em>&nbsp;</td><td>
+</td></tr>
+<tr><td valign=top><em><a name="z202_0s2" doxytag="STRING_TYPE"></a><em>STRING_TYPE</em></em>&nbsp;</td><td>
+</td></tr>
+<tr><td valign=top><em><a name="z202_0s3" doxytag="BOOLEAN_TYPE"></a><em>BOOLEAN_TYPE</em></em>&nbsp;</td><td>
+</td></tr>
+<tr><td valign=top><em><a name="z202_0s4" doxytag="UNORDERED_NODE_ITERATOR_TYPE"></a><em>UNORDERED_NODE_ITERATOR_TYPE</em></em>&nbsp;</td><td>
+</td></tr>
+<tr><td valign=top><em><a name="z202_0s5" doxytag="ORDERED_NODE_ITERATOR_TYPE"></a><em>ORDERED_NODE_ITERATOR_TYPE</em></em>&nbsp;</td><td>
+</td></tr>
+<tr><td valign=top><em><a name="z202_0s6" doxytag="UNORDERED_NODE_SNAPSHOT_TYPE"></a><em>UNORDERED_NODE_SNAPSHOT_TYPE</em></em>&nbsp;</td><td>
+</td></tr>
+<tr><td valign=top><em><a name="z202_0s7" doxytag="ORDERED_NODE_SNAPSHOT_TYPE"></a><em>ORDERED_NODE_SNAPSHOT_TYPE</em></em>&nbsp;</td><td>
+</td></tr>
+<tr><td valign=top><em><a name="z202_0s8" doxytag="ANY_UNORDERED_NODE_TYPE"></a><em>ANY_UNORDERED_NODE_TYPE</em></em>&nbsp;</td><td>
+</td></tr>
+<tr><td valign=top><em><a name="z202_0s9" doxytag="FIRST_ORDERED_NODE_TYPE"></a><em>FIRST_ORDERED_NODE_TYPE</em></em>&nbsp;</td><td>
+</td></tr>
+</table>
+</dl>
+    </td>
+  </tr>
+</table>
+<hr><h2>Constructor &amp; Destructor Documentation</h2>
+<a name="z199_0" doxytag="DOMXPathResult::DOMXPathResult"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> DOMXPathResult::DOMXPathResult </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [protected]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="z201_0" doxytag="DOMXPathResult::~DOMXPathResult"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual DOMXPathResult::~DOMXPathResult </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Destructor.
+<p>
+    </td>
+  </tr>
+</table>
+<hr><h2>Member Function Documentation</h2>
+<a name="z203_0" doxytag="DOMXPathResult::getBooleanValue"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual bool DOMXPathResult::getBooleanValue </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Returns the boolean value of this result.
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+booleanValue of type boolean, readonly The value of this boolean result. </dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>XPathException</em>&nbsp;</td><td>
+ TYPE_ERR: raised if resultType is not BOOLEAN_TYPE. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="z203_1" doxytag="DOMXPathResult::getInvalidIteratorState"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual bool DOMXPathResult::getInvalidIteratorState </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Returns the state of the iterator.
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+invalidIteratorState  Signifies that the iterator has become invalid. True if resultType is  UNORDERED_NODE_ITERATOR_TYPE or ORDERED_NODE_ITERATOR_TYPE and the  document has been modified since this result was returned. </dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>XPathException</em>&nbsp;</td><td>
+  TYPE_ERR: raised if resultType is not NUMBER_TYPE. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="z203_2" doxytag="DOMXPathResult::getNumberValue"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual double DOMXPathResult::getNumberValue </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Returns the number value of this result.
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+numberValue  The value of this number result. If the native double type of the DOM  binding does not directly support the exact IEEE 754 result of the XPath  expression, then it is up to the definition of the binding to specify how  the XPath number is converted to the native binding number. </dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>XPathException</em>&nbsp;</td><td>
+ TYPE_ERR: raised if resultType is not NUMBER_TYPE. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="z203_3" doxytag="DOMXPathResult::getResultType"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual short DOMXPathResult::getResultType </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Returns the result type of this result.
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+resultType  A code representing the type of this result, as defined by the type constants.  </dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>XPathException</em>&nbsp;</td><td>
+ TYPE_ERR: raised if resultType is not ANY_UNORDERED_NODE_TYPE or FIRST_ORDERED_NODE_TYPE. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="z203_4" doxytag="DOMXPathResult::getSingleNodeValue"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classDOMNode.html">DOMNode</a>* DOMXPathResult::getSingleNodeValue </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Returns the single node value of this result.
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+singleNodeValue  The value of this single node result, which may be null. </dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>XPathException</em>&nbsp;</td><td>
+ TYPE_ERR: raised if resultType is not ANY_UNORDERED_NODE_TYPE or FIRST_ORDERED_NODE_TYPE. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="z203_5" doxytag="DOMXPathResult::getSnapshotLength"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual unsigned long DOMXPathResult::getSnapshotLength </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Returns the snapshot length.
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+snapshotLength  The number of nodes in the result snapshot. Valid values for snapshotItem indices  are 0 to snapshotLength-1 inclusive. </dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>XPathException</em>&nbsp;</td><td>
+ TYPE_ERR: raised if resultType is not UNORDERED_NODE_SNAPSHOT_TYPE or  ORDERED_NODE_SNAPSHOT_TYPE. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="z203_6" doxytag="DOMXPathResult::getStringValue"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual const XMLCh* DOMXPathResult::getStringValue </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Returns the string value of this result.
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+stringValue  The value of this string result. </dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>XPathException</em>&nbsp;</td><td>
+ TYPE_ERR: raised if resultType is not STRING_TYPE. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="z203_7" doxytag="DOMXPathResult::iterateNext"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classDOMNode.html">DOMNode</a>* DOMXPathResult::iterateNext </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Iterates and returns the next node from the node set or nullif there are no more nodes.
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+the next node. </dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>XPathException</em>&nbsp;</td><td>
+ TYPE_ERR: raised if resultType is not UNORDERED_NODE_ITERATOR_TYPE or ORDERED_NODE_ITERATOR_TYPE. </td></tr>
+<tr><td valign=top><em><a class="el" href="classDOMException.html">DOMException</a></em>&nbsp;</td><td>
+ INVALID_STATE_ERR: The document has been mutated since the result was returned. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="z203_8" doxytag="DOMXPathResult::snapshotItem"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classDOMNode.html">DOMNode</a>* DOMXPathResult::snapshotItem </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">unsigned long&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>index</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Returns the indexth item in the snapshot collection.
+<p>
+If index is greater than or equal to the number of nodes in the list, this method returns null. Unlike the iterator result, the snapshot does not become invalid, but may not correspond  to the current document if it is mutated. <dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>index</em>&nbsp;</td><td>
+of type unsigned long - Index into the snapshot collection. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+The node at the indexth position in the NodeList, or null if that is not a valid index. </dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>XPathException</em>&nbsp;</td><td>
+ TYPE_ERR: raised if resultType is not UNORDERED_NODE_SNAPSHOT_TYPE or ORDERED_NODE_SNAPSHOT_TYPE. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<hr>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="DOMXPathResult_8hpp-source.html">DOMXPathResult.hpp</a></ul>
+    </FONT></TD></TR></TABLE><BR>
+</TD></TR></TABLE></TD></TR></TABLE><BR><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD bgcolor="#0086b2"><IMG height="1" src="images/dot.gif" width="1" alt=""></TD></TR><TR><TD align="center"><FONT color="#0086b2" size="-1"><I>
+              Copyright &copy; 2004 The Apache Software Foundation.
+              All Rights Reserved.
+            </I></FONT></TD></TR></TABLE></BODY></HTML>

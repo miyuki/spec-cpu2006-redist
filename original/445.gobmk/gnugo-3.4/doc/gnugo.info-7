@@ -1,0 +1,1242 @@
+This is gnugo.info, produced by makeinfo version 4.2 from gnugo.texi.
+
+INFO-DIR-SECTION GNU games
+START-INFO-DIR-ENTRY
+* GNU go: (gnugo).          The GNU Go program
+END-INFO-DIR-ENTRY
+
+
+File: gnugo.info,  Node: Alternate Komaster Schemes,  Next: Superstrings,  Prev: Another Ko Example,  Up: Tactical Reading
+
+Alternate Komaster Schemes
+==========================
+
+   The following alternate schemes have been proposed. It is assumed
+that `O' is the player about to move.
+
+Essentially the 2.7.232 scheme.
+-------------------------------
+
+   * Komaster is EMPTY.
+        - Unconditional ko capture is allowed. Komaster remains EMPTY.
+
+        - Conditional ko capture is allowed. Komaster is set to O and
+          `kom_pos' to the location of the ko, where a stone was just
+          removed.
+
+   * Komaster is O:
+        - Conditional ko capture is not allowed.
+
+        - Unconditional ko capture is allowed. Komaster parameters
+          unchanged.
+
+   * Komaster is X:
+        - Conditional ko capture is not allowed.
+
+        - Unconditional ko capture is allowed except for a move at
+          `kom_pos'. Komaster parameters unchanged.
+
+Revised 2.7.232 version
+-----------------------
+
+   * Komaster is EMPTY.
+        - Unconditional ko capture is allowed. Komaster remains EMPTY.
+
+        - Conditional ko capture is allowed. Komaster is set to `O' and
+          `kom_pos' to the location of the ko, where a stone was just
+          removed.
+
+   * Komaster is `O':
+        - Ko capture (both kinds) is allowed only if after playing the
+          move, `is_ko(kom_pos, X)' returns false. In that case,
+          `kom_pos' is updated to the new ko position, i.e. the stone
+          captured by this move.
+
+   * Komaster is `X':
+        - Conditional ko capture is not allowed.
+
+        - Unconditional ko capture is allowed except for a move at
+          `kom_pos'. Komaster parameters unchanged.
+
+
+File: gnugo.info,  Node: Superstrings,  Next: Debugging,  Prev: Alternate Komaster Schemes,  Up: Tactical Reading
+
+Superstrings
+============
+
+   A _superstring_ is an extended string, where the extensions are
+through the following kinds of connections:
+
+  1. Solid connections (just like ordinary string).
+            OO
+
+  2. Diagonal connection or one space jump through an intersection
+     where an opponent move would be suicide or self-atari.
+            ...
+            O.O
+            XOX
+            X.X
+
+  3. Bamboo joint.
+            OO
+            ..
+            OO
+
+  4. Diagonal connection where both adjacent intersections are empty.
+            .O
+            O.
+
+  5. Connection through adjacent or diagonal tactically captured stones.
+     Connections of this type are omitted when the superstring code is
+     called from `reading.c', but included when the superstring code is
+     called from `owl.c'.
+
+   Like a dragon, a superstring is an amalgamation of strings, but it is
+a much tighter organization of stones than a dragon, and its purpose is
+different. Superstrings are encountered already in the tactical reading
+because sometimes attacking or defending an element of the superstring
+is the best way to attack or defend a string. This is in contrast with
+dragons, which are ignored during tactical reading.
+
+
+File: gnugo.info,  Node: Debugging,  Next: Connection Reading,  Prev: Superstrings,  Up: Tactical Reading
+
+Debugging the reading code
+==========================
+
+   The reading code searches for a path through the move tree to
+determine whether a string can be captured. We have a tool for
+investigating this with the `--decidestring' option. This may be run
+with or without an output file.
+
+   Simply running
+
+
+     `gnugo -t -l [input file name] -L [movenumber] --decidestring [location]'
+
+will run `attack()' to determine whether the string can be captured.
+If it can, it will also run `find_defense()' to determine whether or
+not it can be defended. It will give a count of the number of
+variations read. The `-t' is necessary, or else GNU Go will not report
+its findings.
+
+   If we add `-o OUTPUT FILE' GNU Go will produce an output file with
+all variations considered. The variations are numbered in comments.
+
+   This file of variations is not very useful without a way of
+navigating the source code. This is provided with the GDB source file,
+listed at the end. You can source this from GDB, or just make it your
+GDB init file.
+
+   If you are using GDB to debug GNU Go you may find it less confusing
+to compile without optimization. The optimization sometimes changes the
+order in which program steps are executed. For example, to compile
+`reading.c' without optimization, edit `engine/Makefile' to remove the
+string `-O2' from the file, touch `engine/reading.c' and make. Note
+that the Makefile is automatically generated and may get overwritten
+later.
+
+   If in the course of reading you need to analyze a result where a
+function gets its value by returning a cached position from the hashing
+code, rerun the example with the hashing turned off by the command line
+option `--hash 0'. You should get the same result. (If you do not,
+please send us a bug report.) Don't run `--hash 0' unless you have a
+good reason to, since it increases the number of variations.
+
+   With the source file given at the end of this document loaded, we
+can now navigate the variations. It is a good idea to use cgoban with a
+small `-fontHeight', so that the variation window takes in a big
+picture. (You can resize the board.)
+
+   Suppose after perusing this file, we find that variation 17 is
+interesting and we would like to find out exactly what is going on here.
+
+   The macro 'jt n' will jump to the n-th variation.
+
+
+     (gdb) set args -l [filename] -L [move number] --decidestring [location]
+     (gdb) tbreak main
+     (gdb) run
+     (gdb) jt 17
+
+will then jump to the location in question.
+
+   Actually the attack variations and defense variations are numbered
+separately. (But `find_defense()' is only run if `attack()' succeeds,
+so the defense variations may or may not exist.) It is redundant to
+have to tbreak main each time. So there are two macros avar and dvar.
+
+
+     (gdb) avar 17
+
+restarts the program, and jumps to the 17-th attack variation.
+
+
+     (gdb) dvar 17
+
+jumps to the 17-th defense variation. Both variation sets are found in
+the same sgf file, though they are numbered separately.
+
+   Other commands defined in this file:
+
+
+
+     `dump' will print the move stack.
+     `nv' moves to the next variation
+     `ascii i j' converts (i,j) to ascii
+     
+     #######################################################
+     ###############      .gdbinit file      ###############
+     #######################################################
+     
+     # this command displays the stack
+     
+     define dump
+     set dump_stack()
+     end
+     
+     # display the name of the move in ascii
+     
+     define ascii
+     set gprintf("%o%m\n",$arg0,$arg1)
+     end
+     
+     # display the all information about a dragon
+     
+     define dragon
+     set ascii_report_dragon("$arg0")
+     end
+     
+     define worm
+     set ascii_report_worm("$arg0")
+     end
+     
+     # move to the next variation
+     
+     define nv
+     tbreak trymove
+     continue
+     finish
+     next
+     end
+     
+     # move forward to a particular variation
+     
+     define jt
+     while (count_variations < $arg0)
+     nv
+     end
+     nv
+     dump
+     end
+     
+     # restart, jump to a particular attack variation
+     
+     define avar
+     delete
+     tbreak sgffile_decidestring
+     run
+     tbreak attack
+     continue
+     jt $arg0
+     end
+     
+     # restart, jump to a particular defense variation
+     
+     define dvar
+     delete
+     tbreak sgffile_decidestring
+     run
+     tbreak attack
+     continue
+     finish
+     next 3
+     jt $arg0
+     end
+
+
+File: gnugo.info,  Node: Connection Reading,  Prev: Debugging,  Up: Tactical Reading
+
+Connection Reading
+==================
+
+   GNU Go does reading to determine if strings can be connected.  The
+algorithms for this are in `readconnect.c'. As with the reading code,
+the connection code is not pattern based.
+
+   The connection code is invoked by the engine through the functions:
+
+   * `int string_connect(int str1, int str2, int *move)'
+
+          Returns `WIN' if `str1' and `str2' can be connected.
+
+   * `int disconnect(int str1, int str2, int *move)'
+
+          Returns `WIN' if `str1' and `str2' can be disconnected.
+
+   To see the connection code in action, you may try the following
+example.
+
+     gnugo --quiet -l connection3.sgf --decide-connection M3/N7 -o vars.sgf
+
+   (The file `connection3.sgf' is in `regression/games'.)  Examine the
+sgf file produced by this to see what kind of reading is done by the
+functions `string_connect()' and `string_disconnect()', which are
+called by the function `decide_connection'.
+
+   One use of the connection code is used is through the autohelper
+macros `oplay_connect', `xplay_connect', `oplay_disconnect' and
+`xplay_disconnect' which are used in the connection databases.
+
+
+File: gnugo.info,  Node: Pattern Based Reading,  Next: Influence,  Prev: Tactical Reading,  Up: Top
+
+Pattern Based Reading
+*********************
+
+   In the tactical reading code in `reading.c', the code generating the
+moves which are tried are all hand coded in C, for efficiency. There is
+much to be said for another type of reading, in which the moves to be
+tried are generated from a pattern database.
+
+   GNU Go does three main types of pattern based reading. First, there
+is the OWL code (Optics with Limit Negotiation) which attempts to read
+out to a point where the code in `engine/optics.c' (*note Eyes::) can
+be used to evaluate it.  Like the tactical reading code, a persistent
+cache is employed to maintain some of the owl data from move to move.
+This is an essential speedup without which GNU Go would play too slowly.
+
+   Secondly, there is the `engine/combination.c' which attempts to find
+combinations--situations where a series of threats eventually
+culminates in one that cannot be parried.
+
+   Finally there is the semeai module. A *semeai* is a capturing race
+between two adjacent DEAD or CRITICAL dragons of opposite colors. The
+principal function, `owl_analyze_semeai()' is contained in `owl.c'.
+Due to the complex nature of semeais, the results of this function are
+more frequently wrong than the usual owl code.
+
+* Menu:
+
+* The Owl Code::                Life and death reading
+* Combinations::                Combinations
+
+
+File: gnugo.info,  Node: The Owl Code,  Next: Combinations,  Up: Pattern Based Reading
+
+The Owl Code
+============
+
+   The life and death code in `optics.c', described elsewhere (*note
+Eyes::), works reasonably well as long as the position is in a
+"terminal position", which we define to be one where there are no moves
+left which can expand the eye space, or limit it. In situations where
+the dragon is surrounded, yet has room to thrash around a bit making
+eyes, a simple application of the graph-based analysis will not work.
+Instead, a bit of reading is needed to reach a terminal position.
+
+   The defender tries to expand his eyespace, the attacker to limit it,
+and when neither finds an effective move, the position is evaluated. We
+call this type of life and death reading "Optics With
+Limit-negotiation" (OWL). The module which implements it is in
+`engine/owl.c'.
+
+   There are two reasonably small databases
+`patterns/owl_defendpats.db' and `patterns/owl_attackpats.db' of
+expanding and limiting moves. The code in `owl.c' generates a small
+move tree, allowing the attacker only moves from `owl_attackpats.db',
+and the defender only moves from `owl_defendpats.db'. In addition to
+the moves suggested by patterns, vital moves from the eye space
+analysis are also tested.
+
+   A third database, `owl_vital_apats.db' includes patterns which
+override the eyespace analysis done by the optics code. Since the
+eyeshape graphs ignore the complications of shortage of liberties and
+cutting points in the surrounding chains, the static analysis of
+eyespace is sometimes wrong. The problem is when the optics code says
+that a dragon definitely has 2 eyes, but it isn't true due to shortage
+of liberties, so the ordinary owl patterns never get into play.  In
+such situations `owl_vital_apats.db' is the only available measure to
+correct mistakes by the optics. Currently the patterns in
+`owl_vital_apats.db' are only matched when the level is 9 or greater.
+
+   The owl code is tuned by editing these three pattern databases,
+principally the first two.
+
+   A node of the move tree is considered `terminal' if no further moves
+are found from `owl_attackpats.db' or `owl_defendpats.db', or if the
+function `compute_eyes_pessimistic()' reports that the group is
+definitely alive. At this point, the status of the group is evaluated.
+The functions `owl_attack()' and `owl_defend()', with usage similar to
+`attack()' and `find_defense()', make use of the owl pattern databases
+to generate the move tree and decide the status of the group.
+
+   The function `compute_eyes_pessimistic()' used by the owl code is
+very conservative and only feels certain about eyes if the eyespace is
+completely closed (i.e. no marginal vertices).
+
+   The maximum number of moves tried at each node is limited by the
+parameter `MAX_MOVES' defined at the beginning of `engine/owl.c'. The
+most most valuable moves are tried first, with the following
+restrictions:
+
+   * If `stackp > owl_branch_depth' then only one move is tried per
+     variation.
+
+   * If `stackp > owl_reading_depth' then the reading terminates, and
+     the situation is declared a win for the defender (since deep
+     reading may be a sign of escape).
+
+   * If the node count exceeds `owl_node_limit', the reading also
+     terminates with a win for the defender.
+
+   * Any pattern with value 99 is considered a forced move: no other
+     move is tried, and if two such moves are found, the function
+     returns false. This is only relevant for the attacker.
+
+   * Any pattern in `patterns/owl_attackpats.db' and
+     `patterns/owl_defendpats.db' with value 100 is considered a win: if
+     such a pattern is found by `owl_attack' or `owl_defend', the
+     function returns true. This feature must be used most carefully.
+
+   The functions `owl_attack()' and `owl_defend()' may, like `attack()'
+and `find_defense()', return an attacking or defending move through
+their pointer arguments. If the position is already won, `owl_attack()'
+may or may not return an attacking move. If it finds no move of
+interest, it will return `PASS', that is, `0'. The same goes for
+`owl_defend()'.
+
+   When `owl_attack()' or `owl_defend()' is called, the dragon under
+attack is marked in the array `goal'.  The stones of the dragon
+originally on the board are marked with goal=1; those added by
+`owl_defend()' are marked with goal=2. If all the original strings of
+the original dragon are captured, `owl_attack()' considers the dragon
+to be defeated, even if some stones added later can make a live group.
+
+   Only dragons with small escape route are studied when the functions
+are called from `make_dragons()'.
+
+   The owl code can be conveniently tested using the `--decide-owl
+LOCATION' option. This should be used with `-t' to produce a useful
+trace, `-o' to produce an SGF file of variations produced when the life
+and death of the dragon at LOCATION is checked, or both.
+`--decide-position' performs the same analysis for all dragons with
+small escape route.
+
+
+File: gnugo.info,  Node: Combinations,  Prev: The Owl Code,  Up: Pattern Based Reading
+
+Combination reading
+===================
+
+   It may happen that no single one of a set of worms can be killed,
+yet there is a move that guarantees that at least one can be captured.
+The simplest example is a double atari.  The purpose of the code in
+`combination.c' is to find such moves.
+
+   For example, consider the following situation:
+
+
+     +---------
+     |....OOOOX
+     |....OOXXX
+     |..O.OXX..
+     |.OXO.OX..
+     |.OX..OO..
+     |.XXOOOXO.
+     |..*XXOX..
+     |....XOX..
+     |.XX..X...
+     |X........
+
+   Every `X' stone in this position is alive. However the move at `*'
+produces a position in which at least one of four strings will get
+captured. This is a _combination_.
+
+   The driving function is called `atari_atari' because typically a
+combination involves a sequence of ataris culminating in a capture,
+though sometimes the moves involved are not ataris. For example in the
+above example, the first move at `*' is _not_ an atari, though after
+`O' defends the four stones above, a sequence of ataris ensues
+resulting in the capture of some string.
+
+   Like the owl functions `atari_atari' does pattern-based reading. The
+database generating the attacking moves is `aa_attackpats.db'. One
+danger with this function is that the first atari tried might be
+irrelevant to the actual combination.  To detect this possibility, once
+we've found a combination, we mark that first move as forbidden, then
+try again. If no combination of the same size or larger turns up, then
+the first move was indeed essential.
+
+   * `void combinations(int color)'
+
+          Generate move reasons for combination attacks and defenses
+          against them. This is one of the move generators called from
+          genmove().
+
+   * `int atari_atari(int color, int *attack_move, char
+     defense_moves[BOARDMAX], int save_verbose)'
+
+          Look for a combination for `color'. For the purpose of the
+          move generation, returns the size of the smallest of the
+          worms under attack.
+
+   * `int atari_atari_confirm_safety(int color, int move, int *defense,
+     int minsize, const char saved_dragons[BOARDMAX], const char
+     saved_worms[BOARDMAX])'
+
+          Tries to determine whether a move is a blunder.  Wrapper
+          around atari_atari_blunder_size. Check whether a combination
+          attack of size at least `minsize' appears after move at
+          `move' has been made.  The arrays `saved_dragons[]' and
+          `saved_worms[]' should be one for stones belonging to dragons
+          or worms respectively, which are supposedly saved by `move'.
+
+   * `int atari_atari_blunder_size(int color, int move, int *defense,
+     const char safe_stones[BOARDMAX])'
+
+          This function checks whether any new combination attack
+          appears after move at (move) has been made, and returns its
+          size (in points).  `safe_stones' marks which of our stones
+          are supposedly safe after this move.
+
+
+File: gnugo.info,  Node: Influence,  Next: Alternative Moyo,  Prev: Pattern Based Reading,  Up: Top
+
+Influence Function
+******************
+
+* Menu:
+
+* Influential Concepts::        Conceptual Outline of Influence
+* Territory and Moyo::		Territory, Moyo and Area
+* Influence Usage::		Where influence gets used in the engine
+* Influence and Territory::     Influence and Territory
+* Territorial Details::		Details of the Territory Valuation
+* The Influence Core::          The Core of the Influence Function
+* The Influence Algorithm::     The algorithm of `accumlate_influence()'
+* Permeability::                Permeability
+* Escape::                      Escape
+* Break Ins::                   Break Ins
+* Surrounded Dragons::          Surrounded Dragons
+* Influential Patterns::	Patterns used by the Influence module
+* Influential Display::         Colored display and debugging of influence
+
+
+File: gnugo.info,  Node: Influential Concepts,  Next: Territory and Moyo,  Up: Influence
+
+Conceptual Outline of Influence
+===============================
+
+   We define call stones "lively" if they cannot be tactically
+attacked, or if they have a tactical defense and belong to the player
+whose turn it is. Similarly, stones that cannot be strategically
+attacked (in the sense of the life-and-death analysis), or that have a
+strategical defense and belong to the player to move, are called
+"alive".  If we want to use the influence function before deciding the
+strategical status, all lively stones count as alive.
+
+   Every alive stone on the board works as an influence source, with
+influence of its color radiating outwards in all directions. The
+strength of the influence declines exponentially with the distance from
+the source.
+
+   Influence can only flow unhindered if the board is empty, however.
+All lively stones (regardless of color) act as influence barriers, as do
+connections between enemy stones that can't be broken through. For
+example the one space jump counts as a barrier unless either of the
+stones can be captured. Notice that it doesn't matter much if the
+connection between the two stones can be broken, since in that case
+there would come influence from both directions anyway.
+
+   From the influence of both colors we compute a territorial value
+between -1.0 and +1.0 for each intersection, which can be seen as the
+likely hood of it becoming territory for either color.
+
+   In order to avoid finding bogus territory, we add extra influence
+sources at places where an invasion can be launched, e.g. at 3-3 under
+a handicap stone, in the middle of wide edge extensions and in the
+center of large open spaces anywhere. Similarly we add extra influence
+sources where intrusions can be made into what otherwise looks as solid
+territory, e.g. monkey jumps. These intrusions depend on whose turn we
+assume it to be.
+
+   All these extra influence sources, as well as connections, are
+controlled by a pattern database, which consists of the two files
+patterns/influence.db and patterns/barriers.db. The details are
+explained in *Note Influential Patterns::.
+
+
+File: gnugo.info,  Node: Territory and Moyo,  Next: Influence Usage,  Prev: Influential Concepts,  Up: Influence
+
+Territory, Moyo and Area
+========================
+
+   Using the influence code, empty regions of the board are partitioned
+in three ways. A vertex may be described as White or Black's
+"territory", "moyo" or "area". The functions `whose_territory()',
+`whose_moyo()' and `whose_area()' will return a color, or EMPTY if it
+belongs to one player or the other in one of these classifications.
+
+   * Territory
+
+          Those parts of the board which are expected to materialize as
+          actual points for one player or the other at the end of the
+          game are considered "territory".
+
+   * Moyo
+
+          Those parts of the board which are either already territory
+          or more generally places where a territory can easily
+          materialize if the opponent neglects to reduce are considered
+          "moyo".  "moyo".
+
+   * Area
+
+          Those parts of the board where one player or the other has a
+          stronger influence than his opponent are considered "area".
+
+   Generally territory is moyo and moyo is area. To get a feeling for
+these concepts, load an sgf file in a middle game position with the
+option `-m 0x0180' and examine the resulting diagrams (*note
+Influential Display::).
+
+
+File: gnugo.info,  Node: Influence Usage,  Next: Influence and Territory,  Prev: Territory and Moyo,  Up: Influence
+
+Where influence gets used in the engine
+=======================================
+
+   The information obtained from the influence computation is used in a
+variety of places in the engine, and the influence module is called
+several times in the process of the move generation. The details of the
+influence computation vary according to the needs of the calling
+function.
+
+   After GNU Go has decided about the tactical stability of strings, the
+influence module gets called the first time. Here all lively stones act
+as an influence source of default strength 100. The result is stored in
+the variables `initial_influence' and `initial_opposite_influence', and
+it is used as an important information for guessing the strength of
+dragons. For example, a dragon that is part of a moyo of size 25 is
+immediately considered alive.  For dragons with a smaller moyo size, a
+life-and-death analysis will be done by the owl code (see *Note Pattern
+Based Reading::). A dragon with a moyo size of only 5 will be
+considered weak, even if the owl code has decided that it cannot be
+killed.
+
+   As a tool for both the owl code and the strength estimate of dragons,
+an "escape" influence gets computed for each dragon (*note Escape::).
+
+   Once all dragons have been evaluated, the influence module is called
+again and the variables `initial_influence' and
+`initial_opposite_influence' get overwritten. Of course, the dragon
+status', which are available now, are taken into account. Stones
+belonging to a dead dragon will not serve as an influence source, and
+the strengths of other stones get adjusted according to the strength of
+their respective dragon.
+
+   The result of this run is the most important tool for move
+evaluation. All helper functions of patterns as explained in *Note
+Patterns:: that refer to influence results (e. g. `olib(*)' etc.)
+actually use these results. Further, `initial_influence' serves as the
+reference for computing the territorial value of a move. That is, from
+the influence strengths stored in `initial_influence', a territory
+value is assigned to each intersection. This value is supposed to
+estimate the likelyhood that this intersection will become white or
+black territory.
+
+   Then, for each move that gets considered in the function
+`value_moves', the influence module is called again via the function
+`compute_move_influence' to assess the likely territorial balance after
+this move, and the result is compared with the state before that move.
+
+   An additional influence computation is done in order to compute the
+followup value of a move. Some explainations are in *Note Territorial
+Details::.
+
+   Some of the public functions from `influence.c' which are used
+throughout the engine are listed in *Note Influence Utilities::.
+
+
+File: gnugo.info,  Node: Influence and Territory,  Next: Territorial Details,  Prev: Influence Usage,  Up: Influence
+
+Influence and Territory
+=======================
+
+   In this section we consider how the influence function is used to
+estimate territory in the function `estimate_territorial_value()'.
+
+   A move like `*' by `O' below is worth one point:
+
+     OXXX.
+     OX.XX
+     O*a.X
+     OX.XX
+     OXXX.
+
+   This is evaluated by the influence function in the following way: We
+first assign territory under the assumption that X moves first in all
+local positions in the original position;  then we reassing territory,
+again under the assumption that `X' moves first in all local positions,
+but after we let `O' make the move at `*'. These two territory
+assignments are compared and the difference gives the territorial value
+of the move.
+
+   Technically, the assumption that `X' plays first everywhere is
+implemented via an asymmetric pattern database in `barriers.db'.  What
+exactly is a safe connection that stops hostile influence from passing
+through is different for `O' and `X'; of course such a connection has
+to be tighter for stones with color `O'. Also, additional intrusion
+influence sources are added for `X' in places where `X' stones have
+natural followup moves.
+
+   In this specific example above, the asymmetry (before any move has
+been made) would turn out as follows: If `X' is in turn to move, the
+white influence would get stopped by a barrier at `*', leaving 4 points
+of territory for `X'.  However, if `O' was next to move, then a
+followup move for the white stones at the left would be assumed in the
+form of an extra ("intrusion") influence source at `*'. This would get
+stopped at `a', leaving three points of territory.
+
+   Returning to the valuation of a move by `O' at `*', we get a value
+of 1 for the move at `*'.  However, of course this move is sente once
+it is worth playing, and should therefore (in miai counting) be awarded
+an effective value of 2. Hence we need to recognize the followup value
+of a move. GNU Go 3.0 took care of this by using patterns in
+`patterns.db' that enforced an explicit followup value. Versions 3.2
+and 3.4 instead compute a seperate followup influence to each move
+considered. In the above example, an intrusion source will be added at
+`a' as a followup move to `*'. This destroys all of Black's territory
+and hence gives a followup value of 3.
+
+   The pattern based followup value are still needed at some places,
+however.
+
+   To give another example, consider this position where we want to
+estimate the value of an `O' move at `*':
+
+     OOOXXX
+     ..OX..
+     ..OX..
+     ...*..
+     ------
+
+   Before the move we assume `X' moves first in the local position (and
+that `O' has to connect), which gives territory like this (lower case
+letter identify territory for each player):
+
+     OOOXXX
+     ooOXxx
+     o.OXxx
+     o...xx
+     ------
+
+   Then we let `O' make the move at `*' and assume `X' moves first
+again next.  The territory then becomes (`X' is also assumed to have to
+connect):
+
+     OOOXXX
+     ooOXxx
+     ooOX.x
+     oo.O.x
+     ------
+
+   We see that this makes a difference in territory of 4, which is what
+influence_delta_territory() should report. Then again, we have followup
+value, and here also a reverse followup value. The reverse followup
+value, which in this case will be so high that the move is treated as
+reverse sente, is added by an explicit pattern. Other sources for
+followup or reverse followup values are threats to capture a rescue a
+string of stones.  See the code and comments in the function
+`value_move_reaons' for how followup and reverse followup values are
+used to adjust the effective move value.
+
+   To give an example of territorial value where something is captured,
+consider the `O' move at `*' here,
+
+     XXXXXXXO
+     X.OOOOXO
+     X.O..O*O
+     --------
+
+   As before we first let the influence function determine territory
+assuming X moves first, i.e. with a captured group:
+
+     XXXXXXXO
+     XxyyyyXO
+     Xxyxxy.O
+     --------
+
+   Here `y' indicates `X' territory + captured stone, i.e. these count
+for two points. After the `O' move at `*' we instead get
+
+     XXXXXXXO
+     X.OOOOXO
+     X.OooOOO
+     --------
+
+   and we see that `X' has 16 territory fewer and `O' has two territory
+more, for a total difference of 18 points.
+
+   That the influence function counts the value of captured stones was
+introduced in GNU Go 3.2.. Previously this was instead done using the
+effective_size heuristic. The effective size is the number of stones
+plus the surrounding empty spaces which are closer to this string or
+dragon than to any other stones. Here the `O' string would thus have
+effective size 6 (number of stones) + 2 (interior eye) + 2*0.5 (the two
+empty vertices to the left of the string, split half each with the
+surrounding X string) + 1*0.33 (the connection point, split between
+three strings) = 9.33. As noted this value was doubled, giving 18.67
+which is reasonably close to the correct value of 18. The effective size
+heuristic is still used in certain parts of the move valuation where we
+can't easily get a more accurate value from the influence function (e.
+g. attacks depending on a ko, attack threats).
+
+   Note that this section only describes the territorial valuation of a
+move.  Apart from that, GNU Go uses various heuristics in assigning a
+strategical value (weakening and strengthening of other stones on the
+board) to a move.  Also, the influence function isn't quite as well
+tuned as the examples above may seem to claim. But it should give a
+fairly good idea of how the design is intended.
+
+   Another matter is that so far we have only considered the change in
+secure territory. GNU Go 3.2 and 3.4 use a revised heuristic, which is
+explained in the next section, to assign probable territory to each
+player.
+
+
+File: gnugo.info,  Node: Territorial Details,  Next: The Influence Core,  Prev: Influence and Territory,  Up: Influence
+
+Details of the Territory Valuation
+==================================
+
+   This section explains how GNU Go assigns a territorial value to an
+intersection once the white and black influence have been computed.
+The intention is that an intersection that has a chance of xx% of
+becoming white territory is counted as 0.xx points of territory for
+white, and similar for black.
+
+   The algorithm in the function `new_value_territory' goes roughly as
+follows:
+
+   If `wi' is the white influence at a point, and `bi' the black
+influence, then ` value = ( (wi-bi)/ (wi+bi) )^3' (positive values
+indicates likley white territory, negative stand for black territory)
+turns out to be very simple first guess that is still far off, but
+reasonable enough to be useful.
+
+   This value is then suspect a number of corrections. Assume that this
+first guess resulted in a positive value.
+
+   If both `bi' and `wi' are small, it gets reduced. What exactly is
+"small" depends on whether the intersection is close to a corner or an
+edge of the board, since it is easier to claim territory in the corner
+than in the center.
+
+   Then the value at each intersection is degraded to the minimum value
+of its neighbors. This can be seen as a second implementation of the
+proverb saying that there is no territory in the center of the board.
+This step substantially reduces the size of spheres of territory that
+are open at several sides.
+
+   Finally, there are a number of patterns that explicitly forbid GNU
+Go to count territory at some intersections. This is used e. g. for
+false eyes that will eventually have to be filled in. Also, points for
+prisoners are added.
+
+   To fine tune this scheme, some revisions have been made to the
+influence computations that are relevant for territorial evaluation.
+This includes a reduced default attenuation and some revised pattern
+handling.
+
+
+File: gnugo.info,  Node: The Influence Core,  Next: The Influence Algorithm,  Prev: Territorial Details,  Up: Influence
+
+The Core of the Influence Function
+==================================
+
+   The basic influence radiation process can efficiently be implemented
+as a breadth first search for adjacent and more distant points, using a
+queue structure.
+
+   Influence barriers can be found by pattern matching, assisted by
+reading through constraints and/or helpers. Wall structures, invasion
+points and intrusion points can be found by pattern matching as well.
+
+   When influence is computed, the basic idea is that there are a number
+of influence sources on the board, whose contributions are summed to
+produce the influence values. For the time being we can assume that the
+living stones on the board are the influence sources, although this is
+not the whole story.
+
+   The function `compute_influence()' contains a loop over the board,
+and for each influence source on the board, the function
+`accumulate_influence()' is called. This is the core of the influence
+function. Before we get into the details, this is how the influence
+field from a single isolated influence source of strength 100 turns out
+(with an attenuation of 3.0):
+
+       0  0  0  0  0  0  0  0  0  0  0
+       0  0  0  0  1  1  1  0  0  0  0
+       0  0  0  1  2  3  2  1  0  0  0
+       0  0  1  3  5 11  5  3  1  0  0
+       0  1  2  5 16 33 16  5  2  1  0
+       0  1  3 11 33  X 33 11  3  1  0
+       0  1  2  5 16 33 16  5  2  1  0
+       0  0  1  3  5 11  5  3  1  0  0
+       0  0  0  1  2  3  2  1  0  0  0
+       0  0  0  0  1  1  1  0  0  0  0
+       0  0  0  0  0  0  0  0  0  0  0
+
+   These values are in reality floating point numbers but have been
+rounded down to the nearest integer for presentation. This means that
+the influence field does not stop when the numbers become zeroes.
+
+   Internally `accumulate_influence()' starts at the influence source
+and spreads influence outwards by means of a breadth first propagation,
+implemented in the form of a queue. The order of propagation and the
+condition that influence only is spread outwards guarantee that no
+intersection is visited more than once and that the process terminates.
+In the example above, the intersections are visited in the following
+order:
+
+       +  +  +  +  +  +  +  +  +  +  +
+       + 78 68 66 64 63 65 67 69 79  +
+       + 62 46 38 36 35 37 39 47 75  +
+       + 60 34 22 16 15 17 23 43 73  +
+       + 58 32 14  6  3  7 19 41 71  +
+       + 56 30 12  2  0  4 18 40 70  +
+       + 57 31 13  5  1  8 20 42 72  +
+       + 59 33 21 10  9 11 24 44 74  +
+       + 61 45 28 26 25 27 29 48 76  +
+       + 77 54 52 50 49 51 53 55 80  +
+       +  +  +  +  +  +  +  +  +  +  +
+
+   The visitation of intersections continues in the same way on the
+intersections marked '`+' and further outwards. In a real position
+there will be stones and tight connections stopping the influence from
+spreading to certain intersections. This will disrupt the diagram
+above, but the main property of the propagation still remains, i.e. no
+intersection is visited more than once and after being visited no more
+influence will be propagated to the intersection.
+
+
+File: gnugo.info,  Node: The Influence Algorithm,  Next: Permeability,  Prev: The Influence Core,  Up: Influence
+
+The Influence Algorithm
+=======================
+
+   Let `(m, n)' be the coordinates of the influence source and `(i, j)'
+the coordinates of a an intersection being visited during propagation,
+using the same notation as in the `accumulate_influence()' function.
+Influence is now propagated to its eight closest neighbors, including
+the diagonal ones, according to the follow scheme:
+
+   For each of the eight directions `(di, dj)', do:
+
+  1. Compute the scalar product `di*(i-m) + dj*(j-n)' between the
+     vectors `(di,dj)' and `(i,j) - (m,n)'
+
+  2. If this is negative or zero, the direction is not outwards and we
+     continue with the next direction. The exception is when we are
+     visiting the influence source, i.e. the first intersection, when
+     we spread influence in all directions anyway.
+
+  3. If `(i+di, j+dj)' is outside the board or occupied we also
+     continue with the next direction.
+
+  4. Let S be the strength of the influence at `(i, j)'. The influence
+     propagated to `(i+di, j+dj)' from this intersection is given by
+     `P*(1/A)*D*S', where the three different kinds of damping are:
+
+        * The permeability `P', which is a property of the board
+          intersections. Normally this is one, i.e. unrestricted
+          propagation, but to stop propagation through e.g. one step
+          jumps, the permeability is set to zero at such intersections
+          through pattern matching. This is further discussed below.
+
+        * The attenuation `A', which is a property of the influence
+          source and different in different directions. By default this
+          has the value 3 except diagonally where the number is twice
+          as much. By modifying the attenuation value it is possible to
+          obtain influence sources with a larger or a smaller effective
+          range.
+
+        * The directional damping `D', which is the squared cosine of
+          the angle between `(di,dj)' and `(i,j) - (m,n)'. The idea is
+          to stop influence from "bending" around an interfering stone
+          and get a continuous behavior at the right angle cutoff. The
+          choice of the squared cosine for this purpose is rather
+          arbitrary, but has the advantage that it can be expressed as a
+          rational function of `m', `n', `i', `j', `di', and `dj',
+          without involving any trigonometric or square root
+          computations. When we are visiting the influence source we
+          let by convention this factor be one.
+
+   Influence is typically contributed from up to three neighbors
+"between" this intersection and the influence source. These values are
+simply added together. As pointed out before, all contributions will
+automatically have been made before the intersection itself is visited.
+
+   When the total influence for the whole board is computed by
+`compute_influence()', `accumulate_influence()' is called once for each
+influence source. These invocations are totally independent and the
+influence contributions from the different sources are added together.
+
+
+File: gnugo.info,  Node: Permeability,  Next: Escape,  Prev: The Influence Algorithm,  Up: Influence
+
+Permeability
+============
+
+   The permeability at the different points is initially one at all
+empty intersections and zero at occupied intersections. To get a useful
+influence function we need to modify this, however. Consider the
+following position:
+
+     |......
+     |OOOO..
+     |...O..
+     |...a.X   ('a' empty intersection)
+     |...O..
+     |...OOO
+     |.....O
+     +------
+
+   The corner is of course secure territory for `O' and clearly the `X'
+stone has negligible effect inside this position. To stop `X' influence
+from leaking into the corner we use pattern matching (pattern
+Barrier1/Barrier2 in `barriers.db') to modify the permeability for `X'
+at this intersection to zero. `O' can still spread influence through
+this connection.
+
+   Another case that needs to be mentioned is how the permeability
+damping is computed for diagonal influence radiation. For horizontal
+and vertical radiation we just use the permeability (for the relevant
+color) at the intersection we are radiating from. In the diagonal case
+we additionally multiply with the maximum permeability at the two
+intersections we are trying to squeeze between. The reason for this can
+be found in the diagram below:
+
+     |...X    |...X
+     |OO..    |Oda.
+     |..O.    |.bc.
+     |..O.    |..O.
+     +----    +----
+
+   We don't want `X' influence to be spread from `a' to `b', and since
+the permeability at both c and d is zero, the rule above stops this.
+
+
+File: gnugo.info,  Node: Escape,  Next: Break Ins,  Prev: Permeability,  Up: Influence
+
+Escape
+======
+
+   One application of the influence code is in computing the
+`dragon.escape_route' field. This is computed by the function
+`compute_escape()' as follows.  First, every intersection is assigned
+an escape value, ranging between 0 and 4, depending on the influence
+value of the opposite color.
+
+   The `escape_route' field is modified by the code in `surround.c'
+(*note Surrounded Dragons::). It is divided by two for weakly surrounded
+dragons, and set to zero for surrounded ones.
+
+   In addition to assiging an escape value to empty vertices, we also
+assign an escape value to friendly dragons. This value can range from 0
+to 6 depending on the status of the dragon, with live dragons having
+value 6.
+
+   Then we sum the values of the resulting influence escape values over
+the intersections (including friendly dragons) at distance 4, that is,
+over those intersections which can be joined to the dragon by a path of
+length 4 (and no shorter path) not passing adjacent to any unfriendly
+dragon. In the following example, we sum the influence escape value
+over the four vertices labelled '4'.
+
+
+        . . . . . . . . .    . . . . . . . . .
+        . . . . . X . . O    . . . . . X . . O
+        . . X . . . . . O    . . X . 2 . 4 . O
+        X . . . . . . . .    X . . 1 1 2 3 4 .
+        X O . O . . . . O    X O 1 O 1 2 3 4 O
+        X O . O . . . . .    X O 1 O 1 . 4 . .
+        X O . . . X . O O    X O 1 . . X . . O
+        . . . X . . . . .    . 1 . X . . . . .
+        X . . . . X . . .    X . . . . X . . .
+        . . . . . . . . .    . . . . . . . . .
+
+   Since the dragon is trying to reach safety, the reader might wonder
+why `compute_influence()' is called with the opposite color of the
+dragon contemplating escape.  To explain this point, we first remind
+the reader why there is a color parameter to `compute_influence()'.
+Consider the following example position:
+
+          ...XX...
+          OOO..OOO
+          O......O
+          O......O
+          --------
+
+   Whether the bottom will become O territory depends on who is in turn
+to play. This is implemented with the help of patterns in barriers.db,
+so that X influence is allowed to leak into the bottom if X is in turn
+to move but not if O is. There are also "invade" patterns which add
+influence sources in sufficiently open parts of the board which are
+handled differently depending on who is in turn to move.
+
+   In order to decide the territorial value of an O move in the third
+line gap above, influence is first computed in the original position
+with the opponent (i.e. X) in turn to move. Then the O stone is played
+to give:
+
+
+          ...XX...
+          OOO.OOOO
+          O......O
+          O......O
+          --------
+
+   Now influence is computed once more, also this time with X in turn to
+move. The difference in territory (as computed from the influence
+values) gives the territorial value of the move.
+
+   Exactly how influence is computed for use in the escape route
+estimation is all ad hoc. But it makes sense to assume the opponent
+color in turn to move so that the escape possibilities aren't
+overestimated. After we have made a move in the escape direction it is
+after all the opponent's turn.
+
+   The current escape route mechanism seems good enough to be useful
+but is not completely reliable. Mostly it seems to err on the side of
+being too optimistic.
+
+
+File: gnugo.info,  Node: Break Ins,  Next: Surrounded Dragons,  Prev: Escape,  Up: Influence
+
+Break Ins
+=========
+
+   The code in `breakin.c' break-ins into territories that require
+deeper tactical reading and are thus impossible to detect for the
+influence module. It gets run after the influence module and revises
+its territory valuations.
+
+   The break-in code makes use of two public functions in
+`readconnect.c',
+
+   * int break_in(int str, const char goal[BOARDMAX], int *move)
+
+          Returns WIN if `str' can connect to the area `goal[]' (which
+          may or may not contain stones), if the string's owner gets
+          the first move.
+
+   * int block_off(int str, const char goal[BOARDMAX], int *move)
+
+          Returns WIN if `str' cannot connect to the area `goal[]'
+          (which may or may not contain stones), if the other color
+          moves first.
+
+   These functions are public front ends to their counterparts
+`recursive_break_in' and `recursive_block_off', which call each other
+recursively.
+
+   The procedure is as follows: We look at all big (>= 10) territory
+regions as detected by the influence code. Using the computation of
+connection distances from readconnect.c, we compute all nearby vertices
+of this territory. We look for the closest safe stones belonging to the
+opponent.
+
+   For each such string `str' we call
+
+   * `break_in(str, territory)' if the opponent is assumed to be next
+     to move,
+
+   * `block_off(str, territory)' if the territory owner is next.
+
+   If the break in is successful resp. the blocking unsuccessful, we
+shrink the territory, and see whether the opponent can still break in.
+We repeat this until the territory is shrunk so much that the opponent
+can no longer reach it.
+
+   To see the break in code in action run GNU Go on the file
+`regression/games/break_in.sgf' with the option `-d0x102000'. Among the
+traces you will find:
+
+       Trying to break in from D7 to:
+     E9 (1)  F9 (1)  G9 (1)  E8 (1)  F8 (1)  G8 (1)
+     H8 (1)  G7 (1)  H7 (1)  J7 (1)  H6 (1)  J6 (1)
+     H5 (1)  J5 (1)  H4 (1)  J4 (1)  H3 (1)  J3 (1)
+     H2 (1)  J2 (1)
+     block_off D7, result 0 PASS (355, 41952 nodes, 0.73 seconds)
+     E9 (1)  F9 (1)  G9 (1)  E8 (1)  F8 (1)  G8 (1)
+     H8 (1)  G7 (1)  H7 (1)  J7 (1)  H6 (1)  J6 (1)
+     H5 (1)  J5 (1)  H4 (1)  J4 (1)  H3 (1)  J3 (1)
+     H2 (1)  J2 (1)
+     B:F4
+       Erasing territory at E8 -b.
+       Erasing territory at G3 -b.
+       Now trying to break to smaller goal:
+     F9 (1)  G9 (1)  F8 (1)  G8 (1)  H8 (1)  G7 (1)
+     H7 (1)  J7 (1)  H6 (1)  J6 (1)  H5 (1)  J5 (1)
+     H4 (1)  J4 (1)  H3 (1)  J3 (1)  H2 (1)  J2 (1)
+
+   This means that the function `break_in' is called with the goal
+marked 'a' in the following diagram. The code attempts to find out
+whether it is possible to connect into this area from the string at
+`D7'.
+
+        A B C D E F G H J
+      9 . . . . a a a . . 9
+      8 . . . . a a a a . 8
+      7 . . . X O O a a a 7
+      6 . . . X X X O a a 6
+      5 . . . . + . . a a 5
+      4 . . . X . . O a a 4
+      3 . . . . X . . a a 3
+      2 . . . . . . O a a 2
+      1 . . . . . . . . . 1
+        A B C D E F G H J
+
+   A breakin is found, so the goal is shrunk by removing `E9' and `J2',
+then break_in is called again.
+
+   In order to see what reading is actually done in order to do this
+break in, you may load GNU Go in gtp mode, then issue the commands:
+
+     loadsgf break_in.sgf
+     = black
+     
+     start_sgftrace
+     =
+     
+     break_in D7 E9 F9 G9 E8 F8 G8 H8 G7 H7 J7 H6 J6 H5 J5 H4 J4 H3 J3 H2 J2
+     = 1 E8
+     
+     finish_sgftrace vars.sgf
+     =
+     
+     start_sgftrace
+     =
+     
+     break_in D7 F9 G9 F8 G8 H8 G7 H7 J7 H6 J6 H5 J5 H4 J4 H3 J3 H2 J2
+     = 1 G7
+     
+     finish_sgftrace vars1.sgf
+
+   This will produce two sgf files containing the variations caused by
+these calls to the breakin code. The second file, `vars1.sgf' will
+contain quite a few variations.
+
+   The break in code makes a list of break ins which are found.  When
+it is finished, the function `add_expand_territory_move' is called for
+each break in, adding a move reason.
+
+   The break in code is slow, and only changes a few moves by the engine
+per game. Nevertheless we believe that it contributes substantially to
+the strength of the program. The break in code is enabled by default in
+GNU Go 3.4 at level 10, and disabled at level 9. In fact, this is the
+*only* difference between levels 9 and 10 in GNU Go 3.4.
+

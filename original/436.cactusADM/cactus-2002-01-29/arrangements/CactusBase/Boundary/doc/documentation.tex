@@ -1,0 +1,606 @@
+\documentclass{article}
+
+\parskip = 2 pt
+\oddsidemargin = 0 cm
+\textwidth = 16 cm
+\topmargin = -1 cm
+\textheight = 24 cm
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% MANPAGE like description setting for options, use as 
+% \begin{Lentry} \item[text] text  \end{Lentry}
+
+\usepackage{ifthen,calc}
+
+\newcommand{\entrylabel}[1]{\mbox{\textsf{#1}}\hfil}
+\newenvironment{entry}
+  {\begin{list}{}
+    {\renewcommand{\makelabel}{\entrylabel}
+      \setlength{\labelwidth}{90pt}
+      \setlength{\leftmargin}{\labelwidth+\labelsep}
+    }
+  }
+  {\end{list}}
+
+\newlength{\Mylen}
+\newcommand{\Lentrylabel}[1]{%
+  \settowidth{\Mylen}{\textsf{#1}}%
+  \ifthenelse{\lengthtest{\Mylen > \labelwidth}}%
+    {\parbox[b]{\labelwidth} %  term > labelwidth
+      {\makebox[0pt][l]{\textsf{#1}}\\}} %
+    {\textsf{#1}} %
+
+  \hfil\relax}
+\newenvironment{Lentry}
+  {\renewcommand{\entrylabel}{\Lentrylabel}
+   \begin{entry}}
+  {\end{entry}}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+\title{Boundary}
+\author{Miguel Alcubierre, Gabrielle Allen, Gerd Lanfermann}
+\date{1999}
+\maketitle
+
+\abstract{Standard boundary conditions with can be provided to
+grid functions, or groups of grid functions. Available for 1D, 2D and
+3D grid functions.}
+
+\section{Purpose}
+
+Allows you to apply standard boundary conditions to grid functions
+or groups of grid functions on a Cartesian grid, taking into account 
+a parallel decomposition of the grid. The routines are callable from 
+C or Fortran. These routines are available for 1D, 2D and 3D grid functions,
+and there are interfaces for applying boundary conditions in individual
+directions or in all directions at once.
+
+The boundary conditions available are
+\begin{itemize}
+\item Scalar
+\item Flat 
+\item Copy (static)
+\item Radiation 
+\item Robin
+\end{itemize}
+
+\vskip .5cm
+
+\noindent
+{\bf PERIODIC BOUNDARY CONDITIONS}: Periodic boundary conditions are currently
+implemented by the driver in Cactus. See the documentation in 
+{\bf CactusPUGH/PUGH} for more details.
+
+
+\section{General Comments}
+\begin{itemize}
+\item{}
+All the boundary conditions here take a stencil size as an 
+argument. The stencil size is used to determine how many points
+at the boundary should be updated with a boundary condition.
+For example, a stencil size of two in each direction means
+that the points at the boundary, as well as the points one in from the boundary
+will be set by the boundary condition. These boundary points are part
+of the total number of grid points that you have specified in the
+beginning of the run.
+\item{} 
+Boundary routines can only be applied to grid functions. 
+\item{}
+All routines can be called by
+%%% Subsitute with \begin{Lentry}
+\begin{itemize}
+\item{\em variable name}: ({\tt <implementation>:<var\_name> }) Suffix:
+{\tt VN}; apply the boundary condition to the variable with the
+specified name.
+\item{\em group name}: ({\tt <implementation>:<group\_name>}) Suffix:
+{\tt GN}; apply the boundary condition to all variables in the group.
+\item{\em variable index}:  Suffix: {\tt VI}; apply the boundary
+condition to the variable with the specified variable index.
+\item{\em group index}:  Suffix: {\tt GI} apply the boundary
+condition to all variables in the group with the specified group index.
+\end{itemize}
+\item{} For the boundary conditions in individual coordinate directions, 
+
+\begin{tabular}{ll}
+{\tt dir=-1} & apply at $x=x_{min}$ \\
+{\tt dir=1} & apply at $x=x_{max}$ \\
+{\tt dir=-2} & apply at $y=y_{min}$ \\
+{\tt dir=2} & apply at $y=y_{max}$ \\
+{\tt dir=-3} & apply at $z=z_{min}$ \\
+{\tt dir=3} & apply at $z=z_{max}$ \\
+\end{tabular} 
+
+\end{itemize}
+
+\subsection{Scalar Boundary Condition}
+
+A scalar boundary condition means that the value of the given 
+field or fields at the boundary is set to a given scalar value, for 
+example zero. 
+
+\subsubsection*{Calling from C:}
+
+{\bf All Coordinate Directions:}
+\begin{verbatim}
+int ierr = BndScalarVN(cGH *cctkGH, int *stencil_size,  
+                       CCTK_REAL var0, char *variable_name)
+int ierr = BndScalarGN(cGH *cctkGH, int *stencil_size,  
+                       CCTK_REAL var0, char *group_name)
+int ierr = BndScalarVI(cGH *cctkGH, int *stencil_size,  
+                       CCTK_REAL var0, int group_index)
+int ierr = BndScalarGI(cGH *cctkGH, int *stencil_size,  
+                       CCTK_REAL var0, int variable_index)
+\end{verbatim}
+{\bf Individual Coordinate Directions:}
+\begin{verbatim}
+int ierr = BndScalarDirVN(cGH *cctkGH, int stencil, int dir,
+                       CCTK_REAL var0, char *variable_name)
+int ierr = BndScalarDirGN(cGH *cctkGH, int stencil, int dir,
+                       CCTK_REAL var0, char *group_name)
+int ierr = BndScalarDirVI(cGH *cctkGH, int stencil, int dir,
+                       CCTK_REAL var0, int group_index)
+int ierr = BndScalarDirGI(cGH *cctkGH, int stencil, int dir,
+                       CCTK_REAL var0, int variable_index)
+\end{verbatim}
+
+
+\subsubsection*{Calling from Fortran:}
+{\bf All Coordinate Directions:}
+\begin{verbatim}
+call BndScalarVN(ierr, cctkGH, stencil_size, var0, variable_name)
+call BndScalarGN(ierr, cctkGH, stencil_size, var0, group_name)
+call BndScalarVI(ierr, cctkGH, stencil_size, var0, variable_index)
+call BndScalarGI(ierr, cctkGH, stencil_size, var0, group_index)
+\end{verbatim}
+{\bf Individual Coordinate Directions:}
+\begin{verbatim}
+call BndScalarDirVN(ierr, cctkGH, dir, stencil, var0, variable_name)
+call BndScalarDirGN(ierr, cctkGH, dir, stencil, var0, group_name)
+call BndScalarDirVI(ierr, cctkGH, dir, stencil, var0, variable_index)
+call BndScalarDirGI(ierr, cctkGH, dir, stencil, var0, group_index)
+\end{verbatim}
+where
+{\tt
+\begin{tabbing}
+character*(*) \= variable\_name\=\kill
+integer \> ierr \\
+CCTK\_POINTER \> cctkGH\\
+integer \> dir\\
+integer \> stencil\\
+integer \> stencil\_size(dim)\\
+CCTK\_REAL \> var0 \\
+character*(*) \> variable\_name\\
+character*(*) \> group\_name\\
+integer \> variable\_index\\
+integer \> group\_index\\
+\end{tabbing}
+}
+
+\subsubsection*{Arguments}
+\begin{itemize}
+\item[{\tt ierr}] Return value, negative value indicates the
+boundary condition was not successfully applied
+\item[{\tt cctkGH}] Grid hierarchy pointer
+\item[{\tt var0}] Scalar value to apply  (For a complex grid function, this is the real part, the imaginary part is set to zero.)
+\item[{\tt dir}] Coordinate direction in which to apply boundary condition
+\item[{\tt stencil\_size}] Array with dimension of the grid function, containing the stencil width to apply the boundary at
+\item[{\tt variable\_name}] Name of the variable
+\item[{\tt group\_name}] Name of the group
+\item[{\tt variable\_index}] Variable index
+\item[{\tt group\_index}] Group index
+\end{itemize}
+
+
+\subsection{Flat Boundary Condition}
+
+A flat boundary condition means that the value of the given 
+field or fields at the boundary is copied from the value one grid point in,
+in any direction. For example, for a stencil width of one, the
+boundary value of phi {\tt phi(nx,j,k)}, on the positive x-boundary will
+be copied from {\tt phi(nx-1,j,k)}. 
+
+\subsubsection*{Calling from C:}
+
+{\bf All Coordinate Directions:}
+\begin{verbatim}
+int ierr = BndFlatVN(cGH *cctkGH, int *stencil_size, char *variable_name)
+int ierr = BndFlatGN(cGH *cctkGH, int *stencil_size, char *group_name)
+int ierr = BndFlatVI(cGH *cctkGH, int *stencil_size, int variable_index)
+int ierr = BndFlatGI(cGH *cctkGH, int *stencil_size, int group_index)
+\end{verbatim}
+
+{\bf Individual Coordinate Directions:}
+\begin{verbatim}
+int ierr = BndFlatDirVN(cGH *cctkGH, int stencil, int dir, char *variable_name)
+int ierr = BndFlatDirGN(cGH *cctkGH, int stencil, int dir, char *group_name)
+int ierr = BndFlatDirVI(cGH *cctkGH, int stencil, int dir, int variable_index)
+int ierr = BndFlatDirGI(cGH *cctkGH, int stencil, int dir, int group_index)
+\end{verbatim}
+
+\subsubsection*{Calling from Fortran:}
+
+{\bf All Coordinate Directions:}
+\begin{verbatim}
+call BndFlatVN(ierr, cctkGH, stencil_array, variable_name)
+call BndFlatGN(ierr, cctkGH, stencil_array, group_name)
+call BndFlatVI(ierr, cctkGH, stencil_array, variable_index)
+call BndFlatGI(ierr, cctkGH, stencil_array, group_index)
+\end{verbatim}
+
+{\bf Individual Coordinate Directions:}
+\begin{verbatim}
+call BndFlatDirVN(ierr, cctkGH, stencil, dir, variable_name)
+call BndFlatDirGN(ierr, cctkGH, stencil, dir, group_name)
+call BndFlatDirVI(ierr, cctkGH, stencil, dir, variable_index)
+call BndFlatDirGI(ierr, cctkGH, stencil, dir, group_index)
+\end{verbatim}
+where
+{\tt
+\begin{tabbing}
+character*(*) \= variable\_name\=\kill
+integer \> ierr \\
+CCTK\_POINTER \> cctkGH\\
+integer \> dir\\
+integer \> stencil\\
+integer \> stencil\_array(dim)\\
+character*(*) \> variable\_name\\
+character*(*) \> group\_name\\
+integer \> variable\_index\\
+integer \> group\_index\\
+\end{tabbing}
+}
+
+\subsubsection*{Arguments}
+\begin{itemize}
+\item[{\tt ierr}] Return value, negative value indicates the
+boundary condition was not successfully applied
+\item[{\tt cctkGH}] Grid hierarchy pointer
+\item[{\tt dir}] Coordinate direction in which to apply boundary condition
+\item[{\tt stencil\_size}] Array with dimension of the grid function, containing the stencil width to apply the boundary at
+\item[{\tt variable\_name}] Name of the variable
+\item[{\tt group\_name}] Name of the group
+\item[{\tt variable\_index}] Variable index
+\item[{\tt group\_index}] Group index
+\end{itemize}
+
+
+
+\subsection{Radiation Boundary Condition}
+
+This is a two level scheme. Grid functions are given for the current time 
+level (to which the BC is applied) as well as grid functions from a past
+timelevel which are needed for constructing the boundaray condition.
+The grid function of the past time level need to have the same
+geometry. When applying this boundary condition to a group, the
+members of the group have to match up. Currently radiative boundary
+conditions can only be applied with a stencil width of one in each
+direction. 
+
+The radiative boundary condition that is implemented is
+\begin{equation}
+\label{eqrad}
+f = f_0 + \frac{u(r-vt)}{r}+\frac{h(r+vt)}{r}
+\end{equation}
+That is, outgoing radial waves with a 1/r
+fall off, and the correct asymptotic value f0 are assumed, including
+the possibility of incoming waves
+(these incoming waves should be modeled somehow).
+
+Condition~\ref{eqrad} above leads to the differential equation:
+\begin{equation}
+\frac{x^i}{r}\frac{\partial f}{\partial t}
++ v \frac{\partial f}{\partial x^i}
++\frac{v x^i}{r^2} (f-f_0)
+= H \frac{v x^i}{r^2}  
+\end{equation}
+where $x^i$ is the normal direction to the given boundaries,
+and $H = 2 dh(s)/ds$.
+
+At a given boundary only the derivatives in the normal direction are 
+considered.  Notice that $u(r-vt)$ has disappeared, but we still do 
+not know the value of $H$.
+
+To get $H$ we do the following:  The expression is evaluated one 
+point in from the boundary and solved for $H$ there. Now we need a way of 
+extrapolating $H$ to the boundary. For this, assume that 
+$H$ falls off as a power law:
+\begin{equation}
+H = \frac{k}{r^n} \qquad \mbox{which gives} \qquad d_i H  =  - n \frac{H}{r}
+\end{equation}
+The value of $n$ is defined by the parameter {\tt radpower}.
+If this parameter is negative, $H$ is forced to be zero (this
+corresponds to pure outgoing waves and is the default).
+
+The observed behaviour is the following:  Using $H=0$
+is very stable, but has a very bad initial transient. Taking
+$n$ to be 0 or positive improves the initial behaviour considerably,
+but introduces a drift that can kill an evolution at very late
+times.  Empirically, the best value found so far is $n=2$, for
+which the initial behaviour is very nice, and the late time drift 
+is quite small.
+
+Another problem with this condition is that it does not
+use the physical characteristic speed, but rather it assumes
+a wave speed of $v$, so the boundaries should be out in
+the region where the characteristic speed is constant.
+Notice that this speed does not have to be 1.  
+
+\subsubsection*{Calling from C:}
+
+{\bf All Coordinate Directions:}
+\begin{verbatim}
+int ierr = BndRadiativeVN(cGH *cctkGH, int *stencil_size, 
+                          CCTK_REAL limit, CCTK_REAL speed, 
+                          char *variable_name, char *variable_name_past)
+int ierr = BndRadiativeGN(cGH *cctkGH, int *stencil_size, 
+                          CCTK_REAL limit, CCTK_REAL speed,  
+                          char *group_name, char *group_name_past)
+int ierr = BndRadiativeVI(cGH *cctkGH, int *stencil_size, 
+                          CCTK_REAL limit, CCTK_REAL speed,  
+                          int variable_index, int variable_index_past)
+int ierr = BndRadiativeGI(cGH *cctkGH, int *stencil_size, 
+                          CCTK_REAL limit, CCTK_REAL speed,  
+                          int group_index, int group_index_past)
+\end{verbatim}
+
+{\bf Individual Coordinate Directions:}
+\begin{verbatim}
+int ierr = BndRadiativeDirVN(cGH *cctkGH, int stencil, int dir,
+                             CCTK_REAL limit, CCTK_REAL speed, 
+                             char *variable_name, char *variable_name_past)
+int ierr = BndRadiativeDirGN(cGH *cctkGH, int *stencil, int dir, 
+                             CCTK_REAL limit, CCTK_REAL speed,  
+                             char *group_name, char *group_name_past)
+int ierr = BndRadiativeDirVI(cGH *cctkGH, int *stencil, int dir, 
+                             CCTK_REAL limit, CCTK_REAL speed,  
+                             int variable_index, int variable_index_past)
+int ierr = BndRadiativeDirGI(cGH *cctkGH, int *stencil, int dir, 
+                             CCTK_REAL limit, CCTK_REAL speed,  
+                             int group_index, int group_index_past)
+\end{verbatim}
+
+\subsubsection*{Calling from Fortran:}
+
+{\bf All Coordinate Directions:}
+\begin{verbatim}
+call BndRadiativeVN(ierr, cctkGH, stencil_size, speed, limit, 
+                    variable_name, variable_name_past)
+call BndRadiativeVN(ierr, cctkGH, stencil_size, speed, limit, 
+                    group_name, group_name_past)
+call BndRadiativeVN(ierr, cctkGH, stencil_size, speed, limit, 
+                    variable_index, variable_index_past)
+call BndRadiativeVN(ierr, cctkGH, stencil_size, speed, limit, 
+                    group_index, group_index_past)
+\end{verbatim}
+
+{\bf Individual Coordinate Directions:}
+\begin{verbatim}
+call BndRadiativeDirVN(ierr, cctkGH, stencil, dir, speed, limit, 
+                       variable_name, variable_name_past)
+call BndRadiativeDirVN(ierr, cctkGH, stencil, dir, speed, limit, 
+                       group_name, group_name_past)
+call BndRadiativeDirVN(ierr, cctkGH, stencil, dir, speed, limit, 
+                       variable_index, variable_index_past)
+call BndRadiativeDirVN(ierr, cctkGH, stencil, dir, speed, limit, 
+                       group_index, group_index_past)
+\end{verbatim}
+where
+{\tt
+\begin{tabbing}
+character*(*) \= variable\_name\=\kill
+integer \> ierr \\
+CCTK\_POINTER \> cctkGH\\
+integer \> dir\\
+integer \> stencil\\
+integer \> stencil\_array(dim)\\
+character*(*) \> variable\_name\\
+character*(*) \> group\_name\\
+integer \> variable\_index\\
+integer \> group\_index\\
+CCTK\_REAL\>speed\\
+CCTK\_REAL\>limit\\
+\end{tabbing}
+}
+
+
+
+
+where
+\begin{itemize}
+\item[{\tt integer ierr}] return value, operation failed when return
+value {\em negative}
+\item[{\tt CCTK\_POINTER cctkGH}] grid hierarchy pointer
+\item[{\tt integer stencil\_size(dim)}] array of size {\tt dim}
+(dimension of the gridfunction). To how many points from the outer
+boundary to apply the boundary condition. 
+\item[{\tt CCTK\_REAL speed}] wave speed used for boundary condition ($v$).
+	
+\item[{\tt CCTK\_REAL limit}] asymptotic value of function at infinity
+
+\item[{\tt character*(*) variable\_name}] the name of the grid function 
+	to which the boundary condition will be applied
+\item[{\tt character*(*) variable\_name\_past}]  
+    The name of the grid function 
+    containing the values on the past time level, needed to calculate
+    the boundary condition.
+
+\item[{\tt character*(*) group\_name}] the name of the group
+	to which the boundary condition will be applied
+\item[{\tt character*(*) group\_name\_past}] is the name of the group
+    containing the grid functions on the past time level, needed to calculate
+    the boundary condition.
+
+\item[{\tt integer variable\_index}] the index of the grid function 
+	to which the boundary condition will be applied
+\item[{\tt integer variable\_index\_past}] the index of the grid function 
+    containing the values on the past time level, needed to calculate
+    the boundary condition.
+
+\item[{\tt integer group\_index}] the index of the group
+	to which the boundary condition will be applied
+\item[{\tt integer group\_index\_past}] the index of the group
+    containing the values on the past time level, needed to calculate
+    the boundary condition.
+\end{itemize}
+
+
+\subsection{Copy Boundary Condition}
+
+This is a two level scheme. Copy the boundary values from a different
+grid function, for example the previous timelevel. The two grid functions
+(or groups of grid functions) must have the same geometry.
+
+\subsubsection*{Calling from C:}
+\begin{verbatim}
+int ierr = BndCopyVN(cGH *cctkGH, int *stencil_size, 
+                     char *variable_name_to, char *variable_name_from)
+int ierr = BndCopyGN(cGH *cctkGH, int *stencil_size, 
+                     char *group_name_to, char *group_name_from)
+int ierr = BndCopyVI(cGH *cctkGH, int *stencil_size, 
+                     int variable_index_to, int variable_index_from)
+int ierr = BndCopyGI(cGH *cctkGH, int *stencil_size, 
+                     int group_index_to, int group_index_from)
+\end{verbatim}
+
+\subsubsection*{Calling from Fortran:}
+\begin{verbatim}
+call BndCopyVN(ierr, cctkGH, stencil_size, variable_name_to,  
+               variable_name_from)
+call BndCopyVN(ierr, cctkGH, stencil_size, group_name_to,     
+               group_name_from)
+call BndCopyVN(ierr, cctkGH, stencil_size, variable_index_to, 
+               variable_index_from)
+call BndCopyVN(ierr, cctkGH, stencil_size, group_index_to,    
+               group_index_from)
+\end{verbatim}
+where
+\begin{Lentry}
+\item[{\tt integer ierr}] return value, operation failed when return
+value {\em negative}
+\item[{\tt CCTK\_POINTER cctkGH}] grid hierarchy pointer
+\item[{\tt integer stencil\_size(dim)}] array of size {\tt dim}
+(dimension of the gridfunction). To how many points from the outer
+boundary to apply the boundary condition. 
+
+\item[{\tt character*(*) variable\_name\_to}] the name of the grid function 
+	to which the boundary condition will be applied by copying to.
+\item[{\tt character*(*) variable\_name\_from}]  is the name of the grid function 
+    containing the values to copy from.
+
+\item[{\tt character*(*) group\_name\_to}] the name of the group
+	to which the boundary condition will be applied by copying to.
+\item[{\tt character*(*) group\_name\_from}] is the name of the group
+    containing the the values to copy from.
+
+\item[{\tt integer variable\_index\_to}] the index of the grid function 
+	to which the boundary condition will be applied by copying to.
+\item[{\tt integer variable\_index\_from}] the index of the grid function 
+    containing the the values to copy from.
+
+\item[{\tt integer group\_index\_to}] the index of the group
+	to which the boundary condition will be applied by copying to.
+\item[{\tt integer group\_index\_from}] the index of the group
+    containing the the values to copy from.
+\end{Lentry}
+
+
+\subsection{Robin Boundary Condition}
+
+This boundary condition has not yet been implemented in 
+individual coordinate directions.
+The Robin boundary condition is:
+\begin{equation}
+f(r) = f_0 + \frac{k}{r^n}
+\end{equation}
+with $k$ a constant, $n$ the decay rate and $f_0$ the value at infinity. This implies:
+\begin{equation}
+\frac{\partial f}{\partial r} =  - n \frac{k}{r^{n+1}}
+\end{equation}
+or
+\begin{equation}
+\frac{\partial f}{\partial r} = - n \frac{(f-f_0)}{r}
+\end{equation}
+Considering now a given cartesian direction $x$  we get:
+\begin{equation}
+\frac{\partial f}{\partial x} =
+\frac{\partial f}{\partial r} 
+\frac{\partial r}{\partial x} = \frac{x}{r}\frac{\partial f}{\partial r}
+\end{equation}
+which implies
+\begin{equation}
+\frac{\partial f}{\partial x} = - n (f-f_0)\frac{x}{r^2}
+\end{equation}
+The equations are then finite differenced around the grid point $i+1/2$:
+\begin{equation}
+f_{i+1} - f_i = - n \Delta x \left( \frac{1}{2}(f_{i+1}+f_i) - f_0\right) \frac{x_{i+1/2}}{r^2_{i+1/2}}
+\end{equation}
+or
+\begin{equation}
+f_{i+1}-f_i = -n \Delta x ( (f_{i+1}+f_i)-2 f_0)\frac{x_{i+1}+x_i}{(r_{i+1}+r_i)^2}
+\end{equation}
+And this is then solved either for $f_i$ or $f_{i+1}$ depending on which side are
+we looking at. 
+
+
+\subsubsection*{Calling from C:}
+
+{\bf All Coordinate Directions:}
+\begin{verbatim}
+int ierr = BndRobinVN(cGH *cctkGH, int *stencil_size,  
+                       CCTK_REAL finf, int npow, char *variable_name)
+int ierr = BndScalarGN(cGH *cctkGH, int *stencil_size,  
+                       CCTK_REAL finf, int npow, char *group_name)
+int ierr = BndScalarVI(cGH *cctkGH, int *stencil_size,  
+                       CCTK_REAL finf, int npow, int group_index)
+int ierr = BndScalarGI(cGH *cctkGH, int *stencil_size,  
+                       CCTK_REAL finf, int npow, int variable_index)
+\end{verbatim}
+
+
+\subsubsection*{Calling from Fortran:}
+{\bf All Coordinate Directions:}
+\begin{verbatim}
+call BndRobinVN(ierr, cctkGH, stencil_size, finf, npow, variable_name)
+call BndRobinGN(ierr, cctkGH, stencil_size, finf, npow, group_name)
+call BndRobinVI(ierr, cctkGH, stencil_size, finf, npow, variable_index)
+call BndRobinGI(ierr, cctkGH, stencil_size, finf, npow, group_index)
+\end{verbatim}
+where
+{\tt
+\begin{tabbing}
+character*(*) \= variable\_name\=\kill
+integer \> ierr \\
+CCTK\_POINTER \> cctkGH\\
+integer \> stencil\_size(dim)\\
+CCTK\_REAL \> finf \\
+integer \> npow \\
+character*(*) \> variable\_name\\
+character*(*) \> group\_name\\
+integer \> variable\_index\\
+integer \> group\_index\\
+\end{tabbing}
+}
+
+\subsubsection*{Arguments}
+\begin{Lentry}
+\item[{\tt ierr}] Return value, negative value indicates the
+boundary condition was not successfully applied
+\item[{\tt cctkGH}] Grid hierarchy pointer
+\item[{\tt finf}] Scalar value at infinity
+\item[{\tt npow}] Decay rate ($n$ in discussion above)
+\item[{\tt stencil\_size}] Array with dimension of the grid function, containing the stencil width to apply the boundary at
+\item[{\tt variable\_name}] Name of the variable
+\item[{\tt group\_name}] Name of the group
+\item[{\tt variable\_index}] Variable index
+\item[{\tt group\_index}] Group index
+\end{Lentry}
+
+
+% Automatically created from the ccl files by using gmake thorndoc
+\include{interface}
+\include{param}
+\include{schedule}
+
+\end{document}

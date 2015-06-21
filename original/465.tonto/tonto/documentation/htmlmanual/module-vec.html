@@ -1,0 +1,409 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>The REALVEC module</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Examples of simple TONTO programs"
+HREF="example-programs.html"><LINK
+REL="PREVIOUS"
+TITLE="The REAL module"
+HREF="module-real.html"><LINK
+REL="NEXT"
+TITLE="The GAUSSIAN2 and DFTGRID modules"
+HREF="module-gaussian2.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="module-real.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="module-gaussian2.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="MODULE-VEC"
+></A
+>The <TT
+CLASS="LITERAL"
+>REALVEC</TT
+> module</H1
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>REALVEC</TT
+> module is concerned with vectors of double
+precision numbers.  This programs illustrates the minimisation of vector
+functions using various methods. It is very easy.</P
+><P
+ALIGN="justify"
+>As in the case of the <TT
+CLASS="LITERAL"
+>REAL</TT
+> module, the actual functions
+to be minimised are provided in a separate module <TT
+CLASS="LITERAL"
+>TEST</TT
+>.  Note
+that the routines are all made <TT
+CLASS="LITERAL"
+>[selfless]</TT
+> which means, unlike
+every other routine in TONTO, there is no <TT
+CLASS="LITERAL"
+>self</TT
+> variable
+automatically declared as the first variable.</P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="CODE-VEC"
+></A
+>Code</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>program run_realvec
+
+   use TYPES
+   use SYSTEM
+   use REALVEC
+   use TEXTFILE
+   use TEST
+
+#  include "macros"
+
+   implicit none
+
+   REALVEC(2) :: p
+   REALMAT(2,2) :: directions
+   REAL :: fret,tol,ftol
+   STR :: algorithm
+
+   tonto.initialize
+
+   stdout.create_stdout
+   stdout.open
+
+   stdout.flush
+   stdout.text("Minimise the function (x-1)^2 + (y-1)^2 + 1 using the")
+   stdout.text("Powell method")
+   stdout.flush
+   stdout.text("This function is defined in the TEST module")
+   stdout.flush
+  
+   tol = TOL(7)
+   ftol = TOL(7)
+   p = [ 0.1, 0.1 ]
+   directions(1,1) = 1
+   directions(2,1) = 1
+   directions(1,2) = 1
+   directions(2,2) =-1
+
+   stdout.flush
+   stdout.show("Start point   =",p)
+   stdout.flush
+   stdout.text("Initial directions (as columns):")
+   stdout.put(directions)
+
+   stdout.flush
+   stdout.text("Minimise the function ...")
+
+   funk.minimise_powell(p,directions,fret,tol,ftol)
+
+   stdout.flush
+   stdout.text("Answer:")
+   stdout.show("Minimum point =",p)
+   stdout.show("Minimum value =",fret)
+
+   stdout.flush
+   stdout.text("Now minimise the same functions using the FR")
+   stdout.text("(Fletcher-Reeves) method. This requires the ")
+   stdout.text("the derivative of the function as well.")
+   stdout.flush
+
+   p = [ 0.1, 0.1 ]
+   algorithm = "Fletcher-Reeves"
+   funk.minimise_FRPR(dfunk,p,fret,tol,ftol,algorithm)
+
+   stdout.flush
+   stdout.text("Answer:")
+   stdout.show("Minimum point =",p)
+   stdout.show("Minimum value =",fret)
+
+   stdout.flush
+   stdout.text("Now minimise the same functions using the BFGS")
+   stdout.text("(Broyden-Fletcher-Goldfarb-Shanno) method. This also")
+   stdout.text("requires the derivative of the function")
+   stdout.flush
+
+
+   p = [ 0.1, 0.1 ]
+   funk.minimise_BFGS(dfunk,p,fret,tol,ftol)
+
+   stdout.flush
+   stdout.text("Answer:")
+   stdout.show("Minimum point =",p)
+   stdout.show("Minimum value =",fret)
+
+end</PRE
+></TD
+></TR
+></TABLE
+><P
+ALIGN="justify"
+>And here is the relevant part of the <TT
+CLASS="LITERAL"
+>TEST</TT
+>
+module:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>module TEST
+
+   use TYPES
+   use SYSTEM
+   use REALVEC
+   use REALMAT
+
+   implicit none
+
+#  include "macros"
+
+   public funk
+   public dfunk
+
+contains
+
+   funk(p) result (res) [selfless]
+   ! A test function for minimising
+      REALVEC(2) :: p
+      REAL :: res
+      REAL :: x,y
+      x = p(1); y = p(2)
+      res = (x-1)*(x-1) + (y-1)*(y-1) + 1
+   end
+
+   dfunk(p) result (res) [selfless]
+   ! A test function for minimising
+      REALVEC(2) :: p,res
+      REAL :: x,y
+      x = p(1); y = p(2)
+      res(1) = 2*(x-1)
+      res(2) = 2*(y-1)
+   end
+
+end</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RESULTS-VEC"
+></A
+>Results</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>Minimise the function (x-1)^2 + (y-1)^2 + 1 using the
+Powell method
+
+This function is defined in the TEST module
+
+
+Start point   =         0.100000001         0.100000001
+
+Initial directions (as columns):
+                            1                   2
+
+        1         1.000000000         1.000000000
+        2         1.000000000        -1.000000000
+
+Minimise the function ...
+
+Answer:
+Minimum point =         0.999999995         0.999999995
+Minimum value =         1.000000000
+
+Now minimise the same functions using the FR
+(Fletcher-Reeves) method. This requires the
+the derivative of the function as well.
+
+
+Answer:
+Minimum point =         1.000000000         1.000000000
+Minimum value =         1.000000000
+
+Now minimise the same functions using the BFGS
+(Broyden-Fletcher-Goldfarb-Shanno) method. This also
+requires the derivative of the function
+
+
+Answer:
+Minimum point =         1.000000000         1.000000000
+Minimum value =         1.000000000</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="module-real.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="module-gaussian2.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>The <TT
+CLASS="LITERAL"
+>REAL</TT
+> module</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="example-programs.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>The <TT
+CLASS="LITERAL"
+>GAUSSIAN2</TT
+> and <TT
+CLASS="LITERAL"
+>DFTGRID</TT
+> modules</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

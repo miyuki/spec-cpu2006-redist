@@ -1,0 +1,334 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>What to do if compiling TONTO fails</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Compiling and Installing TONTO"
+HREF="compile-install.html"><LINK
+REL="PREVIOUS"
+TITLE="Installing TONTO"
+HREF="installing-tonto.html"><LINK
+REL="NEXT"
+TITLE="Compiling the BLAS and LAPACK libraries"
+HREF="blas-lapack.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="installing-tonto.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="blas-lapack.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="COMPILE-FAIL"
+></A
+>What to do if compiling TONTO fails</H1
+><P
+ALIGN="justify"
+>There are a few problems that you might have: </P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN383"
+></A
+>Your system is not known to us</H2
+><P
+ALIGN="justify"
+>You will know this is the case, because after the Makefile.pl script has
+completed it will tell you that it has not encountered your system before. In
+this case, you will need to create a Makefile for your machine and operating
+system. You should read <A
+HREF="makefiles.html"
+>the Section called <I
+>What you can do if a site_config file does not exist for your
+system</I
+></A
+>&#62;.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN387"
+></A
+>You are missing the <SPAN
+CLASS="APPLICATION"
+>BLAS</SPAN
+> and
+<SPAN
+CLASS="APPLICATION"
+>LAPACK</SPAN
+> libraries</H2
+><P
+ALIGN="justify"
+>You will know this is the case if you see many messages involving
+<TT
+CLASS="COMPUTEROUTPUT"
+>unresolved symbol</TT
+>. Refer to <A
+HREF="blas-lapack.html"
+>the Section called <I
+>Compiling the BLAS and LAPACK libraries</I
+></A
+>&#62;.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN394"
+></A
+>There are Fortran compiler problems</H2
+><P
+ALIGN="justify"
+>These are usually indicated by messages like <TT
+CLASS="COMPUTEROUTPUT"
+>fatal
+error</TT
+>, <TT
+CLASS="COMPUTEROUTPUT"
+>insufficient virtual
+memory</TT
+>, or no message at all with the generation of a
+<TT
+CLASS="COMPUTEROUTPUT"
+>core</TT
+> file.  There is very little that can be
+done about <TT
+CLASS="COMPUTEROUTPUT"
+>fatal errors</TT
+>, but they may be solved
+by reducing the compilation language level from Fortran95 to Fortran90 by using
+the <TT
+CLASS="LITERAL"
+>-DLANGUAGE_FORTRAN_90</TT
+> preprocessor option, or by reducing
+the compilation level to using the <TT
+CLASS="LITERAL"
+>-FDEBUG</TT
+> compilation
+option, or changing the compilation options so that no optimisation is
+performed. See the chapter <SPAN
+CLASS="QUOTE"
+>"Compiling customised version of
+TONTO"</SPAN
+>. Messages such as <TT
+CLASS="LITERAL"
+>insufficient memory</TT
+> can be
+solved by adding more memory to your computer, or increasing the virtual memory
+or swap space. You should consult an expert for your system in this case. For
+example, on COMPAQ systems, memory problems can often be solved by increasing
+the stacksize and other limits using the <B
+CLASS="COMMAND"
+>limit</B
+> or
+<B
+CLASS="COMMAND"
+>ulimit</B
+> command.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN407"
+></A
+>There are Fortran code problems</H2
+><P
+ALIGN="justify"
+>These are indicated when compiler messages involving the words
+<TT
+CLASS="COMPUTEROUTPUT"
+>subroutine</TT
+>, <TT
+CLASS="COMPUTEROUTPUT"
+>incorrect
+syntax</TT
+>, <TT
+CLASS="COMPUTEROUTPUT"
+>unknown syntax</TT
+> or
+<TT
+CLASS="COMPUTEROUTPUT"
+>undeclared variable</TT
+>. Usually, a line of Fortran
+code will also be printed. If you know Fortran and also the
+<B
+CLASS="COMMAND"
+>foo</B
+> preprocessor, you should alter the corresponding line
+in the .foo source file, found in the <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foofiles</I
+></SPAN
+> directory.
+These problems are quite rare and usually indicate a non-compliant compiler. The
+problem may be removed by reducing the compilation language level using the
+<TT
+CLASS="LITERAL"
+>-DLANGUAGE_FORTRAN_90</TT
+> preprocessor option.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN417"
+></A
+>There are <B
+CLASS="COMMAND"
+>foo</B
+> preprocessor problems</H2
+><P
+ALIGN="justify"
+>Problems with the preprocessor are indicated by messages which involve the
+<B
+CLASS="COMMAND"
+>perl</B
+> command. Please ensure the version of
+<B
+CLASS="COMMAND"
+>perl</B
+> you have is up to date.  Otherwise, you should contact
+us.</P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="installing-tonto.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="blas-lapack.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Installing TONTO</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="compile-install.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Compiling the BLAS and LAPACK libraries</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

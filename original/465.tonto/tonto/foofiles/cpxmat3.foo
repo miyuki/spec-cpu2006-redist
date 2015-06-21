@@ -1,0 +1,97 @@
+!---------------------------------------------------------------------------
+!
+!  CPXMAT3: Complex 3 dimensional matrices
+!
+! Copyright (C) dylan jayatilaka, 1998
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: cpxmat3.foo,v 1.5 2003/02/19 07:48:57 reaper Exp $
+!---------------------------------------------------------------------------
+
+module CPXMAT3
+
+   implicit none
+
+contains
+
+   create(dim1,dim2,dim3)
+   ! Create a cmat3 with the specified dimensions
+      self :: PTR
+      dim1,dim2,dim3 :: INT
+      nullify(self)
+      allocate(self(dim1,dim2,dim3))
+      ADD_MEMORY(dim1*dim2*dim3*CPX_SIZE)
+   end
+
+   create(lb1,ub1,lb2,ub2,lb3,ub3)
+   ! Create a cmat3 with the specified bounds
+      self :: PTR
+      ub1,ub2,ub3,lb1,lb2,lb3 :: INT
+      nullify(self)
+      allocate(self(lb1:ub1,lb2:ub2,lb3:ub3))
+      ADD_MEMORY((ub1-lb1+1)*(ub2-lb2+1)*(ub3-lb3+1)*CPX_SIZE)
+   end
+
+   create(bounds1,bounds2,bounds3)
+   ! Create a cmat3 with the specified bounds for each dimension
+      self :: PTR
+      bounds1,bounds2,bounds3 :: INTVEC(2)
+      .create(bounds1(1),bounds1(2),bounds2(1),bounds2(2), &
+             bounds3(1),bounds3(2))
+   end
+
+   create(bounds)
+   ! Create a cmat3 with the specified bounds for all dimensions
+      self :: PTR
+      bounds :: INTMAT(3,2)
+      .create(bounds(1,1),bounds(1,2),bounds(2,1),bounds(2,2), &
+            bounds(3,1),bounds(3,2))
+   end
+
+   create_copy(c)
+   ! Create a copy of matrix "c"
+      self :: PTR
+       c :: CPXMAT3*
+      .create(lbound(c,1),ubound(c,1), &
+              lbound(c,2),ubound(c,2), &
+              lbound(c,3),ubound(c,3)  )
+      self = c
+   end
+
+   destroy
+   ! Destroy a cmat3
+      self :: PTR
+      if (.destroyed) return
+      DELETE_MEMORY(size(self)*CPX_SIZE)
+      deallocate(self)
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+end

@@ -1,0 +1,76 @@
+# Parameter definitions for thorn IDLinearWaves
+
+shares:einstein
+
+EXTENDS KEYWORD initial_data 
+{
+"teukwaves"  :: "linear waves initial data- Teukolsky waves"
+"planewaves" :: "linear waves initial data- plane waves"
+}
+
+USES BOOLEAN use_conformal 
+
+USES BOOLEAN use_conformal_derivs 
+
+private:
+
+REAL amplitude "Amplitude of the wave: both for teuk and plane"
+{
+  0: :: "positive amplitude"
+} 0.001
+
+INT mvalue "m value for teukwaves waves: integer from -2 to 2"
+{
+  -2:2 :: "implemented : m = -2..2"
+} 0
+
+REAL wavecenter "linears waves thingie"
+{
+  : :: ""
+} 0.0
+
+REAL wavelength "linearwaves wave length"
+{
+  0: :: "positive wavelength"
+} 2.0
+
+REAL wavepulse "planewaves thingy for the gaussian pulse"
+{
+  0: :: "positive pulse"
+} 1.0
+
+REAL wavetheta "Theta angle for planewaves"
+{
+  : :: ""
+} 0.0
+
+REAL wavephi "Phi angle for planewaves"
+{
+ : :: ""
+} 0.0
+
+KEYWORD parity "Parity for teukwaves: even or odd"
+{
+  "even" :: "even parity"
+  "odd"  :: "odd parity"
+} "even"
+
+KEYWORD packet "Packet for teukwaves: eppley,evans,square"
+{
+  "eppley" :: "Eppley type"
+  "evans"  :: "Evans type"
+  "square" :: "Square type"
+} "eppley"
+
+KEYWORD wavesgoing "in and outgoing waves..."
+{
+  "in"   :: "Ingoing wave"
+  "out"  :: "Outgoing wave"	
+  "both" :: "In and outgoing wave"
+} "both"
+
+KEYWORD teuk_no_vee "Initialize Teuk. waves with V=0?"
+{
+  "no" :: "Bona Masso setting"
+  "yes":: "Bona Masso setting"
+} "no"

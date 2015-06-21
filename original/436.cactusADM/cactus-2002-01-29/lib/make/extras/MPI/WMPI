@@ -1,0 +1,22 @@
+#! /bin/sh
+# /*@@
+#   @file      WMPI
+#   @date      Sat Sep  4 19:03:19 1999
+#   @author    Tom Goodale
+#   @desc   
+#   Stuff for WMPI - a windows MPI implementation   
+#   @enddesc 
+#   @version $Header: /cactus/Cactus/lib/make/extras/MPI/WMPI,v 1.2 2001/05/21 10:26:14 goodale Exp $ #   
+#   @enddesc 
+# @@*/
+
+echo "WMPI selected"
+
+if test -z "$WMPI_DIR" ; then
+   echo "WMPI selected but no WMPI_DIR set.  Unable to proceed."
+   exit 2
+fi
+  
+MPI_LIBS="cdvlibf cvwmpi"  
+MPI_LIB_DIRS="`echo $WMPI_DIR\\\lib\\\Console | sed 's:\\\:\\\\\\\\:g'`"
+MPI_INC_DIRS="`echo $WMPI_DIR\\\include | sed 's:\\\:\\\\\\\\:g'`"

@@ -1,0 +1,33 @@
+#! /bin/sh
+# /*@@
+#   @file   superux     
+#   @date   Fri Mar 3 12:35:28
+#   @author Tom Goodale  
+#   @desc 
+#   Known architecture stuff for the SX-5
+#   @enddesc 
+#   @version $Header: /cactus/Cactus/lib/make/known-architectures/superux,v 1.11 2000/07/27 18:51:18 goodale Exp $
+# @@*/
+
+if test "$CCTK_CONFIG_STAGE" = "preferred-compilers" ; then
+
+:
+
+else
+
+  : ${LIBS="i90sx f90sxe v90sxe_sv i90sxe m"}
+  : ${C_DEPEND='$(CPP) -H$@ $(CPPFLAGS)'}
+  : ${CXX_DEPEND='$(CPP) -H$@ $(CPPFLAGS)'}
+  : ${F77_DEPEND='$(CPP) -H$@ $(CPPFLAGS)'}
+  : ${F_DEPEND='$(CPP) -H$@ $(CPPFLAGS)'}
+  : ${C_DEPEND_OUT='>/dev/null 2>$(basename $(@)).d; $(PERL) -ni -e "s,^,$(basename $(@)).o $(basename $(@)).d : ,; print $_ if (! m/:.*:/) " $(basename $(@)).d'}
+  : ${CXX_DEPEND_OUT='>/dev/null 2>$(basename $(@)).d; $(PERL) -ni -e "s,^,$(basename $(@)).o $(basename $(@)).d : ,; print $_ if (! m/:.*:/) " $(basename $(@)).d'}
+  : ${F_DEPEND_OUT='>/dev/null 2>$(basename $(@)).d; $(PERL) -ni -e "s,^,$(basename $(@)).o $(basename $(@)).d : ,; print $_ if (! m/:.*:/) " $(basename $(@)).d'}
+  : ${F77_DEPEND_OUT='>/dev/null 2>$(basename $(@)).d; $(PERL) -ni -e "s,^,$(basename $(@)).o $(basename $(@)).d : ,; print $_ if (! m/:.*:/) " $(basename $(@)).d'}
+
+  : ${CXX_WORKING_NAME='$(notdir $<).C'}
+
+
+  : ${CXX_POSTPROCESSING='cp $(SCRATCH_BUILD)$(DIRSEP)$(notdir $@) .'}
+
+fi

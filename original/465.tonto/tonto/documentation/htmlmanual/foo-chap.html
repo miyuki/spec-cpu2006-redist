@@ -1,0 +1,612 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>The foo preprocessor</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Linking your Fortran code"
+HREF="linking-code.html"><LINK
+REL="NEXT"
+TITLE="How foo works"
+HREF="how-foo-works.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="CHAPTER"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="linking-code.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="how-foo-works.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="FOO-CHAP"
+></A
+>The <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> preprocessor</H1
+><P
+ALIGN="justify"
+>The TONTO system is written in <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+>, a preprocessor which encourages a good
+object-oriented programming style. <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> is closely related to Fortran95, and
+indeed, <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> code currently translates into standard compliant Fortran95 code. </P
+><P
+ALIGN="justify"
+>The following sections describe the rules for valid input to the
+<B
+CLASS="COMMAND"
+>foo</B
+> preprocessor, and the actual transformation process
+performed by the preprocessor. </P
+><P
+ALIGN="justify"
+>Although the rules are quite simple, and examples are given, it is
+probably easier to examine <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> modules that have already been written.  It
+should be possible to understand <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> code without reading the formal rules, if
+you already have a basic knowledge of object-oriented programming techniques and
+syntax.</P
+><P
+ALIGN="justify"
+>The most important element of the <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> language is the introduction of a
+<SPAN
+CLASS="QUOTE"
+>"dot notation"</SPAN
+>. In this notation, a dot
+<SPAN
+CLASS="QUOTE"
+>"<TT
+CLASS="LITERAL"
+>.</TT
+>"</SPAN
+> expands either into the Fortran95
+<SPAN
+CLASS="QUOTE"
+>"<TT
+CLASS="LITERAL"
+>%</TT
+>"</SPAN
+> type separator symbol, or a procedure call,
+depending respectively on whether there is, or is not, a type component with the
+appropriate name defined in the type. Thus, using the dot notation, it is
+possible for the programmer to <SPAN
+CLASS="QUOTE"
+>"hide"</SPAN
+> the detailed implementation
+of a type (and hence a module) from a casual user.  In this way, the computer
+code becomes robust to future changes, sincethe distinction between a routine
+and actual data becomes blurred.</P
+><P
+ALIGN="justify"
+>Note that you don't have to write your code in the <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> language --- plain
+Fortran95 is fine, provided you stick to the guidelines in the previous chapter
+-- but <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> has many advantages, and is worth the minimal effort required to
+learn it.  </P
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="WHY-FOO"
+></A
+>Key advantages of the <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> preprocessor</H1
+><P
+ALIGN="justify"
+>If you do choose write your code in <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+>, then the following advantages
+are available to you:</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>HTML code documentation facility</I
+></SPAN
+>.  The code
+you write will be used to generate, automatically, fully hyperlinked synopsis-style
+<TT
+CLASS="LITERAL"
+>html</TT
+> documentation.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Hyperlinked procedures and colour-coded
+syntax</I
+></SPAN
+>.  Using the <TT
+CLASS="LITERAL"
+>vim</TT
+> editor and the
+<TT
+CLASS="LITERAL"
+>ctags</TT
+> program, the code you write can be coloured by syntax,
+folded by procedure, and fully hyperlinked with all other procedures in the
+system, greatly increasing your productivity.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Overloading and interface files</I
+></SPAN
+>.  You can
+write routines with exactly the same name (provided that they can be
+distinguished by their call signature).  The interface file required for this
+automatic overloading is automatically generated.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Automatic use statement generator</I
+></SPAN
+>.  You
+don't have to write <TT
+CLASS="LITERAL"
+>use</TT
+> stetements, because the preprocessor
+will automatically generate them for you. This can make compile times much
+faster on many systems when you use highly nested modules.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Dot notation</I
+></SPAN
+>.  A dot notation is available,
+as used in most object oriented languages.  The <TT
+CLASS="LITERAL"
+>call</TT
+>
+statement is no longer required.  In effect, a <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> module module becomes a
+<SPAN
+CLASS="QUOTE"
+>"class"</SPAN
+> which implements a so-called abstract data type (ADT). The
+dot notation allows you full data-hiding (i.e. encapsulation) for your
+module.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Multiple template inheritance</I
+></SPAN
+>.  A multiple
+template-based inheritance scheme has been implemented, based on code inclusion.
+The inheritance scheme does not depend on subtyping, so opportunities for code
+re-use are not constrained in any way by language design and code structure. The
+scheme is not based on dynamic dispatch, ans so is efficient</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Preconditions, postconditions, and error management
+facilities</I
+></SPAN
+>.  To help in writing bug-free code, you can place preconditions
+and postconditions into your routines to codify the minimum requirements for
+your routine to perform its task correctly.  If an error is detected you have a
+traceback of the call stack to tell you where it happened. You can elect not to
+use this facility if you are afraid it will make your code less
+efficient.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Memory management facilities</I
+></SPAN
+>.  Fortran95
+offers full support dynamical memory and pointers, but this can lead to serious
+problems with memory management, such as the famous <SPAN
+CLASS="QUOTE"
+>"memory-leak"</SPAN
+>
+problem. <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Foo</I
+></SPAN
+> automatically checks is each routine you write is memory-tight.
+You can elect not to use it this facility facility (for reasons of fast code).
+Full traceback and memory monitoring is also available to help track difficult
+memory leaks.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Conditional compilation of <TT
+CLASS="LITERAL"
+>PURE</TT
+> and
+<TT
+CLASS="LITERAL"
+>ELEMENTAL</TT
+> routines</I
+></SPAN
+>.  Fortran95 disallows write
+statements to be placed within routines marked <TT
+CLASS="LITERAL"
+>PURE</TT
+> or
+<TT
+CLASS="LITERAL"
+>ELEMENTAL</TT
+>, which may be an annoyance for testing purposes.
+You can elect to compile your code without these keywords.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Automatic <TT
+CLASS="LITERAL"
+>end</TT
+> keyword
+completion</I
+></SPAN
+>.  You can use the <TT
+CLASS="LITERAL"
+>end</TT
+> keyword to stand
+for any of the usual block termination words: <TT
+CLASS="LITERAL"
+>end program</TT
+>,
+<TT
+CLASS="LITERAL"
+>end module</TT
+>, <TT
+CLASS="LITERAL"
+>end subroutine</TT
+>, <TT
+CLASS="LITERAL"
+>end
+function</TT
+>, <TT
+CLASS="LITERAL"
+>end if</TT
+>, <TT
+CLASS="LITERAL"
+>end do</TT
+>,
+<TT
+CLASS="LITERAL"
+>end interface</TT
+>, <TT
+CLASS="LITERAL"
+>end select</TT
+>, <TT
+CLASS="LITERAL"
+>end
+type</TT
+>, <TT
+CLASS="LITERAL"
+>end forall</TT
+>.  This is less typing for you and
+makes the code less cluttered <A
+NAME="AEN6773"
+HREF="#FTN.AEN6773"
+>[1]</A
+>.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Automatic <TT
+CLASS="LITERAL"
+>subroutine</TT
+> and
+<TT
+CLASS="LITERAL"
+>function</TT
+> detection</I
+></SPAN
+>.  You don't need to use the
+<TT
+CLASS="LITERAL"
+>subroutine</TT
+> and <TT
+CLASS="LITERAL"
+>function</TT
+> keywords. These
+are automatically detected for you. It means less typing and less cluttered
+code.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>Protection against changes in the language
+elements</I
+></SPAN
+>.  The <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> preprocessor represents a minimal approach to
+object oriented programming, and it is conceivable that it may be translated
+into a language other than Fortran95 at a future date, should Fortran95 no
+longer be the best choice for fast, numerical programs.</P
+></LI
+></UL
+></DIV
+></DIV
+><H3
+CLASS="FOOTNOTES"
+>Notes</H3
+><TABLE
+BORDER="0"
+CLASS="FOOTNOTES"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.AEN6773"
+HREF="foo-chap.html#AEN6773"
+>[1]</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+ALIGN="justify"
+>But this makes it nearly mandatory
+to use indentation, which is good programming
+practice</P
+></TD
+></TR
+></TABLE
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="linking-code.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="how-foo-works.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>Linking your Fortran code</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>How <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> works</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

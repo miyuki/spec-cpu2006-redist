@@ -1,0 +1,128 @@
+   use TYPES_MODULE
+   use SYSTEM_MODULE
+ 
+   use SLATERBASIS_MODULE, only: make_interpolator_
+ 
+   use CIF_MODULE, only: open_
+   use CIF_MODULE, only: read_looped_item_
+   use CIF_MODULE, only: create_
+   use CIF_MODULE, only: read_looped_items_
+   use CIF_MODULE, only: find_looped_item_
+   use CIF_MODULE, only: destroy_
+   use CIF_MODULE, only: find_crystal_data_block_
+ 
+   use SHELL2_MODULE, only: destroy_ptr_part_
+   use SHELL2_MODULE, only: get_nuc_
+   use SHELL2_MODULE, only: copy_
+ 
+   use INTVEC_MODULE, only: index_of_value_
+   use INTVEC_MODULE, only: create_
+   use INTVEC_MODULE, only: destroy_
+ 
+   use REAL_MODULE, only: arccos_
+   use REAL_MODULE, only: is_zero_
+   use REAL_MODULE, only: to_str_
+ 
+   use REALVEC_MODULE, only: same_as_
+   use REALVEC_MODULE, only: dot_
+   use REALVEC_MODULE, only: norm_
+   use REALVEC_MODULE, only: normalise_
+   use REALVEC_MODULE, only: swap_elements_
+   use REALVEC_MODULE, only: to_cross_product_
+   use REALVEC_MODULE, only: to_str_
+ 
+   use INT_MODULE, only: to_str_
+ 
+   use ATOM_MODULE, only: read_keys_
+   use ATOM_MODULE, only: nullify_ptr_part_
+   use ATOM_MODULE, only: no_of_occupied_NOs_
+   use ATOM_MODULE, only: put_thermal_tensor_
+   use ATOM_MODULE, only: resolve_axis_system_
+   use ATOM_MODULE, only: put_table_header_
+   use ATOM_MODULE, only: destroy_ptr_part_
+   use ATOM_MODULE, only: change_axis_system_to_
+   use ATOM_MODULE, only: no_of_shells_
+   use ATOM_MODULE, only: process_keys_
+   use ATOM_MODULE, only: set_label_and_atomic_number_
+   use ATOM_MODULE, only: thermal_tensor_to_
+   use ATOM_MODULE, only: put_table_footer_
+   use ATOM_MODULE, only: has_ANO_data_
+   use ATOM_MODULE, only: change_thermal_axis_system_to_
+   use ATOM_MODULE, only: copy_
+   use ATOM_MODULE, only: ground_state_multiplicity_
+   use ATOM_MODULE, only: set_defaults_
+   use ATOM_MODULE, only: clear_keys_
+   use ATOM_MODULE, only: chemical_symbol_
+   use ATOM_MODULE, only: set_coppensbasis_label_
+   use ATOM_MODULE, only: create_
+   use ATOM_MODULE, only: n_shell_
+   use ATOM_MODULE, only: mean_neutron_number_
+   use ATOM_MODULE, only: keys_created_
+   use ATOM_MODULE, only: same_kind_as_
+   use ATOM_MODULE, only: set_keys_
+   use ATOM_MODULE, only: no_of_primitives_
+   use ATOM_MODULE, only: n_bf_
+   use ATOM_MODULE, only: bragg_slater_radius_
+   use ATOM_MODULE, only: thermal_tensor_from_
+   use ATOM_MODULE, only: destroy_
+   use ATOM_MODULE, only: no_of_basis_functions_
+   use ATOM_MODULE, only: library_basis_label_
+   use ATOM_MODULE, only: n_prim_
+   use ATOM_MODULE, only: resolve_basis_
+   use ATOM_MODULE, only: mass_
+ 
+   use STR_MODULE, only: is_int_
+   use STR_MODULE, only: to_lower_case_
+   use STR_MODULE, only: to_int_
+   use STR_MODULE, only: includes_
+ 
+   use TEXTFILE_MODULE, only: stdin
+   use TEXTFILE_MODULE, only: stdout
+   use TEXTFILE_MODULE, only: redirect_
+   use TEXTFILE_MODULE, only: show_
+   use TEXTFILE_MODULE, only: set_real_width_
+   use TEXTFILE_MODULE, only: read_
+   use TEXTFILE_MODULE, only: at_end_of_file_
+   use TEXTFILE_MODULE, only: set_int_width_
+   use TEXTFILE_MODULE, only: flush_
+   use TEXTFILE_MODULE, only: save_
+   use TEXTFILE_MODULE, only: dash_
+   use TEXTFILE_MODULE, only: set_real_precision_
+   use TEXTFILE_MODULE, only: next_str_
+   use TEXTFILE_MODULE, only: text_
+   use TEXTFILE_MODULE, only: previous_line_item_
+   use TEXTFILE_MODULE, only: line_number_
+   use TEXTFILE_MODULE, only: next_item_
+   use TEXTFILE_MODULE, only: move_to_line_
+   use TEXTFILE_MODULE, only: unsave_
+   use TEXTFILE_MODULE, only: put_
+   use TEXTFILE_MODULE, only: revert_
+   use TEXTFILE_MODULE, only: move_to_line_item_
+   use TEXTFILE_MODULE, only: move_to_previous_item_
+   use TEXTFILE_MODULE, only: reverted_
+ 
+   use INTVECVEC_MODULE, only: create_
+   use INTVECVEC_MODULE, only: destroy_
+ 
+   use STRVEC_MODULE, only: create_
+   use STRVEC_MODULE, only: quick_sort_
+   use STRVEC_MODULE, only: remove_repetitions_
+   use STRVEC_MODULE, only: index_of_
+   use STRVEC_MODULE, only: destroy_
+ 
+ 
+   use COPPENSBASIS_MODULE, only: make_interpolator_
+ 
+   use REALMAT_MODULE, only: swap_columns_
+   use REALMAT_MODULE, only: solve_eigenproblem_
+   use REALMAT_MODULE, only: determinant_
+   use REALMAT_MODULE, only: create_
+   use REALMAT_MODULE, only: add_to_diagonal_
+   use REALMAT_MODULE, only: is_square_
+   use REALMAT_MODULE, only: trace_
+   use REALMAT_MODULE, only: change_basis_
+   use REALMAT_MODULE, only: symmetric_reflect_
+   use REALMAT_MODULE, only: destroy_
+   use REALMAT_MODULE, only: to_unit_matrix_
+ 
+   use INTERPOLATOR_MODULE, only: destroy_

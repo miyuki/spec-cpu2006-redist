@@ -1,0 +1,385 @@
+
+        EINSTEIN THORN-CONVERSION USERS GUIDE
+
+
+
+This guide is structured in four parts: 
+
+1) changes in the FORTRAN/C source files
+2) the new parameter system
+3) the new RFR interface
+4) the new GridFuncList
+
+
+
+________________________________________________________________________
+
+1)     CHANGES IN THE FORTRAN/C SOURCE FILES
+
+This part should be quite straight forward for most thorns (those not
+using special macros or data structures)
+
+You have to do the following:
+
+- move "cactus.h" to "cctk.h", so put
+     #include "cctk.h"
+
+- to include parameters, use 
+     #include "cctk_parameters.h"
+
+- to declare arguments, use
+     #include "cctk_arguments.h"
+
+- C programmers now need to declare their own standard libraries
+
+- the macro argument CACTUS or any particular one, like 
+  BONAMASSO_EVOLUTION_ARGS has to be replaced by CCTK_FARGUMENTS,
+  in case of fortran routine and by CCTK_CARGUMENTS in case of
+  C routine.
+  In order to declare it, use DECLARE_CCTK_FARGUMENTS (fortran case)
+  or DECLARE_CCTK_CARGUMENTS (C case)
+
+- replace DECLARE_PARSER with DECLARE_CCTK_PARAMETERS. 
+  
+- For now fortran programmers have  to declare 
+     integer CCTK_Equals
+  wherever you need to read parameters. See below. Note that
+  since CCTK_Equals returns an INTEGER, you cannot say
+
+  if (CCTK_Equals(mypar,"thispar")) then
+
+  you must say 
+
+  if (CCTK_Equals(mypar,"thispar").eq.1) then
+
+  (some compilers will not insist on this). To make this easier,
+  there is a macro CCTK_EQUALS which you can use as a logical
+
+  if (CCTK_EQUALS(mypar,"thispar")) then
+
+  (Unfortunately this means that some compilers will complain
+  if you declare "integer CCTK_EQUALS" instead of the correct
+  "integer CCTK_Equals")
+ 
+- the MACROS CONFORMAL_METRIC, NON_CONFORMAL_METRIC, SHIFT_ACTIVE,
+  SHIFT_INACTIVE are now placed in thorn Einstein, in "Einstein.h". 
+  You should #include this file wherever you need them.
+
+- the extrinsic curvature has changed name from hxx etc to kxx etc.
+
+- the Bona Masso variables should not be assumed to be available anymore.
+
+- the point macros, say CACTUS_POINT, BONAMASSO_EVOLUTION_POINT, are no
+  longer available. If you need them you have to manage it yourself. As
+  long as I know, we (Palma group) were the only ones using it.
+
+- FLESHPARS is also gone 
+
+- contains has been replaced by CCTK_Equals, which is used like this:
+                 if (CCTK_Equals(model,"flatty").eq.1) then
+  1 stands for TRUE, of course.
+  Equals has a different meaning than contains. Equals means exactly
+  that (but is case independent), so you can no longer have different 
+  words separate by blank spaces in the parameter files. 
+  As a consequence any multi-purpose parameter has to be broken into
+  a set of them. You might have to think carefully about how to rewrite
+  the part of the code dealing with this. This can be the more tiresome
+  part, depending on the thorn [Note by Cactus Maint: but the benefits 
+  will become apparent].
+
+- nx,ny,nz has died, changed to the more general cctk_lsh(DIM), so do 
+
+      nx = cctk_lsh(1)
+      ny = cctk_lsh(2)
+      nz = cctk_lsh(3)
+  if you are so lazy...
+
+  and dt to cctk_delta_time, dx,dy,dz to cctk_delta_space(DIM)
+
+  so in fortran:
+      dt = cctk_delta_time
+      dx = cctk_delta_space(1)
+      dy = cctk_delta_space(2)
+      dz = cctk_delta_space(3)
+
+  or in C:
+      dt = cctk_delta_time
+      dx = cctk_delta_space(0)
+      dy = cctk_delta_space(1)
+      dz = cctk_delta_space(2)
+
+  is enough again
+   
+- in make.code.defn you have to specify all your files in a single SRCS line,
+  both fortran and C ones, e.g.
+
+ SRCS = choosefluxes.F fluxes.F \
+        source_addPN.F source_addY.F source_shift.F sources.F \
+        BonaMasso_Evolution.F BM_ini_flat.F\
+        vectorini_point.F enfmom.F\
+        evolsources.F macflux.F machog.F 
+
+- all file names must be unique
+
+_________________________________________________________________________
+
+
+2) THE NEW PARAMETER SYSTEM
+
+The former parameter definition file no longer exists.
+Now you have "param.ccl", a ccl file (see below), to make up for it.
+
+The vocabulary includes:
+
+  > friend:thorn_which_is_friend_of_mine
+
+      this allows you to access protected parameters from other thorns,e.g.
+
+      friend:einstein
+
+  > protected:
+    whatever parameter definition following can just be used by friends
+
+  > private:
+    whatever parameter definition following can just be used by this very
+    thorn. No friends!
+
+  > public:
+    whatever parameter definition following can be used by any thorn.
+    [Note by Cactus Maint: in general, you shouldn't need any public 
+    parameters]
+
+After this statements you define parameters by
+
+PARAMETER_TYPE parameter_name "Meaningful comment"
+{
+ range :: "Comment for range"
+} default_value
+
+: as range means any value
+
+
+Examples:
+
+INTEGER nholes "number of black holes"
+{
+ 1:4 :: "Only coded up to 4 black holes"
+} 1
+
+INTEGER ADM_ICN_itnum_min "minimum number of iterations of ICN"
+{
+ : :: ""
+} 1
+
+REAL bm_f "f factor on lapse"
+{
+ : :: ""
+} 2.0
+
+LOGICAL evolve_metric "Choose whether to evolve the metric"
+{
+} "yes"
+
+KEYWORD system_type "Which one of the BMA systems?"
+{
+   "linear"    :: "Linearized Einstein equantions"
+   "ricci      :: "Ricci system"
+   "einstein " :: "Einstein system"
+} "einstein"
+
+[Note from Cactus Maint: Try and fill in the ranges for your parameters,
+since these are checked for each parameter file]
+
+Notice that strings are now keywords. In the parameters file their 
+value can just be adjusted to one of the allowed values. Otherwise
+you will be warned you have been bad.
+
+You can extend the range of the parameters belonging to a thorn
+which you have become friend of. Example:
+
+EXTEND KEYWORD evolution_system ""
+{
+   "BMA" :: "Evolve using BMA evolution scheme"
+}
+
+Einsten thorn owns this parameter, therefore I have had to declare my
+friendship before:
+
+friend:einstein
+
+Enemies and lovers not still implemented, but the Cactus 4 team is
+considering them, or so I was told.
+
+Of course all this does not come without modification in the parameter
+files. First, because of multiple-purpose parameters are now 
+forbidden, as pointed above in the CCTK_Equals comment. And second,
+your parameters have name and surnames. You can have in principle
+the same private parameters in different thorns with different 
+purposes, and they shouldn't conflict with each other.
+For instance,
+
+einstein::evolution_system        =    "ADM"    
+
+The old flesh parameters now belong to some implementation or another, like
+einstein::dtfac
+grid::dx
+driver::global_nx
+
+or have cctk status:
+
+cctk_initial_time  =     0.  
+cctk_itlast        =     100
+
+etc.
+ 
+_________________________________________________________________________
+
+3) THE NEW RFR INTERFACE
+
+The RFR interface between thorns and flesh is no longer a C/FORTRAN file,
+but a ccl file ("schedule.ccl") and includes storage and communication 
+information for the variables (in Cactus 3 this was in the GridFuncList).
+
+The vocabulary is 
+
+STORAGE:  somethingtostore
+
+COMMUNICATION: variableswhichcommunicate
+
+
+Example:______________________________
+
+if (CCTK_Equals(evolution_system,"BMA"))
+{
+########### what to store #######################################
+  STORAGE: alpha_derivatives,metric_derivatives,vees,traces
+########### what to communicate #################################
+  COMMUNICATION: alpha_derivatives,metric_derivatives,vees,traces
+
+  # shift treatment
+  if (!CCTK_Equals(shift,"none")) 
+  {
+    STORAGE: shift_deriv
+    COMMUNICATION: shift_deriv
+  }
+
+  .... 
+}
+
+End of Example________________________
+
+For the meaning of alpha_derivatives,metric_derivatives,... see the last
+example in next section 4). Basically they are groups of variables dealt
+together.
+
+To schedule routines the language is as follows:
+
+  schedule YourRoutine at ScheduleTime
+  {
+    LANG: Language
+  } "RFR comment"
+
+For instance:
+
+  schedule BonaMasso_evolution at CCTK_EVOL
+  {
+    LANG: Fortran
+  } "Evolve with BMA system"
+
+
+See the manual for a complete list of Schedule times.
+
+As you can see the cactus language ccl is heavily inspired in C. You
+can use equals ==, or ||, else if,... For those ignorant of C, check
+the different *.ccl files in different thorns. It's quite
+self-explaining.
+
+
+__________________________________________________________________
+
+4) THE NEW GRIDFUNCLIST
+
+The Cactus 3  GridFuncList is now replaced by "interface.ccl", with
+a brand new vocabulary. You have to rewrite from scratch.
+As seen above, some information for variables at old GridFuncList files are 
+now to be specified in "schedule.ccl" 
+
+*new vocabulary:
+
+   > implements
+         for instance,   
+
+         implements:bm
+
+         it means that this file implements a set of arguments,
+         called bm in this case. This are the arguments passed
+         to your routines in the thorn. Several thorns can use the
+         same name. This is crucial for dealing with 
+         conflicts and redundancies between thorns.
+
+    > inherits
+         for instance, 
+
+         inherits: einstein
+
+         the arguments passed to the routines of this thorn will
+         include "public" stuff of einstein implementation in
+         einsteins's interface.ccl.
+
+    > protected
+
+         protected:    herewhatyouwanttoprotect
+
+         what follows is just passed to thorns which explicitly 
+         request it
+
+    > private
+
+         private:     herewhatisdarkandhidden
+
+         what follows is never passed to any other thorn
+
+    > public
+
+         public :     herewhatistobesharedwithanythorn
+
+         what follows is always visible; don't place anything you don't 
+         want to be modified here.
+
+
+* the way to state variables is now (example)
+
+      real metric type = GF
+      {
+        gxx,gxy,gxz,gyy,gyz,gzz
+      } "Some kind of comment"
+
+   "real"  is the type, so integer,...
+   "type =" specifies GF (GridFunction) in this case; can also be
+            SCALAR,...
+
+   As you can see, the variables can be now packed in groups, so they
+   are easily passed and assigned storage and communications features
+   coherently.
+
+   This example, therefore, shows how to create a set of
+   6 3D double precision variables
+
+_________________________________________________________________________
+
+
+
+                        EPILOG
+
+Ok, have you carefully followed all the steps? Right. Now try to compile
+(gmake nameofnewconfiguration). You can have different configurations,
+even on the same architecture.
+Doesn't work, does it?
+You may try to reboot the origin at this point. It should help. If it
+doesn't, you have a bug! (or Cactus 4 has it)
+
+After two hours of debugging the code compiles and links, so you 
+think you are done. Wrong. Remember you still have to rewrite all your
+parameter files...
+
+Enjoy!

@@ -1,0 +1,1114 @@
+<HTML><HEAD><SCRIPT language="JavaScript" src="../resources/script.js" type="text/javascript"></SCRIPT><TITLE>XMLValidator class Reference</TITLE><link href="XercesApi.css" rel="stylesheet" type="text/css"></HEAD><BODY alink="#ff0000" bgcolor="#ffffff" leftmargin="4" link="#0000ff" marginheight="4" marginwidth="4" text="#000000" topmargin="4" vlink="#0000aa"><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" height="60" rowspan="3" valign="top" width="135"><IMG border="0" height="60" hspace="0" src="../resources/logo.gif" vspace="0" width="135"></TD><TD align="left" colspan="4" height="5" valign="top" width="456"><IMG border="0" height="5" hspace="0" src="../resources/line.gif" vspace="0" width="456"></TD><TD align="left" height="60" rowspan="3" valign="top" width="29"><IMG border="0" height="60" hspace="0" src="../resources/right.gif" vspace="0" width="29"></TD></TR><TR><TD align="left" bgcolor="#0086b2" colspan="4" height="35" valign="top" width="456"><IMG alt="" border="0" height="35" hspace="0" src="../graphics/api-header.jpg" vspace="0" width="456"></TD></TR><TR><TD align="left" height="20" valign="top" width="168"><IMG border="0" height="20" hspace="0" src="../resources/bottom.gif" vspace="0" width="168"></TD><TD align="left" height="20" valign="top" width="96"><A href="http://xml.apache.org/" onMouseOut="rolloverOff('xml');" onMouseOver="rolloverOn('xml');" target="new"><IMG alt="http://xml.apache.org/" border="0" height="20" hspace="0" name="xml" onLoad="rolloverLoad('xml','../resources/button-xml-hi.gif','../resources/button-xml-lo.gif');" src="../resources/button-xml-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.apache.org/" onMouseOut="rolloverOff('asf');" onMouseOver="rolloverOn('asf');" target="new"><IMG alt="http://www.apache.org/" border="0" height="20" hspace="0" name="asf" onLoad="rolloverLoad('asf','../resources/button-asf-hi.gif','../resources/button-asf-lo.gif');" src="../resources/button-asf-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.w3.org/" onMouseOut="rolloverOff('w3c');" onMouseOver="rolloverOn('w3c');" target="new"><IMG alt="http://www.w3.org/" border="0" height="20" hspace="0" name="w3c" onLoad="rolloverLoad('w3c','../resources/button-w3c-hi.gif','../resources/button-w3c-lo.gif');" src="../resources/button-w3c-lo.gif" vspace="0" width="96"></A></TD></TR></TABLE><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" valign="top" width="120"><IMG border="0" height="14" hspace="0" src="../resources/join.gif" vspace="0" width="120"><BR>
+  <A href="../../index.html" onMouseOut="rolloverOff('side-ext-2');" onMouseOver="rolloverOn('side-ext-2');"><IMG alt="Home" border="0" height="12" hspace="0" name="side-ext-2" onLoad="rolloverLoad('side-ext-2','../graphics/ext-2-label-2.jpg','../graphics/ext-2-label-3.jpg');" src="../graphics/ext-2-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../index.html" onMouseOut="rolloverOff('side-index');" onMouseOver="rolloverOn('side-index');"><IMG alt="Readme" border="0" height="12" hspace="0" name="side-index" onLoad="rolloverLoad('side-index','../graphics/index-label-2.jpg','../graphics/index-label-3.jpg');" src="../graphics/index-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../releases.html" onMouseOut="rolloverOff('side-releases');" onMouseOver="rolloverOn('side-releases');"><IMG alt="Release Info" border="0" height="12" hspace="0" name="side-releases" onLoad="rolloverLoad('side-releases','../graphics/releases-label-2.jpg','../graphics/releases-label-3.jpg');" src="../graphics/releases-label-3.jpg" vspace="0" width="120"></A><BR>
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../install.html" onMouseOut="rolloverOff('side-install');" onMouseOver="rolloverOn('side-install');"><IMG alt="Installation" border="0" height="12" hspace="0" name="side-install" onLoad="rolloverLoad('side-install','../graphics/install-label-2.jpg','../graphics/install-label-3.jpg');" src="../graphics/install-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://xml.apache.org/dist/xerces-c/" onMouseOut="rolloverOff('side-ext-18');" onMouseOver="rolloverOn('side-ext-18');"><IMG alt="Download" border="0" height="12" hspace="0" name="side-ext-18" onLoad="rolloverLoad('side-ext-18','../graphics/ext-18-label-2.jpg','../graphics/ext-18-label-3.jpg');" src="../graphics/ext-18-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../build.html" onMouseOut="rolloverOff('side-build');" onMouseOver="rolloverOn('side-build');"><IMG alt="Build" border="0" height="12" hspace="0" name="side-build" onLoad="rolloverLoad('side-build','../graphics/build-label-2.jpg','../graphics/build-label-3.jpg');" src="../graphics/build-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../faqs.html" onMouseOut="rolloverOff('side-faqs');" onMouseOver="rolloverOn('side-faqs');"><IMG alt="FAQs" border="0" height="12" hspace="0" name="side-faqs" onLoad="rolloverLoad('side-faqs','../graphics/faqs-label-2.jpg','../graphics/faqs-label-3.jpg');" src="../graphics/faqs-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../samples.html" onMouseOut="rolloverOff('side-samples');" onMouseOver="rolloverOn('side-samples');"><IMG alt="Samples" border="0" height="12" hspace="0" name="side-samples" onLoad="rolloverLoad('side-samples','../graphics/samples-label-2.jpg','../graphics/samples-label-3.jpg');" src="../graphics/samples-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../api.html" onMouseOut="rolloverOff('side-api');" onMouseOver="rolloverOn('side-api');"><IMG alt="API Docs" border="0" height="12" hspace="0" name="side-api" onLoad="rolloverLoad('side-api','../graphics/api-label-2.jpg','../graphics/api-label-3.jpg');" src="../graphics/api-label-3.jpg" vspace="0" width="120"></A><BR>  
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../ApacheDOMC++Binding.html" onMouseOut="rolloverOff('side-ext-64');" onMouseOver="rolloverOn('side-ext-64');"><IMG alt="DOM C++ Binding" border="0" height="12" hspace="0" name="side-ext-64" onLoad="rolloverLoad('side-ext-64','../graphics/ext-64-label-2.jpg','../graphics/ext-64-label-3.jpg');" src="../graphics/ext-64-label-3.jpg" vspace="0" width="120"></A><BR> 
+  <A href="../program.html" onMouseOut="rolloverOff('side-program');" onMouseOver="rolloverOn('side-program');"><IMG alt="Programming" border="0" height="12" hspace="0" name="side-program" onLoad="rolloverLoad('side-program','../graphics/program-label-2.jpg','../graphics/program-label-3.jpg');" src="../graphics/program-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../migrate.html" onMouseOut="rolloverOff('side-migrate');" onMouseOver="rolloverOn('side-migrate');"><IMG alt="Migration Guide" border="0" height="12" hspace="0" name="side-migrate" onLoad="rolloverLoad('side-migrate','../graphics/migrate-label-2.jpg','../graphics/migrate-label-3.jpg');" src="../graphics/migrate-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../feedback.html" onMouseOut="rolloverOff('side-feedback');" onMouseOver="rolloverOn('side-feedback');"><IMG alt="Feedback" border="0" height="12" hspace="0" name="side-feedback" onLoad="rolloverLoad('side-feedback','../graphics/feedback-label-2.jpg','../graphics/feedback-label-3.jpg');" src="../graphics/feedback-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../bug-report.html" onMouseOut="rolloverOff('side-bug-report');" onMouseOver="rolloverOn('side-bug-report');"><IMG alt="Bug-Reporting" border="0" height="12" hspace="0" name="side-bug-report" onLoad="rolloverLoad('side-bug-report','../graphics/bug-report-label-2.jpg','../graphics/bug-report-label-3.jpg');" src="../graphics/bug-report-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../pdf.html" onMouseOut="rolloverOff('side-pdf');" onMouseOver="rolloverOn('side-pdf');"><IMG alt="PDF Document" border="0" height="12" hspace="0" name="side-pdf" onLoad="rolloverLoad('side-pdf','../graphics/pdf-label-2.jpg','../graphics/pdf-label-3.jpg');" src="../graphics/pdf-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="http://xml.apache.org/websrc/cvsweb.cgi/xml-xerces/c/" onMouseOut="rolloverOff('side-ext-96');" onMouseOver="rolloverOn('side-ext-96');"><IMG alt="CVS Repository" border="0" height="12" hspace="0" name="side-ext-96" onLoad="rolloverLoad('side-ext-96','../graphics/ext-96-label-2.jpg','../graphics/ext-96-label-3.jpg');" src="../graphics/ext-96-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://marc.theaimsgroup.com/?l=xerces-c-dev" onMouseOut="rolloverOff('side-ext-98');" onMouseOver="rolloverOn('side-ext-98');"><IMG alt="Mail Archive" border="0" height="12" hspace="0" name="side-ext-98" onLoad="rolloverLoad('side-ext-98','../graphics/ext-98-label-2.jpg','../graphics/ext-98-label-3.jpg');" src="../graphics/ext-98-label-3.jpg" vspace="0" width="120"></A><BR>
+
+<IMG border="0" height="14" hspace="0" src="../resources/close.gif" vspace="0" width="120"><BR></TD><TD align="left" valign="top" width="500"><TABLE border="0" cellpadding="3" cellspacing="0"><TR><TD>
+    <TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#FFFFFF" colspan="2" width="494"><TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#039acc" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#039acc" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#039acc" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" width="492"><FONT color="#ffffff" face="arial,helvetica,sanserif" size="+1"><IMG border="0" height="2" hspace="0" src="../resources/void.gif" vspace="0" width="2"><B>API Docs for SAX and DOM</B></FONT></TD><TD bgcolor="#017299" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#017299" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#017299" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></TD></TR><TR><TD width="10">&nbsp;</TD><TD width="484"><FONT color="#000000" face="arial,helvetica,sanserif">
+
+	    <P>
+<!-- Generated by Doxygen 1.2.14 -->
+<center>
+<a class="qindex" href="index.html">Main Page</a> &nbsp; <a class="qindex" href="hierarchy.html">Class Hierarchy</a> &nbsp; <a class="qindex" href="classes.html">Alphabetical List</a> &nbsp; <a class="qindex" href="annotated.html">Compound List</a> &nbsp; <a class="qindex" href="files.html">File List</a> &nbsp; <a class="qindex" href="functions.html">Compound Members</a> &nbsp; <a class="qindex" href="globals.html">File Members</a> &nbsp; </center>
+<hr><h1>XMLValidator  Class Reference</h1>This abstract class provides the interface for all validators. 
+<a href="#_details">More...</a>
+<p>
+Inheritance diagram for XMLValidator:<p><center><img src="classXMLValidator__inherit__graph.gif" border="0" usemap="#XMLValidator__inherit__map" alt="Inheritance graph"></center>
+<map name="XMLValidator__inherit__map">
+<area href="classXMemory.html" shape="rect" coords="19,36,88,17" alt="">
+</map>
+<center><font size="2">[<a href="graph_legend.html">legend</a>]</font></center>Collaboration diagram for XMLValidator:<p><center><img src="classXMLValidator__coll__graph.gif" border="0" usemap="#XMLValidator__coll__map" alt="Collaboration graph"></center>
+<map name="XMLValidator__coll__map">
+<area href="classXMemory.html" shape="rect" coords="7,36,76,17" alt="">
+<area href="classXMLErrorReporter.html" shape="rect" coords="100,36,223,17" alt="">
+</map>
+<center><font size="2">[<a href="graph_legend.html">legend</a>]</font></center><a href="classXMLValidator-members.html">List of all members.</a><table border=0 cellpadding=0 cellspacing=0>
+<tr><td colspan=2><br><h2>Public Methods</h2></td></tr>
+<tr><td nowrap align=right valign=top>bool&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#a0">checkRootElement</a> (const unsigned int)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>DEPRECATED.</em> <a href="#a0">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
+<tr><td nowrap align=right valign=top>virtual&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#z298_0">~XMLValidator</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>The derived class should clean up its allocated data, then this class will do the same for data allocated at this level.</em> <a href="#z298_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Virtual validator interface</div></td></tr>
+<tr><td nowrap align=right valign=top>virtual int&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#z299_0">checkContent</a> (<a class="el" href="classXMLElementDecl.html">XMLElementDecl</a> *const elemDecl, <a class="el" href="classQName.html">QName</a> **const children, const unsigned int childCount)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>The derived class should look up its declaration of the passed element from its element pool.</em> <a href="#z299_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#z299_1">faultInAttr</a> (<a class="el" href="classXMLAttr.html">XMLAttr</a> &amp;toFill, const <a class="el" href="classXMLAttDef.html">XMLAttDef</a> &amp;attDef) const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>The derived class should fault in the passed <a class="el" href="classXMLAttr.html">XMLAttr</a> value.</em> <a href="#z299_1">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#z299_2">preContentValidation</a> (bool reuseGrammar, bool validateDefAttr=false)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>This method is called by the scanner after a Grammar is scanned.</em> <a href="#z299_2">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#z299_3">postParseValidation</a> ()=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>This method is called by the scanner after the parse has completed.</em> <a href="#z299_3">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#z299_4">reset</a> ()=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>This method is called by the scanner before a new document is about to start.</em> <a href="#z299_4">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual bool&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#z299_5">requiresNamespaces</a> () const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>The derived class should return a boolean that indicates whether it requires namespace processing or not.</em> <a href="#z299_5">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#z299_6">validateAttrValue</a> (const <a class="el" href="classXMLAttDef.html">XMLAttDef</a> *attDef, const XMLCh *const attrValue, bool preValidation=false, const <a class="el" href="classXMLElementDecl.html">XMLElementDecl</a> *elemDecl=0)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>The derived class should apply any rules to the passed attribute value that are above and beyond those defined by XML 1.0.</em> <a href="#z299_6">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#z299_7">validateElement</a> (const <a class="el" href="classXMLElementDecl.html">XMLElementDecl</a> *elemDef)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>The derived class should apply any rules to the passed element decl that are above and beyond those defined by XML 1.0.</em> <a href="#z299_7">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="XSModel_8hpp.html#a1">Grammar</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#z299_8">getGrammar</a> () const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Retrieve the Grammar used.</em> <a href="#z299_8">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#z299_9">setGrammar</a> (<a class="el" href="XSModel_8hpp.html#a1">Grammar</a> *aGrammar)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Set the Grammar.</em> <a href="#z299_9">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Virtual Schema handler interface</div></td></tr>
+<tr><td nowrap align=right valign=top>virtual bool&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#z300_0">handlesDTD</a> () const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>This method allows the scanner to ask the validator if it handles DTDs or not.</em> <a href="#z300_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual bool&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#z300_1">handlesSchema</a> () const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>This method allows the scanner to ask the validator if it handles Schema or not.</em> <a href="#z300_1">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Setter methods</div></td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#z301_0">setScannerInfo</a> (XMLScanner *const owningScanner, <a class="el" href="XMLValidator_8hpp.html#a1">ReaderMgr</a> *const readerMgr, XMLBufferMgr *const bufMgr)</td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#z301_1">setErrorReporter</a> (<a class="el" href="classXMLErrorReporter.html">XMLErrorReporter</a> *const errorReporter)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>This method is called to set an error reporter on the validator via which it will report any errors it sees during parsing or validation.</em> <a href="#z301_1">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Error emittor methods</div></td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#z302_0">emitError</a> (const <a class="el" href="classXMLValid.html#s114">XMLValid::Codes</a> toEmit)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>This call is a convenience by which validators can emit errors.</em> <a href="#z302_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#z302_1">emitError</a> (const <a class="el" href="classXMLValid.html#s114">XMLValid::Codes</a> toEmit, const XMLCh *const text1, const XMLCh *const text2=0, const XMLCh *const text3=0, const XMLCh *const text4=0)</td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#z302_2">emitError</a> (const <a class="el" href="classXMLValid.html#s114">XMLValid::Codes</a> toEmit, const char *const text1, const char *const text2=0, const char *const text3=0, const char *const text4=0)</td></tr>
+<tr><td colspan=2><br><h2>Static Public Methods</h2></td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#d0">reinitMsgMutex</a> ()</td></tr>
+<tr><td nowrap align=right valign=top>void&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#d1">reinitMsgLoader</a> ()</td></tr>
+<tr><td colspan=2><br><h2>Protected Methods</h2></td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#b0">XMLValidator</a> (<a class="el" href="classXMLErrorReporter.html">XMLErrorReporter</a> *const errReporter=0)</td></tr>
+<tr><td nowrap align=right valign=top>const XMLBufferMgr *&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#b1">getBufMgr</a> () const</td></tr>
+<tr><td nowrap align=right valign=top>XMLBufferMgr *&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#b2">getBufMgr</a> ()</td></tr>
+<tr><td nowrap align=right valign=top>const <a class="el" href="XMLValidator_8hpp.html#a1">ReaderMgr</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#b3">getReaderMgr</a> () const</td></tr>
+<tr><td nowrap align=right valign=top><a class="el" href="XMLValidator_8hpp.html#a1">ReaderMgr</a> *&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#b4">getReaderMgr</a> ()</td></tr>
+<tr><td nowrap align=right valign=top>const XMLScanner *&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#b5">getScanner</a> () const</td></tr>
+<tr><td nowrap align=right valign=top>XMLScanner *&nbsp;</td><td valign=bottom><a class="el" href="classXMLValidator.html#b6">getScanner</a> ()</td></tr>
+</table>
+<hr><a name="_details"></a><h2>Detailed Description</h2>
+This abstract class provides the interface for all validators.
+<p>
+This is the simple amount of API that all validators must honor, in order for the scanner to use them to do validation. All validators will actually contain much more functionality than is accessible via this common API, but that functionality requires that you know what type of validator you are dealing with.
+<p>
+Basically, at this level, the primary concern is to be able to query core information about elements and attributes. Adding decls to the validator requires that you go through the derived interface because they all have their own decl types. At this level, we can return information via the base decl classes, from which each validator derives its own decl classes. 
+<p>
+<hr><h2>Constructor &amp; Destructor Documentation</h2>
+<a name="z298_0" doxytag="XMLValidator::~XMLValidator"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual XMLValidator::~XMLValidator </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+The derived class should clean up its allocated data, then this class will do the same for data allocated at this level.
+<p>
+    </td>
+  </tr>
+</table>
+<a name="b0" doxytag="XMLValidator::XMLValidator"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> XMLValidator::XMLValidator </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classXMLErrorReporter.html">XMLErrorReporter</a> *const&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>errReporter</em> = 0          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [protected]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<hr><h2>Member Function Documentation</h2>
+<a name="z299_0" doxytag="XMLValidator::checkContent"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual int XMLValidator::checkContent </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classXMLElementDecl.html">XMLElementDecl</a> *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>elemDecl</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classQName.html">QName</a> **const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>children</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const unsigned int&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>childCount</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+The derived class should look up its declaration of the passed element from its element pool.
+<p>
+It should then use the content model description contained in that element declaration to validate that the passed list of child elements are valid for that content model. The count can be zero, indicating no child elements.
+<p>
+Note that whitespace and text content are not validated here. Those are handled by the scanner. So only element ids are provided here.<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>elemDecl</em>&nbsp;</td><td>
+The element whose content is to be checked.</td></tr>
+<tr><td valign=top><em>children</em>&nbsp;</td><td>
+An array of element <a class="el" href="classQName.html">QName</a> which represent the elements found within the parent element, i.e. the content to be validated.</td></tr>
+<tr><td valign=top><em>childCount</em>&nbsp;</td><td>
+The number of elements in the childIds array. It can be zero if the element had none. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="a0" doxytag="XMLValidator::checkRootElement"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> bool XMLValidator::checkRootElement </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const unsigned&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>int</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+DEPRECATED.
+<p>
+For those validators that contrain the possible root elements of a document to only particular elements, they should use this call to validate that the passed root element id is a legal root element.     </td>
+  </tr>
+</table>
+<a name="z302_2" doxytag="XMLValidator::emitError"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void XMLValidator::emitError </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const <a class="el" href="classXMLValid.html#s114">XMLValid::Codes</a>&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>toEmit</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const char *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>text1</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const char *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>text2</em> = 0, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const char *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>text3</em> = 0, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const char *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>text4</em> = 0</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="z302_1" doxytag="XMLValidator::emitError"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void XMLValidator::emitError </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const <a class="el" href="classXMLValid.html#s114">XMLValid::Codes</a>&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>toEmit</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const XMLCh *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>text1</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const XMLCh *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>text2</em> = 0, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const XMLCh *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>text3</em> = 0, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const XMLCh *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>text4</em> = 0</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="z302_0" doxytag="XMLValidator::emitError"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void XMLValidator::emitError </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const <a class="el" href="classXMLValid.html#s114">XMLValid::Codes</a>&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>toEmit</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+This call is a convenience by which validators can emit errors.
+<p>
+Most of the grunt work of loading the text, getting the current source location, ect... is handled here.
+<p>
+If the loaded text has replacement parameters, then text strings can be passed. These will be used to replace the tokens {0}, {1}, {2}, and {3} in the order passed. So text1 will replace {0}, text2 will replace {1}, and so forth.
+<p>
+textX Up to four replacement parameters. They can be provided as either XMLCh strings, or local code page strings which will be transcoded internally.<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>toEmit</em>&nbsp;</td><td>
+The error code to emit. it must be one of the defined validator error codes. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="z299_1" doxytag="XMLValidator::faultInAttr"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void XMLValidator::faultInAttr </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classXMLAttr.html">XMLAttr</a> &amp;&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>toFill</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const <a class="el" href="classXMLAttDef.html">XMLAttDef</a> &amp;&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>attDef</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+The derived class should fault in the passed <a class="el" href="classXMLAttr.html">XMLAttr</a> value.
+<p>
+It should use the passeed attribute definition (which is passed via the base type so it must often be downcast to the appropriate type for the derived validator class), to fill in the passed attribute. This is done as a performance enhancement since the derived class has more direct access to the information.     </td>
+  </tr>
+</table>
+<a name="b2" doxytag="XMLValidator::getBufMgr"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> XMLBufferMgr * XMLValidator::getBufMgr </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [protected]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="b1" doxytag="XMLValidator::getBufMgr"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLBufferMgr * XMLValidator::getBufMgr </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [protected]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="z299_8" doxytag="XMLValidator::getGrammar"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="XSModel_8hpp.html#a1">Grammar</a>* XMLValidator::getGrammar </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Retrieve the Grammar used.
+<p>
+    </td>
+  </tr>
+</table>
+<a name="b4" doxytag="XMLValidator::getReaderMgr"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> <a class="el" href="XMLValidator_8hpp.html#a1">ReaderMgr</a> * XMLValidator::getReaderMgr </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [protected]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="b3" doxytag="XMLValidator::getReaderMgr"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const <a class="el" href="XMLValidator_8hpp.html#a1">ReaderMgr</a> * XMLValidator::getReaderMgr </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [protected]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="b6" doxytag="XMLValidator::getScanner"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> XMLScanner * XMLValidator::getScanner </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [protected]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="b5" doxytag="XMLValidator::getScanner"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLScanner * XMLValidator::getScanner </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [protected]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="z300_0" doxytag="XMLValidator::handlesDTD"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual bool XMLValidator::handlesDTD </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+This method allows the scanner to ask the validator if it handles DTDs or not.
+<p>
+    </td>
+  </tr>
+</table>
+<a name="z300_1" doxytag="XMLValidator::handlesSchema"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual bool XMLValidator::handlesSchema </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+This method allows the scanner to ask the validator if it handles Schema or not.
+<p>
+    </td>
+  </tr>
+</table>
+<a name="z299_3" doxytag="XMLValidator::postParseValidation"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void XMLValidator::postParseValidation </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+This method is called by the scanner after the parse has completed.
+<p>
+It gives the validator a chance to check certain things that can only be checked after the whole document has been parsed, such as referential integrity of ID/IDREF pairs and so forth. The validator should just issue errors for any problems it finds.     </td>
+  </tr>
+</table>
+<a name="z299_2" doxytag="XMLValidator::preContentValidation"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void XMLValidator::preContentValidation </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">bool&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>reuseGrammar</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>bool&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>validateDefAttr</em> = false</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+This method is called by the scanner after a Grammar is scanned.
+<p>
+    </td>
+  </tr>
+</table>
+<a name="d1" doxytag="XMLValidator::reinitMsgLoader"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void XMLValidator::reinitMsgLoader </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [static]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="d0" doxytag="XMLValidator::reinitMsgMutex"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void XMLValidator::reinitMsgMutex </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [static]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="z299_5" doxytag="XMLValidator::requiresNamespaces"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual bool XMLValidator::requiresNamespaces </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+The derived class should return a boolean that indicates whether it requires namespace processing or not.
+<p>
+Some do and some allow it to be optional. This flag is used to control whether the client code's requests to disable namespace processing can be honored or not.     </td>
+  </tr>
+</table>
+<a name="z299_4" doxytag="XMLValidator::reset"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void XMLValidator::reset </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+This method is called by the scanner before a new document is about to start.
+<p>
+It gives the validator a change to reset itself in preperation for another validation pass.     </td>
+  </tr>
+</table>
+<a name="z301_1" doxytag="XMLValidator::setErrorReporter"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void XMLValidator::setErrorReporter </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classXMLErrorReporter.html">XMLErrorReporter</a> *const&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>errorReporter</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+This method is called to set an error reporter on the validator via which it will report any errors it sees during parsing or validation.
+<p>
+This is generally called by the owning scanner.<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>errorReporter</em>&nbsp;</td><td>
+A pointer to the error reporter to use. This is not adopted, just referenced so the caller remains responsible for its cleanup, if any. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="z299_9" doxytag="XMLValidator::setGrammar"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void XMLValidator::setGrammar </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="XSModel_8hpp.html#a1">Grammar</a> *&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>aGrammar</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Set the Grammar.
+<p>
+    </td>
+  </tr>
+</table>
+<a name="z301_0" doxytag="XMLValidator::setScannerInfo"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> void XMLValidator::setScannerInfo </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">XMLScanner *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>owningScanner</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="XMLValidator_8hpp.html#a1">ReaderMgr</a> *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>readerMgr</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>XMLBufferMgr *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>bufMgr</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>owningScanner</em>&nbsp;</td><td>
+This is a pointer to the scanner to which the validator belongs. The validator will often need to query state data from the scanner.</td></tr>
+<tr><td valign=top><em>readerMgr</em>&nbsp;</td><td>
+This is a pointer to the reader manager that is being used by the scanner.</td></tr>
+<tr><td valign=top><em>bufMgr</em>&nbsp;</td><td>
+This is the buffer manager of the scanner. This is provided as a convenience so that the validator doesn't have to create its own buffer manager during the parse process. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="z299_6" doxytag="XMLValidator::validateAttrValue"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void XMLValidator::validateAttrValue </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const <a class="el" href="classXMLAttDef.html">XMLAttDef</a> *&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>attDef</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const XMLCh *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>attrValue</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>bool&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>preValidation</em> = false, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const <a class="el" href="classXMLElementDecl.html">XMLElementDecl</a> *&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>elemDecl</em> = 0</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+The derived class should apply any rules to the passed attribute value that are above and beyond those defined by XML 1.0.
+<p>
+The scanner itself will impose XML 1.0 rules, based on the type of the attribute. This will generally be used to check things such as range checks and other datatype related validation.
+<p>
+If the value breaks any rules as defined by the derived class, it should just issue errors as usual.     </td>
+  </tr>
+</table>
+<a name="z299_7" doxytag="XMLValidator::validateElement"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void XMLValidator::validateElement </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const <a class="el" href="classXMLElementDecl.html">XMLElementDecl</a> *&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>elemDef</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+The derived class should apply any rules to the passed element decl that are above and beyond those defined by XML 1.0.
+<p>
+If the value breaks any rules as defined by the derived class, it should just issue errors as usual.     </td>
+  </tr>
+</table>
+<hr>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="XMLValidator_8hpp-source.html">XMLValidator.hpp</a></ul>
+    </FONT></TD></TR></TABLE><BR>
+</TD></TR></TABLE></TD></TR></TABLE><BR><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD bgcolor="#0086b2"><IMG height="1" src="images/dot.gif" width="1" alt=""></TD></TR><TR><TD align="center"><FONT color="#0086b2" size="-1"><I>
+              Copyright &copy; 2004 The Apache Software Foundation.
+              All Rights Reserved.
+            </I></FONT></TD></TR></TABLE></BODY></HTML>

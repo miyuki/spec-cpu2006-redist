@@ -1,0 +1,373 @@
+#comment #####################################################################
+#comment Filepp testsuite.  This is run with the command: filepp testsuite
+#comment It should produce no output other than a final OK.
+#comment Thanks to Stephen Brooks for providing the original version of this.
+#comment #####################################################################
+#comment #####################################################################
+#comment Numerical defines, ifs and ifdefs
+#comment #####################################################################
+#define FRED 1
+#if FRED == 1
+#else
+FAIL __LINE__
+#endif
+#if FRED == 2
+FAIL __LINE__
+#else
+#endif
+#define GEORGE 1
+#if defined GEORGE
+#else
+FAIL __LINE__
+#endif
+#if ! defined GEORGE
+FAIL __LINE__
+#else
+#endif
+#define BILL 3
+#if defined BILL
+#else
+FAIL __LINE__
+#endif
+#if ! defined BILL
+FAIL __LINE__
+#else
+#endif
+#if defined GINGER
+FAIL __LINE__
+#else
+#endif
+#if ! defined GINGER
+#else
+FAIL __LINE__
+#endif
+#if GEORGE == BILL
+FAIL __LINE__
+#endif
+#if GEORGE != BILL
+#else
+FAIL __LINE__
+#endif
+#define HERBERT 34
+#define JOHN 34
+#if (GEORGE == BILL) && (JOHN == HERBERT)
+FAIL __LINE__
+#endif
+#if (GEORGE != BILL) && (JOHN == HERBERT)
+#else
+FAIL __LINE__
+#endif
+#if (GEORGE == BILL) && (JOHN != HERBERT)
+FAIL __LINE__
+#else
+#endif
+#if (GEORGE > BILL) && (JOHN != HERBERT)
+FAIL __LINE__
+#else
+#endif
+#if (JOHN < BILL) 
+FAIL __LINE__
+#else
+#endif
+#if (JOHN < 33) 
+FAIL __LINE__
+#else
+#endif
+#if (JOHN > 33) 
+#else
+FAIL __LINE__
+#endif
+#ifdef BILL
+#else
+FAIL __LINE__
+#endif
+#undef BILL
+#ifdef BILL
+FAIL __LINE__
+#endif
+#ifdef PAUL
+FAIL __LINE__
+#else
+#endif
+#define ZERO 0
+#if("ZERO" ne "0")
+FAIL __LINE__
+#endif
+#comment Fancy Perl regexp if statements
+#if("ZERO" =~ /\s/)
+FAIL __LINE__
+#elif("ZERO" =~ /\d/)
+#else
+FAIL __LINE__
+#endif
+#comment This next test is to check recursion is avoided, this used to throw
+#comment filepp into a recursive loop
+#define RECURS1 RECURS2 RECURS2
+#define RECURS2 RECURS1 RECURS1
+#if "RECURS1" eq "RECURS2"
+#endif
+#comment #####################################################################
+#comment Macros with arguments and perl string comparisons
+#comment #####################################################################
+#define ARTHUR(bill, ben) bill and ben
+#if (defined ARTHUR)
+#else
+FAIL __LINE__
+#endif
+#if !defined (ARTHUR)
+FAIL __LINE__
+#else
+#ifdef ARTHUR
+#else
+FAIL __LINE__
+#endif
+#ifndef ARTHUR
+FAIL __LINE__
+#else
+#endif
+#endif
+#if "ARTHUR" eq "ARTHUR"
+#else
+FAIL __LINE__
+#endif
+#if("ARTHUR" eq "ARTHUR")
+#else
+FAIL __LINE__
+#endif
+#if "ARTHUR(bill,ben)" ne "bill and ben"
+FAIL __LINE__
+#endif
+#warning testsuite should now show warning about macro 'ARTHUR':
+#if "ARTHUR()" ne " and "
+FAIL __LINE__
+#endif
+#warning testsuite should now show warning about macro 'ARTHUR':
+#if "ARTHUR(ben)" eq "bill and ben"
+FAIL __LINE__
+#endif
+#warning testsuite should now show warning about macro 'ARTHUR':
+#if "ARTHUR(bill ben)" eq "bill and ben"
+FAIL __LINE__
+#endif
+#if "ARTHUR(fred, ben)" eq "bill and ben"
+FAIL __LINE__
+#endif
+#define DEREK(VAL1, VAL2) :VAL1:VAL2:
+#if "DEREK(func(arg1,arg2),scalar)" ne ":func(arg1,arg2):scalar:"
+FAIL __LINE__
+#endif
+#define NOTARGS() NO ARGS IN THIS ONE
+#if ("NOTARGS()" ne "NO ARGS IN THIS ONE")
+FAIL __LINE__
+#endif
+#define MANYARGS(ONE, TWO, THREE, FOUR) ONE and TWO TWO and THREE and FOUR
+#if "MANYARGS(1,2,3,4())" ne "1 and 2 2 and 3 and 4()"
+FAIL __LINE__
+#endif
+#if "MANYARGS (spaces,	tabs	tabs,  , and gaps)" ne \
+"spaces and tabs	tabs tabs	tabs and  and and gaps"
+FAIL __LINE__
+#endif
+#define NOARGS (ONE, TWO) ONE TWO
+#if "NOARGS" ne "(ONE, TWO) ONE TWO"
+FAIL __LINE__
+#endif
+#define RECURSION(AGAIN) AGAIN
+#if "RECURSION(RECURSION(RECURSION(OK)))" ne "OK"
+FAIL __LINE__
+#endif
+#comment #####################################################################
+#comment macros with any number of args
+#comment #####################################################################
+#define testmac(arg1, arg2, arg3...) <arg1> <arg2> <arg3>
+#if("testmac(one, two, three, four, five) more stuff after" ne \
+    "<one> <two> <three, four, five> more stuff after")
+FAIL __LINE__
+#endif
+#define eprintf(format, lastarg...) fprintf(stderr, format, ##lastarg)
+#if "eprintf(%s, string);" ne "fprintf(stderr, %s, string);"
+FAIL __LINE__
+#endif
+#if "eprintf(%s%d, string, int);" ne "fprintf(stderr, %s%d, string, int);"
+FAIL __LINE__
+#endif
+#if "eprintf(empty);" ne "fprintf(stderr, empty);"
+FAIL __LINE__
+#endif
+#define error(string, args...) fprintf(stderr, string, args);
+#if "error(%d\,%s, i, string)" ne "fprintf(stderr, %d,%s, i, string);"
+FAIL __LINE__
+#endif
+#define error(string, args...) fprintf(stderr, string, ##args);
+#if "error(empty)" ne "fprintf(stderr, empty);"
+FAIL __LINE__
+#endif
+#comment #####################################################################
+#comment Nested ifs
+#comment #####################################################################
+#if 1
+#if 0
+FAIL __LINE__
+#else
+#endif
+#else
+FAIL __LINE__
+#endif
+#comment #####################################################################
+#if 0
+FAIL __LINE__
+#if 1
+FAIL __LINE__
+#else
+FAIL __LINE__
+#endif
+FAIL __LINE__
+#else
+#endif
+#comment #####################################################################
+#ifndef ARTHUR
+FAIL __LINE__
+#ifndef PHIL
+FAIL __LINE__
+#else
+FAIL __LINE__
+#endif
+FAIL __LINE__
+#else
+#endif
+#comment #####################################################################
+#ifndef PHIL
+#ifndef ARTHUR
+FAIL __LINE__
+#else
+#endif
+#else
+FAIL __LINE__
+#endif
+#comment #####################################################################
+#ifndef ARTHUR
+FAIL __LINE__
+#ifndef PHIL
+FAIL __LINE__
+#else
+FAIL __LINE__
+#endif
+#else
+#endif
+#comment #####################################################################
+#comment elsif
+#comment #####################################################################
+#if 1
+  #if 0
+FAIL __LINE__
+  #elif 1
+    #if 0
+FAIL __LINE__
+    #elif 1
+    #else
+FAIL __LINE__
+    #endif
+  #else
+FAIL __LINE__
+  #endif
+#elif 1
+FAIL __LINE__
+#elif 1
+FAIL __LINE__
+#endif
+#define OUTER_IF
+#define INNER_IF 1
+#if defined(OUTER_IF)
+#  if (INNER_IF==1)
+#    define INNER_IF_TEST
+#  elif (INNER_IF==2)
+     FAIL __LINE__
+#  else
+     FAIL __LINE__
+#  endif
+#  define OUTER_IF_TEST
+#else 
+#  if (0)
+     FAIL __LINE__
+#  endif
+  FAIL __LINE__
+#endif
+#ifndef INNER_IF_TEST
+FAIL __LINE__
+#endif
+#ifndef OUTER_IF_TEST
+FAIL __LINE__
+#endif
+#comment #####################################################################
+#comment Includes
+#comment #####################################################################
+#include "testinc"
+#ifndef INCLUDED
+FAIL __LINE__
+#endif
+#comment #####################################################################
+#comment Non-ascii
+#comment #####################################################################
+#comment define £ POUND
+#comment £ £ £
+#comment #####################################################################
+#comment White space
+#comment #####################################################################
+#   if  1
+    #     else
+FAIL __LINE__
+                                                                     \
+         # endif
+#ifndef                                                             \
+           GEORGE
+FAIL __LINE__
+#endif
+#define TAB	 tab
+#if "TAB" ne "tab"
+FAIL __LINE__
+#endif
+#comment #####################################################################
+#comment Pragma, Modules and keywords
+#comment #####################################################################
+#pragma filepp UseModule testmod.pm
+#TEST comment This should be parsed as a TESTEND
+              normal comment
+#TEST if TESTEND
+ 0
+FAIL __LINE__
+#TEST endif
+#TEST pragma filepp SetCharPerlre 1
+#TEST pragma filepp SetKeywordchar #
+#pragma filepp SetContchar \\\\
+#comment Normal line \
+         continution (perlre) 
+#if \
+ 0
+FAIL __LINE__
+#endif
+#pragma filepp SetCharPerlre 0
+#pragma filepp SetContchar NULL
+#pragma filepp SetContchar \
+#comment Normal line \
+         continution 
+#if \
+ 0
+FAIL __LINE__
+#endif
+#pragma filepp SetOptLineEndchar */
+#pragma filepp SetKeywordchar /*#
+/*#define OPTCHARS test*/
+/*#pragma filepp SetKeywordchar #*/
+#pragma filepp SetOptLineEndchar
+#if ("OPTCHARS" ne "test")
+FAIL __LINE__
+#endif
+#comment #####################################################################
+#comment Safemode
+#comment #####################################################################
+#pragma filepp SafeMode
+#pragma filepp SetKeywordchar UNSAFE
+#comment FAIL __LINE__
+#comment #####################################################################
+#comment End of tests
+#comment #####################################################################

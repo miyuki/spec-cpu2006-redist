@@ -1,0 +1,63 @@
+#! /bin/sh
+# /*@@
+#   @file      unicos
+#   @date      Thu Feb 25 09:53:22 1999
+#   @author    Tom Goodale
+#   @desc 
+#   
+#   @enddesc 
+#   @version $Header: /cactus/Cactus/lib/make/known-architectures/unicos,v 1.13 2001/06/25 11:21:35 goodale Exp $
+# @@*/
+
+if test "$CCTK_CONFIG_STAGE" = "preferred-compilers" ; then
+
+:
+
+else
+
+  CFLAGS=""
+  CXXFLAGS=""
+  C_OPTIMISE_FLAGS="-O3"
+  CXX_OPTIMISE_FLAGS="-O3"
+  F90_OPTIMISE_FLAGS="-O scalar3,noieeeconform,unroll2,inline3"
+  F77_OPTIMISE_FLAGS="-O scalar3,noieeeconform,unroll2,inline3"
+  C_DEBUG_FLAGS="-Gn"
+  CXX_DEBUG_FLAGS="-Gn"
+  F77_DEBUG_FLAGS="-g"
+  F90_DEBUG_FLAGS="-g"
+  C_WARN_FLAGS="-h msglevel_0"
+  CXX_WARN_FLAGS="-h msglevel_0"
+  F77_WARN_FLAGS=" "
+  F90_WARN_FLAGS=" "
+
+  # The T3E F90 compiler uses -b if you want to supply a name for a .o file.
+  : ${FCOMPILEONLY="-b"}
+
+  # The T3E fortran compiler puts module info in .o files by default.
+  : ${F90FLAGS="-dp -em"}
+
+  CCTK_WriteLine cctk_Archdefs.h '/* T3E stuff */'
+  CCTK_WriteLine cctk_Archdefs.h "#define T3E 1"
+
+# Cache stuff
+  if test -z "$L2_CACHELINE_BYTES" ; then
+    L2_CACHELINE_BYTES=64
+    echo "Setting L2_CACHELINE_BYTES to $L2_CACHELINE_BYTES"
+  fi
+
+  if test -z "$L2_CACHE_SIZE" ; then
+    L2_CACHE_SIZE="96*1024"
+    echo "Setting L2_CACHE_SIZE to $L2_CACHE_SIZE bytes"
+  fi
+
+# MPI stuff
+
+  if test -n "$MPI" ; then
+#   Don't need to set anything for compiling with native MPI on the T3E
+#   We just set NATIVE_MPI_LIBS to non-null so that it passes the
+#   check in lib/make/extras/MPI/NATIVE.
+    NATIVE_MPI_LIBS=" "
+  fi
+
+fi
+

@@ -1,0 +1,2783 @@
+!-------------------------------------------------------------------------------
+!
+! CRYSTAL: Data structure for crystals
+!
+! $Id: crystal.foo,v 1.86.2.22 2003/11/13 05:34:39 reaper Exp $
+!
+! Copyright (C) Dylan Jayatilaka, Daniel Grimwood, 1999
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+!-------------------------------------------------------------------------------
+
+module CRYSTAL
+
+   use REALVEC, only: minimise_BFGS
+
+   implicit none
+
+   saved_self :: CRYSTAL*
+
+contains
+
+!  **************************
+!  Create and destroy methods
+!  **************************
+
+   create
+   ! Create an crystal object
+      self :: PTR
+      nullify(self)
+      allocate(self)
+      ADD_MEMORY(CRYSTAL_SIZE)
+      .nullify_ptr_part
+      .set_defaults
+   end
+
+   destroy
+   ! Destroy an crystal object
+      self :: PTR
+      if (.destroyed) return
+      .destroy_ptr_part
+      DELETE_MEMORY(CRYSTAL_SIZE)
+      deallocate(self)
+   end
+
+   nullify_ptr_part
+   ! Nullify the pointer parts of the crystal object
+     .spacegroup.nullify_ptr_part
+     nullify(.fragment_geometry)
+     nullify(.fragment_cell_geometry)
+     nullify(.symop_for_fragment_cell_atom)
+     nullify(.atom_for_fragment_cell_atom)
+     nullify(.unique_fragment_atom)
+     nullify(.unique_atom_for_fragment_atom)
+     nullify(.unique_symop_for_fragment_atom)
+     nullify(.reduced_symop)
+     nullify(.inverted_symop)
+     nullify(.translated_symop)
+     nullify(.unique_SF_symop)
+     nullify(.repetition_factor)
+     nullify(.asymmetric_unit_geometry)
+     nullify(.unit_cell_geometry)
+     nullify(.symop_for_unit_cell_atom)
+     nullify(.atom_for_unit_cell_atom)
+     nullify(.reflections)
+   end
+
+   destroy_ptr_part
+   ! Erase all pointer information
+    .destroy_reflection_data
+    .destroy_fragment_data
+   end
+
+   destroy_reflection_data
+   ! Erase all reflection data
+     if (.reflection_data_exists) then
+       .scale_factor = ONE
+       .exp_scale_factor = ONE
+       .extinction_factor = ZERO
+       .reflections.destroy
+     end
+   end
+
+   destroy_fragment_data
+   ! Destroy the geometry and symmetry data for the fragment and unitcell.
+     .fragment_geometry.destroy
+     .fragment_cell_geometry.destroy
+     .symop_for_fragment_cell_atom.destroy
+     .atom_for_fragment_cell_atom.destroy
+     .unique_fragment_atom.destroy
+     .unique_atom_for_fragment_atom.destroy
+     .unique_symop_for_fragment_atom.destroy
+     .reduced_symop.destroy
+     .inverted_symop.destroy
+     .translated_symop.destroy
+     .unique_SF_symop.destroy
+     .repetition_factor.destroy
+     .asymmetric_unit_geometry.destroy
+     .unit_cell_geometry.destroy
+     .symop_for_unit_cell_atom.destroy
+     .atom_for_unit_cell_atom.destroy
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   create_copy(crys) ::: leaky
+   ! Create a copy of "crys"
+     self :: PTR
+     crys :: CRYSTAL, IN
+     .create
+     .copy(crys)
+   end
+
+   copy(crystal) ::: leaky
+   ! Set self to be crystal.
+     crystal :: CRYSTAL, IN
+     self = crystal
+     self.nullify_ptr_part
+     .spacegroup.copy(crystal.spacegroup)
+     .unitcell.copy(crystal.unitcell)
+     if (crystal.fragment_geometry.created) &
+        .fragment_geometry.create_copy(crystal.fragment_geometry)
+     if (crystal.fragment_cell_geometry.created) &
+        .fragment_cell_geometry.create_copy(crystal.fragment_cell_geometry)
+     if (crystal.symop_for_fragment_cell_atom.created) &
+        .symop_for_fragment_cell_atom.create_copy(crystal.symop_for_fragment_cell_atom)
+     if (crystal.atom_for_fragment_cell_atom.created) &
+        .atom_for_fragment_cell_atom.create_copy(crystal.atom_for_fragment_cell_atom)
+     if (crystal.unique_fragment_atom.created) &
+        .unique_fragment_atom.create_copy(crystal.unique_fragment_atom)
+     if (crystal.unique_atom_for_fragment_atom.created) &
+        .unique_atom_for_fragment_atom.create_copy(crystal.unique_atom_for_fragment_atom)
+     if (crystal.unique_symop_for_fragment_atom.created) &
+        .unique_symop_for_fragment_atom.create_copy(crystal.unique_symop_for_fragment_atom)
+     if (crystal.reduced_symop.created) &
+        .reduced_symop.create_copy(crystal.reduced_symop)
+     if (crystal.cluster_symop.created) &
+        .cluster_symop.create_copy(crystal.cluster_symop)
+     if (crystal.inverted_symop.created) &
+        .inverted_symop.create_copy(crystal.inverted_symop)
+     if (crystal.translated_symop.created) &
+        .translated_symop.create_copy(crystal.translated_symop)
+     if (crystal.unique_SF_symop.created) &
+        .unique_SF_symop.create_copy(crystal.unique_SF_symop)
+     if (crystal.repetition_factor.created) &
+        .repetition_factor.create_copy(crystal.repetition_factor)
+     if (crystal.asymmetric_unit_geometry.created) &
+        .asymmetric_unit_geometry.create_copy(crystal.asymmetric_unit_geometry)
+     if (crystal.unit_cell_geometry.created) &
+        .unit_cell_geometry.create_copy(crystal.unit_cell_geometry)
+     if (crystal.symop_for_unit_cell_atom.created) &
+        .symop_for_unit_cell_atom.create_copy(crystal.symop_for_unit_cell_atom)
+     if (crystal.atom_for_unit_cell_atom.created) &
+        .atom_for_unit_cell_atom.create_copy(crystal.atom_for_unit_cell_atom)
+     if (crystal.reflections.created) &
+        .reflections.create_copy(crystal.reflections)
+   end
+
+   set_defaults ::: leaky
+   ! Set up a default crystal object
+      .spacegroup.set_defaults
+      .unitcell.set_defaults
+      .destroy_reflection_data
+      .synthesize_sigma_I     = CRYSTAL_SYNTHESISE_SIGMA_I
+      .optimise_scale         = CRYSTAL_OPTIMISE_SCALE
+      .optimise_extinction    = CRYSTAL_OPTIMISE_EXTINCTION
+      .correct_dispersion     = CRYSTAL_CORRECT_DISPERSION
+      .scale_factor           = CRYSTAL_SCALE_FACTOR
+      .exp_scale_factor       = CRYSTAL_EXP_SCALE_FACTOR
+      .extinction_factor      = CRYSTAL_EXTINCTION_FACTOR
+      .wavelength             = CRYSTAL_WAVELENGTH
+      .kind                   = CRYSTAL_DATA_KIND
+      .thermal_smearing_model = CRYSTAL_THERMAL_SMEARING_MODEL
+      .partition_model        = CRYSTAL_PARTITION_MODEL
+      .reduced_group_info_made= FALSE
+   end
+
+   update 
+   ! Update the crystal information after setting values.
+     if (.reflections.created) then
+       if (.reflections.have_F_exp) then
+         .reflections.scale_F_exp(.exp_scale_factor)
+       else
+         .optimise_scale = FALSE
+         .optimise_extinction = FALSE
+       end
+       if (.reflections.have_F_sigma) then
+         .reflections.scale_F_sigma(.exp_scale_factor)
+       else
+         .optimise_scale = FALSE
+         .optimise_extinction = FALSE
+       end
+       .exp_scale_factor = ONE
+     end
+   end
+
+!  ************
+!  Read methods
+!  ************
+
+   read_keywords ::: get_from(OBJECT), recursive, leaky
+   ! Read data from "stdin" using keyword style input.
+   end
+
+   process_keyword(keyword) ::: leaky
+   ! Process command "keyword". Any required data needed by the "keyword" is
+   ! inputted from "stdin".
+     keyword :: STR(*)
+     word :: STR
+     word = keyword
+     word.to_lower_case
+     select case (word)
+        case ("}                          ")  ! exit read_loop
+        case ("correct_dispersion=        "); .read_correct_dispersion
+        case ("destroy_reflection_data    "); .destroy_reflection_data
+        case ("destroy_spacegroup         "); .spacegroup.destroy_ptr_part
+        case ("erase_reflection_data      "); .destroy_reflection_data
+        case ("erase_spacegroup           "); .spacegroup.destroy_ptr_part
+        case ("exp_scale_factor=          "); .read_exp_scale_factor
+        case ("kind=                      "); .read_kind
+        case ("make_f_predicted           "); .make_F_predicted
+        case ("optimise_extinction=       "); .read_optimise_extinction
+        case ("optimise_extinction_factor="); .read_optimise_extinction
+        case ("optimize_extinction=       "); .read_optimise_extinction
+        case ("optimize_extinction_factor="); .read_optimise_extinction
+        case ("optimise_scale=            "); .read_optimise_scale
+        case ("optimise_scale_factor=     "); .read_optimise_scale
+        case ("optimize_scale=            "); .read_optimise_scale
+        case ("optimize_scale_factor=     "); .read_optimise_scale
+        case ("partition_model=           "); .read_partition_model
+        case ("repetition_factors=        "); .read_repetition_factors
+        case ("reflection_data=           "); .read_reflection_data
+        case ("spacegroup=                "); .read_spacegroup
+        case ("synthesize_sigma_i=        "); .read_synthesize_sigma_I
+        case ("thermal_smearing_model=    "); .read_thermal_smearing_model
+        case ("unitcell=                  "); .read_unitcell
+        case ("wavelength=                "); .read_wavelength
+        case ("put                        "); .put
+        case ("put_stl                    "); .put_stl
+        case ("read_cif                   "); .read_CIF
+        case default;                       UNKNOWN(word)
+      end
+   end
+
+   read_units ::: get_from(OBJECT)
+   ! Read a string which describes the units to be used
+   end
+
+   read_junk ::: get_from(OBJECT)
+   ! Read in a junk string, useful for ignoring a field
+   end
+
+   read_kind
+   ! Read the kind of crystal experiment
+      stdin.read(.kind)
+      .kind.to_lower_case
+      select case (.kind)
+         case("x-ray")
+         case("pnd  ")
+         case default; UNKNOWN(.kind)
+      end
+   end
+
+   read_spacegroup ::: leaky
+   ! Read the spacegroup
+      .spacegroup.read_keywords
+      .spacegroup.analyse
+   end
+
+   read_unitcell 
+   ! Read the unit cell information
+      .unitcell.read_keywords
+      .unitcell.make_info
+   end
+
+   read_reflection_data ::: leaky, private
+   ! Read in data in the standard order from "stdin".
+      .reflections.read_list_keywords
+   end
+
+   read_repetition_factors ::: leaky, private
+   ! Read in the crystal fragment repetition factors. Useful to get structure
+   ! factor contributions from a small portion of the fragment.
+     .repetition_factor.destroy
+     stdin.read_ptr(.repetition_factor)
+   end
+
+   read_exp_scale_factor ::: private
+   ! Read the structure factor multiplier
+      stdin.read(.exp_scale_factor)
+   end
+
+   read_wavelength ::: private
+   ! Read the experimental wavelength
+      stdin.read(.wavelength)
+   end
+
+   read_optimise_scale ::: private
+   ! Read the switch whether to use and overall scale factor to minimise
+   ! the chi2 statistic when calculating the structure factors.
+   ! NOTE: this is not the same at the overall .scale_factor which is applied
+   ! to the experimental structure factors.
+      stdin.read(.optimise_scale)
+   end
+
+   read_synthesize_sigma_I ::: private
+   ! Read the switch whether to artificially create sigma(I) errors when
+   ! evaluating the chi2 statistics based on intensities. Refer to routine
+   ! .I_sigma
+      stdin.read(.synthesize_sigma_I)
+   end
+
+   read_optimise_extinction ::: private
+   ! Read the switch whether to correct extinction or not, according to the
+   ! Larson formula
+      stdin.read(.optimise_extinction)
+   end
+
+   read_correct_dispersion ::: private
+   ! Read the switch whether to correct dispersion or not, according to the
+   ! atomic dispersion factors
+      stdin.read(.correct_dispersion)
+   end
+
+   read_thermal_smearing_model ::: private
+   ! Read the thermal smearing model to use to correct for thermal vibration
+   ! in the calculated structure factors
+      stdin.read(.thermal_smearing_model)
+      .thermal_smearing_model.to_lower_case
+      select case (.thermal_smearing_model)
+         case("       ")
+         case("none   ")
+         case("coppens")
+         case("stewart")
+         case("tanaka ")
+         case default;    UNKNOWN(.thermal_smearing_model)
+      end
+   end
+
+   read_partition_model ::: private
+   ! Read the partition model to used to correct for oversampled fragments
+   ! of the unit cell when calculating the structure factors
+      stdin.read(.partition_model)
+      .partition_model.to_lower_case
+      select case(.partition_model)
+         case("        ")
+         case("none    ")
+         case("mulliken")
+         case("gaussian")
+         case default;    UNKNOWN(.partition_model)
+      end
+   end
+
+   read_CIF ::: leaky
+   ! Read information from a Crystallographic Information File object, with
+   ! the "name" taken from stdin.
+      name :: STR
+      found :: BIN
+      cif :: CIF*
+      stdin.read(name)
+      cif.create(name)
+      cif.open
+      cif.find_crystal_data_block(found)
+      ENSURE(found,"no crsytal data block found") 
+      .read_CIF(cif)
+      cif.destroy
+   end
+
+   read_CIF(cif) ::: leaky
+   ! Read information from a Crystallographic Information File object, "cif"
+      cif :: CIF
+      .set_defaults
+      .spacegroup.read_CIF(cif)
+      .unitcell.read_CIF(cif)
+      .read_CIF_atoms(cif)
+      .update
+   end
+
+   read_CIF_atoms(cif) ::: leaky, private
+   ! Read atom information from a CIF file, "cif"
+      cif :: CIF
+      ID :: STR
+      fs,fx,fy,fz :: BIN
+      labels :: STRVEC*
+      x,y,z :: REALVEC*
+      n :: INT
+      ID = "_atom_site_type_symbol"
+      cif.find_looped_item(trim(ID),fs)
+      if (NOT fs) then
+      ID = "_atom_site_label"
+      cif.find_looped_item(trim(ID),fs)
+      end
+      cif.find_looped_item("_atom_site_fract_x",fx)
+      cif.find_looped_item("_atom_site_fract_y",fy)
+      cif.find_looped_item("_atom_site_fract_z",fz)
+      ENSURE(fs AND fx AND fy AND fz,"incomplete atom information in CIF file")
+      cif.read_looped_item(trim(ID),labels)
+      cif.read_looped_item("_atom_site_fract_x",x)
+      cif.read_looped_item("_atom_site_fract_y",y)
+      cif.read_looped_item("_atom_site_fract_z",z)
+      ! Assign the CIF info
+      n = labels.dim
+      .n_asymmetric_unit_atoms = n
+      .asymmetric_unit_geometry.destroy
+      .asymmetric_unit_geometry.create(3,n)
+      .asymmetric_unit_geometry(1,:) = x
+      .asymmetric_unit_geometry(2,:) = y
+      .asymmetric_unit_geometry(3,:) = z
+      z.destroy; y.destroy; x.destroy
+      labels.destroy
+   end
+
+!  ***************
+!  General methods
+!  ***************
+
+   lp_factor result(res)
+   ! Return the array of the Lorentz Polarization factors for all the
+   ! reflections
+     res :: REALVEC(size(.reflections))
+     n :: INT
+     c,s,two_theta :: REAL
+     ENSURE(.reflections.created,"no reflection data")
+     do n=1, .reflections.n_refl
+       two_theta = TWO*asin( .stl(n) * .wavelength )
+       c = cos(two_theta)
+       s = sin(two_theta)
+       if (s.is_zero(TOL(8))) then
+         res(n) = ZERO
+         WARN("lp_factor for (000) reflection set to zero")
+       else
+         res(n) = (1+c*c)/(TWO*s)
+       end
+     end
+   end
+
+   I_pred result(res)
+   ! Return the array of predicted Intensities. Only the Lorentz Polarization
+   ! factor and the angular velocity factor for a single crystal are used.
+   ! Fundamental constants appearing in front of this are not calculated
+   ! NOTE: unlike I_exp, these may include extinction and dispersion effects.
+     res :: REALVEC(size(.reflections))
+     n :: INT
+     c,s,two_theta,F2 :: REAL
+     ENSURE(.reflections.created,"no reflection data")
+     ENSURE(.reflections.have_F_exp, "no calculated structure factors")
+     do n=1, .reflections.n_refl
+       two_theta = TWO*asin( .stl(n) * .wavelength )
+       c = cos(two_theta)
+       s = sin(two_theta)
+       F2 = .reflections(n).F_pred
+       F2 = F2*F2
+       if (s.is_zero(TOL(8))) then
+         res(n) = F2
+       else
+         res(n) = (1+c*c)/(TWO*s)*F2
+       end
+     end
+   end
+
+   I_exp result(res)
+   ! Return the array of experimental Intensities. Only the Lorentz Polarization
+   ! factor and the angular velocity factor for a single crystal are used.
+   ! Fundamental constants appearing in front of this are not calculated
+   ! NOTE: extinction factors, dispersion, multiple scattering corrections
+   ! are not included. These are the experimental intensities with these effects
+   ! removed.
+     res :: REALVEC(size(.reflections))
+     n :: INT
+     c,s,two_theta,F2 :: REAL
+     ENSURE(.reflections.created,"no reflection data")
+     ENSURE(.reflections.have_F_exp, "no calculated structure factors")
+     do n=1, .reflections.n_refl
+       two_theta = TWO*asin( .stl(n) * .wavelength )
+       c = cos(two_theta)
+       s = sin(two_theta)
+       F2 = abs(.reflections(n).F_exp)
+       F2 = F2*F2
+       if (s.is_zero(TOL(8))) then
+          res(n) = F2
+       else
+          res(n) = (1+c*c)/(TWO*s)*F2
+       end
+     end
+   end
+
+   I_sigma result(res)
+   ! Return the array of experimental sigma's in the Intensities.
+     res :: REALVEC(size(.reflections))
+     n :: INT
+     c,s,two_theta,F2 :: REAL
+     ENSURE(.reflections.created,"no reflection data")
+   ENSURE(.reflections.have_I_pred OR .reflections.have_F_exp, "no structure factors")
+     if (NOT .reflections.have_F_exp AND NOT .synthesize_sigma_I) then
+       WARN("The synthesize_sigma_I flag was not set; it is now set")
+       .synthesize_sigma_I = TRUE
+     end
+     if (.synthesize_sigma_I) then
+       res = .reflections.I_pred
+       res = sqrt(res/.equivalence_factors)
+     else
+       do n=1, .reflections.n_refl
+         two_theta = TWO*asin( .stl(n) * .wavelength )
+         c = cos(two_theta)
+         s = sin(two_theta)
+         F2 = abs(.reflections(n).F_exp)
+         if (s.is_zero(TOL(8))) then
+           res(n) = F2
+         else
+           res(n) = TWO*(1+c*c)/(TWO*s)*F2
+         end
+       end
+     end
+   end
+
+   equivalence_factors result (res)
+   ! Return the equivalence factors, the number of distinct reflections
+   ! which are symmetry equivalent to a particular (hkl) triple, for all
+   ! the reflections.
+      res :: INTVEC(size(.reflections))
+      hkl,new :: INTVEC(3)
+      n,s,u,n_refl :: INT
+      ENSURE(.reflections.created,"no reflection data")
+      n_refl = .reflections.n_refl
+      do n = 1,n_refl
+         hkl = .reflections.indices(n)
+         u = 1
+         do s = 2,.spacegroup.n_seitz
+            new = matmul(hkl,.spacegroup.seitz(1:3,1:3,s))
+            if (hkl(1)/=new(1) OR hkl(2)/=new(2) OR hkl(3)/=new(3)) u = u + 1
+         end
+         res(n) = u
+      end
+   end
+
+   stl(n) result (res)
+   ! Return the value of sin(theta) / lambda for reflection n
+     self :: IN
+     n :: INT, IN
+     res :: REAL
+     hkl :: INTVEC(3)
+     kx,ky,kz :: REAL
+     hkl = .reflections.indices(n)
+     kx = dot_product(.unitcell.reciprocal_matrix(1,:),hkl(:))
+     ky = dot_product(.unitcell.reciprocal_matrix(2,:),hkl(:))
+     kz = dot_product(.unitcell.reciprocal_matrix(3,:),hkl(:))
+     res = HALF*sqrt(kx*kx+ky*ky+kz*kz)
+   end
+
+   make_F_predicted
+   ! Make the predicted magnitude of the structure factors, including possibly
+   ! an overall scale factor and extinction correction.
+     F_pred :: REALVEC*
+     self :: INOUT
+     DIE_IF(NOT .reflections.created,"no reflection data")
+     .n_param = 0
+     if (.optimise_extinction OR .optimise_scale) .get_optimum_parameters
+     F_pred.create(.reflections.n_refl)
+     if (.kind=="pnd") then
+       F_pred = .reflections.F_calc * .extinction_correction
+     else
+       F_pred = abs(.reflections.F_calc) * .extinction_correction
+     end
+     .reflections.set_F_pred(F_pred)
+     F_pred.destroy
+   end
+
+   get_optimum_parameters ::: private
+   ! Get the scale factors, extinction parameters, etc, which minimise the chi2.
+   ! (To get the corrections cooresponding to these parameters see routine
+   ! .extinction_correction)
+     if (.optimise_extinction) then
+       .optimise_extinction_factor
+     else if (.optimise_scale) then
+       .optimise_scale_factor
+     end
+   end
+
+   extinction_correction result(res)
+   ! Return the extinction correction  factors "res" to the calculated
+   ! individual structure factors.
+     res :: REALVEC(size(.reflections))
+     res = .extinction_correction(.scale_factor,.extinction_factor)
+   end
+
+   extinction_correction(scale_factor,extinction_factor) result(res)
+   ! Return the extinction correction  factors "res" to the calculated
+   ! individual structure factors. NOTE: this routine also does scaling
+   ! corrections without extinction.
+     scale_factor,extinction_factor :: REAL
+     res :: REALVEC(size(.reflections))
+     F_calc :: CPX
+     angle_part :: REALVEC*
+     n,n_refl :: INT
+     n_refl = .reflections.n_refl
+     ENSURE(.reflections.created,"no reflection data")
+     ENSURE(.reflections.have_F_calc, "no calculated structure factors")
+     if (extinction_factor.is_zero(TOL(9))) then
+        res(:) = scale_factor
+     else
+       angle_part.create(n_refl)
+       angle_part = .extinction_angle_part
+       do n=1, n_refl
+         F_calc = .reflections(n).F_calc
+         res(n) = scale_factor / sqrt(sqrt(ONE + &
+             extinction_factor*F_calc*conjg(F_calc)*angle_part(n)))
+       end
+       angle_part.destroy
+     end
+   end
+
+   extinction_angle_part result(res) ::: private
+   ! Return the angular part of the extinction correction.
+     res :: REALVEC(size(.reflections))
+      n :: INT
+     twotheta,c,s :: REAL
+     do n=1, .reflections.n_refl
+       twotheta=TWO*asin( .stl(n) * .wavelength )
+       c = cos(twotheta)
+       s = sin(twotheta)
+       res(n) = (1+c*c)/(1+c*s)
+     end
+   end
+
+   optimise_scale_factor
+   ! Determine the structure factor scale factor to scale the calculated
+   ! structure factors .F_calc by in order to minimise the chi2. (But it does
+   ! not do any scaling; see .extinction_correction routine for that)
+     top,bot,F_pred :: REAL
+     n,n_refl :: INT
+     ref :: REFLECTION*
+     n_refl = .reflections.n_refl
+     DIE_IF(NOT .reflections.created,"no reflection data")
+     DIE_IF(NOT .reflections.have_F_calc, "no calculated structure factors")
+     DIE_IF(NOT .reflections.have_F_exp, "no experimental structure factors")
+     DIE_IF(NOT .reflections.have_F_sigma, "no structure factor errors")
+     top = ZERO
+     bot = ZERO
+     do n=1,n_refl
+       ref => .reflections(n)
+       if (.kind=="pnd") then; F_pred = ref.F_calc
+       else;                   F_pred = abs(ref.F_calc)
+       end
+       ENSURE(ref.F_sigma/=ZERO,"Structure factor has zero error!")
+       top = top + F_pred * ref.F_exp  / (ref.F_sigma * ref.F_sigma)
+       bot = bot + F_pred * F_pred / (ref.F_sigma * ref.F_sigma)
+     end
+     .scale_factor = top/bot
+     .n_param = 1
+   end
+
+   optimise_extinction_factor
+   ! Optimize the .scale_factor and .extinction_factor parameter of Larson's
+   ! method.
+   ! NOTE: the corrections are not applied to .F_pred; use the routine
+   ! .extinction_corrections to do that.
+   ! Reference: Larson, A. C., in <I>Crystallographic Computing</I>
+   !            Ed. Ahmed, F. R. (Copenhagen, Munksgaard 1970), pp. 291-294.
+      self :: target
+      p :: REALVEC(2)
+      chi2_min :: REAL
+      .optimise_scale_factor
+      p(1) = .scale_factor
+      p(2) = ZERO          ! This is the .extinction_factor
+    ! saved_self.copy(self)
+      saved_self => self
+#ifndef NOGENERIC
+      call minimise_BFGS(chi2,d_chi2,p,chi2_min,tol=TOL(7),gtol=TOL(7),step=TOL(4))
+#else
+      call REALVEC_minimise_BFGS(CRYSTAL_chi2,CRYSTAL_d_chi2,p,chi2_min,tol=TOL(7),gtol=TOL(7),step=TOL(4))
+#endif
+    ! saved_self.destroy_ptr_part
+      .scale_factor = p(1)
+      .extinction_factor = p(2)
+      .n_param = 2
+   end
+
+   chi2(p) result (res) ::: selfless
+   ! Make the chi2 between the calculated and experimental structure factors
+   ! with extinction and scale parameters stored in vector p.
+     p :: REALVEC
+     res :: REAL
+     tmp,tmp1 :: REAL
+     ext :: REALVEC*
+     ref :: REFLECTION*
+     n,n_refl :: INT
+     self :: CRYSTAL*
+   ! self.copy(saved_self)
+     self => saved_self
+     ENSURE(.reflections.created,"no reflection data")
+     ENSURE(.reflections.have_F_calc, "no calculated structure factors")
+     ENSURE(.reflections.have_F_exp, "no experimental structure factors")
+     ENSURE(.reflections.have_F_sigma, "no structure factor errors")
+     ENSURE(size(p)==2, "wrong size, p")
+     n_refl = .reflections.n_refl
+     ext.create(n_refl)
+     ext = .extinction_correction(p(1),p(2))
+     tmp = ZERO
+     do n=1,n_refl
+       ref => .reflections(n)
+       tmp1 = (abs(ref.F_calc) * ext(n) - ref.F_exp) / ref.F_sigma
+       tmp = tmp + tmp1 * tmp1
+     end
+       res = tmp / max(n_refl-.n_param,1)
+     ext.destroy
+   ! self.destroy_ptr_part
+   end
+
+   d_chi2(p) result (res) ::: selfless
+   ! Return the derivative of the chi2 with respect to the .scale_factor in
+   ! p(1), and with respect to .extinction_factor in p(2). This routine is for
+   ! use in the BFGS minimiser.
+      p :: REALVEC
+      res :: REALVEC(size(p))
+      self :: CRYSTAL*
+   !  self.copy(saved_self)
+      self => saved_self
+      ENSURE(size(p)==2, "wrong size, p")
+      res(1) = .d_chi2_d_scale(p)
+      res(2) = .d_chi2_d_ext(p)
+   !  self.destroy_ptr_part
+!      res(1) = saved_self.d_chi2_d_scale(p)
+!      res(2) = saved_self.d_chi2_d_ext(p)
+   end
+
+   d_chi2_d_scale(p) result (res)
+   ! Derivative of the chi^2 with respect to the scale factor
+     p :: REALVEC
+     res :: REAL
+     tmp,F_pred :: REAL
+     ext :: REALVEC*
+     ref :: REFLECTION*
+     n,n_refl :: INT
+     n_refl = .reflections.n_refl
+     ENSURE(.reflections.created,"no reflection data")
+     ENSURE(.reflections.have_F_calc, "no calculated structure factors")
+     ENSURE(.reflections.have_F_exp, "no experimental structure factors")
+     ENSURE(.reflections.have_F_sigma, "no structure factor errors")
+     ENSURE(size(p)==2, "wrong size, p")
+     ext.create(n_refl)
+     ext = .extinction_correction(p(1),p(2))
+     tmp = ZERO
+     do n=1,n_refl
+       ref => .reflections(n)
+       F_pred = abs(ref.F_calc) * ext(n)
+       tmp = tmp + F_pred*F_pred - ref.F_exp*F_pred / (ref.F_sigma*ref.F_sigma)
+     end
+     res = TWO*tmp/(p(1)*max(n_refl-.n_param,1))
+     ext.destroy
+   end
+
+   d_chi2_d_ext(p) result (res)
+   ! Derivative of the chi^2 with respect to the extinction parameter.
+     p :: REALVEC, IN
+     res :: REAL
+     tmp,extn,p1 :: REAL
+     angle_bit,ext :: REALVEC*
+     ref :: REFLECTION*
+     n,n_refl :: INT
+     n_refl = .reflections.n_refl
+     ENSURE(.reflections.created,"no reflection data")
+     ENSURE(.reflections.have_F_calc, "no calculated structure factors")
+     ENSURE(.reflections.have_F_exp, "no experimental structure factors")
+     ENSURE(.reflections.have_F_sigma, "no structure factor errors")
+     ENSURE(size(p)==2, "wrong size, p")
+     angle_bit.create(n_refl)
+     ext.create(n_refl)
+     angle_bit = .extinction_angle_part
+     p1 = p(1)
+     ext = .extinction_correction(ONE,p(2))
+     tmp = ZERO
+     do n = 1,n_refl
+       ref => .reflections(n)
+       extn = ext(n)
+       tmp = tmp + (p1 * abs(ref.F_calc) * extn - ref.F_exp) * &
+           extn*extn*extn*extn*extn* ref.F_calc*ref.F_calc*ref.F_calc * &
+           angle_bit(n) / (ref.F_sigma * ref.F_sigma)
+     end
+     res = -p1*tmp/(TWO * max(n_refl-.n_param,1))
+     ext.destroy
+     angle_bit.destroy
+   end
+
+   d_chi2_dU(dF) result (res)
+   ! Evaluate the derivative of the chi^2 with respect to parameters U
+   ! (e.g. thermal parameters) given the derivatives "dF" of where
+   ! .F_calc with respect to these parameters U. NOTE: this routine
+   ! assumes that the .scale_factor and .extinction_factor are fixed.
+     dF :: CPXMAT
+     res :: REALVEC(size(dF,2))
+     Fc_conjgFcalc :: CPXVEC*
+     ref :: REFLECTION*
+     ext,angle_bit :: REALVEC*
+     fac,Fc,Fc1,extn :: REAL
+     u,n_refl,n :: INT
+     n_refl = .reflections.n_refl
+     ENSURE(.reflections.created,"no reflection data")
+     ENSURE(size(dF,1)==n_refl, "wrong size, dF")
+     ENSURE(.reflections.have_F_calc, "no calculated structure factors")
+     ENSURE(.reflections.have_F_exp, "no experimental structure factors")
+     ENSURE(.reflections.have_F_sigma, "no structure factor errors")
+     angle_bit.create(n_refl)
+     angle_bit = .extinction_angle_part
+     ext.create(n_refl)
+     ext = .extinction_correction(ONE,.extinction_factor)
+     Fc_conjgFcalc.create(n_refl)
+     do n = 1,n_refl
+       ref => .reflections(n)
+       extn = ext(n)
+       Fc1 = abs(ref.F_calc)
+       Fc = ( (.scale_factor*extn*Fc1 - ref.F_exp) / &
+          (ref.F_sigma * ref.F_sigma) ) * &
+          (extn / Fc1 - HALF * extn * extn * extn * extn * extn * &
+          .extinction_factor * Fc1 * angle_bit(n))
+       Fc_conjgFcalc(n) = Fc * conjg(ref.F_calc)
+     end
+     fac = TWO*.scale_factor/max(n_refl-.n_param,1)
+     do u = 1,size(dF,2)
+        res(u) = fac * sum( Fc_conjgFcalc(:) * dF(:,u) )
+     end
+     Fc_conjgFcalc.destroy
+     ext.destroy
+     angle_bit.destroy
+   end
+
+   make_k_pts(res)
+   ! Convert the .reflection.hkl indices to reciprocal lattice vectors
+   ! Dimension of res is [.n_refl,3]
+      res :: REALMAT
+       n :: INT
+      hkl :: INTVEC(3)
+      rcm :: REALMAT(3,3)
+      rcm = TWO*PI*.unitcell.reciprocal_matrix
+      do n = 1, .reflections.n_refl
+         hkl = .reflections.indices(n)
+         res(n,1) = dot_product(rcm(1,:),hkl(:))
+         res(n,2) = dot_product(rcm(2,:),hkl(:))
+         res(n,3) = dot_product(rcm(3,:),hkl(:))
+      end
+   end
+
+   n_unique_SF_k_pts result(res) ::: pure
+   ! The number of unique k-points for an SF calculation
+     self :: IN
+     res :: INT
+     res = .n_unique_SF_symops * .reflections.n_refl
+   end
+
+   make_unique_SF_k_pts(k)
+   ! Convert the hkl indices to unique reciprocal lattice vectors "k" required
+   ! for structure factor calculations.
+   ! (c) Dylan Jayatilaka, UWA, feb 1996
+      k :: REALMAT
+      p,u,n :: INT
+      b,rcm :: REALMAT(3,3)
+      hkl :: INTVEC(3)
+      ENSURE(.unique_SF_symop.created,"no unique_SF_symop array!")
+      ENSURE(k.dim1>0,"no unique k points")
+      ENSURE(k.dim1==.n_unique_SF_k_pts,"wrong # of k points")
+      p = 0
+      rcm = TWO*PI*.unitcell.reciprocal_matrix
+      do u = 1,.n_unique_SF_symops
+         b = matmul(rcm,transpose(.unique_SF_symop_mat(u)))
+         do n = 1,.reflections.n_refl
+            p = p + 1
+            hkl = .reflections.indices(n)
+            k(p,1) = dot_product(b(1,:),hkl(:))
+            k(p,2) = dot_product(b(2,:),hkl(:))
+            k(p,3) = dot_product(b(3,:),hkl(:))
+         end
+      end
+   end
+
+!  *************************************
+!  Service methods used by other modules
+!  *************************************
+
+   make_phases_for_symop(u,phase,mask) ::: private
+   ! Return the sum of the "phase" shifts for each (hkl) reflection from each
+   ! glide vector for all symops which are equivalent to the "u"-th
+   ! unique symmetry operation, .unique_SF_symop(u), as determined by the mask
+   ! array.
+     u :: INT, IN
+     phase :: CPXVEC, OUT
+     mask :: INTVEC, IN
+     hkl :: INTVEC(3)
+     pi2,tx,ty,tz :: REAL
+     s,n,n_refl :: INT
+     n_refl = .reflections.n_refl
+     ENSURE(.unique_SF_symop.created,"no unique_SF_symop array!")
+     ENSURE(u<=.n_unique_SF_symops,"symop index out of range")
+     ENSURE(size(phase)==n_refl,"wrong length for phase array")
+     pi2 = TWO*PI
+     phase = ZERO
+     do s = 1,.spacegroup.n_seitz
+       if (mask(s)/=.unique_SF_symop(u)) cycle
+       tx = pi2*.spacegroup.seitz(1,4,s)
+       ty = pi2*.spacegroup.seitz(2,4,s)
+       tz = pi2*.spacegroup.seitz(3,4,s)
+       do n=1,n_refl
+         hkl = .reflections.indices(n)
+         phase(n) = phase(n) + exp(cmplx(ZERO,hkl(1)*tx+hkl(2)*ty+hkl(3)*tz,kind=CPX_KIND))
+       end
+     end
+   end
+
+   sum_unique_sf(sf,unique_sf)
+   ! Form the structure factors "sf" from the sum of the list of
+   ! unique structure factors, "unique_sf".
+     sf :: CPXVEC
+     unique_sf :: CPXVEC, IN
+     phase :: CPXVEC*
+     u,uf,ul,n_refl :: INT
+     n_refl = .reflections.n_refl
+     ENSURE( size(sf)==n_refl,"incorrect size for array sf")
+     phase.create(n_refl)
+     sf = ZERO
+     do u = 1,.n_unique_SF_symops
+        uf = n_refl*(u-1)+1
+        ul = n_refl*u
+        .make_phases_for_symop(u,phase,.translated_symop)
+        sf(:) = sf(:) + phase(:)*unique_sf(uf:ul)
+        if ( all(.inverted_symop/=.unique_SF_symop(u)) ) cycle
+        .make_phases_for_symop(u,phase,.inverted_symop)
+        sf(:) = sf(:) + phase(:)*conjg(unique_sf(uf:ul))
+     end
+     phase.destroy
+   end
+
+   sum_unique_sf_ints(sf_ints,unique_sf_ints)
+   ! Form the structure factor integrals "sf_ints" from a sum of the list
+   ! of unique structure factors integrals  "unique_sf_ints".
+     sf_ints :: CPXMAT3
+     unique_sf_ints :: CPXMAT3, IN
+     phase :: CPXVEC*
+     u,uf,n,n_refl :: INT
+     n_refl = .reflections.n_refl
+     ENSURE(size(sf_ints,1)==n_refl,"wrong size for sf_ints!")
+     phase.create(n_refl)
+     sf_ints = ZERO
+     do u = 1,.n_unique_SF_symops
+       uf = n_refl*(u-1)
+       .make_phases_for_symop(u,phase,.translated_symop)
+       do n = 1,n_refl
+         sf_ints(n,:,:) = sf_ints(n,:,:) + phase(n)*unique_sf_ints(uf+n,:,:)
+       end
+       if ( all(.inverted_symop/=.unique_SF_symop(u)) ) cycle
+       .make_phases_for_symop(u,phase,.inverted_symop)
+       do n = 1,n_refl
+         sf_ints(n,:,:) = sf_ints(n,:,:) + phase(n)*conjg(unique_sf_ints(uf+n,:,:))
+       end
+     end
+     phase.destroy
+   end
+
+   sum_unique_sf_deriv_U(sf,unique_sf)
+   ! Form the structure factor derivatives "sf" (wrt the thermal paramaters,U)
+   !  from a sum of the list of unique structure factor derivatives "unique_sf".
+     sf :: CPXMAT
+     unique_sf :: CPXMAT, IN
+     phase :: CPXVEC*
+     u,uf,n,n_refl :: INT
+     n_refl = .reflections.n_refl
+     ENSURE(size(sf,1)==n_refl, "wrong size, matrix sf")
+     ENSURE(size(unique_sf,2)==.n_unique_SF_k_pts, "wrong size, matrix sf")
+     phase.create(n_refl)
+     sf = ZERO
+     do u = 1,.n_unique_SF_symops
+       uf = n_refl*(u-1)
+       .make_phases_for_symop(u,phase,.translated_symop)
+       do n = 1,n_refl
+         sf(n,:) = sf(n,:) + phase(n)*unique_sf(:,uf+n)
+       end
+       if ( all(.inverted_symop/=.unique_SF_symop(u)) ) cycle
+       .make_phases_for_symop(u,phase,.inverted_symop)
+       do n = 1,n_refl
+         sf(n,:) = sf(n,:) + phase(n)*conjg(unique_sf(:,uf+n))
+       end
+     end
+     phase.destroy
+   end
+
+   sum_ft_ints(ft_ints,unique_ft_ints)
+   ! Form the Fourier transform integrals "ft_ints" from a sum of the list
+   ! of unique integrals "unique_ft_ints".  Dimensions of ft_ints are
+   ! [.n_refl,n_comp_a,n_comp_b].
+     ft_ints :: CPXMAT3
+     unique_ft_ints :: CPXMAT3, IN
+     phase :: CPXVEC*
+     u,uf,n,n_refl :: INT
+     n_refl = .reflections.n_refl
+     ENSURE(size(ft_ints,1)==n_refl,"incorrect size for array ft_ints")
+     phase.create(n_refl)
+     ft_ints = ZERO
+     do u = 1,.n_unique_SF_symops
+       uf = n_refl*(u-1)
+       .make_phases_for_symop(u,phase,.translated_symop)
+       do n = 1,n_refl
+         ft_ints(n,:,:) = ft_ints(n,:,:) + phase(n)*unique_ft_ints(uf+n,:,:)
+       end
+       if ( all(.inverted_symop/=.unique_SF_symop(u)) ) cycle
+       .make_phases_for_symop(u,phase,.inverted_symop)
+       do n = 1,n_refl
+         ft_ints(n,:,:) = ft_ints(n,:,:) + phase(n)*conjg(unique_ft_ints(uf+n,:,:))
+       end
+     end
+     phase.destroy
+   end
+
+   make_phased_matrix_for_symop(u,phase,mask) ::: private
+   ! Return the sum of the "phase" shifts times the seitz matrices for all
+   ! symops which are equivalent to the "u"-th unique symmetry operation,
+   ! .unique_SF_symop(u), as determined by the "mask" array, when
+   ! mask(u)==.unique_SF_symop(u).
+     u :: INT, IN
+     phase :: CPXMAT3, OUT
+     mask :: INTVEC, IN
+     hkl :: INTVEC(3)
+     t :: REALVEC(3)
+     pi2 :: REAL
+     s,n,n_refl :: INT
+     seitz :: REALMAT(4,4)
+     pi2 = TWO*PI
+     phase = ZERO
+     n_refl = .reflections.n_refl
+     ENSURE(.unique_SF_symop.created,"no unique_SF_symop array!")
+     ENSURE(u<=.n_unique_SF_symops,"symop index out of range")
+     ENSURE(phase.dim1==n_refl,"wrong size, dim=1, phase array")
+     ENSURE(phase.dim2==3,"wrong size, dim=2, phase array")
+     ENSURE(phase.dim3==3,"wrong size, dim=3, phase array")
+     do s = 1,.spacegroup.n_seitz
+       if (mask(s)/=.unique_SF_symop(u)) cycle
+       seitz = transpose(.spacegroup.seitz(:,:,s))
+       t = (/ pi2*seitz(4,1), pi2*seitz(4,2), pi2*seitz(4,3) /)
+       if (seitz(3,3)>0) then                  ! M points along +z always
+         do n = 1,n_refl
+           hkl = .reflections.indices(n)
+           phase(n,:,:) = phase(n,:,:) + &
+              seitz(:,:)*exp(cmplx(ZERO,dot_product(t,hkl),kind=CPX_KIND))
+         end
+       else                                    ! M points in -z direction
+         seitz(3,:3) = -seitz(3,:3)           ! Invert
+         do n = 1,n_refl
+           hkl = .reflections.indices(n)
+           phase(n,:,:) = phase(n,:,:) + &
+              seitz(:,:)*exp(cmplx(ZERO,dot_product(t,hkl),kind=CPX_KIND))
+         end
+       end
+     end
+   end
+
+   sum_PND_spin_ints(ft_ints,unique_ft_ints)
+   ! Form the Fourier transform integrals "ft_ints", required for the spin
+   ! magnetic structure factors, from a sum of the list of unique structure
+   ! factor intergals "unique_ft_ints".  Dimensions of ft_ints are
+   ! [.n_refl,n_comp_a,n_comp_b,3].
+     ft_ints :: CPXMAT4
+     unique_ft_ints :: CPXMAT3, IN
+     phase :: CPXMAT3*
+     q :: REALMAT*
+     u,uf,n,n_refl :: INT
+     n_refl = .reflections.n_refl
+     ENSURE(size(ft_ints,1)==n_refl,"wrong size for ft_ints!")
+     q.create(n_refl,3)
+     phase.create(n_refl,3,3)
+     .make_k_pts(q)
+     ft_ints = ZERO
+     do u = 1,.n_unique_SF_symops
+        uf = n_refl*(u-1)
+        .make_phased_matrix_for_symop(u,phase,.translated_symop)
+        do n = 1,n_refl
+           ft_ints(n,:,:,1) = ft_ints(n,:,:,1) + &
+              ( q(n,3)*q(n,1)*phase(n,1,1) + q(n,3)*q(n,2)*phase(n,2,1)     &
+              - q(n,1)*q(n,1)*phase(n,3,1) - q(n,2)*q(n,2)*phase(n,3,1) ) * &
+              unique_ft_ints(uf+n,:,:)
+           ft_ints(n,:,:,2) = ft_ints(n,:,:,2) + &
+              ( q(n,3)*q(n,1)*phase(n,1,2) + q(n,3)*q(n,2)*phase(n,2,2)     &
+              - q(n,1)*q(n,1)*phase(n,3,2) - q(n,2)*q(n,2)*phase(n,3,2) ) * &
+              unique_ft_ints(uf+n,:,:)
+           ft_ints(n,:,:,3) = ft_ints(n,:,:,3) + &
+              ( q(n,3)*q(n,1)*phase(n,1,3) + q(n,3)*q(n,2)*phase(n,2,3)     &
+              - q(n,1)*q(n,1)*phase(n,3,3) - q(n,2)*q(n,2)*phase(n,3,3) ) * &
+              unique_ft_ints(uf+n,:,:)
+        end
+        if ( all(.inverted_symop/=.unique_SF_symop(u)) ) cycle ! for inversions...
+        .make_phased_matrix_for_symop(u,phase,.inverted_symop)
+        do n = 1,n_refl
+           ft_ints(n,:,:,1) = ft_ints(n,:,:,1) + &
+              ( q(n,3)*q(n,1)*phase(n,1,1) + q(n,3)*q(n,2)*phase(n,2,1)     &
+              - q(n,1)*q(n,1)*phase(n,3,1) - q(n,2)*q(n,2)*phase(n,3,1) ) * &
+              conjg(unique_ft_ints(uf+n,:,:))
+           ft_ints(n,:,:,2) = ft_ints(n,:,:,2) + &
+              ( q(n,3)*q(n,1)*phase(n,1,2) + q(n,3)*q(n,2)*phase(n,2,2)     &
+              - q(n,1)*q(n,1)*phase(n,3,2) - q(n,2)*q(n,2)*phase(n,3,2) ) * &
+              conjg(unique_ft_ints(uf+n,:,:))
+           ft_ints(n,:,:,3) = ft_ints(n,:,:,3) + &
+              ( q(n,3)*q(n,1)*phase(n,1,3) + q(n,3)*q(n,2)*phase(n,2,3)     &
+              - q(n,1)*q(n,1)*phase(n,3,3) - q(n,2)*q(n,2)*phase(n,3,3) ) * &
+              conjg(unique_ft_ints(uf+n,:,:))
+        end
+     end
+     phase.destroy
+     ! The factor of two for conversion to Bohr magnetons cancels the
+     ! factor of half for the S=sigma/2 operator, and g_e x mu_B = 1.
+     do n = 1,n_refl
+       ft_ints(n,:,:,:) = ft_ints(n,:,:,:)/(q(n,1)*q(n,1)+q(n,2)*q(n,2))
+     end
+     q.destroy
+   end
+
+   sum_PND_nabla_ints(ft_ints,unique_ft_ints)
+   ! Form the fourier transform nabla_a_3 integrals "ft_ints", required for the
+   ! PND magnetic structure factors, from a sum of "unique_ft_ints".
+   ! Dimensions of ft_ints are [.n_refl,n_comp_a,n_comp_b,3].
+     ft_ints :: CPXMAT3
+     unique_ft_ints :: CPXMAT4, IN
+     phase :: CPXMAT3*
+     q :: REALMAT*
+     u,uf,n,n_refl :: INT
+     n_refl = .reflections.n_refl
+     ENSURE(size(ft_ints,1)==n_refl,"wrong size for ft_ints!")
+     q.create(n_refl,3)
+     phase.create(n_refl,3,3)
+     .make_k_pts(q)
+     ft_ints = ZERO
+     do u = 1,.n_unique_SF_symops
+       uf = n_refl*(u-1)
+       .make_phased_matrix_for_symop(u,phase,.translated_symop)
+       do n = 1,n_refl
+         ft_ints(n,:,:) = ft_ints(n,:,:) + &
+          (q(n,1)*phase(n,2,1)-q(n,2)*phase(n,1,1))*unique_ft_ints(uf+n,:,:,1) + &
+          (q(n,1)*phase(n,2,2)-q(n,2)*phase(n,1,2))*unique_ft_ints(uf+n,:,:,2) + &
+          (q(n,1)*phase(n,2,3)-q(n,2)*phase(n,1,3))*unique_ft_ints(uf+n,:,:,3)
+       end
+       if ( all(.inverted_symop/=.unique_SF_symop(u)) ) cycle ! for inversions ...
+       .make_phased_matrix_for_symop(u,phase,.translated_symop)
+       do n = 1,n_refl
+         ft_ints(n,:,:) = ft_ints(n,:,:) + &
+          (q(n,1)*phase(n,2,1)-q(n,2)*phase(n,1,1))*conjg(unique_ft_ints(uf+n,:,:,1)) + &
+          (q(n,1)*phase(n,2,2)-q(n,2)*phase(n,1,2))*conjg(unique_ft_ints(uf+n,:,:,2)) + &
+          (q(n,1)*phase(n,2,3)-q(n,2)*phase(n,1,3))*conjg(unique_ft_ints(uf+n,:,:,3))
+       end
+     end
+     phase.destroy
+     ! The factor of 2 to convert to Bohr magnetons cancels the factor
+     ! of 1/2 for the Bohr magneton.
+     do n = 1,n_refl
+       ft_ints(n,:,:) = ft_ints(n,:,:)/(q(n,1)*q(n,1)+q(n,2)*q(n,2))
+     end
+     q.destroy
+   end
+
+   sum_ft_spin_ints(ft_ints,unique_ft_ints)
+   ! Form the Fourier transform integrals "ft_ints", required for the spin
+   ! magnetic structure factors, from a sum of the list of unique structure
+   ! factor intergals "unique_ft_ints".  Dimensions of ft_ints are
+   ! [.n_refl,n_comp_a,n_comp_b,3,3].
+     ft_ints :: CPXMAT5
+     unique_ft_ints :: CPXMAT3, IN
+     phase :: CPXVEC*
+     q :: REALMAT*
+     ints :: CPXMAT*
+     u,uf,n,n_refl :: INT
+     n_refl = .reflections.n_refl
+     ENSURE(size(ft_ints,1)==n_refl,"wrong size for ft_ints!")
+     phase.create(n_refl)
+     q.create(n_refl,3)
+     ints.create(size(ft_ints,2),size(ft_ints,3))
+     .make_k_pts(q)
+     ft_ints = ZERO
+     do u = 1,.n_unique_SF_symops
+       uf = n_refl*(u-1)
+       .make_phases_for_symop(u,phase,.translated_symop)
+       do n = 1,n_refl
+         ints = phase(n)*unique_ft_ints(uf+n,:,:)
+         ft_ints(n,:,:,1,1) = ft_ints(n,:,:,1,1) + q(n,1)*q(n,1)*ints(:,:)
+         ft_ints(n,:,:,2,1) = ft_ints(n,:,:,2,1) + q(n,2)*q(n,1)*ints(:,:)
+         ft_ints(n,:,:,2,2) = ft_ints(n,:,:,2,2) + q(n,2)*q(n,2)*ints(:,:)
+         ft_ints(n,:,:,3,1) = ft_ints(n,:,:,3,1) + q(n,3)*q(n,1)*ints(:,:)
+         ft_ints(n,:,:,3,2) = ft_ints(n,:,:,3,2) + q(n,3)*q(n,2)*ints(:,:)
+         ft_ints(n,:,:,3,3) = ft_ints(n,:,:,3,3) + q(n,3)*q(n,3)*ints(:,:)
+       end
+       if ( all(.inverted_symop/=.unique_SF_symop(u)) ) cycle ! for inversions...
+       .make_phases_for_symop(u,phase,.inverted_symop)
+       do n = 1,n_refl
+         ints = phase(n)*conjg(unique_ft_ints(uf+n,:,:))
+         ft_ints(n,:,:,1,1) = ft_ints(n,:,:,1,1) + q(n,1)*q(n,1)*ints(:,:)
+         ft_ints(n,:,:,2,1) = ft_ints(n,:,:,2,1) + q(n,2)*q(n,1)*ints(:,:)
+         ft_ints(n,:,:,2,2) = ft_ints(n,:,:,2,2) + q(n,2)*q(n,2)*ints(:,:)
+         ft_ints(n,:,:,3,1) = ft_ints(n,:,:,3,1) + q(n,3)*q(n,1)*ints(:,:)
+         ft_ints(n,:,:,3,2) = ft_ints(n,:,:,3,2) + q(n,3)*q(n,2)*ints(:,:)
+         ft_ints(n,:,:,3,3) = ft_ints(n,:,:,3,3) + q(n,3)*q(n,3)*ints(:,:)
+       end
+     end
+     ints.destroy
+     ! The factor of two for conversion to Bohr magnetons cancels the
+     ! factor of half for the S operator
+     do n = 1,n_refl
+        ft_ints(n,:,:,:,:) = -ft_ints(n,:,:,:,:)/(q(n,1)*q(n,1)+q(n,2)*q(n,2))
+     end
+     q.destroy
+     phase.destroy
+   end
+
+   sum_ft_r_ints(ft_ints,unique_ft_ints,B)
+   ! Form the Fourier transform dipole integrals "ft_ints", required for the PND
+   ! magnetic structure factors, from a sum of the list of unique structure
+   ! factor intergals "unique_ft_ints".  "B" is the external magnetic field.
+   ! Note: only inversions are allowed as symmetry elements for PND simulations.
+   ! Dimensions of ft are [.n_refl,n_comp_a,n_comp_b,3].
+     ft_ints :: CPXMAT4
+     unique_ft_ints :: CPXMAT4, IN
+     B :: REALVEC(3)
+     phase :: CPXVEC*
+     q :: REALMAT*
+     ints :: CPXMAT3*
+     u,uf,n,n_refl :: INT
+     ci :: CPX
+     n_refl = .reflections.n_refl
+     ENSURE( size(ft_ints,1)==n_refl,"incorrect size for array ft_ints")
+     phase.create(n_refl)
+     q.create(n_refl,3)
+     ints.create(size(ft_ints,2),size(ft_ints,3),3)
+     .make_k_pts(q)
+     ft_ints = ZERO
+     do u = 1,.n_unique_SF_symops
+       uf = n_refl*(u-1)
+       .make_phases_for_symop(u,phase,.translated_symop)
+       do n = 1,n_refl
+         ints = phase(n)*unique_ft_ints(uf+n,:,:,:)
+         ft_ints(n,:,:,1) = ft_ints(n,:,:,1) + q(n,2)*(B(1)*ints(:,:,2)-B(2)*ints(:,:,1)) &
+                                             - q(n,3)*(B(3)*ints(:,:,1)-B(1)*ints(:,:,3))
+         ft_ints(n,:,:,2) = ft_ints(n,:,:,2) + q(n,3)*(B(2)*ints(:,:,3)-B(3)*ints(:,:,2)) &
+                                             - q(n,1)*(B(1)*ints(:,:,2)-B(2)*ints(:,:,1))
+         ft_ints(n,:,:,3) = ft_ints(n,:,:,3) + q(n,1)*(B(3)*ints(:,:,1)-B(1)*ints(:,:,3)) &
+                                             - q(n,2)*(B(2)*ints(:,:,3)-B(3)*ints(:,:,2))
+       end
+       if ( all(.inverted_symop/=.unique_SF_symop(u)) ) cycle ! for inversions ...
+       .make_phases_for_symop(u,phase,.inverted_symop)
+       do n = 1,n_refl
+         ints = -phase(n)*conjg(unique_ft_ints(uf+n,:,:,:)) ! note minus sign
+         ft_ints(n,:,:,1) = ft_ints(n,:,:,1) + q(n,2)*(B(1)*ints(:,:,2)-B(2)*ints(:,:,1)) &
+                                             - q(n,3)*(B(3)*ints(:,:,1)-B(1)*ints(:,:,3))
+         ft_ints(n,:,:,2) = ft_ints(n,:,:,2) + q(n,3)*(B(2)*ints(:,:,3)-B(3)*ints(:,:,2)) &
+                                             - q(n,1)*(B(1)*ints(:,:,2)-B(2)*ints(:,:,1))
+         ft_ints(n,:,:,3) = ft_ints(n,:,:,3) + q(n,1)*(B(3)*ints(:,:,1)-B(1)*ints(:,:,3)) &
+                                             - q(n,2)*(B(2)*ints(:,:,3)-B(3)*ints(:,:,2))
+       end
+     end
+     ints.destroy
+     ! The factor of two for conversion to Bohr magnetons cancels the
+     ! factor of half for the S operator
+     ci = (ZERO,ONE)
+     do n = 1,n_refl
+       ft_ints(n,:,:,:) = -ci*ft_ints(n,:,:,:)/(q(n,1)*q(n,1)+q(n,2)*q(n,2))
+     end
+     q.destroy
+     phase.destroy
+   end
+
+   sum_ft_nabla_ints(ft_ints,unique_ft_ints)
+   ! Form the fourier transform nabla_a integrals "ft_ints", required for the
+   ! PND magnetic striucture factors, from a sum of "unique_ft_ints".
+   ! Note: only inversions are allowed as symmetry elements for PND simulations.
+   ! Note: the complex conjugate nabla_b integrals are not included.
+   ! Dimensions of ft_ints are [.n_refl,n_comp_a,n_comp_b,3].
+      ft_ints :: CPXMAT4
+      unique_ft_ints :: CPXMAT4, IN
+      phase :: CPXVEC*
+      q :: REALMAT*
+      ints :: CPXMAT3*
+      u,uf,n,n_refl :: INT
+      n_refl = .reflections.n_refl
+      ENSURE(size(ft_ints,1)==n_refl,"wrong size for ft_ints!")
+      phase.create(n_refl)
+      q.create(n_refl,3)
+      ints.create(size(ft_ints,2),size(ft_ints,3),3)
+      .make_k_pts(q)
+      ft_ints = ZERO
+      do u = 1,.n_unique_SF_symops
+         uf = n_refl*(u-1)
+         .make_phases_for_symop(u,phase,.translated_symop)
+         do n = 1,n_refl
+            ints = phase(n)*unique_ft_ints(uf+n,:,:,:)
+            ft_ints(n,:,:,1) = ft_ints(n,:,:,1) + q(n,2)*ints(:,:,3)-q(n,3)*ints(:,:,2)
+            ft_ints(n,:,:,2) = ft_ints(n,:,:,2) + q(n,3)*ints(:,:,1)-q(n,1)*ints(:,:,3)
+            ft_ints(n,:,:,3) = ft_ints(n,:,:,3) + q(n,1)*ints(:,:,2)-q(n,2)*ints(:,:,1)
+         end
+         if ( all(.inverted_symop/=.unique_SF_symop(u)) ) cycle ! for inversions ...
+         .make_phases_for_symop(u,phase,.inverted_symop)
+         do n = 1,n_refl
+            ints = -phase(n)*conjg(unique_ft_ints(uf+n,:,:,:)) ! note minus sign
+            ft_ints(n,:,:,1) = ft_ints(n,:,:,1) + q(n,2)*ints(:,:,3)-q(n,3)*ints(:,:,2)
+            ft_ints(n,:,:,2) = ft_ints(n,:,:,2) + q(n,3)*ints(:,:,1)-q(n,1)*ints(:,:,3)
+            ft_ints(n,:,:,3) = ft_ints(n,:,:,3) + q(n,1)*ints(:,:,2)-q(n,2)*ints(:,:,1)
+         end
+      end
+      ints.destroy
+      ! The factor of 2 to convert to Bohr magnetons cancels the factor
+      ! of 1/2 for the Bohr magneton
+      ! Extra minus sign introduced, but not sure why ...
+      ! Reversed minus sign introduced ...
+      do n = 1,n_refl
+          ft_ints(n,:,:,:) = ft_ints(n,:,:,:)/(q(n,1)*q(n,1)+q(n,2)*q(n,2))
+      end
+      q.destroy
+      phase.destroy
+   end
+
+   sum_ft_j_ints(ft_ints,unique_ft_ints)
+   ! Form the fourier transform j integrals "ft_ints", required for the PND
+   ! magnetic striucture factors, from a sum of "unique_ft_ints".
+   ! Note: only inversions are allowed as symmetry elements for PND simulations.
+   ! Note: the complex conjugate nabla_b integrals are not included.
+   ! Dimensions of ft_ints are [.n_refl,n_comp_a,n_comp_b,3].
+     ft_ints :: CPXMAT4
+     unique_ft_ints :: CPXMAT4, IN
+     phase :: CPXVEC*
+     u,uf, n,n_refl :: INT
+     n_refl = .reflections.n_refl
+     ENSURE(size(ft_ints,1)==n_refl,"incorrect size for array ft_ints")
+     phase.create(n_refl)
+     ft_ints = ZERO
+     do u = 1,.n_unique_SF_symops
+        uf = n_refl*(u-1)
+        .make_phases_for_symop(u,phase,.translated_symop)
+        do n = 1,n_refl
+          ft_ints(n,:,:,:) = ft_ints(n,:,:,:) + phase(n)*unique_ft_ints(uf+n,:,:,:)
+        end
+        if ( all(.inverted_symop/=.unique_SF_symop(u)) ) cycle ! for inversions...
+        .make_phases_for_symop(u,phase,.inverted_symop)
+        do n = 1,n_refl
+          ft_ints(n,:,:,:) = ft_ints(n,:,:,:) - phase(n)*conjg(unique_ft_ints(uf+n,:,:,:))
+        end
+     end
+     phase.destroy
+   end
+
+
+!  *****************************************
+!  Reduced group, Unique operators, Z number
+!  *****************************************
+
+   make_reduced_group_data(atom,prune_asymmetric_unit) ::: leaky
+   ! The reduced group are those unique seitz operators which are needed to
+   ! generate the complete ".fragment_cell_geometry" from the atom fragment
+   ! positions in "atom".  Some of the spacegroup symmetry operations may only
+   ! lead to fragment geometries which are inversions of, or translations of,
+   ! other operations in the reduced group.  This information is also worked out
+   ! here, and it can be used to save work in structure factor calculations.
+   ! If "prune_asymmetric_unit") is present then any non-unique atoms in the
+   ! ".asymmetric_unit_geometry" are removed. NOTE: ths is probably not what you
+   ! want for strcuture factor calcs, where the fragment geometry becomes the
+   ! asymmetric unit, but it IS what you want when processing CIF files with
+   ! possibly overcomplete asymmetric units.
+      atom :: ATOMVEC, IN
+      prune_asymmetric_unit :: BIN, optional, IN
+      if (.reduced_group_info_made) .destroy_fragment_data
+      .n_fragment_atoms = size(atom)
+      .fragment_geometry.create(3,.n_fragment_atoms)
+      atom.get_geometry(.fragment_geometry)
+      .unitcell.change_into_fractional(.fragment_geometry)
+      .make_reduced_symops         ! These don't seem to be used
+      .make_cluster_symops
+      .make_inverted_symops        ! These are used to save time in SF calcs
+      .make_translated_symops
+      .make_unique_SF_symops
+      .make_unique_fragment_atoms  ! See if we have an asymmetric fragment
+      .make_fragment_cell_geometry ! These are to get full unit cell geoms
+      if (.asymmetric_unit_geometry.destroyed) .make_asymmetric_geometry 
+      .make_unit_cell_geometry(prune_asymmetric_unit)
+      .make_repetition_factors     ! Rep. factors for SF calculations
+      .Z = .z_factor(atom)
+      .reduced_group_info_made = TRUE
+   end
+
+   z_factor(atom) result (res)
+   ! The Z crystallographic factor for ".fragment_geometry", defined as the
+   ! ratio of the number of electrons in the unit cell on the number of
+   ! electrons in the fragment. Hence, we require information for each "atom" in
+   ! the fragment.
+      atom :: ATOMVEC, IN
+      res :: REAL
+      u,f :: REAL
+      n,a :: INT
+      ENSURE(.atom_for_fragment_cell_atom.created,"no atom_for_fragment_cell_atom array")
+      u = ZERO
+      do n = 1,.n_fragment_cell_atoms
+         a = .atom_for_fragment_cell_atom(n)
+         u = u + atom(a).atomic_number
+      end
+      f = ZERO
+      do n = 1,.n_fragment_atoms
+         f = f + atom(n).atomic_number
+      end
+      res = u/f
+   end
+
+   make_reduced_symops ::: leaky, private
+   ! Make a list of the indices of the Seitz matrices, ".reduced_symop", which
+   ! will generate different geometries from that in ".fragment_geometry" when
+   ! both the original and transformed geometries are converted to unit cell
+   ! coordinates.  ".n_reduced_symops" is set to the number of these reduced
+   ! symmetry operations.
+      gi,gu :: REALMAT*
+      i,j,u, n :: INT
+      identical :: BIN
+      gi.create(3,.n_fragment_atoms)
+      gu.create(3,.n_fragment_atoms)
+      .reduced_symop.create(.spacegroup.n_seitz)
+      n = 1
+      .reduced_symop(1) = 1
+      do i = 2,.spacegroup.n_seitz
+         gi = .fragment_geometry
+         .transform_geometry(gi,i,to_unit_cell=TRUE)
+         do j = 1,n                            ! Loop over reduced symops
+            gu = .fragment_geometry
+            u = .reduced_symop(j)
+            .transform_geometry(gu,u,to_unit_cell=TRUE)
+            identical  = .is_same_geometry(gi,gu)
+            if (identical) exit
+         end
+         if (NOT identical) then
+            n = n + 1
+            .reduced_symop(n) = i
+         end
+      end
+      .n_reduced_symops = n
+      .reduced_symop.shrink(n)
+      gu.destroy
+      gi.destroy
+   end
+
+   make_cluster_symops ::: leaky, private
+   ! Make a list of the indices of the Seitz matrices, ".cluster_symop", which
+   ! will generate different geometries from that in ".fragment_geometry".
+   ! This routine is the same as make_reduced_symops except that the geometries
+   ! are *not* converted to unit cell coordinates.  ".n_cluster_symops" is set
+   ! to the number of these symmetry operations.  These operators are useful for
+   ! generating clusters of this fragment. NOTE: the unit operator, element 1,
+   ! is part of the set of cluster_symops.
+      gi,gu :: REALMAT*
+      i,j,u, n :: INT
+      identical :: BIN
+      gi.create(3,.n_fragment_atoms)
+      gu.create(3,.n_fragment_atoms)
+      .cluster_symop.create(.spacegroup.n_seitz)
+      n = 1
+      .cluster_symop(1) = 1
+      do i = 2,.spacegroup.n_seitz
+         gi = .fragment_geometry
+         .transform_geometry(gi,i)
+         do j = 1,n                       ! Loop over cluster symops
+            gu = .fragment_geometry
+            u = .cluster_symop(j)
+            .transform_geometry(gu,u)
+            identical  = .is_same_geometry(gi,gu)
+            if (identical) exit
+         end
+         if (NOT identical) then
+            n = n + 1
+            .cluster_symop(n) = i
+         end
+      end
+      .n_cluster_symops = n
+      .cluster_symop.shrink(n)
+      gu.destroy
+      gi.destroy
+   end
+
+   make_inverted_symops ::: leaky, private
+   ! Determine which of the reduced symops can generate geometries from
+   ! ".fragment cell_geometry" which are related by inversion.
+      n,i,j :: INT
+      inverted :: BIN
+      ENSURE(.reduced_symop.created,"no reduced_symop array")
+      ENSURE(.spacegroup.seitz.created,"Seitz matrices not initialised")
+      .inverted_symop.create(.spacegroup.n_seitz)
+      .inverted_symop = 0
+      n = 0
+      do i = 2,.spacegroup.n_seitz
+         do j = 1,i-1
+            inverted = .spacegroup.seitz(1:3,1:3,i).equals( &
+                      -.spacegroup.seitz(1:3,1:3,j))
+            if (inverted) then
+               n = n + 1
+               .inverted_symop(i) = j
+               exit
+            end
+         end
+      end
+      .n_inverted_symops = n
+   end
+
+   make_translated_symops ::: leaky, private
+   ! Determine which of the reduced symops can generate geometries from
+   ! ".fragment_cell_geometry" which are related by translation, (including
+   ! translation by the zero vector), but not inversion
+      i,j :: INT
+      translated :: BIN
+      ENSURE(.inverted_symop.created,"no inverted_symop array")
+      ENSURE(.spacegroup.seitz.created,"Seitz matrices not initialised")
+      .translated_symop.create(.spacegroup.n_seitz)
+      .translated_symop = 0
+      do i = 1,.spacegroup.n_seitz
+         .translated_symop(i) = i
+         if (.inverted_symop(i)>0) cycle
+         do j = 1,i-1
+            translated = .spacegroup.seitz(1:3,1:3,i).equals( &
+                         .spacegroup.seitz(1:3,1:3,j) )
+            if (translated) then
+               .translated_symop(i) = j
+               exit
+            end
+         end
+      end
+   end
+
+   make_unique_SF_symops ::: leaky, private
+   ! Determine which are the structure-factor unique symops, i.e. those which
+   ! generate fragment geometries which are different than a translation or
+   ! inversion. This list should be a superset of the reduced symops.
+      n,i :: INT
+      ENSURE(.inverted_symop.created,  "no inverted_symop array")
+      ENSURE(.translated_symop.created,"no translated_symop array")
+      n = 0
+      do i = 1,.spacegroup.n_seitz
+         if (.inverted_symop(i)>0) cycle
+         if (.translated_symop(i)<i) cycle ! Only true translations count
+         n = n + 1
+      end
+      .n_unique_SF_symops = n
+      .unique_SF_symop.create(n)
+      n = 0
+      do i = 1,.spacegroup.n_seitz
+         if (.inverted_symop(i)>0) cycle
+         if (.translated_symop(i)<i) cycle
+         n = n + 1
+         .unique_SF_symop(n) = i
+      end
+   end
+
+   is_same_geometry(geom_i,geom_j) result(res) ::: private
+   ! Return TRUE if the geometries "geom_i" and "geom_j" in fractional
+   ! coordinates are the same, exactly.
+      geom_i,geom_j :: REALMAT
+      res :: BIN
+      i,j,n_atom :: INT
+      same :: BIN
+      skip :: BINVEC*
+      ENSURE(.spacegroup.seitz.created,"Seitz matrices not initialised")
+      ENSURE(geom_i.dim1==3,"incorrect size for array geom_i")
+      ENSURE(geom_j.dim1==3,"incorrect size for array geom_j")
+      ENSURE(geom_i.dim2==geom_j.dim2,"incompatible sizes for geom_i, geom_j")
+      n_atom = geom_i.dim2
+      skip.create(n_atom); skip(:) = FALSE
+      do i = 1,n_atom
+         do j = 1,n_atom
+            same = geom_i(:,i).same_as(geom_j(:,j), TOL(3))
+            if (NOT same OR skip(j)) cycle
+            skip(j) = TRUE
+            exit
+         end
+      end
+      res = all(skip) ! True if all atoms in i were matched (skipped) in j
+      skip.destroy
+   end
+
+   make_unique_fragment_atoms ::: leaky, private
+   ! Make a list of the symmetry unique atoms in the ".fragment_geometry". The
+   ! atoms in ".fragment_geometry" are first put to the unit cell; then we
+   ! transform each of them in turn by all the symmetry operations (placing them
+   ! back into the unit cell, if necessary) and accumulating only the unique
+   ! ones.
+      geometry :: REALMAT*
+      pa :: REALVEC(3)
+      u,a,s,col :: INT
+      found :: BIN
+      ENSURE(.fragment_geometry.created, "no fragment_geometry")
+      .unique_atom_for_fragment_atom.create(.n_fragment_atoms)
+      .unique_atom_for_fragment_atom    = 0
+      .unique_atom_for_fragment_atom(1) = 1
+      .unique_fragment_atom.create(1)
+      .unique_fragment_atom(1) = 1
+      .unique_symop_for_fragment_atom.create(.n_fragment_atoms)
+      .unique_symop_for_fragment_atom = 1
+      geometry.create(3,.n_fragment_atoms)
+      geometry = .fragment_geometry
+      .put_to_unit_cell(geometry)
+      u = 1
+      do a = 2,.n_fragment_atoms
+         found = FALSE
+         do s = 1,.spacegroup.n_seitz
+            pa = geometry(:,a)
+            .transform_position(pa,s,to_unit_cell=TRUE)
+            found = geometry(:,.unique_fragment_atom).has_column(pa,TOL(3),col)
+            if (.unique_atom_for_fragment_atom(a)==0 AND found) then
+               .unique_atom_for_fragment_atom(a) = col
+               .unique_symop_for_fragment_atom(a) = s
+               exit
+            end
+         end
+         if (NOT found) then
+            u = u + 1
+            .unique_atom_for_fragment_atom(a) = u
+            .unique_fragment_atom.expand(u)
+            .unique_fragment_atom(u) = a
+         end
+      end
+      .n_unique_fragment_atoms = u
+      geometry.destroy
+   end
+
+   make_fragment_cell_geometry ::: leaky, private
+   ! Get the all the fragment atom positions in the unit cell,
+   ! ".fragment_cell_geometry", given a (possibly) partial or overcomplete set
+   ! for the cell in array ".fragment_geometry".
+      geometry :: REALMAT*
+      pa :: REALVEC(3)
+      n,a,s :: INT
+      found :: BIN
+      ENSURE(.fragment_geometry.created,"no fragment_geometry")
+      nullify(.fragment_cell_geometry)
+      geometry.create(3,.n_fragment_atoms) ! added this
+      geometry = .fragment_geometry ! added this
+      .put_to_unit_cell(geometry) ! added this
+      n = 0
+      do a = 1,.n_fragment_atoms
+         do s = 1,.spacegroup.n_seitz
+            pa = geometry(:,a) ! added this
+            .transform_position(pa,s,to_unit_cell=TRUE)
+            if (.fragment_cell_geometry.destroyed) then
+              found = FALSE
+            else
+              found = .fragment_cell_geometry.has_column(pa,TOL(3))
+            end
+            if (NOT found) then
+               n = n + 1
+               if (n==1) then
+                 .atom_for_fragment_cell_atom.create(1)
+                 .symop_for_fragment_cell_atom.create(1)
+                 .fragment_cell_geometry.create(3,1)
+               else
+                 .atom_for_fragment_cell_atom.expand(n)
+                 .symop_for_fragment_cell_atom.expand(n)
+                 .fragment_cell_geometry.expand(3,n)
+               end
+               .atom_for_fragment_cell_atom(n) = a
+               .symop_for_fragment_cell_atom(n) = s
+               .fragment_cell_geometry(:,n) = pa
+            end
+         end
+      end
+      .n_fragment_cell_atoms = n
+      geometry.destroy
+      ENSURE(.fragment_cell_geometry.created,"could not make fragment_cell-geometry")
+   end
+
+   make_unit_cell_geometry(prune_asymmetric_unit) ::: leaky, private
+   ! Get the all the atom positions in the unit cell, ".unit_cell_geometry" from
+   ! the ".asymmetric_unit_geometry", if it is created. Also checks if the
+   ! ".asymmetric_unit_geometry" is really an asymmetric unit! If
+   ! "prune_asymmetric_unit" is present and true, and non-asymmetric unit atoms
+   ! are eliminated.
+      prune_asymmetric_unit :: BIN, optional
+      prune :: BIN
+      pa :: REALVEC(3)
+      n,a,m,s,col :: INT
+      found,non_unique :: BIN
+      tol :: REAL
+      ENSURE(.asymmetric_unit_geometry.created,"no asymmetric unit geometry") 
+      prune = FALSE
+      if (present(prune_asymmetric_unit)) prune = prune_asymmetric_unit
+      nullify(.unit_cell_geometry)
+      tol = TOL(3)/maxval(.unitcell.length)
+      n = 0
+      a = 1
+      do ! a = 1,.n_asymmetric_unit_atoms
+         do s = 1,.spacegroup.n_seitz
+            pa = .asymmetric_unit_geometry(:,a)
+            .transform_position(pa,s,to_unit_cell=TRUE)
+            non_unique = .asymmetric_unit_geometry.has_column(pa,tol,col)
+            non_unique = non_unique AND col/=a
+            if (non_unique) then
+               WARN("asymmetric unit atoms "//a.to_str.trim//" and "//col.to_str.trim//" are the same!")
+               WARN("this may indicate a disordered aysmmetric unit")
+               if (prune) then
+                  m = max(a,col)
+                  WARN("pruning atom "//m.to_str.trim//" from asymmetric unit atom list")
+                  .n_asymmetric_unit_atoms = .n_asymmetric_unit_atoms - 1
+                  .asymmetric_unit_geometry(:,m:.n_asymmetric_unit_atoms) = .asymmetric_unit_geometry(:,m+1:)
+                  .asymmetric_unit_geometry.shrink_columns(.n_asymmetric_unit_atoms)
+                  exit
+               end 
+            end
+            if (.unit_cell_geometry.destroyed) then
+              found = FALSE
+            else
+              found = .unit_cell_geometry.has_column(pa,TOL(3))
+            end
+            if (NOT found) then
+               n = n + 1
+               if (n==1) then
+                 .atom_for_unit_cell_atom.create(1)
+                 .symop_for_unit_cell_atom.create(1)
+                 .unit_cell_geometry.create(3,1)
+               else
+                 .atom_for_unit_cell_atom.expand(n)
+                 .symop_for_unit_cell_atom.expand(n)
+                 .unit_cell_geometry.expand(3,n)
+               end
+               .atom_for_unit_cell_atom(n) = a
+               .symop_for_unit_cell_atom(n) = s
+               .unit_cell_geometry(:,n) = pa
+            end
+         end
+         a = a + 1
+         if (a>.n_asymmetric_unit_atoms) exit
+      end
+      .n_unit_cell_atoms = n
+      ENSURE(.unit_cell_geometry.created,"could not make unit_cell_geometry")
+   end
+
+   make_repetition_factors ::: leaky, private
+   ! The number of times an atom with index "a" is mapped into itself under
+   ! the reduced group is the ".repetition_factor(a)". It is used to correct
+   ! structure factors for fragment geometries which are "oversampled" relative
+   ! to the asymmetric cell geometry.
+      pa,pb :: REALVEC(3)
+      a,b,n,n_same :: INT
+      same :: BIN
+      ENSURE(.fragment_geometry.created, "no fragment_geometry!")
+      .repetition_factor.create(.n_fragment_atoms)
+      do a = 1,.n_fragment_atoms
+         pa = .fragment_geometry(:,a)
+         .put_to_unit_cell(pa)
+         n_same = 0
+         do b = 1,.n_fragment_atoms
+         do n = 1,.spacegroup.n_seitz
+            pb = .fragment_geometry(:,b)
+            .transform_position(pb,n,to_unit_cell=TRUE)
+            same = pa.same_as(pb,TOL(3))
+            if (same) n_same = n_same + 1
+         end
+         end
+         .repetition_factor(a) = n_same
+      end
+   end
+
+   transform_geometry(g,op,translate,ignore_glide,to_unit_cell)
+   ! Transform the positions "g" in fractional coordinates with the
+   ! Seitz operator with index "op". If present, "translate" will be
+   ! added to the transformed position. If present and TRUE, "ignore_glide"
+   ! will not add the glide vector part of the Seitz operator.
+   ! If present and TRUE, "to_unit_cell" will translate the fractional
+   ! coordinates into the (1,1,1) unit cell.
+      g :: REALMAT
+      op :: INT
+      translate :: INTVEC(3), optional
+      ignore_glide,to_unit_cell :: BIN, optional
+      n :: INT
+      ENSURE(g.dim1==3,"incorrect size for array g")
+      do n = 1,g.dim2
+         .transform_position(g(:,n),op,translate,ignore_glide,to_unit_cell)
+      end
+   end
+
+   transform_position(p,op,translate,ignore_glide,to_unit_cell) ::: private
+   ! Transform the position "p" in fractional coordinates with the
+   ! Seitz operator with index "op". If present, "translate" will be
+   ! added to the transformed position. If present and TRUE, "ignore_glide"
+   ! will not add the glide vector part of the Seitz operator.
+   ! If present and TRUE, "to_unit_cell" will translate the fractional
+   ! coordinates into the (1,1,1) unit cell.
+      p :: REALVEC(3)
+      op :: INT
+      translate :: INTVEC(3), optional
+      ignore_glide,to_unit_cell :: BIN, optional
+      ignore,to_cell :: BIN
+      ENSURE(.spacegroup.seitz.created,"Seitz matrices not initialised")
+      ENSURE(op>0,"operator index out of bounds")
+      ENSURE(op<=.spacegroup.n_seitz,"operator index out of bounds")
+      ignore = FALSE
+      if (present(ignore_glide)) ignore = ignore_glide
+      if (ignore) then
+        p = matmul(.spacegroup.seitz(1:3,1:3,op),p)
+      else
+        p = matmul(.spacegroup.seitz(1:3,1:3,op),p) + .spacegroup.seitz(1:3,4,op)
+      end
+      if (present(translate)) p = p + translate
+      to_cell = FALSE
+      if (present(to_unit_cell)) to_cell = to_unit_cell
+      if (to_cell) .put_to_unit_cell(p)
+   end
+
+   put_to_unit_cell(g) ::: private
+   ! Transform the geometry "g" in fractional coordinates into the
+   ! (1,1,1) unit cell.  All atoms will be shifted into the first unit cell
+   ! independently, so the resulting geometry may not reflect the shape of the
+   ! original molecule.
+      g :: REALMAT
+      n,n_atom :: INT
+      ENSURE( size(g,1)==3, "incorrect size for array g")
+      n_atom = size(g,2)
+      do n = 1,n_atom
+         .put_to_unit_cell(g(:,n))
+      end
+   end
+
+   put_to_unit_cell(p) ::: private
+   ! Transform the position "p" in fractional coordinates into the
+   ! (1,1,1) unit cell.
+      p :: REALVEC(3)
+      ENSURE(size(p)==3, "p must be length 3")
+      p(:) = mod(p(:)-floor(p(:))+TWO+0.001d0,ONE) - 0.001d0
+      ! p(:)-floor(p(:))+TWO should make it positive.
+   end
+
+   move_to_unit_cell(g)
+   ! Transform the geometry "g" in fractional coordinates into the first
+   ! lattice cell.  The shape of the molecule remains intact, so some of it
+   ! may cross into other cells.  The center of the molecule will be in the
+   ! first cell.
+      g :: REALMAT
+      n,n_atom :: INT
+      centre :: INTVEC(3)
+      ENSURE(size(g,1)==3, "incorrect size for array g")
+      n_atom = size(g,2)
+      centre = .unit_cell_offset(g)
+      do n = 1, n_atom
+        g(:,n) = g(:,n) - centre
+      end
+   end
+
+   unit_cell_offset(g) result(res)
+   ! Which hkl indices match the centre of the fragment geometry "g" when
+   ! expressed in crystal coordinates.  Usually we expect that it is 0,0,0 but
+   ! not always.
+      g :: REALMAT
+      res :: INTVEC(3)
+      ENSURE(g.dim1==3, "incorrect size for array g")
+      res = sum(g,dim=2)/g.dim2
+   end
+
+   fragment_width result(res)
+   ! Return the width "res" of the fragment in each of the 3 axis directions.
+      res :: REALVEC(3)
+      ENSURE(.fragment_geometry.created,"no fragment geometry")
+      res = .fragment_geometry.max_abs_column_difference
+   end
+
+   cartesian_fragment_width result(res)
+   ! Return the cartesian width "res" of the fragment in each of the three axis
+   ! directions.
+      res :: REALVEC(3)
+      res = .fragment_width
+      .unitcell.change_from_fractional(res)
+   end
+
+   reduced_symop_mat(r) result (res) ::: private
+   ! Return the "r"-th reduced symop matrix in the unique list made by routine
+   ! ".make_reduced_symops".
+      res :: REALMAT(3,3)
+      r :: INT
+      ENSURE(.reduced_symop.created,"no reduced_symops!")
+      ENSURE(r<=.n_reduced_symops,"symop index out of range")
+      ENSURE(r>0, "symop index out of range")
+      res = .spacegroup.seitz(1:3,1:3,.reduced_symop(r))
+   end
+
+   unique_SF_symop_mat(u) result (res) ::: private
+   ! Return the "u"-th reduced symop matrix in the unique list made by routine
+   ! ".make_reduced_symops".
+      res :: REALMAT(3,3)
+      u :: INT
+      r :: INT
+      ENSURE(.unique_SF_symop.created,"no unique_SF_symops!")
+      ENSURE(u<=.n_unique_SF_symops,"symop index out of range")
+      ENSURE(u>0,"symop index out of range")
+      r = .unique_SF_symop(u)
+      res = .spacegroup.seitz(1:3,1:3,r)
+   !  res = .spacegroup.seitz(1:3,1:3,.reduced_symop(r))
+   end
+
+   transposed_xyz_seitz_matrices result (res) ::: leaky
+   ! Create and return a list of the 3x3 part of the seitz matrices
+   ! in the cartesian axis system. NOTE: these are actually the
+   ! *transpose* of the matrices in Hall's paper.
+   !               S^T_cartesian  =  B  S^T_crystal  B^-1
+      res :: REALMAT3*
+      i :: INT
+      ENSURE(.spacegroup.seitz.created,"no Seitz matrices")
+      res.create(3,3,.spacegroup.n_seitz)
+      do i = 1,.spacegroup.n_seitz
+         res(:,:,i) = matmul(.unitcell.reciprocal_matrix, &
+                      matmul(transpose(.spacegroup.seitz(1:3,1:3,i)), &
+                             transpose(.unitcell.direct_matrix)))
+      end
+   end
+
+!  **************
+!  Output methods
+!  **************
+
+   put(atom)
+   ! Put out the crystal data to file "out"
+      atom :: ATOMVEC, optional
+      stdout.flush
+      stdout.text("CRYSTAL information:")
+      stdout.show("kind                        = ", .kind)
+      .unitcell.put
+      .spacegroup.put
+      if (.asymmetric_unit_geometry.created) .put_asymmetric_unit_geometry(atom)
+      if (.unit_cell_geometry.created)       .put_unit_cell_geometry(atom)
+      if (.fragment_geometry.created)        .put_fragment_data(atom)
+      if (.reflections.created)              .put_reflection_data
+   end
+
+   put_stl ::: private
+   ! Output sin(theta)/lambda for all reflections.
+     n :: INT
+     ENSURE(.reflections.created,"No list of reflections")
+     ENSURE(.reflections.have_indices,"No list of reflections")
+     stdout.text("sin(theta)/lambda for the reflections")
+     stdout.dash(int_fields=3,real_fields=1)
+     stdout.put("h",int_width=TRUE)
+     stdout.put("k",int_width=TRUE)
+     stdout.put("l",int_width=TRUE)
+     stdout.put("stl")
+     stdout.flush
+     stdout.dash(int_fields=3,real_fields=1)
+     do n=1,size(.reflections)
+       stdout.put(.reflections(n).h)
+       stdout.put(.reflections(n).k)
+       stdout.put(.reflections(n).l)
+       stdout.put(.stl(n))
+       stdout.flush
+     end
+     stdout.dash(int_fields=3,real_fields=1)
+   end
+
+   put_fragment_data(atom) ::: private
+   ! Put fragment information to file "out". Optional "atom" list may
+   ! be used to enhace output.
+      atom :: ATOMVEC, optional
+      stdout.flush
+      stdout.text("Crystal fragment data:")
+      stdout.flush
+      stdout.show("No. of inputted atoms        = ",.n_fragment_atoms,real_width=TRUE)
+      stdout.show("No. of fragment cell atoms   = ",.n_fragment_cell_atoms,real_width=TRUE)
+      stdout.show("No. of unique fragment atoms = ",.n_unique_fragment_atoms,real_width=TRUE)
+      stdout.show("Z factor                     = ",.Z)
+      stdout.flush
+      stdout.show("Fragment partition model     = ",.partition_model)
+      stdout.show("Thermal smearing model       = ",.thermal_smearing_model)
+    ! .put_reduced_symop_data
+      .put_inv_trans_symop_data
+      .put_fragment_geometry(atom)
+      .put_unique_fragment_geometry(atom)
+      .put_repetition_factors(atom)
+   end
+
+   put_reduced_symop_data ::: private
+   ! Put out the reduced symop data
+      n,s :: INT
+      inverted,translated :: BIN
+      ENSURE(.fragment_geometry.created,"fragment_geometry?")
+      ENSURE(.unique_atom_for_fragment_atom.created,"no unique_atom_for_fragment_atom array!")
+      stdout.flush
+      stdout.text("Crystal fragment reduced group information:")
+      stdout.flush
+      stdout.text("NOTE: this table is NOT used any more in structure factor calculations")
+      stdout.flush
+      stdout.dash(int_fields=5)
+      stdout.put("Reduced",int_width=TRUE)
+      stdout.put("Seitz",int_width=TRUE)
+      stdout.put("Inv.",int_width=TRUE)
+      stdout.put("Trans.",int_width=TRUE)
+      stdout.flush
+      stdout.put("Symop",int_width=TRUE)
+      stdout.put("Symop",int_width=TRUE)
+      stdout.put("of?",int_width=TRUE)
+      stdout.put("of?",int_width=TRUE)
+      stdout.put("Unique?",int_width=TRUE)
+      stdout.flush
+      stdout.dash(int_fields=5)
+      do n = 1,.n_reduced_symops
+         stdout.put(n)
+         s = .reduced_symop(n)
+         stdout.put(s)
+         inverted = .inverted_symop(s)>0
+         if (inverted) then;   stdout.put(.inverted_symop(s))
+         else;                 stdout.tab(int_fields=1)
+         end
+         translated = .translated_symop(s)<n
+         stdout.put(.translated_symop(s))
+         if (inverted OR translated) then; stdout.put("No",int_width=TRUE)
+         else;                             stdout.put("Yes",int_width=TRUE)
+         end
+         stdout.flush
+      end
+      stdout.dash(int_fields=5)
+   end
+
+   put_inv_trans_symop_data ::: private
+   ! Put out the inverted translated symop data
+      n :: INT
+      inverted,translated :: BIN
+      ENSURE(.fragment_geometry.created,"fragment_geometry?")
+      ENSURE(.unique_atom_for_fragment_atom.created,"no unique_atom_for_fragment_atom array")
+      stdout.flush
+      stdout.text("Crystal Inversion/Translation related symop information:")
+      stdout.flush
+      stdout.text("NOTE: this table IS used in structure factor calculations")
+      stdout.flush
+      stdout.dash(int_fields=4)
+      stdout.put("Seitz",int_width=TRUE)
+      stdout.put("Inv.",int_width=TRUE)
+      stdout.put("Trans.",int_width=TRUE)
+      stdout.flush
+      stdout.put("Symop",int_width=TRUE)
+      stdout.put("of?",int_width=TRUE)
+      stdout.put("of?",int_width=TRUE)
+      stdout.put("Unique?",int_width=TRUE)
+      stdout.flush
+      stdout.dash(int_fields=4)
+      do n = 1,.spacegroup.n_seitz
+         stdout.put(n)
+         inverted = .inverted_symop(n)>0
+         if (inverted) then;   stdout.put(.inverted_symop(n))
+         else;                 stdout.tab(int_fields=1)
+         end
+         translated = .translated_symop(n)<n
+         stdout.put(.translated_symop(n))
+         if (inverted OR translated) then; stdout.put("No",int_width=TRUE)
+         else;                             stdout.put("Yes",int_width=TRUE)
+         end
+         stdout.flush
+      end
+      stdout.dash(int_fields=4)
+   end
+
+   put_fragment_geometry(atom) ::: private
+   ! Put out the fragment_geometry information
+      atom :: ATOMVEC, optional
+      symbol :: STR
+      n :: INT
+      ENSURE(.fragment_geometry.created,"fragment_geometry?")
+      ENSURE(.unique_atom_for_fragment_atom.created,"no unique_atom_for_fragment_atom array")
+      stdout.flush
+      stdout.text("Crystal fragment cell geometry:")
+      stdout.flush
+      stdout.dash(int_fields=2,real_fields=3)
+      stdout.put("Fragment",int_width=TRUE)
+      stdout.put("Unique",int_width=TRUE)
+      stdout.flush
+      stdout.put("Atom",int_width=TRUE)
+      stdout.put("Atom",int_width=TRUE)
+      stdout.put("x")
+      stdout.put("y")
+      stdout.put("z")
+      stdout.flush
+      stdout.dash(int_fields=2,real_fields=3)
+      do n = 1,.n_fragment_atoms
+         if (present(atom)) then
+            symbol = trim(atom(n).chemical_symbol) // " (" // trim(n.to_str) // ")"
+            stdout.put(symbol,int_width=TRUE)
+         else
+            stdout.put(n)
+         end
+         stdout.put(.unique_atom_for_fragment_atom(n))
+         stdout.put(.fragment_geometry(1,n))
+         stdout.put(.fragment_geometry(2,n))
+         stdout.put(.fragment_geometry(3,n))
+         stdout.flush
+      end
+      stdout.dash(int_fields=2,real_fields=3)
+   end
+
+   put_unique_fragment_geometry(atom) ::: private
+   ! Put out the unique fragment_geometry information.  These are unique atoms
+   ! in fragment_geometry, and so are not necessarily the same as the asymmetric
+   ! unit atoms.
+      atom :: ATOMVEC, optional
+      n,u :: INT
+      symbol :: STR
+      ENSURE(.unique_fragment_atom.created,"unique_fragment_atoms?")
+      ENSURE(.fragment_geometry.created,"fragment_geometry?")
+      stdout.flush
+      stdout.text("Crystal unique atom unit cell geometry:")
+      stdout.flush
+      stdout.dash(int_fields=2,real_fields=3)
+      stdout.put("Unique",int_width=TRUE)
+      stdout.put("Fragment",int_width=TRUE)
+      stdout.flush
+      stdout.put("Atom",int_width=TRUE)
+      stdout.put("Atom",int_width=TRUE)
+      stdout.put("x")
+      stdout.put("y")
+      stdout.put("z")
+      stdout.flush
+      stdout.dash(int_fields=2,real_fields=3)
+      do u = 1,.n_unique_fragment_atoms
+         stdout.put(u)
+         n = .unique_fragment_atom(u)
+         if (present(atom)) then
+            symbol = trim(atom(n).chemical_symbol) // " (" // trim(n.to_str) // ")"
+            stdout.put(symbol,int_width=TRUE)
+         else
+            stdout.put(n)
+         end
+         stdout.put(.fragment_geometry(1,n))
+         stdout.put(.fragment_geometry(2,n))
+         stdout.put(.fragment_geometry(3,n))
+         stdout.flush
+      end
+      stdout.dash(int_fields=2,real_fields=3)
+   end
+
+   put_fragment_cell_geometry(atom) ::: private
+   ! Put out the full fragment cell geometry information
+      atom :: ATOMVEC, optional
+      n,f :: INT
+      symbol :: STR
+      stdout.flush
+      stdout.text("Full fragment cell geometry:")
+      stdout.flush
+      stdout.dash(int_fields=3,real_fields=3)
+      stdout.put("Cell ",int_width=TRUE)
+      stdout.put("Fragment",int_width=TRUE)
+      stdout.flush
+      stdout.put("Atom",int_width=TRUE)
+      stdout.put("Atom",int_width=TRUE)
+      stdout.put("x")
+      stdout.put("y")
+      stdout.put("z")
+      stdout.put("symop",int_width=TRUE)
+      stdout.flush
+      stdout.dash(int_fields=3,real_fields=3)
+      do n = 1,.n_fragment_cell_atoms
+         stdout.put(n)
+         if (present(atom)) then
+            f = .atom_for_fragment_cell_atom(n)
+            symbol = trim(atom(f).chemical_symbol) // " (" // trim(f.to_str) // ")"
+         else
+            stdout.put(f)
+         end
+         stdout.put(symbol,int_width=TRUE)
+         stdout.put(.fragment_cell_geometry(1,n))
+         stdout.put(.fragment_cell_geometry(2,n))
+         stdout.put(.fragment_cell_geometry(3,n))
+         stdout.put(.symop_for_fragment_cell_atom(n))
+         stdout.flush
+      end
+      stdout.dash(int_fields=3,real_fields=3)
+   end
+
+   put_repetition_factors(atom) ::: private
+   ! Put out the repetition factors
+      atom :: ATOMVEC, optional
+      n,rf :: INT
+      symbol :: STR
+      stdout.flush
+      stdout.text("Crystal fragment atom repetition factors:")
+      stdout.flush
+      stdout.dash(int_fields=2)
+      stdout.put("Fragment",int_width=TRUE)
+      stdout.put("Rep.",int_width=TRUE)
+      stdout.flush
+      stdout.put("Atom",int_width=TRUE)
+      stdout.put("Factor",int_width=TRUE)
+      stdout.flush
+      stdout.dash(int_fields=2)
+      do n = 1,.n_fragment_atoms
+         if (present(atom)) then
+            symbol = trim(atom(n).chemical_symbol) // " (" // trim(n.to_str) // ")"
+            stdout.put(symbol,int_width=TRUE)
+         else
+            stdout.put(n)
+         end
+         rf = .repetition_factor(n)
+         stdout.put(rf)
+         stdout.flush
+      end
+      stdout.dash(int_fields=2)
+   end
+
+   put_F_calc
+   ! Put the hkl Miller index triple followed by the calculated
+   ! structure factor to add onto existing structure factors.
+      ENSURE(.reflections.created, "no reflection data")
+      .reflections.set_keys(["indices","F_calc "])
+      .reflections.put
+      .reflections.clear_keys
+   end
+
+   put_F_stats ::: private
+   ! Output the structure factor goodness of fit statistics
+   ! stdout.
+      .reflections.put_F_stats
+      .put_correction_data
+   end
+
+   put_I_stats ::: private
+   ! Output the intensity goodness of fit statistics
+      .reflections.put_I_stats
+      .put_correction_data
+   end
+
+   put_correction_data
+   ! Output the correction data
+     real_width :: BIN
+     real_width = TRUE
+     stdout.flush
+     stdout.show("Using scale factor          = ", .optimise_scale,real_width)
+     stdout.show("Using extinction            = ", .optimise_extinction,real_width)
+     stdout.show("Thermal smearing model      = ", .thermal_smearing_model)
+     stdout.show("Fragment partition model    = ", .partition_model)
+     stdout.show("Correct dispersion?         = ", .correct_dispersion,real_width=TRUE)
+     if (.optimise_extinction) then;
+     stdout.show("Optimize extinction         = ", TRUE,real_width)
+     stdout.show("Secondary extinction factor = ", .extinction_factor)
+     else
+     stdout.show("Optimize extinction         = ", FALSE,real_width)
+     end
+     if (.optimise_scale) then
+     stdout.show("Optimize scale factor       = ", TRUE,real_width)
+     stdout.show("Scale factor                = ", .scale_factor)
+     else
+     stdout.show("Optimize scale factor       = ", FALSE,real_width)
+     end
+   end
+
+   put_reflection_data
+   ! Output the reflection data t
+     ENSURE(.reflections.created,"no reflections")
+     if (.have_F_calc OR .have_F_pred) .put_correction_data
+     .reflections.put
+   end
+
+   put_reflection_phases ::: private
+   ! Output the reflection phases
+     ENSURE(.reflections.created, "no reflection data")
+     .reflections.set_keys(["indices","F_calc ","F_phase"])
+     .reflections.put
+     .reflections.clear_keys
+   end
+
+   put_qq_plot(name)
+   ! Output a qq plot to the text file.
+   ! It is a plot of the experimental quantile vs expected quantile.
+     name :: STR, optional
+     ENSURE(.reflections.created, "no reflection data")
+     .reflections.put_F_qq_plot(name)
+   end
+
+   put_labelled_qq_plot(name)
+   ! Output a qq plot to the text file.
+   ! It is a plot of the experimental quantile vs expected quantile.
+     name :: STR, optional
+   ENSURE(.reflections.created, "no reflection data")
+     .reflections.put_labelled_F_qq_plot(name)
+   end
+
+   put_chi2_vs_angle_plot
+   ! Output a table with the chi^2 for the structure factor data set broken
+   ! into sections.
+   ! Reads from stdin the number of divisions in the plot.
+     num_sections :: INT
+     n,num,k,n_refl :: INT
+     section_for :: INTVEC*
+     stl,stl_min,stl_max,chi2,width,stl_mean :: REAL
+
+     stdin.read(num_sections)
+   ENSURE(num_sections > 0, "number of sections to plot not positive")
+   ENSURE(.reflections.created,"no structure factors")
+     n_refl = .reflections.n_refl
+
+     ! Work out the limits of the sin(theta)/lambda.
+     stl_min = 1000
+     stl_max = ZERO
+     do n=1, n_refl
+       stl = .stl(n) * BOHR_PER_ANGSTROM
+       if (stl < stl_min) stl_min = stl
+       if (stl > stl_max) stl_max = stl
+     end
+     width = (TOL(3) + stl_max - stl_min)/num_sections
+
+     section_for.create(n_refl)
+     ! Determine which section each reflection belongs to.
+     do n=1, n_refl
+       stl = .stl(n) * BOHR_PER_ANGSTROM
+       section_for(n) = ceiling((TOL(3) + stl - stl_min) / width)
+     end
+
+     stdout.flush
+     stdout.text("Chi^2 vs angle plot")
+     stdout.flush
+     stdout.text("sin(theta)/lambda in Angstrom^(-1)")
+     stdout.show("Smallest sin(theta)/lambda  = ",stl_min)
+     stdout.show("Largest sin(theta)/lambda   = ",stl_max)
+     stdout.flush
+     stdout.put("stl")
+     stdout.put("chi^2",flush=1)
+     stdout.dash(real_fields=2)
+     do n = 1, num_sections
+       chi2 = ZERO
+       num = 0
+       stl_mean = stl_min + (n - HALF) * width
+       do k = 1, n_refl
+         if (n==section_for(k)) then
+           chi2 = chi2 + .reflections(k).F_z2
+           num = num + 1
+         end
+       end
+       stdout.put(stl_mean)
+       if (num==0) then
+         stdout.flush
+         cycle
+       else
+         chi2 = chi2 / max(num - .n_param,1)
+         stdout.put(chi2,flush=1)
+       end
+     end
+     stdout.flush
+     section_for.destroy
+   end
+
+   put_fcalc_plots
+   ! Output some different plots about the calculated structure factors.
+     ext :: REALVEC*
+     ext_refs :: REFLECTIONVEC*
+     n,n_refl :: INT
+     y,w :: REAL
+
+     n_refl = .reflections.n_refl
+
+     stdout.text("The effects of angle.")
+     stdout.text("Scatter plot of (Fexp-Fpred)/F_sigma vs sin(theta)/lambda")
+     do n=1,n_refl
+       stdout.put(.stl(n))
+       stdout.put(.reflections(n).F_z)
+       stdout.flush
+     end
+     stdout.flush
+
+     stdout.text("The effects of intensity.")
+     stdout.text("Scatter plot of (Fexp-Fpred)/F_sigma vs Fexp")
+     do n=1,n_refl
+       stdout.put(.reflections(n).F_exp)
+       stdout.put(.reflections(n).F_z)
+       stdout.flush
+     end
+     stdout.flush
+
+     ext_refs.create(n_refl)
+     ext.create(n_refl)
+     ext = .extinction_correction
+     ext_refs.set_F_exp(.reflections.F_pred)
+     ext_refs.set_F_pred(.reflections.F_pred * ext)
+     ext_refs.set_F_sigma(.reflections.F_sigma)
+     ext.destroy
+
+     stdout.text("The effects of extinction.")
+     w = ZERO
+     y = ZERO
+     do n=1,n_refl
+       y = y + abs(ext_refs(n).F_z)
+       w = w + abs(ext_refs(n).F_r)
+     end
+     y = y / n_refl
+     w = w / n_refl
+     stdout.show("Average value of abs(Fcalc_ext-Fcalc)/F_sigma is ",y)
+     stdout.show("Average value of abs(extinction correction) is ",w)
+     stdout.flush
+
+     stdout.text("The effects of intensity on extinction.")
+     stdout.text("Scatter plot of (Fcalc_ext-Fcalc)/F_sigma vs Fpred")
+     do n=1,n_refl
+       stdout.put(ext_refs(n).F_pred)
+       stdout.put(ext_refs(n).F_z)
+       stdout.flush
+     end
+     stdout.flush
+
+     stdout.text("The effects of scattering angle on extinction.")
+     stdout.text("Scatter plot of (Fcalc_ext-Fcalc)/F_sigma vs sin(theta)/lambda")
+     do n=1,n_refl
+       stdout.put(.stl(n))
+       stdout.put(ext_refs(n).F_z)
+       stdout.flush
+     end
+     ext_refs.destroy
+
+     stdout.flush
+   end
+
+   make_crystal_error_map(map,pts)
+   ! Make the crystal error "map" for the supplied points "pts" from the crystal
+   ! structure factors
+     map :: REALVEC
+     pts :: REALMAT
+      k :: REALMAT*
+     F,phase :: REALVEC*
+     n_pts,n_refl,n :: INT
+     fac :: REAL
+   ENSURE(.reflections.created, "no structure factors")
+   ENSURE(.have_F_calc, "no calculated structure factors")
+   ENSURE(.have_F_exp, "no experimental structure factors")
+   ENSURE( size(pts,2)==3,  "incorrect dimension for points array")
+     n_pts = size(pts,1)
+     n_refl = .reflections.n_refl
+     k.create(n_refl,3); .make_k_pts(k)
+     F.create(n_refl)
+     F = (.reflections.F_exp - .reflections.F_pred) * sign(ONE,real(.reflections.F_calc))
+     phase.create(n_refl)
+     do n = 1,n_pts
+        phase.to_product_of(k,pts(n:n,:),transpose_b=TRUE)
+        map(n) = sum(F*cos(phase))
+     end
+     fac = TWO/.unitcell.volume
+     map = fac*map
+     phase.destroy
+     F.destroy
+     k.destroy
+   end
+
+   put_PND_sf(name)
+   ! Output the magnetic structure factors
+       name :: STR
+       FM_s,FM_l :: CPXVEC*
+       arch :: ARCHIVE
+        n :: INT
+       FM_s.create(.reflections.n_refl)
+       arch.set(name,"PND_spin_sf")
+       arch.read(FM_s)
+       FM_l.create(.reflections.n_refl)
+       arch.set(name,"PND_nabla_sf")
+       arch.read(FM_l)
+       stdout.text("PND magnetic structure factors:")
+       stdout.flush
+       stdout.dash(int_fields=3,real_fields=3)
+       stdout.put("h", int_width=TRUE)
+       stdout.put("k", int_width=TRUE)
+       stdout.put("l", int_width=TRUE)
+       stdout.put("FM_s")
+       stdout.put("FM_l")
+       stdout.put("FM")
+       stdout.flush
+       stdout.dash(int_fields=3,real_fields=3)
+       do n = 1, .reflections.n_refl
+          stdout.put(.reflections(n).h)
+          stdout.put(.reflections(n).k)
+          stdout.put(.reflections(n).l)
+          stdout.put(real(FM_s(n)) )
+          stdout.put(real(FM_l(n)) )
+          stdout.put(real(FM_s(n)+FM_l(n)) )
+          stdout.flush
+       end
+       stdout.dash(int_fields=3,real_fields=3)
+       FM_l.destroy
+       FM_s.destroy
+   end
+
+   put_asymmetric_unit_geometry(atom) ::: private
+   ! Put out the asymmetric unit geometry.
+      atom :: ATOMVEC, optional
+      n :: INT
+      symbol :: STR
+      ENSURE(.asymmetric_unit_geometry.created,"no asymmetric unit atoms")
+      stdout.flush
+      stdout.text("Crystal asymmetric unit cell geometry:")
+      stdout.flush
+      stdout.dash(int_fields=2,real_fields=3)
+      stdout.put("Atom",int_width=TRUE)
+      stdout.put("ID",int_width=TRUE)
+      stdout.put("x")
+      stdout.put("y")
+      stdout.put("z")
+      stdout.flush
+      stdout.dash(int_fields=2,real_fields=3)
+      do n = 1,.n_asymmetric_unit_atoms
+         stdout.put(n)
+         if (present(atom)) then
+            symbol = trim(atom(n).chemical_symbol) // " (" // trim(n.to_str) // ")"
+            stdout.put(symbol,int_width=TRUE)
+         else
+            stdout.put(n)
+         end
+         stdout.put(.asymmetric_unit_geometry(1,n))
+         stdout.put(.asymmetric_unit_geometry(2,n))
+         stdout.put(.asymmetric_unit_geometry(3,n))
+         stdout.flush
+      end
+      stdout.dash(int_fields=2,real_fields=3)
+   end
+
+   put_unit_cell_geometry(atom) ::: private
+   ! Put out the unit_cell_geometry.
+      atom :: ATOMVEC, optional
+      n,u :: INT
+      symbol :: STR
+      ENSURE(.unit_cell_geometry.created,"no unit_cell_geometry")
+      if (present(atom)) then
+      ENSURE(size(atom)>=.n_asymmetric_unit_atoms,"atom array too small")
+      end
+      stdout.flush
+      stdout.text("Crystal unit cell geometry:")
+      stdout.flush
+      stdout.dash(int_fields=2,real_fields=3)
+      stdout.put("Atom",int_width=TRUE)
+      stdout.put("ID",int_width=TRUE)
+      stdout.put("x")
+      stdout.put("y")
+      stdout.put("z")
+      stdout.flush
+      stdout.dash(int_fields=2,real_fields=3)
+      do n = 1,.n_unit_cell_atoms
+         stdout.put(n)
+         u = .atom_for_unit_cell_atom(n)
+         if (present(atom)) then
+            symbol = trim(atom(u).chemical_symbol) // " (" // trim(n.to_str) // ")"
+            stdout.put(symbol,int_width=TRUE)
+         else
+            stdout.put(n)
+         end
+         stdout.put(.unit_cell_geometry(1,n))
+         stdout.put(.unit_cell_geometry(2,n))
+         stdout.put(.unit_cell_geometry(3,n))
+         stdout.flush
+      end
+      stdout.dash(int_fields=2,real_fields=3)
+   end
+
+   put_CX(label)
+   ! Output some information for the Crystal Explorer program.
+       label :: STR
+       .unitcell.put_CX(label)
+   end
+
+!  *******************
+!  Tests for existence
+!  *******************
+
+   asymmetric_unit_exists result(res)
+   ! Return TRUE if the asymmetric unit geometry information exists
+     res :: BIN
+     res = associated(.asymmetric_unit_geometry)
+   end
+
+   unit_cell_geometry_exists result(res)
+   ! Return TRUE if the unit_cell_geometry information exists
+     res :: BIN
+     res = associated(.unit_cell_geometry)
+   end
+
+   fragment_data_exists result(res)
+   ! Return TRUE if a fragment information exists
+     res :: BIN
+     res = associated(.fragment_geometry)
+   end
+
+   reflection_data_exists result(res)
+   ! Return TRUE if reflection data exists
+     res :: BIN
+     res = associated(.reflections)
+   end
+
+   have_F_exp result(res)
+   ! Return TRUE if have some experimental structure factors
+      res :: BIN
+      res = FALSE
+      if (associated(.reflections)) res = .reflections.have_F_exp
+   end
+
+   have_F_calc result(res)
+   ! Return TRUE if have some calculated structure factors
+      res :: BIN
+      res = FALSE
+      if (associated(.reflections)) res = .reflections.have_F_calc
+   end
+
+   have_F_pred result(res)
+   ! Return TRUE if have some predicted structure factors
+      res :: BIN
+      res = FALSE
+      if (associated(.reflections)) res = .reflections.have_F_pred
+   end
+
+   have_F_sigma result(res)
+   ! Return TRUE if have some structure factor errors
+      res :: BIN
+      res = FALSE
+      if (associated(.reflections)) res = .reflections.have_F_sigma
+   end
+
+!*******************************************************************************
+!                     Inherited reflection routines
+!*******************************************************************************
+
+   n_refl result (res)
+   ! The number of reflections
+     res :: INT
+     ENSURE(.reflections.created, "no reflection data")
+     res = .reflections.n_refl
+   end
+
+   F_calc result (res)
+   ! The calculated structure factors
+     res :: CPXVEC(size(.reflections))
+     ENSURE(.reflection_data_exists,"no reflection data")
+     res = .reflections.F_calc
+   end
+
+   F_pred result (res)
+   ! The predicted structure factors
+     res :: REALVEC(size(.reflections))
+     ENSURE(.reflection_data_exists,"no reflection data")
+     res = .reflections.F_pred
+   end
+
+   F_sigma result (res)
+   ! The structure factor errors
+     res :: REALVEC(size(.reflections))
+     ENSURE(.reflection_data_exists,"no reflection data")
+     res = .reflections.F_sigma
+   end
+
+   F_exp result (res)
+   ! The experimental structure factors
+     res :: REALVEC(size(.reflections))
+     ENSURE(.reflection_data_exists,"no reflection data")
+     res = .reflections.F_exp
+   end
+
+   set_F_calc(F_calc)
+   ! Set the calculated structure factors
+     F_calc :: CPXVEC, IN
+     ENSURE(.reflection_data_exists,"no reflection data")
+     .reflections.set_F_calc(F_calc)
+   end
+
+   F_chi2 result(res)
+   ! Returns data
+     self :: IN
+     res :: REAL
+     ENSURE(.reflection_data_exists,"no reflection data")
+     res = .reflections.F_chi2
+   end
+
+   F_goodness_of_fit result(res)
+   ! Returns data
+     self :: IN
+     res :: REAL
+     ENSURE(.reflection_data_exists,"no reflection data")
+     res = .reflections.F_goodness_of_fit
+   end
+
+   F_r_factor result(res)
+   ! Returns data
+     self :: IN
+     res :: REAL
+     ENSURE(.reflection_data_exists,"no reflection data")
+     res = .reflections.F_r_factor
+   end
+
+   F_weighted_r_factor result(res)
+   ! Returns data
+     self :: IN
+     res :: REAL
+     ENSURE(.reflection_data_exists,"no reflection data")
+     res = .reflections.F_weighted_r_factor
+   end
+
+   I_chi2 result(res)
+   ! Returns data
+     self :: IN
+     res :: REAL
+     ENSURE(.reflection_data_exists,"no reflection data")
+     res = .reflections.I_chi2
+   end
+
+   I_goodness_of_fit result(res)
+   ! Returns data
+     self :: IN
+     res :: REAL
+     ENSURE(.reflection_data_exists,"no reflection data")
+     res = .reflections.I_goodness_of_fit
+   end
+
+   I_r_factor result(res)
+   ! Returns data
+     self :: IN
+     res :: REAL
+     ENSURE(.reflection_data_exists,"no reflection data")
+     res = .reflections.I_r_factor
+   end
+
+   I_weighted_r_factor result(res)
+   ! Returns data
+     self :: IN
+     res :: REAL
+     ENSURE(.reflection_data_exists,"no reflection data")
+     res = .reflections.I_weighted_r_factor
+   end
+
+   simulate_new_F_exp
+   ! Simulate a new experiment by adding normally distributed experimental
+   ! errors the the F_exp.
+     F_exp :: REALVEC*
+     n :: INT
+     chi2,z :: REAL
+     ENSURE(.reflection_data_exists,"no reflection data")
+     ENSURE(.have_F_exp,"no experimental structure factors")
+     ENSURE(.have_F_sigma,"no experimental structure factor errors")
+     stdout.flush
+     stdout.text("Adding simulated errors to F_exp using F_sigma.")
+     F_exp.create(.n_refl)
+     F_exp = .reflections.F_exp
+     .reflections.simulate_new_F_exp
+     chi2=ZERO
+     do n=1,.n_refl
+       z=(F_exp(n)-.reflections(n).F_exp)/.reflections(n).F_sigma
+       chi2 = chi2 + z*z
+     end
+     chi2 = chi2 / max(.n_refl - 1,1)
+     stdout.text("chi^2 of old F_exp to new F_exp is " // trim(chi2.to_str))
+     stdout.flush
+     stdout.dash(real_fields=4)
+     stdout.put("F_exp (old)")
+     stdout.put("F_exp (new)")
+     stdout.put("F_sigma")
+     stdout.put("dF/sigma")
+     stdout.flush
+     stdout.dash(real_fields=4)
+     do n=1,.n_refl
+       z=(F_exp(n)-.reflections(n).F_exp)/.reflections(n).F_sigma
+       stdout.put(F_exp(n))
+       stdout.put(.reflections(n).F_exp)
+       stdout.put(.reflections(n).F_sigma)
+       stdout.put(z)
+       stdout.flush
+     end
+     stdout.dash(real_fields=4)
+     F_exp.destroy
+   end
+
+   make_asymmetric_geometry ::: leaky
+   ! Set the asymmetric geometry array from the ".unique_fragment_atom" info.
+   ! This should not be done if an ".asymmetric_unit_geometry" already exists!
+     ENSURE(.asymmetric_unit_geometry.destroyed,"asymmetric unit already exists")
+     ENSURE(.unique_fragment_atom.created,"unique_fragment_atom list does not exist")
+     .asymmetric_unit_geometry.create(3,.n_unique_fragment_atoms)
+     .asymmetric_unit_geometry = .fragment_geometry(:,.unique_fragment_atom)
+     .n_asymmetric_unit_atoms = .n_unique_fragment_atoms
+   end
+
+end

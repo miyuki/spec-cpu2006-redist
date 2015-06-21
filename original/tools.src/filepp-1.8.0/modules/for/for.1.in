@@ -1,0 +1,81 @@
+.\"  Hey Emacs! This file is -*- nroff -*- source.
+.\" __FILEPP_INPUT__ version __VERSION__
+.\" filepp is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program; see the file COPYING.  If not, write to
+.\" the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+.\"
+.SH FOR MODULE - for.pm
+The for module implements a simple for loop. Its file name is
+\fBfor.pm\fP.
+.PP
+The for loop is similar in functionality to that of other programming
+languages such as Perl or or C.  It has a single variable (a filepp
+macro) which is assigned a numerical value.  This numerical value
+changes by a set increment on each iteration through the loop.  The
+loop termiates when the value no longer passes a comparison test.
+.PP
+The for module implements the following keywords:
+.TP
+.BR #for " \fImacro\fP \fIstart\fP \fIcompare\fP \fIend\fP \fIincrement\fP"
+The \fB#for\fP keyword is functionally equivalent to the following Perl
+or C style loop:
+
+for(\fImacro\fP=\fIstart\fP; \fImacro\fP \fIcompare\fP \fIend\fP;
+\fImacro\fP+=\fIincrement\fP)
+
+The \fB#for\fP keyword requires the following space separated
+parameters:
+
+\fImacro\fP : The name of the macro to which the for loop should
+assign its numerical value.
+
+\fIstart\fP : The value \fImacro\fP should be assigned at the start of
+the loop.  \fIstart\fP should be a numerical value.
+
+\fIcompare\fP : The comparison to make between the current value of
+\fImacro\fP and the value \fIend\fP to determine when the loop should
+terminate.  Valid values for \fIcompare\fP are <, >, >=, <=.
+
+\fIend\fP : the for loop will terminate when the test 
+
+ \fI macro compare end \fP
+
+fails.  \fIend\fP should be a numerical value.
+
+\fIincrement\fP : The value to increment \fImacro\fP on each iteration
+of the loop.  At the end of each iteration the value of
+\fIincrement\fP is added to the current value of \fImacro\fP.
+\fIincrement\fP should be a numerical value.
+
+.TP
+.BR #endfor
+The \fB#endfor\fP keyword is used to signify the end of the loop.
+Everything within the opening \fB#for\fP and the closing \fB#endfor\fP
+will be processed on each iteration of the loop.
+.PP
+
+Example usage:
+
+\fB#for\fP COUNTER 10 > 1 -2.5
+
+  COUNTER
+
+\fB#endfor\fP
+
+In the above example COUNTER will be defined to have values 10, 7.5,
+5 and 2.5 for each successive iteration through the loop.
+
+Nested loops are also possible, as is changing the value of the macro
+within the loop.  \fIstart\fP, \fIend\fP and \fIincrement\fP should
+all be numerical values, however it is possible to use macros instead
+provided the macros are defined to have numerical values.

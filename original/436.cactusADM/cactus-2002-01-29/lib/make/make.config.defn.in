@@ -1,0 +1,208 @@
+# /*@@
+#   @file      make.config.defn.in
+#   @date      Sun Jan 17 22:33:51 1999
+#   @author    Tom Goodale
+#   @desc 
+#   Make definition file for a configuration
+#   Defines the compilers, etc.
+#
+#   Should be run through autoconf to produce make.config.defn
+#   @enddesc 
+#   @version $Id: make.config.defn.in,v 1.33 2001/05/14 13:05:35 goodale Exp $
+# @@*/
+
+# Include stuff defined by optional extra arrangements
+
+include $(TOP)/config-data/make.extra.defn
+
+
+# Compiler/executable info
+
+SHELL             = @SHELL@
+MKDIR             = @MKDIR@
+CC                = @CC@
+CXX               = @CXX@
+F90               = @F90@
+F77               = @F77@
+CPP               = @CPP@
+LD                = @LD@
+AR                = @AR@
+RANLIB            = @RANLIB@
+PERL              = @PERL@
+
+CFLAGS            = @CFLAGS@
+CXXFLAGS          = @CXXFLAGS@
+F90FLAGS          = @F90FLAGS@
+F77FLAGS          = @F77FLAGS@
+
+MKDIRFLAGS          = @MKDIRFLAGS@
+
+LDFLAGS           = @LDFLAGS@
+
+ARFLAGS           = @ARFLAGS@
+RANLIBFLAGS       = @RANLIBFLAGS@
+
+# Debug flags
+
+C_DEBUG_FLAGS            = @C_DEBUG_FLAGS@
+CXX_DEBUG_FLAGS          = @CXX_DEBUG_FLAGS@
+F90_DEBUG_FLAGS          = @F90_DEBUG_FLAGS@
+F77_DEBUG_FLAGS          = @F77_DEBUG_FLAGS@
+
+# Optimisation flags
+
+C_OPTIMISE_FLAGS            = @C_OPTIMISE_FLAGS@
+CXX_OPTIMISE_FLAGS          = @CXX_OPTIMISE_FLAGS@
+F90_OPTIMISE_FLAGS          = @F90_OPTIMISE_FLAGS@
+F77_OPTIMISE_FLAGS          = @F77_OPTIMISE_FLAGS@
+
+# Warning flags
+
+C_WARN_FLAGS            = @C_WARN_FLAGS@
+CXX_WARN_FLAGS          = @CXX_WARN_FLAGS@
+F90_WARN_FLAGS          = @F90_WARN_FLAGS@
+F77_WARN_FLAGS          = @F77_WARN_FLAGS@
+
+# Most compilers use -c -o to compile only, some do something different
+CCOMPILEONLY = @CCOMPILEONLY@
+FCOMPILEONLY = @FCOMPILEONLY@
+
+# Most compilers use -o for naming the executable, alas some don't
+CREATEEXE = @CREATEEXE@
+
+# On Unix a / 
+DIRSEP = @DIRSEP@
+
+EMPTY_VAR = # Nothing.  Leading space is removed.
+
+# Mostly a single space, sometimes nothing at all
+OPTIONSEP = @OPTIONSEP@
+
+# Some architectures need to do something special for linking in libraries
+
+LIBNAME_PREFIX= @LIBNAME_PREFIX@# Make sure there is no space at end.
+LIBNAME_SUFFIX= @LIBNAME_SUFFIX@
+
+CACTUSLIBLINKLINE= @CACTUSLIBLINKLINE@
+
+C_DEPEND       = @C_DEPEND@
+CXX_DEPEND     = @CXX_DEPEND@
+F_DEPEND       = @F_DEPEND@
+F77_DEPEND     = @F77_DEPEND@
+
+C_DEPEND_OUT   = @C_DEPEND_OUT@
+CXX_DEPEND_OUT = @CXX_DEPEND_OUT@
+F_DEPEND_OUT   = @F_DEPEND_OUT@
+F77_DEPEND_OUT = @F77_DEPEND_OUT@
+
+# Some compilers are very picky about the names of C++ files
+
+CXX_WORKING_NAME = @CXX_WORKING_NAME@
+
+# Some compilers are very picky about the suffix for fortran files
+
+F90_SUFFIX = @F90_SUFFIX@
+
+# How to postprocess object files
+C_POSTPROCESSING   = @C_POSTPROCESSING@
+CXX_POSTPROCESSING = @CXX_POSTPROCESSING@
+F77_POSTPROCESSING = @F77_POSTPROCESSING@
+F_POSTPROCESSING   = @F_POSTPROCESSING@
+F90_POSTPROCESSING = @F90_POSTPROCESSING@
+
+# Do we need to use ranlib ?
+
+USE_RANLIB = @USE_RANLIB@
+
+# Exclude some files from the dependency lists
+
+DEP_EXCLUDE_FILES = cctk_FunctionAliases\.h|CParameterStructNames\.h|cctk_Arguments\.h|definethisthorn\.h|FParameters.h|CParameters\.h
+
+# Command used to get the working directory
+GET_WD = @GET_WD@
+
+# Library info
+
+LIBS    += @LIBS@
+LIBDIRS += @LIBDIRS@
+
+# Command to generate the link line for libraries
+GENERAL_LIBRARIES = @GENERAL_LIBRARIES@
+
+# System include directories
+
+SYS_INC_DIRS += @SYS_INC_DIRS@
+
+# Annoying stuff for some file systems.
+
+PERL_BACKUP_NECESSARY = @PERL_BACKUP_NECESSARY@
+
+# Stuff for the architecture
+
+OS     = @host_os@
+CPU    = @host_cpu@
+VENDOR = @host_vendor@
+
+# X stuff
+
+X_LIB_DIR  = @X_LIB_DIR@
+X_INC_DIR  = @X_INC_DIR@
+
+# GNU stuff
+
+BUILD_GETOPT = @BUILD_GETOPT@
+BUILD_REGEX  = @BUILD_REGEX@
+
+# Where the CCTK puts things
+PACKAGE_DIR = $(CCTK_HOME)/@PACKAGE_DIR@
+BUILD_DIR   = $(TOP)/@BUILD_DIR@
+CCTK_LIBDIR = $(TOP)/@CCTK_LIBDIR@
+
+#The perl scripts run by the make system
+BUILD_ACTIVETHORNS = @BUILD_ACTIVETHORNS@
+CST = @CST@
+
+C_FILE_PROCESSOR = @C_FILE_PROCESSOR@
+F_FILE_PROCESSOR = @F_FILE_PROCESSOR@
+
+# The directory in which to place the executable
+EXEDIR = @EXEDIR@
+
+# The name of the executable
+EXE    = @EXE@
+
+
+# Is this a debug configuration ?
+
+CCTK_DEBUG_MODE = @DEBUG_MODE@
+
+ifeq ($(strip $(CCTK_DEBUG_MODE)),yes)
+  CFLAGS   += $(C_DEBUG_FLAGS)
+  CXXFLAGS += $(CXX_DEBUG_FLAGS)
+  F77FLAGS += $(F77_DEBUG_FLAGS)
+  F90FLAGS += $(F90_DEBUG_FLAGS)
+endif
+
+# Is this a optimising configuration ?
+
+CCTK_OPTIMISE_MODE = @OPTIMISE_MODE@
+
+ifeq ($(strip $(CCTK_OPTIMISE_MODE)),yes)
+  CFLAGS   += $(C_OPTIMISE_FLAGS)
+  CXXFLAGS += $(CXX_OPTIMISE_FLAGS)
+  F77FLAGS += $(F77_OPTIMISE_FLAGS)
+  F90FLAGS += $(F90_OPTIMISE_FLAGS)
+endif
+
+# Are we building with all warnings switched on ?
+
+ifeq ($(strip $(CCTK_WARN_MODE)),yes)
+  CFLAGS   += $(C_WARN_FLAGS)
+  CXXFLAGS += $(CXX_WARN_FLAGS)
+  F77FLAGS += $(F77_WARN_FLAGS)
+  F90FLAGS += $(F90_WARN_FLAGS)
+endif
+
+# Stuff specific to an architecture.
+
+include $(TOP)/config-data/make.arch.defn

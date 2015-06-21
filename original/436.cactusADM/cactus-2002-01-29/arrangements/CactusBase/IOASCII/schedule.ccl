@@ -1,0 +1,20 @@
+# Schedule definitions for thorn IOASCII
+# $Header: /cactus/CactusBase/IOASCII/schedule.ccl,v 1.2 2000/07/12 11:40:52 allen Exp $
+
+########################################################################
+### register IOASCII routines
+########################################################################
+schedule IOASCII_Startup at STARTUP after IOUtil_Startup
+{
+  LANG:C
+} "Startup routine"
+
+schedule IOASCII_Choose1D at BASEGRID after SpatialCoordinates
+{
+  LANG:C
+} "Choose 1D output lines"
+
+schedule IOASCII_Choose2D at BASEGRID after SpatialCoordinates
+{
+  LANG:C
+} "Choose 2D output planes"

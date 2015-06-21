@@ -1,0 +1,14 @@
+# Source files for the src/gnu	 directory.
+#
+# $Header: /cactus/Cactus/src/gnu/make.code.defn,v 1.3 2000/05/14 18:49:10 goodale Exp $
+
+SRCS=
+
+ifeq ($(strip $(BUILD_GETOPT)),yes)
+SRCS += getopt.c getopt1.c
+endif
+
+ifeq ($(strip $(BUILD_REGEX)),yes)
+SRCS += regex.c
+endif
+

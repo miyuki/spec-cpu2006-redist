@@ -1,0 +1,39 @@
+#define MyMacro(arg1,arg2) The macro named 'MyMacro' has been called with arguments 'arg1' and 'arg2'
+
+Test line 1
+
+About to call the macro
+
+MyMacro(TestArg1,Short Test Arg)
+
+MyMacro(TestArg1,Short Test Arg \(with brackets\))
+
+MyMacro(TestArg1,"Long Test Arg with a single inner bracket \(")
+
+MyMacro(TestArg1,Long Test Arg with no brackets
+or commas or other things which could cause problems)
+
+MyMacro(TestArg1,"Long Test Arg with no brackets, but
+with a comma, which could cause problems, but since
+we're within quotation marks, it's not an issue")
+
+Done calling the macro
+
+A line with (brackets in which
+goes on
+for
+several lines (and has
+brackets within) brackets
+and then goes
+on some more)
+
+Normal line \
+continuation
+
+test(xtype, x, ytype, y)		\
+	(streuth(xtype, typeof (x))		\
+	 && blimey (ytype, typeof (y)))
+
+A line with an \( escaped bracket.
+A line with another \) escaped bracket.
+A line with \\(brackets which stay escaped\\).

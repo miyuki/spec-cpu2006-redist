@@ -1,0 +1,85 @@
+#! /bin/sh
+# /*@@
+#   @file    darwin
+#   @date    Thu 10 May 2001
+#   @author  Thomas Radke
+#   @desc
+#            Known architecture stuff for MacOS X (Darwin)
+#   @enddesc
+#   @version $Header: /cactus/Cactus/lib/make/known-architectures/darwin,v 1.2 2001/09/18 16:37:32 allen Exp $
+# @@*/
+
+if test "$CCTK_CONFIG_STAGE" = "preferred-compilers" ; then
+
+  :
+
+else
+
+# Determine which Fortran 90 compiler is in use
+  MAC_F90_COMP=none
+
+  if test -n "$F90" && test "$F90" != "none" ; then 
+    MAC_F90_COMP=absoft
+  elif test -n "$F77" ; then 
+    if test "`$F77 -? 2>&1 | grep -i absoft`" ; then
+        MAC_F77_COMP=absoft77
+    else
+        echo Unknown MacOS X f77 compiler.
+        echo Please add appropriate information to 
+        echo $srcdir/known-architectures/darwin
+        echo ad send the updated file to CactusMaint
+        echo We will try anyway ...
+    fi
+  fi
+
+#Set the appropriate flags
+  case "$MAC_F90_COMP" in
+     absoft)
+       : ${LIBS="f90math fio f77math m"} 
+       : ${F90_OPTIMISE_FLAGS="-s -O"}
+       : ${F77_OPTIMISE_FLAGS="-s -O"}
+       # Test if it is a version of the absoft compiler which has the library in a custom place.
+       if test -n "$ABSOFT" ; then
+         : ${LIBDIRS='$(ABSOFT)/lib'}
+       fi 
+       : ${F77_DEBUG_FLAGS="-g"}
+       : ${F90_DEBUG_FLAGS="-g"}
+       : ${F77_WARN_FLAGS="-m0"}
+       : ${F90_WARN_FLAGS="-m0"}
+       ;;
+     absoft77)
+       : ${LIBS="fio f77math m"}
+       F90FLAGS="-f"
+       # Test if it is a version of the absoft compiler which has the library in a custom place.
+       if test -n "$ABSOFT" ; then
+         : ${LIBDIRS='$(ABSOFT)/lib'}
+       fi 
+       : ${F77_DEBUG_FLAGS="-g"}
+       : ${F90_DEBUG_FLAGS="-g"}
+       : ${F77_WARN_FLAGS="-m0"}
+       : ${F90_WARN_FLAGS="-m0"}
+       ;;
+     none)
+       : ${LIBS="m"} 
+       ;;
+     *)
+       echo Unknown Linux f90 compiler.
+       echo Please add appropriate information to 
+       echo $srcdir/known-architectures/linux-gnu
+       echo and send the updated file to CactusMaint
+       echo We will try anyway ...
+       ;;
+  esac    
+
+# Darwin's ar command doesn't understand the '-s' flag
+# so we have to use ranlib to add a table of contents to libraries
+  : ${ARFLAGS='ruc'}
+  : ${USE_RANLIB='yes'}
+
+# MPI stuff
+#
+# Darwin has no native MPI, so we don't set any NATIVE_MPI_XXX variables.
+# This is caught later on by lib/make/extras/MPI/NATIVE.
+
+fi
+

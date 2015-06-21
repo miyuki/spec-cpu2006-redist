@@ -1,0 +1,2651 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>SCFDATA</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Keyword documentation for TONTO"
+HREF="keywords.html"><LINK
+REL="PREVIOUS"
+TITLE="REFLECTION"
+HREF="reflection.html"><LINK
+REL="NEXT"
+TITLE="SHELL"
+HREF="shell.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="reflection.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="shell.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="SCFDATA"
+></A
+><TT
+CLASS="LITERAL"
+>SCFDATA</TT
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SCFDATA-PURPOSE"
+></A
+>Purpose</H2
+><P
+ALIGN="justify"
+>An object to store self consistent field (SCF) data, including interation
+control </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SCFDATA-SYNOPSIS"
+></A
+>Synopsis</H2
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>SCFDATA</TT
+> objects contains all the information
+required to define the way a self consistent field calculation converges. For
+example, the kind of SCF calculation, initial guess parameters, integral
+tolerances, whether to use extrapolation procedures, or to ingore certain
+interaction, all stored in this object. </P
+><P
+ALIGN="justify"
+>A count of the number of iterations is also kept so that the object can
+evaluate whether convergence has been achieved. </P
+><P
+ALIGN="justify"
+>Output routines are also available to print out <SPAN
+CLASS="QUOTE"
+>"banners"</SPAN
+> and
+iteration specific data in a tabular format.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SCFDATA-INPUT"
+></A
+>Default input data order</H2
+><P
+ALIGN="justify"
+>There is no associated SCFDATAVEC type; an input data order has not
+been defined.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SCFDATA-KEYWORDS"
+></A
+>Listing of keywords</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>1e_sl_factor= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read a factor which multiplies the 1-electron spin orbit
+interaction term in general relataivitic Hartree-Fock calculations</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>the default is 1</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>setting this to zero will eliminate these
+integrals</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>2e_sl_factor= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read a factor which multiplies the 2-electron spin orbit
+interaction term in general relataivitic Hartree-Fock calculations</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>the default is 1</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>setting this to zero will eliminate these
+integrals</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>camp-king= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read a switch which tells whether to use Camp-King
+extrapolation</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>convergence= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read a number which indicates convergence in the SCF energy
+value</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Default value is
+<TT
+CLASS="LITERAL"
+>10<SUP
+>-4</SUP
+></TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Convergence is when the difference between the energies from two
+succesive iterations is less than the inputted value and greater than the first
+iteration</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Other convergence criteria also apply; <TT
+CLASS="LITERAL"
+>see
+diis_convergence=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>converge= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Same as <TT
+CLASS="LITERAL"
+>convergence=</TT
+></P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>damp_finish= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read an integer representing when density damping ceases</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Default value is 3</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Density damping refers to a technique whereby a certain
+percentage of the previous iteration density matrix is added to the
+complementary percentage of the current density matrix</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>It is used to stop wild oscillations near the start of the SCF
+procedure</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>damp_factor=</TT
+> and
+<TT
+CLASS="LITERAL"
+>use_damping=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>damp_factor= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read a factor <TT
+CLASS="LITERAL"
+>x</TT
+> which is used to damp the
+current density matrix</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Default value is 0.5</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Density damping refers to a technique whereby a certain
+percentage of the previous iteration density matrix is added to the
+complementary percentage of the current density matrix, <TT
+CLASS="LITERAL"
+>D =
+x D<SUB
+>i</SUB
+> + (1-x)
+D<SUB
+>i-1</SUB
+></TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>It is used to stop wild oscillations near the start of the SCF
+procedure</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>use_damping=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>direct= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>If set <TT
+CLASS="LITERAL"
+>TRUE</TT
+>, two electron integrals are
+recalculated every iteration</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Default value is <TT
+CLASS="LITERAL"
+>FALSE</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Note: if this switch is set, then
+<TT
+CLASS="LITERAL"
+>use_delta_build=</TT
+> is also set</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>use_delta_build=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>diis= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Equivalent to <TT
+CLASS="LITERAL"
+>use_diis=</TT
+></P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>diis_convergence= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read a number which indicates when DIIS convergence is
+achieved</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Default value is
+<TT
+CLASS="LITERAL"
+>10<SUP
+>-4</SUP
+></TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>This convergence value is used even when DIIS is not, since it
+indicates the gradient of the SCF energy with respect to orbital rotation
+parameters</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>dynamic_damping= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>If <TT
+CLASS="LITERAL"
+>TRUE</TT
+>, a density damping technique is used,
+where the damping factor used is decided by the program during each SCF
+iteration</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is <TT
+CLASS="LITERAL"
+>FALSE</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>See <TT
+CLASS="LITERAL"
+>use_damping=</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>See also
+<TT
+CLASS="LITERAL"
+>dynamic_damp_factor=</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Warning: this should not be used for completion of SCF
+convergence, since density matrices generated by damping are not valid density
+matrices</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>diis_keep= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read an integer telling how many DIIS parameter vectors to
+keep</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default value is 8</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Note: some archive files are created by the DIIS routine to
+store past iteration results</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>diis_start= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read an integer telling when the DIIS procedure is to
+start</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is 3</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer also to <TT
+CLASS="LITERAL"
+>diis_keep=</TT
+> and
+<TT
+CLASS="LITERAL"
+>diis=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>eri_cutoff= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read a number telling which integrals are to be ignored because
+they are deemed too small</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is
+<TT
+CLASS="LITERAL"
+>10<SUP
+>-12</SUP
+></TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>eri_limit= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Equivalent to <TT
+CLASS="LITERAL"
+>eri_cutoff=</TT
+></P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>initial_density= STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read a string indicating what initial guess for the
+<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>density matrix</I
+></SPAN
+> should be used</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Default is <TT
+CLASS="LITERAL"
+>core</TT
+>, i.e. using the core
+hamiltonian</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Other options:
+<P
+></P
+><TABLE
+BORDER="0"
+><TBODY
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>atom</TT
+>, i.e. start from a sum of spherically averaged
+atomic densities;</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>group</TT
+>, i.e. start from a sum of molecular group
+densities</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The following options assume that the corresponding TONTO
+archive (produced from a previous SCF run with the same archive name) exists in
+the same directory where the executable is running:
+<P
+></P
+><TABLE
+BORDER="0"
+><TBODY
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>restricted</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>unrestricted</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>general</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>restricted_complex</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>complex_unrestricted</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>unrestricted_complex</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>general_complex</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>complex_general</TT
+>.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+>
+Note that these densities are <SPAN
+CLASS="QUOTE"
+>"converted"</SPAN
+> to the right
+type if the <TT
+CLASS="LITERAL"
+>scf_kind=</TT
+> is not compatible</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer <TT
+CLASS="LITERAL"
+>to scf_kind=</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Other option: <TT
+CLASS="LITERAL"
+>fock</TT
+>, start from an existing
+(in memory) fock matrix. Note that this is not starting from an initial density
+whereas all other options are</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>initial_mos= STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read in a string indicating that initial molecular orbitals are
+to be used to start the SCF cycle</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Allowed options are:
+<P
+></P
+><TABLE
+BORDER="0"
+><TBODY
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>restricted</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>unrestricted</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>general</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>restricted_complex</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>complex_unrestricted</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>unrestricted_complex</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>general_complex</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>complex_general</TT
+>.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Where possible molecular orbitals of one type are
+<SPAN
+CLASS="QUOTE"
+>"converted"</SPAN
+> to the calculation type if the
+<TT
+CLASS="LITERAL"
+>scf_kind=</TT
+> is not compatible</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>scf_kind=</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>It is assumed that the corresponding TONTO archive (produced
+from a previous SCF run with the same archive name) exists in the same directory
+where the executable is running</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>initial_lambda= STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the initial &lambda; value used in the constrained SCF
+procedure</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This value is incremented by <TT
+CLASS="LITERAL"
+>lambda_step</TT
+>
+until <TT
+CLASS="LITERAL"
+>lambda_max</TT
+> is attained</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>See <TT
+CLASS="LITERAL"
+>lambda_step=</TT
+> and
+<TT
+CLASS="LITERAL"
+>lambda_max</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>kind= STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Equivalent to <TT
+CLASS="LITERAL"
+>scf_kind=</TT
+></P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>lambda_min= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the initial <TT
+CLASS="LITERAL"
+>&lambda;</TT
+> value used in the
+constrained SCF procedure</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This value is incremented by <TT
+CLASS="LITERAL"
+>lambda_step</TT
+>
+until <TT
+CLASS="LITERAL"
+>lambda_max</TT
+> is attained</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>See <TT
+CLASS="LITERAL"
+>lambda_step=</TT
+> and
+<TT
+CLASS="LITERAL"
+>lambda_max</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>lambda_max= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the maximum <TT
+CLASS="LITERAL"
+>&lambda;</TT
+> value to be used 
+in the constrained SCF procedure</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The initial <TT
+CLASS="LITERAL"
+>&lambda;</TT
+> is set using
+<TT
+CLASS="LITERAL"
+>initial_lambda=</TT
+> or <TT
+CLASS="LITERAL"
+>lambda_min=</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+><TT
+CLASS="LITERAL"
+>&lambda;</TT
+> is incremented by the value set in
+<TT
+CLASS="LITERAL"
+>lambda_step=</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The cycle terminated when the value set in
+<TT
+CLASS="LITERAL"
+>lambda_max=</TT
+> is exceeded</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>lambda_step= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the <TT
+CLASS="LITERAL"
+>&delta; &lambda;</TT
+> value used to
+increment the <TT
+CLASS="LITERAL"
+>&lambda;</TT
+> value in the constrained SCF
+procedure</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The initial <TT
+CLASS="LITERAL"
+>&lambda;</TT
+> is set using
+<TT
+CLASS="LITERAL"
+>initial_lambda=</TT
+> or <TT
+CLASS="LITERAL"
+>lambda_min=</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The cycle terminated when the value set in
+<TT
+CLASS="LITERAL"
+>lambda_max=</TT
+> is exceeded</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>lambda_max=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>level_shift= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read a number used for level shifting the Fock matrix</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The diagonals of the virtual-virtual block of the
+pre-diagonalised fock matrix are shifted upward by this value</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>This has the effect of damping SCF oscillation</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Level shifting is applied by default until iteration
+3</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>level_shift_finish= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read an integer at which level shifting is to stop</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Default value is 3</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Setting a value zero turns this feature off</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>level_shift=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>min_it= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read an integer representing the minimum number of iterations to
+be used in the SCF procedure</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default value is 1</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>See also <TT
+CLASS="LITERAL"
+>max_it=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>min_iterations= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Equivalent to <TT
+CLASS="LITERAL"
+>min_it=</TT
+></P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>max_it= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read an integer representing the maximum number of iterations to
+be used in the SCF procedure</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default value is 100</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>See also <TT
+CLASS="LITERAL"
+>min_it=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>max_iterations= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Equivalent to <TT
+CLASS="LITERAL"
+>max_it=</TT
+></P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>nddo= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>If <TT
+CLASS="LITERAL"
+>TRUE</TT
+>, an NDDO (Neglect of Diatomic
+Differential Overlap) calculation is performed</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Currently only available for RHF</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>nudo= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>If <TT
+CLASS="LITERAL"
+>TRUE</TT
+>, an NUDO (Neglect of Unconnected
+Differential Overlap) calculation is performed</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>In this method, only the integrals atoms which are
+connected---that is within a certain bonding radius---are
+calculated</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Currently only available for RHF</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>output= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>If set <TT
+CLASS="LITERAL"
+>FALSE</TT
+>, no output is presented by
+<TT
+CLASS="LITERAL"
+>put</TT
+> routines</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Default is <TT
+CLASS="LITERAL"
+>TRUE</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>This is useful for calling modules which wish to have a hook
+into turining off any SCF output---e.g. atomic guess routines</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>rough_convergence= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read a number which indicates rough convergence in the SCF
+energy value</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Default value is
+<TT
+CLASS="LITERAL"
+>10<SUP
+>-2</SUP
+></TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Rough convergence is when the difference between the energies
+from two succesive iterations is less than the inputted value and greater than
+the first iteration</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Usually when rough convergence is attained, full convergence is
+attempted</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>This can save integral computation time</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>See <TT
+CLASS="LITERAL"
+>use_rough_convergence=</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Other convergence criteria also apply; see
+<TT
+CLASS="LITERAL"
+>convergence=</TT
+> and
+<TT
+CLASS="LITERAL"
+>diis_convergence=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>rough_diis_convergence= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read a number which indicates rough DIIS convergence in the SCF
+energy </P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Default value is
+<TT
+CLASS="LITERAL"
+>10<SUP
+>-2</SUP
+></TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Rough convergence is when the difference between the energies
+from two succesive iterations is less than the inputted value and greater than
+the first iteration</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Usually when rough convergence is attained, full convergence is
+attempted</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>This can save integral computation time</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>See <TT
+CLASS="LITERAL"
+>use_rough_convergence=</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Other convergence criteria also apply; see
+<TT
+CLASS="LITERAL"
+>convergence=</TT
+> and
+<TT
+CLASS="LITERAL"
+>diis_convergence=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>scf_kind= STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>The kind of SCF calculation to be performed</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Thereis no default; this value must be
+specified</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Allowed values are:
+<P
+></P
+><TABLE
+BORDER="0"
+><TBODY
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>rhf</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>restricted_hartree_fock</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>xray_rhf</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>rohf</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>restricted_open_shell_hartree_fock</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>uhf</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>unrestricted_hartree_fock</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>ghf</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>general_hartree_fock</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>rchf</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>restricted_complex_hartree_fock</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>uchf</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>unrestricted_complex_hartree_fock</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>gchf</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>general_complex_hartree_fock</TT
+>,</TD
+></TR
+><TR
+><TD
+><TT
+CLASS="LITERAL"
+>noninteracting-group-rhf</TT
+>.</TD
+></TR
+></TBODY
+></TABLE
+><P
+></P
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>scf_type= STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Equivalent to <TT
+CLASS="LITERAL"
+>scf_kind=</TT
+></P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>sl_1e_factor= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Equivalent to <TT
+CLASS="LITERAL"
+>1e_sl_factor=</TT
+></P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>sl_2e_factor= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Equivalent to <TT
+CLASS="LITERAL"
+>2e_sl_factor=</TT
+></P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>test= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>If <TT
+CLASS="LITERAL"
+>TRUE</TT
+>, some testing code may be
+evaluated</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This is useful for programmers who want a simple hook into the
+input</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>This should not be used by regular users</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>use_delta_build= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>If <TT
+CLASS="LITERAL"
+>TRUE</TT
+>, the fock matrix is built
+incrementally</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Default is <TT
+CLASS="LITERAL"
+>FALSE</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>If <TT
+CLASS="LITERAL"
+>direct=</TT
+> is set <TT
+CLASS="LITERAL"
+>TRUE</TT
+>,
+the default is <TT
+CLASS="LITERAL"
+>TRUE</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>use_diis= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>If set <TT
+CLASS="LITERAL"
+>TRUE</TT
+>, DIIS extrapolation is
+used</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Default value is <TT
+CLASS="LITERAL"
+>TRUE</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>By default, the method turn on only at iteration 3, and only 8
+vectors are kept</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>diis_start=</TT
+> and
+<TT
+CLASS="LITERAL"
+>diis_keep=</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Note: some archive files are created by the DIIS routine to
+store past iteration results</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The DIIS method extrpolates the fock matrix</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>use_rough_convergence= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>If <TT
+CLASS="LITERAL"
+>TRUE</TT
+>, rough convergence is used</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>rough_convergence=</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Rough convergence is when the difference between the energies
+from two succesive iterations is less than the inputted value and greater than
+the first iteration</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Usually when rough convergence is attained, full convergence is
+attempted</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>This can save integral computation time</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>use_damping= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>If <TT
+CLASS="LITERAL"
+>TRUE</TT
+>, density damping is used</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Density damping refers to a technique whereby a certain
+percentage of the previous iteration density matrix is added to the
+complementary percentage of the current density matrix, <TT
+CLASS="LITERAL"
+>D = x
+D<SUB
+>i</SUB
+> + (1-x)
+D<SUB
+>i-1</SUB
+></TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>It is used to stop wild oscillations near the start of the SCF
+procedure</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>To input <TT
+CLASS="LITERAL"
+>x</TT
+> refer to
+<TT
+CLASS="LITERAL"
+>damp_factor=</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>damp_finish=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>use_level_shift= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>If <TT
+CLASS="LITERAL"
+>TRUE</TT
+>, level shifting is used</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>use_level_shifting= BIN</TT
+></DT
+><DD
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The diagonals of the virtual-virtual block of the
+pre-diagonalised fock matrix are shifted upward by this value</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>This has the effect of damping SCF oscillation</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Level shifting is applied by default until iteration
+3</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to
+<TT
+CLASS="LITERAL"
+>level_shift_finish=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>use_bl_term= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>If <TT
+CLASS="LITERAL"
+>FALSE</TT
+>, the magnetic-field angular-momentum
+term <TT
+CLASS="LITERAL"
+>B.L</TT
+> is ignored in general relativistic Hartree Fock
+calculations</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is <TT
+CLASS="LITERAL"
+>TRUE</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>use_bs_term= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>If <TT
+CLASS="LITERAL"
+>FALSE</TT
+>, the magnetic-field spin
+angular-momentum term <TT
+CLASS="LITERAL"
+>B.S</TT
+> is ignored in general relativistic
+Hartree Fock calculations</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is <TT
+CLASS="LITERAL"
+>TRUE</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>use_bs_t_term= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>If <TT
+CLASS="LITERAL"
+>FALSE</TT
+>, the magnetic-field kinetic term
+<TT
+CLASS="LITERAL"
+>(B.S)&nabla;<SUP
+>2</SUP
+></TT
+> is ignored in
+general relativistic Hartree Fock calculations</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is <TT
+CLASS="LITERAL"
+>TRUE</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>use_aa_term= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>If <TT
+CLASS="LITERAL"
+>FALSE</TT
+>, the magnetic vector field term
+<TT
+CLASS="LITERAL"
+>A.A</TT
+> is ignored in general relativistic Hartree Fock
+calculations</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is <TT
+CLASS="LITERAL"
+>TRUE</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>This is the diamagnetic term</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>use_1e_sl_term= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>If <TT
+CLASS="LITERAL"
+>FALSE</TT
+>, the 1-electron spin orbit integrals
+are not used</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is <TT
+CLASS="LITERAL"
+>TRUE</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>See also <TT
+CLASS="LITERAL"
+>1e_sl_factor=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>use_1e_s(rxa)_term= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>If <TT
+CLASS="LITERAL"
+>FALSE</TT
+>, the 1-electron spin orbit gauge
+invariant integrals are not used</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is <TT
+CLASS="LITERAL"
+>TRUE</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>use_2e_sl_term= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>If <TT
+CLASS="LITERAL"
+>FALSE</TT
+>, the 2-electron spin orbit integrals
+are not used</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is <TT
+CLASS="LITERAL"
+>TRUE</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>See also <TT
+CLASS="LITERAL"
+>2e_sl_factor=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>use_1e_zora_term= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>If <TT
+CLASS="LITERAL"
+>FALSE</TT
+>, the 1-electron ZORA (Zero Order
+Regular Hamiltonian) integrals are not used</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is <TT
+CLASS="LITERAL"
+>TRUE</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>You should not use these integrals with the one electron spin
+orbit integrals, which are calculated in the Briet-Pauli
+approxintmation</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Calling modules will require a numerical integration to evaluate
+these integrals, probably via <TT
+CLASS="LITERAL"
+>DFTGRID</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>quantization_axis= REALVEC(3)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read in a vector around which to quantise the spin </P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This is used to quantise the initial spin when using UHF
+orbitals as an initial guess to <TT
+CLASS="LITERAL"
+>general_complex_hartree_fock</TT
+>
+calculations</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>It may be required, for example, in <TT
+CLASS="LITERAL"
+>g</TT
+>-tensor
+calculations</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="reflection.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="shell.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>REFLECTION</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="keywords.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>SHELL</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,3044 @@
+!-------------------------------------------------------------------------------
+!
+! SHELL2 : pair of SHELLs
+!
+! Given two shells, can calculate
+!  - Fourier transform of their product, evaluated on a grid
+!  - overlap integrals
+!  - kinetic energy integrals
+!  - nuclear attraction integrals
+!
+! Based on the Rys method, as described by Lindh et al,
+! J. Chem. Phys 84(7) 3963-3974
+!
+! - overlap (non rys version) and kinetic energy integrals work at least
+!   up to (q|q).
+! - methods using the rys module are limited up to about (m|m) due to
+!   the general rys method algorithm failing.  (As tested with atoms on the
+!   same center.  Different centers can go higher, but not recommended).
+!
+! Copyright (C) Daniel Grimwood, 1998
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: shell2.foo,v 1.33.2.2 2003/11/13 05:33:21 reaper Exp $
+!-------------------------------------------------------------------------------
+
+module SHELL2
+
+   implicit none
+
+contains
+
+   create ::: leaky
+   ! Creates a shell2 object
+     self :: PTR
+     nullify(self)
+     allocate(self)
+     ADD_MEMORY(SHELL2_SIZE)
+     .nullify_ptr_part
+   end
+
+   create(shell_a,shell_b) ::: leaky
+   ! Create a copy of a shell1 objects
+     self :: PTR
+     shell_a,shell_b :: SHELL1, IN
+     .create
+     .copy(shell_a,shell_b)
+   end
+
+   create(shell_a,shell_b,pos_a,pos_b) ::: leaky
+   ! Create a copy of a shell1 objects with positions
+     self :: PTR
+     shell_a,shell_b :: SHELL, IN
+     pos_a,pos_b :: REALVEC(3), IN
+     .create
+     .copy(shell_a,shell_b,pos_a,pos_b)
+   end
+
+   destroy ::: leaky
+   ! Destroys a shell2 object
+     self :: PTR
+     if (.destroyed) return
+     .destroy_ptr_part
+     DELETE_MEMORY(SHELL2_SIZE)
+     deallocate(self)
+   end
+
+   nullify_ptr_part
+   ! Nullify the pointer parts of self
+      .a.nullify_ptr_part
+      .b.nullify_ptr_part
+      nullify(.exponent_sum)
+      nullify(.exponent_inv)
+      nullify(.a_exponent_inv)
+      nullify(.b_exponent_inv)
+      nullify(.cc_prefactor)
+      nullify(.normalising_factors)
+      nullify(.pair_center)
+      nullify(.center_diff)
+   end
+
+   destroy_ptr_part
+   ! Destroy the pointer parts of self
+      .a.destroy_ptr_part
+      .b.destroy_ptr_part
+      .exponent_sum.destroy
+      .exponent_inv.destroy
+      .a_exponent_inv.destroy
+      .b_exponent_inv.destroy
+      .cc_prefactor.destroy
+      .normalising_factors.destroy
+      .pair_center.destroy
+      .center_diff.destroy
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!     self :: PTR
+!     res :: BIN
+!     res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!     self :: PTR
+!     res :: BIN
+!     res = NOT associated(self)
+!   end
+
+   create_copy(shell) ::: leaky
+   ! Create a copy from "shell"
+     self :: PTR
+     shell :: SHELL2, IN
+     .create
+     .copy(shell)
+     .precalculate
+   end
+
+   copy(shell) ::: leaky
+   ! Make a copy from "shell"
+     shell :: SHELL2, IN
+     .a.copy(shell.a)
+     .b.copy(shell.b)
+     .precalculate
+   end
+
+   copy(shell_a,shell_b) ::: leaky
+   ! Copy the shell2 using shell1 objects
+     shell_a,shell_b :: SHELL1, IN
+     .a.copy(shell_a)
+     .b.copy(shell_b)
+     .precalculate
+   end
+
+   copy(shell_a,shell_b,pos_a,pos_b) ::: leaky
+   ! Copy the shell2 using shell objects and positions
+     shell_a,shell_b :: SHELL, IN
+     pos_a,pos_b :: REALVEC, IN
+     .a.copy(shell_a,pos_a)
+     .b.copy(shell_b,pos_b)
+     .precalculate
+   end
+
+   set(shell_a,shell_b)
+   ! Set the shell2 using shell1 objects
+     shell_a,shell_b :: SHELL1, IN
+     .a.set(shell_a)
+     .b.set(shell_b)
+     .precalculate
+   end
+
+   set(shell_a,shell_b,pos_a,pos_b)
+   ! Copy the shell2 using shell objects
+     shell_a,shell_b :: SHELL, IN
+     pos_a,pos_b :: REALVEC, IN
+     .a.set(shell_a,pos_a)
+     .b.set(shell_b,pos_b)
+     .precalculate
+   end
+
+   copy(shellpr,pos_a,pos_b) ::: leaky
+   ! Copy the parts of the shell2 from shell1 objects
+     shellpr :: SHELLPAIR, IN
+     pos_a,pos_b :: REALVEC, IN
+     AB,At,P,b_pos_b :: REALVEC(3)
+     r2ab,a,b,b_r2ab,inv :: REAL
+     i,bg,ag :: INT
+     .a.copy(shellpr.a,pos_a)
+     .b.copy(shellpr.b,pos_b)
+     .n_gaussian_pairs = shellpr.n_gaussian_pairs
+     .l_max = shellpr.l_max
+     .l_min = shellpr.l_min
+     .l_sum = shellpr.l_sum
+     .exponent_sum.create_copy(shellpr.exponent_sum)
+     .exponent_inv.create_copy(shellpr.exponent_inv)
+     .a_exponent_inv.create_copy(shellpr.a_exponent_inv)
+     .b_exponent_inv.create_copy(shellpr.b_exponent_inv)
+     .cc_prefactor.create_copy(shellpr.cc_prefactor)
+     .pair_center.create(3,.n_gaussian_pairs)
+     .center_diff.create(3,.n_gaussian_pairs)
+     .normalising_factors.create_copy(shellpr.normalising_factors)
+      AB = pos_a-pos_b
+      ! Want position of shell1 with higher angular momentum.
+      if (.a.l > .b.l) then; At = pos_a
+      else;                  At = pos_b
+      end
+      r2ab = dot_product(AB,AB)
+      i = 0
+      do bg = 1,.b.n_cc
+        b       = .b.ex(bg)
+        b_r2ab  = b*r2ab
+        b_pos_b = b*pos_b
+        do ag = 1,.a.n_cc
+          i = i + 1
+          a = .a.ex(ag)
+          inv = .exponent_inv(i)
+          .cc_prefactor(i)  = shellpr.cc_prefactor(i)*exp(-a*b_r2ab*inv)
+          P = (b_pos_b + a*pos_a) * inv
+          .pair_center(:,i) = P
+          .center_diff(:,i) = P - At
+        end
+      end
+     .kappa_max = maxval(.cc_prefactor/.exponent_inv**(3/2))
+   end
+ 
+   precalculate ::: leaky
+   !
+     anorm,bnorm :: REALVEC*
+     AB,At,P :: REALVEC(3)
+     b_cc,a,b,exp_sum,exp_inv,r2ab,b_r2ab,a_exp_inv :: REAL
+     ag,bg,i :: INT
+     .n_gaussian_pairs = .a.n_cc*.b.n_cc
+     .l_max = max(.a.l,.b.l)
+     .l_min = min(.a.l,.b.l)
+     .l_sum = .a.l + .b.l
+     .exponent_sum.create(.n_gaussian_pairs)
+     .exponent_inv.create(.n_gaussian_pairs)
+     .a_exponent_inv.create(.n_gaussian_pairs)
+     .b_exponent_inv.create(.n_gaussian_pairs)
+     .cc_prefactor.create(.n_gaussian_pairs)
+     .pair_center.create(3,.n_gaussian_pairs)
+     .center_diff.create(3,.n_gaussian_pairs)
+     .normalising_factors.create(.a.l.n_comp*.b.l.n_comp)
+     anorm.create(.a.l.n_comp)
+     bnorm.create(.b.l.n_comp)
+     AB = .a.pos-.b.pos
+     ! Want position of shell1 with higher angular momentum.
+     if (.a.l > .b.l) then; At = .a.pos
+     else;                  At = .b.pos
+     end
+     r2ab = dot_product(AB,AB)
+     i = 0
+     do bg = 1,.b.n_cc
+       b      = .b.ex(bg)
+       b_r2ab = b * r2ab
+       b_cc   = .b.cc(bg)
+       do ag = 1,.a.n_cc
+         i = i + 1
+         a = .a.ex(ag)
+         exp_sum = a + b
+         exp_inv = ONE/exp_sum
+         P = (b*.b.pos + a*.a.pos) * exp_inv
+         .exponent_sum(i)        = exp_sum
+         .exponent_inv(i)        = exp_inv
+         a_exp_inv               = a*exp_inv
+         .a_exponent_inv(i)      = a_exp_inv
+         .b_exponent_inv(i)      = b*exp_inv
+         .cc_prefactor(i)        = b_cc*.a.cc(ag) *exp_inv*sqrt(exp_inv)* &
+                                                        exp(-b_r2ab*a_exp_inv)
+         .pair_center(:,i) = P
+         .center_diff(:,i) = P - At
+       end
+     end
+     .kappa_max = maxval(.cc_prefactor/.exponent_inv**(3/2))
+     anorm.normalising_factors(.a.l)
+     bnorm.normalising_factors(.b.l)
+     i = 0
+     do bg=1,.b.l.n_comp
+       do ag=1,.a.l.n_comp
+         i = i + 1
+         .normalising_factors(i) = anorm(ag)*bnorm(bg)
+       end
+     end
+     bnorm.destroy
+     anorm.destroy
+   end
+
+!*******************************************************************************
+!    Fourier transform integrals
+!*******************************************************************************
+
+   normalise_ft(ft)
+   ! Multiplies the ft product at a series of k points, by the normalisation
+   ! factors for the two gaussian shells.
+     ft :: CPXMAT3, target
+     ft_ab :: CPXVEC*
+     a,b,i :: INT
+     if (.a.l>1 OR .b.l>1) then
+       i = 0
+       do b = 1, .b.n_comp
+         do a = 1, .a.n_comp
+           i = i + 1
+           ft_ab => ft(:,a,b)
+           ft_ab(:) = ft_ab(:) * .normalising_factors(i)
+         end
+       end
+     end
+   end
+
+   skip_ft(cutoff) result (res)
+   ! Whether the ft for this shell pair is too small.
+     self :: IN
+     cutoff :: REAL, IN
+     res :: BIN
+     R2,gamma,g1,e2,ex,ey,ez :: REAL
+     AB :: REALVEC(3)
+     a,b,t_max :: INT
+      e :: REALMAT3*
+      G :: GAUSSIAN2
+     G.set(.a.l,.a.pos,ZERO,.b.l,.b.pos,ZERO)
+     t_max = .a.l + .b.l
+     e.create((/0,t_max/),(/0,.a.l/),(/0,.b.l/))
+     e = ZERO
+     AB = (.a.pos-.b.pos)
+     R2 = dot_product(AB,AB)
+     res = TRUE
+     do a = 1, .a.n_cc
+       G.set(ex_a=.a.ex(a))
+       do b = 1, .b.n_cc
+         G.set(ex_b=.b.ex(b))
+         G.make_e_coeff(e,1);   ex=maxval(e)
+         G.make_e_coeff(e,2);   ey=maxval(e)
+         G.make_e_coeff(e,3);   ez=maxval(e)
+         gamma = .a.ex(a) + .b.ex(b)
+         g1 = ONE/gamma
+         e2 = ex*ey*ez*(g1)**(THREE/TWO)*exp(-.a.ex(a)*.b.ex(b)*g1*R2)
+         if (e2>cutoff) then
+           res = FALSE
+           e.destroy
+           return
+         end
+       end
+     end
+     e.destroy
+   end
+
+   skip_ft(Pmax,cutoff) result (res)
+   ! Whether the ft for this shell pair is too small.
+     self :: IN
+     Pmax,cutoff :: REAL, IN
+     res :: BIN
+     R2,gamma,g1,e2,ex,ey,ez,fac :: REAL
+     AB :: REALVEC(3)
+     a,b,t_max :: INT
+      e :: REALMAT3*
+      G :: GAUSSIAN2
+     G.set(.a.l,.a.pos,ZERO,.b.l,.b.pos,ZERO)
+     t_max = .a.l + .b.l
+     e.create((/0,t_max/),(/0,.a.l/),(/0,.b.l/))
+     e = ZERO
+     AB = (.a.pos-.b.pos)
+     R2 = dot_product(AB,AB)
+     res = TRUE
+     do a = 1, .a.n_cc
+       G.set(ex_a=.a.ex(a))
+       fac=.a.cc(a)*Pmax
+       do b = 1, .b.n_cc
+         G.set(ex_b=.b.ex(b))
+         G.make_e_coeff(e,1);   ex=maxval(e)
+         G.make_e_coeff(e,2);   ey=maxval(e)
+         G.make_e_coeff(e,3);   ez=maxval(e)
+         gamma = .a.ex(a) + .b.ex(b)
+         g1 = ONE/gamma
+         e2 = ex*ey*ez*(g1)**(THREE/TWO)*exp(-.a.ex(a)*.b.ex(b)*g1*R2)
+         if (e2*.b.cc(b)*fac>cutoff) then
+           res = FALSE
+           e.destroy
+           return
+         end
+       end
+     end
+     e.destroy
+   end
+
+   make_ft(res,k_pts)
+   ! Calculates the Fourier transform for a product of two contracted
+   ! gaussian shells, evaluated at a series of k points k_pts
+   ! Dimensions of res are [k_max,.a.n_comp,.b.n_comp].
+      res :: CPXMAT3, target
+      k_pts :: REALMAT, IN
+       G :: GAUSSIAN2
+      ft_ab :: CPXMAT3*
+      a,b,k_max,i,j,n_comp_a,n_comp_b :: INT
+      ca,fac :: REAL
+      res_ij :: CPXVEC*
+      n_comp_a = .a.n_comp; n_comp_b = .b.n_comp
+      k_max  = size(k_pts,1)
+      res = ZERO
+      G.set(.a.l,.a.pos,ZERO,.b.l,.b.pos,ZERO)
+      ft_ab.create(k_max,n_comp_a,n_comp_b)
+      do a = 1, .a.n_cc
+         G.set(ex_a=.a.ex(a))
+         ca = .a.cc(a)
+         do b = 1, .b.n_cc
+            G.set(ex_b=.b.ex(b))
+            G.make_ft(ft_ab,k_pts)
+            fac = ca * .b.cc(b)
+            do j=1,n_comp_b
+              do i=1,n_comp_a
+                res_ij => res(:,i,j)
+                res_ij(:) = res_ij(:) + ft_ab(:,i,j) * fac
+              end
+            end
+         end
+      end
+      ft_ab.destroy
+      .normalise_ft(res)
+   end
+
+   make_ft(res,k_pts,thermal,partition)
+   ! Calculates the Fourier transform for a product of two contracted
+   ! gaussian shells, evaluated at a series of k points k_pts
+   ! Dimensions of res are [k_max,.a.n_comp,.b.n_comp].
+   ! Also adds in thermal correction and partition factors.
+   ! This version has the gaussian2 stuff inlined and special cases optimised,
+   ! it's pretty messy but much faster.
+      res :: CPXMAT3, target
+      k_pts :: REALMAT, target
+      thermal :: REALMAT3, target
+      partition :: REALMAT, IN
+      ft_x,ft_y,ft_z :: CPXMAT3*
+      G :: GAUSSIAN2
+      therm,k_x,k_y,k_z,k_x2,k_y2,k_z2 :: REALVEC*
+      e :: REALMAT3*
+      res_ij,prefac,ft_xb,ft_yb,ft_zb :: CPXVEC*
+      la,lb :: INTMAT*
+      ft_xbx,ft_yby,ft_zbz :: CPXMAT*
+      ft_x01,ft_x10,ft_y01,ft_y10,ft_z01,ft_z10 :: CPXVEC*
+      pos :: REALVEC(3)
+      ca,fac :: REAL
+      g1_exa,g1_exb,e00,ex_a,ex_b :: REAL
+      pifac,gamma,g1,g4,dot1,dot2,k1,k2,k3,P1,P2,P3,PI_on_gamma :: REAL
+      n_a,n_b,a,b,k,ax,ay,az,bx,by,bz,bxlast,bylast,bzlast :: INT
+      l_a,l_b,aa,bb,k_max :: INT
+      fac1 :: CPX
+      Ex000,Ey000,Ez000,Ex001,Ey001,Ez001,Ex101,Ey101,Ez101 :: REAL
+      Ex010,Ey010,Ez010,Ex110,Ey110,Ez110,Ex111,Ey111,Ez111 :: REAL
+      Ex211,Ey211,Ez211,Ex011,Ey011,Ez011 :: REAL
+      PA1,PA2,PA3,PB1,PB2,PB3,pp :: REAL
+
+      n_a = .a.n_comp
+      n_b = .b.n_comp
+      l_a = .a.l
+      l_b = .b.l
+      k_max  = size(k_pts,1)
+      res = ZERO
+      G.set(l_a,.a.pos,ZERO,l_b,.b.pos,ZERO)
+
+      select case (l_a)
+        case (0)
+          select case(l_b)
+            case (0)
+              k_x => k_pts(:,1)
+              k_y => k_pts(:,2)
+              k_z => k_pts(:,3)
+              pos = .a.pos - .b.pos
+              pp = dot_product(pos,pos)
+              res_ij => res(:,1,1)
+              PA1 = .a.pos(1)
+              PA2 = .a.pos(2)
+              PA3 = .a.pos(3)
+              PB1 = .b.pos(1)
+              PB2 = .b.pos(2)
+              PB3 = .b.pos(3)
+              do a = 1, .a.n_cc
+                ca = .a.cc(a)
+                ex_a = .a.ex(a)
+                do b = 1, .b.n_cc
+                  ex_b = .b.ex(b)
+                  g1 = ONE/(ex_a+ex_b)
+                  g4 = -QUARTER*g1
+                  PI_on_gamma = PI*g1
+                  pifac = sqrt(PI_on_gamma) * PI_on_gamma
+                  g1_exa = g1*ex_a
+                  g1_exb = g1*ex_b
+                  P1 = g1_exa*PA1 + g1_exb*PB1
+                  P2 = g1_exa*PA2 + g1_exb*PB2
+                  P3 = g1_exa*PA3 + g1_exb*PB3
+                  e00 = exp(-ex_a*ex_b*pp*g1)
+                  fac1= cmplx(pifac*e00,ZERO,kind=CPX_KIND) * ca * .b.cc(b) * partition(a,b)
+                  therm => thermal(:,a,b)
+                  do k = 1, k_max
+                    k1 = k_x(k);    k2 = k_y(k);    k3 = k_z(k)
+                    dot1 = k1*P1+k2*P2+k3*P3
+                    dot2 = g4 * (k1*k1+k2*k2+k3*k3)
+                    res_ij(k) = res_ij(k) + therm(k) * (fac1 * exp(cmplx(dot2,dot1,kind=CPX_KIND)))
+                  end
+                end
+              end
+            case (1)
+              prefac.create(k_max)
+              k_x => k_pts(:,1)
+              k_y => k_pts(:,2)
+              k_z => k_pts(:,3)
+              PA1 = .a.pos(1)
+              PA2 = .a.pos(2)
+              PA3 = .a.pos(3)
+              PB1 = .b.pos(1)
+              PB2 = .b.pos(2)
+              PB3 = .b.pos(3)
+              e.create((/0,1/),(/0,0/),(/0,1/))
+              do aa = 1, .a.n_cc
+                ca = .a.cc(aa)
+                ex_a=.a.ex(aa)
+                G.set(ex_a=ex_a)
+                do bb = 1, .b.n_cc
+                  ex_b=.b.ex(bb)
+                  G.set(ex_b=ex_b)
+                  gamma = G.a.ex+G.b.ex
+                  g1 = ONE/gamma
+                  g4 = QUARTER*g1
+                  PI_on_gamma = PI*g1
+                  pifac = sqrt(PI_on_gamma) * PI_on_gamma
+                  g1_exa = g1*G.a.ex
+                  g1_exb = g1*G.b.ex
+                  P1 = g1_exa*PA1 + g1_exb*PB1
+                  P2 = g1_exa*PA2 + g1_exb*PB2
+                  P3 = g1_exa*PA3 + g1_exb*PB3
+                  G.make_e_coeff(e,1)
+                  Ex000 = e(0,0,0)
+                  Ex001 = e(0,0,1)
+                  Ex101 = e(1,0,1)
+                  G.make_e_coeff(e,2)
+                  Ey000 = e(0,0,0)
+                  Ey001 = e(0,0,1)
+                  Ey101 = e(1,0,1)
+                  G.make_e_coeff(e,3)
+                  Ez000 = e(0,0,0)
+                  Ez001 = e(0,0,1)
+                  Ez101 = e(1,0,1)
+                  fac = pifac * ca * .b.cc(bb) * partition(aa,bb)
+                  therm => thermal(:,aa,bb)
+                  do k = 1,k_max
+                    k1 = k_x(k);    k2 = k_y(k);    k3 = k_z(k)
+                    dot1 = k1*P1+k2*P2+k3*P3
+                    dot2 = -g4 * (k1*k1+k2*k2+k3*k3)
+                    prefac(k) = fac*exp(cmplx(dot2,dot1,kind=CPX_KIND))*therm(k)
+                  end
+                  res_ij => res(:,1,1)
+                  res_ij(:) = res_ij(:) + cmplx(Ex001,Ex101*k_x,kind=CPX_KIND)*Ey000*Ez000*prefac(:)
+                  res_ij => res(:,1,2)
+                  res_ij(:) = res_ij(:) + Ex000*cmplx(Ey001,Ey101*k_y,kind=CPX_KIND)*Ez000*prefac(:)
+                  res_ij => res(:,1,3)
+                  res_ij(:) = res_ij(:) + Ex000*Ey000*cmplx(Ez001,Ez101*k_z,kind=CPX_KIND)*prefac(:)
+                end
+              end
+              e.destroy
+              prefac.destroy
+            case default
+              lb.create(3,n_b);   l_b.make_gaussian_xyz_powers(lb)
+              ft_x.create((/1,k_max/),(/0,l_a/),(/0,l_b/))
+              ft_y.create((/1,k_max/),(/0,l_a/),(/0,l_b/))
+              ft_z.create((/1,k_max/),(/0,l_a/),(/0,l_b/))
+              prefac.create(k_max)
+              PA1 = .a.pos(1)
+              PA2 = .a.pos(2)
+              PA3 = .a.pos(3)
+              PB1 = .b.pos(1)
+              PB2 = .b.pos(2)
+              PB3 = .b.pos(3)
+              k_x => k_pts(:,1)
+              k_y => k_pts(:,2)
+              k_z => k_pts(:,3)
+              do aa = 1, .a.n_cc
+                ca = .a.cc(aa)
+                ex_a=.a.ex(aa)
+                G.set(ex_a=ex_a)
+                do bb = 1, .b.n_cc
+                  ex_b=.b.ex(bb)
+                  G.set(ex_b=ex_b)
+                  gamma = G.a.ex+G.b.ex
+                  g1 = ONE/gamma
+                  g4 = QUARTER*g1
+                  PI_on_gamma = PI*g1
+                  pifac = sqrt(PI_on_gamma) * PI_on_gamma
+                  g1_exa = g1*G.a.ex
+                  g1_exb = g1*G.b.ex
+                  P1 = g1_exa*PA1 + g1_exb*PB1
+                  P2 = g1_exa*PA2 + g1_exb*PB2
+                  P3 = g1_exa*PA3 + g1_exb*PB3
+                  G.make_ft_component(ft_x,1,k_x,k_max)
+                  G.make_ft_component(ft_y,2,k_y,k_max)
+                  G.make_ft_component(ft_z,3,k_z,k_max)
+                  fac = pifac * ca * .b.cc(bb) * partition(aa,bb)
+                  therm => thermal(:,aa,bb)
+                  do k = 1,k_max
+                    k1 = k_x(k);    k2 = k_y(k);    k3 = k_z(k)
+                    dot1 = k1*P1+k2*P2+k3*P3
+                    dot2 = -g4 * (k1*k1+k2*k2+k3*k3)
+                    prefac(k) = fac*exp(cmplx(dot2,dot1,kind=CPX_KIND)) * therm(k)
+                  end
+                  do b=0,l_b ! incorporate prefac into ft_z
+                    ft_z(:,0,b) = ft_z(:,0,b) * prefac(:)
+                  end
+                  bxlast = lb(1,1)
+                  bylast = lb(2,1)
+                  bzlast = lb(3,1)
+                  ft_xb => ft_x(:,0,bxlast)
+                  ft_yb => ft_y(:,0,bylast)
+                  ft_zb => ft_z(:,0,bzlast)
+
+                  do b = 1,n_b
+                    bx = lb(1,b)
+                    by = lb(2,b)
+                    bz = lb(3,b)
+                    if (bxlast/=bx) then
+                      ft_xb => ft_x(:,0,bx)
+                      bxlast = bx
+                    end
+                    if (bylast/=by) then
+                      ft_yb=> ft_y(:,0,by)
+                      bylast = by
+                    end
+                    if (bzlast/=bz) then
+                      ft_zb=> ft_z(:,0,bz)
+                      bzlast = bz
+                    end
+                    res_ij => res(:,1,b)
+                    res_ij(:) = res_ij(:) + ft_xb(:)*ft_yb(:)*ft_zb(:)
+                  end
+                end
+              end
+              lb.destroy
+              prefac.destroy
+              ft_x.destroy
+              ft_y.destroy
+              ft_z.destroy
+              .normalise_ft(res)
+          end
+        case (1)
+          select case (l_b)
+            case (0)
+              prefac.create(k_max)
+              e.create((/0,1/),(/0,1/),(/0,0/))
+              PA1 = .a.pos(1)
+              PA2 = .a.pos(2)
+              PA3 = .a.pos(3)
+              PB1 = .b.pos(1)
+              PB2 = .b.pos(2)
+              PB3 = .b.pos(3)
+              k_x => k_pts(:,1)
+              k_y => k_pts(:,2)
+              k_z => k_pts(:,3)
+              do aa = 1, .a.n_cc
+                ca = .a.cc(aa)
+                ex_a=.a.ex(aa)
+                G.set(ex_a=ex_a)
+                do bb = 1, .b.n_cc
+                  ex_b=.b.ex(bb)
+                  G.set(ex_b=ex_b)
+                  gamma = G.a.ex+G.b.ex
+                  g1 = ONE/gamma
+                  g4 = QUARTER*g1
+                  PI_on_gamma = PI*g1
+                  pifac = sqrt(PI_on_gamma) * PI_on_gamma
+                  g1_exa = g1*G.a.ex
+                  g1_exb = g1*G.b.ex
+                  P1 = g1_exa*PA1 + g1_exb*PB1
+                  P2 = g1_exa*PA2 + g1_exb*PB2
+                  P3 = g1_exa*PA3 + g1_exb*PB3
+                  G.make_e_coeff(e,1)
+                  Ex000 = e(0,0,0)
+                  Ex010 = e(0,1,0)
+                  Ex110 = e(1,1,0)
+                  G.make_e_coeff(e,2)
+                  Ey000 = e(0,0,0)
+                  Ey010 = e(0,1,0)
+                  Ey110 = e(1,1,0)
+                  G.make_e_coeff(e,3)
+                  Ez000 = e(0,0,0)
+                  Ez010 = e(0,1,0)
+                  Ez110 = e(1,1,0)
+                  fac = pifac * ca * .b.cc(bb) * partition(aa,bb)
+                  therm => thermal(:,aa,bb)
+                  do k = 1,k_max
+                    k1 = k_x(k);    k2 = k_y(k);    k3 = k_z(k)
+                    dot1 = k1*P1+k2*P2+k3*P3
+                    dot2 = -g4 * (k1*k1+k2*k2+k3*k3)
+                    prefac(k) = fac*exp(cmplx(dot2,dot1,kind=CPX_KIND)) * therm(k)
+                  end
+                  res_ij => res(:,1,1)
+                  res_ij(:) = res_ij(:) + cmplx(Ex010,Ex110*k_x(:),kind=CPX_KIND)*Ey000*Ez000*prefac(:)
+                  res_ij => res(:,2,1)
+                  res_ij(:) = res_ij(:) + Ex000*cmplx(Ey010,Ey110*k_y(:),kind=CPX_KIND)*Ez000*prefac(:)
+                  res_ij => res(:,3,1)
+                  res_ij(:) = res_ij(:) + Ex000*Ey000*cmplx(Ez010,Ez110*k_z(:),kind=CPX_KIND)*prefac(:)
+                end
+              end
+              e.destroy
+              prefac.destroy
+            case (1)
+              ft_x.create((/1,k_max/),(/0,1/),(/0,1/))
+              ft_y.create((/1,k_max/),(/0,1/),(/0,1/))
+              ft_z.create((/1,k_max/),(/0,1/),(/0,1/))
+              prefac.create(k_max)
+              k_x => k_pts(:,1)
+              k_y => k_pts(:,2)
+              k_z => k_pts(:,3)
+              PA1 = .a.pos(1)
+              PA2 = .a.pos(2)
+              PA3 = .a.pos(3)
+              PB1 = .b.pos(1)
+              PB2 = .b.pos(2)
+              PB3 = .b.pos(3)
+              e.create((/0,2/),(/0,1/),(/0,1/))
+              ft_x01.create(k_max)
+              ft_x10.create(k_max)
+              ft_y01.create(k_max)
+              ft_y10.create(k_max)
+              ft_z01.create(k_max)
+              ft_z10.create(k_max)
+              k_x2.create(k_max)
+              k_y2.create(k_max)
+              k_z2.create(k_max)
+              k_x2=k_x*k_x
+              k_y2=k_y*k_y
+              k_z2=k_z*k_z
+              do aa = 1, .a.n_cc
+                ca = .a.cc(aa)
+                ex_a=.a.ex(aa)
+                G.set(ex_a=ex_a)
+                do bb = 1, .b.n_cc
+                  ex_b=.b.ex(bb)
+                  G.set(ex_b=ex_b)
+                  gamma = G.a.ex+G.b.ex
+                  g1 = ONE/gamma
+                  g4 = QUARTER*g1
+                  PI_on_gamma = PI*g1
+                  pifac = sqrt(PI_on_gamma) * PI_on_gamma
+                  g1_exa = g1*G.a.ex
+                  g1_exb = g1*G.b.ex
+                  P1 = g1_exa*PA1 + g1_exb*PB1
+                  P2 = g1_exa*PA2 + g1_exb*PB2
+                  P3 = g1_exa*PA3 + g1_exb*PB3
+                  fac = pifac * ca * .b.cc(bb) * partition(aa,bb)
+                  therm => thermal(:,aa,bb)
+                  do k = 1,k_max
+                    k1 = k_x(k);    k2 = k_y(k);    k3 = k_z(k)
+                    dot1 = k1*P1+k2*P2+k3*P3
+                    dot2 = -g4 * (k1*k1+k2*k2+k3*k3)
+                    prefac(k) = fac*exp(cmplx(dot2,dot1,kind=CPX_KIND)) * therm(k)
+                  end
+
+                  G.make_e_coeff(e,1)
+                  Ex000 = e(0,0,0)
+                  Ex001 = e(0,0,1)
+                  Ex010 = e(0,1,0)
+                  Ex011 = e(0,1,1)
+                  Ex101 = e(1,0,1)
+                  Ex110 = e(1,1,0)
+                  Ex111 = e(1,1,1)
+                  Ex211 = e(2,1,1)
+                  G.make_e_coeff(e,2)
+                  Ey000 = e(0,0,0)
+                  Ey001 = e(0,0,1)
+                  Ey010 = e(0,1,0)
+                  Ey011 = e(0,1,1)
+                  Ey101 = e(1,0,1)
+                  Ey110 = e(1,1,0)
+                  Ey111 = e(1,1,1)
+                  Ey211 = e(2,1,1)
+                  G.make_e_coeff(e,3)
+                  Ez000 = e(0,0,0)
+                  Ez001 = e(0,0,1)
+                  Ez010 = e(0,1,0)
+                  Ez011 = e(0,1,1)
+                  Ez101 = e(1,0,1)
+                  Ez110 = e(1,1,0)
+                  Ez111 = e(1,1,1)
+                  Ez211 = e(2,1,1)
+
+                  ft_x01(:) = cmplx(Ex001,Ex101*k_x(:),kind=CPX_KIND)
+                  ft_x10(:) = cmplx(Ex010,Ex110*k_x(:),kind=CPX_KIND)
+                  ft_y01(:) = cmplx(Ey001,Ey101*k_y(:),kind=CPX_KIND)
+                  ft_y10(:) = cmplx(Ey010,Ey110*k_y(:),kind=CPX_KIND)
+                  ft_z01(:) = cmplx(Ez001,Ez101*k_z(:),kind=CPX_KIND)
+                  ft_z10(:) = cmplx(Ez010,Ez110*k_z(:),kind=CPX_KIND)
+
+                  res_ij => res(:,1,1)
+                  res_ij(:) = res_ij(:) + cmplx(Ex011-Ex211*k_x2(:),Ex111*k_x(:),kind=CPX_KIND)*Ey000*Ez000*prefac(:)
+                  res_ij => res(:,2,1)
+                  res_ij(:) = res_ij(:) + ft_x01(:)*ft_y10(:)*Ez000*prefac(:)
+                  res_ij => res(:,3,1)
+                  res_ij(:) = res_ij(:) + ft_x01(:)*Ey000*ft_z10(:)*prefac(:)
+                  res_ij => res(:,1,2)
+                  res_ij(:) = res_ij(:) + ft_x10(:)*ft_y01(:)*Ez000*prefac(:)
+                  res_ij => res(:,2,2)
+                  res_ij(:) = res_ij(:) + Ex000*cmplx(Ey011-Ey211*k_y2(:),Ey111*k_y(:),kind=CPX_KIND)*Ez000*prefac(:)
+                  res_ij => res(:,3,2)
+                  res_ij(:) = res_ij(:) + Ex000*ft_y01(:)*ft_z10(:)*prefac(:)
+                  res_ij => res(:,1,3)
+                  res_ij(:) = res_ij(:) + ft_x10(:)*Ey000*ft_z01(:)*prefac(:)
+                  res_ij => res(:,2,3)
+                  res_ij(:) = res_ij(:) + Ex000*ft_y10(:)*ft_z01(:)*prefac(:)
+                  res_ij => res(:,3,3)
+                  res_ij(:) = res_ij(:) + Ex000*Ey000*cmplx(Ez011-Ez211*k_z2(:),Ez111*k_z(:),kind=CPX_KIND)*prefac(:)
+                end
+              end
+              k_z2.destroy
+              k_y2.destroy
+              k_x2.destroy
+              ft_z10.destroy
+              ft_z01.destroy
+              ft_y10.destroy
+              ft_y01.destroy
+              ft_x10.destroy
+              ft_x01.destroy
+              e.destroy
+              prefac.destroy
+              ft_x.destroy
+              ft_z.destroy
+              ft_y.destroy
+            case default
+              ft_x.create((/1,k_max/),(/0,l_a/),(/0,l_b/))
+              ft_y.create((/1,k_max/),(/0,l_a/),(/0,l_b/))
+              ft_z.create((/1,k_max/),(/0,l_a/),(/0,l_b/))
+              prefac.create(k_max)
+              k_x => k_pts(:,1)
+              k_y => k_pts(:,2)
+              k_z => k_pts(:,3)
+              lb.create(3,n_b);   l_b.make_gaussian_xyz_powers(lb)
+              do aa = 1, .a.n_cc
+                ca = .a.cc(aa)
+                ex_a=.a.ex(aa)
+                G.set(ex_a=ex_a)
+                do bb = 1, .b.n_cc
+                  ex_b=.b.ex(bb)
+                  G.set(ex_b=ex_b)
+                  gamma = G.a.ex+G.b.ex
+                  g1 = ONE/gamma
+                  g4 = QUARTER*g1
+                  PI_on_gamma = PI*g1
+                  pifac = sqrt(PI_on_gamma) * PI_on_gamma
+                  g1_exa = g1*G.a.ex
+                  g1_exb = g1*G.b.ex
+                  P1 = g1_exa*.a.pos(1) + g1_exb*.b.pos(1)
+                  P2 = g1_exa*.a.pos(2) + g1_exb*.b.pos(2)
+                  P3 = g1_exa*.a.pos(3) + g1_exb*.b.pos(3)
+                  G.make_ft_component(ft_x,1,k_x,k_max)
+                  G.make_ft_component(ft_y,2,k_y,k_max)
+                  G.make_ft_component(ft_z,3,k_z,k_max)
+                  fac = pifac * ca * .b.cc(bb) * partition(aa,bb)
+                  therm => thermal(:,aa,bb)
+                  do k = 1,k_max
+                    k1 = k_x(k);    k2 = k_y(k);    k3 = k_z(k)
+                    dot1 = k1*P1+k2*P2+k3*P3
+                    dot2 = -g4 * (k1*k1+k2*k2+k3*k3)
+                    prefac(k) = fac*exp(cmplx(dot2,dot1,kind=CPX_KIND)) * therm(k)
+                  end
+                  do b=0,l_b
+                    ft_z(:,0,b) = ft_z(:,0,b) * prefac(:)
+                    ft_z(:,1,b) = ft_z(:,1,b) * prefac(:)
+                  end
+                  do b = 1,n_b
+                    bx = lb(1,b)
+                    by = lb(2,b)
+                    bz = lb(3,b)
+                    ft_xb => ft_x(:,0,bx)
+                    ft_yb => ft_y(:,0,by)
+                    ft_zb => ft_z(:,0,bz)
+                    res_ij => res(:,1,b)
+                    res_ij(:) = res_ij(:) + ft_x(:,1,bx)*ft_yb*ft_zb
+                    res_ij => res(:,2,b)
+                    res_ij(:) = res_ij(:) + ft_xb*ft_y(:,1,by)*ft_zb
+                    res_ij => res(:,3,b)
+                    res_ij(:) = res_ij(:) + ft_xb*ft_yb*ft_z(:,1,bz)
+                  end
+                end
+              end
+              lb.destroy
+              prefac.destroy
+              ft_x.destroy
+              ft_z.destroy
+              ft_y.destroy
+              .normalise_ft(res)
+          end
+        case default
+          select case (l_b)
+            case (0)
+              ft_x.create((/1,k_max/),(/0,l_a/),(/0,l_b/))
+              ft_y.create((/1,k_max/),(/0,l_a/),(/0,l_b/))
+              ft_z.create((/1,k_max/),(/0,l_a/),(/0,l_b/))
+              prefac.create(k_max)
+              k_x => k_pts(:,1)
+              k_y => k_pts(:,2)
+              k_z => k_pts(:,3)
+              la.create(3,n_a);   l_a.make_gaussian_xyz_powers(la)
+              do aa = 1, .a.n_cc
+                ca = .a.cc(aa)
+                ex_a=.a.ex(aa)
+                G.set(ex_a=ex_a)
+                do bb = 1, .b.n_cc
+                  ex_b=.b.ex(bb)
+                  G.set(ex_b=ex_b)
+                  gamma = G.a.ex+G.b.ex
+                  g1 = ONE/gamma
+                  g4 = QUARTER*g1
+                  PI_on_gamma = PI*g1
+                  pifac = sqrt(PI_on_gamma) * PI_on_gamma
+                  g1_exa = g1*G.a.ex
+                  g1_exb = g1*G.b.ex
+                  P1 = g1_exa*.a.pos(1) + g1_exb*.b.pos(1)
+                  P2 = g1_exa*.a.pos(2) + g1_exb*.b.pos(2)
+                  P3 = g1_exa*.a.pos(3) + g1_exb*.b.pos(3)
+                  G.make_ft_component(ft_x,1,k_x,k_max)
+                  G.make_ft_component(ft_y,2,k_y,k_max)
+                  G.make_ft_component(ft_z,3,k_z,k_max)
+                  fac = pifac * ca * .b.cc(bb) * partition(aa,bb)
+                  therm => thermal(:,aa,bb)
+                  do k = 1,k_max
+                    k1 = k_x(k);    k2 = k_y(k);    k3 = k_z(k)
+                    dot1 = k1*P1+k2*P2+k3*P3
+                    dot2 = -g4 * (k1*k1+k2*k2+k3*k3)
+                    prefac(k) = fac*exp(cmplx(dot2,dot1,kind=CPX_KIND)) * therm(k)
+                  end
+                  do a=0,l_a
+                    ft_z(:,a,0) = ft_z(:,a,0) * prefac(:)
+                  end
+                  do a = 1,n_a
+                    ax = la(1,a)
+                    ay = la(2,a)
+                    az = la(3,a)
+                    res_ij => res(:,a,1)
+                    res_ij(:) = res_ij(:) + ft_x(:,ax,0)*ft_y(:,ay,0)*ft_z(:,az,0)
+                  end
+                end
+              end
+              la.destroy
+              prefac.destroy
+              ft_x.destroy
+              ft_z.destroy
+              ft_y.destroy
+              .normalise_ft(res)
+            case (1)
+              ft_x.create((/1,k_max/),(/0,l_a/),(/0,l_b/))
+              ft_y.create((/1,k_max/),(/0,l_a/),(/0,l_b/))
+              ft_z.create((/1,k_max/),(/0,l_a/),(/0,l_b/))
+              prefac.create(k_max)
+              k_x => k_pts(:,1)
+              k_y => k_pts(:,2)
+              k_z => k_pts(:,3)
+              la.create(3,n_a);   l_a.make_gaussian_xyz_powers(la)
+              do aa = 1, .a.n_cc
+                ca = .a.cc(aa)
+                ex_a=.a.ex(aa)
+                G.set(ex_a=ex_a)
+                do bb = 1, .b.n_cc
+                  ex_b=.b.ex(bb)
+                  G.set(ex_b=ex_b)
+                  gamma = G.a.ex+G.b.ex
+                  g1 = ONE/gamma
+                  g4 = QUARTER*g1
+                  PI_on_gamma = PI*g1
+                  pifac = sqrt(PI_on_gamma) * PI_on_gamma
+                  g1_exa = g1*G.a.ex
+                  g1_exb = g1*G.b.ex
+                  P1 = g1_exa*.a.pos(1) + g1_exb*.b.pos(1)
+                  P2 = g1_exa*.a.pos(2) + g1_exb*.b.pos(2)
+                  P3 = g1_exa*.a.pos(3) + g1_exb*.b.pos(3)
+                  G.make_ft_component(ft_x,1,k_x,k_max)
+                  G.make_ft_component(ft_y,2,k_y,k_max)
+                  G.make_ft_component(ft_z,3,k_z,k_max)
+                  fac = pifac * ca * .b.cc(bb) * partition(aa,bb)
+                  therm => thermal(:,aa,bb)
+                  do k = 1,k_max
+                    k1 = k_x(k);    k2 = k_y(k);    k3 = k_z(k)
+                    dot1 = k1*P1+k2*P2+k3*P3
+                    dot2 = -g4 * (k1*k1+k2*k2+k3*k3)
+                    prefac(k) = fac*exp(cmplx(dot2,dot1,kind=CPX_KIND)) * therm(k)
+                  end
+                  do a=0,l_a ! incorporate prefac into ft_z
+                    ft_z(:,a,0) = ft_z(:,a,0) * prefac(:)
+                    ft_z(:,a,1) = ft_z(:,a,1) * prefac(:)
+                  end
+                  do a = 1,n_a
+                    ax = la(1,a)
+                    ay = la(2,a)
+                    az = la(3,a)
+                    res_ij => res(:,a,1)
+                    res_ij(:) = res_ij(:) + ft_x(:,ax,1)*ft_y(:,ay,0)*ft_z(:,az,0)
+                    res_ij => res(:,a,2)
+                    res_ij(:) = res_ij(:) + ft_x(:,ax,0)*ft_y(:,ay,1)*ft_z(:,az,0)
+                    res_ij => res(:,a,3)
+                    res_ij(:) = res_ij(:) + ft_x(:,ax,0)*ft_y(:,ay,0)*ft_z(:,az,1)
+                  end
+                end
+              end
+              la.destroy
+              prefac.destroy
+              ft_x.destroy
+              ft_z.destroy
+              ft_y.destroy
+              .normalise_ft(res)
+            case default
+              ft_x.create((/1,k_max/),(/0,l_a/),(/0,l_b/))
+              ft_y.create((/1,k_max/),(/0,l_a/),(/0,l_b/))
+              ft_z.create((/1,k_max/),(/0,l_a/),(/0,l_b/))
+              prefac.create(k_max)
+              k_x => k_pts(:,1)
+              k_y => k_pts(:,2)
+              k_z => k_pts(:,3)
+              la.create(3,n_a);   l_a.make_gaussian_xyz_powers(la)
+              lb.create(3,n_b);   l_b.make_gaussian_xyz_powers(lb)
+             ! This is the general routine.  It includes reduced multiplication,
+             ! and use of pointers to minimise array finding.
+              do aa = 1, .a.n_cc
+                ca = .a.cc(aa)
+                ex_a=.a.ex(aa)
+                G.set(ex_a=ex_a)
+                do bb = 1, .b.n_cc
+                  ex_b=.b.ex(bb)
+                  G.set(ex_b=ex_b)
+                  gamma = G.a.ex+G.b.ex
+                  g1 = ONE/gamma
+                  g4 = QUARTER*g1
+                  PI_on_gamma = PI*g1
+                  pifac = sqrt(PI_on_gamma) * PI_on_gamma
+                  g1_exa = g1*G.a.ex
+                  g1_exb = g1*G.b.ex
+                  P1 = g1_exa*.a.pos(1) + g1_exb*.b.pos(1)
+                  P2 = g1_exa*.a.pos(2) + g1_exb*.b.pos(2)
+                  P3 = g1_exa*.a.pos(3) + g1_exb*.b.pos(3)
+                  G.make_ft_component(ft_x,1,k_x,k_max)
+                  G.make_ft_component(ft_y,2,k_y,k_max)
+                  G.make_ft_component(ft_z,3,k_z,k_max)
+                  fac = pifac * ca * .b.cc(bb) * partition(aa,bb)
+                  therm => thermal(:,aa,bb)
+                  do k = 1,k_max
+                    k1 = k_x(k);    k2 = k_y(k);    k3 = k_z(k)
+                    dot1 = k1*P1+k2*P2+k3*P3
+                    dot2 = -g4 * (k1*k1+k2*k2+k3*k3)
+                    prefac(k) = fac*exp(cmplx(dot2,dot1,kind=CPX_KIND)) * therm(k)
+                  end
+                  do b=0,l_b ! incorporate prefac into ft_z
+                    do a=0,l_a
+                      ft_z(:,a,b) = ft_z(:,a,b) * prefac(:)
+                    end
+                  end
+                  bxlast = lb(1,1)
+                  bylast = lb(2,1)
+                  bzlast = lb(3,1)
+                  ft_xbx => ft_x(:,:,bxlast)
+                  ft_yby => ft_y(:,:,bylast)
+                  ft_zbz => ft_z(:,:,bzlast)
+                  do b = 1,n_b
+                    bx = lb(1,b)
+                    by = lb(2,b)
+                    bz = lb(3,b)
+                    if (bxlast/=bx) then
+                      ft_xbx => ft_x(:,:,bx)
+                      bxlast = bx
+                    end
+                    if (bylast/=by) then
+                      ft_yby=> ft_y(:,:,by)
+                      bylast = by
+                    end
+                    if (bzlast/=bz) then
+                      ft_zbz=> ft_z(:,:,bz)
+                      bzlast = bz
+                    end
+                    do a = 1,n_a
+                      ax = la(1,a)
+                      ay = la(2,a)
+                      az = la(3,a)
+                      res_ij => res(:,a,b)
+                      res_ij(:) = res_ij(:) + ft_xbx(:,ax+1)*ft_yby(:,ay+1)*ft_zbz(:,az+1)
+                    end
+                  end
+                end
+              end
+              lb.destroy
+              la.destroy
+              prefac.destroy
+              ft_x.destroy
+              ft_z.destroy
+              ft_y.destroy
+              .normalise_ft(res)
+          end
+      end
+   end
+
+   make_gaussian_partition(res,factor_a,factor_b)
+   ! Make the factors for partitioning the density contribution from
+   ! each atom.
+   ! Dimensions of res are [.a.n_cc,.b.n_cc].
+     res :: REALMAT, OUT
+     factor_a,factor_b :: REAL, IN
+     a,b :: INT
+     ex_a,ex_b,exb_fb :: REAL
+     do b = 1, .b.n_cc
+       ex_b = .b.ex(b)
+       exb_fb = ex_b * factor_b
+       do a = 1, .a.n_cc
+         ex_a = .a.ex(a)
+         res(a,b) = (exb_fb + ex_a * factor_a) / (ex_a + ex_b)
+       end
+     end
+   end
+
+   make_tanaka_thermal_smearing(res,k_pts,Ua,Ub)
+   ! Make the thermal smearing correction according to Tanaka.
+   ! Dimensions of "res" are [k_max,.a.n_cc,.b.n_cc].
+   ! "res" contains the correction for each pair of primitives.
+     res :: REALMAT3, OUT
+     k_pts,Ua,Ub :: REALMAT, IN
+     Ua_ea,Ub_eb,U :: REALMAT(3,3)
+     ! S,Utemp :: REALVEC(3)
+     ea,eb :: REAL
+     U11,U22,U33,U21_12,U31_13,U32_23,S1,S2,S3 :: REAL
+     a,b,k,k_max :: INT
+     k_max  = size(k_pts,1)
+     do a = 1, .a.n_cc
+       ea = .a.ex(a)
+       Ua_ea = ea * Ua
+       do b = 1, .b.n_cc
+         eb = .b.ex(b)
+         Ub_eb = eb * Ub
+         U = - HALF * (Ua_ea + Ub_eb) / (ea + eb)
+         U11 = U(1,1)
+         U22 = U(2,2)
+         U33 = U(3,3)
+         U21_12 = U(2,1) + U(1,2)
+         U31_13 = U(3,1) + U(1,3)
+         U32_23 = U(3,2) + U(2,3)
+         do k = 1,k_max
+           S1 = k_pts(k,1)
+           S2 = k_pts(k,2)
+           S3 = k_pts(k,3)
+           res(k,a,b) = exp(S1*(S1*U11+S2*U21_12+S3*U31_13)+S2*(S2*U22+S3*U32_23)+S3*S3*U33)
+           ! SUS has been expanded to save multiplies and array accesses.
+ !          S = k_pts(k,:)
+ !          Utemp = matmul(U,S)         ! Change coordinates of the U matrix.
+ !          res(k,a,b) = exp(dot_product(S,Utemp))
+         end
+       end
+     end
+   end
+
+   make_ft_nabla(res,k_pts)
+   ! Calculates the Fourier transform for a product of the gradient of
+   ! shell a minus shell b for two contracted gaussian shells, evaluated
+   ! at a series of k points k_pts
+   ! Dimensions of res are [k_max,.n_comp_a,.n_comp_b,3].
+      res :: CPXMAT4
+      k_pts :: REALMAT, IN
+       G :: GAUSSIAN2
+      ft_ab :: CPXMAT4*
+      a,b,k_max :: INT
+      ca,cb,cacb :: REAL
+      k_max  = size(k_pts,1)
+      res = ZERO
+      G.set(.a.l,.a.pos,ZERO,.b.l,.b.pos,ZERO)
+      do a = 1, .a.n_cc
+         G.set(ex_a=.a.ex(a))
+         ca = .a.cc(a)
+         do b = 1, .b.n_cc
+            G.set(ex_b=.b.ex(b))
+            cb = .b.cc(b)
+            cacb = ca*cb
+            ft_ab.create(k_max,.a.n_comp,.b.n_comp,3)
+            G.make_ft_nabla(ft_ab,k_pts)
+            res = res + ft_ab*cacb
+            ft_ab.destroy
+         end
+      end
+      .normalise_ft(res(:,:,:,1))
+      .normalise_ft(res(:,:,:,2))
+      .normalise_ft(res(:,:,:,3))
+   end
+
+   make_ft_nabla(res,k_pts,thermal,partition)
+   ! Calculates "res" the Fourier transform for a product of the gradient of
+   ! shell a minus shell b for two contracted gaussian shells, evaluated
+   ! at a series of k points "k_pts", including "thermal" smearing corrections
+   ! and "partition" factors.
+   ! Dimensions of res are [k_max,.n_comp_a,.n_comp_b,3].
+      res :: CPXMAT4
+      k_pts,partition :: REALMAT, IN
+      thermal :: REALMAT3, target
+      therm :: REALVEC*
+       G :: GAUSSIAN2
+      ft_ab :: CPXMAT4*
+      a,b,k_max,i,j :: INT
+      ca,cb,fac :: REAL
+      k_max  = size(k_pts,1)
+      res = ZERO
+      G.set(.a.l,.a.pos,ZERO,.b.l,.b.pos,ZERO)
+      do a = 1, .a.n_cc
+         G.set(ex_a=.a.ex(a))
+         ca = .a.cc(a)
+         do b = 1, .b.n_cc
+            G.set(ex_b=.b.ex(b))
+            cb = .b.cc(b)
+            ft_ab.create(k_max,.a.n_comp,.b.n_comp,3)
+            G.make_ft_nabla(ft_ab,k_pts)
+            fac   =  ca*cb*partition(a,b)
+            therm => thermal(:,a,b)
+            do i = 1,.a.n_comp
+            do j = 1,.b.n_comp
+                res(:,i,j,1) = res(:,i,j,1) + ft_ab(:,i,j,1) * fac * therm(:)
+                res(:,i,j,2) = res(:,i,j,2) + ft_ab(:,i,j,2) * fac * therm(:)
+                res(:,i,j,3) = res(:,i,j,3) + ft_ab(:,i,j,3) * fac * therm(:)
+            end
+            end
+            ft_ab.destroy
+         end
+      end
+      .normalise_ft(res(:,:,:,1))
+      .normalise_ft(res(:,:,:,2))
+      .normalise_ft(res(:,:,:,3))
+   end
+
+   make_ft_r(res,k_pts)
+   ! Calculates the Fourier transform for a product of two contracted
+   ! gaussian shells, evaluated at a series of k points k_pts
+   ! Dimensions of res are [k_max,.n_comp_a,.n_comp_b,3].
+      k_pts :: REALMAT, IN
+      res :: CPXMAT4
+       G :: GAUSSIAN2
+      ft_ab :: CPXMAT4*
+      a,b,k_max :: INT
+      ca,cb,cacb :: REAL
+      k_max  = size(k_pts,1)
+      res = ZERO
+      G.set(.a.l,.a.pos,ZERO,.b.l,.b.pos,ZERO)
+      do a = 1, .a.n_cc
+         G.set(ex_a=.a.ex(a))
+         ca = .a.cc(a)
+         do b = 1, .b.n_cc
+            G.set(ex_b=.b.ex(b))
+            cb = .b.cc(b)
+            cacb = ca*cb
+            ft_ab.create(k_max,.a.n_comp,.b.n_comp,3)
+            G.make_ft_r(ft_ab,k_pts)
+            res = res + ft_ab*cacb
+            ft_ab.destroy
+         end
+      end
+      .normalise_ft(res(:,:,:,1))
+      .normalise_ft(res(:,:,:,2))
+      .normalise_ft(res(:,:,:,3))
+   end
+
+!  *********************************
+!  Simplistic CADPAC-style integrals
+!  *********************************
+
+   make_overlap_ints(S)
+   ! Calculates overlap integral matrix, using Gauss-Hermite quadrature, like in
+   ! CADPAC
+       S :: REALMAT
+      SS :: REALMAT*
+       G :: GAUSSIAN2
+      a,b :: INT
+      cacb :: REAL
+      S = ZERO
+      SS.create(.a.n_comp,.b.n_comp)
+      G.set(.a.l,.a.pos,ZERO,.b.l,.b.pos,ZERO)
+      do a = 1,.a.n_cc
+      do b = 1,.b.n_cc
+         G.set(.a.ex(a),.b.ex(b))
+         G.make_overlap_ints(SS)
+         cacb = .a.cc(a)*.b.cc(b)
+         S = S + SS*cacb
+      end
+      end
+      SS.destroy
+      .normalise(S)
+   end
+
+   make_S_1st_deriv_ints(Ax,Ay,Az)
+   ! Calculates the derivatives of the overlap integrals with respect to
+   ! position A, in "Ax", "Ay", and "Az" using Gauss-Hermite quadrature.
+      Ax,Ay,Az :: REALMAT
+      AAx,AAy,AAz :: REALMAT*
+       G :: GAUSSIAN2
+      a,b :: INT
+      cacb :: REAL
+      Ax = ZERO; Ay = ZERO; Az = ZERO
+      AAx.create(.a.n_comp,.b.n_comp)
+      AAy.create(.a.n_comp,.b.n_comp)
+      AAz.create(.a.n_comp,.b.n_comp)
+      G.set(.a.l,.a.pos,ZERO,.b.l,.b.pos,ZERO)
+      do a = 1,.a.n_cc
+      do b = 1,.b.n_cc
+         G.set(.a.ex(a),.b.ex(b))
+         G.make_S_1st_deriv_ints(AAx,AAy,AAz)
+         cacb = .a.cc(a)*.b.cc(b)
+         Ax = Ax + AAx*cacb
+         Ay = Ay + AAy*cacb
+         Az = Az + AAz*cacb
+      end
+      end
+      AAz.destroy
+      AAy.destroy
+      AAx.destroy
+      .normalise(Ax); .normalise(Ay); .normalise(Az)
+   end
+
+   make_T_1st_deriv_ints(Ax,Ay,Az)
+   ! Calculates the derivatives of the kinetic integrals with respect to
+   ! position A, in "Ax", "Ay", and "Az" using Gauss-Hermite quadrature.
+      Ax,Ay,Az :: REALMAT
+      AAx,AAy,AAz :: REALMAT*
+       G :: GAUSSIAN2
+      a,b :: INT
+      cacb :: REAL
+      Ax = ZERO; Ay = ZERO; Az = ZERO
+      AAx.create(.a.n_comp,.b.n_comp)
+      AAy.create(.a.n_comp,.b.n_comp)
+      AAz.create(.a.n_comp,.b.n_comp)
+      G.set(.a.l,.a.pos,ZERO,.b.l,.b.pos,ZERO)
+      do a = 1,.a.n_cc
+      do b = 1,.b.n_cc
+         G.set(.a.ex(a),.b.ex(b))
+         G.make_T_1st_deriv_ints(AAx,AAy,AAz)
+         cacb = .a.cc(a)*.b.cc(b)
+         Ax = Ax + AAx*cacb
+         Ay = Ay + AAy*cacb
+         Az = Az + AAz*cacb
+      end
+      end
+      AAz.destroy
+      AAy.destroy
+      AAx.destroy
+      .normalise(Ax); .normalise(Ay); .normalise(Az)
+   end
+
+   make_NA_1st_deriv_ints(Ax,Ay,Az,Bx,By,Bz,c)
+   ! Calculates the derivatives of the nuclear attraction integrals with respect to
+   ! positions A *and* B, in "Ax", "Ay", "Az", and "Bx", "By", "Bz" for a given
+   ! nuclear position "c".
+      Ax,Ay,Az, Bx,By,Bz :: REALMAT
+       c :: REALVEC(3)
+      AAx,AAy,AAz, BBx,BBy,BBz :: REALMAT*
+       G :: GAUSSIAN2
+      a,b :: INT
+      cacb :: REAL
+      Ax = ZERO; Ay = ZERO; Az = ZERO
+      Bx = ZERO; By = ZERO; Bz = ZERO
+      AAx.create(.a.n_comp,.b.n_comp)
+      AAy.create(.a.n_comp,.b.n_comp)
+      AAz.create(.a.n_comp,.b.n_comp)
+      BBx.create(.a.n_comp,.b.n_comp)
+      BBy.create(.a.n_comp,.b.n_comp)
+      BBz.create(.a.n_comp,.b.n_comp)
+      G.set(.a.l,.a.pos,ZERO,.b.l,.b.pos,ZERO)
+      do a = 1,.a.n_cc
+      do b = 1,.b.n_cc
+         G.set(.a.ex(a),.b.ex(b))
+         G.make_NA_1st_deriv_ints(AAx,AAy,AAz,BBx,BBy,BBz,c)
+         cacb = .a.cc(a)*.b.cc(b)
+         Ax = Ax + AAx*cacb
+         Ay = Ay + AAy*cacb
+         Az = Az + AAz*cacb
+         Bx = Bx + BBx*cacb
+         By = By + BBy*cacb
+         Bz = Bz + BBz*cacb
+      end
+      end
+      BBz.destroy; BBy.destroy; BBx.destroy
+      AAz.destroy; AAy.destroy; AAx.destroy
+      .normalise(Ax); .normalise(Ay); .normalise(Az)
+      .normalise(Bx); .normalise(By); .normalise(Bz)
+   end
+
+   make_dipole_ints(Dx,Dy,Dz,origin)
+   ! Make the dipole moment integral matrices "Di"
+   ! with gauge origin "origin"
+      Dx,Dy,Dz :: REALMAT
+      origin :: REALVEC(3)
+      DDx,DDy,DDz :: REALMAT*
+       G :: GAUSSIAN2
+      a,b,n_a,n_b :: INT
+      cacb :: REAL
+      Dx = ZERO; Dy = ZERO; Dz = ZERO
+      n_a = .a.n_comp; n_b = .b.n_comp
+      DDx.create(n_a,n_b); DDy.create(n_a,n_b); DDz.create(n_a,n_b)
+      G.set(.a.l,.a.pos,ZERO,.b.l,.b.pos,ZERO)
+      do a = 1,.a.n_cc
+      do b = 1,.b.n_cc
+         G.set(.a.ex(a),.b.ex(b))
+         G.make_dipole_ints(DDx,DDy,DDz,origin)
+         cacb = .a.cc(a)*.b.cc(b)
+         Dx = Dx + DDx*cacb; Dy = Dy + DDy*cacb; Dz = Dz + DDz*cacb
+      end
+      end
+      DDz.destroy; DDy.destroy; DDx.destroy
+      .normalise(Dx); .normalise(Dy); .normalise(Dz)
+   end
+
+   make_quadrupole_ints(Qxx,Qyy,Qzz,Qxy,Qxz,Qyz,origin)
+   ! Make the quadrupole moment integral matrices "Qij"
+   ! with gauge origin "origin"
+      Qxx,Qyy,Qzz,Qxy,Qxz,Qyz :: REALMAT
+      origin :: REALVEC(3)
+      QQxx,QQyy,QQzz,QQxy,QQxz,QQyz :: REALMAT*
+       G :: GAUSSIAN2
+      a,b,n_a,n_b :: INT
+      cacb :: REAL
+      Qxx = ZERO; Qyy = ZERO; Qzz = ZERO
+      Qxy = ZERO; Qxz = ZERO; Qyz = ZERO
+      n_a = .a.n_comp; n_b = .b.n_comp
+      QQxx.create(n_a,n_b); QQyy.create(n_a,n_b); QQzz.create(n_a,n_b)
+      QQxy.create(n_a,n_b); QQxz.create(n_a,n_b); QQyz.create(n_a,n_b)
+      G.set(.a.l,.a.pos,ZERO,.b.l,.b.pos,ZERO)
+      do a = 1,.a.n_cc
+      do b = 1,.b.n_cc
+         G.set(.a.ex(a),.b.ex(b))
+         G.make_quadrupole_ints(QQxx,QQyy,QQzz,QQxy,QQxz,QQyz,origin)
+         cacb = .a.cc(a)*.b.cc(b)
+         Qxx = Qxx + QQxx*cacb; Qyy = Qyy + QQyy*cacb; Qzz = Qzz + QQzz*cacb
+         Qxy = Qxy + QQxy*cacb; Qxz = Qxz + QQxz*cacb; Qyz = Qyz + QQyz*cacb
+      end
+      end
+      QQyz.destroy; QQxz.destroy; QQxy.destroy
+      QQzz.destroy; QQyy.destroy; QQxx.destroy
+      .normalise(Qxx); .normalise(Qyy); .normalise(Qzz)
+      .normalise(Qxy); .normalise(Qxz); .normalise(Qyz)
+   end
+
+   make_octupole_ints(Oxxx,Oyyy,Ozzz,Oxxy,Oxxz,Oyyx,Oyyz,Ozzx,Ozzy,Oxyz,origin)
+   ! Make the octupole moment integral matrices "Oijk"
+   ! with gauge origin "origin"
+      Oxxx,Oyyy,Ozzz,Oxxy,Oxxz,Oyyx,Oyyz,Ozzx,Ozzy,Oxyz :: REALMAT
+      origin :: REALVEC(3)
+      OOxxx,OOyyy,OOzzz,OOxxy,OOxxz,OOyyx,OOyyz,OOzzx,OOzzy,OOxyz :: REALMAT*
+      G :: GAUSSIAN2
+      a,b,n_a,n_b :: INT
+      cacb :: REAL
+      Oxxx = ZERO; Oyyy = ZERO; Ozzz = ZERO
+      Oxxy = ZERO; Oxxz = ZERO
+      Oyyx = ZERO; Oyyz = ZERO
+      Ozzx = ZERO; Ozzy = ZERO
+      Oxyz = ZERO
+      n_a = .a.n_comp; n_b = .b.n_comp
+      OOxxx.create(n_a,n_b); OOyyy.create(n_a,n_b); OOzzz.create(n_a,n_b)
+      OOxxy.create(n_a,n_b); OOxxz.create(n_a,n_b)
+      OOyyx.create(n_a,n_b); OOyyz.create(n_a,n_b)
+      OOzzx.create(n_a,n_b); OOzzy.create(n_a,n_b)
+      OOxyz.create(n_a,n_b)
+      G.set(.a.l,.a.pos,ZERO,.b.l,.b.pos,ZERO)
+      do a = 1,.a.n_cc
+      do b = 1,.b.n_cc
+         G.set(.a.ex(a),.b.ex(b))
+         G.make_octupole_ints(OOxxx,OOyyy,OOzzz,OOxxy,OOxxz,OOyyx,OOyyz,OOzzx,OOzzy,OOxyz,origin)
+         cacb = .a.cc(a)*.b.cc(b)
+         Oxxx = Oxxx + OOxxx*cacb; Oyyy = Oyyy + OOyyy*cacb; Ozzz = Ozzz + OOzzz*cacb
+         Oxxy = Oxxy + OOxxy*cacb; Oxxz = Oxxz + OOxxz*cacb
+         Oyyx = Oyyx + OOyyx*cacb; Oyyz = Oyyz + OOyyz*cacb
+         Ozzx = Ozzx + OOzzx*cacb; Ozzy = Ozzy + OOzzy*cacb
+         Oxyz = Oxyz + OOxyz*cacb
+      end
+      end
+      OOxyz.destroy
+      OOzzy.destroy; OOzzx.destroy
+      OOyyz.destroy; OOyyx.destroy
+      OOxxz.destroy; OOxxy.destroy
+      OOzzz.destroy; OOyyy.destroy; OOxxx.destroy
+      .normalise(Oxxx); .normalise(Oyyy); .normalise(Ozzz)
+      .normalise(Oxxy); .normalise(Oxxz)
+      .normalise(Oyyx); .normalise(Oyyz)
+      .normalise(Ozzx); .normalise(Ozzy)
+      .normalise(Oxyz)
+   end
+
+   make_nuclear_attraction_ints(N,c)
+   ! Make the nuclear attraction integral matrix "N" for nucleus at position "c"
+       N :: REALMAT
+       c :: REALVEC(3)
+      NN :: REALMAT*
+       G :: GAUSSIAN2
+      a,b :: INT
+      cacb :: REAL
+      N = ZERO
+      NN.create(.a.n_comp,.b.n_comp)
+      G.set(.a.l,.a.pos,ZERO,.b.l,.b.pos,ZERO)
+      do a = 1,.a.n_cc
+      do b = 1,.b.n_cc
+         G.set(.a.ex(a),.b.ex(b))
+         G.make_nuclear_attraction_ints(NN,c)
+         cacb = .a.cc(a)*.b.cc(b)
+         N = N + NN*cacb
+      end
+      end
+      NN.destroy
+      .normalise(N)
+   end
+
+   make_E_field_ints(Ex,Ey,Ez,p)
+   ! Make the electric field integral matrices "Ei" evaluated at
+   ! the position "p"
+      Ex,Ey,Ez :: REALMAT
+       p :: REALVEC(3)
+      EEx,EEy,EEz :: REALMAT*
+       G :: GAUSSIAN2
+      a,b,n_a,n_b :: INT
+      cacb :: REAL
+      Ex = ZERO; Ey = ZERO; Ez = ZERO
+      n_a = .a.n_comp; n_b = .b.n_comp
+      EEx.create(n_a,n_b); EEy.create(n_a,n_b); EEz.create(n_a,n_b)
+      G.set(.a.l,.a.pos,ZERO,.b.l,.b.pos,ZERO)
+      do a = 1,.a.n_cc
+      do b = 1,.b.n_cc
+         G.set(.a.ex(a),.b.ex(b))
+         G.make_E_field_ints(EEx,EEy,EEz,p)
+         cacb = .a.cc(a)*.b.cc(b)
+         Ex = Ex + EEx*cacb; Ey = Ey + EEy*cacb; Ez = Ez + EEz*cacb
+      end
+      end
+      EEz.destroy; EEy.destroy; EEx.destroy
+      .normalise(Ex); .normalise(Ey); .normalise(Ez)
+   end
+
+   make_E_gradient_ints(Exx,Eyy,Ezz,Exy,Exz,Eyz,c)
+   ! Make the electric field gradient integral matrices "Eij" evaluated
+   ! at the position "c".
+      Exx,Eyy,Ezz,Exy,Exz,Eyz :: REALMAT
+       c :: REALVEC
+      EExx,EEyy,EEzz,EExy,EExz,EEyz :: REALMAT*
+       G :: GAUSSIAN2
+      a,b,n_a,n_b :: INT
+      cacb :: REAL
+      Exx = ZERO; Eyy = ZERO; Ezz = ZERO
+      Exy = ZERO; Exz = ZERO; Eyz = ZERO
+      n_a = .a.n_comp; n_b = .b.n_comp
+      EExx.create(n_a,n_b); EEyy.create(n_a,n_b); EEzz.create(n_a,n_b)
+      EExy.create(n_a,n_b); EExz.create(n_a,n_b); EEyz.create(n_a,n_b)
+      G.set(.a.l,.a.pos,ZERO,.b.l,.b.pos,ZERO)
+      do a = 1,.a.n_cc
+      do b = 1,.b.n_cc
+         G.set(.a.ex(a),.b.ex(b))
+         G.make_E_gradient_ints(EExx,EEyy,EEzz,EExy,EExz,EEyz,c)
+         cacb = .a.cc(a)*.b.cc(b)
+         Exx = Exx + EExx*cacb; Eyy = Eyy + EEyy*cacb; Ezz = Ezz + EEzz*cacb
+         Exy = Exy + EExy*cacb; Exz = Exz + EExz*cacb; Eyz = Eyz + EEyz*cacb
+      end
+      end
+      EEyz.destroy; EExz.destroy; EExy.destroy
+      EEzz.destroy; EEyy.destroy; EExx.destroy
+      .normalise(Exx); .normalise(Eyy); .normalise(Ezz)
+      .normalise(Exy); .normalise(Exz); .normalise(Eyz)
+   end
+
+   make_spin_orbit_ints(Lx,Ly,Lz,c)
+   ! Make the spin orbit integral matrices "Lx" "Ly" and "Lz" for nucleus at
+   ! position "c"
+      Lx,Ly,Lz :: REALMAT
+       c :: REALVEC(3)
+      LLx,LLy,LLz :: REALMAT*
+       G :: GAUSSIAN2
+      a,b :: INT
+      cacb :: REAL
+      Lx = ZERO; Ly = ZERO; Lz = ZERO
+      LLx.create(.a.n_comp,.b.n_comp)
+      LLy.create(.a.n_comp,.b.n_comp)
+      LLz.create(.a.n_comp,.b.n_comp)
+      G.set(.a.l,.a.pos,ZERO,.b.l,.b.pos,ZERO)
+      do a = 1,.a.n_cc
+      do b = 1,.b.n_cc
+         G.set(.a.ex(a),.b.ex(b))
+         G.make_spin_orbit_ints(LLx,LLy,LLz,c)
+         cacb = .a.cc(a)*.b.cc(b)
+         Lx = Lx + LLx*cacb
+         Ly = Ly + LLy*cacb
+         Lz = Lz + LLz*cacb
+      end
+      end
+      LLz.destroy; LLy.destroy; LLx.destroy
+      .normalise(Lx); .normalise(Ly); .normalise(Lz)
+   end
+
+   make_spin_orbit_B_ints(Qxx,Qxy,Qxz,Qyx,Qyy,Qyz,Qzx,Qzy,Qzz,c,origin)
+   ! Make the gauge modified (B field) spin orbit integral matrices "Qij"
+   ! for nucleus at position "c" and gauge origin "origin"
+      Qxx,Qxy,Qxz,Qyx,Qyy,Qyz,Qzx,Qzy,Qzz :: REALMAT
+      c,origin :: REALVEC(3)
+      QQxx,QQxy,QQxz,QQyx,QQyy,QQyz,QQzx,QQzy,QQzz :: REALMAT*
+       G :: GAUSSIAN2
+      a,b,n_a,n_b :: INT
+      cacb :: REAL
+      Qxx = ZERO; Qyx = ZERO; Qzx = ZERO
+      Qxy = ZERO; Qyy = ZERO; Qzy = ZERO
+      Qxz = ZERO; Qyz = ZERO; Qzz = ZERO
+      n_a = .a.n_comp; n_b = .b.n_comp
+      QQxx.create(n_a,n_b); QQyx.create(n_a,n_b); QQzx.create(n_a,n_b)
+      QQxy.create(n_a,n_b); QQyy.create(n_a,n_b); QQzy.create(n_a,n_b)
+      QQxz.create(n_a,n_b); QQyz.create(n_a,n_b); QQzz.create(n_a,n_b)
+      G.set(.a.l,.a.pos,ZERO,.b.l,.b.pos,ZERO)
+      do a = 1,.a.n_cc
+      do b = 1,.b.n_cc
+         G.set(.a.ex(a),.b.ex(b))
+         G.make_spin_orbit_B_ints(QQxx,QQxy,QQxz,QQyx,QQyy,QQyz,QQzx,QQzy,QQzz,c,origin)
+         cacb = .a.cc(a)*.b.cc(b)
+         Qxx = Qxx + QQxx*cacb; Qxy = Qxy + QQxy*cacb; Qxz = Qxz + QQxz*cacb
+         Qyx = Qyx + QQyx*cacb; Qyy = Qyy + QQyy*cacb; Qyz = Qyz + QQyz*cacb
+         Qzx = Qzx + QQzx*cacb; Qzy = Qzy + QQzy*cacb; Qzz = Qzz + QQzz*cacb
+      end
+      end
+      QQzz.destroy; QQyz.destroy; QQxz.destroy
+      QQzy.destroy; QQyy.destroy; QQxy.destroy
+      QQzx.destroy; QQyx.destroy; QQxx.destroy
+      .normalise(Qxx); .normalise(Qxy); .normalise(Qxz)
+      .normalise(Qyx); .normalise(Qyy); .normalise(Qyz)
+      .normalise(Qzx); .normalise(Qzy); .normalise(Qzz)
+   end
+
+   make_L_ints(Lx,Ly,Lz,origin)
+   ! Calculate the angular momentum integral matrices "Lx", "Ly", "Lz",
+   ! with "origin" as gauge origin, using Gauss-Hermite quadrature
+      Lx,Ly,Lz :: REALMAT
+      origin :: REALVEC(3)
+      LLx,LLy,LLz :: REALMAT*
+       G :: GAUSSIAN2
+      a,b :: INT
+      cacb :: REAL
+      Lx = ZERO; Ly = ZERO; Lz = ZERO
+      LLx.create(.a.n_comp,.b.n_comp)
+      LLy.create(.a.n_comp,.b.n_comp)
+      LLz.create(.a.n_comp,.b.n_comp)
+      G.set(.a.l,.a.pos,ZERO,.b.l,.b.pos,ZERO)
+      do a = 1,.a.n_cc
+      do b = 1,.b.n_cc
+         G.set(.a.ex(a),.b.ex(b))
+         G.make_L_ints(LLx,LLy,LLz,origin)
+         cacb = .a.cc(a)*.b.cc(b)
+         Lx = Lx + LLx*cacb
+         Ly = Ly + LLy*cacb
+         Lz = Lz + LLz*cacb
+      end
+      end
+      LLz.destroy; LLy.destroy; LLx.destroy
+      .normalise(Lx); .normalise(Ly); .normalise(Lz)
+   end
+
+   make_solenoidal_jp_ints(Jx,Jy,Jz,c)
+   ! Make the solenoidal "Ji" integral matrices evaluated at position "c"
+      Jx,Jy,Jz :: REALMAT
+       c :: REALVEC(3)
+      Ix,Iy,Iz :: REALMAT*
+       G :: GAUSSIAN2
+      a,b :: INT
+      cacb :: REAL
+      Jx = ZERO; Jy = ZERO; Jz = ZERO
+      Ix.create(.a.n_comp,.b.n_comp)
+      Iy.create(.a.n_comp,.b.n_comp)
+      Iz.create(.a.n_comp,.b.n_comp)
+      G.set(.a.l,.a.pos,ZERO,.b.l,.b.pos,ZERO)
+      do a = 1,.a.n_cc
+      do b = 1,.b.n_cc
+         G.set(.a.ex(a),.b.ex(b))
+         G.make_solenoidal_jp_ints(Ix,Iy,Iz,c)
+         cacb = .a.cc(a)*.b.cc(b)
+         Jx = Jx + Ix*cacb
+         Jy = Jy + Iy*cacb
+         Jz = Jz + Iz*cacb
+      end
+      end
+      Iz.destroy; Iy.destroy; Ix.destroy
+      .normalise(Jx); .normalise(Jy); .normalise(Jz)
+   end
+
+   make_irrotational_jp_ints(Jx,Jy,Jz,c)
+   ! Make the irrotational "Ji" integral matrices evaluated at position "c"
+      Jx,Jy,Jz :: REALMAT
+       c :: REALVEC(3)
+      Ix,Iy,Iz :: REALMAT*
+       G :: GAUSSIAN2
+      a,b :: INT
+      cacb :: REAL
+      Jx = ZERO; Jy = ZERO; Jz = ZERO
+      Ix.create(.a.n_comp,.b.n_comp)
+      Iy.create(.a.n_comp,.b.n_comp)
+      Iz.create(.a.n_comp,.b.n_comp)
+      G.set(.a.l,.a.pos,ZERO,.b.l,.b.pos,ZERO)
+      do a = 1,.a.n_cc
+      do b = 1,.b.n_cc
+         G.set(.a.ex(a),.b.ex(b))
+         G.make_irrotational_jp_ints(Ix,Iy,Iz,c)
+         cacb = .a.cc(a)*.b.cc(b)
+         Jx = Jx + Ix*cacb
+         Jy = Jy + Iy*cacb
+         Jz = Jz + Iz*cacb
+      end
+      end
+      Iz.destroy; Iy.destroy; Ix.destroy
+      .normalise(Jx); .normalise(Jy); .normalise(Jz)
+   end
+
+   make_magnetic_jp_ints(Jx,Jy,Jz,c)
+   ! Make the magnetic "Ji" integral matrices evaluated at position "c"
+      Jx,Jy,Jz :: REALMAT
+       c :: REALVEC(3)
+      Ix,Iy,Iz :: REALMAT*
+       G :: GAUSSIAN2
+      a,b :: INT
+      cacb :: REAL
+      Jx = ZERO; Jy = ZERO; Jz = ZERO
+      Ix.create(.a.n_comp,.b.n_comp)
+      Iy.create(.a.n_comp,.b.n_comp)
+      Iz.create(.a.n_comp,.b.n_comp)
+      G.set(.a.l,.a.pos,ZERO,.b.l,.b.pos,ZERO)
+      do a = 1,.a.n_cc
+      do b = 1,.b.n_cc
+         G.set(.a.ex(a),.b.ex(b))
+         G.make_magnetic_jp_ints(Ix,Iy,Iz,c)
+         cacb = .a.cc(a)*.b.cc(b)
+         Jx = Jx + Ix*cacb
+         Jy = Jy + Iy*cacb
+         Jz = Jz + Iz*cacb
+      end
+      end
+      Iz.destroy; Iy.destroy; Ix.destroy
+      .normalise(Jx); .normalise(Jy); .normalise(Jz)
+   end
+
+   make_magnetic_S_ints(Mxx,Mxy,Mxz,Myx,Myy,Myz,Mzx,Mzy,Mzz,c)
+   ! Make the magnetic "Mij" integral matrices evaluated at position "c"
+      Mxx,Mxy,Mxz,Myx,Myy,Myz,Mzx,Mzy,Mzz :: REALMAT
+      c :: REALVEC(3)
+      Ixx,Ixy,Ixz,Iyx,Iyy,Iyz,Izx,Izy,Izz :: REALMAT*
+      G :: GAUSSIAN2
+      a,b :: INT
+      cacb :: REAL
+      Mxx = ZERO; Mxy = ZERO; Mxz = ZERO
+      Myx = ZERO; Myy = ZERO; Myz = ZERO
+      Mzx = ZERO; Mzy = ZERO; Mzz = ZERO
+      Ixx.create(.a.n_comp,.b.n_comp)
+      Ixy.create(.a.n_comp,.b.n_comp)
+      Ixz.create(.a.n_comp,.b.n_comp)
+      Iyx.create(.a.n_comp,.b.n_comp)
+      Iyy.create(.a.n_comp,.b.n_comp)
+      Iyz.create(.a.n_comp,.b.n_comp)
+      Izx.create(.a.n_comp,.b.n_comp)
+      Izy.create(.a.n_comp,.b.n_comp)
+      Izz.create(.a.n_comp,.b.n_comp)
+      G.set(.a.l,.a.pos,ZERO,.b.l,.b.pos,ZERO)
+      do a = 1,.a.n_cc
+      do b = 1,.b.n_cc
+         G.set(.a.ex(a),.b.ex(b))
+         G.make_magnetic_S_ints(Ixx,Ixy,Ixz,Iyx,Iyy,Iyz,Izx,Izy,Izz,c)
+         cacb = .a.cc(a)*.b.cc(b)
+         Mxx = Mxx + Ixx*cacb; Mxy = Mxy + Ixy*cacb; Mxz = Mxz + Ixz*cacb
+         Myx = Myx + Iyx*cacb; Myy = Myy + Iyy*cacb; Myz = Myz + Iyz*cacb
+         Mzx = Mzx + Izx*cacb; Mzy = Mzy + Izy*cacb; Mzz = Mzz + Izz*cacb
+      end
+      end
+      Izz.destroy; Izy.destroy; Izx.destroy
+      Iyz.destroy; Iyy.destroy; Iyx.destroy
+      Ixz.destroy; Ixy.destroy; Ixx.destroy
+      .normalise(Mxx); .normalise(Mxy); .normalise(Mxz)
+      .normalise(Myx); .normalise(Myy); .normalise(Myz)
+      .normalise(Mzx); .normalise(Mzy); .normalise(Mzz)
+   end
+
+   make_magnetic_S_ints(M,c)
+   ! Make the magnetic "M(:,:,i,j)" integral matrices evaluated at position "c"
+      M :: REALMAT4, target
+      c :: REALVEC(3)
+      I :: REALMAT4*
+      G :: GAUSSIAN2
+      a,b :: INT
+      cacb :: REAL
+      Mxx,Mxy,Mxz,Myx,Myy,Myz,Mzx,Mzy,Mzz :: REALMAT*
+  ENSURE(M.dim3==3,"wrong shape for M")
+  ENSURE(M.dim4==3,"wrong shape for M")
+      M = ZERO
+      I.create(.a.n_comp,.b.n_comp,3,3)
+      G.set(.a.l,.a.pos,ZERO,.b.l,.b.pos,ZERO)
+      do a = 1,.a.n_cc
+      do b = 1,.b.n_cc
+         G.set(.a.ex(a),.b.ex(b))
+         G.make_magnetic_S_ints(I,c)
+         cacb = .a.cc(a)*.b.cc(b)
+         M = M + I*cacb
+      end
+      end
+      I.destroy
+      Mxx => M(:,:,1,1); Mxy => M(:,:,1,2); Mxz => M(:,:,1,3)
+      Myx => M(:,:,2,1); Myy => M(:,:,2,2); Myz => M(:,:,2,3)
+      Mzx => M(:,:,3,1); Mzy => M(:,:,3,2); Mzz => M(:,:,3,3)
+      .normalise(Mxx); .normalise(Mxy); .normalise(Mxz)
+      .normalise(Myx); .normalise(Myy); .normalise(Myz)
+      .normalise(Mzx); .normalise(Mzy); .normalise(Mzz)
+   end
+
+!  ******************************
+!  Roland Lindh's style integrals
+!  ******************************
+
+   s_overlap(zeta,zz,r2) result (res) ::: elemental, private
+   ! Calculate the overlap of two s functions.
+     self :: IN
+     zeta,zz,r2 :: REAL, IN
+     res :: REAL
+     PI_zinv :: REAL
+     PI_zinv = PI/zeta
+     res=PI_zinv*sqrt(PI_zinv) * exp(-zz*r2)
+   end
+
+   make_overlap(ab)
+   ! Calculate the overlap matrix for the two shells
+     ab :: REALMAT
+     es :: REALVEC*
+     n :: INT
+     n = (.a.l+.b.l).n_comp_sum - (.l_max-1).n_comp_sum
+     es.create(n)
+     .make_overlap_es(es)
+     .transfer(es,ab)
+     es.destroy
+     .normalise(ab)
+   end
+
+   make_overlap_es(es) ::: private
+   ! Make the (es) overlap integrals, summed over primitives
+     self :: IN
+     es :: REALVEC, OUT
+     temp :: REALVEC*
+     AB :: REALVEC(3)
+     a,b,templb,tempub,i :: INT
+     r2ab,ea,eb :: REAL
+
+     tempub = .l_sum.n_comp_sum
+     templb = (.l_max-1).n_comp_sum + 1
+     temp.create(tempub)
+
+     AB = .a.pos - .b.pos
+     r2ab = dot_product(AB,AB)
+
+     es=ZERO
+     i = 0
+     do b=1, .b.n_cc
+       eb=.b.ex(b)
+       do a=1, .a.n_cc
+         i = i + 1
+         ea=.a.ex(a)
+         .form_overlap_es(temp,ea,eb,r2ab,i)
+         es=es + .a.cc(a) * .b.cc(b) * temp(templb:tempub)
+       end
+     end
+     temp.destroy
+   end
+
+   form_overlap_es(es,ea,eb,r2ab,i) ::: private
+   ! Form the (es) overlap integrals for a pair of primitives
+     self :: IN
+     es :: REALVEC, INOUT
+     r2ab,ea,eb :: REAL, IN
+     i :: INT, IN
+     PE :: REALVEC(3)
+     a_momenta :: INTVEC(3)
+     index :: INTMAT3*
+     momenta :: INTMAT*
+     half_zinv,zinv,zeta,zz,PEi :: REAL
+     j,z,lz,a1,a2,tmp :: INT
+
+     zeta = .exponent_sum(i)
+     zinv = .exponent_inv(i)
+     zz=ea*eb/zeta
+
+     es=ZERO
+     es(1)=.s_overlap(zeta,zz,r2ab)
+
+     if (.l_sum > 0) then
+       half_zinv = HALF*zinv
+       PE = .center_diff(:,i)
+       es(2) = PE(1) * es(1)                                ! p||s
+       es(3) = PE(2) * es(1)
+       es(4) = PE(3) * es(1)
+
+       if (.l_sum > 1) then
+         momenta.create(3, .l_sum.n_comp_sum)
+         tmp=0;    tmp.make_gaussian_xyz_powers(momenta,.l_sum)
+         index.create(0,.l_sum, 0,.l_sum, 0,.l_sum)
+         index.make_index_of_components(momenta)
+
+         do j=5, .l_sum.n_comp_sum                          ! d||s to .l_sum||s
+           a_momenta = momenta(:,j)
+           z = a_momenta.index_of_first_nonzero_value
+           lz = a_momenta(z)
+           a_momenta(z) = a_momenta(z)-1
+           a1 = index(a_momenta(1),a_momenta(2),a_momenta(3))
+           PEi=PE(z)
+           if (lz < 2) then
+             es(j) = PEi * es(a1)
+           else
+             a_momenta(z) = a_momenta(z)-1
+             a2 = index(a_momenta(1),a_momenta(2),a_momenta(3))
+             es(j) = PEi * es(a1) + half_zinv * (lz-1) * es(a2)
+           end
+         end
+         index.destroy
+         momenta.destroy
+       end
+     end
+   end
+
+   get_kei(kei,overlap)
+   ! Calculate the kinetic energy and overlap (optional) integrals.
+   ! (More efficient than making them separate).
+     self :: IN
+     kei :: REALMAT, INOUT
+     overlap :: REALMAT, INOUT, optional
+
+     .make_kei(kei,overlap)
+     if (present(overlap)) .normalise(overlap)
+     .normalise(kei)
+   end
+
+   make_kei(kei,overlap)
+   ! Makes the kei and overlap matrics, summed over primitives
+   ! Is called by kei, but does not do the orbital normalisation corrections
+     self :: IN
+     kei :: REALMAT, INOUT
+     overlap :: REALMAT, INOUT, optional
+     temp_kei,temp_overlap :: REALMAT*
+     P,PA,PB,ara,brb,AB :: REALVEC(3)
+     a,b,alb,aub,blb,bub :: INT
+     ca,ea,eb,zeta,zinv2,r2ab :: REAL
+     alb = (.a.l-1).n_comp_sum + 1; aub = alb + .a.n_comp -1
+     blb = (.b.l-1).n_comp_sum + 1; bub = blb + .b.n_comp -1
+     temp_kei.create(aub,bub)
+     temp_overlap.create(aub,bub)
+     kei=ZERO
+     if (present(overlap)) overlap=ZERO
+     AB = .a.pos - .b.pos
+     r2ab = dot_product(AB,AB)
+     do a=1, .a.n_cc
+       ca=.a.cc(a)
+       ea=.a.ex(a)
+       ara=ea*.a.pos
+       do b=1, .b.n_cc
+         eb    = .b.ex(b)
+         brb   = eb * .b.pos
+         zeta  = ea + eb
+         zinv2 = HALF / zeta
+         P     = (ara + brb) / zeta
+         PA    = P - .a.pos
+         PB    = P - .b.pos
+         if (.a.l > .b.l) then
+           .form_overlap_mat_a(temp_kei,temp_overlap,PA,PB,zinv2,zeta,ea,eb,r2ab)
+         else
+           .form_overlap_mat_b(temp_kei,temp_overlap,PA,PB,zinv2,zeta,ea,eb,r2ab)
+         end
+         if (present(overlap)) &
+           overlap = overlap + ca * .b.cc(b) * temp_overlap(alb:aub,blb:bub)
+         kei = kei + ca * .b.cc(b) * temp_kei(alb:aub,blb:bub)
+       end
+     end
+     temp_kei.destroy
+     temp_overlap.destroy
+   end
+
+   form_overlap_mat_a(kei,overlap,PA,PB,zinv2,zeta,ea,eb,r2ab) ::: private
+   ! Makes the kinetic energy and overlap matrices for a primitive pair
+   ! if .a.l > .b.l
+     self :: IN
+     overlap,kei :: REALMAT, INOUT
+     PA,PB :: REALVEC(3), IN
+     zinv2,zeta,ea,eb,r2ab :: REAL, IN
+     a_momenta, b_momenta :: INTVEC(3)
+     index :: INTMAT3*
+     momenta :: INTMAT*
+     j,z,lza,lzb,a,a1,a2,b,b1,laub :: INT
+     la,lb,la1_n_comp_sum,lb1_n_comp_sum,la_n_comp_sum,lb_n_comp_sum :: INT
+     na,b_n_comp_sum,tmp :: INT
+     PAi,PBi,zz,zz2,zinv2_na,zinv2_nb,zz_ea,zz_eb,zz_ea_na :: REAL
+
+     zz       = ea * eb / zeta
+     zz2      = 2 * zz
+     zz_ea    = zz / ea
+     zz_eb    = zz / eb
+     b_n_comp_sum = .b.l.n_comp_sum
+
+     overlap(1,1) = .s_overlap(zeta,zz,r2ab)
+     kei(1,1)     = zz * (3.0-zz2 * r2ab) * overlap(1,1)
+
+     momenta.create(3, .a.l.n_comp_sum)
+     tmp=0;    tmp.make_gaussian_xyz_powers(momenta,.a.l)
+     index.create(0,.a.l, 0,.a.l, 0,.a.l)
+     index.make_index_of_components(momenta)
+
+     do j = 2, b_n_comp_sum                                ! s||p to s||lb
+       a_momenta    = momenta(:,j)                         ! p||s to lb||s
+       z            = a_momenta.index_of_first_nonzero_value
+       lza          = a_momenta(z)
+       a_momenta(z) = a_momenta(z) - 1
+       a1           = index(a_momenta(1),a_momenta(2),a_momenta(3))
+       PBi          = PB(z)
+       PAi          = PA(z)
+       if (lza < 2) then
+         overlap(1,j) = PBi * overlap(1,a1)
+         kei(1,j)     = PBi * kei(1,a1) + zz2 * overlap(1,j)
+         overlap(j,1) = PAi * overlap(a1,1)
+         kei(j,1)     = PAi * kei(a1,1) + zz2 * overlap(j,1)
+       else
+         na           = lza - 1
+         zinv2_na     = zinv2 * na
+         a_momenta(z) = a_momenta(z) - 1
+         a2           = index(a_momenta(1),a_momenta(2),a_momenta(3))
+         overlap(1,j) = PBi * overlap(1,a1) + zinv2_na * overlap(1,a2)
+         kei(1,j)     = PBi * kei(1,a1) + zinv2_na * kei(1,a2) + &
+                        zz2 * overlap(1,j) - zz_eb * na * overlap(1,a2)
+         overlap(j,1) = PAi * overlap(a1,1) + zinv2_na * overlap(a2,1)
+         kei(j,1)     = PAi * kei(a1,1) + zinv2_na * kei(a2,1) + &
+                        zz2 * overlap(j,1) - zz_ea * na * overlap(a2,1)
+       end
+     end
+
+     do j = b_n_comp_sum + 1, (.a.l-.b.l).n_comp_sum   ! lb||s to la-lb||s
+       a_momenta    = momenta(:,j)
+       z            = a_momenta.index_of_first_nonzero_value
+       lza          = a_momenta(z)
+       a_momenta(z) = a_momenta(z) - 1
+       a1           = index(a_momenta(1),a_momenta(2),a_momenta(3))
+       PAi          = PA(z)
+       if (lza < 2) then
+         overlap(j,1) = PAi * overlap(a1,1)
+         kei(j,1)     = PAi * kei(a1,1) + zz2 * overlap(j,1)
+       else
+         na           = lza - 1
+         zinv2_na     = zinv2 * na
+         a_momenta(z) = a_momenta(z) - 1
+         a2           = index(a_momenta(1),a_momenta(2),a_momenta(3))
+         overlap(j,1) = PAi * overlap(a1,1) + zinv2_na * overlap(a2,1)
+         kei(j,1)     = PAi * kei(a1,1) + zinv2_na * kei(a2,1) + &
+                        zz2 * overlap(j,1) - zz_ea * na * overlap(a2,1)
+       end
+     end
+
+     laub = .a.l - .b.l
+     do lb = 1, .b.l
+       lb1_n_comp_sum = (lb-1).n_comp_sum + 1
+       lb_n_comp_sum  = lb.n_comp_sum
+       laub           = laub + 1
+       do la = 1, laub
+         la1_n_comp_sum = (la-1).n_comp_sum + 1
+         la_n_comp_sum  = la.n_comp_sum
+         do a = la1_n_comp_sum, la_n_comp_sum
+           a_momenta    = momenta(:,a)
+           z            = a_momenta.index_of_first_nonzero_value
+           lza          = a_momenta(z)
+           a_momenta(z) = a_momenta(z) - 1
+           a1           = index(a_momenta(1),a_momenta(2),a_momenta(3))
+           PAi          = PA(z)
+           if (lza==1) then
+             do b = lb1_n_comp_sum,lb_n_comp_sum
+               lzb = momenta(z,b)
+               if (lzb==0) then
+                 overlap(a,b) = PAi * overlap(a1,b)
+                 kei(a,b)     = PAi * kei(a1,b) + zz2 * overlap(a,b)
+               else
+                 b_momenta    = momenta(:,b)
+                 b_momenta(z) = b_momenta(z) - 1
+                 b1           = index(b_momenta(1),b_momenta(2),b_momenta(3))
+                 zinv2_nb     = zinv2 * lzb
+                 overlap(a,b) = PAi * overlap(a1,b) + zinv2_nb * overlap(a1,b1)
+                 kei(a,b)     = PAi * kei(a1,b) + zinv2_nb * kei(a1,b1) + &
+                                zz2 * overlap(a,b)
+               end
+             end
+           else
+             na           = lza - 1
+             zinv2_na     = zinv2 * na
+             zz_ea_na    = zz_ea * na
+             a_momenta(z) = a_momenta(z) - 1
+             a2           = index(a_momenta(1),a_momenta(2),a_momenta(3))
+             do b = lb1_n_comp_sum, lb_n_comp_sum
+               lzb = momenta(z,b)
+               if (lzb==0) then
+                 overlap(a,b) = PAi * overlap(a1,b) + zinv2_na * overlap(a2,b)
+                 kei(a,b)     = PAi * kei(a1,b) + zinv2_na * kei(a2,b) + &
+                                zz2 * overlap(a,b) - zz_ea_na * overlap(a2,b)
+               else
+                 zinv2_nb     = zinv2 * lzb
+                 b_momenta    = momenta(:,b)
+                 b_momenta(z) = b_momenta(z) - 1
+                 b1           = index(b_momenta(1),b_momenta(2),b_momenta(3))
+                 overlap(a,b) = PAi * overlap(a1,b) + zinv2_na * overlap(a2,b) +&
+                                zinv2_nb * overlap(a1,b1)
+                 kei(a,b)     = PAi * kei(a1,b) + zinv2_na * kei(a2,b) + &
+                                zinv2_nb * kei(a1,b1) + &
+                                zz2 * overlap(a,b) - zz_ea_na * overlap(a2,b)
+               end
+             end
+           end
+         end
+       end
+     end
+     momenta.destroy
+     index.destroy
+   end
+
+   form_overlap_mat_b(kei,overlap,PA,PB,zinv2,zeta,ea,eb,r2ab) ::: private
+   ! Makes the kinetic energy and overlap matrices for a primitive pair
+   ! if .b.l > .a.l
+     self :: IN
+     overlap,kei :: REALMAT, INOUT
+     PA,PB :: REALVEC(3), IN
+     zinv2,zeta,ea,eb,r2ab :: REAL, IN
+     b_momenta, a_momenta :: INTVEC(3)
+     index :: INTMAT3*
+     momenta :: INTMAT*
+     j,z,lza,lzb,a,a1,b,b1,b2,lbub,la,lb :: INT
+     la1_n_comp_sum,lb1_n_comp_sum,la_n_comp_sum,lb_n_comp_sum :: INT
+     nb,a_n_comp_sum,tmp :: INT
+     PAi,PBi,zz,zz2,zinv2_na,zinv2_nb,zz_ea,zz_eb,zz_eb_nb :: REAL
+
+     zz      = ea * eb / zeta
+     zz2     = 2 * zz
+     zz_ea    = zz / ea
+     zz_eb    = zz / eb
+     a_n_comp_sum  = .a.l.n_comp_sum
+
+     overlap(1,1) = .s_overlap(zeta,zz,r2ab)
+     kei(1,1)     = zz * (3.0-zz2 * r2ab) * overlap(1,1)
+
+     momenta.create(3, .b.l.n_comp_sum)
+     tmp=0;    tmp.make_gaussian_xyz_powers(momenta,.b.l)
+     index.create(0,.b.l, 0,.b.l, 0,.b.l)
+     index.make_index_of_components(momenta)
+
+     do j=2, a_n_comp_sum                               ! p||s to la||s
+       b_momenta    = momenta(:,j)                      ! s||p to s||la
+       z            = b_momenta.index_of_first_nonzero_value
+       lzb          = b_momenta(z)
+       b_momenta(z) = b_momenta(z)-1
+       b1           = index(b_momenta(1),b_momenta(2),b_momenta(3))
+       PBi          = PB(z)
+       PAi          = PA(z)
+       if (lzb < 2) then
+         overlap(j,1) = PAi * overlap(b1,1)
+         kei(j,1)     = PAi * kei(b1,1) + zz2 * overlap(j,1)
+         overlap(1,j) = PBi * overlap(1,b1)
+         kei(1,j)     = PBi * kei(1,b1) + zz2 * overlap(1,j)
+       else
+         nb           = lzb - 1
+         zinv2_nb     = zinv2 * nb
+         b_momenta(z) = b_momenta(z) - 1
+         b2           = index(b_momenta(1),b_momenta(2),b_momenta(3))
+         overlap(j,1) = PAi * overlap(b1,1) + zinv2_nb * overlap(b2,1)
+         kei(j,1)     = PAi * kei(b1,1) + zinv2_nb * kei(b2,1) + &
+                        zz2 * overlap(j,1) - zz_ea * nb * overlap(b2,1)
+         overlap(1,j) = PBi * overlap(1,b1) + zinv2_nb * overlap(1,b2)
+         kei(1,j)     = PBi * kei(1,b1) + zinv2_nb * kei(1,b2) + &
+                        zz2 * overlap(1,j) - zz_eb * nb * overlap(1,b2)
+       end
+     end
+
+     do j= a_n_comp_sum + 1, (.b.l-.a.l).n_comp_sum      ! s||lb to s||lb-la
+       b_momenta    = momenta(:,j)                       ! s||p to s||la
+       z            = b_momenta.index_of_first_nonzero_value
+       lzb          = b_momenta(z)
+       b_momenta(z) = b_momenta(z) - 1
+       b1           = index(b_momenta(1),b_momenta(2),b_momenta(3))
+       PBi          = PB(z)
+       if (lzb < 2) then
+         overlap(1,j) = PBi * overlap(1,b1)
+         kei(1,j)     = PBi * kei(1,b1) + zz2 * overlap(1,j)
+       else
+         nb           = lzb - 1
+         zinv2_nb     = zinv2 * nb
+         b_momenta(z) = b_momenta(z) - 1
+         b2           = index(b_momenta(1),b_momenta(2),b_momenta(3))
+         overlap(1,j) = PBi * overlap(1,b1) + zinv2_nb * overlap(1,b2)
+         kei(1,j)     = PBi * kei(1,b1) + zinv2_nb * kei(1,b2) + &
+                        zz2 * overlap(1,j) - zz_eb * nb * overlap(1,b2)
+       end
+     end
+
+     lbub = .b.l - .a.l
+     do la = 1, .a.l
+       la1_n_comp_sum = (la-1).n_comp_sum + 1
+       la_n_comp_sum  = la.n_comp_sum
+       lbub           = lbub + 1
+       do lb = 1, lbub
+         lb1_n_comp_sum = (lb-1).n_comp_sum+1
+         lb_n_comp_sum  = lb.n_comp_sum
+         do b = lb1_n_comp_sum, lb_n_comp_sum
+           b_momenta    = momenta(:,b)
+           z            = b_momenta.index_of_first_nonzero_value
+           lzb          = b_momenta(z)
+           b_momenta(z) = b_momenta(z) - 1
+           b1           = index(b_momenta(1),b_momenta(2),b_momenta(3))
+           PBi          = PB(z)
+           if (lzb == 1) then
+             do a = la1_n_comp_sum, la_n_comp_sum
+               lza = momenta(z,a)
+               if (lza == 0) then
+                 overlap(a,b) = PBi * overlap(a,b1)
+                 kei(a,b)     = PBi * kei(a,b1) + zz2 * overlap(a,b)
+               else
+                 a_momenta    = momenta(:,a)
+                 a_momenta(z) = a_momenta(z) - 1
+                 a1           = index(a_momenta(1),a_momenta(2),a_momenta(3))
+                 zinv2_na     = zinv2 * lza
+                 overlap(a,b) = PBi * overlap(a,b1) + zinv2_na * overlap(a1,b1)
+                 kei(a,b)     = PBi * kei(a,b1) + zinv2_na * kei(a1,b1) + &
+                                zz2 * overlap(a,b)
+               end
+             end
+           else
+             nb           = lzb - 1
+             zinv2_nb     = zinv2 * nb
+             zz_eb_nb     = zz_eb * nb
+             b_momenta(z) = b_momenta(z) - 1
+             b2           = index(b_momenta(1),b_momenta(2),b_momenta(3))
+             do a = la1_n_comp_sum, la_n_comp_sum
+               lza = momenta(z,a)
+               if (lza==0) then
+                 overlap(a,b) = PBi * overlap(a,b1) + zinv2_nb * overlap(a,b2)
+                 kei(a,b)     = PBi * kei(a,b1) + zinv2_nb * kei(a,b2)+ &
+                                zz2 * overlap(a,b) - zz_eb_nb * overlap(a,b2)
+               else
+                 zinv2_na     = zinv2 * lza
+                 a_momenta    = momenta(:,a)
+                 a_momenta(z) = a_momenta(z) - 1
+                 a1           = index(a_momenta(1),a_momenta(2),a_momenta(3))
+                 overlap(a,b) = PBi * overlap(a,b1) + zinv2_nb * overlap(a,b2) +&
+                                zinv2_na * overlap(a1,b1)
+                 kei(a,b)     = PBi * kei(a,b1) + zinv2_nb * kei(a,b2) + &
+                                zinv2_na * kei(a1,b1) + &
+                                zz2 * overlap(a,b) - zz_eb_nb * overlap(a,b2)
+               end
+             end
+           end
+         end
+       end
+     end
+     momenta.destroy
+     index.destroy
+   end
+
+   get_nuc(ab,mass_c,pos_c)
+   ! Calculate the nuclear attraction matrix for the two shells with the
+   ! nucleus at c.
+     self :: IN
+     ab :: REALMAT, OUT
+     mass_c :: REAL, IN
+     pos_c :: REALVEC(3), IN
+     es :: REALVEC*
+     ss :: REAL
+     n :: INT
+     if (.l_sum==0) then  ! ss
+       .make_nuc_ss(ss,mass_c,pos_c)
+       ab(1,1)=ss
+     else if (.l_sum==1) then ! ps or sp
+       .make_nuc_ps(ab,mass_c,pos_c)
+     else if (.l_max==1) then
+       .make_nuc_pp(ab,mass_c,pos_c)
+     else if (.l_sum==2 AND .l_max==2) then ! ds or sd
+       .make_nuc_ds(ab,mass_c,pos_c)
+       .normalise(ab)
+     else if (.l_sum==3 AND .l_max==1) then ! dp or pd
+       .make_nuc_dp(ab,mass_c,pos_c)
+       .normalise(ab)
+     else
+       n = (.l_sum).n_comp_sum - (.l_max-1).n_comp_sum
+       es.create(n)
+       .make_nuc_es(es,mass_c,pos_c)
+       .transfer(es,ab)
+       es.destroy
+       .normalise(ab)
+     end
+   end
+
+   make_nuc_es(es,mass_c,pos_c) ::: private
+   ! Make the (es) nuclear attraction integrals, summed over primitives
+   ! Numbers may be slightly different to cadpac due to a relativistic
+   ! correction term.
+     self :: IN
+     es :: REALVEC, OUT
+     mass_c :: REAL, IN
+     pos_c :: REALVEC(3), IN
+     Ixa,Iya,Iza :: REALMAT*
+     Ix,Iy,Iz :: REALVEC*
+     rysa :: RYS*
+     rzt,ce,e1_ce,rho_zinv,half_zinv,Ix2,Iy2,Iz2,wt :: REAL
+     QPx,QPy,QPz,PAx,PAy,PAz,zeta,zinv,rho,xx,eta_c,two_pi :: REAL
+     Ixe,Iye,Ize,Ixe1,Iye1,Ize1,Ixep1,Iyep1,Izep1 :: REAL
+     ag,bg,e,ep1,eub,nroots,i,j,n,n_sum :: INT
+
+     if (mass_c < TOL(15)) then
+       eta_c=1.0d30  ! Very big.
+     else
+       eta_c=3880000000d0*(mass_c**(-TWOTHIRDS))
+     end
+     eta_c = 1.0d60 ! uncomment this to get rid of relativistic correction.
+
+     eub  = size(es)
+     nroots=(.l_sum+2)/2
+     n_sum = nroots * .a.n_cc * .b.n_cc
+     rysa.create(nroots)
+     Ixa.create(n_sum,.l_sum+1)
+     Iya.create(n_sum,.l_sum+1)
+     Iza.create(n_sum,.l_sum+1)
+
+     two_pi=TWO*PI
+     i = 0
+     j = 0
+     do bg = 1, .b.n_cc
+       do ag = 1, .a.n_cc
+         i     = i + 1
+         zeta  = .exponent_sum(i)
+         zinv  = .exponent_inv(i)
+         rho   = zeta * eta_c / (zeta + eta_c)
+         PAx   = .center_diff(1,i)
+         PAy   = .center_diff(2,i)
+         PAz   = .center_diff(3,i)
+         QPx   = pos_c(1) - .pair_center(1,i)
+         QPy   = pos_c(2) - .pair_center(2,i)
+         QPz   = pos_c(3) - .pair_center(3,i)
+         xx    = rho * (QPx*QPx + QPy*QPy + QPz*QPz)
+         rysa.get_weights(xx)
+         rysa.w = rysa.w * (two_pi * .cc_prefactor(i) * sqrt(rho))
+         half_zinv = HALF * zinv
+         rho_zinv = rho * zinv
+
+         do n = 1, nroots
+           j = j + 1
+           Ix => Ixa(j,:)
+           Iy => Iya(j,:)
+           Iz => Iza(j,:)
+           wt = rysa.w(n)
+           Ix(1) = ONE
+           Iy(1) = ONE
+           Iz(1) = wt
+           if (.l_sum>0) then
+              rzt   = rysa.r(n)*rho_zinv
+              Ix2 = PAx+rzt*QPx
+              Iy2 = PAy+rzt*QPy
+              Iz2 = PAz+rzt*QPz
+              Ix(2) = Ix2;    Iy(2) = Iy2;    Iz(2) = Iz2 * wt
+              if (.l_sum>1) then
+                ce    = (ONE-rzt)*half_zinv
+                Ixep1 = Ix2*Ix2+ce
+                Iyep1 = Iy2*Iy2+ce
+                Izep1 = Iz2*Iz2+ce
+                Ix(3) = Ixep1
+                Iy(3) = Iyep1
+                Iz(3) = Izep1 * wt
+                if (.l_sum>2) then
+                  Ixe1 = Ix2;      Iye1 = Iy2;      Ize1 = Iz2
+                  Ixe = Ixep1;     Iye = Iyep1;     Ize = Izep1
+                  do e = 3,.l_sum
+                    ep1   = e+1
+                    e1_ce = (e-1)*ce
+                    Ixep1 = Ix2*Ixe+e1_ce*Ixe1
+                    Iyep1 = Iy2*Iye+e1_ce*Iye1
+                    Izep1 = Iz2*Ize+e1_ce*Ize1
+                    Ix(ep1) = Ixep1; Iy(ep1) = Iyep1; Iz(ep1) = Izep1 * wt
+                    Ixe1 = Ixe;      Iye1 = Iye;      Ize1 = Ize
+                    Ixe = Ixep1;     Iye = Iyep1;     Ize = Izep1
+                  end
+                end
+              end
+           end
+         end
+       end
+     end
+
+     .combine_nuc_2d_ints(es,Ixa,Iya,Iza,eub)
+
+     Iza.destroy
+     Iya.destroy
+     Ixa.destroy
+     rysa.destroy
+   end
+
+   combine_nuc_2d_ints(es,Ix,Iy,Iz,eub) ::: private
+   ! ?
+     es :: REALVEC
+     Ix,Iy,Iz :: REALMAT, IN
+     eub :: INT, IN
+     e_powers :: INTMAT*
+     e_x,e_y,e_z :: INTVEC*
+     e :: INT
+     e_powers.create(eub,3)
+     e_x => e_powers(:,1); e_y => e_powers(:,2); e_z => e_powers(:,3)
+     .l_max.make_gaussian_xyz_indices(e_x,e_y,e_z,.l_sum)
+     forall (e=1:eub)
+       es(e) = sum( Ix(:,e_x(e)) * Iy(:,e_y(e)) * Iz(:,e_z(e)) )
+     end
+     e_powers.destroy
+   end
+
+   make_nuc_dp(dp,mass_c,pos_c) ::: private
+   ! Make the (dp) nuclear attraction integrals, summed over primitives
+   ! Numbers may be slightly different to cadpac due to a relativistic
+   ! correction term.
+     self :: IN
+     dp :: REALMAT, OUT
+     mass_c :: REAL, IN
+     pos_c :: REALVEC(3), IN
+     rysa :: RYS*
+     rzt,ce,rho_zinv,half_zinv,wt :: REAL
+     QPx,QPy,QPz,PAx,PAy,PAz,zeta,zinv,rho,xx,eta_c,two_pi :: REAL
+     Ix2,Iy2,Iz2,Ix3,Iy3,Iz3,two_ce,ABx,ABy,ABz :: REAL
+     dxx_s,dyy_s,dzz_s,dxy_s,dxz_s,dyz_s,fxxx_s,fyyy_s,fzzz_s :: REAL
+     fxxy_s,fxxz_s,fxyy_s,fyyz_s,fxzz_s,fyzz_s,fxyz_s :: REAL
+     ag,bg,i,j,n :: INT
+
+     if (mass_c < TOL(15)) then
+       eta_c=1.0d30  ! Very big.
+     else
+       eta_c=3880000000d0*(mass_c**(-TWOTHIRDS))
+     end
+     eta_c = 1.0d60 ! uncomment this to get rid of relativistic correction.
+
+     rysa.create(2)
+
+     two_pi=TWO*PI
+     i = 0
+     j = 0
+     dxx_s = ZERO;  dyy_s = ZERO;  dzz_s = ZERO
+     dxy_s = ZERO;  dxz_s = ZERO;  dyz_s = ZERO
+     fxxx_s = ZERO; fyyy_s = ZERO; fzzz_s = ZERO
+     fxxy_s = ZERO; fxxz_s = ZERO; fxyy_s = ZERO
+     fyyz_s = ZERO; fxzz_s = ZERO; fyzz_s = ZERO
+     fxyz_s = ZERO
+     do bg = 1, .b.n_cc
+       do ag = 1, .a.n_cc
+         i     = i + 1
+         zeta  = .exponent_sum(i)
+         zinv  = .exponent_inv(i)
+         rho   = zeta * eta_c / (zeta + eta_c)
+         PAx   = .center_diff(1,i)
+         PAy   = .center_diff(2,i)
+         PAz   = .center_diff(3,i)
+         QPx   = pos_c(1) - .pair_center(1,i)
+         QPy   = pos_c(2) - .pair_center(2,i)
+         QPz   = pos_c(3) - .pair_center(3,i)
+         xx    = rho * (QPx*QPx + QPy*QPy + QPz*QPz)
+         rysa.get_weights(xx)
+         rysa.w = rysa.w * (two_pi * .cc_prefactor(i) * sqrt(rho))
+         half_zinv = HALF * zinv
+         rho_zinv = rho * zinv
+
+         do n = 1, 2
+           j = j + 1
+           wt = rysa.w(n)
+           rzt   = rysa.r(n)*rho_zinv
+           ce    = (ONE-rzt)*half_zinv
+           Ix2 = PAx+rzt*QPx
+           Iy2 = PAy+rzt*QPy
+           Iz2 = PAz+rzt*QPz
+           Ix3 = Ix2*Ix2+ce
+           Iy3 = Iy2*Iy2+ce
+           Iz3 = (Iz2*Iz2+ce)*wt
+           Iz2 = Iz2 * wt
+           two_ce = ce+ce
+           dxx_s  = dxx_s  + Ix3 * wt
+           dyy_s  = dyy_s  + Iy3 * wt
+           dzz_s  = dzz_s  + Iz3
+           dxy_s  = dxy_s  + Ix2 * Iy2 * wt
+           dxz_s  = dxz_s  + Ix2 * Iz2
+           dyz_s  = dyz_s  + Iy2 * Iz2
+           fxxx_s = fxxx_s + Ix2*(Ix3+two_ce) * wt
+           fyyy_s = fyyy_s + Iy2*(Iy3+two_ce) * wt
+           fzzz_s = fzzz_s + Iz2*(Iz3+two_ce) * wt
+           fxxy_s = fxxy_s + Ix3 * Iy2 * wt
+           fxxz_s = fxxz_s + Ix3 * Iz2
+           fxyy_s = fxyy_s + Ix2 * Iy3 * wt
+           fyyz_s = fyyz_s + Iy3 * Iz2
+           fxzz_s = fxzz_s + Ix3 * Iz3
+           fyzz_s = fyzz_s + Iy2 * Iz3
+           fxyz_s = fxyz_s + Ix2 * Iy2 * Iz2
+         end
+       end
+     end
+
+     if (.a.l==2) then
+       ABx = .a.pos(1) - .b.pos(1)
+       ABy = .a.pos(2) - .b.pos(2)
+       ABz = .a.pos(3) - .b.pos(3)
+       dp(1,1)      = fxxx_s + ABx * dxx_s
+       dp(2,1)      = fxyy_s + ABx * dyy_s
+       dp(3,1)      = fxzz_s + ABx * dzz_s
+       dp(4,1)      = fxxy_s + ABx * dxy_s
+       dp(5,1)      = fxxz_s + ABx * dxz_s
+       dp(6,1)      = fxyz_s + ABx * dyz_s
+       dp(1,2)      = fxxy_s + ABy * dxx_s
+       dp(2,2)      = fyyy_s + ABy * dyy_s
+       dp(3,2)      = fyzz_s + ABy * dzz_s
+       dp(4,2)      = fxyy_s + ABy * dxy_s
+       dp(5,2)      = fxyz_s + ABy * dxz_s
+       dp(6,2)      = fyyz_s + ABy * dyz_s
+       dp(1,3)      = fxxz_s + ABz * dxx_s
+       dp(2,3)      = fyyz_s + ABz * dyy_s
+       dp(3,3)      = fzzz_s + ABz * dzz_s
+       dp(4,3)      = fxyz_s + ABz * dxy_s
+       dp(5,3)      = fxzz_s + ABz * dxz_s
+       dp(6,3)      = fyzz_s + ABz * dyz_s
+     else
+       ABx = .b.pos(1) - .a.pos(1)
+       ABy = .b.pos(2) - .a.pos(2)
+       ABz = .b.pos(3) - .a.pos(3)
+       dp(1,1)      = fxxx_s + ABx * dxx_s
+       dp(1,2)      = fxyy_s + ABx * dyy_s
+       dp(1,3)      = fxzz_s + ABx * dzz_s
+       dp(1,4)      = fxxy_s + ABx * dxy_s
+       dp(1,5)      = fxxz_s + ABx * dxz_s
+       dp(1,6)      = fxyz_s + ABx * dyz_s
+       dp(2,1)      = fxxy_s + ABy * dxx_s
+       dp(2,2)      = fyyy_s + ABy * dyy_s
+       dp(2,3)      = fyzz_s + ABy * dzz_s
+       dp(2,4)      = fxyy_s + ABy * dxy_s
+       dp(2,5)      = fxyz_s + ABy * dxz_s
+       dp(2,6)      = fyyz_s + ABy * dyz_s
+       dp(3,1)      = fxxz_s + ABz * dxx_s
+       dp(3,2)      = fyyz_s + ABz * dyy_s
+       dp(3,3)      = fzzz_s + ABz * dzz_s
+       dp(3,4)      = fxyz_s + ABz * dxy_s
+       dp(3,5)      = fxzz_s + ABz * dxz_s
+       dp(3,6)      = fyzz_s + ABz * dyz_s
+     end
+
+     rysa.destroy
+   end
+
+   make_nuc_ds(ds,mass_c,pos_c) ::: private
+   ! Make the (ds) nuclear attraction integrals, summed over primitives
+   ! Numbers may be slightly different to cadpac due to a relativistic
+   ! correction term.
+     self :: IN
+     ds :: REALMAT, OUT
+     mass_c :: REAL, IN
+     pos_c :: REALVEC(3), IN
+     rysa :: RYS*
+     rzt,ce,rho_zinv,half_zinv,Ix2,Iy2,Iz2,wt,Iz2_wt :: REAL
+     QPx,QPy,QPz,PAx,PAy,PAz,zeta,zinv,rho,xx,eta_c,two_pi :: REAL
+     dxx_s,dyy_s,dzz_s,dxy_s,dxz_s,dyz_s :: REAL
+     ag,bg,i,n :: INT
+
+     if (mass_c < TOL(15)) then
+       eta_c=1.0d30  ! Very big.
+     else
+       eta_c=3880000000d0*(mass_c**(-TWOTHIRDS))
+     end
+     eta_c = 1.0d60 ! uncomment this to get rid of relativistic correction.
+
+     rysa.create(2)
+     two_pi=TWO*PI
+     dxx_s = ZERO;    dyy_s = ZERO;    dzz_s = ZERO
+     dxy_s = ZERO;    dxz_s = ZERO;    dyz_s = ZERO
+     i = 0
+     do bg = 1, .b.n_cc
+       do ag = 1, .a.n_cc
+         i     = i + 1
+         zeta  = .exponent_sum(i)
+         zinv  = .exponent_inv(i)
+         rho   = zeta * eta_c / (zeta + eta_c)
+         PAx   = .center_diff(1,i)
+         PAy   = .center_diff(2,i)
+         PAz   = .center_diff(3,i)
+         QPx   = pos_c(1) - .pair_center(1,i)
+         QPy   = pos_c(2) - .pair_center(2,i)
+         QPz   = pos_c(3) - .pair_center(3,i)
+         xx    = rho * (QPx*QPx + QPy*QPy + QPz*QPz)
+         rysa.get_weights(xx)
+         rysa.w = rysa.w * (two_pi * .cc_prefactor(i) * sqrt(rho))
+         half_zinv = HALF * zinv
+         rho_zinv = rho * zinv
+         do n = 1,2
+           wt = rysa.w(n)
+           rzt   = rysa.r(n)*rho_zinv
+           Ix2 = PAx+rzt*QPx
+           Iy2 = PAy+rzt*QPy
+           Iz2 = PAz+rzt*QPz
+           ce  = (ONE-rzt)*half_zinv
+           Iz2_wt = Iz2 * wt
+           dxx_s = dxx_s + (Ix2*Ix2+ce) * wt
+           dyy_s = dyy_s + (Iy2*Iy2+ce) * wt
+           dzz_s = dzz_s + (Iz2*Iz2+ce) * wt
+           dxy_s = dxy_s + Ix2 * Iy2    * wt
+           dxz_s = dxz_s + Ix2 *      Iz2_wt
+           dyz_s = dyz_s +      Iy2 * Iz2_wt
+         end
+       end
+     end
+     rysa.destroy
+     if (.a.l==2) then
+       ds(1,1) = dxx_s
+       ds(2,1) = dyy_s
+       ds(3,1) = dzz_s
+       ds(4,1) = dxy_s
+       ds(5,1) = dxz_s
+       ds(6,1) = dyz_s
+     else
+       ds(1,1) = dxx_s
+       ds(1,2) = dyy_s
+       ds(1,3) = dzz_s
+       ds(1,4) = dxy_s
+       ds(1,5) = dxz_s
+       ds(1,6) = dyz_s
+     end
+   end
+
+   make_nuc_pp(pp,mass_c,pos_c) ::: private
+   ! Make the (es) nuclear attraction integrals, summed over primitives
+   ! Numbers may be slightly different to cadpac due to a relativistic
+   ! correction term.
+     self :: IN
+     pp :: REALMAT, OUT
+     mass_c :: REAL, IN
+     pos_c :: REALVEC(3), IN
+     rysa :: RYS*
+     rzt,ce,rho_zinv,half_zinv,Ix2,Iy2,Iz2,wt,Iy2_wt,Iz2_wt :: REAL
+     QPx,QPy,QPz,PAx,PAy,PAz,zeta,zinv,rho,xx,eta_c,two_pi :: REAL
+     BAx,BAy,BAz,px_s,py_s,pz_s,dxx_s,dyy_s,dzz_s,dxy_s,dxz_s,dyz_s :: REAL
+     ag,bg,i,n :: INT
+
+     if (mass_c < TOL(15)) then
+       eta_c=1.0d30  ! Very big.
+     else
+       eta_c=3880000000d0*(mass_c**(-TWOTHIRDS))
+     end
+     eta_c = 1.0d60 ! uncomment this to get rid of relativistic correction.
+
+     rysa.create(2)
+
+     two_pi=TWO*PI
+     i = 0
+     px_s = ZERO;   py_s = ZERO;   pz_s = ZERO
+     dxx_s = ZERO;   dyy_s = ZERO;   dzz_s = ZERO
+     dxy_s = ZERO;   dxz_s = ZERO;   dyz_s = ZERO
+     do bg = 1, .b.n_cc
+       do ag = 1, .a.n_cc
+         i     = i + 1
+         zeta  = .exponent_sum(i)
+         zinv  = .exponent_inv(i)
+         rho   = zeta * eta_c / (zeta + eta_c)
+         PAx   = .center_diff(1,i)
+         PAy   = .center_diff(2,i)
+         PAz   = .center_diff(3,i)
+         QPx   = pos_c(1) - .pair_center(1,i)
+         QPy   = pos_c(2) - .pair_center(2,i)
+         QPz   = pos_c(3) - .pair_center(3,i)
+         xx    = rho * (QPx*QPx + QPy*QPy + QPz*QPz)
+         rysa.get_weights(xx)
+         rysa.w = rysa.w * (two_pi * .cc_prefactor(i) * sqrt(rho))
+         half_zinv = HALF * zinv
+         rho_zinv = rho * zinv
+
+         do n = 1,2
+           wt = rysa.w(n)
+           rzt = rysa.r(n)*rho_zinv
+           Ix2 = PAx+rzt*QPx
+           Iy2 = PAy+rzt*QPy
+           Iz2 = PAz+rzt*QPz
+           ce  = (ONE-rzt)*half_zinv
+           Iz2_wt = Iz2 * wt
+           Iy2_wt = Iy2 * wt
+           px_s = px_s + Ix2 * wt
+           py_s = py_s + Iy2_wt
+           pz_s = pz_s + Iz2_wt
+           dxx_s = dxx_s + (Ix2*Ix2+ce) * wt
+           dyy_s = dyy_s + (Iy2*Iy2+ce) * wt
+           dzz_s = dzz_s + (Iz2*Iz2+ce) * wt
+           dxy_s = dxy_s + Ix2 * Iy2_wt
+           dxz_s = dxz_s + Ix2 * Iz2_wt
+           dyz_s = dyz_s + Iy2 * Iz2_wt
+         end
+       end
+     end
+     rysa.destroy
+
+     BAx = .b.pos(1) - .a.pos(1)
+     BAy = .b.pos(2) - .a.pos(2)
+     BAz = .b.pos(3) - .a.pos(3)
+     pp(1,1) = dxx_s + BAx * px_s
+     pp(1,2) = dxy_s + BAx * py_s
+     pp(1,3) = dxz_s + BAx * pz_s
+     pp(2,1) = dxy_s + BAy * px_s
+     pp(2,2) = dyy_s + BAy * py_s
+     pp(2,3) = dyz_s + BAy * pz_s
+     pp(3,1) = dxz_s + BAz * px_s
+     pp(3,2) = dyz_s + BAz * py_s
+     pp(3,3) = dzz_s + BAz * pz_s
+   end
+
+   make_nuc_ps(ps,mass_c,pos_c) ::: private
+   ! Make the (ps) nuclear attraction integrals, summed over primitives
+   ! Numbers may be slightly different to cadpac due to a relativistic
+   ! correction term.
+     self :: IN
+     ps :: REALMAT, OUT
+     mass_c :: REAL, IN
+     pos_c :: REALVEC(3), IN
+     rysa :: RYS*
+     rzt,wt :: REAL
+     QPx,QPy,QPz,PAx,PAy,PAz,zeta,rho,xx,eta_c,two_pi,ps_x,ps_y,ps_z :: REAL
+     ag,bg,i :: INT
+
+     if (mass_c < TOL(15)) then
+       eta_c=1.0d30  ! Very big.
+     else
+       eta_c=3880000000d0*(mass_c**(-TWOTHIRDS))
+     end
+     eta_c = 1.0d60 ! uncomment this to get rid of relativistic correction.
+
+     rysa.create(1)
+
+     two_pi=TWO*PI
+     i = 0
+     ps_x = ZERO;   ps_y = ZERO;   ps_z = ZERO
+     do bg = 1, .b.n_cc
+       do ag = 1, .a.n_cc
+         i     = i + 1
+         zeta  = .exponent_sum(i)
+         rho   = zeta * eta_c / (zeta + eta_c)
+         PAx   = .center_diff(1,i)
+         PAy   = .center_diff(2,i)
+         PAz   = .center_diff(3,i)
+         QPx   = pos_c(1) - .pair_center(1,i)
+         QPy   = pos_c(2) - .pair_center(2,i)
+         QPz   = pos_c(3) - .pair_center(3,i)
+         xx    = rho * (QPx*QPx + QPy*QPy + QPz*QPz)
+         rysa.get_weights(xx)
+         wt = rysa.w(1) * (two_pi * .cc_prefactor(i) * sqrt(rho))
+         rzt   = rysa.r(1) * rho * .exponent_inv(i)
+         ps_x = ps_x + (PAx+rzt*QPx) * wt
+         ps_y = ps_y + (PAy+rzt*QPy) * wt
+         ps_z = ps_z + (PAz+rzt*QPz) * wt
+       end
+     end
+     if (.a.l==1) then
+       ps(1,1) = ps_x
+       ps(2,1) = ps_y
+       ps(3,1) = ps_z
+     else
+       ps(1,1) = ps_x
+       ps(1,2) = ps_y
+       ps(1,3) = ps_z
+     end
+     rysa.destroy
+   end
+
+   make_nuc_ss(es,mass_c,pos_c) ::: private
+   ! Make the (ss) nuclear attraction integrals, summed over primitives
+   ! Numbers may be slightly different to cadpac due to a relativistic
+   ! correction term.
+     self :: IN
+     es :: REAL, OUT
+     mass_c :: REAL, IN
+     pos_c :: REALVEC(3), IN
+     rysa :: RYS*
+     QPx,QPy,QPz,zeta,rho,xx,eta_c,two_pi :: REAL
+     ag,bg,i :: INT
+
+     if (mass_c < TOL(15)) then
+       eta_c=1.0d30  ! Very big.
+     else
+       eta_c=3880000000d0*(mass_c**(-TWOTHIRDS))
+     end
+     eta_c = 1.0d60 ! uncomment this to get rid of relativistic correction.
+
+     rysa.create(1)
+     two_pi=TWO*PI
+     es = ZERO
+     i = 0
+     do bg = 1, .b.n_cc
+       do ag = 1, .a.n_cc
+         i     = i + 1
+         zeta  = .exponent_sum(i)
+         rho   = zeta * eta_c / (zeta + eta_c)
+         QPx   = pos_c(1) - .pair_center(1,i)
+         QPy   = pos_c(2) - .pair_center(2,i)
+         QPz   = pos_c(3) - .pair_center(3,i)
+         xx    = rho * (QPx*QPx + QPy*QPy + QPz*QPz)
+         rysa.get_weights(xx)
+         es    = es + (two_pi * .cc_prefactor(i) * sqrt(rho)) * rysa.w(1)
+       end
+     end
+     rysa.destroy
+   end
+
+   transfer(es,ab)
+   ! Applies the transfer equation to (e|s) to give (a|b)
+     self :: IN
+     es :: REALVEC, IN
+     ab :: REALMAT, OUT
+     if (.a.l > .b.l) then
+       .transfer_l_a_highest(es,ab)
+     else
+       .transfer_l_b_highest(es,ab)
+     end
+   end
+
+   transfer_l_a_highest(es,ab) ::: private
+   ! Applies the transfer equation to (e|s) to give (a|b)
+   ! where a has the higher angular momentum.
+     self :: IN
+     es :: REALVEC, IN
+     ab :: REALMAT, OUT
+     ABvec :: REALVEC(3)
+     momenta :: INTMAT*
+     index :: INTMAT3*
+     a_momenta,b_momenta :: INTVEC(3)
+     int_new,int_old :: REALMAT*
+     a,b,lb,aub,bub,lb1_n_comp_sum,lb2_n_comp_sum :: INT
+     a1,b1,z,eadd,tmp :: INT
+     ABi :: REAL
+
+     select case (.b.l)
+       case (0)
+         ab(:,1)=es
+
+       case (1)
+         ABvec = .a.pos - .b.pos
+         eadd  = (.a.l-1).n_comp_sum
+         aub   = (.l_sum-1).n_comp_sum - eadd
+
+         momenta.create(3, .l_sum.n_comp_sum)
+         tmp=0;    tmp.make_gaussian_xyz_powers(momenta,.l_sum)
+         index.create(0,.l_sum, 0,.l_sum, 0,.l_sum)
+         index.make_index_of_components(momenta)
+
+         do b=1,3
+           z   = momenta(:,b+1).index_of_first_nonzero_value
+           ABi = ABvec(z)
+           do a=1,aub
+             a_momenta    = momenta(:, a + eadd)
+             a_momenta(z) = a_momenta(z) + 1
+             a1 = index(a_momenta(1), a_momenta(2), a_momenta(3)) - eadd
+             ab(a,b)      = es(a1) + ABi * es(a)
+           end
+         end
+         index.destroy
+         momenta.destroy
+
+       case default
+         ABvec = .a.pos - .b.pos
+         eadd  = (.l_max-1).n_comp_sum
+         aub   = (.l_sum-1).n_comp_sum - eadd
+
+         momenta.create(3, .l_sum.n_comp_sum)
+         tmp=0;    tmp.make_gaussian_xyz_powers(momenta,.l_sum)
+         index.create(0,.l_sum, 0,.l_sum, 0,.l_sum)
+         index.make_index_of_components(momenta)
+
+         int_new.create(aub,3)
+         do b=1,3
+           z   = momenta(:,b+1).index_of_first_nonzero_value
+           ABi = ABvec(z)
+           do a=1,aub
+             a_momenta    = momenta(:, a + eadd)
+             a_momenta(z) = a_momenta(z) + 1
+             a1 = index(a_momenta(1), a_momenta(2), a_momenta(3)) - eadd
+             int_new(a,b) = es(a1) + ABi * es(a)
+           end
+         end
+
+         do lb=2, .b.l-1
+           lb1_n_comp_sum = (lb-1).n_comp_sum
+           lb2_n_comp_sum = (lb-2).n_comp_sum
+           bub            = lb.n_comp_sum - lb1_n_comp_sum
+           aub            = (.l_sum-lb).n_comp_sum - eadd
+           int_old        => int_new
+           nullify(int_new)
+           int_new.create(aub,bub)
+           do b=1,bub
+             b_momenta    = momenta(:, b + lb1_n_comp_sum)
+             z            = b_momenta.index_of_first_nonzero_value
+             b_momenta(z) = b_momenta(z) - 1
+             b1 = index(b_momenta(1),b_momenta(2),b_momenta(3)) - lb2_n_comp_sum
+             ABi          = ABvec(z)
+             do a=1,aub
+               a_momenta    = momenta(:, a + eadd)
+               a_momenta(z) = a_momenta(z) + 1
+               a1 = index(a_momenta(1),a_momenta(2),a_momenta(3)) - eadd
+               int_new(a,b) = int_old(a1,b1) + ABi * int_old(a,b1)
+             end
+           end
+           int_old.destroy
+         end
+
+         lb1_n_comp_sum = (.b.l-1).n_comp_sum
+         lb2_n_comp_sum = (.b.l-2).n_comp_sum
+         bub            = .b.l.n_comp_sum - lb1_n_comp_sum
+         aub            = (.l_sum-.b.l).n_comp_sum - eadd
+         int_old        => int_new
+         do b=1,bub
+           b_momenta    = momenta(:, b + lb1_n_comp_sum)
+           z            = b_momenta.index_of_first_nonzero_value
+           b_momenta(z) = b_momenta(z) - 1
+           b1 = index(b_momenta(1),b_momenta(2),b_momenta(3)) - lb2_n_comp_sum
+           ABi          = ABvec(z)
+           do a=1,aub
+             a_momenta    = momenta(:, a + eadd)
+             a_momenta(z) = a_momenta(z) + 1
+             a1 = index(a_momenta(1),a_momenta(2),a_momenta(3)) - eadd
+             ab(a,b)      = int_old(a1,b1) + ABi * int_old(a,b1)
+           end
+         end
+         int_old.destroy
+         index.destroy
+         momenta.destroy
+     end
+   end
+
+   transfer_l_b_highest(es,ab) ::: private
+   ! Applies the transfer equation to (e|s) to give (a|b)
+   ! where b has the higher angular momentum.
+     self :: IN
+     es :: REALVEC, IN
+     ab :: REALMAT, OUT
+     BAvec :: REALVEC(3)
+     int_new,int_old :: REALMAT*
+     momenta :: INTMAT*
+     index :: INTMAT3*
+     a_momenta,b_momenta :: INTVEC(3)
+     a,b,la,aub,bub,la1_n_comp_sum,la2_n_comp_sum :: INT
+     a1,b1,z,eadd,tmp :: INT
+     BAi :: REAL
+
+     select case (.a.l)
+       case (0)
+         ab(1,:)=es
+
+       case (1)
+         BAvec = .b.pos - .a.pos
+         eadd  = (.b.l-1).n_comp_sum
+         bub   = (.l_sum-1).n_comp_sum - eadd
+
+         momenta.create(3, .l_sum.n_comp_sum)
+         tmp=0;    tmp.make_gaussian_xyz_powers(momenta,.l_sum)
+         index.create(0,.l_sum, 0,.l_sum, 0,.l_sum)
+         index.make_index_of_components(momenta)
+
+         do a=1,3
+           z   = momenta(:,a+1).index_of_first_nonzero_value
+           BAi = BAvec(z)
+           do b=1, bub
+             b_momenta    = momenta(:, b + eadd)
+             b_momenta(z) = b_momenta(z) + 1
+             b1 = index(b_momenta(1), b_momenta(2), b_momenta(3)) - eadd
+             ab(a,b)      = es(b1) + BAi * es(b)
+           end
+         end
+         index.destroy
+         momenta.destroy
+
+       case default
+         BAvec = .b.pos - .a.pos
+         eadd  = (.b.l-1).n_comp_sum
+         bub   = (.l_sum-1).n_comp_sum - eadd
+
+         momenta.create(3, .l_sum.n_comp_sum)
+         tmp=0;    tmp.make_gaussian_xyz_powers(momenta,.l_sum)
+         index.create(0,.l_sum, 0,.l_sum, 0,.l_sum)
+         index.make_index_of_components(momenta)
+
+         int_new.create(3,bub)
+         do a = 1, 3
+           z   = momenta(:,a+1).index_of_first_nonzero_value
+           BAi = BAvec(z)
+           do b = 1, bub
+             b_momenta    = momenta(:, b + eadd)
+             b_momenta(z) = b_momenta(z) + 1
+             b1 = index(b_momenta(1), b_momenta(2), b_momenta(3)) - eadd
+             int_new(a,b) = es(b1) + BAi * es(b)
+           end
+         end
+
+         do la=2, .a.l - 1
+           la1_n_comp_sum = (la-1).n_comp_sum
+           la2_n_comp_sum = (la-2).n_comp_sum
+           aub            = la.n_comp_sum - la1_n_comp_sum
+           bub            = (.l_sum-la).n_comp_sum - eadd
+           int_old=>int_new
+           nullify(int_new)
+           int_new.create(aub,bub)
+           do a=1,aub
+             a_momenta    = momenta(:,a + la1_n_comp_sum)
+             z            = a_momenta.index_of_first_nonzero_value
+             a_momenta(z) = a_momenta(z) - 1
+             a1 = index(a_momenta(1),a_momenta(2),a_momenta(3)) - la2_n_comp_sum
+             BAi          = BAvec(z)
+             do b=1,bub
+               b_momenta    = momenta(:,b + eadd)
+               b_momenta(z) = b_momenta(z) + 1
+               b1 = index(b_momenta(1), b_momenta(2), b_momenta(3)) - eadd
+               int_new(a,b) = int_old(a1,b1) + BAi * int_old(a1,b)
+             end
+           end
+           int_old.destroy
+         end
+
+         la1_n_comp_sum = (.a.l-1).n_comp_sum
+         la2_n_comp_sum = (.a.l-2).n_comp_sum
+         aub            = .a.l.n_comp_sum - la1_n_comp_sum
+         bub            = (.l_sum-.a.l).n_comp_sum - eadd
+         int_old=>int_new
+         do a=1,aub
+           a_momenta    = momenta(:,a + la1_n_comp_sum)
+           z            = a_momenta.index_of_first_nonzero_value
+           a_momenta(z) = a_momenta(z) - 1
+           a1 = index(a_momenta(1),a_momenta(2),a_momenta(3)) - la2_n_comp_sum
+           BAi          = BAvec(z)
+           do b=1,bub
+             b_momenta    = momenta(:,b + eadd)
+             b_momenta(z) = b_momenta(z) + 1
+             b1 = index(b_momenta(1), b_momenta(2), b_momenta(3)) - eadd
+             ab(a,b)      = int_old(a1,b1) + BAi * int_old(a1,b)
+           end
+         end
+         int_old.destroy
+         index.destroy
+         momenta.destroy
+     end
+   end
+
+ ! Normalization routines and functions
+
+   normalise(ab)
+   ! Multiply the matrix by the orbital normalisation coefficients
+   ! for orbitals a and b.
+     self :: IN
+     ab :: REALMAT, INOUT
+     a,b,i :: INT
+     if (.a.l>1 OR .b.l>1) then
+       i = 0
+       do b = 1, .b.n_comp
+         do a = 1, .a.n_comp
+           i = i + 1
+           ab(a,b)=ab(a,b)*.normalising_factors(i)
+         end
+       end
+     end
+   end
+
+   put
+   ! Put the shell2 information on file "out"
+     stdout.flush
+     stdout.put("Shell a:",flush=1); .a.put
+     stdout.flush
+     stdout.put("Shell b:",flush=1); .b.put
+   end
+
+end

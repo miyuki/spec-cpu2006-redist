@@ -1,0 +1,340 @@
+#! /bin/sh
+# /*@@
+#   @file      linux
+#   @date      Thu Jul 15 21:30:04 1999
+#   @author    Tom Goodale
+#   @desc 
+#              known-architectures file for systems running Linux
+#   @enddesc
+#   @version   $Header: /cactus/Cactus/lib/make/known-architectures/linux,v 1.58 2001/12/19 15:25:55 tradke Exp $ 
+# @@*/
+
+if test "$CCTK_CONFIG_STAGE" = "preferred-compilers" ; then
+
+:
+
+else
+
+# Determine which Fortran 90 compiler is in use
+  LINUX_F90_COMP=none
+
+  if test -n "$F90" && test "$F90" != "none" ; then 
+    if test "`$F90 -V 2>&1 | grep -i f90 | grep -i vast`" ; then 
+        LINUX_F90_COMP=pacific
+    elif test "`$F90 -V 2>&1 | grep -i f90 | grep -i absoft`" ; then 
+        LINUX_F90_COMP=absoft
+    elif test "`$F90 -V 2>&1 | grep NAGWare`" ; then 
+        LINUX_F90_COMP=nag
+    elif test "`$F90 -V 2>&1 | grep -i fujitsu`" ; then 
+        LINUX_F90_COMP=fujitsu
+    elif test "`$F90 -V 2>&1 | grep -i f90 | grep -i pgf90`" ; then
+        LINUX_F90_COMP=portland
+    elif test "`$F90 -v 2>&1 | grep -i g77`" ; then
+        LINUX_F90_COMP=gnu77
+    elif test "`$F90 -? 2>&1 | grep -i absoft`" ; then
+        LINUX_F90_COMP=absoft77
+    elif test "`$F90 --version 2>&1 | grep -i lahey/fujitsu`" ; then
+       LINUX_F90_COMP=lahey          
+    elif test "`$F90 -v 2>&1 | grep -i SGIcc`" ; then
+       LINUX_F90_COMP=SGI          
+    elif test "`$F90 -V 2>&1 | grep -i intel`" ; then
+       LINUX_F90_COMP=Intel          
+    elif test "`$F90 -v 2>&1 | grep -i compaq`" ; then
+       LINUX_F90_COMP=Compaq
+    else
+        echo Unknown Linux f90 compiler.
+        echo Please add appropriate information to 
+        echo $srcdir/known-architectures/linux-gnu
+        echo ad send the updated file to CactusMaint
+        echo We will try anyway ...
+    fi
+  elif test -n "$F77" ; then 
+    if test "`$F77 -v 2>&1 | grep -i g77`" ; then
+        LINUX_F90_COMP=gnu77
+    elif test "`$F77 -? 2>&1 | grep -i absoft`" ; then
+        LINUX_F90_COMP=absoft77
+    elif test "`$F77 -V 2>&1 | grep NAGWare`" ; then 
+        LINUX_F90_COMP=nag
+    elif test "`$F90 -V 2>&1 | grep -i intel`" ; then
+       LINUX_F90_COMP=Intel          
+    elif test "`$F90 -v 2>&1 | grep -i compaq`" ; then
+       LINUX_F90_COMP=Compaq
+    else
+        echo Unknown Linux f77 compiler.
+        echo Please add appropriate information to 
+        echo $srcdir/known-architectures/linux-gnu
+        echo ad send the updated file to CactusMaint
+        echo We will try anyway ...
+    fi
+  fi
+
+# find out if we have egcs or not, LIBS is either g2c or f2c
+  LINUX_G77_USES_LIBG2C=
+
+  if test "$LINUX_F90_COMP" = "gnu77" -o "$LINUX_F90_COMP" = "pacific" ; then
+    if test -n "`$F77 -v 2>&1 | grep g2c`" ; then
+      LINUX_G77_USES_LIBG2C=yes
+    else
+      LINUX_G77_USES_LIBG2C=no
+    fi
+  fi
+
+#Set the appropriate flags
+  case "$LINUX_F90_COMP" in
+     gnu77)
+       if test "$LINUX_G77_USES_LIBG2C" = "yes" ; then
+         : ${LIBS="g2c m"} 
+       fi
+       if test "$LINUX_G77_USES_LIBG2C" = "no" ; then
+         : ${LIBS="f2c m"} 
+       fi
+       : ${F77_DEBUG_FLAGS="-g"}
+       : ${F90_DEBUG_FLAGS="-g"}
+       : ${F77_WARN_FLAGS="-Wall"}
+       : ${F90_WARN_FLAGS="-Wall"}
+       ;;
+     pacific)
+       if test "$LINUX_G77_USES_LIBG2C" = "yes" ; then
+         : ${LIBS="vast90 g2c m"} 
+       fi
+       if test "$LINUX_G77_USES_LIBG2C" = "no" ; then
+         : ${LIBS="vast90 f2c m"} 
+       fi
+       : ${F77_DEBUG_FLAGS="-g"}
+       : ${F90_DEBUG_FLAGS="-g"}
+       : ${F77_WARN_FLAGS="-Wall"}
+       : ${F90_WARN_FLAGS="-Wall"}
+       ;;
+     absoft)
+       : ${LIBS="f90math fio f77math m"} 
+       : ${F90_OPTIMISE_FLAGS="-s -O"}
+       : ${F77_OPTIMISE_FLAGS="-s -O"}
+       # Test if it is a version of the absoft compiler which has the library in a custom place.
+       if test -n "$ABSOFT" ; then
+         : ${LIBDIRS='$(ABSOFT)/lib'}
+       fi 
+       : ${F77_DEBUG_FLAGS="-g"}
+       : ${F90_DEBUG_FLAGS="-g"}
+       : ${F77_WARN_FLAGS="-m0"}
+       : ${F90_WARN_FLAGS="-m0"}
+       ;;
+     absoft77)
+       : ${LIBS="fio f77math m"}
+       F90FLAGS="-f"
+       # Test if it is a version of the absoft compiler which has the library in a custom place.
+       if test -n "$ABSOFT" ; then
+         : ${LIBDIRS='$(ABSOFT)/lib'}
+       fi 
+       : ${F77_DEBUG_FLAGS="-g"}
+       : ${F90_DEBUG_FLAGS="-g"}
+       : ${F77_WARN_FLAGS="-m0"}
+       : ${F90_WARN_FLAGS="-m0"}
+       ;;
+     nag)
+       : ${F77FLAGS='-maxcontin=100 -mismatch -w=x77 -w=uda -w=usy'}
+       : ${F90FLAGS='-maxcontin=100 -mismatch -w=x77 -w=uda -w=usy'}
+       : ${F77_OPTIMISE_FLAGS='-O4'}
+       : ${F90_OPTIMISE_FLAGS='-O4'}
+       ;;
+     portland)
+       : ${LIBS="pgftnrtl pgf90rtl pgf90 pgf90_rpm1 pghpf2 pgc m"}
+       : ${LIBDIRS='$(PGI)/linux86/lib'} 
+       : ${F77_OPTIMISE_FLAGS='-fast'}
+       : ${F90_OPTIMISE_FLAGS='$(F77_OPTIMISE_FLAGS)'}
+       : ${F77_DEBUG_FLAGS="-g"}
+       : ${F90_DEBUG_FLAGS="-g"}
+       ;;
+     fujitsu)
+       : ${LIBS="fj9i6 fj9e6 fj9f6"} 
+       ;;
+     lahey)
+       : ${F77_DEBUG_FLAGS="-g --chk"}
+       : ${F90_DEBUG_FLAGS="-g --chk"}
+       : ${F77_WARN_FLAGS="--warn"}
+       : ${F90_WARN_FLAGS="--warn"}
+       : ${F77_OPTIMISE_FLAGS="-O"}
+       : ${F90_OPTIMISE_FLAGS="-O"}         
+       if test -n "$LAHEY" ; then
+         : ${LIBDIRS="$LAHEY/lib"}
+       else
+         if test -d '/usr/local/lf9555/lib' ; then
+	   : ${LIBDIRS="/usr/local/lf9555/lib"}
+         elif test -d '/usr/local/lf9560/lib' ; then
+	   : ${LIBDIRS="/usr/local/lf9560/lib"}
+         fi
+       fi
+       if test -z "${LIBDIRS}" ; then
+         echo "Unable to locate LAHEY installation directory"
+         echo "Please configure with LAHEY=... or set LAHEY in your environment"
+         exit 2
+       fi
+       if test -f "${LIBDIRS}/libfccx86_6a.a" ; then
+         : ${LIBS="fj9i6 fj9f6 fj9e6 fccx86_6a"}
+       else
+         : ${LIBS="fj9i6 fj9e6 fj9f6"} 
+       fi       
+       ;;
+     SGI)
+       : ${F77_WARN_FLAGS='-fullwarn'}
+       : ${F90_WARN_FLAGS='-fullwarn'}
+       : ${F77_DEBUG_FLAGS='-g3'}
+       : ${F90_DEBUG_FLAGS='-g3'}
+       : ${F77_OPTIMISE_FLAGS='-O3'}
+       : ${F90_OPTIMISE_FLAGS='-O3'}
+       : ${LIBS="fortran ffio m"} 
+       ;;
+     Intel)
+       if test "$OPTIMISE" = "no"; then
+         : ${F77FLAGS='-132 -w95 -O0'}
+         : ${F90FLAGS='-132 -w95 -O0'}
+       else
+         : ${F77FLAGS='-132 -w95'}
+         : ${F90FLAGS='-132 -w95'}
+       fi
+       : ${F77_OPTIMISE_FLAGS='-O3'}
+       : ${F90_OPTIMISE_FLAGS='-O3'}
+       : ${LIBS="intrins IEPCF90 F90 m"}
+
+       # add the libpath if the linker is not Intel
+       if test "$LD" != "icc" -a -n "$IA32ROOT" ; then
+         : ${LIBDIRS='$(IA32ROOT)/lib'}
+         : ${LDFLAGS='-Qy $(IA32ROOT)/lib/icrt.link'}
+       fi
+# on IA64 this doesn't seem to be needed anymore (at least for v6.0)
+#       if test "$LD" != "ecc" -a "$LD" != "ecpc" -a -n "$IA64ROOT" ; then
+#         : ${LIBDIRS='$(IA64ROOT)/lib'}
+#         : ${LDFLAGS='-Qy $(IA64ROOT)/../../compiler50/ia64/lib/icrt.link'}
+#       fi
+       ;;
+     Compaq)
+       : ${LIBS="for m"}
+       ;;
+     none)
+       : ${LIBS="m"} 
+       ;;
+     *)
+       echo Unknown Linux f90 compiler.
+       echo Please add appropriate information to 
+       echo $srcdir/known-architectures/linux-gnu
+       echo and send the updated file to CactusMaint
+       echo We will try anyway ...
+       ;;
+  esac    
+
+# C compiler
+
+# Set the appropriate dependency, warning, and debugging flags
+# Note that the defaults settings are for gcc/g++ and they are set by configure
+  case "$CC" in
+    [ei]cc)
+      if test "$OPTIMISE" = "no"; then
+        : ${CFLAGS='-O0'}
+      fi
+      : ${C_OPTIMISE_FLAGS='-O3'}
+      : ${C_DEPEND='$(CC) -M $(CPPFLAGS)'}
+      : ${C_WARN_FLAGS='-w2'}
+      ;;
+    sgicc)
+      : ${C_OPTIMISE_FLAGS='-O3'}
+      : ${C_DEBUG_FLAGS='-g3'}
+      ;;
+    pgcc)
+      : ${C_OPTIMISE_FLAGS='-fast'}
+      ;;
+      *)
+      ;;
+  esac
+
+  case "$CXX" in
+    [ei]cc | ecpc)
+      if test "$OPTIMISE" = "no"; then
+        : ${CXXFLAGS='-O0'}
+      fi
+      : ${CXX_OPTIMISE_FLAGS='-O3'}
+      : ${CXX_DEPEND='$(CXX) -M $(CPPFLAGS)'}
+      ;;
+    sgiCC)
+      : ${CXX_OPTIMISE_FLAGS='-O3'}
+      : ${CXX_DEBUG_FLAGS='-g3'}
+  esac
+
+  : ${C_DEBUG_FLAGS="-g"}
+  : ${CXX_DEBUG_FLAGS="-g"}
+
+# Cache stuff
+
+  if test -z "$L2_CACHELINE_BYTES" ; then
+    case "$host_cpu" in 
+       i?86)
+        L2_CACHELINE_BYTES=32
+        echo "Setting L2_CACHELINE_BYTES to $L2_CACHELINE_BYTES"
+        ;;
+       ia64)
+        L2_CACHELINE_BYTES=128
+        echo "Setting L2_CACHELINE_BYTES to $L2_CACHELINE_BYTES"
+        ;;
+       *)
+        echo "Don't know cache size for cpu $host_cpu"
+        ;;
+     esac
+  fi
+
+  if test -z "$L2_CACHE_SIZE" ; then
+
+    if test "x$cross_compiling" = "xno" ; then
+      if test "$host_cpu" = "ia64"; then
+        # for IA64 set it to 2MB for now (actually it's the L3 cache size)
+        L2_CACHE_SIZE=2*1024
+      else
+        L2_CACHE_SIZE="`cat /proc/cpuinfo | perl -nae 'if(m:cache: && ! $dunnit) {print $F[3]; $dunnit=1}'`"
+      fi
+      if test -n "$L2_CACHE_SIZE" ; then
+        L2_CACHE_SIZE="$L2_CACHE_SIZE*1024"
+        echo "Setting L2_CACHE_SIZE to $L2_CACHE_SIZE bytes"
+      else
+        echo "Unable to determine L2 Cache size on this machine. "
+      fi
+    else
+      echo "Cross compiling - unable to determine L2 cache size" 
+    fi
+  fi
+
+  if test "x$cross_compiling" = "xyes" ; then
+    case "$host_cpu" in
+      i?86)
+        ENDIAN=little
+        SIZEOF_LONG_LONG=8
+        SIZEOF_LONG_INT=4
+        SIZEOF_INT=4
+        SIZEOF_SHORT_INT=2
+
+        SIZEOF_LONG_DOUBLE=8
+        SIZEOF_DOUBLE=8
+        SIZEOF_FLOAT=4
+
+        SIZEOF_POINTER=4
+      ;;
+      ia64)
+        ENDIAN=little
+        SIZEOF_LONG_LONG=8
+        SIZEOF_LONG_INT=8
+        SIZEOF_INT=4
+        SIZEOF_SHORT_INT=2
+
+        SIZEOF_LONG_DOUBLE=8
+        SIZEOF_DOUBLE=8
+        SIZEOF_FLOAT=4
+
+        SIZEOF_POINTER=8
+      ;;
+      *)
+        echo "Don't know details for cross-compilation to $host_cpu"
+    esac
+  fi
+
+# MPI stuff
+#
+# Linux has no native MPI, so we don't set any NATIVE_MPI_XXX variables.
+# This is caught by lib/make/extras/MPI/NATIVE then.
+
+fi

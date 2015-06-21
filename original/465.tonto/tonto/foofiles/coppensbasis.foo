@@ -1,0 +1,498 @@
+!-------------------------------------------------------------------------------
+!
+! COPPENSBASIS: For a Coppens style fitted relativistic atomic orbital basis.
+!
+! Copyright (C) Dylan Jayatilaka, 1998
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: coppensbasis.foo,v 1.2.2.12 2003/11/13 05:34:39 reaper Exp $
+!
+!-------------------------------------------------------------------------------
+
+module COPPENSBASIS
+
+   use COPPENSORBITALVEC, only: density_value_at_radius
+
+   implicit none
+
+   keys DEFAULT_NULL :: STRVEC*, private
+
+contains
+
+!****************************
+! Create and Destroy Routines
+!****************************
+
+   create ::: get_from(OBJECT), leaky
+   ! Create an object
+      self :: PTR
+   end
+
+   destroy ::: get_from(OBJECT), leaky
+   ! Destroy an object
+      self :: PTR
+   end
+
+   nullify_ptr_part
+   ! Nullify the pointer parts of self
+      nullify(.orbital)
+      nullify(.interpolator)
+   end
+
+   destroy_ptr_part
+   ! Destroy the pointer parts of self
+      .orbital.destroy
+      .interpolator.destroy
+   end
+
+!   created result(res) ::: pure
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res) ::: pure
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   create_copy(b) ::: leaky
+   ! Create a copy of the basis "b".
+     b :: SELF_TYPE, IN
+     self :: PTR
+     .create
+     .copy(b)
+   end
+
+   copy(b) ::: leaky
+   ! Copy a basis "b" to "self". Make sure pointer parts of self are first
+   ! destroyed or nullified, as you want.
+      b :: SELF_TYPE, IN
+      self = b
+      if (b.orbital.created) .orbital.create_copy(b.orbital)
+      if (b.interpolator.created) .interpolator.create_copy(b.interpolator)
+   end
+
+   set_defaults
+   ! Create and set up a default basis set
+      .label   = "?"
+      .n_orb   = 0
+      .n_prim  = 0
+   end
+
+   update
+   ! Update the shell data, if it exists
+      if (.orbital.destroyed) return
+      .n_orb   = .no_of_orbitals
+      .n_prim  = .no_of_primitives
+   end
+
+   set_label(label)
+   ! Set the basis label
+      label :: STR
+      .label = label
+   end
+
+   resolve_by_label(label,basis,clobber,found)
+   ! Resolve "self" by pointer assigning it to the element in "basis" which has
+   ! a label which matches "label". If "clobber" is present and TRUE (the
+   ! default situation), then "self" is pointer assigned to the matching element
+   ! in "basis" irrespective of whether it is already associated; otherwise it
+   ! is not pointer assigned. If present, "found" is set TRUE if "self" is
+   ! resolved (or was already resolved if clobber was not set), or false
+   ! otherwise. If "found" is not present, and a match has not been found, an
+   ! error is generated.
+      self :: PTR
+      label :: STR
+      basis :: COPPENSBASISVEC*
+      clobber,found :: BIN, optional
+      b :: INT
+      check :: BINVEC*
+      fnd :: BIN
+   ENSURE(basis.created, "no basis set")
+      if (present(clobber)) then
+      if (NOT clobber) then
+      if (.created) then
+      if (.label/=" ") then
+         if (present(found)) found = TRUE
+         return
+      end
+      end
+      end
+      end
+      check.create(basis.dim)
+      check = basis.label==label
+      b = check.index_of_first_true_element
+      check.destroy
+      fnd = b>0
+      if (fnd) self => basis(b) ! NOTE : this is a pointer assign NOT COPY
+      if (present(found)) then; found = fnd
+      else; ENSURE(fnd,"unknown basis label, "// trim(label))
+      end
+   end
+
+!  ************
+!  I/O Routines
+!  ************
+
+   read_keywords ::: get_from(OBJECT), recursive, leaky
+   ! Read data from "stdin" using keyword style input.
+   end
+
+   process_keyword(keyword) ::: leaky
+   ! Process command "keyword". Any required data needed by the "keyword" is
+   ! inputted from "stdin".
+     keyword :: STR(*), IN
+     word :: STR
+     word = keyword
+     word.to_lower_case
+     select case (word)
+       case ("}            "); ! exit surrounding loop
+       case ("label=       "); .read_label
+       case ("orbitals=    "); .read_orbitals
+       case ("put          "); .put
+       case ("put_table    "); .put_table
+       case ("tonto-style= "); .read_tonto_style
+       case ("units=       "); .read_units
+       ! These are only for making custom tables for the list type
+       case ("put_label    "); stdout.put(.label,int_width=TRUE)
+       case ("put_n_orb    "); stdout.put(.n_orb)
+       case ("put_n_prim   "); stdout.put(.n_prim)
+       case ("flush        "); stdout.flush
+       case  default ;      UNKNOWN(word)
+     end
+   end
+
+   read_units ::: get_from(OBJECT)
+   ! Read a string which describes the units to be used
+   end
+
+   read_junk ::: get_from(OBJECT)
+   ! Read in a junk string, useful for ignoring a field
+   end
+
+   read_label
+   ! Read only the basis label
+      stdin.read(.label)
+   end
+
+   read_orbitals ::: leaky
+   ! Read a list of orbitals
+      .orbital.read_list_keywords
+      .update
+   end
+
+   read_tonto_style ::: leaky
+   ! Create and read a tonto style basis set
+      .read_label
+      .orbital.set_keys(["kind= ","occ=  ","n_fun=","n,c,z="])
+      .orbital.read_data
+      .update
+   end
+
+   put
+   ! Put out the basis information to file "stdout"
+      stdout.flush
+      stdout.show("Coppens basis set : ",trim(.label))
+      stdout.flush
+      stdout.show("No. of orbitals        =",.n_orb)
+      stdout.show("No. of primitives      =",.n_prim)
+      .put_table
+   end
+
+   put_table
+   ! Put out the basis information to file "stdout"
+      i,j :: INT
+      stdout.flush
+      stdout.dash(int_fields=3,real_fields=3)
+      stdout.put("Kind",int_width=TRUE)
+      stdout.put("Orb #",int_width=TRUE)
+      stdout.put("Prim",int_width=TRUE)
+      stdout.put("N",int_width=TRUE)
+      stdout.put("Exponent")
+      stdout.put("Coeff")
+      stdout.flush
+      stdout.dash(int_fields=3,real_fields=3)
+      do i = 1,.n_orb
+         do j = 1,.orbital(i).n_fun
+            if (j==1) then
+               stdout.put(.orbital(i).kind,int_width=TRUE)
+               stdout.put(i)
+            else
+               stdout.tab(int_fields=2)
+            end
+            stdout.put(j)
+            stdout.put(.orbital(i).n(j))
+            stdout.put(.orbital(i).z(j))
+            stdout.put(.orbital(i).c(j))
+            stdout.flush
+         end
+      end
+      stdout.dash(int_fields=3,real_fields=3)
+   end
+
+!  ********************
+!  Key related routines
+!  ********************
+
+   read_keys ::: get_from(OBJECT)
+   ! Read the "keys".
+   end
+
+   process_keys ::: get_from(OBJECT), leaky
+   ! Process each of the words in the "keys" list.
+   end
+
+   keys_created result (res) ::: get_from(OBJECT)
+   ! Return TRUE if the list-element keys are created.
+      res :: BIN
+   end
+
+   set_keys(the_keys) ::: get_from(OBJECT)
+   ! This is for setting the "keys" externally.
+     the_keys :: STRVEC(len=*,:)
+   end
+
+   clear_keys ::: get_from(OBJECT)
+   ! This is for destroying the "keys" externally.
+   end
+
+   put_table_footer ::: get_from(OBJECT)
+   ! Output a table footer from the list of "keys". NOTE: not all keywords need
+   ! contribute to the banner - any unrecognised keyword is skipped.
+   end
+
+   put_table_header
+   ! Output a table header from the list of "keys". NOTE: not all keywords need
+   ! contribute to the banner - any unrecognised keyword is skipped.
+     word :: STR
+     width,k :: INT
+   ENSURE(keys.created,"no keys")
+     width = .table_width
+     if (width > 0) then
+       stdout.dash(width=width)
+       do k = 1,size(keys)
+         word = keys(k)
+         word.to_lower_case
+         select case (word)
+           case ("put_label   "); stdout.put("label",int_width=TRUE)
+           case ("put_n_orb   "); stdout.put("n_orb",int_width=TRUE)
+           case ("put_n_prim  "); stdout.put("n_prim",int_width=TRUE)
+           case ("flush       "); stdout.flush; exit
+         end
+         if (k==size(keys)) then
+           stdout.flush ! In case they didn't write one.
+           WARN("no flush keyword - you may later overrun the output buffer")
+         end
+       end
+       stdout.dash(width=width)
+     end
+   end
+
+   table_width result (res)
+   ! Return the table width in characters, based on "keys".  Note that not all
+   ! keywords need to contribute to the banner - if a keyword is not recognised,
+   ! then it is skipped.
+     res :: INT
+     word :: STR
+     int_dash,real_dash,k :: INT
+     ENSURE(keys.created,"no keys")
+     int_dash = 0
+     real_dash = 0
+     do k = 1,size(keys)
+       word = keys(k)
+       word.to_lower_case
+       select case (word)
+         case ("}           "); ! exit surrounding loop
+         case ("put_label   "); int_dash = int_dash + 1
+         case ("put_n_orb   "); int_dash = int_dash + 1
+         case ("put_n_prim  "); int_dash = int_dash + 1
+         case ("flush       "); exit
+         case default
+       end
+     end
+     res = int_dash * stdout.int_width + real_dash * stdout.real_width
+   end
+
+!  *******
+!  Methods
+!  *******
+
+   same_as(b) result(res)
+   ! Return TRUE if the basis set "self" is the same as "b". Only the
+   ! orbital vector is compared to see if they are "really" the same.
+      self :: IN
+      b :: SELF_TYPE, IN
+      res :: BIN
+      res = .orbital.same_as(b.orbital)
+   end
+
+   no_of_orbitals result(res) ::: pure
+   ! Work out and return the number of orbitals in the basis set
+      self :: IN
+      res :: INT
+      if (.orbital.created) then; res = size(.orbital)
+      else;                       res = 0
+      end
+   end
+
+   no_of_primitives result (res) ::: pure
+   ! Work out and return the number of primitive fitting functions in the basis ! set
+      self :: IN
+      res :: INT
+      i :: INT
+      res = 0
+      if (.orbital.destroyed) return
+      do i = 1,.no_of_orbitals
+         res = res + .orbital(i).n_fun
+      end
+   end
+
+   maximum_basis_n_value result (res)
+   ! Returns the maximum n value over all orbitals in every basis set of the
+   ! vector
+     self :: IN
+     res :: INT
+     if (.orbital.created) then; res = .orbital.maximum_orbital_n_value
+     else;                       res = 0
+     end
+   end
+
+   min_exponent result (res) ::: pure
+   ! Return the minimum exponent in the basis.
+     self :: IN
+     res :: REAL
+     tmp :: REAL
+     i :: INT
+     ENSURE(.orbital.created,"no orbitals")
+     res = ZERO
+     do i= 1,.n_orb
+       tmp = minval(.orbital(i).z)
+       if (tmp < res) res = tmp
+     end
+   end
+
+!  ******************
+!  Density evaluation
+!  ******************
+
+   make_density_grid(density_grid,pt,pos)
+   ! Work out the electron "density_grid" on a set of points "pt", assuming the
+   ! orbitals are at position "pos".
+      self :: IN
+      density_grid :: REALVEC, OUT
+      pt :: REALMAT, IN
+      pos :: REALVEC(3), IN
+   ENSURE(density_grid.dim==pt.dim1,"inconsistent number of points")
+      if (.interpolator.created) then
+         .make_interpolated_density_grid(density_grid,pt,pos)
+      else
+         .make_normal_density_grid(density_grid,pt,pos)
+      end
+   end
+
+   make_normal_density_grid(density_grid,pt,pos)
+   ! Make the normal (uninterpolated) "density_grid" for the supplied points
+   ! "pt" from the real slater atomic orbitals, as fitted by coppens, assuming
+   ! the orbital is at position "pos".
+     self :: IN
+     density_grid :: REALVEC, OUT
+     pt :: REALMAT, IN
+     pos :: REALVEC(3), IN
+     ORB :: REALVEC*
+     n :: INT
+   ENSURE(pt.dim2==3,"wrong dimension for points array")
+   ENSURE(density_grid.dim==pt.dim1,"inconsistent number of points")
+   ENSURE(.orbital.created,"no orbital vector")
+     ORB.create(pt.dim1)
+     density_grid = ZERO
+     do n = 1,.orbital.dim
+        .orbital(n).make_values_at_opt(pt,pos,ORB)
+        density_grid = density_grid  + .orbital(n).occupancy*ORB*ORB
+     end
+     ORB.destroy
+   end
+
+   make_interpolated_density_grid(density_grid,pt,pos) ::: leaky
+   ! Make the interpolated "density_grid" for the supplied points "pt" from the real
+   ! slater atomic orbitals, as fitted by coppens, assuming the orbitals are at
+   ! position "pos".
+     self :: IN
+     density_grid :: REALVEC, OUT
+     pt :: REALMAT, IN
+     pos :: REALVEC(3), IN
+     R :: REALVEC*
+     n_pt,n :: INT
+     x, y, z :: REAL
+   ENSURE(pt.dim2==3,"wrong dimension for points array")
+   ENSURE(density_grid.dim==pt.dim1,"inconsistent number of points")
+   ENSURE(.interpolator.created,"no coppens interpolator defined!")
+     n_pt = pt.dim1
+     R.create(n_pt)
+     do n = 1,n_pt
+        x = pt(n,1) - pos(1)
+        y = pt(n,2) - pos(2)
+        z = pt(n,3) - pos(3)
+        R(n) = sqrt(x*x + y*y + z*z)
+     end
+     ! Now get the interpolated values
+     density_grid = .interpolator.values_for(R)
+     R.destroy
+   end
+
+   density_at_radius(R) result (res)
+   ! Work out the electron density at radius "R" from the orbitals.
+      R,res :: REAL
+      if (.interpolator.created) then
+         res = .interpolator.value_for(R)
+      else
+         res = .orbital.density_at_radius(R)
+      end
+   end
+
+   make_interpolator ::: leaky
+   ! Make the interpolator for the coppens atom density
+   ENSURE(.orbital.created,"no coppens orbitals defined!")
+     .interpolator.destroy
+     .interpolator.create
+     .interpolator.kind = "logarithmic"
+     .orbital.set_saved_self ! Used by function below
+#ifdef NOGENERIC
+     .interpolator.set_even_spaced_data(first=ZERO,spacing=0.05d0,length=20.0d0, &
+        func=COPPENSORBITALVEC_density_value_at_radius,tol=TOL(9))
+#else
+     .interpolator.set_even_spaced_data(first=ZERO,spacing=0.05d0,length=20.0d0, &
+        func=density_value_at_radius,tol=TOL(9))
+#endif
+   end
+
+   unnormalise
+   ! Set the value of the orbital coefficients to correspond to un-normalised
+   ! Slater functions -- assuming they are normalised. This saves computation.
+      if (.orbital.created) .orbital.unnormalise
+   end
+
+   renormalise
+   ! Set the value of the orbitals coefficients to correspond to normalised
+   ! Slater functions --- assuming they are w.r.t. unnormalised functions. 
+      if (.orbital.created) .orbital.renormalise
+   end
+
+end

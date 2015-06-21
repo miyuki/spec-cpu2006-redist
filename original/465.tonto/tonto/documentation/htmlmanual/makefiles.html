@@ -1,0 +1,244 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>What you can do if a site_config file does not exist for your
+system</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Compiling and Installing TONTO"
+HREF="compile-install.html"><LINK
+REL="PREVIOUS"
+TITLE="Compiling the BLAS and LAPACK libraries"
+HREF="blas-lapack.html"><LINK
+REL="NEXT"
+TITLE="Using TONTO to do calculations"
+HREF="calc-chap.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="blas-lapack.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="calc-chap.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="MAKEFILES"
+></A
+>What you can do if a site_config file does not exist for your
+system</H1
+><P
+ALIGN="justify"
+>If a <TT
+CLASS="LITERAL"
+>site_config</TT
+> file does not exist for your system,
+you should do the following:
+<P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Note the name of the <TT
+CLASS="LITERAL"
+>site_config</TT
+> file that
+<B
+CLASS="COMMAND"
+>make</B
+> tells you it is going to use.  This is the file you must
+edit.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Look in the <TT
+CLASS="LITERAL"
+>site_config</TT
+> directory in the
+distribution.  You will find there the machine specific files for a range of
+compilers and systems. For example, <TT
+CLASS="LITERAL"
+>COMPAQ-f95-on-OSF1</TT
+>
+contains compiler options for the COMPAQ <B
+CLASS="COMMAND"
+>f95</B
+> compiler on the
+OSF1 (Tru64) operating system.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Some of the files in <TT
+CLASS="LITERAL"
+>site_config</TT
+> may
+correspond to your compiler, but not your system.  If this is the case, start by
+using a file which corresponds to your compiler as a starting guess for the
+compile-options you might need.  Use your editor to insert these compile-options
+into the generic <TT
+CLASS="LITERAL"
+>site_config</TT
+> file made by
+<B
+CLASS="COMMAND"
+>Makefile.pl</B
+>.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Whether you do or don't find appropriate compile-options in the
+<TT
+CLASS="LITERAL"
+>site_config</TT
+> directory corresponding to your compiler, you
+should read <A
+HREF="customised-compilation.html"
+>the chapter called <I
+>Compiling customised versions of TONTO</I
+></A
+>&#62;, especially <A
+HREF="compiler-options.html"
+>the Section called <I
+>Which Fortran compiler options to use?</I
+> in the chapter called <I
+>Compiling customised versions of TONTO</I
+></A
+>&#62;.  The latter section contains detailed information
+about the meaning of all the typical compiler switches on the COMPAQ machine, so
+you'll know which ones to look for on your system.</P
+></LI
+></UL
+></P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="blas-lapack.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="calc-chap.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Compiling the BLAS and LAPACK libraries</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="compile-install.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Using TONTO to do calculations</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

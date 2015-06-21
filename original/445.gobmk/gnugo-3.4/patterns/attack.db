@@ -1,0 +1,212 @@
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# This is GNU Go, a Go program. Contact gnugo@gnu.org, or see   #
+# http://www.gnu.org/software/gnugo/ for more information.      #
+#                                                               #
+# Copyright 1999, 2000, 2001, 2002 and 2003                     #
+# by the Free Software Foundation.                              #
+#                                                               #
+# This program is free software; you can redistribute it and/or #
+# modify it under the terms of the GNU General Public License   #
+# as published by the Free Software Foundation - version 2.     #
+#                                                               #
+# This program is distributed in the hope that it will be       #
+# useful, but WITHOUT ANY WARRANTY; without even the implied    #
+# warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR       #
+# PURPOSE.  See the GNU General Public License in file COPYING  #
+# for more details.                                             #
+#                                                               #
+# You should have received a copy of the GNU General Public     #
+# License along with this program; if not, write to the Free    #
+# Software Foundation, Inc., 59 Temple Place - Suite 330,       #
+# Boston, MA 02111, USA.                                        #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#
+#  attack.db - pattern database for finding tactical attack moves
+#
+#  The tactical reading functions try to capture by attacking
+#  on the immediate liberties plus certain caps and backfilling
+#  moves. This database is intended to find additional attacking
+#  moves. Notice though that these patterns doesn't help the
+#  tactical reading to find attacking moves later in a move
+#  sequence but only at stackp=0.
+#
+#  See patterns.db for a specification of the current database format.
+#
+#  Since these patterns are matched during make_worms() it doesn't
+#  make any sense to use classifications such as X and O. No other
+#  classification is useful either except A since we only have
+#  tactical attack moves here.
+#
+#  The semantics of these patterns are that the move at * is tried as
+#  an attack of each X string in the pattern. The patterns are matched
+#  with either player as O.
+#
+##################################################################
+
+
+goal_elements none
+callback_data X
+
+
+Pattern Attack1
+# Even if a ladder works (and is found by the tactical reading) we
+# also want to consider the geta capture.
+
+XOO?    capture one stone
+OX..
+O.*?
+?.??
+
+:8,A
+
+
+Pattern Attack2
+
+OOXX         push to capture X
+.XO*
+....
+----
+
+:8,A
+
+
+Pattern Attack4
+
+*OX           extend to kill
+.XO
+
+:8,A
+
+
+Pattern Attack5
+
+|.X
+|XO
+|*.
+|.X
+
+:8,A
+
+
+Pattern Attack6
+
+?X           block to attack and defend
+?O
+X*
+O.
+
+:8,A
+
+
+Pattern Attack10
+
+?O.            common geta
+OX.
+O.*
+?.?
+
+:8,A
+
+
+Pattern Attack11
+
+o..??          catch two stones in a net
+O.*.?
+?X..o
+?X.oo
+??O??
+
+:8,A
+
+
+Pattern Attack13
+
+----
+....
+X...
+O*.O
+
+:8,A
+
+
+Pattern Attack14
+
+?.?	Sometimes better to capture indirectly
+*.O
+OXO
+?O?
+
+:8,A
+
+
+Pattern Attack15
+
+XOX    Capture one step away
+X.*
+---
+
+:8,A,NULL
+
+AOX
+A.*
+---
+
+; lib(A)==1
+
+
+Pattern Attack16
+
+?*X?	Capture with snapback
+O.OX
+?XX?
+
+:8,A
+
+?*X?
+b.OX
+?AA?
+
+;lib(A)==1 && olib(*)>1 && lib(b)>1
+
+
+Pattern Attack17
+# This is only intended for finding an alternative attack. It should
+# have a constraint to first check whether the move above * was
+# successful. 
+# FIXME: Add necessary machinery for this.
+
+?X?
+O.O
+?*o
+
+:8,A
+
+
+Pattern Attack18
+# gf New pattern. (3.3.4)
+
+OX
+O.
+X*
+--
+
+:8,A
+
+
+Pattern Attack19
+# pp New pattern (3.3.18)
+
+*.O	    May be better to capture indirectly
+O.X
+..O
+
+:8,A
+
+*.O
+O.A
+..O
+
+; lib(A) == 1
+
+
+# END OF FILE

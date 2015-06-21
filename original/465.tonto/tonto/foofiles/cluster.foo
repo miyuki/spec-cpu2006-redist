@@ -1,0 +1,1407 @@
+!-------------------------------------------------------------------------------
+!
+! CLUSTER:
+!
+! An object to store information pertaining to a cluster of atoms or molecules
+! formed from an underlying crystal structure.
+!
+! Note: an associated crystal and atom list should be supplied. It is intended
+! that these will come from the molecule which generates the cluster (perhaps a
+! cluster should contain a molecule?). These entities are not destroyed when the
+! cluster is destroyed.
+!
+! Copyright (C) Dylan Jayatilaka, 2002
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: cluster.foo,v 1.2.2.27 2003/11/13 05:34:39 reaper Exp $
+!-------------------------------------------------------------------------------
+
+module CLUSTER
+
+   implicit none
+
+contains
+
+   create
+   ! Create the object
+     self :: PTR
+     nullify(self)
+     allocate(self)
+     ADD_MEMORY(CLUSTER_SIZE)
+     .nullify_ptr_part
+   end
+
+   create(crystal,asymmetric_cell_atom)
+   ! Create the object IMPORTANT NOTE: the number of "asymmetric_cell_atoms"
+   ! must match the second dimension of "crystal.asymmetric_unit_geometry" if
+   ! both are present.  Furthermore, it is assumed that the kinds of
+   ! "asymmetric_cell_atoms" match those positions in the asymmetric unit.
+   ! Usually both of these entities will be obtained from a single read from a
+   ! CIF file. If not, you must use the "create_from_molecule" method, below.
+     self :: PTR
+     crystal :: CRYSTAL*
+     asymmetric_cell_atom :: ATOMVEC*
+     .create
+     .set_defaults(crystal,asymmetric_cell_atom)
+   end
+
+   create_from_molecule(crystal,cell_atom)
+   ! Create the object from a "crystal" and a "cell_atom" list. NOTE: The
+   ! fragment geometry in the crystal must be consistent with the atom list
+   ! positions, even though they are in different axis frames.
+     self :: PTR
+     crystal :: CRYSTAL*
+     cell_atom :: ATOMVEC*
+     asymmetric_atom_list :: ATOMVEC*
+     ENSURE(crystal.created,"no crystal information")
+     ENSURE(crystal.n_fragment_atoms==size(cell_atom),"number of atoms inconsistent")
+     .create ! <<<<
+     asymmetric_atom_list.create_copy(cell_atom(crystal.unique_fragment_atom))
+     .set_defaults(crystal,asymmetric_atom_list) ! <<<<
+     asymmetric_atom_list.nullify_basis_part
+     asymmetric_atom_list.nullify_coppensbasis_part
+     asymmetric_atom_list.destroy
+   end
+
+   create_copy(object) ::: get_from(OBJECT), leaky
+   ! Create a copy of object
+     object :: SELF_TYPE
+     self :: PTR
+   end
+
+   copy(cluster) ::: leaky
+   ! Copy the contents of "cluster" to self. NOTE: ensure you destroy all the
+   ! parts you need to before calling this.
+      cluster :: CLUSTER, IN
+      self = cluster
+      if (cluster.geometry.created) &
+         .geometry.create_copy(cluster.geometry)
+      if (cluster.crystal.created) &
+         .crystal.create_copy(cluster.crystal)
+      if (cluster.asymmetric_cell_atom.created) &
+         .asymmetric_cell_atom.create_copy(cluster.asymmetric_cell_atom)
+      if (cluster.fragment_geometry.created) &
+         .fragment_geometry.create_copy(cluster.fragment_geometry)
+      if (cluster.symop.created) &
+         .symop.create_copy(cluster.symop)
+      if (cluster.symop_for_atom.created) &
+         .symop_for_atom.create_copy(cluster.symop_for_atom)
+      if (cluster.parent_for_atom.created) &
+         .parent_for_atom.create_copy(cluster.parent_for_atom)
+      if (cluster.atom_for_cell_atom.created) &
+         .atom_for_cell_atom.create_copy(cluster.atom_for_cell_atom)
+      if (cluster.minimum_distance_to_atom.created) &
+         .minimum_distance_to_atom.create_copy(cluster.minimum_distance_to_atom)
+      if (cluster.closest_fragment_atom_to_atom.created) &
+         .closest_fragment_atom_to_atom.create_copy(cluster.closest_fragment_atom_to_atom)
+      if (cluster.is_fragment_atom.created) &
+         .is_fragment_atom.create_copy(cluster.is_fragment_atom)
+      if (cluster.partition_factor.created) &
+         .partition_factor.create_copy(cluster.partition_factor)
+   end
+
+   destroy
+   ! Destroy the object
+      self :: PTR
+      if (.destroyed) return
+      .destroy_ptr_part
+      deallocate(self)
+      DELETE_MEMORY(CLUSTER_SIZE)
+   end
+
+   nullify_ptr_part
+   ! Nullify the pointer parts
+      nullify(.crystal)
+      nullify(.asymmetric_cell_atom)
+      nullify(.symop)
+      nullify(.fragment_geometry)
+      nullify(.geometry)
+      nullify(.symop_for_atom)
+      nullify(.parent_for_atom)
+      nullify(.atom_for_cell_atom)
+      nullify(.minimum_distance_to_atom)
+      nullify(.closest_fragment_atom_to_atom)
+      nullify(.is_fragment_atom)
+      nullify(.partition_factor)
+   end
+
+   destroy_ptr_part
+   ! Destroy the pointer parts
+      .crystal.destroy   
+      if (.asymmetric_cell_atom.created) then
+         .asymmetric_cell_atom.nullify_basis_part
+         .asymmetric_cell_atom.nullify_coppensbasis_part
+         .asymmetric_cell_atom.destroy
+      end
+      .destroy_cell_geom_ptr_part
+      .destroy_cluster_info_ptr_part
+      .partition_factor.destroy
+   end
+
+   destroy_cluster_info_ptr_part
+   ! Destroy the non-symop informational ptr parts. These incclude the actual
+   ! .geometry of the cluster as wellas information relating to the .symop's
+   ! used to generate the cluster.
+      .symop.destroy
+      .geometry.destroy
+      .symop_for_atom.destroy
+      .parent_for_atom.destroy
+      .atom_for_cell_atom.destroy
+      .minimum_distance_to_atom.destroy
+      .closest_fragment_atom_to_atom.destroy
+      .is_fragment_atom.destroy
+   end
+
+   destroy_cell_geom_ptr_part
+   ! Destroy fragment geometry pointer parts. These are the geometrical
+   ! coordinates used to generate the cluster.
+      .fragment_geometry.destroy
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   set_defaults(crystal,asymmetric_cell_atom) ::: leaky
+   ! Set up defaults. IMPORTANT NOTE: the number of "asymmetric_cell_atoms" must
+   ! match the second dimension of "crystal.asymmetric_unit_geometry" if both
+   ! are present.  Furthermore, it is assumed that the kinds of
+   ! "asymmetric_cell_atoms" match those positions in the asymmetric unit.
+   ! Usually both of these entities will be obtained from a single read from a
+   ! CIF file.
+     crystal :: CRYSTAL*
+     asymmetric_cell_atom :: ATOMVEC*
+     ENSURE(asymmetric_cell_atom.created,"no asymmetric_cell_atom data")
+     ENSURE(crystal.created,"no crystal created!")
+     ENSURE(crystal.fragment_geometry.created,"no crystal fragment_geometry created")
+     ENSURE(crystal.asymmetric_unit_geometry.created,"no crystal asymmetric_unit_geometry created")
+     ENSURE(crystal.asymmetric_unit_geometry.dim2==asymmetric_cell_atom.dim,"inconsistent # of atoms in asymmetric_cell_atom")
+     nullify(.asymmetric_cell_atom)
+     nullify(.crystal)
+     .destroy_ptr_part
+     .add_criteria = CLUSTER_ADD_CRITERIA
+     .start_with_fragment = FALSE
+     .radius       = CLUSTER_RADIUS
+     .defragment   = CLUSTER_DEFRAGMENT
+     .info_made    = FALSE
+     .asymmetric_cell_atom.create_copy(asymmetric_cell_atom)
+     .crystal.create_copy(crystal)
+     .set_crystal_defaults(crystal)
+   end
+
+   set_crystal_defaults(crystal) ::: leaky
+   ! Set up the "crystal" defaults. The .fragment_geometry come from "crystal".
+      crystal :: CRYSTAL*
+      ENSURE(crystal.created,"no crystal created!")
+      ENSURE(crystal.fragment_geometry.created,"no crystal fragment_geometry created")
+      ENSURE(crystal.asymmetric_unit_geometry.created,"no crystal asymmetric_unit_geometry created")
+      .destroy_cluster_info_ptr_part
+      .n_symop = 0
+      .n_atoms = 0
+      .fragment_geometry.destroy
+      .fragment_geometry.create_copy(crystal.fragment_geometry)
+      .n_fragment_atoms = crystal.fragment_geometry.dim2
+      .fragment_width   = crystal.fragment_geometry.max_abs_column_difference
+      .fragment_offset  = crystal.fragment_geometry.mean_column_vector
+   end
+
+   set_add_criteria(criteria)
+   ! Set the add criteria, whether to add atoms by whole clusters within a
+   ! certain radius of the starting fragment, or by individual atoms within a
+   ! certain distance of the starting fragment.
+      criteria :: STR
+      .add_criteria = criteria
+      .add_criteria.to_lower_case
+      select case (.add_criteria)
+         case("within_radius         ")
+         case("unit_cell             ")
+         case("fragment              "); .start_with_fragment = TRUE
+         case("unit_cell_and_fragment"); .start_with_fragment = TRUE
+         case default;   UNKNOWN(.add_criteria)
+      end
+   end
+
+!  *************
+!  Input methods
+!  *************
+
+   read_keywords ::: get_from(OBJECT), recursive, leaky
+   ! Read data from "stdin" using keyword style input.
+   end
+
+   process_keyword(keyword) ::: leaky
+   ! Process command "keyword". Any required data needed by the "keyword" is
+   ! inputted from "stdin".
+      keyword :: STR(*)
+      word :: STR
+      word = keyword
+      word.to_lower_case
+      select case (word)
+         case ("}                     ")  ! exit case
+         case ("add_criteria=         "); .read_add_criteria
+         case ("defragment=           "); .read_defragment
+         case ("fragment_geometry=    "); .read_fragment_geometry
+         case ("crystal_fragment=     "); .read_crystal_fragment
+         case ("make_info             "); .make_info
+         case ("partition_factors=    "); .read_partition_factors
+         case ("put                   "); .put
+         case ("put_tonto_input       "); .put_tonto_input
+         case ("radius=               "); .read_radius
+         case ("units=                "); .read_units
+         case default;     UNKNOWN(word)
+      end
+   end
+
+   read_units ::: get_from(OBJECT)
+   ! Read a string which describes the units to be used
+   end
+
+   read_junk ::: get_from(OBJECT)
+   ! Read in a junk string, useful for ignoring a field
+   end
+
+   read_add_criteria
+   ! Read the add criteria, whether to add atoms by whole clusters within a
+   ! certain radius of the starting fragment, or by individual atoms within a
+   ! certain distance of the starting fragment.
+      stdin.read(.add_criteria)
+      .add_criteria.to_lower_case
+      select case (.add_criteria)
+         case("within_radius         ")
+         case("unit_cell             ")
+         case("fragment              "); .start_with_fragment = TRUE
+         case("unit_cell_and_fragment"); .start_with_fragment = TRUE
+         case default;   UNKNOWN(.add_criteria)
+      end
+   end
+
+   read_defragment
+   ! Read whether to defragment the cluster at the boundaries.
+      stdin.read(.defragment)
+    ! if (NOT .defragment AND .add_criteria=="unit_cell") then
+    !    WARN("defragment= must be set TRUE when add_criteria= unit_cell")
+    ! end
+   end
+
+   read_radius
+   ! Read the radius of the cluster
+      stdin.read(.radius)
+   end
+
+   read_partition_factors ::: leaky
+   ! Read the partition factors to be used. Note that the length of this array
+   ! must correspond to the number of atoms in the generated cluster in order to
+   ! be used. This cannot be checked at this point in the code.
+      stdin.read_ptr(.partition_factor)
+   end
+
+   read_fragment_geometry ::: leaky
+   ! Read in the fragment geometry, in cartesian atomic units, and convert to
+   ! fractional coordinates.
+   ! NOTE: to define the Hirshfeld surface, all fragment atom positions must
+   ! correspond to the positions of actual atoms in the crystal lattice.
+      tmp :: REALVEC*
+      ENSURE(.crystal.created,"no crystal defined")
+      stdin.read_ptr(tmp)
+      ENSURE(mod(tmp.dim,3)==0,"# of elements not divisible by 3")
+      .n_fragment_atoms = tmp.dim/3
+      .fragment_geometry.destroy
+      .fragment_geometry.create(3,.n_fragment_atoms)
+      .fragment_geometry = reshape(tmp,[3,.n_fragment_atoms])
+      .crystal.unitcell.change_into_fractional(.fragment_geometry)
+      tmp.destroy
+   end
+
+   read_crystal_fragment ::: leaky
+   ! Read in the crystal fragment geometry, in fractional coordinate units.
+   ! NOTE: to define the Hirshfeld surface, all fragment atom positions must
+   ! correspond to the positions of actual atoms in the crystal lattice.
+      tmp :: REALVEC*
+      stdin.read_ptr(tmp)
+      ENSURE(mod(tmp.dim,3)==0,"# of elements not divisible by 3")
+      .n_fragment_atoms = tmp.dim/3
+      .fragment_geometry.destroy
+      .fragment_geometry.create(3,.n_fragment_atoms)
+      .fragment_geometry = reshape(tmp,[3,.n_fragment_atoms])
+      tmp.destroy
+   end
+
+!  ***************************
+!  Cluster generation routines
+!  ***************************
+
+   make_info ::: leaky
+   ! Make all the cluster information from an arbitrary .fragment_geometry.
+   ! NOTE: .set_defaults must be called before this.
+      ENSURE(.crystal.created,"no crystal")
+      ENSURE(.crystal.cluster_symop.created,"no crystal cluster symops")
+      ENSURE(.fragment_geometry.created,"no fragment geometry")
+      if (NOT .info_made) then
+        .make_symop_list_and_geometry
+        .find_fragment_atoms
+        .info_made = TRUE
+      end
+   end
+
+   make_symop_list_and_geometry ::: leaky, private
+   ! Make the list of symops which transform a .crystal.unit_cell_geometry
+   ! within a certain .radius of .fragment_geometry. Also make the geometry of
+   ! the cluster and other informational arrays relating to the cluster. NOTE:
+   ! the .fragment_geometry is shifted to the origin by an offset before any
+   ! cluster generating operations are done, but it is put back afterwards.
+     big_cluster :: REALMAT*
+     symop_list :: INTMAT*
+     atom_added :: BINVEC*
+     symop :: INTVEC(4)
+     pos :: REALVEC(3)
+     n_trial_atoms,n_cell_atoms,n_asym_atoms,i,n,c,a :: INT
+     ENSURE(.crystal.created,"no crystal")
+     ENSURE(.crystal.atom_for_unit_cell_atom.created,"no crystal atom_for_unit_cell_atom info")
+     ENSURE(.crystal.unit_cell_geometry.created,"need the unit cell in the crystal")
+     ENSURE(.fragment_geometry.created,"no fragment geometry")
+     ENSURE(.asymmetric_cell_atom.created,"no asymmetric_cell_atom info")
+     ! The fragment is shifted by "offset" to the origin
+     if (any(.fragment_offset/=0)) then
+     .fragment_geometry = .fragment_geometry &
+                        - spread(.fragment_offset,2,.n_fragment_atoms)
+     end
+     ! The algorithm creates "big_cluster", a cube of unit cells around the
+     ! fragment.  We could use a sphere instead of a cube, but we were lazy.
+     .make_big_cluster(big_cluster,symop_list) 
+     n_trial_atoms = big_cluster.dim2
+     ! For defragmenting, we must store which atoms in big_cluster added
+     atom_added.create(n_trial_atoms) 
+     atom_added = FALSE
+     ! Initialise the arrays we really want ...
+     .initialise_info_arrays(n_trial_atoms)
+     ! We may want to force the fragment to be part of the outputted cluster.
+     n_cell_atoms = .crystal.unit_cell_geometry.dim2
+     n_asym_atoms = .asymmetric_cell_atom.dim
+     if (.start_with_fragment) then
+       do i = 1, .n_fragment_atoms
+         pos = .fragment_geometry(:,i)
+         n = big_cluster.column_index(pos)
+         ENSURE(n>0,"position of fragment atom not found in big_cluster")
+         ENSURE(n<=n_trial_atoms,"incorrect position of fragment atom")
+         symop = symop_list(:,n)
+         c = mod((n-1),n_cell_atoms) + 1         ! unit cell atom,
+         a = .crystal.atom_for_unit_cell_atom(c) ! asymmetric cell atom
+         ENSURE(a>0,"no unique atom for unit cell atom "//c.to_str.trim)
+!        ENSURE(a<=n_asym_atoms,"asymmetric atom too large, cell atom "//c.to_str.trim)
+         .add_new_atom(pos,symop,a)
+         atom_added(n) = TRUE
+       end
+     end
+     ! Finally: extract the appropriate cluster from the big_cluster
+     if (.add_criteria/="fragment") then ! already done this above
+       do i = 1,n_trial_atoms
+         if (atom_added(i)) cycle
+         pos = big_cluster(:,i)
+         symop = symop_list(:,i)
+         c = mod((i-1),n_cell_atoms) + 1         ! unit cell atom,
+         a = .crystal.atom_for_unit_cell_atom(c) ! asymmetric cell atom
+         ENSURE(a>0,"no unique atom for unit cell atom "//c.to_str.trim)
+!        ENSURE(a<=n_asym_atoms,"asymmetric atom too large, cell atom "//c.to_str.trim)
+         if (.is_new_atom(pos)) then
+           .add_new_atom(pos,symop,a)
+           atom_added(i) = TRUE
+         end
+       end
+     end
+     ! Add in bonded atoms if appropriate.
+     if (.defragment) .do_defragment(big_cluster,symop_list,atom_added)
+     ! Shift fragment and cluster back by "offset" to the origin
+     if (any(.fragment_offset/=0)) then
+     .fragment_geometry = .fragment_geometry &
+                           + spread(.fragment_offset,2,.n_fragment_atoms)
+     .geometry = .geometry + spread(.fragment_offset,2,.n_atoms)
+     end
+     ! Clean up a bit
+     .shrink_info_arrays
+     atom_added.destroy
+     big_cluster.destroy
+     symop_list.destroy
+   end
+
+   make_big_cluster(big_cluster,symop_list) ::: leaky
+   ! Make "big_cluster": the set of atom positions in unit cells around the
+   ! central unit cell. Return also "symop_list", the list of seitz symmetry
+   ! operations used to generate every atom in the "big_cluster".
+     big_cluster :: REALMAT*
+     symop_list :: INTMAT*
+     max_dist,hkl :: REALVEC(3)
+     cell_a,cell_b,cell_c :: REAL
+     h_max,k_max,l_max,n_cells,n_cell_atoms,max_n_atoms :: INT
+     first,last,i,h,h1,k,k1,l,l1,cell_atom,n_big_cluster :: INT
+     ENSURE(.crystal.created,"no crystal")
+     ENSURE(.crystal.unit_cell_geometry.created,"need the unit cell in the crystal")
+     ENSURE(.crystal.symop_for_unit_cell_atom.created,"no crystal symop_for_unit_cell_atom info")
+     ! The maximum cell distances to search for cluster atoms
+     max_dist = .maximum_cell_axis_distance
+     cell_a = .crystal.unitcell.length(1)
+     cell_b = .crystal.unitcell.length(2)
+     cell_c = .crystal.unitcell.length(3)
+     if (.add_criteria=="unit_cell" AND NOT .start_with_fragment AND NOT .defragment) then
+        h_max = 0
+        k_max = 0
+        l_max = 0
+     else
+        h_max = ceiling(max_dist(1)/cell_a) + 1
+        k_max = ceiling(max_dist(2)/cell_b) + 1
+        l_max = ceiling(max_dist(3)/cell_c) + 1
+     end
+     n_cells = (2*h_max+1) * (2*k_max+1) * (2*l_max+1)
+     n_cell_atoms = .crystal.unit_cell_geometry.dim2
+     max_n_atoms = n_cell_atoms*n_cells
+     ! The algorithm creates "big_cluster", a cube of unit cells around the
+     ! origin.  We could use a sphere instead of a cube, but we were lazy.
+     symop_list.create(4,max_n_atoms)
+     big_cluster.create(3,max_n_atoms)
+     big_cluster = ZERO
+     ! Now loop over all lattice vectors consistent with max_dist to make
+     ! "big_cluster".  Note the strange loop order is [0,0,0], [0,0,-1],
+     ! [0,0,1], [0,0,-2], [0,0,2], [0,-1,0] etc.
+     first = 1 ! Index of current atom.
+     last  = n_cell_atoms
+     do h1 = 0,2*h_max
+       if (mod(h1,2)==0) then; h = h1 / 2
+       else;                   h = - (h1 + 1) / 2
+       end
+     ! k_max = ceiling((max_dist-abs(h)*cell_a) / cell_b)+1
+       do k1 = 0,2*k_max
+         if (mod(k1,2)==0) then; k = k1 / 2
+         else;                   k = - (k1 + 1) / 2
+         end
+       ! l_max = ceiling((max_dist-abs(h)*cell_a-abs(k)*cell_b) / cell_c)+1
+         do l1 = 0,2*l_max
+           if (mod(l1,2)==0) then; l = l1 / 2
+           else;                   l = - (l1 + 1) / 2
+           end
+           ! hkl is the displacement to shift the atoms.
+           hkl = real((/h,k,l/),kind=REAL_KIND)
+           ! The unit cell atom corresponding to this atom.
+           cell_atom = 1
+           do i = first,last
+             big_cluster(:,i) = .crystal.unit_cell_geometry(:,cell_atom) + hkl
+             symop_list(:,i) = [.crystal.symop_for_unit_cell_atom(cell_atom),h,k,l]
+             cell_atom = cell_atom + 1
+           end
+           first = first + n_cell_atoms
+           last  = last  + n_cell_atoms 
+         end
+       end
+     end
+     n_big_cluster = first - 1
+     big_cluster.shrink_columns(n_big_cluster)
+     symop_list.shrink_columns(n_big_cluster)
+ ! stdout.text("symop_list:")
+ ! stdout.put(transpose(symop_list))
+   end
+
+   maximum_cell_axis_distance result (max_dist)
+   ! Return the maximum distance that can be travelled along any single crystal
+   ! axis direction in order that the minimum distance from the transformed
+   ! fragment and the original fragment is less than the cluster radius.
+     max_dist :: REALVEC(3)
+     fragment_width :: REALVEC(3)
+   ! fragment_length :: REAL
+     ENSURE(.crystal.created,"no crystal")
+     fragment_width = .crystal.cartesian_fragment_width
+   ! fragment_length = sqrt(dot_product(fragment_width,fragment_width))
+     select case (.add_criteria)   
+       case("within_radius         "); max_dist = .radius + fragment_width
+       case("unit_cell             "); max_dist = ZERO
+       case("fragment              "); max_dist = fragment_width
+       case("unit_cell_and_fragment"); max_dist = fragment_width
+       case default;                   UNKNOWN(.add_criteria)       
+     end
+   end
+
+   initialise_info_arrays(max_n_atoms) ::: private, leaky
+   ! Initialise all informational arrays ready for a cluster .geometry
+   ! generation from a general .fragment_geometry. 
+     max_n_atoms :: INT
+     .destroy_cluster_info_ptr_part
+     ! Initial maximum size for symop info arrays
+     .n_atoms = 0
+     .n_symop = 0
+     .symop.create(4,max_n_atoms)
+   ! .atom_for_cell_atom.create(.crystal.n_asymmetric_unit_atoms,max_n_max)
+   ! .atom_for_cell_atom = 0
+     ! Initial maximum size for geometry info arrays
+     .geometry.create(3,max_n_atoms);      .geometry = ZERO
+     .symop_for_atom.create(max_n_atoms);  .symop_for_atom = 0
+     .parent_for_atom.create(max_n_atoms); .parent_for_atom = 0
+   ! .minimum_distance_to_atom.create(max_n_atoms)
+   ! .closest_fragment_atom_to_atom.create(max_n_atoms)
+   end
+
+   do_defragment(big_cluster,symop_list,atom_added) 
+   ! Defragment the generated cluster. This requires a surrounding "big_cluster"
+   ! of atom positions, a "symop_list", the symmetry operation used to generate
+   ! each atom in "big_cluster", and "atom_added", the list of atoms added to
+   ! the cluster .geometry from "big_cluster", so far.
+     big_cluster :: REALMAT
+     symop_list :: INTMAT
+     atom_added :: BINVEC
+     big_cluster_xyz :: REALMAT*
+     out_atom :: INTVEC*
+     nearby :: BIN
+     atom_pair :: ATOMVEC(2)
+     in_pos,out_pos :: REALVEC(3)
+     i,in_atom,in_parent,j,out,c,a :: INT
+     n_cell_atoms,n_asym_atoms,n_big_atoms,n_out_atoms :: INT
+     ENSURE(.crystal.created,"no crystal")
+     ENSURE(.crystal.atom_for_unit_cell_atom.created,"no crystal atom_for_unit_cell_atom info")
+     ENSURE(.asymmetric_cell_atom.created,"no asymmetric_cell_atom info")
+     ENSURE(symop_list.dim2==big_cluster.dim2,"inconsistent symop_list array")
+     ENSURE(atom_added.dim ==big_cluster.dim2,"inconsistent atom_added array")
+     ENSURE(count(atom_added)==.n_atoms,"wrong # of TRUE elements in atom_added array")
+     ! Store the xyz positions to save time
+     n_big_atoms = big_cluster.dim2
+     big_cluster_xyz.create(3,n_big_atoms)
+     big_cluster_xyz = matmul(.crystal.unitcell.direct_matrix,big_cluster)
+     n_cell_atoms = .crystal.unit_cell_geometry.dim2
+     n_asym_atoms = .asymmetric_cell_atom.dim
+     n_out_atoms = count(NOT atom_added)
+     out_atom.create(n_out_atoms)
+     out_atom = pack([(i,i=1,n_big_atoms)],mask=(NOT atom_added))
+     ! Loop over atoms *inside* the cluster .....
+     do in_atom = 1,n_out_atoms
+       ! Worst case is to add one atom at a time, resulting in 
+       ! n_big_atoms as the upper limit.
+       if (in_atom > .n_atoms) exit ! No more in_atoms were added
+       in_parent = .parent_for_atom(in_atom) ! Now we have the latest in_atom 
+       in_pos = matmul(.crystal.unitcell.direct_matrix,.geometry(:,in_atom))
+       atom_pair(1).atomic_number = .asymmetric_cell_atom(in_parent).atomic_number
+       atom_pair(1).pos = in_pos
+       ! Which are connected to in_atom? Loop over atoms (j) *outside* the inner
+       ! cluster, that are in the big_cluster. Loop over the indices of the
+       ! false parts of atom_added.
+       j = 1
+       do ! j = 1,n_out_atoms
+         out = out_atom(j)
+         out_pos = big_cluster_xyz(:,out)
+         nearby = abs(out_pos(1)-in_pos(1))<SIX &
+              AND abs(out_pos(2)-in_pos(2))<SIX &
+              AND abs(out_pos(3)-in_pos(3))<SIX 
+         if (NOT nearby) then
+            j = j + 1
+            if (j>n_out_atoms) exit
+         else
+            c = mod((out-1),n_cell_atoms) + 1       ! unit cell atom,
+            a = .crystal.atom_for_unit_cell_atom(c) ! asymmetric cell atom
+            ENSURE(a>0,"no unique atom for unit cell atom "//c.to_str.trim)
+            ENSURE(a<=n_asym_atoms,"asymmetric atom too large, cell atom "//c.to_str.trim)
+            atom_pair(2).atomic_number = .asymmetric_cell_atom(a).atomic_number
+            atom_pair(2).pos = out_pos
+            if (atom_pair.bonded(1,2)) then
+              atom_added(out) = TRUE ! Add the new symop and atom
+              out_atom.swap_elements(j,n_out_atoms)
+              n_out_atoms = n_out_atoms - 1
+              .add_new_atom(big_cluster(:,out),symop_list(:,out),a) 
+            else
+               j = j + 1
+            end
+            if (j>n_out_atoms) exit
+         end
+       end
+     end
+     out_atom.destroy
+     big_cluster_xyz.destroy
+   end
+
+   make_connection_table(table) ::: leaky
+   ! Make the connection "table" for the crystal unit cell geometry.
+     table :: INTVECVEC*
+     geometry,geometry_xyz :: REALMAT*
+     atom_pair :: ATOMVEC(2)
+     atom_added :: BINVEC*
+     pos_i,pos_j :: REALVEC(3)
+     n_atoms,i,j,parent_i,parent_j,last_i :: INT
+     nearby :: BIN
+     ENSURE(.crystal.created,"no crystal")
+     ENSURE(.crystal.unit_cell_geometry.created,"no unit_cell in the crystal")
+     ENSURE(.asymmetric_cell_atom.created,"no asymmetric_cell_atom info")
+     geometry => .crystal.unit_cell_geometry
+     n_atoms = geometry.dim2
+     table.create(n_atoms) ! worst case is no atoms are connected
+     geometry_xyz.create(3,n_atoms)
+     geometry_xyz = matmul(.crystal.unitcell.direct_matrix,geometry)
+     atom_added.create(n_atoms)
+     atom_added = FALSE
+     do i = 1,n_atoms
+        if (atom_added(i)) cycle
+        pos_i = geometry_xyz(:,i)
+        parent_i = .crystal.atom_for_unit_cell_atom(i) 
+        atom_pair(1).atomic_number = .asymmetric_cell_atom(parent_i).atomic_number
+        atom_pair(1).pos = pos_i
+        do j = 2,n_atoms
+           pos_j = geometry_xyz(:,j)
+           nearby = abs(pos_j(1)-pos_i(1))<SIX &
+                AND abs(pos_j(2)-pos_i(2))<SIX &
+                AND abs(pos_j(3)-pos_i(3))<SIX 
+           if (NOT nearby) cycle
+           parent_j = .crystal.atom_for_unit_cell_atom(j) 
+           atom_pair(2).atomic_number = .asymmetric_cell_atom(parent_j).atomic_number
+           atom_pair(2).pos = pos_j
+           if (atom_pair.bonded(1,2)) then
+              atom_added(j) = TRUE 
+              table(i).element.append(j)
+              last_i = i
+           end
+        end
+     end
+     geometry_xyz.destroy
+     atom_added.destroy
+     table.shrink(last_i)
+ ! stdout.text("symop_list:")
+ ! stdout.put(transpose(symop_list))
+   end
+
+   shrink_info_arrays ::: private, leaky
+   ! Shrink the informational arrays to save space.
+     .symop.shrink_columns(.n_symop) 
+   ! .atom_for_cell_atom.shrink_columns(.n_symop) 
+     .geometry.shrink_columns(.n_atoms) 
+     .symop_for_atom.shrink(.n_atoms)
+     .parent_for_atom.shrink(.n_atoms)
+   ! .minimum_distance_to_atom.shrink(.n_atoms)
+   ! .closest_fragment_atom_to_atom.shrink(.n_atoms)
+   end
+
+   is_new_xyz_atom(pos,xyz) result (res)
+   ! Return TRUE only if "pos" (in crystal coordinates) is to be added to
+   ! .geometry.  IMPORTANT NOTE: "xyz" is "pos" in *cartesian* coordiantes!!!
+   ! This is to save some computation.
+     pos,xyz :: REALVEC(3), IN
+     res :: BIN
+     res = FALSE
+     if (NOT .geometry(:,1:.n_atoms).has_column(pos)) then
+       select case (.add_criteria)
+         ! Add only those atoms proximate to the fragment
+         case("within_radius         ")
+                 res = .minimum_distance2_to_xyz(xyz)<=.radius*.radius
+         ! Add only those atoms in the first unit cell
+         case("unit_cell             ")
+                 res = .is_in_unit_cell(pos)
+         ! Add only those atoms in the initial fragment
+         case("fragment              ")
+                 res = .minimum_distance2_to_xyz(xyz)<= TOL(10)
+         ! Add only those atoms in the first unit cell or initial fragment
+         case("unit_cell_and_fragment")
+                 res = .minimum_distance2_to_xyz(xyz)<= TOL(10) OR .is_in_unit_cell(pos)
+         case default;    UNKNOWN(.add_criteria)
+       end
+     end
+   end
+
+   is_new_atom(pos) result (res)
+   ! Return TRUE only if "pos" position (in crystal coordinates) is to be added
+   ! to .geometry.
+     pos :: REALVEC(3), IN
+     res :: BIN
+     res = FALSE
+     if (NOT .geometry(:,1:.n_atoms).has_column(pos)) then
+       select case (.add_criteria)
+         ! Add only those atoms proximate to the fragment
+         case("within_radius         ")
+                 res = .minimum_distance_to(pos)<=.radius
+         ! Add only those atoms in the first unit cell
+         case("unit_cell             ")
+                 res = .is_in_unit_cell(pos)
+         ! Add only those atoms in the initial fragment
+         case("fragment              ")
+                 res = .minimum_distance_to(pos)<= TOL(10)
+         ! Add only those atoms in the first unit cell or initial fragment
+         case("unit_cell_and_fragment")
+                 res = .minimum_distance_to(pos)<= TOL(10) OR .is_in_unit_cell(pos)
+         case default;    UNKNOWN(.add_criteria)
+       end
+     end
+   end
+
+   add_new_atom(pos,symop,cell_atom) ::: leaky, private
+   ! Add a new atom with position "pos" into the cluster ".geometry" array, and
+   ! update all the related information. "symop" is the symmetry operation that
+   ! generated "pos". "cell_atom" is the index of the atom in the asymmetric
+   ! unit cell fragment which is symmetrically equivalent to this atom with
+   ! position "pos".
+   ! NOTE: this routine should only be called if .any_new_atoms_in(pos) is TRUE.
+     pos :: REALVEC(3)
+     symop :: INTVEC(4)
+     cell_atom :: INT
+     q,n,n_col :: INT
+     disordered,symop_added :: BIN
+     occ :: REAL
+     if (.geometry(:,1:.n_atoms).has_column(pos,eps=TOL(2))) return
+     occ = .asymmetric_cell_atom(cell_atom).site_occupancy
+     disordered = NOT occ.same_as(ONE)
+     WARN_IF(disordered,"disordered atom "//(.n_atoms+1).to_str.trim//", occ = "//occ.to_str.trim)
+     symop_added = .symop.has_column(symop,col=q) ! get symop index "q" if there
+     if (NOT symop_added) then    ! Add symop to .symop table if reqd.
+        n_col = .symop.dim2 
+        if ((.n_symop+1)>n_col) then ! Expand .symop table if reqd.
+           .symop.expand_columns(2*n_col)
+         ! .atom_for_cell_atom.expand_columns(2*n_col)
+        end
+        q = .n_symop + 1
+        .n_symop = q
+        .symop(:,q) = symop
+     end
+     n_col = .geometry.dim2
+     if ((.n_atoms+1)>n_col) then ! Expand info arrays if reqd.
+        .geometry.expand_columns(2*n_col)
+        .symop_for_atom.expand(2*n_col)
+        .parent_for_atom.expand(2*n_col)
+      ! .minimum_distance_to_atom.expand(2*n_col)
+      ! .closest_fragment_atom_to_atom.expand(2*n_col)
+     end
+     n = .n_atoms + 1
+     .geometry(:,n) = pos
+     .symop_for_atom(n) = q
+     .parent_for_atom(n) = cell_atom
+   ! .atom_for_cell_atom(cell_atom,q) = n
+   ! These may take up too much time ...
+   ! dist = .minimum_distance_to(pos,closest)
+   ! .minimum_distance_to_atom(n) = dist
+   ! .closest_fragment_atom_to_atom(n) = closest
+     .n_atoms = n
+   end
+
+   is_bonded_to(pos,p) result (res) ::: private
+   ! Return TRUE only if the atom with position "pos" and parent atom index "p"
+   ! is bonded to one of the cluster atoms with positions in .geometry,
+   ! according to a Bragg-Slater bond-distance criteria.
+     pos :: REALVEC(3), IN
+     p :: INT, IN
+     res :: BIN
+     a,pa :: INT
+     atom_pair :: ATOMVEC(2)
+     ENSURE(.geometry.created,"no .geometry")
+     ENSURE(.n_atoms>0,"no atoms in .geometry")
+     ENSURE(.asymmetric_cell_atom.created,"no .cell_atom")
+     ENSURE(.crystal.created,"no .asymmetric_cell_atom")
+     res = FALSE
+     do a = 1,.n_atoms
+        pa = .parent_for_atom(a)
+        atom_pair(1) = .asymmetric_cell_atom(pa)
+        atom_pair(2) = .asymmetric_cell_atom(p)
+        atom_pair(1).pos = .geometry(:,a)
+        atom_pair(2).pos = pos
+        atom_pair.axis_system = "crystal"
+        atom_pair.convert_from_crystal(.crystal)
+        res = atom_pair.bonded(1,2)
+        if (res) exit
+     end
+   end
+
+   is_in_unit_cell(pos) result (res) ::: private
+   ! Return TRUE only if the atom with position "pos" is in the first unit cell.
+     pos :: REALVEC(3)
+     res :: BIN
+     error :: REAL, parameter = TOL(8)
+     res = all(pos(:)>=-error AND pos(:)<ONE-error)
+   end
+
+   is_near_origin(pos) result (res) ::: private
+   ! Return TRUE only if the atom with position "pos" is near the origin i.e. if
+   ! corrdinates all have absolute value less than one.
+     pos :: REALVEC(3)
+     res :: BIN
+     res = &
+        abs(pos(1))<=ONE AND &
+        abs(pos(2))<=ONE AND &
+        abs(pos(3))<=ONE 
+   end
+
+   find_fragment_atoms ::: leaky, private
+   ! Find the fragment atoms in the .geometry of the cluster.
+     new,frag :: REALVEC(3)
+     i,j :: INT
+     found :: BIN
+     tol :: REAL
+     ENSURE(.n_atoms>0,"there are no atoms in the cluster!")
+     ENSURE(.geometry.created,"no geometry")
+     ENSURE(.fragment_geometry.created,"no fragment geometry")
+     ENSURE(.crystal.created,"no crystal")
+     tol = TOL(3)/maxval(.crystal.unitcell.length)
+     .is_fragment_atom.create(.n_atoms)
+     .is_fragment_atom = FALSE
+     do j = 1,.n_fragment_atoms ! loop over fragment atoms
+        frag = .fragment_geometry(:,j)
+        found = FALSE
+        do i = 1,.n_atoms
+           new = .geometry(:,i) ! cluster atom position
+           if (new.same_as(frag,tol)) then
+              found = TRUE
+              .is_fragment_atom(i) = TRUE
+              exit
+           end
+        end
+        if (NOT found) then
+         ! if (.add_criteria=="unit_cell") then
+              WARN("fragment atom "//trim(j.to_str)//" not found")
+         ! else
+         !    DIE("fragment atom "//trim(j.to_str)//" not found")
+         ! end
+        end
+     end
+   end
+
+!  *******************
+!  Cluster information
+!  *******************
+
+   minimum_distance2_to_xyz(pos,closest_atom) result (res)
+   ! Return the minimum atom separation squared between the .fragment_geometry
+   ! and a position "pos" given in cartesian coordinates. If present,
+   ! "closest_atom" is set to the index of the atom (i.e. column) of
+   ! .fragment_geometry whose position is closest to "pos".
+     pos :: REALVEC(3)
+     closest_atom :: INT, optional
+     res :: REAL
+     diff :: REALMAT*
+     r2 :: REALVEC*
+     ENSURE(.fragment_geometry.created,"no fragment geometry")
+     ENSURE(.crystal.created,"no crystal data")
+     diff.create(3,.n_fragment_atoms)
+     r2.create(.n_fragment_atoms)
+     diff = .fragment_geometry - spread(pos,2,.n_fragment_atoms)
+     diff.get_column_dot_products(r2)
+     res = minval(r2)
+     if (present(closest_atom)) closest_atom = minval(minloc(r2))
+     r2.destroy
+     diff.destroy
+   end
+
+   minimum_distance_to(pos,closest_atom) result (res)
+   ! Return the minimum atom separation between the .fragment_geometry
+   ! and a position "pos" given in crystal axis coordinates. If present,
+   ! "closest_atom" is set to the index of the atom (i.e. column) of
+   ! .fragment_geometry whose position is closest to "pos".
+     pos :: REALVEC(3)
+     closest_atom :: INT, optional
+     res :: REAL
+     diff :: REALMAT*
+     norms :: REALVEC*
+     ENSURE(.fragment_geometry.created,"no fragment geometry")
+     ENSURE(.crystal.created,"no crystal data")
+     diff.create(3,.n_fragment_atoms)
+     norms.create(.n_fragment_atoms)
+     diff = .fragment_geometry - spread(pos,2,.n_fragment_atoms)
+     .crystal.unitcell.change_from_fractional(diff)  ! Put in cartesians.
+     diff.get_column_norms(norms)
+     res = minval(norms)
+     if (present(closest_atom)) closest_atom = minval(minloc(norms))
+     norms.destroy
+     diff.destroy
+   end
+
+   minimum_distance_to(pos) result (res)
+   ! Return the minimum atom separation between the .fragment_geometry
+   ! and another geometry "pos" given in crystal axis coordinates.
+     pos :: REALMAT
+     res :: REAL
+     i :: INT
+     ENSURE(pos.dim2>0,"no atom positions")
+     res = .minimum_distance_to(pos(:,1))
+     do i = 2,pos.dim2
+        res = min(.minimum_distance_to(pos(:,i)),res)
+     end
+   end
+
+   cartesian_geometry result (res) ::: leaky
+   ! Return the cartesian geometry for the cluster
+     res :: REALMAT*
+     ENSURE(.fragment_geometry.created,"no fragment geometry")
+     ENSURE(.crystal.created,"no crystal data")
+     res.create(3,.n_atoms)
+     .crystal.unitcell.change_from_fractional(.geometry)
+   end
+
+   cluster_width result(res)
+   ! Return the width "res" of the cluster in each of the 3 axis directions.
+   ! NOTE: using crystal axis system.
+      res :: REALVEC(3)
+      ENSURE(.geometry.created,"no fragment geometry")
+      res = .geometry.max_abs_column_difference
+   end
+
+   make_fragment_atom(fragment_atom) ::: leaky
+   ! Make the list of fragment atoms, an ATOMVEC
+     fragment_atom :: ATOMVEC
+     a,n,p :: INT
+     ENSURE(.n_fragment_atoms>0,"no fragment atoms")
+     ENSURE(.is_fragment_atom.created,"no fragment atoms")
+     ENSURE(.crystal.created,"no crystal info")
+     n = 0
+     do a = 1,.n_atoms
+         if (NOT .is_fragment_atom(a)) cycle
+         n = n + 1
+         p = .parent_for_atom(a)
+         fragment_atom(n) = .asymmetric_cell_atom(p)
+         fragment_atom(n).pos = .geometry(:,a)
+         fragment_atom(n).axis_system = "crystal"
+     end
+     fragment_atom.convert_from_crystal(.crystal)
+   end
+
+   fragment_atom_indices result (res) 
+   ! Return the indices of the fragment atoms in the cluster.
+     res :: INTVEC(.n_fragment_atoms)
+     a,n :: INT
+     ENSURE(.n_fragment_atoms>0,"no fragment atoms")
+     ENSURE(.is_fragment_atom.created,"no fragment atoms")
+     n = 0
+     do a = 1,.n_atoms
+         if (NOT .is_fragment_atom(a)) cycle
+         n = n + 1
+         res(n) = a
+     end
+   end
+
+   nonfragment_atom_indices result (res) 
+   ! Return the indices of the nonfragment atoms in the cluster.
+     res :: INTVEC(.n_atoms-.n_fragment_atoms)
+     a,n :: INT
+     ENSURE(.n_atoms>.n_fragment_atoms,"no nonfragment atoms")
+     ENSURE(.is_fragment_atom.created,"no fragment atoms")
+     n = 0
+     do a = 1,.n_atoms
+         if (.is_fragment_atom(a)) cycle
+         n = n + 1
+         res(n) = a
+     end
+   end
+
+!  ****************************************
+!  Cluster transformations on matrices, etc
+!  ****************************************
+
+   make_partition_factors(matrix) ::: leaky
+   ! Make the partition factors from the cluster-fragment mapping information.
+     matrix :: REALMAT
+     n_atom,a1,a2,f1,l1,f2,l2 :: INT
+     first_basis_fn_for_atom,last_basis_fn_for_atom :: INTVEC*
+     factor :: REAL
+     ENSURE(.asymmetric_cell_atom.created, "no atom data")
+     .asymmetric_cell_atom.make_atom_basis_fn_limits(first_basis_fn_for_atom,last_basis_fn_for_atom)
+     n_atom = .asymmetric_cell_atom.n_atom
+     do a1 = 1,n_atom
+       f1 = first_basis_fn_for_atom(a1)
+       l1 = last_basis_fn_for_atom(a1)
+       do a2 = 1,n_atom
+         f2 = first_basis_fn_for_atom(a2)
+         l2 = last_basis_fn_for_atom(a2)
+         ! Mulliken partitioning
+         factor = (.partition_factor(a1)+.partition_factor(a2))/TWO
+         matrix(f1:l1,f2:l2) = factor * matrix(f1:l1,f2:l2)
+       end
+     end
+     last_basis_fn_for_atom.destroy
+     first_basis_fn_for_atom.destroy
+   end
+
+   partition_density(matrix) ::: leaky
+   ! Applies atomic partition factors to the density matrix, useful for zeroing
+   ! out certain atoms.
+     matrix :: REALMAT
+     n_atom,a1,a2,f1,l1,f2,l2 :: INT
+     first_basis_fn_for_atom,last_basis_fn_for_atom :: INTVEC*
+     factor :: REAL
+     ENSURE(.asymmetric_cell_atom.created, "no atom data")
+     .asymmetric_cell_atom.make_atom_basis_fn_limits(first_basis_fn_for_atom,last_basis_fn_for_atom)
+     n_atom = .asymmetric_cell_atom.n_atom
+     do a1 = 1,n_atom
+       f1 = first_basis_fn_for_atom(a1)
+       l1 = last_basis_fn_for_atom(a1)
+       do a2 = 1,n_atom
+         f2 = first_basis_fn_for_atom(a2)
+         l2 = last_basis_fn_for_atom(a2)
+         ! Mulliken partitioning
+         factor = (.partition_factor(a1)+.partition_factor(a2))/TWO
+         matrix(f1:l1,f2:l2) = factor * matrix(f1:l1,f2:l2)
+       end
+     end
+     last_basis_fn_for_atom.destroy
+     first_basis_fn_for_atom.destroy
+   end
+
+   create_atom_list(atom) ::: leaky
+   ! Make a new atom list for the cluster
+   ! NOTE: basis sets are pointer copied!
+     atom :: ATOMVEC*
+     seitz :: REALMAT3*
+     therm :: REALMAT(3,3)
+     a,p,s :: INT
+     ENSURE(.fragment_geometry.created, "no crystal fragment geometry")
+     ENSURE(.crystal.created, "no crystal data")
+     ENSURE(.asymmetric_cell_atom.created, "no atom data")
+     ENSURE(.n_atoms>0,"no atoms in cluster")
+     atom.create(.n_atoms)
+     seitz => .crystal.transposed_xyz_seitz_matrices ! transposed !
+     do a = 1,.n_atoms
+        p = .parent_for_atom(a)            ! only one parent will do.
+        s = .symop_for_atom(a)             ! the symop from the parent.
+        atom(a).copy(.asymmetric_cell_atom(p))        ! make copy, but .basis is a ptr copy
+        atom(a).pos = .geometry(:,a)       ! crystal axis system
+        therm = .asymmetric_cell_atom(p).thermal_tensor
+        therm.change_basis(.crystal.unitcell.reciprocal_U_matrix)
+        therm.change_basis(seitz(:,:,.symop(1,s)))
+        therm.change_basis(.crystal.unitcell.direct_U_matrix)
+        atom(a).thermal_tensor = therm
+        atom(a).axis_system = "crystal"
+     end
+     seitz.destroy
+     atom.resolve_axis_system(.crystal)    ! change pos to cartesian
+   end
+
+   make_density_matrix(P,D,atom)
+   ! Make a cluster density matrix "P" from a fragment density matrix "D", given
+   ! a new cluster "atom" list (see routine create_atom_list).
+     P,D :: REALMAT
+     atom :: ATOMVEC
+     ptr :: REALMAT3*
+     tr :: REALMAT3VEC*
+     tr1,tr2,pc, W :: REALMAT*
+     f1,l1,s1,n1,m1,a1,c1,f2,l2,s2,n2,m2,a2,c2 :: INT
+     n_shell, q,s,f3,l3,f4,l4 :: INT
+     atom_for_shell, first,last, first_fn,last_fn :: INTVEC*
+     ENSURE(.crystal.created, "no crystal data")
+     ENSURE(.asymmetric_cell_atom.created, "no atom data")
+     ENSURE(.asymmetric_cell_atom.bases_are_all_labeled,"unlabelled bases!")
+     ENSURE(D.is_square AND D.dim1==.asymmetric_cell_atom.n_bf,"D wrong shape")
+     ENSURE(P.is_square AND P.dim1==atom.n_bf,"P wrong shape")
+     ENSURE(.partition_factor.created,"no partition factors")
+     n_shell = .asymmetric_cell_atom.n_shell
+     atom_for_shell => .asymmetric_cell_atom.atom_for_shell
+     .asymmetric_cell_atom.make_atom_basis_fn_limits(first,last)
+      atom.make_atom_basis_fn_limits(first_fn,last_fn)
+     ptr => .crystal.transposed_xyz_seitz_matrices ! transposes here
+     ptr.transpose_12
+     tr.make_gaussian_xyz_matrices(ptr)
+     ptr.destroy
+     pc => .atom_pair_parent_count
+     do q = 1,.n_symop
+       s = .symop(1,q)
+       ! Transform each shell pair by symop "s"
+       do s1 = 1,n_shell
+         f1 = first(s1); l1 = last(s1); n1 = (l1-f1+1)
+         a1 = atom_for_shell(s1)
+         c1 = .atom_for_cell_atom(a1,q) ! cluster atom index
+         f3 = first_fn(c1); l3 = last_fn(c1)
+         m1 = n1.inverse_triangle_number - 1
+         tr1  => tr(m1).element(:,:,s)
+         ! Transform 1st index of density matrix
+         W.create(n1,n2)
+         W = matmul(tr1,D(f1:l1,f2:l2))
+         do s2 = 1, n_shell
+           f2 = first(s2); l2 = last(s2); n2 = (l2-f2+2)
+           a2 = atom_for_shell(s2)
+           c2 = .atom_for_cell_atom(a2,q) ! cluster atom index
+           f4 = first_fn(c2); l4 = last_fn(c2)
+           m2 = n2.inverse_triangle_number - 1
+           ! Transform 2nd index of density matrix
+           tr2  => tr(m2).element(:,:,s)
+           P(f3:l3,f4:l4) = P(f3:l3,f4:l4) &
+                          + matmul(W,transpose(tr2))/pc(c1,c2)
+         end
+         W.destroy
+       end
+     end
+     pc.destroy
+     last_fn.destroy; first_fn.destroy
+     last.destroy; first.destroy
+     tr.destroy
+     atom_for_shell.destroy
+   end
+
+   atom_pair_parent_count result(n2) ::: leaky
+   ! Make the atom pair parent count, i.e. the number of times n2(i,j) a
+   ! particular atom pair (i,j) is *generated from* a fragment atom pair (i',j')
+   ! by the symmerty operations whose indices are stored in .symop. We divide
+   ! by this factor to ensure that the pair effectively appears as being
+   ! generated once, as an average of all the symmetry operations.  This is
+   ! quite similar to the n2 factor in the Dacre-Elder-Dupuis-King symmetry
+   ! method. For insight see:
+   ! P.D. Dacre, CPL (1970) 7, 47
+   ! M. Elder, IJQC (1973) 7, 75
+   ! M. Dupuis and H.F> King, IJQC (1977) 11, 613
+     n2 :: REALMAT*
+     s1,a1,c1,s2,a2,c2 :: INT
+     n_shell,q :: INT
+     atom_for_shell :: INTVEC*
+     ENSURE(.asymmetric_cell_atom.created, "no atom data")
+     ENSURE(.atom_for_cell_atom.created, "no atom_for_fragment_atom data")
+     n2.create(.n_atoms,.n_atoms)
+     n_shell = .asymmetric_cell_atom.n_shell
+     atom_for_shell => .asymmetric_cell_atom.atom_for_shell
+     do q = 1,.n_symop
+       ! Transform each shell pair by symop "s"
+       do s1 = 1,n_shell
+         a1 = atom_for_shell(s1)
+         c1 = .atom_for_cell_atom(a1,q)   ! cluster atom index
+         do s2 = 1, n_shell
+           a2 = atom_for_shell(s2)
+           c2 = .atom_for_cell_atom(a2,q) ! cluster atom index
+           n2(c1,c2) = n2(c1,c2) + 1
+         end
+       end
+     end
+     atom_for_shell.destroy
+   end
+
+!  **************
+!  Output methods
+!  **************
+
+   put
+   ! Put the list of vertices for the object
+      ENSURE(.info_made,"call make_info first")
+      stdout.flush
+      stdout.text("Cluster information:")
+      stdout.flush
+      stdout.show("Radius                  =",.radius)
+      stdout.show("Add criteria            =",.add_criteria)
+      stdout.show("No. of atoms            =",.n_atoms)
+      stdout.show("No. of fragment atoms   =",.n_fragment_atoms)
+      stdout.show("No. of symops           =",.n_symop)
+      stdout.show("Fragment width          =",.fragment_width)
+      stdout.show("Cartesian width         =",.crystal.cartesian_fragment_width)
+      stdout.show("Fragment offset         =",.fragment_offset)
+      .put_cluster_table(order_atoms_by="symop")
+    ! .put_cluster_table(order_atoms_by="atom_distance")
+   end
+
+   put_cluster_table(order_atoms_by)
+   ! Put the cluster information table
+      order_atoms_by :: STR(*), optional
+      order :: STR
+      b,a,q :: INT
+    ! i :: INT
+      dist :: REAL
+      list :: INTVEC*
+      ENSURE(.info_made,"call make_info first")
+      order = "symop"
+      if (present(order_atoms_by)) order = order_atoms_by
+      list.create(.n_atoms)
+      if (order=="symop") then
+         list = [(a,a=1,.n_atoms)]
+      else if (order=="atom_distance") then
+         DIE("ordering not allowed any more, "//trim(order))
+       ! .minimum_distance_to_atom.quick_sort(list)
+      else
+         DIE("unknown ordering, "//trim(order))
+      end
+      stdout.flush
+      stdout.text("Cluster geometry (crystal axis system):")
+      stdout.flush
+      stdout.text("Cluster atoms are ordered by "//trim(order))
+      stdout.flush
+      stdout.dash(int_fields=4,real_fields=4,width=12)
+      stdout.put("Atom",int_width=TRUE)
+      stdout.tab(real_fields=3)
+      stdout.put("Closest",int_width=TRUE)
+      stdout.put("Minimum")
+      stdout.put("Parent",int_width=TRUE)
+      stdout.put("Parent",int_width=TRUE)
+      stdout.put("Symop",width=12)
+      stdout.flush
+      stdout.put("#",int_width=TRUE)
+      stdout.put("x")
+      stdout.put("y")
+      stdout.put("z")
+      stdout.put("atom",int_width=TRUE)
+      stdout.put("distance")
+      stdout.put("atom",int_width=TRUE)
+      stdout.put("symop",int_width=TRUE)
+      stdout.put("s",width=3)
+      stdout.put("h",width=3)
+      stdout.put("k",width=3)
+      stdout.put("l",width=3)
+      stdout.flush
+      stdout.dash(int_fields=4,real_fields=4,width=12)
+      stdout.flush
+      do b = 1,.n_atoms
+         a = list(b)
+         stdout.put(a)
+         stdout.put(.geometry(1,a))
+         stdout.put(.geometry(2,a))
+         stdout.put(.geometry(3,a))
+       ! stdout.put(.closest_fragment_atom_to_atom(a))
+         stdout.put("n/a",int_width=TRUE)
+       ! dist = .minimum_distance_to_atom(a)
+         dist = -ONE
+         if (dist<0) then; stdout.put("n/a")
+         else;             stdout.put(dist)
+         end
+       ! do i = 1,size(.parent_for_atom(a).element)
+       !    if (i>1) &
+       !    stdout.tab(int_fields=4,real_fields=4)
+            stdout.put(.parent_for_atom(a))
+            q = .symop_for_atom(a)
+            stdout.put(q)
+            stdout.put(.symop(1,q),width=3)
+            stdout.put(.symop(2,q),width=3)
+            stdout.put(.symop(3,q),width=3)
+            stdout.put(.symop(4,q),width=3)
+            stdout.flush
+       ! end
+      end
+      stdout.dash(int_fields=4,real_fields=4,width=12)
+      list.destroy
+   end
+
+   put_tonto_input
+   ! Outputs the tonto input file for the cluster, given additionally the list
+   ! of atoms which was used to generate the fragment_geometry in crystal.
+   ! (See routine make_reduced_group_data).
+      seitz :: REALMAT3*
+      therm :: REALMAT(3,3)
+      a,p,s :: INT
+      ENSURE(.info_made,"call make_info first")
+      ENSURE(.asymmetric_cell_atom.created,"no atom data")
+      ENSURE(.crystal.created,"no crystal data")
+      ENSURE(.parent_for_atom.created,"no parent atoms")
+      ENSURE(.symop_for_atom.created,"no symops for atoms")
+      stdout.text("   atoms= {")
+      stdout.flush
+      stdout.text("      keys= { label= ")
+      stdout.text('              "{ axis_system= crystal }" pos=')
+!      stdout.text("              basis_label=")
+      stdout.text('              "{ units= angstrom^2 }" thermal_tensor= }')
+      stdout.flush
+      stdout.text("      data= {")
+      seitz => .crystal.transposed_xyz_seitz_matrices ! transposed !
+      do a = 1,.n_atoms
+         p = .parent_for_atom(a)
+         s = .symop_for_atom(a)
+         stdout.put(.asymmetric_cell_atom(p).label.trim,int_width=TRUE)
+         stdout.put(.geometry(1,a))
+         stdout.put(.geometry(2,a))
+         stdout.put(.geometry(3,a))
+!         stdout.put(.asymmetric_cell_atom(p).basis.label.trim)
+         therm = .asymmetric_cell_atom(p).thermal_tensor
+         therm.change_basis(.crystal.unitcell.reciprocal_U_matrix)
+         therm.change_basis(seitz(:,:,.symop(1,s)))
+         therm.change_basis(.crystal.unitcell.direct_U_matrix)
+         therm.convert_to("angstrom^2")
+         stdout.put(therm(1,1))
+         stdout.put(therm(2,2))
+         stdout.put(therm(3,3))
+         stdout.put(therm(1,2))
+         stdout.put(therm(1,3))
+         stdout.put(therm(2,3))
+         stdout.flush
+      end
+      seitz.destroy
+      stdout.text("      }")
+      stdout.text("   }")
+      stdout.flush
+   end
+
+   put_CX(label)
+   ! Outputs some information for the Crystal Explorer program: the list of atoms in
+   ! the cluster, their positions, and whether they are part of the generating
+   ! fragment or not.
+      label :: STR
+      n,p :: INT
+      geometry :: REALMAT*
+      ENSURE(.info_made,"call make_info first")
+      ENSURE(.geometry.created,"no cluster geometry")
+      ENSURE(.crystal.created,"no crystal data")
+      ENSURE(.asymmetric_cell_atom.created,"no atom data")
+      ENSURE(.parent_for_atom.created,"no parent atoms")
+      ENSURE(.is_fragment_atom.created,"no is_fragment_atom array")
+      geometry.create_copy(.geometry)
+      .crystal.unitcell.change_from_fractional(geometry)
+      stdout.flush
+      stdout.text("begin atoms " // label.trim)
+      do n = 1,.n_atoms
+         p = .parent_for_atom(n)
+         stdout.put(.asymmetric_cell_atom(p).chemical_symbol)
+         stdout.put(geometry(1,n))
+         stdout.put(geometry(2,n))
+         stdout.put(geometry(3,n))
+         stdout.put(.asymmetric_cell_atom(p).thermal_tensor(1,1))
+         stdout.put(.asymmetric_cell_atom(p).thermal_tensor(1,2))
+         stdout.put(.asymmetric_cell_atom(p).thermal_tensor(1,3))
+         stdout.put(.asymmetric_cell_atom(p).thermal_tensor(2,2))
+         stdout.put(.asymmetric_cell_atom(p).thermal_tensor(2,3))
+         stdout.put(.asymmetric_cell_atom(p).thermal_tensor(3,3))
+         if (.is_fragment_atom(n)) stdout.put_text(" IN")
+         stdout.flush
+      end
+      stdout.text("end atoms")
+      geometry.destroy
+   end
+
+   put_spartan(label)
+   ! Outputs some information for the Spartan program: the list of atoms in
+   ! the cluster, their positions, and whether they are part of the generating
+   ! fragment or not.
+      label :: STR
+      word :: STR
+      n,p :: INT
+      geometry :: REALMAT*
+   ENSURE(.info_made,"call make_info first")
+   ENSURE(.geometry.created,"no cluster geometry")
+   ENSURE(.crystal.created,"no crystal data")
+   ENSURE(.asymmetric_cell_atom.created,"no atom data")
+   ENSURE(.parent_for_atom.created,"no parent atoms")
+   ENSURE(.is_fragment_atom.created,"no is_fragment_atom array")
+      geometry.create_copy(.geometry)
+      .crystal.unitcell.change_from_fractional(geometry)
+      geometry = ANGSTROM_PER_BOHR*geometry
+      stdout.flush
+      stdout.text("=== SPARTAN DATA ===")
+      stdout.text(label.trim)
+      stdout.text("M001")
+      stdout.text("0 1")
+      do n = 1,.n_atoms
+         p = .parent_for_atom(n)
+         stdout.put(.asymmetric_cell_atom(p).atomic_number)
+         stdout.put(geometry(1,n))
+         stdout.put(geometry(2,n))
+         stdout.put(geometry(3,n))
+         stdout.flush
+      end
+      stdout.text("ENDCART")
+      stdout.text("ATOMLABELS")
+      do n = 1,.n_atoms
+         p = .parent_for_atom(n)
+         word = .asymmetric_cell_atom(p).label
+         word = '"'//trim(word)//'"'
+         stdout.put(trim(word))
+         stdout.flush
+      end
+      stdout.text("ENDATOMLABELS")
+      geometry.destroy
+   end
+
+end

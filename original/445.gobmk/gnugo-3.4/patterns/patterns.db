@@ -1,0 +1,14552 @@
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# This is GNU Go, a Go program. Contact gnugo@gnu.org, or see   #
+# http://www.gnu.org/software/gnugo/ for more information.      #
+#                                                               #
+# Copyright 1999, 2000, 2001, 2002 and 2003                     #
+# by the Free Software Foundation.                              #
+#                                                               #
+# This program is free software; you can redistribute it and/or #
+# modify it under the terms of the GNU General Public License   #
+# as published by the Free Software Foundation - version 2.     #
+#                                                               #
+# This program is distributed in the hope that it will be       #
+# useful, but WITHOUT ANY WARRANTY; without even the implied    #
+# warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR       #
+# PURPOSE.  See the GNU General Public License in file COPYING  #
+# for more details.                                             #
+#                                                               #
+# You should have received a copy of the GNU General Public     #
+# License along with this program; if not, write to the Free    #
+# Software Foundation, Inc., 59 Temple Place - Suite 330,       #
+# Boston, MA 02111, USA                                         #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#
+#  The Pattern Database.
+#
+#  Further documentation may be found in the Texinfo documentation
+#
+#  First there is a pattern title of the form: Pattern [string]. The
+#  string is used for identifying the pattern while tuning or debugging.
+#
+#  Then a block of the following characters representing the pattern
+#  itself.
+#  
+#  ?     : don't care
+#  .     : empty
+#  X     : your piece,
+#  O     : my piece,
+#  x     : your piece or empty
+#  o     : my piece or empty
+#  *     : my next move
+#  -, |  : edge of board
+#  +     : corner of board
+#
+#  If a pattern must not match at the edge of the board,
+#  an extra row of ?'s in the pattern may be added. (This
+#  will not add to the time taken to check the pattern.)
+#
+#################
+#
+#  After the pattern, some supplementary information in the format:
+#
+# :trfno, classification, [values], helper_function
+#   
+#  These and other aspects of the pattern database are documented
+#  in the Texinfo documentation.
+#
+#################
+#
+#  Any line beginning with #, or any part of a line following
+#  whitespace is a comment. 
+#
+#  The patterns are classified into a number of different categories:
+#  
+#  CC    center cut/connection
+#  EC    edge cut/connection
+#  CS    center splitting
+#  ES    edge splitting
+#  EB    edge block/expand
+#  CB    center block/expand
+#  ED    edge defend/attack
+#  CD    center defend/attack
+#  CM    center miscellaneous
+#  (F     fuseki) moved to fuseki.db
+#  (J     joseki) moved to fuseki.db
+#  EJ    edge joseki
+#  S     seki
+#  HH    high handicap
+#  LE    large endgame
+#
+#  The patterns are grouped in the file by category. New patterns
+#  should be added close to a similar pattern or at the end of the
+#  category where it belongs. When a new pattern is added, the names
+#  of later patterns in the category should usually not be changed.
+#  This can be accomplished by introducing names like CC35b and so on.
+#
+
+
+goal_elements none
+# FIXME: try to make callback_data pattern category specific
+callback_data XOxo
+
+
+##########################
+#
+# Cutting and Connecting patterns
+#
+# Mainly patterns which actually guarantee a cut or a connection are
+# accepted. Occasionally patterns which threaten to make a cut or
+# connection. These patterns are given the C or B classification.
+# 
+# See ConnXXX and CutXXX for a new set of cutting and connecting patterns.  
+#
+##########################
+#
+# Center Cuts and Connections
+#
+##########################
+
+
+Pattern CC1
+
+?.??       connect 
+O*.O
+.X..
+
+:8,c
+
+
+Pattern CC2
+
+?.X        connect against peep (not on edge)
+O*O
+?X?
+
+:8,nBC
+
+?aX
+b*c
+?X?
+
+;xplay_attack_either(*,a,a,b) || xplay_attack(*,a,c)
+
+
+Pattern CC3
+
+?O?        break connection
+X*X
+?O?
+
+:+,OB
+
+?a?
+X*X
+?b?
+
+;alive(a) || alive(b)
+
+
+Pattern CC4
+# More accurate helper needed.
+
+O.?        break connection
+X*X
+?O?
+
+:8,B
+
+a.?
+X*X
+?b?
+
+;lib(a)>1 && (alive(a) || alive(b))
+
+
+Pattern CC5
+
+???       push in
+...
+X*X
+?O?
+
+:|,OB
+
+
+Pattern CC6
+
+?xxx?     straight extension to connect
+XOO*?
+O...?
+
+:8,C
+
+?xxx?
+XOO*?
+Oa..?
+
+;xcut(a) && odefend_against(*,a)
+
+
+Pattern CC7
+
+OX?                cut
+X*.
+?.?
+
+:\,OB
+
+aX?
+X*.
+?.?
+
+;lib(a)>2 && lib2(a)>3
+
+
+Pattern CC8
+
+??X?        push through to cut
+?OXx
+O.O*
+???X
+
+:8,OB
+
+??A?
+?OAx
+O.O*
+???B
+
+;!xplay_attack(*,A) && !xplay_attack(*,B)
+
+
+Pattern CC9
+
+?O?         cut through
+XO?
+.*X
+
+:8,OB
+
+
+Pattern CC10
+
+O.X         three crows
+.*.
+X..
+
+:\,OB
+
+
+Pattern CC10b
+
+O.X         three crows
+.*.
+X..
+
+:\,OXe
+
+
+Pattern CC11
+
+o.X         separate the opponent
+?*O
+?X?
+
+:8,nOB
+
+o.A
+?*O
+?B?
+
+;!attack(A) && !attack(B)
+
+
+Pattern CC12
+
+?.X       cut!      
+O*.
+?XO
+
+:8,B
+
+?.X
+a*B
+?Xc
+
+;(alive(a) || alive(c)) && oplay_defend(*,B,c);
+
+
+Pattern CC13
+# tm modified (3.1.10)
+# (compare Conn315)
+# gf Added n classification. (3.3.16)
+
+O?        cut!
+*X
+XO
+
+:8,Bn,shape(2)
+
+O?
+*A
+BO
+
+; oplay_attack_either(*,A,B)
+
+
+Pattern CC14
+# This connection is bad shape. Should have a helper to verify
+# that it's necessary.
+
+.O.          Connect
+...
+X*.
+?OO
+
+:8,OC
+
+
+Pattern CC15
+
+?X.O        break connection
+O*.X
+
+:8,B
+
+?Xac
+d*bX
+
+;(alive(c) || alive(d))
+;&& (!oplay_attack_either(*,a,b,b,c) || !oplay_attack_either(*,b,a,*,a))
+
+
+Pattern CC16
+
+X.O         break connection
+*.X
+Ox?
+
+:8,B
+
+Xac
+*bX
+dx?
+
+;(alive(c) || alive(d))
+;&& (!oplay_attack_either(*,a,b,b,c) || !oplay_attack_either(*,b,a,*,a))
+
+
+Pattern CC17
+
+?X.O        break connection
+.*.X
+O.??
+
+:8,B
+
+?Xac
+.*bX
+d.??
+
+;(alive(c) || alive(d))
+;&& (!oplay_attack_either(*,a,b,b,c) || !oplay_attack_either(*,b,a,*,a))
+
+
+Pattern CC19
+
+.O.           defend cut
+X*.
+...
+OO.
+
+:8,OC
+
+
+Pattern CC20
+
+.O.?         try to connect
+...?
+.*.X
+?.O?
+
+:8,C
+
+.O.?
+d..?
+c*aX
+?bO?
+
+;!omoyo(c) || !omoyo(d) || !xplay_attack(a,*,b,b)
+
+
+Pattern CC21
+
+?X.?         connect!
+.*.O
+O..O
+??X?
+
+:8,C
+
+
+Pattern CC22
+
+?O.?         connect!
+..*X
+X...
+?.O?
+
+:8,C
+
+
+Pattern CC23
+
+?O.O       connect!
+..*X
+X...
+?.O?
+
+:8,C
+
+
+Pattern CC24
+
+?X.?        connect!
+.OXO
+O.*O
+??X?
+
+:8,C
+
+
+Pattern CC25
+
+?X.O       break connection
+..*.
+O.XO
+
+:8,B
+
+?X.a
+..*.
+O.XO
+
+;alive(a)
+
+
+Pattern CC26
+
+?X.o?      break connection
+..*.O
+O.XO?
+
+:8,B
+
+?X.o?
+..*.b
+O.Xa?
+
+;lib(a)>1 && alive(b)
+
+
+Pattern CC27
+
+??.?           connection helper
+O*.O
+?XO?
+
+:8,nC
+
+??.?
+O*aO
+?XO?
+
+;oplay_attack(*,a,a) == WIN
+
+
+Pattern CC28
+
+O..X?           separate
+..*.?
+X...o
+....?
+???O?
+
+:8,a
+
+
+Pattern CC29
+
+?.O          atari to connect
+X*.
+O.?
+
+:8,C
+
+?.O
+A*.
+a.?
+
+;lib(a)>1 && lib(A)==2
+
+
+Pattern CC30
+# gf Revised pattern. (3.3.16)
+
+?O*        double connection 
+X.O
+?O.
+
+:8,nC
+
+?b*
+XaO
+?c.
+
+;!xplay_connect(a,b,c)
+
+
+Pattern CC31
+# gf Revised pattern. (3.3.16)
+
+?O.        double connection 
+X*O
+?O.
+
+:-,C
+
+?a.
+X*O
+?b.
+
+;!xplay_connect(*,a,b)
+
+
+Pattern CC32
+
+?X.        double break
+O*X
+?X.
+
+:-,-
+
+?ca
+O*d
+?eb
+
+;oplay_defend_both(*,a,b,*,b) && oplay_defend_both(*,b,a,*,a)
+
+>add_cut_move(c,d);
+>add_cut_move(c,e);
+>add_cut_move(d,e);
+
+
+Pattern CC33
+
+XO.?        hane to break connection
+*..x
+.X??
+
+:8,OB
+
+BO.?
+*A.x
+.X??
+
+;oplay_attack(*,A,B)
+
+
+Pattern CC34
+
+....
+O.*O
+..X?
+
+:8,C
+
+
+Pattern CC35
+
+O??           break connection
+..X
+X*X
+?O?
+
+:8,OB
+
+O??
+baX
+X*X
+?O?
+
+;!oplay_attack(*,a,b,*) && !oplay_attack(*,a,b,b)
+
+
+Pattern CC36
+
+?Oo??          connection pattern
+o.O.?
+x*X.x
+?.O??
+
+:8,XC
+
+?Oo??
+odO.?
+x*Xbx
+?ca??
+
+;lib(a)>1 && oplay_attack(*,b,c,d,d)
+
+
+Pattern CC37
+
+?Oo?           connection pattern
+o.OX
+?*X.
+?.O?
+
+:8,XC
+
+?Oo?
+odOX
+?*Xb
+?ca?
+
+;lib(a)>1 && oplay_attack(*,b,c,d,d)
+
+
+Pattern CC38
+
+?Oo?           connection pattern
+o.O.
+?*X.
+?.OX
+
+:8,XC
+
+?Oo?
+odO.
+?*Xb
+?caX
+
+;lib(a)>1 && oplay_attack(*,b,c,d,d)
+
+
+Pattern CC39
+# This pattern guarantees a strong connection.
+# The constraint is asymmetric.
+
+?O.           Connect
+.X*
+?O.
+
+:8,C
+
+?fb
+aD*
+?ec
+
+;lib(e)>1 && lib(f)>1
+;&& (!oplay_defend(*,D) || oplay_attack_either(*,a,b,c,D,c))
+
+
+Pattern CC40
+
+?O*x           Connect on the right side
+XXOX
+?O.?
+
+:8,C
+
+?O*x
+XXOX
+?Oa?
+
+;odefend_against(*,a)
+
+
+Pattern CC41
+
+?XX?           Cut or threaten to cut
+O.*O
+o.X?
+
+:8,OB
+
+
+Pattern CC42
+
+O.X.O         warikomi
+oo*oo
+O.X.O
+
+:|,OB
+
+
+Pattern CC43
+# This pattern caused a problem at move 52 in ego.sgf
+
+XO
+*.
+.X
+
+:8,OB
+
+Xb
+*a
+.X
+
+;oplay_defend_both(*,a,*,b)
+
+
+Pattern CC44
+# May be too risky.
+
+O.X           boldly cut before connecting
+XO*
+?X.
+
+:8,OB
+
+baX
+dO*
+?c.
+
+;oplay_attack(*,a,a) || oplay_attack(*,a,d)
+;|| (oplay_attack(*,a,c) && !oplay_attack(*,a,b))
+
+
+Pattern CC45
+# B classification is somewhat incorrect, but does convey the urgency
+# of the move.
+
+....      connect to contain
+O*OX
+?XXO
+
+:8,BC
+
+....
+c*OX
+?AAb
+
+;lib(A)>1 && lib(b)>1 && alive(c)
+
+
+Pattern CC46
+
+.XO      Cut
+.*.
+OXO
+
+:8,OB
+
+.XO
+b*a
+cXO
+
+;oplay_attack(*,a,a) && !oplay_attack(*,b,a,c)
+
+
+Pattern CC47
+
+.*.X       separate the opponent
+X..X
+?OO?
+
+:8,OB
+
+.*cX
+XabX
+?dO?
+
+;!oplay_attack(*,a,b,c,d) && !oplay_attack(*,a,b,c,*)
+
+
+Pattern CC48
+
+X*.        Cut
+O..
+O.X
+
+:8,OB
+
+B*.
+Oa.
+O.X
+
+;oplay_attack_either(*,a,a,B)
+
+
+Pattern CC49
+
+?..X        Cut
+O*..
+?X..
+
+:8,OB
+
+?..X
+O*ac
+?Xbd
+
+;!xarea(d) && !oplay_attack_either(*,a,b,*,b)
+;&& !oplay_attack_either(*,b,a,c,d,a,d)
+
+
+Pattern CC50
+
+o.X.?      Cut
+O.*.?
+oOX.?
+
+:8,OB
+
+o.Xce
+Ob*af
+oOXdg
+
+;(!xarea(f) || !(xarea(e) && xarea(g)))
+;&& !oplay_attack_either(*,a,b,c,d,d,b)
+;&& !oplay_attack_either(*,a,b,d,c,c,b)
+
+
+Pattern CC51
+
+O*.O
+?XO?
+
+:8,nC
+
+O*aO
+?XO?
+
+;odefend_against(*,a)
+
+
+Pattern CC52a
+# Constraint probably needs revision.
+
+OX..     connect if invaded
+.*.O
+
+:8,C
+
+Odbe
+c*aO
+
+;oplay_attack(*,a,b,d) && oplay_attack(*,a,b,a)
+;&& oplay_attack(*,a,b,e,e) && oplay_attack(*,a,b,c,c)
+
+
+Pattern CC52b
+# ab New pattern. (3.3.10)
+
+?????
+.OX.?     keep loose connection
+..*.O
+?..oo
+
+:8,c
+
+?????
+.aX.?
+..*.b
+?..oo
+
+;!same_dragon(a,b) && (alive(a) || alive(b))
+
+
+Pattern CC53
+
+XXO           cut
+O*.
+??X
+
+:8,B
+
+XXb
+c*a
+??X
+
+;alive(c) && oplay_defend_both(*,a,*,b)
+
+
+Pattern CC54
+# This is a very conservative estimate of the chances to connect.
+# Other patterns are more accurate.
+# We really would need tactical reading functions for determining
+# whether a connection holds.
+
+OXO             block opponent
+.*.
+?.?
+
+:|,C
+
+OXO
+a*c
+?b?
+
+;!oplay_defend(*,a,b,c,a) && !oplay_defend(*,a,b,c,c)
+
+
+Pattern CC55
+# Analogous to the previous one.
+
+XOX             push out
+.*.
+?.?
+
+:|,OB
+
+AOB
+.*.
+?.?
+
+;!xplay_break_through(*,A,*,B)
+
+
+Pattern CC57
+# gf Removed obsolete add_connect_move actions. (3.3.16)
+
+??XO?         connect three stones
+..*.o
+O..O?
+?..??
+
+:8,C
+
+??Xc?
+..*.o
+a..b?
+?..??
+
+;lib(a)>2 && lib(b)>2 && lib(c)>3
+
+
+Pattern CC58
+
+X...             attach
+XO*X
+....
+..O.
+
+:8,OB
+
+
+Pattern CC59
+
+?X??     cut the knight's move
+..*O
+O.XO
+
+:8,OB
+
+
+Pattern CC60
+
+?X??     cut the knight's move
+.*OO
+OXXO
+
+:8,OB
+
+
+Pattern CC61
+
+X.OO            break connection
+X..X
+.*.?
+
+:8,OB
+
+
+Pattern CC62
+
+O.X           block off area
+.*.
+X.O
+
+:X,OB
+
+
+Pattern CC63
+
+?O?      cut through
+XO?
+.*X
+
+:8,OB
+
+
+Pattern CC64
+
+O..      three crows
+.*.
+x.O
+
+:/,C
+
+O..
+.*.
+x.O
+
+;!omoyo(*)
+
+
+Pattern CC65
+
+..Xx      separate the opponent
+.*.?
+X.O?
+x???
+
+:\,OB
+
+
+Pattern CC66
+
+..X.          Attach to defend connection
+O.*.
+....
+O.O.
+?X??
+
+:8,C
+
+..X.
+O.*.
+.a..
+ObO.
+?X??
+
+;!oplay_defend(*,a,b,a)
+
+
+Pattern CC67
+
+O*X        cut!
+X..
+X.O
+
+:8,OB
+
+O*X
+Xab
+Xcd
+
+;!oplay_attack_either(*,a,b,*,b) && oplay_defend_both(*,b,a,c,a,d)
+
+
+Pattern CC68
+
+?O..          cut!
+..*X
+.X..
+...O
+
+:8,OB
+
+?O..
+..*X
+.Xab
+..cd
+
+;!oplay_attack_either(*,a,b,*,b) && oplay_defend_both(*,b,a,c,a,d)
+
+
+Pattern CC69
+
+?.?      break through
+OXO
+.*.
+oXO
+
+:8,OB
+
+
+Pattern CC70
+
+?O.x           Cut
+.X*X
+?O..
+
+:8,B
+
+?fbx
+aX*E
+?gcd
+
+;(alive(f) || alive(g)) && !oplay_defend_both(*,a,b,c,d,c,E)
+
+
+Pattern CC71
+# This connection is a bit sloppy but if we can't connect
+# we do at least capture an opponent worm. Assume we are allowed
+# to connect if the worm is at least as large as our dragon.
+
+?O.x           Connect
+.X*X
+?O..
+
+:8,C
+
+?Obx
+aX*E
+?fcd
+
+;!oplay_defend_both(*,a,b,c,d,c,E) && (dragonsize(f) <= wormsize(E))
+
+
+Pattern CC72
+
+?....        atari
+.OX*X
+..O..
+?...?
+
+:8,OB
+
+
+Pattern CC73
+
+?X??          connect!
+o.*O
+O..X
+?.O?
+
+:8,scad,shape(5)
+
+
+Pattern CC74
+# gf Split pattern. (3.1.7)
+
+.O*.          connect and constrain X
+OXXO
+
+:8,C
+
+aO*b
+OXXO
+
+; oplay_attack(*,a,a) && oplay_attack(*,b,b)
+
+
+Pattern CC74b
+# gf Split pattern. (3.1.7)
+# Only shape bonus if X stones can't be attacked.
+
+.O*.          connect and constrain X
+OXXO
+
+:8,C,shape(2)
+
+aO*b
+OCCO
+
+;oplay_attack(*,a,a) && oplay_attack(*,b,b)
+;&& !(attack(C) && oplay_defend(*,C))
+
+
+Pattern CC75
+
+...*O         connect out
+O...X
+..O??
+
+:8,Xc
+
+
+Pattern CC76
+
+..*O         connect out
+O..X
+.O??
+
+:8,Xc
+
+
+Pattern CC77
+# tm: reduced shape value from 8 to 3 (3.1.18)
+
+X?           prevent connection
+*O
+.X
+
+:8,OB,shape(3)
+
+C?
+*b
+aD
+
+; !same_dragon(C,D) && xplay_attack_either(*,a,a,b)
+
+
+Pattern CC78
+
+..OX          connect 
+O*.O
+?Xo?
+
+:8,C
+
+..OX
+O*ba
+?Xo?
+
+;lib(a)>1 && xplay_attack(b,b)==3
+
+
+Pattern CC79
+# ab modified (3.3.10)
+
+?O.xx
+XO.*.
+XXO..
+.....
+
+:8,XCad,shape(5)
+
+?a.xx
+Xa.*.
+XXO..
+.....
+
+; lib(a)>=3 && !omoyo(*)
+
+
+Pattern CC80
+# db added (3.1.4)
+
+O*X
+XO?
+
+:8,B
+
+a*X
+XO?
+
+; does_attack(*,a)
+
+
+Pattern CC81
+# db added (3.1.4)
+
+O*X
+XO?
+?O?
+
+:8,B,shape(3)
+
+a*X
+XO?
+?O?
+
+; does_attack(*,a)
+
+
+Pattern CC82
+
+..??          reverse sente connection
+.OXX
+X*O.
+...?
+
+:8,ECad,shape(3)
+
+..??
+.AXX
+X*B.
+...?
+
+; !dead(A) && (xplay_attack(*,B) || xplay_attack(*,A))
+
+
+Pattern CC83
+# gf New pattern. (3.1.23)
+# See strategy3:142.
+
+O...
+X.*.
+?X.O
+
+:8,XC
+
+Oac.
+Xb*.
+?X.O
+
+;!oplay_defend(*,a,b,a) && oplay_attack(*,b,a,c,c)
+
+
+Pattern CC84
+# Formerly called EC37
+
+XO??           prevent double nozoki
+O.O?
+?*.O
+??OX
+
+:8,nC
+
+
+Pattern CC85
+# Formerly called EC38
+
+?XO?          prevent ko
+.O*O
+O..X
+?XXX
+
+:8,C
+
+
+Pattern CC86
+# Formerly called EC39
+
+??o?           connect out
+X..O
+O.*X
+?.??
+
+:8,C
+
+??o?
+X..O
+O.*A
+?.??
+
+; lib(A)==2
+
+
+Pattern CC87
+# Formerly called EC40
+
+??o?           connect out
+X*.O
+O.OX
+?.??
+
+:8,C
+
+
+Pattern CC88
+# Formerly called EC41
+
+.O.        cut!
+.*X
+X..
+..O
+
+:8,OB
+
+
+##########################
+#
+# General Edge Connections
+#
+##########################
+
+
+Pattern EC1
+# gf Removed obsolete add_connect_move actions. (3.3.16)
+
+O.XO?      connect under
+..*.O
+.....
+-----
+
+:8,C
+
+ObEO?
+ca*dO
+.....
+-----
+
+;odefend_against(*,d)
+;&& !oplay_defend_both(*,a,b,a,E)
+;&& oplay_attack_either(*,b,a,c,b,c)
+
+
+Pattern EC2
+# gf Removed obsolete add_connect_move actions. (3.3.16)
+
+OXXO?      connect under
+O.*.O
+.....
+-----
+
+:8,C
+
+eXXO?
+ea*dO
+.b...
+-----
+
+;odefend_against(*,d) && !oplay_attack(*,a,b,e)
+
+
+Pattern EC4
+
+?X.?      connect underneath
+O*.O
+....
+----
+
+:8,C
+
+?X.?
+d*ac
+..b.
+----
+
+;odefend_against(*,a) || !oplay_attack_either(*,a,b,c,d)
+
+
+Pattern EC5
+
+?O.?      break connection
+X*.X
+....
+----
+
+:8,OB
+
+?O.?
+D*aC
+..b.
+----
+
+;xdefend_against(*,a) || !xplay_attack_either(*,a,b,C,D)
+
+
+Pattern EC6
+
+?O.O      break connection
+X.*X
+....
+----
+
+:8,OB
+
+?OaO
+Xd*X
+.cbe
+----
+
+;odefend_against(*,a) && !oplay_attack(*,b,c,d,e,e)
+
+
+Pattern EC7
+# Probably redundant
+
+?O.X      break connection
+X*..
+....
+----
+
+:8,OB
+
+?DbX
+X*ac
+....
+----
+
+;!xplay_defend_both(*,a,b,a,D) && xplay_attack_either(*,b,a,c,b,c)
+
+
+Pattern EC8
+
+?X.O      connect
+O*..
+....
+----
+
+:8,XC,shape(2)
+
+?DbO
+O*ac
+....
+----
+
+;!oplay_defend_both(*,a,b,a,D) && oplay_attack_either(*,b,a,c,b,c)
+
+
+Pattern EC8a
+
+??xx?      connect
+O.xx?
+.?X.O
+.O*..
+.....
+-----
+
+:8,t
+
+??ab?
+O.cd?
+.?X.O
+.O*..
+.....
+-----
+
+; x_alive_somewhere(a,b,c,d)
+
+
+Pattern EC9
+# Probably redundant
+
+??O?        break connection 
+?X*X
+O..?
+----
+
+:8,OB
+
+
+Pattern EC10
+
+?OX.?         connection pattern
+?*...
+....O
+....O
+-----
+
+:8,C
+
+
+Pattern EC11
+
+?OX.?         connection pattern
+?OX..
+..*.O
+....O
+-----
+
+:8,C
+
+
+Pattern EC12
+
+..OXX?       Break connection.
+X.*.xx
+.....?
+------
+
+:8,OB
+
+
+Pattern EC13
+
+XXO?        Stop connection.
+.O*X
+----
+
+:8,B
+
+XXa?
+.O*A
+----
+
+;!dead(a) && lib(A)>2
+
+
+Pattern EC14
+
+??O?        Connect under
+X*.O
+O...
+----
+
+:8,C
+
+
+Pattern EC15
+
+XO?      separate the opponent
+.*X
+...
+---
+
+:8,OB
+
+
+Pattern EC16
+
+?..O?          hanging connection
+.*.OX
+o.OXX
+.....
+-----
+
+:8,C
+
+
+Pattern EC16a
+
+?..O?         hanging connection is best
+.*.OX
+o.OXX
+.....
+-----
+
+:8,C,shape(5)
+
+?..O?
+.*bOX
+o.OXX
+..a..
+-----
+
+; !oplay_attack(a,b,b)
+
+> antisuji(a);
+> antisuji(b);
+
+
+Pattern EC17
+
+OO?          Get up from first line.
+.*X
+.OO
+---
+
+:8,C
+
+OO?
+.*X
+.Oa
+---
+
+;lib(a)==2
+
+
+Pattern EC18
+
+X.OX?         Prevent connection
+..*xX
+.....
+-----
+
+:8,OB
+
+
+Pattern EC19
+
+?X?        Prevent connection
+x.?
+.*O
+..X
+---
+
+:8,OB
+
+
+Pattern EC20
+
+.X?        Try to prevent connection
+.*O
+...
+.XX
+---
+
+:8,OB
+
+
+Pattern EC21
+
+o.o
+XOX
+.*.
+...
+---
+
+:|,OB
+
+o.o
+aOb
+.*.
+...
+---
+
+;!xplay_break_through(*,a,*,b)
+
+
+Pattern EC22
+
+?O?
+XOX
+.*.
+...
+---
+
+:|,OB
+
+?O?
+aOb
+.*.
+...
+---
+
+;!xplay_break_through(*,a,*,b)
+
+
+Pattern EC23
+
+x.x
+OXO
+.*.
+...
+---
+
+:|,c
+
+x.x
+aXb
+.*.
+...
+---
+
+;lib(a)>1 && lib(b)>1
+
+
+Pattern EC24
+# This move does not secure a connection without a constraint, see
+#    e.g. nicklas1:502.
+
+?X?
+OXO
+.*.
+...
+---
+
+:|,c
+
+?X?
+aXb
+.*.
+...
+---
+
+;lib(a)>1 && lib(b)>1
+
+
+Pattern EC25
+
+O.X     Stop connection
+XO*
+X..
+---
+
+:8,OB
+
+ebX
+cO*
+cad
+---
+
+;!xplay_defend_both(*,a,b,a,e)
+;&& xplay_attack_either(*,b,a,d,d,b)
+;&& oplay_attack_either(*,b,b,c)
+;&& oplay_attack_either(*,a,d,b,b,c)
+
+
+Pattern EC26
+# Smaller endgame profit than EC25.
+
+O*X     Stop connection
+XO.
+X..
+---
+
+:8,OB
+
+d*X
+XOa
+Xbc
+---
+
+;(!xplay_defend(a,b,*,b) || !xplay_defend(a,b,*,d))
+;&& xplay_attack(a,*,b,c,c)
+
+
+Pattern EC27
+# gf Removed obsolete add_connect_move action. (3.3.16)
+
+?X*O          Use edge to stay connected.
+?XOX
+...O
+....
+----
+
+:8,-,shape(5)
+
+?X*O
+?XOB
+..aO
+....
+----
+
+; !attack(B) && oplay_attack(*,a,a)
+
+
+Pattern EC28
+# gf Removed obsolete add_connect_move action. (3.3.16)
+
+O.XO?        capture to connect
+OXOXO
+o..*.
+-----
+
+:8,-
+
+caXO?
+cXOXO
+ob.*.
+-----
+
+;!oplay_attack(*,a,b,c) && !oplay_attack(*,b,a,c)
+
+
+Pattern EC29
+
+X..Oo        cut
+..*X.
+.....
+-----
+
+:8,OB
+
+X.aOo
+..*B.
+.....
+-----
+
+;oplay_attack_either(*,a,B,a)
+
+
+Pattern EC30
+
+?O?         force X to connect
+X*X
+...
+---
+
+:|,a
+
+
+Pattern EC31
+
+?..??          Clamp to connect under
+X..O?
+OX*.O
+.....
+-----
+
+:8,C
+
+?..??
+X..O?
+aX*.O
+.....
+-----
+
+;!attack(a)
+
+
+Pattern EC32
+
+XO?           cut!
+.*X
+...
+---
+
+:8,OB
+
+
+Pattern EC33
+
+?O?            Take an important ko
+OXO
+X*X
+---
+
+:8,B
+
+?b?
+OAO
+X*X
+---
+
+;ko(A) && alive(b)
+
+
+Pattern EC34
+
+?X?          Take an important ko 
+X*X
+OXO
+---
+
+:8,C
+
+?X?
+X*X
+OAO
+---
+
+;ko(A)
+
+
+Pattern EC35
+
+?X?            Fill an important ko
+XOX
+O*O
+---
+
+:8,C
+
+?X?
+XaX
+O*O
+---
+
+;ko(a)
+
+
+Pattern EC36
+
+?O?          Fill an important ko 
+O*O
+XOX
+---
+
+:8,B
+
+?b?
+O*O
+XaX
+---
+
+;ko(a) && alive(b)
+
+
+Pattern EC42
+
+..OO?    cut
+X.*X?
+.....
+.....
+-----
+
+:8,OB
+
+
+Pattern EC43
+
+..OO?    cut
+X.OX?
+.*X..
+.....
+-----
+
+:8,OB
+
+
+Pattern EC44
+
+Oo.X               stop connection on edge
+X*.X
+----
+
+:8,OB
+
+
+Pattern EC45
+
+..O.             descend
+....
+.O.X
+X*..
+....
+----
+
+:8,OB
+
+
+Pattern EC46
+
+....?             cut after invasion
+O.OX?
+..X*O
+....?
+....?
+-----
+
+:8,OB
+
+
+Pattern EC47
+
+X.OX     block edge connection
+X.*.
+----
+
+:8,OB
+
+
+Pattern EC48
+
+XOXX            break connection
+X*.?
+----
+
+:8,OB
+
+
+Pattern EC49
+
+.O..        block
+X*.X
+....
+....
+----
+
+:8,OB
+
+
+Pattern EC50
+
+.O..        block
+XO.X
+.X*.
+....
+----
+
+:8,OB
+
+
+Pattern EC51
+
+..*x?      Prevent connection
+?XO.X
+.....
+.....
+-----
+
+:8,OB
+
+
+Pattern EC52
+
+.*.O?      Prevent connection
+?XO.X
+.....
+.....
+-----
+
+:8,OB
+
+
+Pattern EC53
+
+?.O??
+X.OX?
+.*X..
+.....
+-----
+
+:8,OB
+
+
+Pattern EC54
+
+..O..           prevent connection
+XO.X.
+..*..
+.....
+-----
+
+:8,OB
+
+
+Pattern EC55
+
+?.O?           break connection
+.O.X
+.X*.
+....
+----
+
+:8,OB
+
+?ce?
+dOaX
+bX*.
+....
+----
+
+;!oplay_attack(*,a,b,c,d,e)
+
+
+Pattern EC56
+# gf The constraint was too inexact, see match at B9 in score2:34.
+#    Replaced it by a connection constraint. (3.1.32)
+
+X*O?       Prevent opponent's connection under
+...X
+----
+
+:8,OB
+
+B*O?
+...A
+----
+
+;oplay_connect(A,B) && !oplay_connect(*,A,B)
+
+
+Pattern EC57
+
+??O??       Connect underneath by attaching
+O.X.O
+..*..
+.....
+-----
+
+:|,C
+
+??O??
+OdXaO
+fe*bc
+.....
+-----
+
+;oplay_attack_either(*,a,b,c,a,c) && oplay_attack_either(*,d,e,f,d,f)
+;&& !oplay_defend_both(*,b,a,d,e,b,d)
+;&& !oplay_defend_both(*,e,d,a,b,e,a)
+
+
+Pattern EC58
+
+O.X.O       connect!
+O.*..
+.....
+.....
+-----
+
+:8,C
+
+OfIaO
+Od*bc
+hge..
+.....
+-----
+
+;!oplay_defend_both(*,b,a,b,I) && oplay_attack_either(*,a,b,c,a,c)
+;&& oplay_attack_either(*,b,a,d,e,f,g,h,f,h)
+;&& !oplay_defend_both(*,b,a,d,e,g,f,g,I)
+
+
+Pattern EC59
+
+.XO.X         hane to prevent connection
+.*..X
+-----
+
+:8,OB
+
+.Xa.X
+.*..X
+-----
+
+;!oplay_attack(*,a)
+
+
+Pattern EC60
+# tm added constraint (3.1.18)
+# gf Changed B classification to C. (3.1.18)
+
+?O..           protect cut
+XO*X
+XXO.
+....
+----
+
+:8,OC
+
+?O..
+XO*X
+XXcA
+...B
+----
+
+; xplay_attack(A,B,c) || xplay_attack(*,c)
+
+
+Pattern EC60a
+# tm New Pattern (3.1.18)
+# gf Changed B classification to C. (3.1.18)
+
+?O..           indirectly protect cut
+XO.X
+XXO*
+....
+----
+
+:8,OC
+
+?b..
+XOaX
+XXO*
+....
+----
+
+; oplay_defend_both(*,a,*,b)
+
+
+Pattern EC61
+
+OoOO?       prevent connection
+X.X*X
+.....
+-----
+
+:8,OB
+
+
+Pattern EC62
+
+.X.??         defend the extension
+O*...
+....O
+.....
+.....
+-----
+
+:8,C
+
+
+Pattern EC63
+
+?X?           connect underneath if X can't cut
+OXO
+.*.
+...
+---
+
+:|,XC,value(20)
+
+?X?
+OXO
+a*b
+...
+---
+
+; (oplay_attack(*,a,a)&&!oplay_defend(*,b,a,b))||(oplay_attack(*,b,b)&&!oplay_defend(*,a,b,a))
+
+
+Pattern EC64
+
+..xxx           threaten connection
+.O.Xx
+.*X.O
+.....
+-----
+
+:8,OXead,value(15)
+
+..xxx
+.O.Xx
+.*X.a
+.....
+-----
+
+; lib(a)>2
+
+
+Pattern EC65
+
+ox..o         Connect underneath
+O*X.O
+..O..
+.....
+-----
+
+:8,XC,shape(6)
+
+
+Pattern EC66
+
+OXX.O          connect below
+.*O..
+.....
+-----
+
+:8,XCad,shape(6)
+
+OXX.O
+b*Oa.
+.....
+-----
+
+; oplay_attack(*,a,a) && oplay_attack(*,b,b)
+
+
+Pattern EC67
+
+OXX.O          connect below
+.O*..
+.....
+-----
+
+:8,XCad,shape(6)
+
+OXX.O
+bO*a.
+.....
+-----
+
+; oplay_attack(*,a,a)&&oplay_attack(*,b,b)
+
+
+Pattern EC68
+
+O.XOo        connect underneath
+..*.o
+.....
+-----
+
+:8,XCad
+
+O.Abo
+..*.o
+.....
+-----
+
+; lib(A)<4 && lib(b)>2 && !attack(A)
+
+
+Pattern EC69
+
+?OXx?
+X*..O
+..O..
+.....
+-----
+
+:8,XCad
+
+?OXx?
+A*..O
+..O..
+.....
+-----
+
+; does_attack(*,A)
+
+
+Pattern EC70
+# constraint looks for shortage of liberties
+
+oOX.O        connect with ko
+O.*..
+-----
+
+:8,XCd
+
+oOXbO
+Oc*ad
+-----
+
+; !oplay_attack(*,a,b,c,d,*,c)
+
+
+Pattern EC71
+# constraint looks for shortage of liberties
+
+xXO.X        prevent ko connection
+X.*..
+-----
+
+:8,Ba
+
+xXObX
+Xc*ad
+-----
+
+; !xplay_attack(*,a,b,c,d,*,c)
+
+
+Pattern EC73
+
+?OXXX?       secure connection
+..OO*O
+......
+------
+
+:8,XC,value(5)
+
+?aXXX?
+..OO*O
+......
+------
+
+; lib(a)==2 && !dead(a)
+
+
+Pattern EC74
+
+?..ooo        connect under
+..X.Oo
+O.*..o
+......
+......
+------
+
+:8,XCd,shape(2)
+
+
+Pattern EC75
+
+?..ooo        connect under
+..X*Oo
+O.OX.o
+......
+......
+------
+
+:8,Cd,shape(3)
+
+
+Pattern EC76
+#gf New pattern. (3.1.12)
+
+?..O?          cut!
+...OX
+.XOXX
+..*..
+-----
+
+:8,B
+
+?..b?
+..abX
+.XOXX
+..*..
+-----
+
+;alive(b) && oplay_attack(*,a,a)
+
+
+Pattern EC77
+#tm New Pattern (3.1.16)
+#tm modified (3.1.17)
+
+|..x	  clamp!
+|.*.
+|.X.
+|XOO
+
+:8,OXe
+
+|..x
+|.*.
+|.A.
+|XOO
+
+;oplay_defend(*,A) != WIN
+
+
+Pattern EC78
+#tm New Pattern (3.1.18)
+# gf Revised constraint. (3.3.12)
+#  see trevora:610
+#FIXME: There's still a problem here, in that this sacrifice
+#       is deemed unsafe, and not played....
+# gf Is this really a cut pattern? (3.3.13)
+
+OOO	block or cut into black's territory.
+...
+*X.
+...
+---
+
+:8,sOXe
+
+OOO
+a..
+*Xb
+...
+---
+
+; safe_omove(*)
+; || !oplay_attack(*,a,b,b)
+
+
+Pattern EC79
+# gf New Pattern (3.3.13)
+
+X.O      connect
+X*.
+O..
+---
+
+:8,C
+
+
+Pattern EC80
+# gf New Pattern (3.3.15)
+
+XOOX     block edge connection
+X.*.
+----
+
+:8,OB
+
+XOOX
+Xa*.
+----
+
+;xplay_attack(*,a,a)
+
+
+Pattern EC81
+# gf New Pattern (3.3.16)
+# See nngs1:31
+
+XXX.Ox   connect all stones
+OO..*X
+....O?
+......
+------
+
+:8,XC
+
+
+##############################################
+# First line, one space, cuts and connections.
+##############################################
+
+Pattern EC101
+
+XOX       prevent connection
+.*.
+---
+
+:|,OB
+
+XOX
+a*b
+---
+
+;xdefend_against(*,a) && xdefend_against(*,b)
+
+
+Pattern EC102
+
+XOX       prevent connection
+..*
+---
+
+:8,OB
+
+XcX
+ab*
+---
+
+;xdefend_against(b,a) && xdefend_against(b,*) && !oplay_attack(*,c)
+
+
+Pattern EC103
+
+XOX?       followup
+.*OX
+----
+
+:8,B
+
+XaX?
+.*OX
+----
+
+;!dead(a)
+
+
+Pattern EC104
+
+OXO	  make connection
+.*.
+---
+
+:|,C
+
+OXO
+a*b
+---
+
+;odefend_against(*,a) && odefend_against(*,b)
+
+
+Pattern EC105
+
+XO?         don't allow connection underneath
+.*X
+---
+
+:8,OB
+
+BO?
+a*X
+---
+
+;(safe_xmove(*) && xplay_defend_both(*,a,*,B)) || xdefend_against(a,*)
+
+
+Pattern EC106
+
+XO?         don't allow connection underneath
+X*X
+---
+
+:8,nOB
+
+
+Pattern EC107
+
+?O?          Cut on first line
+X*X
+---
+
+:8,OB
+
+
+Pattern EC108
+
+XOX     block edge connection
+x*x
+---
+
+:8,nOB
+
+AOB
+x*x
+---
+
+;(!attack(A)) && (!attack(B))
+
+
+Pattern EC109
+
+?X?
+O*O
+---
+
+:|,nC
+
+
+Pattern EC110
+# Probably redundant
+
+?OX*O           connect under
+o.O..
+-----
+
+:8,C
+
+
+##############################################
+# First line, two spaces, cuts and connections.
+##############################################
+
+
+Pattern EC201
+
+XO..         don't allow connection underneath
+.*.X
+----
+
+:8,OB
+
+BO..
+a*.X
+----
+
+;safe_xmove(*) && xplay_defend_both(*,a,*,B)
+
+
+Pattern EC202
+
+XO*.         don't allow connection underneath
+...X
+----
+
+:8,nOB
+
+BO*.
+ac.X
+----
+
+;xplay_defend_both(c,a,c,B)
+
+
+Pattern EC203
+
+XO..         don't allow connection underneath
+X*.X
+----
+
+:8,nOB
+
+
+Pattern EC204
+
+XO*.         don't allow connection underneath
+X..X
+----
+
+:8,OB
+
+XO*.
+Xa.X
+----
+
+;safe_xmove(a)
+
+
+Pattern EC205
+
+XO.O         don't allow connection underneath
+x.*X
+----
+
+:8,OB
+
+XOaO
+xb*X
+----
+
+;odefend_against(*,a) && oplay_defend(*,b,*)
+
+
+Pattern EC206
+# Probably redundant
+
+?XO.OX?      prevent connection
+x.X*..x
+-------
+
+:8,C
+
+
+Pattern EC207
+
+O.XO          Connect at edge
+..*.
+----
+
+:8,nC
+
+ObEO
+da*c
+----
+
+;oplay_attack_either(*,c,E,c) && oplay_attack_either(*,b,a,d,b,d)
+;&& oplay_attack(*,a,b,c,E) == WIN
+
+
+Pattern EC208
+# Followup to EC207
+
+O*XO          Connect at edge
+.XO.
+----
+
+:8,nC
+
+O*BO
+.XOa
+----
+
+;oplay_attack(*,a,B)
+
+
+Pattern EC209
+# Probably redundant.
+
+X.OX     block edge connection
+X.*.
+----
+
+:8,OB
+
+X.OB
+X.*a
+----
+
+;xdefend_against(*,a) && !xplay_attack(*,B)
+
+
+Pattern EC210
+
+X.OX          Cut at edge
+..*.
+----
+
+:8,nOB
+
+XbeX
+da*c
+----
+
+;xplay_attack_either(*,c,e,c) && xplay_attack_either(*,b,a,d,b,d)
+;&& xplay_attack(*,a,b,c,e)
+
+
+Pattern EC211
+# Probably redundant.
+
+X.OO     block edge connection
+X.*X
+----
+
+:8,OB
+
+
+Pattern EC212
+
+??XoO        Defend monkey jump
+?O*oo
+-----
+
+:8,C
+
+??XoO
+?a*oo
+-----
+
+;lib(a)>=3
+
+
+Pattern EC213
+
+?..XO        Defend monkey jump
+.O.*o
+-----
+
+:8,C
+
+
+Pattern EC214
+
+?xx..        Defend inverse monkey jump
+o.XO.
+O.*..
+-----
+
+:8,C
+
+
+Pattern EC215
+
+??OO?         Cut through monkey jump.
+X..O?
+..*Xx
+-----
+
+:8,OB
+
+
+Pattern EC216
+
+?X..O        Monkey jump edge connection
+O*..o
+-----
+
+:8,C
+
+?X..O
+a*..o
+-----
+
+;lib(a)>=3
+
+
+Pattern EC217
+
+?O??
+X*.X
+----
+
+:8,OB
+
+?O??
+B*aC
+----
+
+;lib(B)>1 && lib(C)>1 && xplay_attack(*,a,a)
+
+
+Pattern EC218
+
+??o?         Connect underneath
+OX.X
+.*.O
+----
+
+:8,C
+
+
+######################################################################
+#
+# Splitting and other strategically attacking (or defending) moves
+#
+# These patterns do not have the C or B classification but they
+# often have an effect on connections.
+#
+######################################################################
+
+
+####################################
+#
+#  Center splitting patterns
+#
+####################################
+
+Pattern CS1
+
+?X?X?         pattern to make two partial connections
+O.O.O
+.....
+..*..
+?????
+
+:|,Xd
+
+?A?B?
+O.O.O
+.....
+..*..
+?????
+
+;lib(A)>1 && lib(B)>1
+
+
+Pattern CS2
+
+??O.    pattern to connect
+X..O
+.*..
+O.??
+
+:8,OXead
+
+
+Pattern CS3
+
+...X       Move out and separate
+.*..
+X.O?
+
+:8,OXad
+
+
+Pattern CS4
+
+.X.O.??       pattern to separate the opponent
+.....??
+...*.??
+.....X.
+
+:8,OXad
+
+
+Pattern CS5
+
+??x??         Play out to separate the opponent
+.X.O.
+..*..
+.....
+.....
+...X?
+
+:8,OXad
+
+
+Pattern CS6
+
+??O.?         Play out to separate the opponent. Only play if no risk for cut at a below.
+.X.O.
+..*..
+.....
+.....
+...X?
+
+:8,OXad
+
+??Oa?
+.X.O.
+..*..
+.....
+.....
+...X?
+
+;!safe_xmove(a)
+
+
+Pattern CS7
+
+...O??       jump to separate
+.X...?
+...*..
+.....X
+
+:8,OXad
+
+
+Pattern CS8
+
+...O..      jump to separate
+.X...X
+...*..
+
+:8,OXad
+
+
+Pattern CS9
+
+??????         leap to connect
+......
+O.*..O
+......
+??????
+
+:8,OXad,jump_out_helper
+
+
+Pattern CS10
+
+??.??         jump to separate opponent
+?.O..
+X...X
+?.*..
+??.??
+
+:8,OXad
+
+
+Pattern CS11
+
+..X          Cut across large knight's move
+...
+.*O
+.X?
+
+:8,OXad
+
+b.X
+...
+.*a
+.X?
+
+;!weak(a) || !xmoyo(b)
+
+
+Pattern CS12
+
+?OO?       jump across
+...X
+X*..
+
+:8,OXad
+
+
+Pattern CS13
+
+.X..          attach
+.*.O
+....
+..X.
+
+:8,OXad
+
+
+Pattern CS14
+
+??.??         jump to separate opponent
+?.O..
+X.*.X
+?....
+?oO??
+
+:8,OXad
+
+
+Pattern CS15
+
+.O..
+X*.X
+....
+oO??
+
+:8,OXa
+
+
+Pattern CS16
+
+?O.x
+X*.X
+
+:8,OXa
+
+?O.x
+A*.B
+
+;!same_dragon(A,B)
+
+
+Pattern CS17
+
+xXx      Even a computer answers a peep.
+O*O
+...
+
+:8,OXd
+
+xXx
+b*c
+.a.
+
+;xplay_break_through(*,a,b,a,c)
+
+
+Pattern CS18
+
+?...?
+O.*.O
+o...o
+?XxX?
+
+:|,OXad
+
+
+Pattern CS19
+# gf Corrected symmetry. (3.1.23)
+
+X...
+O.*.
+O..X
+
+:8,OXad
+
+
+Pattern CS20a
+# gf Corrected symmetry. (3.1.23)
+# gf Split pattern. (3.3.16)
+
+X..
+O*.
+?xX
+
+:8,OXa
+
+
+Pattern CS20b
+# gf Corrected symmetry. (3.1.23)
+# gf Split pattern. (3.3.16)
+
+X..
+O*.
+?xX
+
+:8,OXd
+
+A..
+O*.
+?xB
+
+;!oplay_connect(*,A,B)
+
+
+Pattern CS21
+
+OOXX           cutting tesuji
+.X..
+.*..
+..O?
+
+:8,OXa
+
+aaXX
+.X..
+.*..
+..O?
+
+;lib(a)>2
+
+
+Pattern CS22
+
+?..??     when caught in a crosscut, extend
+.OX.?
+?XO*.
+??..?
+
+:8,OXad
+
+
+Pattern CS23
+
+?.X.         good relationship
+?O*.
+....
+X...
+?.O?
+
+:8,OXad
+
+
+Pattern CS24
+# This is part of a standard sequence in 4 stone games
+
+...O.
+.....
+O.*X.
+.....
+.....
+
+:8,OXd
+
+...O.
+.....
+O.*A.
+.....
+.....
+
+;!weak(A)
+
+
+Pattern CS25
+
+...O.
+.....
+O.OX.
+..X*.
+.....
+
+:8,sOXd
+
+
+Pattern CS26
+
+?X??        make shape
+.O.?
+...?
+.*..
+?..?
+
+:8,OX,shape(1)
+
+
+####################################
+#
+#  Edge splitting patterns
+#
+####################################
+
+Pattern ES1
+
+....O         attach
+O.X..
+..*.O
+.....
+-----
+
+:8,Xd
+
+
+Pattern ES2
+
+....O         attach
+O*X..
+.XO.O
+.....
+-----
+
+:8,Xd
+
+
+######################################################################
+#
+# Edge block/expand patterns
+#
+# Moves that expand own position along the edge in some way or stops
+# opponent from expanding his position. This includes monkey jump,
+# various sliding moves, blocks, some extensions along the edge. This
+# category contains very many patterns and may need to be split sooner
+# or later. Some extensions along the edge can be found in the fuseki
+# category. 
+#
+# These patterns are further subdivided into the following classes:
+#
+# Slides
+# Jumping underneath
+# Center expansions
+# Checking extensions
+# Edge expansions
+# Third and fourth line blocks
+# Second line blocks
+# First line blocks
+# Monkey jump and other intrusions on first and second lines
+# Third line push or extend
+# Second line push or extend
+# First line push
+# Third line hane
+# Second line hane
+# First line hane
+# Hane on top
+# Attach
+# Strengthen stones
+# Block intrusion from above
+# Draw back
+# Miscellaneous
+#
+######################################################################
+
+########
+# Slides
+########
+
+Pattern EB4
+
+?X??.     slide
+...O.
+.*...
+.....
+-----
+
+:8,OXe
+
+?X??.
+..ac.
+.*b..
+.....
+-----
+
+;!oplay_attack(*,a,b,c)
+
+
+Pattern EB5
+
+??..X?            long slide
+oO....
+....*.
+......
+------
+
+:8,OXe
+
+
+Pattern EB6
+
+...??              slide toward opponent's position
+.O..X
+...*.
+.....
+-----
+
+:8,OXe
+
+
+Pattern EB7
+
+?XX..         slide
+OO..X
+...*.
+.....
+-----
+
+:8,OXe
+
+
+Pattern EB8
+# tm added d class (3.1.20)
+
+.X..         slide
+O..X
+..*.
+....
+----
+
+:8,OXed
+
+
+Pattern EB9
+# tm added d class (3.1.20)
+
+.X.??          slide
+...OO
+.*...
+.....
+-----
+
+:8,OXed
+
+
+Pattern EB10
+# tm added d class (3.1.20)
+
+?...X?          large slide
+?O...?
+O...*.
+.....?
+------
+
+:8,OXed
+
+
+Pattern EB11
+
+?.X...          play beneath
+?....O
+..*...
+......
+......
+------
+
+:8,OXe
+
+
+####################
+# Jumping underneath
+####################
+
+
+Pattern EB102
+
+?XX.??     Jump underneath
+oO.*.?
+O....?
+.....?
+------
+
+:8,OXe
+
+
+Pattern EB104
+
+?.X.o  jump under a stone on 4-th row
+.*..o
+....O
+....o
+-----
+
+:8,OXed
+
+
+Pattern EB105
+
+.....        knight's move for defense
+.X...
+..*..
+O....
+.....
+.....
+-----
+
+:8,OXed
+
+
+Pattern EB106
+
+......?        knight's move for defense
+.X.....
+...*...
+.O.....
+.......
+.......
+-------
+
+:8,OXed
+
+
+Pattern EB107
+
+.X..       knight's move to come out
+..*.
+O...
+....
+----
+
+:8,OXead
+
+
+Pattern EB108
+
+.....       jump under
+.*.XO
+...O.
+.....
+-----
+
+:8,OXe
+
+
+Pattern EB109
+
+?.X..       jump under
+O..*.
+O....
+.....
+-----
+
+:8,OXed
+
+
+Pattern EB110
+
+?X?.??       jump under
+O..*.?
+O....?
+o....?
+------
+
+:8,OXe
+
+
+Pattern EB111
+# if EB110 does not defend, this one may
+
+?X?.?       jump under
+O.*oo
+O....
+o....
+-----
+
+:8,OXed
+
+
+Pattern EB112
+
+|oOO?       jump under
+|...X
+|..*?
+|....
+|...?
++----
+
+:8,OXe
+
+
+Pattern EB113
+
+XX..        jump out to defend
+O.*o
+O...
+....
+----
+
+:8,OXe
+
+
+Pattern EB114
+
+??X..?
+O....?
+O..*.?
+.....?
+.....?
+------
+
+:8,OXe
+
+
+###################
+# Center expansions
+###################
+
+
+Pattern EB201
+
+.....   jump when stone on third row is approached
+.*...
+.....
+.O.X.
+.....
+.....
+-----
+
+:8,OXd
+
+
+Pattern EB202
+
+.....         Jump out!
+..*..
+.....
+X.O.X
+.....
+.....
+-----
+
+:8,OXd
+
+
+Pattern EB203
+
+....??          knight's move to come out
+..*.X?
+.....O
+...O..
+......
+------
+
+:8,Oe
+
+
+Pattern EB204
+
+....            match opponent's jump
+X.*.
+....
+X.O.
+....
+....
+----
+
+:8,OE
+
+
+Pattern EB205
+
+.*..               jump into center        
+...X
+.O..
+...O
+....
+----
+
+:8,OXd
+
+
+Pattern EB206
+
+??.??    jump out
+?.*.?
+X...?
+..O.X
+.....
+.....
+-----
+
+:8,OXd
+
+
+Pattern EB207
+
+......?      push up to expand
+.......
+..X*...
+X.XO..X
+XOO....
+.......
+.......
+-------
+
+:8,OXd
+
+
+Pattern EB208
+
+.....         attach
+..X*.
+O....
+..O..
+.....
+.....
+-----
+
+:8,OXd
+
+
+Pattern EB209
+
+ooo......        low approach
+ooo....X.
+ooo..*...
+.........
+.........
+---------
+
+:8,j,shape(-2)
+
+
+Pattern EB210
+
+??????x??         high approach deemed bad
+?????..??
+oo...*.X?
+ooo....xx
+.......??
+........?
+---------
+
+:8,-,shape(-8)
+
+
+Pattern EB211
+
+??????x??         far high approach deemed bad
+?????..??
+oo..*..X?
+ooo....xx
+.......??
+........?
+---------
+
+:8,-,shape(-8)
+
+
+#####################
+# Checking extensions
+#####################
+
+
+Pattern EB301
+
+......    defend to prevent peep
+.O.O..
+.....X
+....*.
+......
+------
+
+:8,OXed
+
+
+Pattern EB302
+
+.O.X      expand shape
+O.*.
+....
+....
+----
+
+:8,OXe
+
+
+Pattern EB303
+
+....xx             jump toward opponent's position
+.O.*.X
+......
+......
+------
+
+:8,OXe
+
+
+Pattern EB304
+
+O....     extend          
+..*.X
+.....
+.....
+-----
+
+:8,OXe
+
+
+Pattern EB305
+
+X....      extend
+..*.O
+.....
+.....
+-----
+
+:8,OXe
+
+
+Pattern EB306
+# gf Don't attach a weak stone. (3.1.18)
+
+??.?          extend and attach
+X*.O
+....
+....
+----
+
+:8,OXe
+
+??.?
+A*.O
+....
+....
+----
+
+;!weak(A)
+
+
+Pattern EB307
+
+??O?          extend and attach
+X*.O
+....
+....
+----
+
+:8,OXe
+
+
+Pattern EB308
+
+O...          block on third line
+.*.X
+....
+....
+----
+
+:8,OXe
+
+
+Pattern EB309
+
+.O..    diagonal attachment on 3-rd line
+..*X
+....
+....
+----
+
+:8,OXe
+
+
+Pattern EB310
+
+X..O.       expand base
+.*..O
+.....
+.....
+-----
+
+:8,OXe
+
+
+Pattern EB311
+
+........        extend
+.O......
+O....*.X
+........
+........
+--------
+
+:8,OXe
+
+
+Pattern EB312
+
+....?
+O....
+..*.X
+.....
+.....
+-----
+
+:8,OXe
+
+
+Pattern EB313
+
+?X.O?         double sente kosumi
+?.*.?
+?...?
+-----
+
+:8,OXe
+
+?X.O?
+b.*.a
+?...?
+-----
+
+;omoyo(a) && xmoyo(b)
+
+
+Pattern EB314
+
+?o??            extend towards opponent
+X..O
+.*..
+....
+....
+----
+
+:8,OXe
+
+
+Pattern EB315
+
+O....
+..*.X
+.....
+.....
+-----
+
+:8,OXe
+
+
+Pattern EB316
+
+XOO...        prevent opponent's slide
+O..*X.
+......
+......
+------
+
+:8,OXe
+
+
+Pattern EB317
+
+...oo        block extension if X is weak
+X..oo
+X.*.o
+....o
+....o
+-----
+
+:8,OXea
+
+...oo
+A..oo
+A.*.o
+....o
+....o
+-----
+
+;weak(A)
+
+
+#################
+# Edge expansions
+#################
+
+
+Pattern EB401
+
+O...?	       jump along edge
+..*.?
+....?
+-----
+
+:8,Oe,jump_out_far_helper
+
+
+Pattern EB402
+
+....x
+O.*.x	       jump along edge
+....?
+....?
+-----
+
+:8,Oe,jump_out_far_helper
+
+....a
+O.*.b
+....?
+....?
+-----
+
+; x_alive_somewhere(a,b)
+
+
+Pattern EB403
+
+?..xx	       jump along edge
+O...x
+...*.
+.....
+-----
+
+:8,Oe,jump_out_far_helper
+
+?..dx
+Oa..e
+cb.*.
+.....
+-----
+
+;oplay_attack(*,a,b,c,c) && x_alive_somewhere(d,e)
+
+
+Pattern EB404
+
+oO...         jump along edge
+O..*.
+.....
+-----
+
+:8,Oe,jump_out_helper
+
+
+Pattern EB405
+
+OO...         jump along edge
+...*.
+.....
+-----
+
+:8,Oe,jump_out_helper
+
+
+Pattern EB406
+
+??x.?         jump along edge
+OO.*.
+.....
+.....
+-----
+
+:8,Oe,jump_out_helper
+
+
+Pattern EB407
+
+oO....        jump along edge
+O...*.
+......
+------
+
+:8,Oe,jump_out_helper
+
+
+Pattern EB408
+
+o..?        jump along edge
+O.*.
+....
+----
+
+:8,Oe,jump_out_helper
+
+
+Pattern EB409
+
+o....        jump along edge
+O..*.
+.....
+-----
+
+:8,Oe,jump_out_helper
+
+o....
+O..*.
+.....
+-----
+
+;oarea(*)
+
+
+Pattern EB410
+
+...???           defend cut
+O....?
+XO*..?
+XXO..?
+.....?
+.....?
+------
+
+:8,ad
+
+
+Pattern EB411
+
+...??oo
+O....oo
+XO*..oo
+XXO..oo
+.....oo
+.....oo
+-------
+
+:8,ead,shape(7)
+
+...??oo
+O....oo
+XO*..ab
+XXO..cd
+.....oo
+.....oo
+-------
+
+; o_alive_somewhere(a,b,c,d)
+
+
+Pattern EB412
+# db added (3.1.8)
+# gf Added OX classification. (3.3.3)
+
+X???            push along the edge
+OXX.
+.O*.
+....
+----
+
+:8,OXed,shape(3)
+
+
+##############################
+# Third and fourth line blocks
+##############################
+
+
+Pattern EB501
+
+....?         hane if attached
+.*X.X
+..O..
+.....
+.....
+-----
+
+:8,ed,shape(5)
+
+
+Pattern EB501a
+
+?..X.?         push in to stabilize
+..OX.X
+...O*.
+......
+......
+------
+
+:8,ed,shape(5)
+
+
+Pattern EB502
+
+..O.X.  block if attached
+.*X...
+......
+......
+------
+
+:8,Oe,followup(5)
+
+
+Pattern EB503
+
+..O..X  block if attached
+.*X...
+......
+......
+------
+
+:8,Oe
+
+
+Pattern EB504
+
+?.O.o       block
+xX*.o
+.....
+.....
+-----
+
+:8,Oe
+
+
+Pattern EB505
+
+??.??          hane on the 4-th line
+.*X..
+O.OO.
+?....
+?....
+-----
+
+:8,Oe
+
+
+Pattern EB506
+
+??.??          hane on the 4-th line
+.*X..
+x.OO.
+?....
+?....
+-----
+
+:8,Oe
+
+??.??
+.*B..
+xaOO.
+?....
+?....
+-----
+
+;oplay_attack_either(*,a,a,B)
+
+
+Pattern EB507
+# tm Reduced shape value from 4 to 3 (3.1.20)
+# gf Removed shape value. (3.3.16)
+
+?o??
+?O..           block
+X*..
+....
+....
+----
+
+:8,Oe
+
+
+Pattern EB507a
+# tm New Pattern (3.1.20) (see strategy:26)
+
+?o??
+?O..           block
+X*..
+O...
+....
+----
+
+:8,Oe,shape(4)
+
+
+Pattern EB508
+# gf FIXME: This pattern seems to need more context or a constraint. (3.3.12)
+
+..O.   Block opponent's extension on third line
+....
+.*.X
+...?
+....
+----
+
+:8,OE
+
+
+Pattern EB509
+
+?...         block to prevent incursion
+XO.O
+X*..
+....
+....
+----
+
+:8,Oe
+
+
+Pattern EB510
+
+.O.O       blocking is very large
+X*..
+....
+....
+----
+
+:8,Oe
+
+
+Pattern EB511
+
+.O.?           endgame move
+O.*X
+....
+....
+----
+
+:8,OXe
+
+
+Pattern EB512
+
+..*X         attach to immobilize 1-st line stone
+?O..
+X...
+----
+
+:8,Oe
+
+
+Pattern EB513
+
+......         bend is urgent
+X.X*..
+.XOO..
+......
+......
+------
+
+:8,Oe
+
+
+Pattern EB514
+
+?O.?      connect against peep (third line)
+X*..
+?O.?
+....
+....
+----
+
+:8,ne
+
+
+Pattern EB515
+
+?OO??      jump down and block
+?....
+..*.X
+.....
+.....
+-----
+
+:8,Oe
+
+
+Pattern EB516
+
+o.....o         kosumi block
+O.....o
+.*.X.O.
+.......
+.......
+-------
+
+:8,Oe
+
+
+Pattern EB517
+
+?O.O?               block
+..*XX
+.....
+.....
+-----
+
+:8,OXe
+
+
+Pattern EB518
+
+o.o            block
+x*.
+XO.
+X..
+---
+
+:8,OXe
+
+
+Pattern EB519
+
+|...O          block in corner
+|..*.
+|...X
+|....
++----
+
+:8,OXe
+
+
+Pattern EB520
+
+.....           block
+XO...
+.*...
+.....
+.....
+-----
+
+:8,Oe
+
+.....
+XO...
+.*..a
+.....
+.....
+-----
+
+;omoyo(a)
+
+
+Pattern EB521
+# gf FIXME: This fixed value looks dangerous. (3.3.12)
+
+..O?        urgent atari
+..OX
+.*XO
+....
+....
+----
+
+:8,XEd,value(30)
+
+..O?
+..OX
+.*Xa
+....
+....
+----
+
+; attack(a) && !defend(a)
+
+
+####################
+# Second line blocks
+####################
+
+
+Pattern EB601
+
+?Oo?            block on second line
+XO.?
+.X*o
+...?
+----
+
+:8,OXead
+
+
+Pattern EB602
+
+?Oo?            block on second line
+XO.?
+..*o
+.X.?
+----
+
+:8,OXe
+
+
+Pattern EB603
+
+?.O            block on second line if safe from cut and clamp
+.*X
+?..
+---
+
+:8,OXea
+
+?aO
+b*D
+?c.
+---
+
+;oplay_attack_either(*,a,a,D)
+;&& (oplay_attack(*,b,D) || oplay_attack_either(*,b,c,a,a,D))
+
+
+Pattern EB604
+
+?.O            block on second line if safe from cut
+O*X
+?..
+---
+
+:8,OXe
+
+?aO
+O*X
+?..
+---
+
+;odefend_against(*,a)
+
+
+Pattern EB605
+
+?.O            block on second line if safe from cut
+X*X
+?..
+---
+
+:8,OXe
+
+?.O
+A*X
+?..
+---
+
+;does_attack(*,A)
+
+
+Pattern EB606
+
+?OOO          block on second line
+X*..
+....
+----
+
+:8,OXed
+
+
+Pattern EB608
+
+OO?       block on second row
+.*X
+..?
+---
+
+:8,OXe
+
+
+Pattern EB609
+
+X.O.    Block off the edge
+.X*.
+....
+----
+
+:8,OXe
+
+
+Pattern EB610
+
+O..O?
+O..*X
+.....
+-----
+
+:8,OXe
+
+
+Pattern EB611
+
+OOXX        block on second line
+*X..
+....
+----
+
+:8,OXe
+
+
+Pattern EB612
+
+????
+.O..
+XXO.
+..*.
+....
+----
+
+:8,OXe
+
+???b
+.Oa.
+XXO.
+..*.
+....
+----
+
+;odefend_against(*,a) || omoyo(b)
+
+
+Pattern EB615
+
+.O?            Prevent monkey jump or other incursion
+.*X
+...
+---
+
+:8,OXe
+
+
+Pattern EB615b
+# gf New pattern. (3.3.13)
+
+.O?            Prevent monkey jump or other incursion
+.*X
+...
+---
+
+:8,OXed
+
+.O?
+a*X
+...
+---
+
+;omoyo_opposite(a)
+
+
+Pattern EB616
+
+?o.O?
+?.*.X
+o...X
+-----
+
+:8,OXe
+
+
+Pattern EB617
+# gf Revised pattern. (3.1.9)
+
+oO.?           Prevent monkey jump or other incursion
+o.*X
+....
+----
+
+:8,OXe
+
+
+Pattern EB618
+
+oO.?           Prevent monkey jump or other incursion
+.*.X
+...X
+----
+
+:8,OXe
+
+
+Pattern EB619
+
+oO.?           Prevent monkey jump or other incursion
+..*X
+...X
+----
+
+:8,OXe
+
+oOa?
+..*X
+...X
+----
+
+;oplay_attack(*,a,a)
+
+
+Pattern EB624
+# gf Unified with EB625. (3.3.12)
+
+?O??        block
+?.OX
+.*X.
+....
+----
+
+:8,Oe
+
+?b??
+?.aX
+.*X.
+....
+----
+
+;lib(a)>1 && !oplay_disconnect(*,*,b)
+
+
+# Pattern EB625
+# # gf Redundant, removed. (3.3.12)
+# 
+# ???O?        block after opponent hanes
+# ?XO.?
+# ..X*.
+# .....
+# -----
+# 
+# :8,Oe
+# 
+# ???O?
+# ?Xa.?
+# ..X*.
+# .....
+# -----
+# 
+# ;lib(a)>1
+
+
+Pattern EB626
+
+X?O??      block after attachment
+X.O.?
+..X*.
+.....
+-----
+
+:8,Oe
+
+
+Pattern EB627
+
+?O....        block
+XO.X..
+X*....
+......
+------
+
+:8,Oe
+
+
+Pattern EB628
+
+.O..            prevent incursion
+....
+.*.X
+....
+----
+
+:8,OXe
+
+
+Pattern EB629
+
+..??             don't let the opponent undermine
+.OX?
+.*.X
+....
+----
+
+:8,Oe
+
+
+Pattern EB630
+
+..O.OX         stop incursion
+.*..OX
+..X.X.
+------
+
+:8,Oe
+
+
+Pattern EB631
+
+oO.??         clamp on second
+o..O?
+o*XOX
+o..X.
+-----
+
+:8,Oe
+
+oOb??
+o.ac?
+o*XcX
+o..X.
+-----
+
+;!oplay_attack(*,a,b,c)
+
+
+Pattern EB632
+# gf Revised pattern. (3.3.12)
+
+?oO??          clamp on second
+?O..X
+XOX*.
+.X...
+-----
+
+:8,Oe
+
+?oO??
+?a..X
+XaX*.
+.X...
+-----
+
+;!oplay_disconnect(*,*,a)
+
+
+Pattern EB633
+
+O.O.        seal opponent in
+?O..
+?X*.
+?X..
+----
+
+:8,OXe
+
+
+Pattern EB634
+
+...Oo?   Fend off territory (hopefully)
+....O?
+.....X
+...*.X
+.....x
+------
+
+:8,OXe
+
+
+Pattern EB635
+
+?OOOX?    Stop eye-stealing move         
+X*..OO
+......
+------
+
+:8,Xd
+
+
+Pattern EB637
+
+?o.?         stop intrusion on first line
+.*.O
+..XX
+----
+
+:8,OXe
+
+?od?
+e*cO
+baXX
+----
+
+;!oplay_attack_either(*,a,b,*,b) && oplay_attack_either(*,a,b,c,d,e,a,e)
+
+
+Pattern EB638
+
+?O..Oo       defend eye space
+.X*..o
+......
+------
+
+:8,OXed
+
+?Oa.Oo
+.X*..o
+......
+------
+
+;oplay_attack(*,a,a)
+
+
+Pattern EB639
+
+?OoO        block on edge
+X...
+X.*.
+....
+----
+
+:8,OXead
+
+?OoO
+Xba.
+Xc*.
+....
+----
+
+;oplay_attack(*,a,b,c,a)
+
+
+Pattern EB640a
+
+Ooo        block on edge
+x*.
+X..
+---
+
+:8,OXe
+
+Ooo
+x*.
+Xab
+---
+
+;!oplay_attack_either(*,a,b,*,b)
+
+
+Pattern EB640b
+# db modified (3.3.5)
+
+.Oo        block on edge
+x*.
+X..
+---
+
+:8,OXe,shape(3)
+
+.Oo
+x*.
+Xab
+---
+
+;!oplay_attack_either(*,a,b,*,b)
+
+
+Pattern EB640c
+
+..O        block on edge
+x*.
+X..
+---
+
+:8,OXe
+
+..O
+x*.
+Xab
+---
+
+;!oplay_attack_either(*,a,b,*,b)
+
+
+Pattern EB641a
+
+?Oo?       block on edge
+x.*.
+X...
+----
+
+:8,OXe
+
+
+Pattern EB641b
+
+?.O?       block on edge
+x.*.
+X...
+----
+
+:8,OXe
+
+
+Pattern EB641c
+
+?..O       block on edge
+x.*.
+X...
+----
+
+:8,OXe
+
+
+Pattern EB642
+
+|XOO	
+|X*.
+|...
++---
+
+:8,OXe,reverse_followup(6)
+
+
+###################
+# First line blocks
+###################
+
+
+Pattern EB701
+
+|.OX        Descending in the corner for profit and eyespace
+|.OX
+|.*.
++---
+
+:8,OXe
+
+
+Pattern EB702a
+# tm modified (3.1.20) (see endgame:102)
+
+??o???           prevent incursion
+?XO.??
+..X*.?
+------
+
+:8,OXe,reverse_followup(6)
+
+??o???
+?Xab??
+.cX*.?
+------
+
+;lib(a)>2
+;|| !oplay_attack_either(*,b,c,*,a)
+
+
+Pattern EB702b
+
+??o??|           prevent incursion
+?XO.?|
+..X*.|
+-----+
+
+:8,OXe,reverse_followup(2.5)
+
+??o??|
+?Xa.?|
+..X*.|
+-----+
+
+;lib(a)>2
+
+
+Pattern EB703
+# gf Added O classification. (3.1.32)
+
+?O?         block on edge
+O.O
+X*.
+---
+
+:8,OXe
+
+
+Pattern EB704
+
+?oO           block on edge. Sometimes better to fall back...
+XO.
+.X*
+---
+
+:8,OXe
+
+
+Pattern EB705
+# FIXME: (see trevorc:1040)
+
+?????
+?O...        prevent incursion
+X*...
+-----
+
+:8,OXe
+
+?????
+?b...
+X*a..
+-----
+
+;(xplay_attack(*,a,a) || weak(b))
+
+
+Pattern EB706
+
+??Oo???        prevent incursion with sente
+..XO...
+..X*...
+-------
+
+:8,OXe
+
+??Oo???
+..AO...
+..A*...
+-------
+
+;oplay_attack(*,A)
+
+
+Pattern EB707
+
+|..?        prevent incursion with sente
+|..?
+|XXO
+|*Oo
+|..?
+|..?
++---
+
+:8,OXe,followup(8)
+
+|..?
+|..?
+|AAO
+|*Oo
+|..?
+|..?
++---
+
+;oplay_attack(*,A)
+
+
+Pattern EB708
+
+O?       seal off at edge
+.O
+*X
+--
+
+:8,OXe
+
+
+Pattern EB709
+
+|.XO    extending in the corner is huge: double sente
+|*O.
+|...
++---
+
+:8,OXe,reverse_followup(3)
+
+
+Pattern EB709b
+# gf New pattern. (3.1.14)
+
+|*XO    if this move can't be captured and O is already alive, we prefer
+|.O.    hane to the descent
+|...
++---
+
+:8,OXe,reverse_followup(3)
+
+
+Pattern EB710
+
+o.OOX?              block
+.*XX.X
+------
+
+:8,OXe,value(5)
+
+
+Pattern EB711
+
+o.OO              block
+.*XX
+----
+
+:8,OXe,followup(4)
+
+o.bb
+.*AA
+----
+
+;oplay_attack(*,A) && !oplay_attack(*,b)
+
+
+Pattern EB712
+# Probably bigger reverse followup in reality
+# tm Modified (3.1.17)
+# tm Modified (3.1.20)
+
+?O..          block
+XO..
+X*..
+----
+
+:8,OXe,reverse_followup(6)
+
+?O..
+XOb.
+X*a.
+----
+
+; !xplay_attack_either(*,a,b,*,b)
+
+
+Pattern EB713
+# tm modified (3.1.17)
+# FIXME: (see trevorc:1040)
+
+?O..          block
+X*..
+----
+
+:8,OXe,reverse_followup(3)
+
+?Ob.
+X*a.
+----
+
+;!xplay_attack_either(*,a,b,*,b)
+
+
+Pattern EB714
+
+XO.X
+.X*.
+----
+
+:8,B
+
+XO.A
+.X*.
+----
+
+;oplay_attack(*,A)
+
+
+Pattern EB715
+# ab added (3.1.14)
+
+O.*      jump if blocking is impossible
+X..
+---
+
+:8,OXe
+
+ac*
+Xbd
+---
+
+;!oplay_defend_both(b,c,a,b) && !oplay_defend_both(c,b,d,*,c,d)
+
+
+Pattern EB716
+# ab added (3.1.14)
+
+O*.     pull back if blocking is impossible
+X..
+---
+
+:8,OXe
+
+a*c
+Xbd
+---
+
+;!oplay_defend_both(b,*,a,b) && oplay_defend_both(*,b,d,c,a,d)
+
+
+Pattern EB717
+# tm New Pattern (3.1.18)
+# gf FIXME: lib(A)==2 is always true in this pattern. (3.1.23)
+
+?OO..        prevent incursion
+.XX*.
+-----
+
+:8,sOXe
+
+?OB..
+.AA*.
+-----
+
+; lib(A) == 2
+; && !oplay_attack_either(*,B,*)
+
+
+Pattern EB718
+# tm New Pattern (3.1.20)
+# compare to EB715 - slightly different.
+
+O.*    jump back to block
+X..
+---
+
+:8,OXe
+
+ac*
+Xb.
+---
+
+;!oplay_defend_both(b,c,a,b) && oplay_defend_both(*,c,a,*)
+
+
+############################################################
+# Monkey jump and other intrusions on first and second lines
+############################################################
+
+
+Pattern EB801
+# Not to first line.
+
+O.X.?    jump under on second line
+.O.*?
+....?
+-----
+
+:8,Oe
+
+
+Pattern EB802
+# gf Revised pattern and constraint. (3.3.12)
+
+??xxxx    monkey jump
+?O....
+o...*.
+------
+
+:8,OXe
+
+bcEFGx
+da....
+o...*.
+------
+
+;!weak(a) && o_alive_somewhere(b,c,d) && x_alive_somewhere(E,F,G)
+;&& !oplay_disconnect(*,*,a)
+
+
+Pattern EB803
+
+?xX..       inverse monkey jump
+O..*.
+O....
+-----
+
+:8,OXe
+
+
+Pattern EB804
+
+?Xx..       inverse monkey jump
+O..*.
+O....
+-----
+
+:8,OXe
+
+
+Pattern EB805
+
+??X.?       jump up
+O..*.
+oO...
+-----
+
+:8,OXe
+
+
+Pattern EB806
+
+??X..?       jump up
+O...*.
+oO....
+------
+
+:8,OXe
+
+
+Pattern EB808
+# tm added defend_against_atari
+
+?xxx?       jump out on first line
+OX..?
+.O.*.
+-----
+
+:8,OXe
+
+?xxx?
+aX..?
+bC.*.
+-----
+
+;!weak(a) && oplay_attack(*,b,b)
+
+>defend_against_atari(C)
+
+
+###########################
+# Third line push or extend
+###########################
+
+
+Pattern EB909
+
+?????X.?          defense is becoming urgent
+.X.O..*.
+.....O..
+........
+--------
+
+:8,d
+
+
+Pattern EB910
+
+?.X..    follow up the slide with diagonal move (another slide could be broken)
+x*..O
+..O..
+?....
+-----
+
+:8,Oe
+
+
+Pattern EB911
+
+X.XX..             extend to 3 since B hane would be severe.
+.*O..O
+...O..
+......
+------
+
+:8,Oe
+
+
+Pattern EB912
+
+?XX?               extend to defend slide
+..O*
+O...
+....
+----
+
+:8,Oe
+
+
+Pattern EB913
+# gf Unified with EB916. (3.3.12)
+
+??X.           don't let opponent block
+?O*.
+o...
+....
+----
+
+:8,OXe
+
+
+Pattern EB913b
+
+??X.           don't let opponent block
+?O*.
+....
+....
+----
+
+:8,Xd
+
+
+Pattern EB914
+
+?O??X.           an exception to the preceeding pattern
+*XOO..
+......
+......
+------
+
+:8,d,value(10)
+
+?O??X.
+*AOOa.
+......
+......
+------
+
+; does_attack(*,A) && oplay_defend(a,A)
+
+> antisuji(a);
+
+
+Pattern EB915
+
+?O??X.           exception, continued
+OXOO..
+*X....
+......
+------
+
+:8,d,value(10)
+
+?O??X.
+OAOOa.
+*X....
+......
+------
+
+; does_attack(*,A) && oplay_defend(a,A)
+
+> antisuji(a);
+
+
+# Pattern EB916
+# # gf Redundant, removed. (3.3.12)
+# ??X.           less urgent in this case
+# ?O*.
+# O...
+# ....
+# ----
+# 
+# :8,OXe
+
+
+Pattern EB917
+
+??X..??         leap out
+?OX.*..
+OoO....
+.......
+-------
+
+:8,Oe
+
+
+Pattern EB918
+
+..XX        atari to expand
+*XOO
+.O..
+....
+----
+
+:8,Oe,followup(6)
+
+..XX
+*AOO
+.O..
+....
+----
+
+;!attack(A)
+
+
+Pattern EB919
+
+..XX?           extend along the edge
+.*OX?
+...OO
+.....
+-----
+
+:8,OXe
+
+
+Pattern EB920
+
+????..?         Two space extension
+.....O?
+.*..OXO
+......O
+.......
+-------
+
+:8,Oe
+
+
+Pattern EB921
+
+|oooX??       take corner
+|..*.X?
+|....OO
+|......
++------
+
+:8,e
+
+
+Pattern EB922
+
+??Xx?         override solid connection
+XXO*.
+OO...
+.....
+-----
+
+:8,OXe
+
+
+Pattern EB923
+
+XO?          separate!
+.*X
+...
+...
+---
+
+:8,Oe
+
+
+Pattern EB924
+
+....         extend on third line
+O.*.
+....
+....
+----
+
+:8,Oe
+
+....
+O.*a
+....
+....
+----
+
+;!omoyo(a)
+
+
+Pattern EB924a
+
+XX...x         extend on third line
+O.O.*.
+......
+......
+------
+
+:8,O,shape(-3)
+
+
+Pattern EB924b
+
+XX...x         extend on third line
+O.O...
+....*.
+......
+------
+
+:8,O,shape(-3)
+
+
+Pattern EB925
+
+XX...x         extend on third line
+O.O*.x
+......
+......
+------
+
+:8,Ed,shape(3),value(12)
+
+XX...x
+A.O*.x
+......
+......
+------
+
+; !dead(A)
+
+
+############################
+# Second line push or extend
+############################
+
+
+Pattern EB1001
+
+.X.O    extend to undermine opponent
+*O..
+....
+----
+
+:8,OXe
+
+
+Pattern EB1003
+
+XX..              move out on second line
+OO*.
+....
+----
+
+:8,OXe
+
+
+Pattern EB1004
+# We should climb to third line if safe. Need helper.
+# see EB1005
+
+??.XX              push out
+?.*OO
+?....
+.....
+-----
+
+:8,OXe
+
+
+Pattern EB1005
+
+??o??              hane
+?o*XX
+?..OO
+?....
+.....
+-----
+
+:8,OXe
+
+??o??
+?o*XX
+?.aOO
+?....
+.....
+-----
+
+;odefend_against(*,a)
+
+
+Pattern EB1006
+
+?..X?              push once
+.XXOO
+.*O..
+.....
+-----
+
+:8,OXe
+
+
+Pattern EB1007
+
+X..     overrides 113
+O*.
+...
+---
+
+:8,OXe
+
+
+Pattern EB1008
+
+..X.      Double sente, do it early!
+.O*.
+....
+----
+
+:8,OXe
+
+
+Pattern EB1008b
+
+?..X.      Double sente, do it early!
+x.O*.
+.....
+-----
+
+:8,OX,reverse_followup(2)
+
+
+Pattern EB1008c
+
+?..X.      Double sente, do it early!
+x.O*.
+.....
+-----
+
+:8,OX,reverse_followup(5)
+
+?..X.
+x.a*.
+.....
+-----
+
+;xplay_attack(*,a)
+
+
+Pattern EB1009
+
+OX.           magari on second line
+O*.
+...
+---
+
+:8,OXe
+
+
+Pattern EB1011
+
+?XX.??          reverse sente extend
+OOX...
+..O*..
+......
+------
+
+:8,OXe
+
+
+Pattern EB1012
+
+X.?X          extend on second line
+O*.?
+....
+----
+
+:8,OXe
+
+
+Pattern EB1013
+
+X.??          extend on second line
+O*.X
+....
+----
+
+:8,OXe
+
+
+Pattern EB1014
+
+X.X          extend on second line
+O*.
+...
+---
+
+:8,OXe
+
+
+Pattern EB1015
+
+?OXX         Reverse sente push
+..O*
+....
+----
+
+:8,OXe
+
+
+Pattern EB1016
+
+?OX..          extend on second line -- reverse sente
+OXO*.
+.....
+-----
+
+:8,Oe
+
+?OA..
+aXO*.
+.....
+-----
+
+;!attack(a) && !dead(A)
+
+
+Pattern EB1017
+
+X...         double sente push
+..XX
+O.O*
+o...
+----
+
+:8,Oe
+
+
+Pattern EB1018
+
+??O.X.      undermine the opponent and threaten two eyes
+XOoO*.
+oooo..
+------
+
+:8,OXed
+
+
+Pattern EB1019
+
+.XxoO?          make eye and undermine opponent
+.*O.OX
+...OXX
+------
+
+:8,OXed
+
+
+Pattern EB1020
+
+|....     Double sente, do it early!
+|.O.X
+|.*X.
+|....
+|....
++----
+
+:8,OXe
+
+
+Pattern EB1021
+
+?XX.            push to get one eye
+OO*.
+O...
+----
+
+:8,OXed
+
+
+Pattern EB1022
+# db New pattern (3.1.28)
+
+?Xxx??         simply extend to avoid bad aji
+oOX.x?
+o.O*..
+......
+------
+
+:8,O,shape(2)
+
+?Xxd??
+ocX.e?
+obO*a.
+......
+------
+
+; oplay_attack(a,b,*,c) || x_alive_somewhere(d,e)
+> replace(a,*)
+
+
+#################
+# First line push
+#################
+
+
+Pattern EB1101
+
+?x??       big push in sente
+?X..
+O*..
+----
+
+:8,OXe
+
+?x??
+?X.a
+O*..
+----
+
+;xmoyo(a)
+
+
+#################
+# Third line hane
+#################
+
+
+Pattern EB1201
+
+?XO?..       hane underneath
+.*.O..
+......
+......
+------
+
+:8,OXe
+
+
+Pattern EB1202
+# gf FIXME: Too high value? (3.3.12)
+
+?...?       hane
+O.X*.
+..O.?
+....?
+-----
+
+:8,OXeCad,value(25)
+
+
+Pattern EB1203
+# gf Added constraint. (3.3.12)
+
+?..X.       extend to defend and connect
+O.XO*
+..O..
+.....
+-----
+
+:8,OXeCad,value(25)
+
+?..X.
+a.XO*
+..O..
+.....
+-----
+
+;!oplay_disconnect(*,*,a)
+
+
+##################
+# Second line hane
+##################
+
+
+Pattern EB1301
+
+..XX              hane underneath
+.XOO
+.*..
+....
+----
+
+:8,OXe
+
+
+Pattern EB1302
+
+XOX              hane on second line
+O.*
+...
+---
+
+:8,OXe
+
+XaX
+O.*
+...
+---
+
+;lib(a)>1
+
+
+Pattern EB1303
+
+?XX?              block
+.XO?
+.*.O
+....
+----
+
+:8,OXe
+
+
+Pattern EB1304
+
+..XX.     hane
+O..OX
+..O.*
+.....
+-----
+
+:8,OXe
+
+
+Pattern EB1305
+
+?.XX..    hane on second line
+.XO..O
+.*.O..
+......
+------
+
+:8,OXe
+
+
+Pattern EB1306
+
+?XO?           hane to claim space on second line
+.*.O
+....
+----
+
+:8,OXe
+
+
+Pattern EB1307
+# gf Removed shape bonus. (3.3.18)
+
+?..??         hane to undermine the opponent
+..XOo
+..*.o
+....o
+-----
+
+:8,OXead
+
+?..??
+..Xao
+..*.o
+....o
+-----
+
+; lib(a)>2
+
+
+Pattern EB1308
+
+?....
+?....
+OX...
+OX...
+.*...
+.....
+-----
+
+:8,OXed
+
+
+Pattern EB1309
+
+??.o???        urgent hane
+?.XO..O
+..*....
+.......
+-------
+
+:8,-,shape(5)
+
+
+Pattern EB1310
+
+?..X?         after hane opponent must fall back
+..XOO
+..*.o
+....o
+-----
+
+:8,OXead,value(20)
+
+?.cX?
+.bXOO
+da*eo
+.f..o
+-----
+
+; !oplay_defend(*,a,b,c,d,e,f,f)
+
+
+Pattern EB1311
+
+?..X?         double sente
+.XXOO
+.*O.o
+....o
+-----
+
+:8,OXead,value(20)
+
+
+#################
+# First line hane
+#################
+
+
+Pattern EB1401
+
+|.XO?          large endgame move
+|.XO?
+|.*.o
++----
+
+:8,OXe,value(5)
+
+
+Pattern EB1402
+
+?.X??          hane
+..XO?
+x.*.o
+-----
+
+:8,OXe
+
+
+Pattern EB1403
+# gf Revised pattern. (3.1.3)
+# gf Revised constraint. (3.3.13)
+# ab Removed followup value (handled by influence code). (3.3.20)
+
+?oX??          sente hane
+..XO?
+?.*.o
+-----
+
+:8,Xe
+
+?oX??
+b.Xa?
+?.*..
+-----
+
+;alive(a) && xmoyo(b)
+
+
+Pattern EB1404a
+# Followup to previous pattern.
+#
+# No need to check for sente. If we found the hane to be worth
+# playing, we should continue with the tsugi too. (Unless we can
+# follow up with a ko or nakade pattern or something similar, but
+# those should have higher values.)
+#
+# In practice this pattern doesn't always kick in at a high enough
+# value to guarantee that EB1403 will be followed up.
+#
+# gf Revised pattern. (3.1.3)
+# eb revised constraint (3.3.13)
+# see nngs3:1110
+# ab FIXME: Is this still necessary?
+
+?oX??          Connect after hane.
+..XO?
+?XO*o
+-----
+
+:8,Xe,followup_value(8)
+
+?oX??
+..Xa?
+?BO*o
+-----
+
+;!dead(a) && !attack(B)
+
+
+Pattern EB1404b
+# Second followup to EB1403.
+# and guarantees that the move is followed up.
+# gf Revised pattern. (3.1.3)
+# eb revised constraint (3.3.13)
+# see nngs3:1110
+# ab FIMXE: Still needed? Also maybe reuse code from connect_and_cut_helper
+# here?
+
+?oX??          Connect after hane.
+..XO?
+?XO*o
+-----
+
+:8,Xe,value(12)
+
+?oB??
+ecBa?
+?AO*o
+-----
+
+;!dead(a) && xmoyo(e) && !oplay_defend_both(*,?,c,A,B) && !oplay_attack(*,c,*) && !attack(A)
+
+
+Pattern EB1404c
+#cut followup to sente hane
+#evand new pattern (3.3.13)
+
+?oX??
+.*XO?
+?XO.o
+-----
+
+:8,Xe,value(12)
+
+?oX??
+c*Xa?
+?BO.o
+-----
+
+;!dead(a) && xmoyo(c) && !oplay_defend(*,B) && !oplay_attack_either(*,*,a)
+
+
+Pattern EB1405
+
+?..X?          sente hane
+..XO?
+?.*.o
+-----
+
+:8,OXe,followup_value(8)
+
+?..X?
+ecDO?
+?a*bo
+-----
+
+;xmoyo(e) && !oplay_defend_both(*,a,b,?,c,a,D) && !oplay_attack(*,a,b,c,*)
+
+
+#############
+# Hane on top
+#############
+
+
+Pattern EB1501
+
+??oo?           Hane atop opponent's attachment on third line
+..*..
+..XO.
+.....
+.....
+-----
+
+:8,OXEad
+
+
+Pattern EB1502
+
+?oooo??		hane is urgent
+ooo*.??
+o.OX.o?
+o.OX.o?
+o....??
+o....??
+-------
+
+:8,OXead
+
+
+Pattern EB1503
+
+...?          extend instead of hane
+x*..
+.OX.
+.OX.
+....
+....
+----
+
+:8,OXed
+
+
+########
+# Attach
+########
+
+
+Pattern EB1601
+
+......     attach underneath
+.X.O.O
+.*....
+......
+------
+
+:8,OXe
+
+
+Pattern EB1603
+
+?...?    top attachment
+.O.*.
+...X.
+.....
+.....
+-----
+
+:8,OXE
+
+
+Pattern EB1604
+# The attachment is beneficial even if captured except
+#          in the case where the opponent pushes below leading
+#          leading to a complicated fight. If this happens
+#  O3X     it is unclear who will come out better. (O can
+#  421     retaliate in various ways depending on surroundings
+#  ...     and fighting strength.) Attaching is preferred
+#  ---     to EB313 if it works.
+# 
+# The final position could be:
+#
+#      O
+#    OOXX
+#    OX.X
+#    ..X.
+#    ----
+#
+#    or:
+#
+#      O
+#    OOXO
+#    .XXX
+#    ..X.
+#    ----
+#
+#   It can backfire if X pushes below. That is not always possible.
+
+????.?      attach on second line
+?....?
+oO.X.o
+o..*.?
+.....?
+------
+
+:8,OXe
+
+????.?
+?....?
+oO.A.o
+o..*.?
+.....?
+------
+
+;!weak(A)
+
+
+Pattern EB1605
+
+????.?      attach on second line in sente
+?....?
+oO.X.o
+o..*.?
+.....?
+------
+
+:8,OXe,followup(5)
+
+????.?
+?....?
+oO.Dco
+o.b*a?
+.....?
+------
+
+;!weak(D) && !oplay_attack(*,a,b,?,c,c)
+
+
+Pattern EB1606
+# Explicit followup.
+
+???.?      attach on second line
+....?
+O.X.o
+.*OX?
+....?
+-----
+
+:8,e
+
+
+Pattern EB1606b
+# Explicit followup.
+
+???.?      threat to cut
+....?
+O.X.o
+.*OX?
+....?
+-----
+
+:8,-,followup(8)
+
+???.?
+....?
+O.Xao
+.*OX?
+....?
+-----
+
+;!oplay_attack(*,?,a,a)
+
+
+Pattern EB1607
+
+X...         attach to expand
+..X.
+O.*.
+....
+----
+
+:8,OXe
+
+
+Pattern EB1608
+
+O..X.       attach below
+oO.*.
+o....
+-----
+
+:8,OXe
+
+
+Pattern EB1609
+
+..x..          attach to connect
+.....
+O.X.O
+..*..
+.....
+-----
+
+:|,OXcad
+
+..x..
+.....
+O.X.O
+.a*b.
+.....
+-----
+
+>antisuji(a);
+>antisuji(b);
+
+
+Pattern EB1610
+
+..x..          followup
+.....
+O*X.O
+.XO..
+.....
+-----
+
+:8,cad,shape(10)
+
+
+Pattern EB1611
+
+..x..          followup
+..*..
+OOX.O
+.XOX.
+.....
+-----
+
+:8,cad,shape(10)
+
+
+###################
+# Strengthen stones
+###################
+
+
+Pattern EB1701
+
+.*X?     strengthen stone to prevent undermining hane
+.OX.
+....
+....
+----
+
+:8,OXd
+
+
+Pattern EB1702
+
+.*.X    jump up when kicked
+.OX.
+....
+....
+----
+
+:8,OXd,shape(3)
+
+
+Pattern EB1702b
+# gf New pattern. (3.1.17)
+
+...*.X    jump up when kicked
+...OX.
+......
+......
+------
+
+:8,OXa,reverse_followup(8)
+
+
+Pattern EB1703
+
+O.*X    Strengthen stone on second line
+..OX
+....
+----
+
+:8,OXed
+
+
+Pattern EB1704
+
+?*.?          Stand on third line
+XO.?
+...?
+----
+
+:8,nOXed
+
+
+Pattern EB1705
+
+??o?         Stand to defend connection
+O.*X
+..OX
+....
+----
+
+:8,OXed
+
+
+Pattern EB1706
+
+??X?         Draw back to defend connection
+O*.X
+..OX
+....
+----
+
+:8,OXed
+
+
+Pattern EB1707
+
+..??         stand after attachment
+.*..
+.OXX
+....
+....
+----
+
+:8,OXed
+
+
+Pattern EB1708
+# If we are strong we prefer to connect solidly
+
+?.O?          Defend after hanetsugi
+*.OX
+.OXX
+----
+
+:8,OXe
+
+?.O?
+*acX
+bOXX
+----
+
+;xcut(a) || xplay_attack(a,b,c)
+
+
+Pattern EB1709
+
+X*.O?          make eye and reach for center
+xO.OX
+..OXX
+-----
+
+:8,OXd
+
+
+Pattern EB1710
+# Sometimes better to hane. But under which constraints?
+
+.....?         contact instability
+..X..?
+..O*.?
+.....?
+.....?
+------
+
+:8,OXed
+
+
+Pattern EB1711
+# gf Shape bonus reduced. (3.1.12)
+
+.O.X    prevent slide
+.*X.
+....
+....
+----
+
+:8,OXead,shape(1)
+
+
+#############################
+# Block intrusion from above
+#############################
+
+
+Pattern EB1801
+
+..*..     connect
+O...O
+.....
+-----
+
+:8,Oe
+
+..*..
+O...O
+.....
+-----
+
+;!omoyo(*)
+
+
+Pattern EB1802
+
+..X..     connect
+O.*.O
+.....
+-----
+
+:8,OXec
+
+
+Pattern EB1803
+
+o..Xx              defend!
+O.*..
+....O
+.....
+.....
+-----
+
+:8,OXec
+
+
+Pattern EB1804
+
+??.??              defend!
+O.*..
+....O
+.....
+.....
+-----
+
+:8,Oec
+
+??.??
+O.*..
+....O
+.....
+.....
+-----
+
+;!omoyo(*)
+
+
+Pattern EB1805
+
+??.??              defend!
+O.*.O
+.....
+.....
+.....
+-----
+
+:8,Oec
+
+??.??
+O.*.O
+.....
+.....
+.....
+-----
+
+;!omoyo(*)
+
+
+Pattern EB1806
+
+?.X.??         block intrusion into wide extension
+......
+O.*..O
+......
+......
+------
+
+:8,OXec
+
+
+Pattern EB1807
+
+?XO            don't accept position being split
+O*.
+...
+...
+---
+
+:8,OXec
+
+
+Pattern EB1808
+
+??.??              defend!
+O.*.O
+.....
+.....
+-----
+
+:8,OXec
+
+??.??
+O.*.O
+.....
+.....
+-----
+
+;!omoyo(*)
+
+
+Pattern EB1808a
+
+??.??              defend!
+O...O
+..*..
+.....
+-----
+
+:8,OXec
+
+??.??
+O...O
+..*..
+.....
+-----
+
+;!omoyo(*)
+
+
+Pattern EB1809
+
+..X..              secure fourth line territory
+o.O*o
+o....
+.....
+.....
+-----
+
+:8,OXe
+
+..X..
+o.O*o
+o....
+..a..
+.....
+-----
+
+;safe_xmove(*) && oterri(a)
+
+
+Pattern EB1810
+
+?X?     block below
+OXO
+.*.
+...
+---
+
+:|,OXeC
+
+?X?
+bXa
+.*.
+...
+---
+
+;!oplay_break_through(*,a,*,b)
+
+
+###########
+# Draw back
+###########
+
+
+Pattern EB1901
+
+?X??           draw back
+XO.O
+XO*.
+?X?.
+----
+
+:8,OXe
+
+
+Pattern EB1902
+
+.O*.         draw back if opponent plays below
+XX..
+....
+----
+
+:8,OXe
+
+.O*.
+XXa.
+....
+----
+
+;!odefend_against(a,*)
+
+
+Pattern EB1903
+
+....           draw back
+.*OX
+..X.
+....
+----
+
+:8,OXed
+
+
+Pattern EB1904
+
+.....           draw back
+..*OO
+...XX
+.....
+-----
+
+:8,OXe
+
+
+Pattern EB1905
+
+oo.O??           draw back
+o.*OX?
+o..X.X
+------
+
+:8,OXe
+
+oo.c??
+o.*cX?
+o.aXbX
+------
+
+;xplay_attack_either(b,a,a,c)
+
+>antisuji(a);
+
+
+Pattern EB1906
+
+O...              draw back if clamp is impossible
+.*O.
+.XOX
+..Xx
+----
+
+:8,OXe
+
+Oab.
+.*O.
+.XOX
+..Xx
+----
+
+;!xplay_attack(*,a,b,b)
+
+
+###############
+# Miscellaneous
+###############
+
+
+Pattern EB2001
+
+X...          space odyssey
+.*X.
+O.OX
+o...
+----
+
+:8,OXed
+
+
+Pattern EB2002
+
+?.....         don't jump if the edge is open
+.*....
+......
+O.....
+......
+......
+......
+------
+
+:8,-,shape(-7)
+
+
+Pattern EB2003
+# With a sufficiently strong position directly to the right of the
+#    diagram, this may be a good move to build a moyo.
+
+?......         don't jump if the edge is open
+.*.....
+?......
+?O.....
+?......
+?......
+?......
+-------
+
+:8,-,shape(-7)
+
+
+######################################################################
+#
+# Center block/expand patterns
+#
+# Moves that expand own position in the center in some way or stops
+# opponent from expanding his position. This includes moves like
+# block, bend, hane, and various extensions into empty space or
+# opponent's area. This category contains very many patterns and may
+# need to be split sooner or later.
+#
+######################################################################
+
+
+#################################################
+# safe jump out patterns, cannot (usually) be cut
+#################################################
+
+
+Pattern CB1
+# gf Removed d classification (pattern too general). (3.3.13)
+
+????????           jump into empty space
+.......?
+.O.O.*.?
+.......?
+????????
+
+:-,OE,jump_out_helper
+
+
+Pattern CB2
+# gf Removed d classification (pattern too general). (3.3.13)
+
+??????             jump into empty space
+?....x
+?.*.OO
+?....x
+??????
+
+:8,OE,jump_out_helper
+
+
+Pattern CB3
+
+?.OO.        extend
+?....
+?....
+?.*..
+?....
+?????
+
+:8,OEd,jump_out_helper
+
+
+Pattern CB4
+# gf Removed d classification (pattern too general). (3.3.13)
+
+?????		Jump out if starting to get surrounded
+?...?
+?.*.?
+?...?
+?.OO?
+
+:8,Oe,jump_out_helper
+
+
+Pattern CB5
+# gf Removed d classification (pattern too general). (3.3.13)
+
+?????          jump out
+?...O
+?.*.O
+??..?
+?????
+
+:8,Oe,jump_out_helper
+
+
+Pattern CB6
+# gf Removed d classification (pattern too general). (3.3.13)
+
+??????         jump out
+?...Oo
+?.*..o
+??..Oo
+??????
+
+:8,Oe,jump_out_helper
+
+
+Pattern CB7
+
+???.o?          jump out
+?....O
+?.*..O
+??...?
+??????
+
+:8,OEd,jump_out_helper
+
+
+Pattern CB8
+
+???.???         jump out
+?....Oo
+?.*...o
+??...Oo
+???????
+
+:8,OEd,jump_out_helper
+
+
+Pattern CB9
+
+??O..O
+?....O
+?.*...
+??.???
+??????
+
+:8,OEd,jump_out_helper
+
+
+Pattern CB10
+
+OoOo?            jump out!
+...??
+....?
+O.*.?
+??.??
+?????
+
+:8,OEd,jump_out_helper
+
+
+Pattern CB12
+
+....           atari to break X connection
+.*XO
+X.O.
+
+:8,OXeBad,shape(2)
+
+..a.
+.*XO
+XbOc
+
+; oplay_attack(*,a,b,c,c)
+
+
+Pattern CB13
+
+????          jump out to reduce and possibly expand
+x..O
+.*.O
+x..o
+????
+
+:8,Oe,jump_out_helper
+
+
+Pattern CB14
+
+?o??        attach
+...O
+.*..
+.X.O
+...?
+
+:8,OXEd,shape(2)
+
+?o??
+..bO
+.*ac
+.XdO
+...?
+
+; oplay_attack(*,a,b,c,a) || oplay_attack(*,a,d,b,a)
+
+
+Pattern CB14a
+
+?o??        followup
+...O
+.OX.
+.X*O
+...?
+
+:8,OXed,shape(3)
+
+?o??
+..aO
+.OX.
+.X*O
+...?
+
+; oplay_attack(*,a,a)
+
+
+Pattern CB14b
+
+?o??        followup
+..*O
+.OX.
+.X.O
+...?
+
+:8,OXed,shape(2)
+
+?o??
+..*O
+.OXa
+.X.O
+...?
+
+; oplay_attack(*,a,a)
+
+
+Pattern CB15
+
+.xO.       prevent push in
+xx*.
+xXO.
+xxXO
+
+:8,Oed,shape(2)
+
+.bO.
+ac*.
+xXO.
+xxXO
+
+; x_alive_somewhere(a,b,c)
+
+
+######################################
+# unsafe jump out patterns, can be cut
+######################################
+
+Pattern CB101
+
+O.....?	  extend
+?...*.?
+?.....?
+???????
+
+:8,OE,shape(-1),jump_out_far_helper
+
+
+#Pattern CB102
+# ab Removed.
+# (No need for negative shape on 3rd line; CB 104 sufficient.)
+#
+#??O??	   extend
+#?...?
+#?...?
+#?...?
+#?.*.?
+#?...?
+#?????
+#
+#:|,OE,shape(-1),jump_out_far_helper
+
+
+Pattern CB103
+
+O....?    extend
+?..*.?
+?....?
+??????
+
+:8,OE,shape(-3),jump_out_far_helper
+
+
+Pattern CB104
+
+???O???	   extend
+??...??
+??...??
+??.*.??
+??...??
+???????
+
+:|,OE,shape(-3),jump_out_far_helper
+
+
+Pattern CB105
+
+O...?     extend
+?.*.?
+?...?
+?????
+
+:8,OE,jump_out_far_helper
+
+
+Pattern CB106
+
+???O???	    extend
+??...??
+??.*.??
+??...??
+???????
+
+:|,OE,shape(2),jump_out_far_helper
+
+
+#Pattern CB107
+## db New pattern (3.1.28)
+## db corrected (3.1.28)
+## ab Removed (3.3.10). (Now less important due to Intrusion54.)
+#
+#?OXxxx       defend the cut before leaping
+#..O...
+#?*....
+#?.....
+#
+#:8,O
+#
+#?OAxxx
+#.bO...
+#?*c.a.
+#?.....
+#
+#; oplay_defend(a,b,c,b) && !attack(A)
+#> replace(a,*)
+
+
+########################
+# Connect attacked keima
+########################
+
+Pattern CB207
+# gf Merge with CB208. (3.1.23)
+
+??x      threaten connection
+O*.
+.XO
+
+:8,nOXea,shape(2)
+
+??x
+O*.
+.ba
+
+;(lib(a)>1) && (!attack(b) || defend(b))
+
+
+Pattern CB209
+
+??O      connect
+O*.
+.XO
+
+:8,nOXe
+
+??a
+O*.
+.Xb
+
+;lib(a)>1 && lib(b)>1
+
+
+Pattern CB210
+
+??.?      connect
+O*.O
+?XO?
+
+:8,nOXea
+
+??.?
+O*.O
+?Xa?
+
+;lib(a)>1
+
+
+Pattern CB217
+
+?.O               block
+.*X
+?OX
+
+:8,OXecd
+
+?.a
+.*X
+?OX
+
+;lib(a)>1
+
+
+Pattern CB217a
+
+?.O           block attacking
+.*X
+?OX
+
+:8,a
+
+?.O
+.*A
+?OA
+
+; owl_threatens(*,A)
+
+
+Pattern CB277
+
+.*O           connect or threaten to connect
+OX?
+
+:8,nOXed
+
+.*O
+aX?
+
+;lib(a)>1
+
+
+Pattern CB327
+# gf Reduced shape value. (3.1.23)
+# See nngs:1750
+# ab increased shape value (3.1.29)
+# gf Added constraint. (3.3.3)
+
+?.?         seal opponent in
+...      
+.*O
+OX?
+
+:8,OXecd,shape(3)
+
+?.?
+...
+.*O
+OA?
+
+;!attack(A) || !oplay_defend(*,A)
+
+
+Pattern CB328
+#ab Revised constraint (3.3.3)
+
+?.?         seal opponent in and connect
+...      
+.*O
+OX?
+
+:8,OXC,shape(10)
+
+?.?
+...
+a*O
+OB?
+
+; oplay_attack_either(*,a,a,B) && (!attack(B) || does_attack(*,B))
+
+
+######
+# Hane 
+######
+
+Pattern CB202
+
+?o.?         hane if attached
+..*.
+.OX.
+....
+..X.
+
+:8,OXE
+
+
+Pattern CB212
+# constraint is complementary to CB213.
+
+.X.O.?    hane to defend
+...X*.
+
+:8,OXd
+
+.X.Oa?
+...B*.
+
+;!oplay_attack_either(*,a,a,B)
+
+
+Pattern CB213
+
+.X.O.?    extra value if X can't cut
+...X*.
+
+:8,OXed,shape(2)
+
+.X.Oa?
+...B*.
+
+;oplay_attack_either(*,a,a,B)
+
+
+Pattern CB216
+
+OX..     connect if invaded
+.*.O
+...?
+
+:8,OXecd
+
+aX..
+.*.b
+...?
+
+;lib(a)>=2 && lib(b)>=2
+
+
+Pattern CB219
+
+....O            hane
+..O..
+.*X.X
+.....
+
+:8,OXE
+
+
+Pattern CB220
+# gf Added missing '-' placeholder for classification. (3.1.18)
+
+*.
+XO	hane at head of two stones.
+XO
+..
+
+:8,-,shape(2)
+
+
+Pattern CB221
+
+????O?            hane
+.XOO..
+..XX*?
+??..??
+
+:8,OXe
+
+
+Pattern CB223
+
+ooo      form eye to protect
+O.O
+.*X
+
+:8,OXed
+
+ooo
+O.a
+.*X
+
+;lib(a)>1
+
+
+Pattern CB231
+
+?ooo            form eye to protect
+?O.*
+o.OX
+?o??
+
+:8,OXed
+
+
+Pattern CB232
+
+?ooo            form eye to protect
+?O.*
+o.OX
+?OXX
+
+:8,OXed,shape(1)
+
+
+Pattern CB236
+
+XX*.     block! this can be life or death    
+?O.O
+??O?
+
+:8,OXed
+
+
+Pattern CB240
+
+..            block off area
+.*
+OX
+
+:8,OXe
+
+ab
+.*
+cD
+
+;!xarea(a) && !xarea(b) && lib(c)>2 && lib(D)<3
+
+
+Pattern CB241a
+
+..            block off area
+.*
+OX
+O?
+
+:8,OXe
+
+..
+a*
+OX
+O?
+
+;odefend_against(*,a)
+
+
+Pattern CB241b
+
+..            block off area
+.*
+OX
+.x
+
+:8,OXe
+
+..
+a*
+OX
+.x
+
+; odefend_against(*,a)
+
+
+Pattern CB244
+
+?...?        hane at the head of three stones
+OXXX*
+?OOO.
+
+:8,OXe
+
+
+Pattern CB245
+# tm modified (3.1.18)
+#   see trevorb:750
+
+?..??        hane at the head of two stones
+OXX*?
+?OO.?
+
+:8,OXe
+
+?..??
+cXe*F
+?bbAD
+
+; lib(c)>1
+; && !oplay_attack(*,b)
+; && oplay_defend_both(*,A,*,b)
+; && (oplay_attack(*,A,e) || !x_alive_somewhere(D,F))
+
+
+Pattern CB247
+
+?O..       hane
+XO..
+.X*.
+....
+
+:8,OXe
+
+
+Pattern CB262
+
+..o?       hane is urgent
+.*..
+.XOO
+..XO
+
+:8,OXe
+
+
+Pattern CB271
+
+?OX.?       hane is urgent
+..OX.
+?O.*.
+??...
+
+:8,OXe
+
+
+Pattern CB275
+
+?.X         make shape
+?..
+O.O
+X*.
+?..
+?.O
+
+:8,OXecd
+
+
+Pattern CB281
+
+O.??            block!
+O.??
+X*.?
+...?
+Ooo?
+
+:8,OXe
+
+
+Pattern CB288
+
+?...        block and expand
+..*.
+OOX.
+?X..
+
+:8,OXe
+
+
+Pattern CB296
+
+Oooo         block
+.*.o
+OX??
+
+:8,OXe
+
+
+Pattern CB297
+
+Oooo         block in sente
+.*.o
+OX??
+
+:8,OXe,followup(5)
+
+Oooo
+.*.o
+OA??
+
+;!attack(A) && oplay_attack(*,A)
+
+
+Pattern CB298
+
+O.Oo     protect by drawing back
+XO..
+XX*O
+
+:8,nOXed
+
+
+Pattern CB307
+
+X..?            atari 
+OX*.
+XO..
+
+:8,-,followup(5)
+
+X..?
+aX*.
+Xb..
+
+; dead(a) && !dead(b)
+
+
+Pattern CB309
+
+?..XO         hane, threatening atari
+..XOo
+..*.O
+?...?
+
+:8,OXed
+
+
+Pattern CB310
+
+?..?          hane
+.*X.
+..O?
+?Oo?
+
+:8,OXed
+
+
+Pattern CB313
+
+?.O..         block!
+X.X*.
+.....
+
+:8,OXE
+
+
+Pattern CB323
+
+O.?        block
+X*O
+
+:8,OXe
+
+
+Pattern CB329a
+# db added (3.3.6)
+
+?.??         atari
+.*.?
+OX.X
+oOX?
+
+:8,OXe,followup(5),shape(2)
+
+
+Pattern CB335
+# gf New pattern. (3.1.18)
+
+x.O           block
+X*.
+O.o
+
+:8,OXe
+
+
+Pattern CB339
+# gf New pattern. (3.3.4)
+
+?x?
+x.O
+.*X
+
+:8,OXe
+
+?x?
+xaO
+c*B
+
+;xterri(c) && oplay_attack_either(*,a,a,B)
+
+
+########
+# Kosumi
+########
+
+Pattern CB205
+
+.....        kosumi to claim space
+.....
+.*...
+O....
+?X...
+
+:8,OXe
+
+
+Pattern CB225
+# Move out diagonally instead
+
+?????        diagonal move to reduce
+.....
+.....
+..*..
+.O.X.
+.....
+
+:8,OXe
+
+?????
+.....
+ab...
+..*..
+.O.X.
+.....
+
+;xarea(a) || xarea(b)
+
+
+Pattern CB235
+
+..X.     extend and block
+O...
+.*..
+?...
+
+:8,OXe
+
+
+Pattern CB251
+
+..O?         diagonal move      
+.*..
+...X
+...X
+
+:8,OXe
+
+
+Pattern CB256
+
+..O            diagonal extension if nothing better
+.*.
+..X
+
+:8,OXe
+
+
+Pattern CB257
+
+X..O           move out
+..*.
+...X
+
+:8,OXea
+
+
+Pattern CB260
+
+....        Take opponent's vital point for moving out
+O...
+X.*.
+X..O
+
+:8,OXea
+
+
+Pattern CB267
+
+OXOX         prevent sealing
+XO..
+X.*.
+
+:8,Oed
+
+
+Pattern CB289
+
+..O.         reinforce and block
+.*.O
+.X.?
+
+:8,OXed
+
+
+###############
+# Miscellaneous
+###############
+
+Pattern CB203
+
+..O.         extend and peep
+.OXX
+.*..
+..X.
+
+:8,Xea,followup(20)
+
+.ae.
+.fXX
+.*bc
+..Xd
+
+;(alive(e) || alive(f)) && oplay_attack(*,a,a) && !oplay_attack(*,?,b,c,d,d)
+
+
+Pattern CB204
+# Kosumi is better if GNU is going to go back and defend anyway.
+
+.....        knight's move to claim space
+.....
+..*..
+O....
+?X...
+
+:8,OXE
+
+e....
+.....
+cb*..
+da...
+?X...
+
+;!xmoyo(e) && oplay_defend(*,a,b,c,d)
+
+
+Pattern CB204b
+# ab removed shape value (3.1.28)
+
+.....        knight's move to claim space
+.....
+..*..
+O....
+?X...
+
+:8,OXEd
+
+e....
+.....
+cb*..
+Oa...
+?X...
+
+;!xmoyo(e) && oplay_attack(*,a,b,c,c)
+
+
+Pattern CB206
+
+.....        block solid to claim space -- 
+.....        not so good if X (easily) can play double hane.
+.....
+O*...
+?X...
+
+:8,OXe
+
+.....
+.....
+.dc..
+O*a..
+?Xb..
+
+;!oplay_attack(*,a,b,b) || !oplay_attack(*,a,c,d,*)
+
+
+Pattern CB214
+
+O.X..    connect if invaded
+..*.O
+?...?
+
+:8,OXecd
+
+
+Pattern CB215
+
+..X..    connect if invaded
+O.*.O
+o...?
+
+:8,OXecd
+
+
+Pattern CB218
+
+?.?              extend
+.*.
+.OX
+OX?
+OX?
+
+:8,OXe
+
+?.?
+.*.
+.OA
+OX?
+OX?
+
+;!attack(A) || does_attack(*,A)
+
+
+Pattern CB224
+
+?????        knight's move to claim space
+.....
+..*..
+.....
+.O.X.
+.....
+
+:8,OXE
+
+?????
+.....
+ab*..
+.....
+.O.X.
+.....
+
+;!xarea(a) && !xarea(b)
+
+
+Pattern CB226
+
+?????        one space jump to reduce
+.....
+.*...
+.....
+.O.X.
+.....
+
+:8,OXE
+
+?????
+.....
+a*...
+.....
+.O.X.
+.....
+
+;xarea(a) || xarea(*)
+
+
+Pattern CB227
+
+?OO.             bend around
+XX*.
+....
+
+:8,OXead,shape(4)
+
+
+Pattern CB228
+# gf Sometimes it's better shape to jump. See nngs:1180. (3.3.7 )
+
+?XX.             prevent bend
+OO*.
+....
+
+:8,OXe,shape(3)
+
+?AAb
+OO*.
+....
+
+; !does_attack(b,A)
+
+
+Pattern CB229
+
+xXO             extend after hane
+XO.
+.*.
+...
+
+:8,OXed,reverse_followup(5)
+
+
+Pattern CB230
+
+?....             knight's move with good shape
+.*..O
+...O.
+??XXO
+
+:8,OXed
+
+
+Pattern CB233
+
+..X.     extend and block
+O...
+..*.
+?...
+
+:8,OXed
+
+..X.
+Obc.
+da*.
+e...
+
+;omoyo(e) || (oplay_attack(*,a,b,c,a) && oplay_attack_either(*,b,a,d,b,d))
+
+
+Pattern CB234
+
+..X.     extend and block
+O...
+O.*.
+?...
+
+:8,OXe
+
+
+Pattern CB237
+# tm Modified (3.1.23)
+# gf Corrected constraint. (3.3.12)
+
+??x?          extend
+O..X
+..*.
+?.o?
+
+:8,OXe
+
+??x?
+a..X
+..*.
+?.o?
+
+; !oplay_disconnect(*,*,a)
+
+
+Pattern CB238
+
+..?            block off area
+O*o
+?X?
+
+:8,OXe
+
+
+Pattern CB239
+# db added (3.3.3)
+# see nngs1:50
+
+..?       connect to reinforce and attack
+O*O
+?X?
+
+:8,OXeda
+
+..?
+a*b
+?X?
+
+; !same_dragon(a,b)
+
+
+Pattern CB241c
+
+..            block off area
+*.
+OX
+.O
+
+:8,OXe
+
+..
+*.
+OX
+bO
+
+;odefend_against(*,b)
+
+
+Pattern CB242
+
+?..?            default if previous pattern is not feasible
+?*.?
+?OX?
+
+:8,OXe
+
+
+Pattern CB246
+
+.O.O.?      block opponent
+.....?
+..X.*.
+.....?
+
+:8,OXed
+
+
+Pattern CB248
+
+?.XX?        extend
+.*OOX
+....X
+
+:8,OXed
+
+
+Pattern CB250
+
+??.O        Here X has 3 liberties.
+?O.?
+.*X?
+?..?
+
+:8,OXed
+
+??.O
+?O.?
+.*A?
+?..?
+
+;lib(A)==3
+
+
+Pattern CB252
+# gf Merged with CB253. (3.1.23)
+
+...       bend around
+O*.
+OX?
+
+:8,OXe
+
+
+Pattern CB254
+# gf Revised classification and constraint. (3.1.14)
+# db added shape value (3.1.28)
+
+..O
+o*X
+..O
+
+:-,Xead,shape(3)
+
+..a
+o*X
+..b
+
+;(alive(a) || alive(b)) && !oplay_attack(*,a) && !oplay_attack(*,b)
+
+
+Pattern CB255
+
+O.XO         bend around
+..*O
+??x?
+
+:8,OXe
+
+
+Pattern CB258
+# gf Added constraint. (3.3.13)
+
+??????          jump! (But not down to second line)
+?....?
+oO.*.?
+?....?
+?X...?
+
+:8,OXd
+
+??????
+?....?
+oa.*.?
+?....?
+?X...?
+
+;is_surrounded(a)
+
+
+Pattern CB259
+# gf Removed d classification (pattern too general). (3.3.13)
+
+?....           jump!
+oO.*.
+?....
+?X.X.
+
+:8,OX
+
+
+Pattern CB261
+
+?O.?       knight's move to block center
+XO..
+X...
+X.*.
+
+:8,OXea
+
+
+Pattern CB263
+
+?x.?       jump abreast       
+.*.O
+...O
+?X??
+
+:8,OXed
+
+
+Pattern CB264
+
+..O??         knight's move block
+...X?
+.O..?
+...*.
+???.?
+
+:8,OXea
+
+a.O??
+...X?
+.O..?
+...*.
+b??.?
+
+;omoyo(a) && omoyo(b)
+
+
+Pattern CB265
+
+O.???       seal the opponent in
+..X??
+.*..?
+....O
+
+:8,OXea
+
+
+Pattern CB266
+
+....O         build fence
+..*.O
+O..XO
+
+:8,OXea
+
+
+Pattern CB268
+
+O....      sketch a connection
+...*.
+?....
+??..O
+
+:8,OEcd,jump_out_helper
+
+a....
+...*.
+?....
+??..b
+
+;!attack(a) && lib(a)>2 && !attack(b) && lib(b)>2
+
+
+Pattern CB269
+
+O..?      seal the opponent
+..*.
+?X..
+??.O
+
+:8,OXEa
+
+
+Pattern CB270
+
+O...        attach to make shape
+..*.
+O.X?
+OX??
+X???
+
+:8,OXed
+
+
+Pattern CB272
+
+..O.       block jump
+....
+....
+.*.X
+....
+
+:8,OXEa
+
+
+Pattern CB273
+# See global:8, global:9
+# tm modified (3.1.22)
+
+??O?        jump out
+?XOo
+X...
+..*o
+????
+
+:8,OXe
+
+??O?
+?XOa
+Xecd
+..*b
+????
+
+; o_alive_somewhere(a,b)
+; || oplay_attack(*,c,d,e,b,a)
+; || oplay_attack(*,c,d,e,a,b)
+
+
+Pattern CB274
+
+??????          extend (urgent)
+?..XX?
+?.*OOX
+?....?
+
+:8,OXed
+
+
+Pattern CB276
+
+?...?       knight's move expansion
+O..*.
+oO..?
+?XX??
+
+:8,OXe
+
+
+Pattern CB278
+
+OXO             block opponent
+.*.
+?.?
+
+:|,OXed
+
+aXb
+.*.
+?.?
+
+;lib(a)>1 && lib(b)>1
+
+
+Pattern CB279
+
+XOX             push out
+.*.
+?.?
+
+:|,OXe
+
+aOb
+.*.
+?.?
+
+;lib(a)>1 && lib(b)>1
+
+
+Pattern CB280
+
+?.?       extend to defend
+.*.
+XO?
+X.?
+XO?
+
+:8,OXe
+
+
+Pattern CB282
+
+.......?        block opponent in center
+X.X.*..?
+.......?
+
+:-,E
+
+.......?
+X.X.*..?
+.......?
+
+;!xmoyo(*)
+
+
+Pattern CB283
+
+..x?         bend around
+O*..
+OX..
+X..?
+
+:8,OXe
+
+
+Pattern CB284
+
+.O.X.?        make shape to enclose
+....OO
+..*...
+......
+
+:8,OXeca
+
+
+Pattern CB285
+
+.....           vital point for both
+..*..
+O...O
+?X.X?
+
+:|,OXEc
+
+
+Pattern CB286
+
+.....           vital point for both
+..*..
+X...X
+?O.O?
+
+:|,OXe
+
+
+Pattern CB287
+
+..O      pattern to enclose
+...
+...
+.*.
+..X
+O.?
+
+:8,OXEca
+
+
+Pattern CB290
+
+?....        jump out
+?.*.X
+....?
+.XOO?
+?.XO?
+
+:8,OXed
+
+
+Pattern CB291
+# gf Shape value removed. (3.1.9)
+
+.OX??          extend
+..OX?
+..*.?
+?..??
+
+:8,OXed
+
+.OX??
+.aOX?
+..*.?
+?..??
+
+; oplay_attack(*,a,a)
+
+
+Pattern CB292
+
+.O???          jump and block
+..O??
+....?
+.*.X?
+...??
+
+:8,OXE
+
+
+Pattern CB293
+# db reduced shape value (3.1.8)
+# gf Revised constraint. (3.3.12)
+
+?O..              knight's move
+?O..
+X...
+..*.
+?x.?
+
+:8,OXead,shape(3)
+
+?a..
+?a..
+X...
+..*.
+?x.?
+
+;!oplay_disconnect(*,*,a)
+
+
+Pattern CB294
+
+XOO??              push
+.XO??
+.X*..
+.....
+....?
+
+:8,OXe
+
+
+Pattern CB295
+
+oOo?           attach
+...?
+.*X.
+...?
+
+:8,OXE
+
+
+Pattern CB299
+
+OoO            make good shape
+Ox.
+X*O
+
+:8,OXe
+
+
+Pattern CB300
+
+...       bend around
+O*.
+OXX
+
+:8,OXe
+
+
+Pattern CB301
+
+X..
+.*.
+XO.
+?O.
+
+:8,OXead
+
+
+Pattern CB302
+
+..O.            seal the opponent
+....
+.*..
+..X.
+O...
+
+:8,OXEca
+
+
+Pattern CB303
+
+?.X?           make shape - reverse sente
+.*OX
+?..?
+?OO?
+
+:8,OXe,followup(3)
+
+?.A?
+.*OX
+?..?
+?OO?
+
+;!xplay_attack(*,A)
+
+
+Pattern CB304
+
+?X..           extend out
+OO*.
+?X..
+
+:-,OXe
+
+
+Pattern CB305
+
+?OX..           extend out
+o.O*.
+?OX..
+
+:-,OXe
+
+
+Pattern CB306
+
+?oX..           extend out
+O.O*.
+?OX..
+
+:8,OXe
+
+
+Pattern CB308
+
+?.??        Push, threatening atari -- Don't play if block at a 
+...?        doesn't leave a cut at b.
+O*..
+?X..
+
+:8,OXe,followup(5)
+
+?.??
+...?
+O*a.
+?Ab.
+
+;lib(A)==3 && !xdefend_against(a,b)
+
+
+Pattern CB311
+
+....         prevent escape
+O*..
+X...
+?.O.
+
+:8,OXeca
+
+
+Pattern CB312
+
+?.X.          extend to defend
+O.OX
+..*.
+????
+
+:8,OXe
+
+
+Pattern CB314
+# tm modified (3.1.23)
+# FIXED: See global:8 for unexpected match.
+
+xX..          jump!
+?...
+O.*.
+?o??
+
+:8,OXe
+
+xX..
+?...
+A.*.
+?o??
+
+; !oplay_disconnect(*,A,*)
+
+
+Pattern CB315
+
+??XO?         connect three stones
+..*.o
+O..O?
+?..??
+
+:8,OXe
+
+
+Pattern CB316
+
+?OO           make bamboo joint
+X..
+.*O
+O.?
+
+:8,OXe
+
+?aa
+X..
+.*O
+O.?
+
+;lib(a)<4
+
+
+Pattern CB317
+
+xX..          urgent extension
+XO*.
+O..X
+ooo?
+
+:8,OXed
+
+
+Pattern CB318
+
+o.X           break out
+O*.
+X..
+
+:8,OXed
+
+o.X
+O*.
+Cba
+
+;!xmoyo(a) && !oplay_attack(b,C)
+
+
+Pattern CB319
+
+?.X?         breakout
+.*.O
+?..O
+?.XO
+??.X
+
+:8,OXed
+
+
+Pattern CB320
+
+X.O.?        jump to move out and separate
+....X
+o.*.?
+oo.o?
+?????
+
+:8,OXad
+
+
+Pattern CB321
+
+??....?       block to build moyo
+xxX.*.?
+??....?
+
+:-,XE
+
+??....?
+xxX.*.a
+??....?
+
+;!xmoyo(*) && !xarea(a)
+
+
+Pattern CB322
+#FIXME: Pattern needs revision see nngs:860
+
+??.ooo?       block to attack
+??....?
+xxX.*.?
+??....?
+??.ooo?
+
+:-,XE
+
+??.ooo?
+??....?
+xxA.*.?
+??....?
+??.ooo?
+
+;!xterri(*) && weak(A)
+
+
+Pattern CB322a
+# gf Corrected symmetry. (3.1.23)
+
+??.ooo?       block to attack
+??.ooo?
+??....?
+xxX.*.?
+??....?
+??.ooo?
+
+:8,XEa
+
+??.bcd?
+??.efg?
+??....?
+xxA.*.?
+??....?
+??.ooo?
+
+;!xterri(*) && weak(A) && o_alive_somewhere(b,c,d,e,f,g)
+
+
+Pattern CB324
+
+xxX?       block
+O*..
+...O
+
+:8,OXe
+
+
+Pattern CB325
+
+*O      block
+.X
+.X
+
+:8,nOXe
+
+
+Pattern CB326
+
+?.??       seal opponent in 
+....
+O.*.
+OXXO
+
+:8,OXe,shape(7)
+
+?.??
+.bc.
+Ba*d
+BAAO
+
+;lib(A)<=3 && lib(B)>=3 && oplay_attack(*,a,b,c,d,?,A)
+
+
+Pattern CB330
+# tm removed 'd' attribute (3.1.20) (see arend:3)
+
+?.?       push
+...
+X*X
+?O?
+
+:|,OXe,shape(3)
+
+
+Pattern CB331
+
+?.?       push
+...
+X*X
+o.O
+
+:8,OXe
+
+?.?
+...
+X*X
+oaO
+
+;oplay_attack(*,a,a)
+
+
+Pattern CB332
+
+?xX..O         expand and block
+?.....
+?.*..O
+?....o
+
+:8,OXE
+
+
+Pattern CB333
+# db added (3.1.7)
+# shape only --- other patterns matched give other attributes
+
+?.?            prevent X from pushing out
+OXO
+.*.
+?.?
+
+:8,OX,shape(3)
+
+?a?
+BXC
+.*.
+?.?
+
+; !safe_omove(a) && lib(B)>1 && lib(C)>1
+
+
+Pattern CB334
+# db added (3.1.8)
+
+...O       magnificent shape
+...O
+.*OX
+O.Xx
+
+:8,OX,shape(2)
+
+
+Pattern CB337
+# db added (3.3.3)
+# see nngs1:47
+
+.X.      Don't get sealed!
+...
+O*.
+X..
+
+:8,OXeda,shape(3)
+
+
+Pattern CB338
+# gf New pattern. (3.3.3)
+# see e.g. trevorb:440
+# The diagonal move is potentially very problematic since X often
+# can play either b or c threatening to cut off *. If that move
+# simultaneously threatens something more, we're in trouble. This
+# pattern has a very conservative constraint, where it is required
+# that neither b nor c is a threat against the connection.
+
+xxx      diagonal push
+.*x
+O.x
+
+:/,OXe
+
+def
+c*g
+abh
+
+;(x_alive_somewhere(d,e,f,g,h) || xarea(f))
+;&& !oplay_disconnect(*,b,*,a) && !oplay_disconnect(*,c,*,a)
+
+
+Pattern CB338b
+# gf New pattern. (3.3.16)
+# Another safe variation of the diagonal move. See comment for CB338.
+
+?xxx      diagonal push
+?.*x
+OO.x
+?oO?
+
+:8,OXe
+
+?def
+?.*g
+aach
+?ib?
+
+;(x_somewhere(d,e,f,g,h) || xarea(f))
+;&& (same_string(a,b) || oplay_attack(*,c,?,i,i))
+
+
+Pattern CB340
+# db added (3.3.14)
+# compare CB242
+
+X...          extend to prevent hane
+..X.
+O.O*
+o...
+
+:8,OXda,shape(3)
+
+
+Pattern CB341
+# db added (3.3.14)
+# compare CB242
+
+..X.        extend to prevent hane and split
+O.O*
+o...
+..X.
+
+:8,OXda,shape(3)
+
+
+######################################################################
+#
+# Edge defend/attack patterns
+#
+# Moves that threaten to capture, cut, or destroy eyes, and moves
+# defending against this or preventing such moves. Also moves that
+# actually do capture or destroy eyes are included here. 
+#
+######################################################################
+
+
+Pattern ED1
+
+?XX?       Avoid opponent's push between two stones on second line
+.O*O
+....
+----
+
+:8,OXad
+
+
+Pattern ED2
+
+.O.O..   capture 2 stones
+......
+O.X.*.
+.OX...
+......
+------
+
+:8,OXa
+
+
+Pattern ED3
+
+X.??    prevent severe attachment
+..O.
+O.*X
+....
+----
+
+:8,OXd
+
+
+Pattern ED4
+
+???.?.x    Block to defend
+?XO.O.x
+OO..*.x
+.......
+.......
+-------
+
+:8,OXd
+
+???.?.x
+?XO.O.a
+OO..*.b
+.......
+.......
+-------
+
+;x_alive_somewhere(a,b)
+
+
+Pattern ED6
+
+?X?      connect against peep (on edge)
+O*O
+?.?
+---
+
+:|,OXd
+
+
+Pattern ED7
+
+|??O?        Make sente throw in to kill eye in corner
+|XXOX
+|.*X.
++----
+
+:8,sOXa
+
+|??a?
+|XXaX
+|.*X.
++----
+
+;!oplay_attack(*,a)
+
+
+Pattern ED8
+
+XXXOX      sente throw in to kill eye on the edge
+X.*X.
+-----
+
+:8,sOXa
+
+XXXaX
+X.*X.
+-----
+
+;!oplay_attack(*,a)
+
+
+Pattern ED9
+
+??X?      Prevent capture of 2 stones, or forcing sequence
+OO*O
+....
+----
+
+:8,OXd
+
+
+Pattern ED10
+
+??O?      Capture 2 stones, or force opponent
+XX*X
+....
+----
+
+:8,OXa
+
+
+Pattern ED11
+
+xxxx????      if attached, cut!
+.......?
+.X.O..Oo
+..*X...o
+........
+--------
+
+:8,sOXBd,shape(3)
+
+
+Pattern ED12
+# bad to intercept in this case
+
+..O.???        block!
+.......
+.X.O..O
+...X*..
+.......
+-------
+
+:8,OXed,shape(3)
+
+..O.???
+.......
+.X.O..O
+..aX*..
+.......
+-------
+
+>antisuji(a);
+
+
+Pattern ED13
+# Add followup value if this is sente.
+
+.O.???        block!
+......
+X.O..O
+..X*..
+......
+------
+
+:8,OX,followup(7)
+
+.O.???
+......
+X.Ob.O
+.aX*..
+......
+------
+
+;oplay_attack(*,a,b,b)
+
+
+Pattern ED14
+
+?...Ooo       block!
+X.O...o
+.*X..oo
+.......
+-------
+
+:8,OXBd,shape(2)
+
+
+Pattern ED15
+
+??.?        atari improves our group
+.*XO
+..OO
+....
+----
+
+:8,OXd
+
+
+Pattern ED16
+
+oOX?         Make atari to kill eye
+OX.X
+.*..
+----
+
+:8,OXa
+
+
+Pattern ED17
+
+??OOO       enclose two stones
+?OX..
+oOX.*
+o??..
+-----
+
+:8,OXa
+
+
+Pattern ED18
+
+?OOO?       threatens capture
+OXX*.
+OX.X.
+O....
+-----
+
+:8,OXa,followup(8)
+
+?OOO?
+bAA*.
+bA.X.
+b....
+-----
+
+;oplay_attack(*,A) && !oplay_attack(*,b)
+
+
+Pattern ED19
+
+?XXXO       oki  --- sacrifice helper because defend2 doesn't see the tesuji
+OX..X
+..*..
+-----
+
+:8,sOXa
+
+?XXXO
+cX.bX
+.a*..
+-----
+
+;!oplay_attack(*,c) && !oplay_defend(*,a,b,a)
+
+
+Pattern ED20
+
+?O?         force X to connect
+X*X
+...
+---
+
+:|,OXa
+
+
+Pattern ED21
+
+?OO.       atari!
+XOX*
+.X..
+----
+
+:8,OXa
+
+
+Pattern ED22
+# gf Added b classification. (3.1.18)
+# gf Split pattern and revised constraint. (3.3.3)
+
+??*X          sente endgame (maybe rather middle game) move
+..XO
+..X?
+----
+
+:8,OXed,followup(5)
+
+??*X
+..Ab
+..A?
+----
+
+;oplay_attack(*,A) && !oplay_attack_either(*,*,b)
+
+
+Pattern ED22b
+# gf Added b classification. (3.1.18)
+# gf Split pattern and revised constraint. (3.3.3)
+
+??*.          sente endgame (maybe rather middle game) move
+..XO
+..X?
+----
+
+:8,OXed,followup(5)
+
+??*c
+..Ab
+..A?
+----
+
+;oplay_attack(*,A) && oplay_defend_both(*,c,*,b)
+
+
+Pattern ED23
+# gf Added b classification. (3.1.18)
+
+??*O          sente endgame (maybe rather middle game) move
+..X?
+..X?
+----
+
+:8,OXed,followup(5)
+
+??*O
+..A?
+..A?
+----
+
+;oplay_attack(*,A)
+
+
+Pattern ED24
+
+??*O          sente endgame (maybe rather middle game) move
+..XX
+..xx
+----
+
+:8,OXd,followup(7)
+
+??*O
+..AA
+..xx
+----
+
+;oplay_attack(*,A)
+
+
+Pattern ED25
+
+X.OX         Avoid peep.
+.*.O
+....
+----
+
+:8,OXd
+
+X.OA
+.*.O
+....
+----
+
+;!attack(A)
+
+
+Pattern ED26
+
+oOOo??    Capture some stones
+OX.*.?
+OX....
+?X....
+------
+
+:8,OXa
+
+
+Pattern ED27
+
+oOO*.    Punish X's weak shape
+OXOX.
+.XX..
+-----
+
+:8,OXad
+
+
+Pattern ED28
+
+?XO..
+?XO..
+..*.X
+..X..
+.....
+-----
+
+:8,OXea
+
+
+Pattern ED29
+
+OXO             Sacrifice a second stone tesuji
+XOX
+.*.
+---
+
+:|,sa
+
+aAb
+BOC
+.*.
+---
+
+;lib(A)<=2 && lib(B)>1 && lib(C)>1
+;&& !oplay_attack(*,a) && !oplay_attack(*,b)
+;&& oplay_attack(*,A) && oplay_attack(*,B) && oplay_attack(*,C)
+
+
+Pattern ED30
+
+|.o??           hane is big, often urgent
+|.*X?
+|..OO
+|....
++----
+
+:8,OXd
+
+
+Pattern ED31
+
+xxX.o            extend to defend
+..O*.
+O....
+.....
+-----
+
+:8,OXead
+
+
+Pattern ED31b
+
+x.xXx            extend to defend
+O.*O.
+.....
+.....
+-----
+
+:8,OXed
+
+
+Pattern ED31c
+
+x.X*..       hane 
+o.O..O
+o.....
+......
+------
+
+:8,OXed
+
+
+Pattern ED32
+
+X.X..         useful kikashi
+OX.*.
+.....
+.....
+-----
+
+:8,-,followup(10)
+
+X.X..
+aX.*.
+.....
+.....
+-----
+
+;lib(a)>2
+
+
+Pattern ED33
+
+|xXx???    slide to live
+|.OXX??
+|.OO..x
+|....*.
+|......
++------
+
+:8,OXd
+
+
+Pattern ED34
+
+|xXx???    hane to live
+|.OXX??
+|.OOX.x
+|...*..
+|......
++------
+
+:8,OXd
+
+
+Pattern ED35
+
+|..XX??    hane to live
+|.OOX.x
+|...*..
+|......
++------
+
+:8,OXd
+
+
+Pattern ED36
+# this can be aji keshi because 1 point above is also sente
+
+?XXOo     atari on edge
+?..XO
+.X.*.
+-----
+
+:8,OXa
+
+
+Pattern ED37
+# This should not need be a sacrifice pattern, and the constraint
+# on the O stones should be superfluous, if only the tactical reading
+# could understand a double snapback.
+
+O???O        double snapback
+X.X.X
+X.*.X
+-----
+
+:8,sX
+
+c???d
+A.X.B
+A.*.B
+-----
+
+;lib(A)==2 && lib(B)==2 && lib(c)>1 && lib(d)>1
+
+>test_attack_either_move(A,B);
+
+
+Pattern ED38
+
+XXOXX      swallow either side
+..X*.
+.....
+-----
+
+:8,s
+
+DDOCC
+.aX*.
+..b..
+-----
+
+;oplay_attack(*,b,C) && oplay_attack(a,b,D)
+
+>test_attack_either_move(C,D);
+
+
+Pattern ED39
+# This is almost always a good idea.
+
+?XXO           decrease eye space in sente (unless it kills)
+X.*X
+----
+
+# helper sets followup value
+:8,sXa,throw_in_atari_helper
+
+?bba
+Xc*A
+----
+
+;lib(A)==2 && lib(a)>1 && !alive(b) && proper_eye(c)
+
+
+Pattern ED40
+
+OXO           decrease eye space in sente (unless it kills)
+X*X
+X.X
+---
+
+# helper sets followup value
+:8,sXa,throw_in_atari_helper
+
+aAb
+X*X
+X.X
+---
+
+;lib(A)==2 && lib(a)>1 && lib(b)>1
+
+
+Pattern ED41
+
+|XXO           decrease eye space in sente (unless it kills)
+|.*X
++---
+
+# helper sets followup value
+:8,sXa,throw_in_atari_helper
+
+|XXa
+|.*A
++---
+
+;lib(A)==2 && lib(a)>1
+
+
+Pattern ED42
+
+?XX...        jump out
+OO.*..
+......
+......
+------
+
+:8,OXead
+
+?XX.g.
+HHA*..
+.EbCd.
+...f..
+------
+
+; lib(H)>4 || !oplay_defend(*,A,b,C,d,E,f,E)
+
+>antisuji(g);
+
+
+Pattern ED43
+
+?OO..o      push through and cut!
+XX*X.o
+.....o
+.....?
+------
+
+:8,OXad,shape(10)
+
+?OO..o
+AA*B.o
+.fcdeo
+...g.?
+------
+
+; oplay_attack(*,c,d,f,B) && oplay_attack(*,c,d,e,f,g,A)
+
+
+Pattern ED44
+
+O....      capture one stone
+O..*.
+O.X.O
+.....
+.....
+-----
+
+:8,OXecad,shape(5)
+
+
+Pattern ED45
+
+?XX...        defense is urgent
+OO.O*.
+?.....
+?.....
+------
+
+:8,OXead,value(30)
+
+?XX...
+OOaO*.
+?cbd..
+?.....
+------
+
+; xplay_defend(a,b,c,d,c)
+
+
+Pattern ED46
+
+?X...        jump to take territory on 4-th line
+.....
+O.*..
+.....
+.....
+.....
+-----
+
+:8,OXead,value(20)
+
+
+Pattern ED47
+
+X.O...x
+xXO.*.x
+?XXO...
+.......
+-------
+
+:8,OXed,shape(5)
+
+
+Pattern ED48
+
+?...       break ponnuki, threaten to cut
+?.*O
+.XOX
+?.X.
+?...
+----
+
+:8,OXead,shape(10)
+
+?...
+?.*O
+.XOA
+?.X.
+?...
+----
+
+; lib(A)==2
+
+
+Pattern ED49
+
+??..?       push to stabilize O
+?.X..
+..*O.
+.....
+.....
+-----
+
+:8,OXead,shape(5)
+
+
+Pattern ED49b
+
+oo....?       push to stabilize O and (probably) make territory
+oo..X..
+oo..*O.
+.......
+.......
+-------
+
+:8,OXJ
+
+oo....?
+bc..X..
+de..*a.
+.......
+.......
+-------
+
+;weak(a) && o_alive_somewhere(b,c,d,e)
+
+
+Pattern ED50
+
+.....        don't get sealed in!
+..*Xx
+X.O..
+....O
+.....
+.....
+-----
+
+:8,OeBad,value(20)
+
+
+Pattern ED51
+
+.........        block to build influence
+o.....*Xx
+oo....O..
+oo......O
+.........
+.........
+---------
+
+:8,OXead,shape(10)
+
+
+Pattern ED52
+
+?.....        attach in sente
+......
+..X.X.
+..*..O
+...O..
+......
+......
+------
+
+:8,OXad,value(20)
+
+
+Pattern ED53
+
+?OO...        push through and cut
+XX*X..
+?.....
+?.....
+------
+
+:8,OXead,value(25)
+
+?OO...
+EE*D..
+?bac..
+?.....
+------
+
+; oplay_attack(*,a,b,c,E)&&oplay_attack(*,a,c,D)
+
+
+Pattern ED54
+
+?OO...        cut
+XXOX..
+.*X...
+?.....
+------
+
+:8,sOXBad,value(30)
+
+?OO...
+AAOB..
+.*Xd..
+?.....
+------
+
+; oplay_attack(*,d,A)&&oplay_attack(d,B)
+
+
+Pattern ED55
+
+?OO...        cut
+XXOX..
+XOX*..
+?.....
+------
+
+:8,ad,value(30)
+
+?OO...
+XXOB..
+XOX*..
+?a....
+------
+
+; oplay_attack(*,a,B)
+
+
+Pattern ED56
+# tm modified (3.1.20) (nngs:1170)
+
+...X.?      extend to defend if attached
+O..O*.
+......
+......
+------
+
+:8,OXCad,shape(3)
+
+
+Pattern ED57
+
+OOXX??      push to defend
+.XOX..
+..O*..
+......
+------
+
+:8,-,shape(8)
+
+OOXX??
+.AOX..
+..O*..
+......
+------
+
+; does_attack(*,A)
+
+
+Pattern ED58
+
+??X??        connect to defend everything
+?OXO?
+.*OX.
+.....
+-----
+
+:8,Xad,value(15)
+
+??X??
+?CXO?
+.*OAd
+..bef
+-----
+
+; !oplay_defend(*,A) && xplay_attack(*,b,C)
+
+> antisuji(b);
+> antisuji(d);
+> antisuji(e);
+> antisuji(f);
+
+
+Pattern ED59
+
+??X??        capture to defend everything
+?OXO?
+..OX*
+.....
+-----
+
+:8,Xad
+
+??X??
+?OXA?
+caOX*
+deb..
+-----
+
+; (lib(A)>1) && !oplay_defend(*,a,b,a) && oplay_attack(a,A)
+
+> antisuji(a);
+> antisuji(c);
+> antisuji(d);
+> antisuji(e);
+
+
+# Pattern ED60
+# # gf This is too often worth much less than the 35 points of a joseki move.
+# #    Removed. (3.3.16)
+# 
+# ??.??        attack one stone
+# ?.O.O
+# .OX*X
+# .....
+# .....
+# -----
+# 
+# :8,J
+
+
+Pattern ED61
+
+??.??        follow up ED59
+?.O.?
+.OXOX
+..X*.
+.....
+-----
+
+:8,J
+
+
+Pattern ED62
+
+....?        if double hane is not reasonable, extend
+OO..?
+XXO*.
+..X..
+.....
+-----
+
+:8,OXead,shape(5)
+
+....?
+OOb.?
+FFO*.
+.dXac
+...e.
+-----
+
+; !oplay_attack(a,*,b,c,d,e,F)
+
+
+Pattern ED63
+
+oOXx         capture one stone---don't descend!
+OXOX
+.*..
+----
+
+:8,ad,shape(2)
+
+oOXx
+OXOX
+.*a.
+----
+
+> antisuji(a);
+
+
+Pattern ED64
+
+.....        connect solidly
+.O*..
+XXO..
+.....
+.....
+-----
+
+:8,OXead,shape(2)
+
+..a..
+.O*..
+XXO..
+.....
+.....
+-----
+
+> antisuji(a);
+
+
+Pattern ED65
+
+?o..?        pull back to stabilize
+?O..?
+XXO*.
+?xX..
+xxx..
+-----
+
+:8,OXad,value(15)
+
+
+Pattern ED66
+# tm Modified (3.1.18) (see trevorb:610)
+# FIXME: Is this just too generic?
+# gf This pattern is way too general, see e.g. 13x13b:8.
+#    Furthermore the second half of the constraint doesn't really make
+#    sense. Consider removal. (3.3.17)
+
+?x?         draw back for safety
+O.X
+.*O
+...
+...
+---
+
+:8,OJ
+
+?x?
+OaB
+.*O
+...
+...
+---
+
+; xplay_defend(*,a,*) && !xplay_attack(*,a,B)
+
+
+Pattern ED67
+# tm Modified (3.1.18) (see trevorb:610)
+# FIXME: Is this just too generic?
+#   Identical to ED66, but with j attribute instead of J
+# gf See comments for ED66. This pattern is redundant anyway. (3.3.17)
+
+?x?         draw back for safety
+O.X
+.*O
+...
+...
+---
+
+:8,Oj
+
+?x?
+OaB
+.*O
+...
+...
+---
+
+; xplay_defend(*,a,*) && !xplay_attack(*,a,B)
+
+
+Pattern ED68
+# tm Modified (3.1.20) (see nngs:1130)
+
+?O*Xx         reinforce
+o..OO
+.....
+.....
+-----
+
+:8,OXed
+
+?O*Xx
+o.aOO
+.....
+.....
+-----
+
+; xplay_defend(a,*,a)
+
+
+Pattern ED69
+
+O..x         connect under
+.*.X
+...O
+....
+----
+
+:8,Cad,shape(3)
+
+O..x
+.*cA
+..bO
+....
+----
+
+; !attack(A) && !oplay_defend(*,b,c,b)
+
+
+Pattern ED70
+# Threaten to capture some stones.
+
+O*X
+OX.
+
+:8,OXe,followup(6)
+
+O*C
+OBa
+
+;xterri(a) && !attack(B) && !attack(C) && !oplay_attack(*,?,a,a)
+;&& !oplay_defend_both(*,?,a,B,C)
+
+
+Pattern ED71
+
+O*.X          capture correctly
+OXOX
+....
+----
+
+:8,Cad,shape(1)
+
+O*.X
+OXOX
+..a.
+----
+
+>antisuji(a)
+
+
+Pattern ED72
+
+?OXO?
+..O*X
+.....
+-----
+
+:8,Xd,shape(3)
+
+?OXB?
+.aO*X
+.....
+-----
+
+;xplay_attack(*,a,B)
+
+
+Pattern ED73
+
+?OXO??
+..O.X*
+......
+------
+
+:8,-,shape(-3)
+
+?OXO??
+..OaB*
+......
+------
+
+; !oplay_attack(*,a,B)
+
+
+Pattern ED74
+
+O*.     connect solid if descent is impossible
+XOX
+...
+---
+
+:8,d,shape(3)
+
+O*.
+AOX
+.a.
+---
+
+; !attack(A) && !oplay_attack(a,*,*)
+
+
+Pattern ED75
+
+O..     don't descend if X can cut
+XOX
+.*.
+---
+
+:8,-,shape(-3)
+
+Oa.
+XOX
+.*.
+---
+
+; !oplay_attack(*,a,a)
+
+
+Pattern ED76
+# gf The negative shape value is a temporary measure to avoid
+#    overvaluation. (3.1.17)
+# tm Added right hand side check (3.1.20) (see strategy4:195)
+# db removed 'a' classification and reduced negative shape.
+
+oOo???     stop expansion and undermine
+o..X??
+o.*.x?
+....??
+------
+
+:8,OXe,shape(-2)
+
+oOo???
+obaX?g
+oc*.xf
+....??
+------
+
+;oplay_attack_either(*,a,b,c,a,c)
+;&& !oarea(f) && !oarea(g)
+
+
+Pattern ED77
+
+?XX?            defend cut
+O*O.
+....
+....
+----
+
+:8,OXead,shape(5)
+
+?XX?
+O*Oc
+.ab.
+....
+----
+
+;xplay_attack_either(*,a,b,c,a,c)
+
+
+Pattern ED78
+
+?OO?          push through and cut
+X*X.
+....
+....
+----
+
+:8,OXead,shape(5)
+
+?OO?
+X*Xc
+.ab.
+....
+----
+
+;oplay_attack_either(*,a,b,c,a,c)
+
+
+Pattern ED79
+# avoid does_defend since some levels GNU may not see attack on B
+
+?OXX          avoid a stupid defense
+..OX
+..*O
+----
+
+:8,X,shape(-2)
+
+?OXX
+.aOX
+..*B
+----
+
+; does_attack(a,B) && !xplay_attack(a,B)
+
+
+Pattern ED80
+# descending at 'a' is almost always bad
+
+?x??       defend correctly
+x.Oo
+XOX*
+....
+----
+
+:8,d
+
+?x??
+x.Oo
+XOX*
+.a..
+----
+
+> antisuji(a);
+
+
+Pattern ED81
+
+.?.???        give up one stone
+...O..
+...*XX
+....OX
+......
+------
+
+:8,-
+
+.?.???
+..cO..
+.db*XX
+...aOX
+......
+------
+
+; oplay_defend(a,*,b,c,d,c)
+
+>antisuji(a);
+
+
+Pattern ED82
+
+|.....       atari is usually a better way to use the dead stone
+|..*..
+|.....
+|..XOO
+|..OX?
+
+:8,-,shape(-4)
+
+|.....
+|..*..
+|.....
+|..XOO
+|..aX?
+
+; dead(a)
+
+
+Pattern ED83
+
+|xXX?
+|XOOX
+|.*.x
+|..O?
+
+:8,ed,shape(2)
+
+|xXX?
+|XOOX
+|a*.x
+|..O?
+
+> antisuji(a)
+
+
+Pattern ED84
+# db added (3.1.7)
+# gf Changed antisuji action to replace action. (3.1.14)
+
+|xXXx        fall back to defend territory
+|XOOX
+|..OX
+|.*.O
+|...o
+
+:8,OXd,shape(2)
+
+|xXXx
+|XOOX
+|a.OX
+|.*.O
+|...o
+
+>replace(a,*)
+
+
+Pattern ED85
+# gf New pattern. (3.1.14)
+
+|......      attach at 3-3 to defend
+|..X.O.
+|..*...
+|......
+|......
++------
+
+:8,Xd
+
+
+Pattern ED86
+# gf New pattern. (3.1.14)
+# This is not redundant in the presence of ED85, since it also infers
+# a strategical defense of the stone on the fifth line. If the two O
+# stones are not amalgamated, this makes a difference.
+
+|..x.O.
+|......      attach at 3-3 to defend
+|..X.O.
+|..*...
+|......
+|......
++------
+
+:8,Xd
+
+
+Pattern ED87
+# db New pattern (3.1.28)
+
+ooOo?         Don't leave aji
+...*X
+...OX
+.....
+-----
+
+:8,-,shape(2)
+
+ooOo?
+...*X
+...OX
+..ba.
+-----
+
+>replace(a,*);
+>replace(b,*);
+
+
+Pattern ED87a
+# db New pattern (3.1.28)
+
+ooOX?         Don't leave aji
+..*.X
+...OX
+.....
+-----
+
+:8,-,shape(2)
+
+ooOX?
+..*.X
+...OX
+..ba.
+-----
+
+>replace(a,*);
+>replace(b,*);
+
+
+Pattern ED88
+# db New pattern (3.1.28)
+# gf Corrected the replace action. (3.1.30)
+
+??...X?          take territory on the fourth line
+oo..*OX
+oo....O
+......o
+.......
+-------
+
+:8,-,shape(2)
+
+??...X?
+oo..*OX
+oo..b.a
+......o
+.......
+-------
+
+; lib(a)>2
+> replace(b,*)
+
+
+Pattern ED89
+# db New pattern (3.1.28)
+# It is difficult to give an exact criterion for when it is good to
+# fight this ko. But it is bad to lose it, may even threaten the
+# life of the O dragon. See nngs1:11
+
+??XxOo?          Don't fight an unfavorable ko!
+..XO.Oo
+.XO*O.?
+-------
+
+:8,-
+
+??XxOo?
+.aXO.bo
+.XO*O.?
+-------
+
+; alive(b)
+> replace(a,*)
+
+
+Pattern ED90
+# db New pattern (3.1.28)
+# ab d classification added (3.1.29)
+
+???..o?          Jump under on the third line
+???X.oo
+?O..*.o
+?O....o
+o......
+-------
+
+:8,dj
+
+???..o?
+???X.oo
+?hfa*.o
+?hcbd.o
+o.e....
+-------
+
+; oplay_attack(*,a,b,c,d,e,e) && !oplay_attack(*,a,b,c,d,f,e,h)
+> replace(b,*)
+
+
+Pattern ED91
+# db New pattern (3.1.28)
+
+???..o?          Extend after the push
+???XXoo
+?O..O*.
+?O....o
+o......
+-------
+
+:8,j
+
+???..o?
+???XXfo
+?O.aO*.
+?Ocbd.o
+o.e....
+-------
+
+; oplay_attack(*,a,b,c,d,e,e) || !oplay_defend(*,a,b,d,c,d)
+> replace(f,*)
+
+
+Pattern ED92
+# db New pattern (3.1.30)
+# See nngs1:18, where * is found as an owl defense
+
+oOXx??       don't do this!
+..OXx?
+...*.x
+.....?
+------
+
+:8,-,shape(-3)
+
+oOXx??
+..OAx?
+...*.x
+.....?
+------
+
+; lib(A)>2
+
+
+Pattern ED93
+# db new pattern (3.3.6)
+# see century2002:120
+# ab Added e classification (3.3.20)
+
+.....X?        don't make the wrong atari
+..X...?
+...*XO?
+....Ooo
+.......
+-------
+
+:8,edO
+
+.....X?
+..X.a.?
+...*XO?
+....Ooo
+.......
+-------
+
+> replace(a,*)
+
+
+Pattern ED94
+# gf New pattern. (3.3.13)
+
+oo.O?     Significant improvement of eyespace.
+.*.OX     Often sufficient for local life.
+..OXX
+-----
+
+:8,dX
+
+oo.b?
+.*abD
+..cDD
+-----
+
+;!attack(D) && safe_xmove(a)
+
+
+Pattern ED95
+# gf New pattern. (3.3.14)
+# gf Added constraint. (3.3.17)
+
+...xx
+.O.Xx      fourth line sente kosumi
+..*..
+.....
+.....
+-----
+
+:8,OXea
+
+...xx
+.a.Xx
+..*..
+.....
+.....
+-----
+
+;!weak(a)
+
+
+Pattern ED96
+# ab New pattern (3.3.20)
+# See arend2:120
+
+?....
+O*.X.
+..OX.
+.....
+-----
+
+:8,OXe
+
+?....
+f*.X.
+hgeXd
+..cab
+-----
+
+;!oplay_connect(a,b,c,d,?,g,?,h,e,f)
+> replace(a,*)
+
+
+#####################################################################
+#
+# Center defend/attack patterns
+#
+# Moves that threaten to capture, cut, or destroy eyes, and moves
+# defending against this or preventing such moves. Also moves that
+# actually do capture or destroy eyes are included here. 
+#
+######################################################################
+
+
+Pattern CD1
+
+?xx?     protect by drawing back
+XO*.
+XX.O
+
+:8,nOXd
+
+
+Pattern CD3
+
+???      Usually better to atari on this side.
+.*.
+.XO
+XO?
+
+:8,X,followup(5)
+
+???
+.*.
+.Xa
+XO?
+
+;!oplay_attack(*,a)
+
+
+Pattern CD7
+
+?X?      attack eye  
+X.X
+.*.
+
+:|,Xa
+
+?X?
+A.B
+.*.
+
+;weak(A) || weak(B) || !xterri(*)
+
+
+Pattern CD28
+
+xXO?          urgent to attack and defend
+XOX.
+.O*.
+....
+.X.?
+
+:8,ad
+
+
+Pattern CD31
+
+?.X?       vital point
+.*.X
+X.X?
+?X??
+
+:8,Xa
+
+
+Pattern CD39
+
+?Oo?      vital point
+OX.X
+OX?*
+?O..
+?..?
+
+:8,OXa
+
+
+Pattern CD40
+
+?X??       trap
+.*..
+OX..
+?XO.
+
+:8,X
+
+?D??
+.*b.
+cEa.
+?EO.
+
+;lib(E)==2 && !oplay_attack(*,c) && !oplay_defend_both(*,a,b,E,D)
+
+>test_attack_either_move(D,E);
+
+
+Pattern CD41
+
+?o?     don't double atari if it backfires
+?..
+.OX
+OX*
+?.?
+
+:8,-
+
+?o?
+?.b
+ceX
+dX*
+?a?
+
+;!oplay_defend_both(*,a,b,c,d,e)
+
+>antisuji(*);
+
+
+Pattern CD43
+
+.X.X       kosumi tesuji
+.*.X
+X.O?
+
+:8,OXa
+
+.X.B
+a*.B
+X.O?
+
+;!attack(B) && oplay_attack(*,a,B)
+
+
+Pattern CD48
+
+?xX??         prevent trouble
+..X.O
+O.O*.
+.....
+.....
+
+:8,OXed
+
+
+Pattern CD49
+
+?Xx??         prevent trouble
+..X.O
+O.O*.
+.....
+.....
+
+:8,OXed
+
+
+Pattern CD55
+
+?...         Double peep
+X.X.
+o*..
+OoX?
+
+:/,OXa
+
+
+Pattern CD56
+
+....         Double peep
+X.X.
+.*..
+O.X.
+
+:8,OXad
+
+gf..
+ibX.
+.*cd
+O.he
+
+;oplay_attack(*,b,c,d,e,d) && oplay_attack(*,b,c,d,e,h)
+;&& oplay_attack(*,c,b,f,g,f) && oplay_attack(*,c,b,f,g,i)
+
+
+Pattern CD64
+# Converse to ED68
+
+?XXO           decrease eye space in sente (unless it kills)
+X.*X
+?XXO
+
+# helper sets followup value
+:8,sXa,throw_in_atari_helper
+
+?XXa
+Xc*A
+?XXb
+
+;lib(A)==2 && lib(a)>1 && lib(b)>1 && proper_eye(c)
+
+
+Pattern CD67
+# Sometimes the cap or another move in the area kills.
+# Always advisable to move out.
+
+??X?           avoid cap      
+?O..
+X.*.
+?...
+
+:\,OXd
+
+??X?
+?a..
+X.*.
+?...
+
+;lib(a)==3
+
+
+Pattern CD76
+
+XOo            atari (not aji keshi)
+OX*
+?.o
+
+:8,X
+
+Xao
+bX*
+?.o
+
+;attack(b) && !defend(b) && !oplay_attack(*,a)
+
+# Estimate a followup value
+>threaten_to_save(b);
+
+
+Pattern CD77
+
+?oo           atari (not aji keshi)            
+X*o
+OXO
+?.o
+
+:8,X
+
+?oo
+X*o
+aXb
+?.o
+
+;attack(a) && !defend(a) && !dead(b)
+
+# Estimate a followup value
+>threaten_to_save(a);
+
+
+Pattern CD79
+# even if X can't cut, this prevents getting sealed
+# this pattern works on second or third line also
+
+?OXX.           tiger's mouth
+..O..
+.*...
+.....
+..X..
+
+:8,OXed
+
+
+Pattern CD82
+# Hard to value accurately. Wild guess that it may be worth 20 points.
+
+?xxxx       capture ladder to eliminate aji
+?xxxx
+O*.xx
+OXO.?
+?O???
+
+:8,O,value(20)
+
+?xxxx
+?xxxx
+O*.xx
+aCb.?
+?O???
+
+;!same_dragon(a,b) || potential_cutstone(C)
+
+
+Pattern CD83
+
+?OOX?       tesuji to break out
+X..X?
+?*...
+??..?
+
+:8,OXed
+
+?AOX?
+Xabf?
+?*cd.
+??e.?
+
+;(lib(A)>1) && oplay_attack(*,a,b,c,d,e,f)
+
+
+Pattern CD87
+
+.XO        create cutting points
+.*.
+.XO
+
+:-,OXad,shape(5)
+
+cXO
+a*b
+dXO
+
+# The second move by X at a is intentional and has the effect of X passing.
+;oplay_attack(*,b,b)
+;&& !oplay_attack(*,a,b,a,c,c) && !oplay_attack(*,a,b,a,d,d)
+
+
+Pattern CD88
+#tm removed shape bonus (3.1.22)  (see nngs:700)
+
+X*..         attack 1 stone to defend and probably connect
+O..O
+
+:8,OXcad
+
+a*..
+O..O
+
+; does_attack(*,a)
+
+
+Pattern CD89
+
+?OXoo         prevent ponnuki
+.XO*o
+?.Xoo
+
+:8,OXead,shape(10)
+
+?OAoo
+.XO*o
+?.Xoo
+
+;lib(A)>1 || !oplay_defend(*,A)
+
+
+Pattern CD90
+
+OXx        extending usually better than capturing, but not at edge
+XOX
+?*.
+???
+
+:8,OXead,shape(5)
+
+bXx
+AOX
+?*.
+???
+
+; lib(A)==1 && lib(b)>1 && does_attack(*,A)
+
+
+Pattern CD91
+# gf Revised constraint. (3.3.18)
+
+?XO.        atari to prevent opponent's expansion
+OOX.
+..*.
+
+:8,XEd,shape(10)
+
+?Xa.
+bbX.
+..*.
+
+; alive(b) && attack(a) && !defend(a)
+
+
+Pattern CD92
+# tm Modified (3.1.20) - added constraint
+
+.X.        ponnuki is worth thirty points
+XO*
+.XO
+
+:8,ad,shape(3)
+
+.X.
+XO*
+.aO
+
+; !attack(a)
+
+
+Pattern CD92a
+# db added X class (3.3.5)
+
+.O.        ponnuki is worth thirty points
+OX*
+.Ox
+
+:8,OXead,shape(1)
+
+
+Pattern CD92b
+
+.O.        ponnuki, preventing threat to cut
+OX*
+.OX
+
+:8,Oead,shape(3),reverse_followup(8)
+
+aO.
+OX*
+.OX
+
+; !xplay_attack_either(*,?,a,*,a)
+
+
+Pattern CD93
+
+?OX.       break through one way or the other
+?*..
+X.X.
+...O
+
+:8,XBad,shape(10),value(10)
+
+?OF.
+?*be
+DcE.
+.d.O
+
+; oplay_break_through(*,b,c,d,D,d,E) && oplay_break_through(*,c,b,e,F,e,E)
+
+
+Pattern CD94
+# gf Split and revised. (3.3.14)
+
+????????       jump out
+????????
+........
+..*.....
+X...????
+x.O..???
+
+:8,OXEad,shape(4)
+
+????????
+????????
+........
+..*.....
+X...abcd
+x.O..???
+
+; x_alive_somewhere(a,b,c,d)
+
+
+Pattern CD94b
+# gf Split and revised. (3.3.14)
+
+????????       jump out
+????????
+........
+..*.....
+X...????
+O.O..???
+
+:8,OXEad,shape(4)
+
+????????
+????????
+........
+..*.....
+Xe..abcd
+f.O..???
+
+; x_alive_somewhere(a,b,c,d) && oplay_connect(*,e,*,f)
+
+
+Pattern CD95
+# One point to the left is sometimes better
+
+oO..          seal the opponent
+....
+X.*.
+....
+oO..
+
+:-,OXEad,shape(2)
+
+
+Pattern CD96
+
+.O?           hane, threatening capture
+...
+X*.
+O.X
+
+:8,OXad,shape(3)
+
+.O?
+...
+B*.
+OaX
+
+; oplay_attack(*,a,B)
+
+
+# Pattern CD97
+# # gf Removed pattern. (3.3.7)
+# 
+# OOXO?       defend everything
+# ..O..
+# .*..?
+# ?????
+# 
+# :8,ed,value(15)
+# 
+# BBXD?
+# .aOc.
+# .*..?
+# ?????
+# 
+# ; xplay_attack(a,B) && xplay_attack(c,D) && oplay_defend(*,c,D)
+# 
+# 
+# Pattern CD98
+# # gf Removed pattern. (3.3.7)
+# 
+# OOXO?        defend as much as we can
+# ..O..
+# .*..?
+# ?????
+# 
+# :8,ed,value(12)
+# 
+# BBXD?
+# .aOc.
+# .*..?
+# ?????
+# 
+# ; xplay_attack(a,B) && xplay_attack(c,D)
+
+
+Pattern CD99
+# gf Revised constraint. (3.1.14)
+# gf Added !doing_scoring since this can generate a losing ko threat.
+#    We might want to take it out entirely. (3.3.17)
+
+OX        if a cutting stone can't be caught, 
+X*        play in opponent's territory
+
+:8,OX,followup_value(3)
+
+OA
+B*
+
+;!doing_scoring && !attack(A) && !attack(B) && xterri(*)
+
+
+# FIXME: The two following patterns may be superfluous due to the
+#        atari_atari code.
+
+Pattern CD100
+# This should strictly give an "attack one out of three" move reason,
+# but since there is no support for these, we do something ad hoc
+# instead.
+# gf Revised constraint. (3.1.13)
+
+?OOX         atari twice to capture something
+XOX.
+.X*o
+?.o?
+
+:8,sXad,value(7)
+
+?ffX
+EfXa
+bD*o
+?co?
+
+;olib(b)>=2 && !attack(E) && !attack(D) && oplay_attack_either(*,a,b,c,D,E)
+;&& !oplay_attack(*,f)
+
+
+Pattern CD101
+# Converse of previous pattern. Same comment applies.
+# gf Revised constraint. (3.1.13)
+
+?XXO         defend against atari sequence
+OXO.
+.O*x
+?.x?
+
+:8,Xad,value(7)
+
+?FFO
+eFOa
+bd*x
+?cx?
+
+;xlib(b)>=2 && !attack(e) && !attack(d) && !attack(F)
+;&& xplay_attack_either(*,a,b,c,d,e)
+
+
+Pattern CD102
+
+*X?          don't help the opponent cut
+O.O
+...
+
+:8,OX,shape(-3)
+
+*X?
+OaO
+cb.
+
+; xplay_attack(a,b,c,c) && !oplay_attack(*,a,b,c,c)
+
+
+Pattern CD104a
+# gf Revised constraint.
+# gf Split pattern. We can't have eE classification unless b is alive. (3.1.32)
+
+...          atari using dead stone
+.*.
+OX.
+XO?
+
+:8,Ed
+
+...
+.*.
+bX.
+XA?
+
+;lib(b)>1 && alive(b) && attack(A) && !defend(A)
+
+
+Pattern CD104b
+# gf Revised constraint.
+# gf Split pattern. We can't have eE classification unless b is alive. (3.1.32)
+
+...          atari using dead stone
+.*.
+OX.
+XO?
+
+:8,d,shape(3)
+
+...
+.*.
+bX.
+XA?
+
+;lib(b)>1 && attack(A) && !defend(A)
+
+
+Pattern CD105
+
+?.X?        eliminate aji and danger of misreading!
+O.*O
+x...
+xxxx
+
+:8,Ot
+
+?.A?
+O.*b
+x...
+xxxx
+
+; dead(A) && effective_size(A)>8 && lib(b)<=4
+
+
+# Pattern CD106
+# # db added (3.1.7)
+# Removed (3.3.20), see 13x13b:27.
+# 
+# ?x?          make an eye (or die trying!)
+# O*O
+# O.O
+# oOX
+#
+# :8,d
+#
+# ?x?
+# O*A
+# OaA
+# bOX
+#
+# ; does_defend(*,A)
+#
+# > replace(a,*);
+# > if (!o_alive_somewhere(b)) replace(b,*)
+
+
+Pattern CD107
+# db added (3.1.8)
+# gf Added O classification. (3.1.12)
+
+xX..?        good shape keima
+..*.?
+O...?
+
+:8,OXead
+
+xX..?
+.a*.?
+Abc.?
+
+; !dead(A) && oplay_attack(*,a,b,c,c)
+
+
+Pattern CD108
+# db added (3.1.8)
+# Exception to CD107
+
+?xX..       bad shape keima
+O..*.
+XO...
+
+:8,-,shape(-3)
+
+
+Pattern CD109
+# gf New pattern. (3.3.18)
+
+.OX        defend cut to attack
+.*O
+.OX
+
+:-,Xa,shape(2)
+
+.cX
+.*a
+.bX
+
+;lib(a)==1 && (alive(b) || alive(c))
+;&& (xplay_attack(*,b) || xplay_attack(*,c))
+
+
+######################################################################
+#
+# Edge joseki patterns.
+#
+# Standard invasions of wide extensions, sequences following
+# attachment under edge stones, and other standard patterns
+# often warranting a j or J classification.
+#
+######################################################################
+
+
+Pattern EJ1
+
+?....            sacrifice cut
+oO*X.
+o.XO.
+.....
+-----
+
+:8,sEdJ
+
+
+Pattern EJ2
+
+?....          hane if attached under fourth line stone
+x.O..
+?.X*.
+?....
+?....
+-----
+
+:8,OedJ
+
+
+Pattern EJ2b
+
+.....          create cutting points while strengthening own stones
+.O.O.
+.X*X.
+.....
+.....
+-----
+
+:8,edJ
+
+
+Pattern EJ3
+
+?...?          block on top if 2 space extension is invaded
+..*..
+O.XO.
+.....
+.....
+-----
+
+:8,EadJ
+
+
+Pattern EJ4
+#tm modified (3.1.18)
+#   added ? column.
+
+...*.?     continuation -- never play 'a' here
+.OOX.o
+..XOX?
+.....?
+------
+
+:8,Edj
+
+...*.?
+.OOX.o
+.aXOX?
+.....?
+------
+
+>antisuji(a);
+
+
+Pattern EJ6
+
+...O.?    continuation
+.OOX*.
+..X.X.
+...X.?
+------
+
+:8,Eaj
+
+
+Pattern EJ7
+
+?????...?
+........?
+.O..O.X.o
+......*..
+.........
+---------
+
+:8,ed
+
+?????...?
+........?
+.O..O.A.o
+......*..
+.........
+---------
+
+;!weak(A)
+
+
+Pattern EJ7b
+#gf New pattern. (3.1.12)
+
+?????...?
+........?
+.O..O.X.o
+.....*OX.
+.........
+---------
+
+:8,ed
+
+
+Pattern EJ8
+
+??X.....        extend from tsukenobi
+X.XO....
+XOO...*.
+........
+........
+--------
+
+:8,ed
+
+
+Pattern EJ9
+
+..*.?             tsukenobi shape
+O.OX?
+..X.x
+....?
+....?
+-----
+
+:8,Ed
+
+
+Pattern EJ12
+# Invade if we have two ladders on our side.
+
+ooooo       invade
+.oooo
+...oo
+X....
+..*.X
+.....
+.....
+-----
+
+:8,I
+
+ooooo
+.oooo
+.e.oo
+IcB..
+gD*FX
+..H..
+.....
+-----
+
+;oplay_attack(*,B,c,D,e,B) && oplay_attack(*,B,c,D,e,F,g,H,I);
+
+
+Pattern EJ13
+
+.....       invade
+.....
+.....
+X.*.X
+.....
+.....
+-----
+
+:8,I
+
+.....
+..a..
+.....
+X.*.X
+.....
+.....
+-----
+
+;!xmoyo(a)
+
+
+Pattern EJ13b
+# gf New pattern. (3.3.13)
+
+o......     invade
+o......
+O.X.*.X
+o......
+o......
+-------
+
+:8,Ia
+
+o......
+o......
+a.X.*.X
+o......
+o......
+-------
+
+;!weak(a)
+
+
+Pattern EJ14
+
+......       invade
+......
+......
+X.*..X
+......
+......
+------
+
+:8,I
+
+......
+..a...
+......
+X.*..X
+......
+......
+------
+
+;!xmoyo(a)
+
+
+Pattern EJ15
+
+??....?      cap stone on third line
+..*....
+.......
+..X..O.
+.......
+.......
+-------
+
+:8,Ea
+
+??....?
+..*....
+.......
+a.X..O.
+.......
+.......
+-------
+
+;!xmoyo(a)
+
+
+Pattern EJ17
+
+.....          cut!
+.X*O.
+.OX..
+.....
+.....
+-----
+
+:8,adJ
+
+
+Pattern EJ18
+# Override capturing single X stone.
+
+?oXXOOo       Connect underneath.
+oOXOX.o
+o.*O..o
+o.....o
+-------
+
+:8,ed
+
+?oXXOOo
+oOXOXao
+o.*Ob.o
+o..c..o
+-------
+
+>antisuji(a);
+>antisuji(b);
+>antisuji(c);
+
+
+Pattern EJ19
+# Override capturing single X stone.
+
+???.???       Punish overplay.
+?o*XOOo
+oOXOX.o
+o.XO..o
+o.....o
+-------
+
+:8,ad
+
+???.???
+?o*XOOo
+oOXOXao
+o.XOb.o
+o..c..o
+-------
+
+>antisuji(a);
+>antisuji(b);
+>antisuji(c);
+
+
+Pattern EJ20
+
+?x.XOOo       Connect underneath.
+oOXOX.o
+o.*O..o
+o.....o
+-------
+
+:8,ed
+
+?x.XOOo
+oOXOXao
+o.*Ob.o
+o..c..o
+-------
+
+>antisuji(a);
+>antisuji(b);
+>antisuji(c);
+
+
+Pattern EJ21
+
+....?             tsukeosae shape
+O.OX?
+.*X.x
+....?
+....?
+-----
+
+:8,ed
+
+
+Pattern EJ22
+
+oo.X.?    continuation
+?..*..
+?OOX.O
+?.XOX.
+?.....
+------
+
+:8,a
+
+
+Pattern EJ23
+
+oo.X.?    continuation
+?..O*.
+?OOXXO
+?.XOX.
+?.....
+------
+
+:8,a
+
+
+Pattern EJ24
+
+XX..       extend on fourth line if pushed
+.O*.
+....
+....
+....
+----
+
+:8,ed
+
+
+Pattern EJ25
+
+XXX..       extend on fourth line if pushed
+.OO*.
+.....
+.....
+.....
+-----
+
+:8,ed
+
+
+Pattern EJ26
+
+XXXX..       extend on fourth line if pushed
+.OOO*.
+......
+......
+......
+------
+
+:8,ed
+
+
+Pattern EJ27
+
+........            wedge in after invasion
+...X*X..
+.X.O....
+........
+........
+--------
+
+:8,d
+
+
+Pattern EJ28
+
+....X...            follow up
+..XXOX..
+.X.OO*..
+........
+........
+--------
+
+:8,ed
+
+
+Pattern EJ29
+
+....X...            follow up
+..XXOXX.
+.X.OOO*.
+........
+........
+--------
+
+:8,ed
+
+
+Pattern EJ30
+
+oo.X.?    continuation
+?.....
+?O.X*O
+?..OX.
+?.....
+------
+
+:8,a
+
+oo.D.?
+?.....
+?a.C*b
+?.eOX.
+?.....
+------
+
+>add_connect_move(a,b);
+>add_cut_move(C,D);
+>antisuji(e);
+
+
+Pattern EJ31
+
+??..????    connect out beneath
+xxX.....
+x.O*.X.O
+x.......
+?.......
+--------
+
+:8,ed
+
+?a..?b??
+xxX.....
+x.O*.X.O
+x.......
+?.......
+--------
+
+;!oarea(a) && !xmoyo(b)
+
+
+Pattern EJ32
+
+??..????    connect out beneath, continuation
+xxXX....
+x.OO*X.O
+x.......
+?.......
+--------
+
+:8,ed
+
+?a..?b??
+xxXX....
+x.OO*X.O
+x.......
+?.......
+--------
+
+;!oarea(a) && !xmoyo(b)
+
+
+Pattern EJ33
+# gf Sometimes it's better to play one step to the left. See
+# nngs:1180. (3.3.7)
+
+...XX          common important follow up 
+.O.*O
+.....
+.....
+-----
+
+:8,sJ
+
+
+Pattern EJ34
+
+....O.       break through
+.X.OX.
+...X*.
+......
+......
+------
+
+:8,J
+
+
+Pattern EJ35
+
+....O.       break through
+.X.OXX
+..*XO.
+......
+......
+------
+
+:8,J
+
+
+Pattern EJ36
+
+?....ooo     seal the opponent!
+OO...ooo
+X*...ooo
+........
+........
+--------
+
+:8,-,value(22)
+
+
+Pattern EJ37
+
+..X...      hane after attachment
+......
+.XO..O
+.*....
+......
+------
+
+:8,J
+
+
+Pattern EJ39
+# sometimes the solid connection would be better
+
+?.XX.O       draw back to defend
+.O.O*.
+......
+......
+------
+
+:8,-,value(30)
+
+?.XX.O
+.O.O*.
+a.....
+......
+------
+
+> antisuji(a)
+
+
+Pattern EJ40
+# This pattern is sometimes too general. But more often than not, this is
+# worth doing.
+
+XXx??        push to prevent opponent's block
+OOXX?
+..O*.
+.....
+-----
+
+:8,OXt
+
+
+Pattern EJ41
+
+?..O?        solid connection
+xX*OX
+..OXX
+.....
+-----
+
+:8,OJ
+
+?..O?
+xX*OX
+.aOXX
+.....
+-----
+
+>antisuji(a);
+
+
+Pattern EJ42
+
+.....
+..*..        jump
+....X
+X.O.x
+.....
+.....
+-----
+
+:8,t
+
+
+Pattern EJ43
+# gf Revised. (3.3.16)
+
+?...?        connect after peep
+x.O.x
+x.*Xx
+x.O.x
+?...?
+?...?
+-----
+
+:8,OJ
+
+
+Pattern EJ44
+
+......        almost an antisuji
+oO.X..
+..XO*.
+......
+......
+------
+
+:8,-,shape(-5)
+
+
+Pattern EJ45
+
+?....?       hane making shape in the center
+?.*..?
+?.XOOo
+?..XX?
+?....?
+?....?
+------
+
+:8,J
+
+?....?
+?.*..?
+?.XBBo
+?.aXX?
+?....?
+?....?
+------
+
+; !safe_omove(a) && !oplay_attack(*,B)
+
+
+Pattern EJ46
+# tm modified (3.1.23)  (see arend:3)
+
+.X.      Defend after the peep
+O*O
+...
+...
+...
+---
+
+:8,XeCd
+
+
+Pattern EJ47
+
+...........       invade on the third line
+...........
+.........xx
+X...*....xx
+...........
+...........
+-----------
+
+:8,t,shape(2)
+
+...........
+...........
+.........ab
+X...*....cd
+...........
+...........
+-----------
+
+; x_alive_somewhere(a,b,c,d)
+
+
+# Compare EJ42. This gives a bonus if there's additional empty
+#    space towards the center. This is not to say that this pattern
+#    necessarily is good, but it is different.
+#
+# Pattern EJ48
+# 
+# .....           jump out
+# .....
+# .....
+# ..*..
+# ....X
+# X.O.x
+# .....
+# .....
+# -----
+# 
+# :8,Ed,shape(5)
+
+
+# Pattern EJ49
+# ab Removed (3.3.20)
+# # gf Revised. (3.1.17)
+# 
+# .....         cut
+# O*X.o
+# .XO.o
+# .....
+# .....
+# -----
+# 
+# :8,sEj
+# 
+# .....
+# O*X.c
+# .XObd
+# ..a..
+# .....
+# -----
+# 
+# ;o_alive_somewhere(c,d)
+# 
+# >replace(a,*);
+# >replace(b,*)
+
+
+Pattern EJ49b
+# Actually 'a' is often playable
+
+..*..         connect on the outside
+OOX.O
+.XOX.
+.....
+.....
+-----
+
+:8,sEj
+
+..*..
+OOX.O
+bXOX.
+..a..
+.....
+-----
+
+>antisuji(a);
+>antisuji(b);
+
+
+Pattern EJ50
+# tm Modified (3.1.22) (see nngs:1740)
+
+??.....??     good extension
+?.O.....x
+OO....*.x
+.........
+.........
+---------
+
+:8,sed,shape(3)
+
+
+Pattern EJ51
+
+......       connection is urgent for local shape
+......
+.O*...
+.XO...
+X.....
+......
+------
+
+:8,J
+
+......
+......
+.O*...
+.AO...
+X.....
+......
+------
+
+; !attack(A)
+
+
+Pattern EJ52
+
+.....        extend to stabilize shape
+..*.O
+xXO..
+xxX.O
+.....
+.....
+-----
+
+:8,J
+
+
+Pattern EJ53
+
+.......xxx       extend to stabilize group
+......OO.X
+..*...OXXx
+..........
+..........
+----------
+
+:8,J
+
+
+Pattern EJ54
+
+......|          block the corner
+X.O...|        
+..OX..|
+.*X...|
+......|
+------+
+
+:8,J
+
+
+Pattern EJ55
+
+.......          tiger's mouth
+..X.O..
+..*.OX.
+...OXxx
+.....x.
+-------
+
+:8,J
+
+.......
+..X.O..
+..*.OX.
+...OXab
+.....c.
+-------
+
+; x_alive_somewhere(a,b,c)
+
+
+Pattern EJ56
+
+.......?       pull back to stabilize group
+..OX..oo
+..XO*.oo
+.......o
+........
+--------
+
+:8,J
+
+.......?
+..OX..ab
+..XO*.cd
+.......o
+........
+--------
+
+; o_alive_somewhere(a,b,c,d)
+
+
+Pattern EJ57
+
+??.x?          stop effective cut and probably connect
+OOX*O
+.XO..
+.....
+-----
+
+:8,cJ
+
+??.x?
+OOA*O
+.XO..
+.....
+-----
+
+;!attack(A)
+
+
+Pattern EJ58
+
+.......        urgent! attach at the top
+oo.*.O?
+oO.X.oo
+o......
+.......
+-------
+
+:8,J
+
+
+Pattern EJ59
+
+o...          seal with sente
+o.*O
+oOXX
+....
+....
+----
+
+:8,J
+
+o...
+o.*O
+oOAA
+....
+....
+----
+
+; owl_threatens(*,A)
+
+
+Pattern EJ60
+# sometimes the double hane is better
+
+..oOO     extend with sente
+.*OXX
+..X..
+.....
+-----
+
+:8,J
+
+..oOO
+.*OAA
+..X..
+.....
+-----
+
+; owl_threatens(*,A)
+
+
+Pattern EJ61
+
+o.X??       follow through after hane
+O.XO.
+.XO*.
+.....
+-----
+
+:8,J
+
+o.X??
+O.XA.
+.XO*.
+.....
+-----
+
+; !critical(A)
+
+
+Pattern EJ62
+
+XX...       push to expand threatened dragon
+OOX..
+..*..
+.....
+-----
+
+:8,J
+
+XX...
+AAX..
+..*..
+.....
+-----
+
+; owl_threatens(*,A)||critical(A)
+
+
+Pattern EJ63
+
+XX....      push again to expand threatened dragon
+OOXX..
+..O*..
+......
+------
+
+:8,J
+
+XX....
+AAXX..
+..O*..
+......
+------
+
+; owl_threatens(*,A)||critical(A)
+
+
+Pattern EJ64
+
+XX....      atari after double hane
+OOX*..
+..OX..
+......
+------
+
+:8,J
+
+BBa...
+OOX*..
+..OX..
+......
+------
+
+; !oplay_attack(a,*,B)
+
+
+Pattern EJ65
+
+?X........       extend from ponnuki to make a base
+?XO....*.x
+XO.O......
+..O.......
+----------
+
+:8,J
+
+?X........
+?XO....*.x
+aO.O......
+..O.......
+----------
+
+; !attack(a)
+
+
+Pattern EJ66
+
+?X......x       extend from ponnuki to make a base
+?XO...*.x
+XO.O.....
+..O......
+---------
+
+:8,J
+
+?X......x
+?XO...*.x
+aO.O.....
+..O......
+---------
+
+; !attack(a)
+
+
+Pattern EJ67
+
+........      standard move to break connection and move out
+........
+....*...
+.X.O....
+.....X..
+........
+........
+--------
+
+:8,J
+
+
+Pattern EJ68
+
+........      standard move to break connection and move out
+........
+....O...
+.X.O....
+..*X.X..
+........
+........
+--------
+
+:8,J
+
+
+Pattern EJ69
+
+........      standard move to break connection and move out
+........
+....O...
+.XXO....
+..OX*X..
+........
+........
+--------
+
+:8,J
+
+
+Pattern EJ71
+
+........      standard move to break connection and move out
+........
+....O...
+.XXO....
+..OXOX..
+...X*...
+........
+--------
+
+:8,J
+
+
+Pattern EJ72
+# If the right edge is the fourth line this is
+# not too good because it provokes X to make territory
+# but there is no really good move in this case.
+
+.....        jump again
+..*..
+....X
+..O..
+....X
+X.O..
+.....
+.....
+-----
+
+:8,J
+
+
+Pattern EJ73
+
+x..........      invade open space
+x..........
+X..........
+x.....*....
+...........
+...........
+-----------
+
+:8,t
+
+
+Pattern EJ74
+
+??X...          defend cut
+xXXO..
+XOO.*.
+......
+......
+------
+
+:8,J
+
+
+Pattern EJ75
+#tm modified (3.1.22) (see trevorc:420)
+#FIXME: Pattern still seems a bit too general
+#   consider adding appropriate constraint.
+
+.X.??           connect under
+O*.oo
+.....
+.....
+-----
+
+:8,XeE
+
+.X.??
+O*.ab
+.....
+.....
+-----
+
+; o_alive_somewhere(a,b)
+
+
+Pattern EJ76
+
+..X...     tsukenobi
+X.XO..
+.*O...
+......
+......
+------
+
+:8,j
+
+
+Pattern EJ77
+
+??oo...       connection is urgent
+?XO....
+?XO*X..
+xxXO...
+x?.....
+-------
+
+:8,j
+
+??ab...
+?XO....
+?XO*X..
+cdXO...
+e?.....
+-------
+
+; o_alive_somewhere(a,b) && x_alive_somewhere(c,d,e)
+
+
+Pattern EJ78
+
+.....         seal the side
+....O
+.*O.?
+O.XX?
+.....
+.....
+-----
+
+:8,j
+
+
+Pattern EJ79
+
+|..X??x        make a base
+|.O.X.x
+|.....x
+|..O...
+|......
+|..*...
+|......
+|..xxx?
+
+:8,j
+
+|..X??b
+|.O.X.a
+|.....x
+|..O...
+|......
+|..*...
+|......
+|..cdx?
+
+; x_alive_somewhere(a,b) && x_alive_somewhere(c,d)
+
+
+Pattern EJ80
+# db generalized (3.1.25)
+
+|...O.x        even a computer connects after nozoki
+|..X*.x
+|...O.x
+|....??
+|..x.??
+
+:8,J
+
+
+Pattern EJ81
+# db added (3.1.4)
+# gf Revised. (3.3.14)
+
+?....x..       seal the side
+?O.O....
+o..*.X.x
+........
+........
+--------
+
+:8,j
+
+?....x..
+?O.O....
+o..*.Abx
+........
+........
+--------
+
+;x_visible_along_edge(A,b)
+
+
+Pattern EJ81b
+# gf New pattern. (3.3.14)
+
+?....X....	 seal the side to attack
+?O.O...ooo
+o..*.X.ooo
+..........
+..........
+----------
+
+:8,j
+
+?....X....
+?O.O...def
+o..*.X.abc
+..........
+..........
+----------
+
+;o_somewhere(a,b,c,d,e,f)
+
+
+Pattern EJ81c
+# gf New pattern. (3.3.14)
+# FIXME: May wish to prefer other pincers in some situations.
+
+?.........	 pincer
+?O.O......
+o....X.*..
+..........
+..........
+----------
+
+:8,j
+
+?.........
+?O.O......
+o....Ab*..
+..........
+..........
+----------
+
+;o_visible_along_edge(A,b)
+
+
+Pattern EJ82
+# db added (3.1.4)
+
+?oO..       answer the peep!
+XXO..
+?O*X.
+.....
+-----
+
+:8,j
+
+?oA..
+XXA..
+?O*X.
+.....
+-----
+
+; !dead(A)
+
+
+Pattern EJ84
+# gf Made pattern more powerful. (3.1.9)
+# gf Added one more replacement point. (3.1.10)
+
+......       Atari before connecting
+..*...
+X.XO..
+.XO...
+......
+......
+------
+
+:8,J,reverse_followup(10)
+
+......
+..*c..
+X.XO..
+.XObe.
+.fad..
+......
+------
+
+>replace(a,*);
+>replace(b,*);
+>replace(c,*);
+>replace(d,*);
+>replace(e,*);
+>replace(f,*);
+
+
+Pattern EJ85
+# db added (3.1.8)
+
+??O.X?        Important sente block
+?XO...
+..X*..
+......
+------
+
+:8,OJ
+
+
+Pattern EJ86
+# db added (3.1.9)
+
+?.....         extend automatically
+xX..oo
+XO*.oo
+?.....
+?.....
+------
+
+:8,XJ
+
+?.....
+xX..ab
+XO*.cd
+?.....
+?.....
+------
+
+; o_alive_somewhere(a,b,c,d)
+
+
+Pattern EJ87
+#db added (3.1.9)
+
+??....       extend after the top attachment
+..X...
+..O*..
+......
+......
+......
+------
+
+:8,J
+
+
+Pattern EJ88
+# gf New pattern. (3.1.17)
+
+......       connect after invasion
+......
+.O.*.O
+...X.O
+......
+......
+------
+
+:8,J
+
+
+Pattern EJ89
+# gf New pattern. (3.1.17)
+
+......       connect after invasion
+......
+.O.X.O
+...*.O
+......
+......
+------
+
+:8,J
+
+
+Pattern EJ90
+# db New pattern (3.1.26)
+
+?XX....         extend on the fourth line
+..O*...
+O......
+.......
+.......
+-------
+
+:8,J
+
+
+Pattern EJ91
+# db New pattern (3.1.26)
+
+?.....         large block affecting stability of both
+..O.oo
+.X*..o
+......
+......
+------
+
+:8,J
+
+
+Pattern EJ92
+# db new pattern (3.1.28)
+
+oo.........       extend to build moyo
+oo.....*...
+oooo...OXX.
+ooo.....O.X
+.........ox
+...........
+-----------
+
+:8,j
+
+oo.........
+oo.....*...
+abcg..iOXX.
+def.....O.X
+.........hx
+...........
+-----------
+
+; o_alive_somewhere(a,b,c,d,e,f,g)
+> replace(h,*);
+> replace(i,*)
+
+
+Pattern EJ93
+# db new pattern (3.1.32)
+# db modified (3.3.9)
+
+|..xx.......            stand to defend
+|...........
+|...X.*..xxx
+|....XO..xxx
+|...........
+|...........
++-----------
+
+:8,j
+
+|..xx.......
+|...........
+|...X.*..xxx
+|....XO..xxx
+|....cba....
+|...........
++-----------
+
+> replace(a,*);
+> replace(b,*);
+> replace(c,*)
+
+
+Pattern EJ94
+# db new pattern (3.3.3)
+# See nngs1:53
+
+.....       Block!
+..O..
+..X*.
+.X.O.
+.....
+.....
+-----
+
+:8,j
+
+.....
+.aO..
+..X*.
+.X.O.
+.....
+.....
+-----
+
+> replace(a,*)
+
+
+Pattern EJ95
+# db added (3.3.6)
+
+.....?         attach below
+..X.O?
+O.*.oo
+......
+......
+------
+
+:8,j
+
+
+Pattern EJ96
+# db added (3.3.6)
+
+..XXOO        Don't allow the cut with sente!
+.OXOX.
+..*O..
+......
+------
+
+:8,j
+
+..XXOO
+.OXOA.
+..*O..
+......
+------
+
+; !oplay_defend(*,A)
+
+
+Pattern EJ97
+# db added (3.3.6)
+
+......         seal the opponent, connecting loosely
+oo.*O.
+ooo.XX
+......
+......
+------
+
+:8,j
+
+......
+ab.*O.
+cde.XX
+......
+......
+------
+
+; o_alive_somewhere(a,b,c,d,e)
+
+
+Pattern EJ98
+# db added (3.3.7)
+
+O..X.?           connect
+O..*O.
+......
+......
+------
+
+:8,j
+
+
+Pattern EJ99
+# db added (3.3.14)
+# see nngs3:330 where GNU thinks e is an owl attack
+
+........        seal the opponent
+oooO*.oo
+ooOXX.oo
+o.......
+........
+--------
+
+:8,j,shape(3)
+
+........
+oooO*.ab
+ooOXX.cd
+o.e.....
+........
+--------
+
+; o_somewhere(a,b,c,d)
+> replace(e,*)
+
+
+Pattern EJ100
+# db added (3.3.14)
+
+|...O...     seal the opponent
+|.......
+|...X*..
+|...XO..
+|..XOO..
+
+:8,jda
+
+
+######################################################################
+#
+# Seki patterns.
+#
+# Patterns to reduce territory into sekis.
+#
+# seki_helper(a) verifies that no string surrounding a can be
+# captured.
+#
+######################################################################
+
+
+Pattern S1
+# With no supporting stones, a 5 points gote seki.
+# If X does not reply, the corner point makes ko.
+# but this is not a good ko because it takes 4 moves
+# to remove the X stones, while O loses the seki
+# if it loses the ko. Moreover if X immediately plays
+# atari at one 1-2 point we have to answer at the second
+# 1-2 point, after which X can leave it without aji. So
+# this move is gote and no folloup value is assigned.
+
+|XX??
+|.XX?
+|o*XX
+|.o.X
++----
+
+:/,sXe,terri(5)
+
+|AA??
+|.AA?
+|o*AA
+|.o.A
++----
+
+;lib(A)==3 && seki_helper(A)
+
+
+Pattern S2
+# With no enemy stones, 5 points gote to defend territory.
+
+|OO??
+|.OO?
+|*xOO
+|.x.O
++----
+
+:8,Oe,terri(6)
+
+|aa??
+|.aa?
+|*xaa
+|.x.a
++----
+
+;lib(a)<=3 && seki_helper(a)
+
+
+Pattern S3
+# 7 points sente seki. If X does not answer, we can kill,
+# which at the very least is worth another 20 points.
+
+|XXXXX
+|..*.X
+|....X
++-----
+
+:8,sXe,terri(7),followup(20)
+
+|AAAAA
+|..*.A
+|....A
++-----
+
+;lib(A)==5 && seki_helper(A)
+
+
+Pattern S4
+# 7 points reverse sente to defend territory.
+
+|OOOOO
+|..*.O
+|....O
++-----
+
+:8,Oe,terri(7),reverse_followup(20)
+
+|aaaaa
+|..*.a
+|....a
++-----
+
+;lib(a)==5 && seki_helper(a)
+
+
+Pattern S5
+# Explicit followup to S4.
+
+|OOOOO
+|.*O.O
+|.X..O
++-----
+
+:8,Oe,terri(7)
+
+|aaaaa
+|.*a.a
+|.X..a
++-----
+
+;lib(a)==5 && seki_helper(a)
+
+
+Pattern S6
+# 6 points seki. Whether this is gote or sente depends on
+# the ko threat situation. 
+
+|XX??
+|.XXX
+|.*.X
+|...X
++----
+
+:8,sXe,terri(6),followup(14)
+
+|AA??
+|.AAA
+|.*.A
+|...A
++----
+
+;lib(A)==4 && seki_helper(A)
+
+
+Pattern S6b
+# 6 points seki. Explicit followup to S6.
+
+|XX??
+|.XXX
+|XO.X
+|.*.X
++----
+
+:8,sXe,terri(6),followup(14)
+
+|AA??
+|.AAA
+|XO.A
+|.*.A
++----
+
+;lib(A)==3 && seki_helper(A)
+
+
+Pattern S6c
+# Back out from a potential and horribly complex ko for the
+# life of the entire corner. This moves secures a seki.
+
+|OO??
+|.OOO
+|OX.O
+|.X*O
++----
+
+:8,Oe,terri(14)
+
+|aa??
+|.aaa
+|OX.a
+|.X*a
++----
+
+;lib(a)==3 && seki_helper(a)
+
+
+Pattern S7
+# 6 points seki. See S6.
+
+|OO??
+|.OOO
+|.*.O
+|...O
++----
+
+:8,Oe,terri(6),reverse_followup(14)
+
+|aa??
+|.aaa
+|.*.a
+|...a
++----
+
+;lib(a)==4 && seki_helper(a)
+
+
+######################################################################
+#
+# High handicap patterns.
+#
+# Patterns to place additional handicap stones when white starts by
+# passing. After white's first move these patterns are not considered
+# any more, due to the high_handicap_helper.
+#
+######################################################################
+
+
+Pattern HH1
+
+.......   Add stone where the distance is large.
+.......
+O..*..O
+.......
+.......
+
+:+,-,value(40),high_handicap_helper
+
+
+Pattern HH2
+# gf Corrected symmetry. (3.1.23)
+
+.......   Add stone where the distance is large.
+.......
+...*...
+O.....O
+.......
+.......
+
+:|,-,value(40),high_handicap_helper
+
+
+Pattern HH3
+
+?..o..?	  Make iron pillar.
+?.....?
+?..*..?
+?..O..?
+?.....?
+?.....?
+-------
+
+:|,-,value(30),high_handicap_helper
+
+
+Pattern HH4
+
+..o..   Make iron pillar.
+.....
+..O..
+..*..
+.....
+.....
+-----
+
+:|,-,value(30),high_handicap_helper
+
+
+Pattern HH5
+
+.....   Jump towards center.
+..*..
+.....
+..O..
+.....
+.....
+-----
+
+:|,-,value(30),high_handicap_helper
+
+
+Pattern HH6
+
+|......   Corner enclosure from 3-3.
+|......
+|..O.*.
+|......
+|......
++------
+
+:8,-,value(30),high_handicap_helper
+
+
+Pattern HH7
+
+.....     Jump into nowhere
+.....
+..*..
+.....
+.....
+ooOoo
+
+:8,-,value(20),high_handicap_helper
+
+
+Pattern HH8
+
+.....     Yet another third line stone.
+O...o
+o.*.o
+.....
+.....
+-----
+
+:8,-,value(10),high_handicap_helper
+
+
+Pattern HH9
+
+.....     Yet another fourth line stone.
+.....
+o.*.o
+O...o
+.....
+.....
+-----
+
+:8,-,value(10),high_handicap_helper
+
+
+Pattern HH10
+
+.....     Jump
+.....
+O.*..
+.....
+.....
+
+:-,-,value(5),high_handicap_helper
+
+
+Pattern HH11
+
+.....     Keima
+O....
+..*..
+.....
+?????
+
+:8,-,value(5),high_handicap_helper
+
+
+Pattern HH12
+
+o....     Extend
+.....
+.O*.o
+.....
+o....
+
+:-,-,value(2),high_handicap_helper
+
+
+Pattern HH13
+
+o....     Extend
+....o
+.O*..
+....o
+oo...
+
+:8,-,value(3),high_handicap_helper
+
+
+Pattern HH14
+
+|..O...   Solidify corner still more.
+|...O..
+|...*.O
+|......
+|......
++------
+
+:8,-,value(1),high_handicap_helper
+
+
+Pattern HH15
+
+|....oo   Solidify corner still more.
+|..O.oo
+|..*.oo
+|......
+|......
++------
+
+:8,-,value(1),high_handicap_helper
+
+
+Pattern HH16
+
+|..ooo   Solidify corner still more.
+|....o
+|..O.o
+|..*..
+|.....
++-----
+
+:8,-,value(1),high_handicap_helper
+
+
+Pattern HH17
+
+|.....   Solidify corner still more.
+|...O.
+|..*..
+|.....
+|.....
++-----
+
+:8,-,value(1),high_handicap_helper
+
+
+######################################################################
+#
+# Reinforcement patterns.
+#
+######################################################################
+#
+# Early in high handicap games, especially on small boards, it may
+# happen that the lonely white stones are all thought to be dead.
+# These patterns are used in such positions to reinforce possible
+# weaknesses that the owl code has failed to take into account.
+#
+# All these patterns have s classification. For performance reasons,
+# the move safety is tested in the helper instead.
+#
+######################################################################
+
+Pattern Reinforce1
+
+?...?
+..*..
+O...O
+.....
+.....
+-----
+
+:|,s,value(5),reinforce_helper
+
+
+Pattern Reinforce2
+
+.....
+O.*.O
+.....
+.....
+-----
+
+:|,s,value(3),reinforce_helper
+
+
+Pattern Reinforce3
+
+X..
+.*.
+X..
+
+:-,s,value(2),reinforce_helper
+
+
+Pattern Reinforce4
+
+xx
+*O
+X.
+
+:8,s,value(1),reinforce_helper
+
+
+Pattern Reinforce5
+
+?xx
+.*O
+X..
+
+:8,s,value(1),reinforce_helper
+
+
+######################################################################
+#
+#  Reinforcement patterns for the middle game
+#
+######################################################################
+
+Pattern Reinforce102
+# This pattern should be contingent on being clearly ahead.
+
+.......
+O..O..O     Eliminate invasion point
+...*...
+.......
+.......
+-------
+
+:8,O,value(8)
+
+
+######################################################################
+#
+# Large Endgame moves
+#
+# Endgame patterns of value < 6 are in endgame.db
+# 
+# "A point with sente is worth 2 with gote."
+#
+######################################################################
+
+
+Pattern LE1
+
+O.Xx      fourth line sente kosumi
+.*..
+....
+....
+----
+
+:8,OXe
+
+
+Pattern LE2
+
+?????     third line sente kosumi
+O.Xxx
+.*...
+.....
+-----
+
+:8,OX
+
+
+Pattern LE3
+
+xXx       expand territory
+...
+.*.
+O..
+o..
+
+:8,OX
+
+
+Pattern LE4
+# gf Revised constraint. (3.1.9)
+
+...      hane to prevent incursion
+.*o
+OX?
+
+:8,OX,value(12)
+
+.a.
+b*o
+OC?
+
+;omoyo(a) && oplay_attack(*,b,b) && !(attack(C) && oplay_defend(*,C))
+
+
+Pattern LE5
+
+?Xxx
+O...
+..*.
+....
+----
+
+:8,OX
+
+
+Pattern LE6
+# At move 96 of ego.tst, this is matched at J8.
+# tm - revised (3.1.15) (see trevora:330)
+#   added left-hand ?s
+# gf Revised. (3.1.20)
+# see also trevora:280, arend:23
+# tm Revised. (3.1.20)
+
+?oo???
+?..*.x
+?....X
+?..O??
+
+:8,OXeE
+
+?ocbd?
+?..*.x
+?a...X
+?..O??
+
+; omoyo(a) && !(o_alive_somewhere(b) && o_alive_somewhere(c,d))
+
+
+Pattern LE8
+
+?OOo        prevent monkey jump
+X*..
+....
+----
+
+:8,OX,value(8)
+
+?OOo
+X*.a
+....
+----
+
+; omoyo(a)
+
+
+Pattern LE9
+
+oo..?       good local sente
+..O.x
+O*X..
+....X
+.....
+-----
+
+:8,OX
+
+
+Pattern LE10
+# gf Revised constraint. (3.1.14)
+
+OX        cut with sente and try to live inside opponent's territory
+X*
+
+:\,OXW,followup_value(5)
+
+OB
+A*
+
+;xmoyo(*) && !attack(A) && !attack(B)
+;&& safe_omove(*) && oplay_attack_either(*,A,B)
+
+
+Pattern LE11
+
+...       jump towards the opponent's territory
+.*.
+...
+.O?
+
+:8,O
+
+
+Pattern LE12
+
+?O..    seal the edge
+X*..
+....
+----
+
+:8,OX,value(10)
+
+?O.a
+X*..
+....
+----
+
+; omoyo(a)
+
+
+Pattern LE13
+
+|??o?        take the corner
+|...O
+|..OX
+|..*X
+|....
++----
+
+:8,OX,value(15)
+
+|??o?
+|..aO
+|..OX
+|..*X
+|....
++----
+
+; oplay_attack(*,a,a)
+
+
+Pattern LE15
+# tm decreased value (3.1.20) (see nngs:1150 move G4)
+# gf Don't bother with this inside own territory. (3.1.29)
+
+xxx            jump towards moyo
+x.x
+.*.
+...
+...
+OoO
+?o?
+
+:|,OE
+
+xxx
+x.x
+.*.
+...
+...
+OoO
+?o?
+
+;!oterri(*)
+
+
+Pattern LE16
+
++----          it's better to bend around
+|..O.
+|.*XO
+|?.X?
+
+:8,OX,terri(3),followup(2)
+
++----
+|.aO.
+|.*XO
+|?.X?
+
+> replace(a,*)
+
+
+######################################################################
+#
+# Replacement patterns
+#
+# Patterns using the "replace" autohelper macro for when
+# "this move is better than that move"
+#
+######################################################################
+
+
+Pattern RE1
+# db added (3.1.11)
+
+XOO?      better to make an eye
+O*.O
+XO.O
+?OO?
+
+:8,-
+
+XOO?
+A*aO
+XO.O
+?OO?
+
+; lib(A)==1
+
+> replace(a,*)
+
+
+Pattern RE2
+# gf New pattern. (3.1.12)
+# See test case niki:1 for an example.
+
+..O...	    connect solidly
+XO....
+XO*X..
+XXO...
+......
+------
+
+:8,-
+
+..O...
+XO....
+XO*X..
+XXOa..
+......
+------
+
+> replace(a,*)
+
+
+Pattern RE3
+# gf New pattern. (3.1.12)
+# Common invasion in handicap games. Attaching on top better than
+# capping. 
+
+.......
+.......
+.O.*.O.
+...X...
+.......
+.......
+-------
+
+:|,-
+
+.......
+...a...
+.O.*.O.
+...X...
+.......
+.......
+-------
+
+> replace(a,*)
+
+
+Pattern RE4
+# tm New Pattern (3.1.17)
+
+?O.|	push before blocking
+*XX|
+OO.|
+
+:8,-
+
+?O.|
+*BX|
+OOa|
+
+; oplay_attack(*,a,B)
+
+> replace(a,*)
+
+
+Pattern RE5
+# tm New pattern (3.1.18)  (see trevorb:440)
+
+OX?	threaten snapback
+X.X
+X.*
+?O.
+??o
+
+:8,-
+
+OX?
+B.X
+Xa*
+?O.
+??o
+
+; lib(B) == 2
+
+> replace(a,*)
+
+
+Pattern RE6
+# tm New Pattern (3.1.18)  (see trevorb:400)
+
+-----
+.*...	take it off, don't leave atari followup
+OXOX?
+?OOX?
+
+:8,-
+
+-----
+.*a..
+OXOX?
+?OBX?
+
+; lib(B) == 1
+
+> replace(a,*)
+
+
+Pattern RE7
+# tm New Pattern (3.1.20) (see strategy4:173)
+# FIXME: This seems a little underhanded, prob. not best fix.
+
+|.??   better for ko threats
+|*.?
+|XO?
+|X.o
+|?O?
+
+:8,-
+
+|.??
+|*.?
+|bO?
+|bao
+|?O?
+
+; oplay_attack(a,b)
+; && (oplay_attack(a,b) == oplay_attack(*,b))
+
+> replace(a,*)
+
+
+Pattern RE8
+# db new pattern (3.3.6)
+# see century-2002:10
+
+?..O??        first line block just helps the opponent
+X.*OX?
+..OX..
+...X..
+------
+
+:8,-
+
+?..O??
+X.*OX?
+..OX..
+..aX..
+------
+
+> replace(a,*)
+
+
+Pattern RE9
+# db new pattern (3.3.6)
+# see century-2002:100
+
+?o.X??        to slide is better than kosumi
+.O...?
+...*..
+......
+------
+
+:8,-
+
+?o.X??
+.O...?
+..a*..
+......
+------
+
+> replace(a,*)
+
+
+Pattern RE10
+# db new pattern (3.3.6)
+# see century-2002:130
+
+xxxx         don't allow the cut
+...X
+x.O*
+?XXO
+
+:8,d
+
+xxxx
+.a.X
+x.O*
+?XXb
+
+; !dead(b)
+> replace(a,*)
+
+
+#Pattern RE11
+## evand new pattern (3.3.9)
+## should be unneccessary with changes to EB1404 (3.3.13)
+#
+#|..?
+#|X*.
+#|OXX
+#|.O?
+#
+#:8,-
+#
+#|..?
+#|X*.
+#|Occ
+#|ab?
+#
+#; alive(b) && lib(c) == 2 && oplay_attack(*,a,c)
+#> replace(a,*)
+
+
+Pattern RE12
+# db added (3.3.14)
+# See ninestones:20, where hane is a bogus owl defense.
+
+???OX.      kosumi defense
+O.XO..
+....*.
+......
+------
+
+:8,-,shape(3)
+
+???aX.
+O.Ba..
+..c.*.
+......
+------
+
+; lib(a)==2 && lib(B)>=2 && !oplay_attack(*,a)
+> replace(c,*)
+
+
+Pattern RE13
+# gf New pattern. (3.3.17)
+# See gunnar:20.
+
+?XXO       backfill before playing into bamboo joint in gote (dame filling)
+O*..
+?XXO
+
+:-,OX
+
+?XXO
+a*b.
+?XXO
+
+;oplay_attack(*,b,*) && oplay_defend(*,b,*)
+>backfill_replace(*,a)
+
+
+Pattern RE14
+# gf New pattern. (3.3.20)
+# See filllib:35.
+
++---
+|..?       fix up corner eye shape to avoid seki or worse
+|*.O
+|..O
+|O.O
+|.O?
+
+:8,O
+
++---
+|..?
+|*.O
+|b.O
+|OcO
+|aO?
+
+;olib(a)==2 && !oplay_attack(a,b,b)
+>replace(a,*)
+
+
+######################################################################
+#
+# Thrashing patterns.
+#
+# Patterns to force early moves when playing white against high
+# handicaps instead of passing because all stones look dead.
+# These patterns are disabled by the thrash_around_helper when white has
+# managed to get living stones or when at least 40% of the board is
+# covered.
+#
+######################################################################
+
+Pattern Th1
+
+.....
+X.*.X
+.....
+.....
+-----
+
+:|,-,value(5),thrash_around_helper
+
+
+Pattern Th2
+
+xxXxx
+o...o
+o.*.o
+.....
+.....
+-----
+
+:|,-,value(5),thrash_around_helper
+
+
+Pattern Th3
+
+oo.oo
+.X*.x
+.....
+.....
+.....
+-----
+
+:8,-,value(3),thrash_around_helper
+
+
+Pattern Th4
+
+ooXoo
+o.*.o
+.....
+.....
+-----
+
+:|,-,value(3),thrash_around_helper
+
+
+Pattern Th5
+
+X..o
+..*.
+....
+oooo
+
+:8,-,value(1),thrash_around_helper
+
+
+Pattern Th6
+
+...o
+X.*.
+....
+oooo
+
+:8,-,value(1),thrash_around_helper
+
+
+Pattern Th7
+
+....x
+.X.o.
+.*.o.
+....x
+
+:8,s,value(4),thrash_around_helper
+
+....x
+.X.a.
+.*.b.
+....x
+
+;o_somewhere(a,b)
+
+
+Pattern Th8
+
+oo..?
+*X.o.
+.O.o.
+....x
+
+:8,-,value(5),thrash_around_helper
+
+oo..?
+*X.a.
+.O.b.
+....x
+
+;o_somewhere(a,b)
+
+
+Pattern Th9
+
+....
+O.*.
+...x
+
+:8,-,value(3),thrash_around_helper
+
+
+Pattern Th10
+
+?x?
+.*x
+O.O
+?o?
+
+:8,-,value(3),thrash_around_helper
+
+
+Pattern Th11
+
+?x?
+o*?
+O.O
+?o?
+
+:8,-,value(2),thrash_around_helper
+
+
+Pattern Th12
+
+?.?
+.*.
+...
+O.O
+
+:|,-,value(3),thrash_around_helper
+
+
+Pattern Th13
+
+.O.
+...
+O.*
+
+:8,-,value(3),thrash_around_helper
+
+
+Pattern Th14
+
+x*O
+o..
+O.O
+
+:8,-,value(2),thrash_around_helper
+
+
+Pattern Th15
+
+xO*
+o..
+O.O
+
+:8,-,value(2),thrash_around_helper
+
+
+Pattern Th16
+
+?.O.?
+x*.O?
+??..x
+
+:8,-,value(3),thrash_around_helper
+
+
+Pattern Th17
+# FIXME: Give value to all attack threats.
+
+?O?
+*XO
+?.?
+
+:8,-,value(4),thrash_around_helper
+
+
+Pattern Th18
+# FIXME: Give value to all attack threats.
+
+?O?
+*XO
+?.?
+
+:8,s,value(0.5),thrash_around_helper
+
+
+Pattern Th19
+
+*Ox
+O.O
+.O.
+
+:8,n,value(1),thrash_around_helper
+
+
+Pattern Th20
+
+?.o.
+.*X.
+?...
+
+:8,s,value(0.5),thrash_around_helper
+
+
+Pattern Th21
+
+.O?
+*XO
+.Oo
+
+:8,s,value(1),thrash_around_helper
+
+
+Pattern Th22
+
+..O
+*..
+...
+---
+
+:8,s,value(4),thrash_around_helper
+
+
+Pattern Th23
+
+?X?
+.*O
+...
+---
+
+:8,s,value(2),thrash_around_helper
+
+
+Pattern Th24
+
+.*x
+.XO
+...
+---
+
+:8,s,value(3),thrash_around_helper
+
+
+# END OF FILE

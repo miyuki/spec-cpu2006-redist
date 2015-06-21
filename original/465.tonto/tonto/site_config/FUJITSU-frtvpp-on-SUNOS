@@ -1,0 +1,16 @@
+# This is substatially the same as FUJITSU-UXP5, but for the
+# frtvpp cross compiler:
+# Fujitsu Fortran90/VP S Cross Driver L98061 (May 13 1998 16:44:07)
+# running on the SunOS.
+
+FOPTNS   = $(FFAST)
+FFLAGS   = -I$(srcdir) -I$(moddir) \
+           -X9 -Cpp -Free -Am -M$(moddir) -Da -Ds -Du -Dx \
+           -Ec -El -Em -Ee -Ei -Ep -Eu -AR -Aa -AI -Ad -AT 
+FPROF    = -pg
+FDEBUG   = -g -On 
+FFAST    = -O
+FSUFFIX  = f90
+
+LIBS     = -lblas -llapack
+DEFS     = -DUSE_PRE_AND_POST_CONDITIONS

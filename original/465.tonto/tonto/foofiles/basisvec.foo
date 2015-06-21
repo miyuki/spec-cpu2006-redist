@@ -1,0 +1,430 @@
+!---------------------------------------------------------------------------
+!
+! BASISVEC: BASIS vectors
+!
+! Copyright (C) Dylan Jayatilaka, 1998
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: basisvec.foo,v 1.24.2.5 2003/10/01 15:35:48 dylan Exp $
+!---------------------------------------------------------------------------
+
+module BASISVEC
+
+   implicit none
+
+   saved_self :: SELF_TYPE*, private  DEFAULT_NULL
+   basis_set_library_directory :: STR, private = "./basis_sets"
+
+contains
+
+!  ******************
+!  Allocation methods
+!  ******************
+
+   create(dim) ::: get_from(OBJECTVEC)
+   ! Create space for object
+      self :: PTR
+      dim :: INT
+   end
+
+   destroy ::: get_from(OBJECTVEC)
+   ! Destroy space for object
+      self :: PTR
+   end
+
+   create_copy(vec) ::: get_from(OBJECTVEC)
+   ! Create a replica copy of "vec".
+      vec :: SELF_TYPE, IN
+      self :: PTR
+   end
+
+   copy(vec) ::: get_from(OBJECTVEC), leaky
+   ! Copy "vec".
+      vec :: SELF_TYPE, IN
+   end
+
+   nullify_ptr_part ::: get_from(OBJECTVEC)
+   ! Nullify the pointer parts of self
+   end
+
+   destroy_ptr_part ::: get_from(OBJECTVEC)
+   ! Destroy the pointer parts of self
+   end
+
+!   created result(res) ::: get_from(OBJECTVEC)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!   end
+
+!   destroyed result(res) ::: get_from(OBJECTVEC)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!   end
+
+   set_defaults ::: get_from(OBJECTVEC)
+   ! Set default values
+   end
+
+   library_directory(basis_set_kind) result (res)
+   ! Return the basis set library directory for a particular "basis_set_kind".
+     self :: PTR
+     basis_set_kind :: STR(*)
+     res :: STR
+     res = trim(basis_set_library_directory)//"/"//trim(basis_set_kind)
+   end
+
+   set_library_directory
+   ! Read the directory name for where the basis set libraries are stored.
+     stdin.read(basis_set_library_directory)
+   end
+
+! ***********************
+! List-based I/O Routines
+! ***********************
+
+   read_list_keywords ::: get_from(OBJECTVEC), recursive, leaky
+   ! Read in and process list-based keywords from "stdin". List-based keywords
+   ! are those that are intended to apply to each individual element of the list
+   ! through a list of "keys" stored in the associated list-element type module.
+   ! NOTE: this routine will create the list, if required.
+     self :: PTR
+   end
+
+   process_list_keyword(keyword) ::: get_from(OBJECTVEC), leaky
+   ! Process a list-type "keyword", common to all list-type objects.
+     self :: PTR
+     keyword :: STR(*), IN
+   end
+
+   read_data(ignore_braces) ::: get_from(OBJECTVEC), leaky
+   ! Process the keywords list to read data or commands. If "ignore_braces" is
+   ! present then the opening and closing braces, which are normally required,
+   ! are ignored.
+     self :: PTR
+     ignore_braces :: BIN, optional
+   end
+
+   data_length result (length) ::: get_from(OBJECTVEC)
+   ! Read ahead in stdin to get the "length" of the data list, i.e. the number
+   ! of data items in the list. The data must begin with the first data item,
+   ! *not* a "{" symbol.  The order of data items comprising the list is given
+   ! by keys defined in the associated list-element type module. The data list
+   ! must be terminated by a "}" symbol.
+     self :: PTR
+     length :: INT
+   end
+
+   read_altered_data ::: get_from(OBJECTVEC), leaky
+   ! Read in a sublist of the complete list, and alter the data for that
+   ! sublist.  The order of the data items in the sublist is given by the "keys"
+   ! defined in the associated list-element type module.
+     self :: PTR
+   end
+
+   read_append_data ::: get_from(OBJECTVEC), leaky
+   ! Read in a set of data to append to an existing set.
+     self :: PTR
+   end
+
+   process_keys ::: get_from(OBJECTVEC), leaky
+   ! Process the "keys" on each element of the list.
+     self :: PTR
+   end
+
+   keys_created result (res) ::: get_from(OBJECTVEC)
+   ! Return TRUE if the list-element keys are created.
+      self :: PTR
+      res :: BIN
+   end
+
+   set_keys(the_keys) ::: get_from(OBJECTVEC)
+   ! This is for setting the "keys" externally.
+     self :: PTR
+     the_keys :: STRVEC(len=*,:)
+   end
+
+   clear_keys ::: get_from(OBJECTVEC)
+   ! This is for destroying the "keys" externally.
+     self :: PTR
+   end
+
+   read_keys ::: get_from(OBJECTVEC)
+   ! Read a new set of keys
+      self :: PTR
+   end
+
+   put_keys_table ::: get_from(OBJECTVEC)
+   ! Output a generic table based on the "keys"
+     self :: PTR
+   end
+
+   put_table_header ::: get_from(OBJECTVEC)
+   ! Put out a table header based on "keys"
+      self :: PTR
+   end
+
+   put_table_footer ::: get_from(OBJECTVEC)
+   ! Put out a table footer based on "keys"
+      self :: PTR
+   end
+
+   redirect ::: get_from(OBJECT), leaky
+   ! Redirect input
+     self :: PTR
+   end
+
+   revert ::: get_from(OBJECT), leaky
+   ! Revert back to previous stdin file
+     self :: PTR
+   end
+
+! ***************************
+! Non-list based I/O routines
+! ***************************
+
+   read_keywords ::: recursive, leaky
+   ! Read data from "stdin" using keyword style input.
+     self :: PTR
+     word :: STR
+     ENSURE(stdin.next_item=="{","expecting open bracket symbol, {")
+     stdin.read(word)
+     do                 ! Loop over input keywords
+       stdin.read(word)
+       word.to_lower_case
+       if (word=="}")      exit
+       if (stdin.reverted) exit
+       .process_keyword(word)
+     end
+   end
+
+   process_keyword(keyword)
+   ! Process a normal (non list-type) "keyword".
+     self :: PTR
+     keyword :: STR
+     word :: STR
+     word = keyword
+     word.to_lower_case
+     select case (word)
+       case("}") ! do nothing.
+       case("library_directory="); .read_library_directory
+       case("put               "); .put
+       case("redirect          "); .redirect
+       case("revert            "); .revert
+       case default;               UNKNOWN(word)
+     end
+   end
+
+   read_library_directory
+   ! Read the directory name for where the basis set libraries are stored.
+     self :: PTR
+     stdin.read(basis_set_library_directory)
+   end
+
+!   read_library_data(library,labels) ::: leaky
+!   ! Open the file named "library", read the basis sets which have the right
+!   ! "labels", and assign them to the basis vector.  The file must begin with a
+!   ! "{" symbol and must have at least one "data=" list-type keyword following
+!   ! the open bracket. NOTE: Self is created.
+!     self :: PTR
+!     library :: STR, IN
+!     labels :: STRVEC, IN
+!     word :: STR
+!     basis :: ELEMENT_TYPE*
+!     found,i,n_labels,N :: INT
+!     stdin.redirect(library)
+!     ENSURE(stdin.next_item=="{","expecting open bracket symbol, {")
+!     stdin.read(word)            ! Read the open bracket
+!     do                          ! Loop over input list-type keywords
+!       stdin.read(word)
+!       if (word=="}")      exit
+!       if (word=="data=")  exit
+!       .process_list_keyword(word)
+!     end
+!     ENSURE(.keys_created,"no keys= supplied")
+!     ENSURE(word=="data=","no data= list keyword")
+!     ENSURE(stdin.next_item=="{","expecting open bracket symbol, {")
+!     stdin.read(word)            ! move past open brace
+!     n_labels = size(labels)     ! Explicitly process data= label
+!     if (.created) then
+!        N = .n_basis
+!        .expand(N+n_labels)
+!     else
+!        N = 0
+!        .create(n_labels)
+!     end
+!     found = 0
+!     do                          ! Try to match all basis labels
+!       basis.create
+!       basis.process_keys
+!       do i = 1,n_labels
+!          if (basis.label.same_as(labels(i),ignore_case=TRUE)) then
+!             found = found + 1
+!             self(N+i).copy(basis)
+!          end
+!       end
+!       basis.destroy
+!       if (found==n_labels) exit ! All bases found
+!       ENSURE(stdin.next_item/="}","missing basis sets in library")
+!     end
+!     stdin.revert
+!   end
+
+   read_library_data(library,labels,n_unique_labels) ::: leaky
+   ! Open the file named "library", read the basis sets which have the right
+   ! "labels", and assign them to the basis vector.  The file must begin with a
+   ! "{" symbol and must have at least one "data=" list-type keyword following
+   ! the open bracket. NOTE: Self is created or expanded by the number of unique
+   ! labels in "labels" -- those which cannot be found already in "self".
+     self :: PTR
+     library :: STR, IN
+     labels :: STRVEC, IN
+     n_unique_labels :: INT, OUT, optional
+     unique_labels :: STRVEC*
+     word :: STR
+     basis :: ELEMENT_TYPE*
+     found,i,u,n_labels,N :: INT
+     if (NOT .created) then
+        N = 0
+        n_labels = labels.dim    ! All labels are unique
+        unique_labels.create_copy(labels)
+        if (n_labels>0) .create(n_labels)
+     else                        
+        N = .n_basis
+        n_labels = labels.dim    ! Find and add only unique labels
+        unique_labels.create(n_labels)
+        u = 0
+        do i = 1,n_labels
+           if (any(self(:).label==labels(i))) cycle
+           u = u + 1
+           unique_labels(u) = labels(i)
+        end
+        n_labels = u
+        unique_labels.shrink(n_labels)
+        if (n_labels>0) .expand(N+n_labels)
+     end
+     if (present(n_unique_labels)) n_unique_labels = n_labels
+     if (n_labels==0) then
+        unique_labels.destroy
+        return
+     end
+     stdin.redirect(library)
+     ENSURE(stdin.next_item=="{","expecting open bracket symbol, {")
+     stdin.read(word)            ! Read the open bracket
+     do                          ! Loop over input list-type keywords
+       stdin.read(word)
+       if (word=="}")      exit
+       if (word=="data=")  exit
+       .process_list_keyword(word)
+     end
+     ENSURE(.keys_created,"no keys= supplied")
+     ENSURE(word=="data=","no data= list keyword")
+     ENSURE(stdin.next_item=="{","expecting open bracket symbol, {")
+     stdin.read(word)            ! move past open brace
+     found = 0                   ! Explicitly process data= keyword
+     do                          ! Try to match all basis labels
+       basis.create
+       basis.process_keys
+       do i = 1,n_labels
+          if (basis.label.same_as(unique_labels(i),ignore_case=TRUE)) then
+             found = found + 1
+             self(N+i).copy(basis)
+          end
+       end
+       basis.destroy
+       if (found==n_labels) exit ! All bases found
+       ENSURE(stdin.next_item/="}","missing basis sets in library")
+     end
+     stdin.revert
+     unique_labels.destroy
+   end
+
+!*******************************************************************************
+
+   shrink(dim) ::: get_from(OBJECTVEC), leaky
+   ! Shrink self to dimension dim.  Contents are retained.
+     self :: PTR
+     dim :: INT, IN
+   end
+
+   expand(dim) ::: get_from(OBJECTVEC), leaky
+   ! Expand the vector "self" to "dim". New slots are left undefined.
+     self :: PTR
+     dim :: INT, IN
+   end
+
+   append(v) ::: get_from(OBJECTVEC), leaky
+   ! Expands self and appends the contents of vector "v".
+     self :: PTR
+     v :: SELF_TYPE, IN
+   end
+
+   append(value) ::: get_from(OBJECTVEC), leaky
+   ! Expands self by 1, and appends the single scalar "value" onto the end.
+     self :: PTR
+     value :: ELEMENT_TYPE, IN
+   end
+
+   unnormalise
+   ! Take the normalisation factors out of the primitives, assuming
+   ! that the contraction coeff's refer to normalised basis functions
+       b :: INT
+      do b = 1,size(self)
+         self(b).unnormalise
+      end
+   end
+
+   renormalise
+   ! Put back in the normalisation factors of the primitives, assuming
+   ! that the contraction coeff's refer to unnormalised basis functions
+       b :: INT
+      do b = 1,size(self)
+         self(b).renormalise
+      end
+   end
+
+   put ::: get_from(OBJECTVEC)
+   ! Output the list information
+   end
+
+   put_table ::: get_from(OBJECTVEC)
+   ! Output table information
+   end
+
+   n_basis result (res)
+   ! Return the number of basis sets
+      res :: INT
+      res = .dim
+   end
+
+   maximum_basis_set_l_value result (res)
+   ! Returns the maximum basis set l value
+     self :: IN
+     res :: INT
+     i,j,l :: INT
+     res = 0
+     do i = 1,size(self)
+       do j = 1,size(self(i).shell)
+         l = self(i).shell(j).l
+         res = max(l,res)
+       end
+     end
+   end
+
+end
+

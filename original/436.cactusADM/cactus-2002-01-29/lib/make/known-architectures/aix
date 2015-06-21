@@ -1,0 +1,104 @@
+#! /bin/sh
+#  /*@@
+#    @file      aix
+#    @date      Wed Jul 14 12:38:45 1999
+#    @author    Tom Goodale
+#    @desc 
+#   
+#    @enddesc
+#    @version $Header: /cactus/Cactus/lib/make/known-architectures/aix,v 1.16 2002/01/19 17:52:36 tradke Exp $
+#  @@*/
+
+if test "$CCTK_CONFIG_STAGE" = "preferred-compilers" ; then
+
+  if test -z "$CC"; then
+    echo Setting C compiler to xlc
+    CC="xlc"
+  fi
+
+  if test -z "$CXX"; then
+    echo Setting C++ compiler to xlC
+    CXX="xlC"
+  fi
+
+else
+
+  : ${F90FLAGS=""}
+  : ${F77FLAGS="-qfixed"}
+  : ${F90_OPTIMISE_FLAGS="-O2"}
+  : ${F77_OPTIMISE_FLAGS="-O2"}
+  : ${F90_DEBUG_FLAGS="-g"}
+  : ${F77_DEBUG_FLAGS="-g"}
+
+  : ${F90_SUFFIX="f"}
+  CCTK_WriteLine make.arch.defn 'F90FLAGS += $(AIX_$(subst .,,$(suffix $<))_FLAGS)' 
+  CCTK_WriteLine make.arch.defn 'AIX_F90_FLAGS = '
+  CCTK_WriteLine make.arch.defn 'AIX_f90_FLAGS = '
+  CCTK_WriteLine make.arch.defn 'AIX_F_FLAGS = -qfixed'
+  CCTK_WriteLine make.arch.defn 'AIX_f_FLAGS = -qfixed'
+
+  case "$CC" in
+    gcc)
+     : ${C_DEPEND_OUT=' > $@'}
+     ;;
+    cc|xlc|xlc_r)
+     : ${C_DEPEND='$(CPP) -M $(CPPFLAGS)'}
+     : ${C_DEPEND_OUT=' > /dev/null ; mv $(basename $(basename $@)).u $@'}
+     : ${CFLAGS='-qspill=10000 -qmaxmem=-1'}
+     ;;
+    *)
+     ;;
+  esac
+
+  case "$CXX" in
+    "g++"|"c++")
+     : ${CXX_DEPEND_OUT=' > $@'}
+     ;;
+    xlC|xlC_r)
+     : ${CXX_DEPEND='$(CXX) -E -M $(CPPFLAGS)'}
+     : ${CXX_DEPEND_OUT=' > /dev/null ; mv $(basename $(basename $@)).u $@'}
+     : ${CXXFLAGS='-qspill=10000 -qmaxmem=-1'}
+     ;;
+    *)
+     ;;
+  esac
+
+  : ${F_DEPEND_OUT=' > /dev/null ; mv $(basename $(basename $@)).u $@'}
+  : ${F77_DEPEND_OUT=' > /dev/null ; mv $(basename $(basename $@)).u $@'}
+
+  if test -z "$LIBS" -a "$LD" != "xlf90" ; then
+    LIBS="xlf90"
+    if test -r /usr/lib/libxlopt.a ; then
+      LIBS="$LIBS xlopt"
+    fi
+  fi
+
+  # allow each process to use up to 2 GB of virtual memory (default is 256 MB)
+  if test "$LD" != 'g++' -a "$LD" != 'c++'; then
+    : ${LDFLAGS='-bmaxdata:0x80000000'}
+  fi
+
+  # MPI stuff
+ 
+  if test -n "$MPI" ; then
+    NATIVE_MPI_LIBS="mpi"
+    NATIVE_MPI_LIB_DIRS="/usr/lpp/ppe.poe/lib"
+    NATIVE_MPI_INC_DIRS="/usr/lpp/ppe.poe/include"
+    if test "$MPI" = "NATIVE" ; then
+      case "$CC:$CXX" in 
+        "xlc:xlC"|"cc:xlC")
+          LD=mpCC
+          ;;
+        "xlc_r:xlC_r")
+          LD=mpCC_r
+          ;;
+         *)
+        echo "NATIVE MPI requires xlc and xlC"
+        echo "Please reconfigure with these compilers"
+        exit 1
+         ;;
+      esac
+    fi
+  fi          
+
+fi

@@ -1,0 +1,99 @@
+# Parameter definitions for thorn IOBasic
+# $Header: /cactus/CactusBase/IOBasic/param.ccl,v 1.15 2001/08/26 17:22:12 allen Exp $
+
+
+#############################################################################
+### declare IOBasic parameters
+#############################################################################
+private:
+
+##########################
+# Directory to output to  (overriden by outdir)
+##########################
+
+STRING outdirScalar "Name of IO Scalar output directory, overrides outdir"
+{
+  .* :: "A regex which matches everything"
+} "."
+
+##########################
+# What variables to output
+##########################
+STRING outInfo_vars "Variables to output as Info to screen" STEERABLE = ALWAYS
+{
+  .* :: "A regex which matches everything"
+} ""
+STRING outScalar_vars "Variables to output into files" STEERABLE = ALWAYS
+{
+  .* :: "A regex which matches everything"
+} ""
+
+
+##########################
+# What reductions to output
+##########################
+STRING outInfo_reductions "List of reductions to output as Info to screen" STEERABLE = ALWAYS
+{
+  ".*" :: "A regex which matches everything"
+} "minimum maximum"
+STRING outScalar_reductions "List of reductions to output into files" STEERABLE = ALWAYS
+{
+  ".*" :: "A regex which matches everything"
+} "minimum maximum norm1 norm2"
+
+
+########################
+# How often to do output
+########################
+INT outInfo_every "How often to do Info output" STEERABLE = ALWAYS
+{
+  -1:* :: ""
+} -1
+INT outScalar_every "How often to do Info output" STEERABLE = ALWAYS
+{
+  -1:* :: ""
+} -1
+
+
+#####################
+# Scalar output style
+#####################
+KEYWORD outScalar_style "Which style for Scalar output"
+{
+  "gnuplot" :: "1D output readable by gnuplot"
+  "xgraph"  :: "1D output readable by xgraph"
+} "xgraph"
+
+STRING out_format "Which format for Scalar floating-point number output" STEERABLE = ALWAYS
+{
+  ^(\.[0-9]{1,2})?[EGefg]$ :: "output with given precision in exponential / floating point notation"
+} ".13f"
+
+
+
+#############################################################################
+### import IOUtil parameters
+#############################################################################
+shares: IO
+
+####################
+# Output directories
+####################
+USES STRING outdir
+
+
+########################
+# How often to do output
+########################
+USES INT out_every
+
+
+################
+# various things
+################
+USES BOOLEAN newverbose
+USES BOOLEAN new_filename_scheme
+EXTENDS KEYWORD out_fileinfo
+{
+  "axis labels" :: "add axis labels information to output files"
+}

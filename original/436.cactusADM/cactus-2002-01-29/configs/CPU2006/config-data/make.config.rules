@@ -1,0 +1,303 @@
+# /*@@
+#   @file      make.config.rules.in
+#   @date      Sun Jan 17 22:31:16 1999
+#   @author    Tom Goodale
+#   @desc 
+#   Rules to generate object files from source files in another directory.
+#
+#   Note that, due to the (IMHO) rather bizarre way in which Make
+#   deals with directories in the target names, this will
+#   not work if the target is in a subdirectory.
+#
+#   In order to accomodate Fortran 90 modules, the working directory
+#   for each compilation is set to a scratch directory, so that
+#   all module files end up there.  
+#   
+#   @enddesc 
+#   @version $Header: /cactus/Cactus/lib/make/make.config.rules.in,v 1.44 2001/06/20 11:00:32 goodale Exp $
+# @@*/
+
+# Dividers to make the screen output slightly nicer
+DIVEL   =  __________________
+DIVIDER =  $(DIVEL)$(DIVEL)$(DIVEL)$(DIVEL)
+
+#####################################################################
+# Define how to do dependencies
+
+ifeq ($(strip $(PERL_BACKUP_NECESSARY)),)
+define DEPENDENCY_FIXER
+	$(PERL) -pi -e "s,([^:]*),$(basename $@).o $(basename $@).d, if(m/: /);\
+	 s:\s[^\s]*[/\\\]($(DEP_EXCLUDE_FILES))\b::g" $@ 
+endef
+else
+define DEPENDENCY_FIXER
+	$(PERL) -pi.bak -e "s,([^:]*),$(basename $@).o $(basename $@).d, if(m/: /)" $@ 
+	rm $@.bak
+endef
+endif
+
+define C_DEPENDENCIES
+	$(C_DEPEND) $< $(INC_DIRS:%=-I%) $(SYS_INC_DIRS:%=-I%) $(EXTRA_DEFINES:%=-D%) -DCCODE $(C_DEPEND_OUT)
+	$(DEPENDENCY_FIXER)
+endef
+
+define CXX_DEPENDENCIES
+	$(CXX_DEPEND) $< $(INC_DIRS:%=-I%) $(SYS_INC_DIRS:%=-I%) $(EXTRA_DEFINES:%=-D%) -DCCODE $(CXX_DEPEND_OUT)
+	$(DEPENDENCY_FIXER)
+endef
+
+define F77_DEPENDENCIES
+	$(F77_DEPEND) $(INC_DIRS:%=-I%) $(EXTRA_DEFINES:%=-D%) -DFCODE $< $(F77_DEPEND_OUT)
+	$(DEPENDENCY_FIXER)
+endef
+
+define F_DEPENDENCIES
+	$(F_DEPEND) $(INC_DIRS:%=-I%) $(EXTRA_DEFINES:%=-D%) -DFCODE $< $(F_DEPEND_OUT)
+	$(DEPENDENCY_FIXER)
+endef
+
+define F90_DEPENDENCIES
+	$(F_DEPEND) $(INC_DIRS:%=-I%) $(EXTRA_DEFINES:%=-D%) -DFCODE $< $(F_DEPEND_OUT)
+	$(DEPENDENCY_FIXER)
+endef
+
+# No preprocessing, just create empty dependency file
+define f_DEPENDENCIES
+	touch $@
+endef
+
+define f77_DEPENDENCIES
+	touch $@
+endef
+
+define f90_DEPENDENCIES
+	touch $@
+endef
+
+#####################################################################
+# Define how to do a C compilation
+define PREPROCESS_C
+cat $< | $(PERL) -s $(C_FILE_PROCESSOR) -source_file_name=\"$<\" $(CONFIG) > $(notdir $<)
+endef
+ 
+define COMPILE_C 
+current_wd=`$(GET_WD)` ; cd $(SCRATCH_BUILD) ; $(CC) $(CFLAGS) $(CCOMPILEONLY)$(OPTIONSEP)$$current_wd$(DIRSEP)$@ $$current_wd$(DIRSEP)$(notdir $<) $(INC_DIRS:%=-I%) $(EXTRA_DEFINES:%=-D%) -DCCODE
+endef
+
+define POSTPROCESS_C
+$(C_POSTPROCESSING)
+endef
+
+# Define how to do a C++ compilation
+define PREPROCESS_CXX
+cat $< | $(PERL) -s $(C_FILE_PROCESSOR) -source_file_name=\"$<\" $(CONFIG) > $(CXX_WORKING_NAME)
+endef
+
+define COMPILE_CXX
+current_wd=`$(GET_WD)` ; cd $(SCRATCH_BUILD) ; $(CXX) $(CXXFLAGS) $(CCOMPILEONLY)$(OPTIONSEP)$$current_wd$(DIRSEP)$@ $$current_wd$(DIRSEP)$(CXX_WORKING_NAME) $(INC_DIRS:%=-I%) $(EXTRA_DEFINES:%=-D%) -DCCODE
+endef
+
+define POSTPROCESS_CXX
+$(CXX_POSTPROCESSING)
+endef
+
+# Define how to do a F77 compilation
+define PREPROCESS_F77
+cat $< | sed 's.//.AUTOMATICALLY_GENERATED_CONCATENATION_PROTECTION_STRING.g' | $(CPP) $(CPPFLAGS) $(INC_DIRS:%=-I%) $(EXTRA_DEFINES:%=-D%) -DFCODE - |  $(PERL) -p -e 's/__FORTRANFILE__/\"$(basename $(notdir $<)).F77\"/g; s.AUTOMATICALLY_GENERATED_CONCATENATION_PROTECTION_STRING.//.g' - | $(PERL) $(F_FILE_PROCESSOR) > $(basename $(notdir $<)).f
+endef
+
+define COMPILE_F77
+current_wd=`$(GET_WD)` ; cd $(SCRATCH_BUILD) ; $(F77) $(F77FLAGS) $(FCOMPILEONLY)$(OPTIONSEP)$$current_wd$(DIRSEP)$@ $$current_wd$(DIRSEP)$(basename $(notdir $<)).f 
+endef
+
+define POSTPROCESS_F77
+$(F77_POSTPROCESSING)
+endef
+
+# Define how to do a fixed-format F90 compilation
+define PREPROCESS_F
+cat $< | sed 's.//.AUTOMATICALLY_GENERATED_CONCATENATION_PROTECTION_STRING.g' | $(CPP) $(CPPFLAGS) $(INC_DIRS:%=-I%) $(EXTRA_DEFINES:%=-D%) -DFCODE - |  $(PERL) -p -e 's/__FORTRANFILE__/\"$(basename $(notdir $<)).F\"/g; s.AUTOMATICALLY_GENERATED_CONCATENATION_PROTECTION_STRING.//.g' - | $(PERL) $(F_FILE_PROCESSOR) > $(basename $(notdir $<)).f
+endef
+
+define COMPILE_F
+current_wd=`$(GET_WD)` ; cd $(SCRATCH_BUILD) ; $(F90) $(F90FLAGS) $(FCOMPILEONLY)$(OPTIONSEP)$$current_wd$(DIRSEP)$@ $$current_wd$(DIRSEP)$(basename $(notdir $<)).f  
+endef
+
+define POSTPROCESS_F
+$(F_POSTPROCESSING)
+endef
+
+# Define how to do a free-format F90 compilation
+define PREPROCESS_F90
+cat $< | sed 's.//.AUTOMATICALLY_GENERATED_CONCATENATION_PROTECTION_STRING.g' | $(CPP) $(CPPFLAGS) $(INC_DIRS:%=-I%) $(EXTRA_DEFINES:%=-D%) -DFCODE - |  $(PERL) -p -e 's/__FORTRANFILE__/\"$(basename $(notdir $<)).F90\"/g; s.AUTOMATICALLY_GENERATED_CONCATENATION_PROTECTION_STRING.//.g' - | $(PERL) -s $(F_FILE_PROCESSOR) -free_format > $(basename $(notdir $<)).$(F90_SUFFIX)
+endef
+
+define COMPILE_F90
+current_wd=`$(GET_WD)` ; cd $(SCRATCH_BUILD) ; $(F90) $(F90FLAGS) $(FCOMPILEONLY)$(OPTIONSEP)$$current_wd$(DIRSEP)$@ $$current_wd$(DIRSEP)$(basename $(notdir $<)).$(F90_SUFFIX)  
+endef
+
+define POSTPROCESS_F90
+$(F90_POSTPROCESSING)
+endef
+
+
+# Define how to do a f77 compilation
+define PREPROCESS_f77
+cat $< > $(basename $(notdir $<)).f
+endef
+
+# Define how to do a f compilation
+define PREPROCESS_f
+cat $< > $(basename $(notdir $<)).f
+endef
+
+# Define how to do a f90 compilation
+define PREPROCESS_f90
+cat $< > $(basename $(notdir $<)).f90
+endef
+
+
+# Build rules for C
+
+%.c.o: $(SRCDIR)/%.c
+	@echo $(DIVIDER)
+	@echo Preprocessing $<
+	$(PREPROCESS_C)
+	@echo Compiling $<
+	$(COMPILE_C)
+	@echo Postprocessing $<
+	$(POSTPROCESS_C)
+
+%.c.d: $(SRCDIR)/%.c
+	$(C_DEPENDENCIES)
+
+# Build rules for C++
+
+%.cc.o: $(SRCDIR)/%.cc 
+	@echo $(DIVIDER)
+	@echo Preprocessing $<
+	$(PREPROCESS_CXX)
+	@echo Compiling $<
+	$(COMPILE_CXX)
+	@echo Postprocessing $<
+	$(POSTPROCESS_CXX)
+
+%.cc.d: $(SRCDIR)/%.cc
+	$(CXX_DEPENDENCIES)
+
+%.C.o: $(SRCDIR)/%.C 
+	@echo $(DIVIDER)
+	@echo Preprocessing $<
+	$(PREPROCESS_CXX)
+	@echo Compiling $<
+	$(COMPILE_CXX)
+	@echo Postprocessing $<
+	$(POSTPROCESS_CXX)
+
+
+%.C.d: $(SRCDIR)/%.C
+	$(CXX_DEPENDENCIES)
+
+%.cpp.o: $(SRCDIR)/%.cpp 
+	@echo $(DIVIDER)
+	@echo Preprocessing $<
+	$(PREPROCESS_CXX)
+	@echo Compiling $<
+	$(COMPILE_CXX)
+	@echo Postprocessing $<
+	$(POSTPROCESS_CXX)
+
+
+%.cpp.d: $(SRCDIR)/%.cpp
+	$(CXX_DEPENDENCIES)
+
+%.cxx.o: $(SRCDIR)/%.cxx 
+	@echo $(DIVIDER)
+	@echo Preprocessing $<
+	$(PREPROCESS_CXX)
+	@echo Compiling $<
+	$(COMPILE_CXX)
+	@echo Postprocessing $<
+	$(POSTPROCESS_CXX)
+
+
+%.cxx.d: $(SRCDIR)/%.cxx
+	$(CXX_DEPENDENCIES)
+
+# Build rules for F77
+
+%.F77.o: $(SRCDIR)/%.F77
+	@echo $(DIVIDER)
+	@echo Preprocessing $<
+	$(PREPROCESS_F77)
+	@echo Compiling $<
+	$(COMPILE_F77)
+	@echo Postprocessing $<
+	$(POSTPROCESS_F77)
+
+%.f77.o: $(SRCDIR)/%.f77
+	@echo $(DIVIDER)
+	@echo Copying $<
+	$(PREPROCESS_f77)
+	@echo Compiling $<
+	$(COMPILE_F77)
+	@echo Postprocessing $<
+	$(POSTPROCESS_F77)
+
+%.F77.d: $(SRCDIR)/%.F77
+	$(F77_DEPENDENCIES)
+
+%.f77.d: $(SRCDIR)/%.f77
+	$(f77_DEPENDENCIES)
+
+# Build rules for F90
+
+%.F.o: $(SRCDIR)/%.F
+	@echo $(DIVIDER)
+	@echo Preprocessing $<
+	$(PREPROCESS_F)
+	@echo Compiling $<
+	$(COMPILE_F)
+	@echo Postprocessing $<
+	$(POSTPROCESS_F)
+
+%.f.o: $(SRCDIR)/%.f
+	@echo $(DIVIDER)
+	@echo Copying $<
+	$(PREPROCESS_f)
+	@echo Compiling $<
+	$(COMPILE_F)
+	@echo Postprocessing $<
+	$(POSTPROCESS_F)
+
+%.F.d: $(SRCDIR)/%.F
+	$(F_DEPENDENCIES)
+
+%.f.d: $(SRCDIR)/%.f
+	$(f_DEPENDENCIES)
+
+# Build rules for free-format F90
+
+%.F90.o: $(SRCDIR)/%.F90
+	@echo $(DIVIDER)
+	@echo Preprocessing $<
+	$(PREPROCESS_F90)
+	@echo Compiling $<
+	$(COMPILE_F90)
+	@echo Postprocessing $<
+	$(POSTPROCESS_F90)
+
+%.f90.o: $(SRCDIR)/%.f90
+	@echo $(DIVIDER)
+	@echo Copying $<
+	$(PREPROCESS_f90)
+	@echo Compiling $<
+	$(COMPILE_F90)
+	@echo Postprocessing $<
+	$(POSTPROCESS_F90)
+
+%.F90.d: $(SRCDIR)/%.F90
+	$(F90_DEPENDENCIES)
+
+%.f90.d: $(SRCDIR)/%.f90
+	$(f90_DEPENDENCIES)

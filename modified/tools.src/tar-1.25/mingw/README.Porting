@@ -1,0 +1,21 @@
+All of the include files in the mingw/ subdirectory were generated using
+the standard build system on a system with both MinGW GCC and MSYS installed.
+Normally you'd think that this would be the way to go (hey, just use
+the regular old buildtools!), and normally you'd be right... But in this case
+we don't want to have dependencies on DLLs distributed only with MSYS.
+
+The MinGW-specific Makefile is pretty simple and was constructed by observing
+the output of make from the MSYS build.
+
+Even with MSYS, there are quite a few Windows-specific changes that needed to
+be made to the sources before they would build.  Yet more are necessary for
+tar to actually work.  All of them can be seen by diffing the SPEC sources
+with the originally distributed sources.
+
+The changes made to the SPEC version of GNU tar are not intended to produce
+a feature-complete port of GNU tar.  In particular, features like rmt, inter-
+volume scripting, and other kinds of scripting are basically just commented
+out.  If you think it's all a big quick-n-dirty hack, you'd be right.  It's
+still better than carrying nttar-1.12 around.
+
+- Cloyce D. Spradling, 15 Feb 2011

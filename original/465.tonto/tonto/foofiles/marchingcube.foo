@@ -1,0 +1,1384 @@
+!---------------------------------------------------------------------
+!
+! MARCHINGCUBE: 
+!
+! For generating triangulated iso-surfaces using the "marching cubes"
+! algorithm. This represents a single marching cube. The data 
+! statements below contain details of the algorithm.
+!
+! CREDIT: This is a modified version of "conscript.f" written by:
+!
+! (C) Mike Lawrence February 2000
+!     Biomolecular Research Institute
+!     343 Royal Parade
+!     Parkville 3052
+!     Victoria
+!     Australia
+!
+! (C) Stephen K Wolff, Dylan Jayatilaka, 2002
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+! 
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+! 
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: marchingcube.foo,v 1.2.2.6 2003/10/13 06:22:45 reaper Exp $
+!---------------------------------------------------------------------
+
+module MARCHINGCUBE
+
+   implicit none         
+
+!  ***************
+!  Data Statements
+!  ***************
+
+!  Every cube has 8 vertices. "cube" lists the eight vertices of a cube in the
+!  marching cubes standard order. The vertex indices are in the range 0:7
+
+   cube :: INTMAT(1:3,0:7), private
+!                        v0     v1     v2     v3     v4     v5     v6     v7
+   data cube(1:3,0:7)/0,0,0, 1,0,0, 1,1,0, 0,1,0, 0,0,1, 1,0,1, 1,1,1, 0,1,1/
+
+!  There are 12 cube edges which can be defined in a standard order.
+!  "vertex_1_of_edge(e)" gives the 1-st vertex index of the e-th cube edge.
+!  "vertex_2_of_edge(e)" gives the 2-nd vertex index of the e-th cube edge.
+!  The edge indices are in the range 0:11.
+
+   vertex_1_of_edge :: INTVEC(0:11), private
+   vertex_2_of_edge :: INTVEC(0:11), private
+!                                   e0  e1  e2  e3  e4  e5  e6  e7  e8  e9 e10 e11
+   data vertex_1_of_edge(0:11)/      0,  1,  2,  3,  4,  5,  6,  7,  0,  1,  2,  3/
+   data vertex_2_of_edge(0:11)/      1,  2,  3,  0,  5,  6,  7,  4,  4,  5,  6,  7/
+
+!  The following data is the heart of the module. In the marching cubes
+!  algorithm, every cube vertex is classified either less than or greater than
+!  the iso value for the isosurface. Since there are 8 cube vertices, there are
+!  only 256 possibile cases that can occur. Each case can be encoded as a bit
+!  string. For example, if vertex 0 and 7 are ON (i.e. LESS than the iso value
+!  of the isosurface) and all other vertex are OFF (i.e. GREATER than the iso
+!  value for the isosurface), then the case # is: 010000001 = 129.  
+!  For each case, a number of triangles may be drawn which approximates the
+!  isosurface through the cube. The "edge_table" maps each case # to another bit
+!  string which describes the *edges* to be used to construct each triangle.
+!  The midpoints along the edges (or some other interpolated value along the
+!  edge) are used to make each vertex of the triangle. For example, for case
+!  #129, only two triangle are drawn, involving edges 3, 0, 8, 11, 7 and 6 (as
+!  described below for traingle_table(:,129)). The bits string encoding these
+!  edges is: 000100111001001 = 9(12)9 = 9c9 base 16.  i.e. edge_table(129) =
+!  "9c9", as shown below.  
+!  Note that the opposite case # 101111110 also involves the same triangles,
+!  thus the edge_table is symmetric in two halves. However, the edge bit string
+!  should not be reversed, so that ON stands for GREATER than the iso value,
+!  because otherwise the the arrays vertex_1_of_edge and vertex_2_of_edge would
+!  have to be swapped to be consistent with edge_table, in order that the sign
+!  of the function gradients are correctly calculated.
+ 
+   edge_table :: INTVEC(0:255), private 
+
+   data edge_table(  0:127)/ &
+      Z'0'  , Z'109', Z'203', Z'30a', Z'406', Z'50f', Z'605', Z'70c', &
+      Z'80c', Z'905', Z'a0f', Z'b06', Z'c0a', Z'd03', Z'e09', Z'f00', &
+      Z'190', Z'99' , Z'393', Z'29a', Z'596', Z'49f', Z'795', Z'69c', &
+      Z'99c', Z'895', Z'b9f', Z'a96', Z'd9a', Z'c93', Z'f99', Z'e90', &
+      Z'230', Z'339', Z'33' , Z'13a', Z'636', Z'73f', Z'435', Z'53c', &
+      Z'a3c', Z'b35', Z'83f', Z'936', Z'e3a', Z'f33', Z'c39', Z'd30', &
+      Z'3a0', Z'2a9', Z'1a3', Z'aa' , Z'7a6', Z'6af', Z'5a5', Z'4ac', &
+      Z'bac', Z'aa5', Z'9af', Z'8a6', Z'faa', Z'ea3', Z'da9', Z'ca0', &
+      Z'460', Z'569', Z'663', Z'76a', Z'66' , Z'16f', Z'265', Z'36c', &
+      Z'c6c', Z'd65', Z'e6f', Z'f66', Z'86a', Z'963', Z'a69', Z'b60', &
+      Z'5f0', Z'4f9', Z'7f3', Z'6fa', Z'1f6', Z'ff' , Z'3f5', Z'2fc', &
+      Z'dfc', Z'cf5', Z'fff', Z'ef6', Z'9fa', Z'8f3', Z'bf9', Z'af0', &
+      Z'650', Z'759', Z'453', Z'55a', Z'256', Z'35f', Z'55' , Z'15c', &
+      Z'e5c', Z'f55', Z'c5f', Z'd56', Z'a5a', Z'b53', Z'859', Z'950', &
+      Z'7c0', Z'6c9', Z'5c3', Z'4ca', Z'3c6', Z'2cf', Z'1c5', Z'cc' , &
+      Z'fcc', Z'ec5', Z'dcf', Z'cc6', Z'bca', Z'ac3', Z'9c9', Z'8c0'/ 
+
+!  The bottom half is a reflection of the top half
+
+   data edge_table(128:255)/ &
+      Z'8c0', Z'9c9', Z'ac3', Z'bca', Z'cc6', Z'dcf', Z'ec5', Z'fcc', &
+      Z'cc' , Z'1c5', Z'2cf', Z'3c6', Z'4ca', Z'5c3', Z'6c9', Z'7c0', &
+      Z'950', Z'859', Z'b53', Z'a5a', Z'd56', Z'c5f', Z'f55', Z'e5c', &
+      Z'15c', Z'55' , Z'35f', Z'256', Z'55a', Z'453', Z'759', Z'650', &
+      Z'af0', Z'bf9', Z'8f3', Z'9fa', Z'ef6', Z'fff', Z'cf5', Z'dfc', &
+      Z'2fc', Z'3f5', Z'ff' , Z'1f6', Z'6fa', Z'7f3', Z'4f9', Z'5f0', &
+      Z'b60', Z'a69', Z'963', Z'86a', Z'f66', Z'e6f', Z'd65', Z'c6c', &
+      Z'36c', Z'265', Z'16f', Z'66' , Z'76a', Z'663', Z'569', Z'460', &
+      Z'ca0', Z'da9', Z'ea3', Z'faa', Z'8a6', Z'9af', Z'aa5', Z'bac', &
+      Z'4ac', Z'5a5', Z'6af', Z'7a6', Z'aa' , Z'1a3', Z'2a9', Z'3a0', &
+      Z'd30', Z'c39', Z'f33', Z'e3a', Z'936', Z'83f', Z'b35', Z'a3c', &
+      Z'53c', Z'435', Z'73f', Z'636', Z'13a', Z'33' , Z'339', Z'230', &
+      Z'e90', Z'f99', Z'c93', Z'd9a', Z'a96', Z'b9f', Z'895', Z'99c', &
+      Z'69c', Z'795', Z'49f', Z'596', Z'29a', Z'393', Z'99' , Z'190', &
+      Z'f00', Z'e09', Z'd03', Z'c0a', Z'b06', Z'a0f', Z'905', Z'80c', &
+      Z'70c', Z'605', Z'50f', Z'406', Z'30a', Z'203', Z'109', Z'0'/
+ 
+!  The "triangle_table(n)" lists the edges used to form each triangle,
+!  for the n-th possible case number. They come in groups of three,
+!  and -1 is the null value indicating no edge, e.g. the fourth data 
+!  item below is:
+!      1, 8, 3, 9, 8, 1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+!  This contains two triangles.  The first is formed from points on 
+!  edges 1, 8, 3, while the second is formed from points on edges 9, 8, 1.
+ 
+   triangle_table :: INTMAT(0:15,0:255), private
+
+   data triangle_table(0:15,  0: 24)/                  &
+      -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       0, 8, 3,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       0, 1, 9,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       1, 8, 3, 9, 8, 1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       1, 2,10,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       0, 8, 3, 1, 2,10,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       9, 2,10, 0, 2, 9,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       2, 8, 3, 2,10, 8,10, 9, 8,-1,-1,-1,-1,-1,-1,-1, &
+       3,11, 2,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       0,11, 2, 8,11, 0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       1, 9, 0, 2, 3,11,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       1,11, 2, 1, 9,11, 9, 8,11,-1,-1,-1,-1,-1,-1,-1, &
+       3,10, 1,11,10, 3,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       0,10, 1, 0, 8,10, 8,11,10,-1,-1,-1,-1,-1,-1,-1, &
+       3, 9, 0, 3,11, 9,11,10, 9,-1,-1,-1,-1,-1,-1,-1, &
+       9, 8,10,10, 8,11,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       4, 7, 8,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       4, 3, 0, 7, 3, 4,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       0, 1, 9, 8, 4, 7,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       4, 1, 9, 4, 7, 1, 7, 3, 1,-1,-1,-1,-1,-1,-1,-1, &
+       1, 2,10, 8, 4, 7,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       3, 4, 7, 3, 0, 4, 1, 2,10,-1,-1,-1,-1,-1,-1,-1, &
+       9, 2,10, 9, 0, 2, 8, 4, 7,-1,-1,-1,-1,-1,-1,-1, &
+       2,10, 9, 2, 9, 7, 2, 7, 3, 7, 9, 4,-1,-1,-1,-1, &
+       8, 4, 7, 3,11, 2,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1/  
+   data triangle_table(0:15, 25: 49)/                  &
+      11, 4, 7,11, 2, 4, 2, 0, 4,-1,-1,-1,-1,-1,-1,-1, &
+       9, 0, 1, 8, 4, 7, 2, 3,11,-1,-1,-1,-1,-1,-1,-1, &
+       4, 7,11, 9, 4,11, 9,11, 2, 9, 2, 1,-1,-1,-1,-1, &
+       3,10, 1, 3,11,10, 7, 8, 4,-1,-1,-1,-1,-1,-1,-1, &
+       1,11,10, 1, 4,11, 1, 0, 4, 7,11, 4,-1,-1,-1,-1, &
+       4, 7, 8, 9, 0,11, 9,11,10,11, 0, 3,-1,-1,-1,-1, &
+       4, 7,11, 4,11, 9, 9,11,10,-1,-1,-1,-1,-1,-1,-1, &
+       9, 5, 4,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       9, 5, 4, 0, 8, 3,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       0, 5, 4, 1, 5, 0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       8, 5, 4, 8, 3, 5, 3, 1, 5,-1,-1,-1,-1,-1,-1,-1, &
+       1, 2,10, 9, 5, 4,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       3, 0, 8, 1, 2,10, 4, 9, 5,-1,-1,-1,-1,-1,-1,-1, &
+       5, 2,10, 5, 4, 2, 4, 0, 2,-1,-1,-1,-1,-1,-1,-1, &
+       2,10, 5, 3, 2, 5, 3, 5, 4, 3, 4, 8,-1,-1,-1,-1, &
+       9, 5, 4, 2, 3,11,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       0,11, 2, 0, 8,11, 4, 9, 5,-1,-1,-1,-1,-1,-1,-1, &
+       0, 5, 4, 0, 1, 5, 2, 3,11,-1,-1,-1,-1,-1,-1,-1, &
+       2, 1, 5, 2, 5, 8, 2, 8,11, 4, 8, 5,-1,-1,-1,-1, &
+      10, 3,11,10, 1, 3, 9, 5, 4,-1,-1,-1,-1,-1,-1,-1, &
+       4, 9, 5, 0, 8, 1, 8,10, 1, 8,11,10,-1,-1,-1,-1, &
+       5, 4, 0, 5, 0,11, 5,11,10,11, 0, 3,-1,-1,-1,-1, &
+       5, 4, 8, 5, 8,10,10, 8,11,-1,-1,-1,-1,-1,-1,-1, &
+       9, 7, 8, 5, 7, 9,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       9, 3, 0, 9, 5, 3, 5, 7, 3,-1,-1,-1,-1,-1,-1,-1/
+   data triangle_table(0:15, 50: 74)/                  &
+       0, 7, 8, 0, 1, 7, 1, 5, 7,-1,-1,-1,-1,-1,-1,-1, &
+       1, 5, 3, 3, 5, 7,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       9, 7, 8, 9, 5, 7,10, 1, 2,-1,-1,-1,-1,-1,-1,-1, &
+      10, 1, 2, 9, 5, 0, 5, 3, 0, 5, 7, 3,-1,-1,-1,-1, &
+       8, 0, 2, 8, 2, 5, 8, 5, 7,10, 5, 2,-1,-1,-1,-1, &
+       2,10, 5, 2, 5, 3, 3, 5, 7,-1,-1,-1,-1,-1,-1,-1, &
+       7, 9, 5, 7, 8, 9, 3,11, 2,-1,-1,-1,-1,-1,-1,-1, &
+       9, 5, 7, 9, 7, 2, 9, 2, 0, 2, 7,11,-1,-1,-1,-1, &
+       2, 3,11, 0, 1, 8, 1, 7, 8, 1, 5, 7,-1,-1,-1,-1, &
+      11, 2, 1,11, 1, 7, 7, 1, 5,-1,-1,-1,-1,-1,-1,-1, &
+       9, 5, 8, 8, 5, 7,10, 1, 3,10, 3,11,-1,-1,-1,-1, &
+       5, 7, 0, 5, 0, 9, 7,11, 0, 1, 0,10,11,10, 0,-1, &
+      11,10, 0,11, 0, 3,10, 5, 0, 8, 0, 7, 5, 7, 0,-1, &
+      11,10, 5, 7,11, 5,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+      10, 6, 5,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       0, 8, 3, 5,10, 6,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       9, 0, 1, 5,10, 6,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       1, 8, 3, 1, 9, 8, 5,10, 6,-1,-1,-1,-1,-1,-1,-1, &
+       1, 6, 5, 2, 6, 1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       1, 6, 5, 1, 2, 6, 3, 0, 8,-1,-1,-1,-1,-1,-1,-1, &
+       9, 6, 5, 9, 0, 6, 0, 2, 6,-1,-1,-1,-1,-1,-1,-1, &
+       5, 9, 8, 5, 8, 2, 5, 2, 6, 3, 2, 8,-1,-1,-1,-1, &
+       2, 3,11,10, 6, 5,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+      11, 0, 8,11, 2, 0,10, 6, 5,-1,-1,-1,-1,-1,-1,-1, &
+       0, 1, 9, 2, 3,11, 5,10, 6,-1,-1,-1,-1,-1,-1,-1/  
+   data triangle_table(0:15, 75: 99)/                  &
+       5,10, 6, 1, 9, 2, 9,11, 2, 9, 8,11,-1,-1,-1,-1, &
+       6, 3,11, 6, 5, 3, 5, 1, 3,-1,-1,-1,-1,-1,-1,-1, &
+       0, 8,11, 0,11, 5, 0, 5, 1, 5,11, 6,-1,-1,-1,-1, &
+       3,11, 6, 0, 3, 6, 0, 6, 5, 0, 5, 9,-1,-1,-1,-1, &
+       6, 5, 9, 6, 9,11,11, 9, 8,-1,-1,-1,-1,-1,-1,-1, &
+       5,10, 6, 4, 7, 8,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       4, 3, 0, 4, 7, 3, 6, 5,10,-1,-1,-1,-1,-1,-1,-1, &
+       1, 9, 0, 5,10, 6, 8, 4, 7,-1,-1,-1,-1,-1,-1,-1, &
+      10, 6, 5, 1, 9, 7, 1, 7, 3, 7, 9, 4,-1,-1,-1,-1, &
+       6, 1, 2, 6, 5, 1, 4, 7, 8,-1,-1,-1,-1,-1,-1,-1, &
+       1, 2, 5, 5, 2, 6, 3, 0, 4, 3, 4, 7,-1,-1,-1,-1, &
+       8, 4, 7, 9, 0, 5, 0, 6, 5, 0, 2, 6,-1,-1,-1,-1, &
+       7, 3, 9, 7, 9, 4, 3, 2, 9, 5, 9, 6, 2, 6, 9,-1, &
+       3,11, 2, 7, 8, 4,10, 6, 5,-1,-1,-1,-1,-1,-1,-1, &
+       5,10, 6, 4, 7, 2, 4, 2, 0, 2, 7,11,-1,-1,-1,-1, &
+       0, 1, 9, 4, 7, 8, 2, 3,11, 5,10, 6,-1,-1,-1,-1, &
+       9, 2, 1, 9,11, 2, 9, 4,11, 7,11, 4, 5,10, 6,-1, &
+       8, 4, 7, 3,11, 5, 3, 5, 1, 5,11, 6,-1,-1,-1,-1, &
+       5, 1,11, 5,11, 6, 1, 0,11, 7,11, 4, 0, 4,11,-1, &
+       0, 5, 9, 0, 6, 5, 0, 3, 6,11, 6, 3, 8, 4, 7,-1, &
+       6, 5, 9, 6, 9,11, 4, 7, 9, 7,11, 9,-1,-1,-1,-1, &
+      10, 4, 9, 6, 4,10,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       4,10, 6, 4, 9,10, 0, 8, 3,-1,-1,-1,-1,-1,-1,-1, &
+      10, 0, 1,10, 6, 0, 6, 4, 0,-1,-1,-1,-1,-1,-1,-1, &
+       8, 3, 1, 8, 1, 6, 8, 6, 4, 6, 1,10,-1,-1,-1,-1/
+   data triangle_table(0:15,100:124)/                  &
+       1, 4, 9, 1, 2, 4, 2, 6, 4,-1,-1,-1,-1,-1,-1,-1, &
+       3, 0, 8, 1, 2, 9, 2, 4, 9, 2, 6, 4,-1,-1,-1,-1, &
+       0, 2, 4, 4, 2, 6,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       8, 3, 2, 8, 2, 4, 4, 2, 6,-1,-1,-1,-1,-1,-1,-1, &
+      10, 4, 9,10, 6, 4,11, 2, 3,-1,-1,-1,-1,-1,-1,-1, &
+       0, 8, 2, 2, 8,11, 4, 9,10, 4,10, 6,-1,-1,-1,-1, &
+       3,11, 2, 0, 1, 6, 0, 6, 4, 6, 1,10,-1,-1,-1,-1, &
+       6, 4, 1, 6, 1,10, 4, 8, 1, 2, 1,11, 8,11, 1,-1, &
+       9, 6, 4, 9, 3, 6, 9, 1, 3,11, 6, 3,-1,-1,-1,-1, &
+       8,11, 1, 8, 1, 0,11, 6, 1, 9, 1, 4, 6, 4, 1,-1, &
+       3,11, 6, 3, 6, 0, 0, 6, 4,-1,-1,-1,-1,-1,-1,-1, &
+       6, 4, 8,11, 6, 8,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       7,10, 6, 7, 8,10, 8, 9,10,-1,-1,-1,-1,-1,-1,-1, &
+       0, 7, 3, 0,10, 7, 0, 9,10, 6, 7,10,-1,-1,-1,-1, &
+      10, 6, 7, 1,10, 7, 1, 7, 8, 1, 8, 0,-1,-1,-1,-1, &
+      10, 6, 7,10, 7, 1, 1, 7, 3,-1,-1,-1,-1,-1,-1,-1, &
+       1, 2, 6, 1, 6, 8, 1, 8, 9, 8, 6, 7,-1,-1,-1,-1, &
+       2, 6, 9, 2, 9, 1, 6, 7, 9, 0, 9, 3, 7, 3, 9,-1, &
+       7, 8, 0, 7, 0, 6, 6, 0, 2,-1,-1,-1,-1,-1,-1,-1, &
+       7, 3, 2, 6, 7, 2,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       2, 3,11,10, 6, 8,10, 8, 9, 8, 6, 7,-1,-1,-1,-1, &
+       2, 0, 7, 2, 7,11, 0, 9, 7, 6, 7,10, 9,10, 7,-1, &
+       1, 8, 0, 1, 7, 8, 1,10, 7, 6, 7,10, 2, 3,11,-1, &
+      11, 2, 1,11, 1, 7,10, 6, 1, 6, 7, 1,-1,-1,-1,-1, &
+       8, 9, 6, 8, 6, 7, 9, 1, 6,11, 6, 3, 1, 3, 6,-1/  
+   data triangle_table(0:15,125:149)/                  &
+       0, 9, 1,11, 6, 7,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       7, 8, 0, 7, 0, 6, 3,11, 0,11, 6, 0,-1,-1,-1,-1, &
+       7,11, 6,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       7, 6,11,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       3, 0, 8,11, 7, 6,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       0, 1, 9,11, 7, 6,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       8, 1, 9, 8, 3, 1,11, 7, 6,-1,-1,-1,-1,-1,-1,-1, &
+      10, 1, 2, 6,11, 7,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       1, 2,10, 3, 0, 8, 6,11, 7,-1,-1,-1,-1,-1,-1,-1, &
+       2, 9, 0, 2,10, 9, 6,11, 7,-1,-1,-1,-1,-1,-1,-1, &
+       6,11, 7, 2,10, 3,10, 8, 3,10, 9, 8,-1,-1,-1,-1, &
+       7, 2, 3, 6, 2, 7,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       7, 0, 8, 7, 6, 0, 6, 2, 0,-1,-1,-1,-1,-1,-1,-1, &
+       2, 7, 6, 2, 3, 7, 0, 1, 9,-1,-1,-1,-1,-1,-1,-1, &
+       1, 6, 2, 1, 8, 6, 1, 9, 8, 8, 7, 6,-1,-1,-1,-1, &
+      10, 7, 6,10, 1, 7, 1, 3, 7,-1,-1,-1,-1,-1,-1,-1, &
+      10, 7, 6, 1, 7,10, 1, 8, 7, 1, 0, 8,-1,-1,-1,-1, &
+       0, 3, 7, 0, 7,10, 0,10, 9, 6,10, 7,-1,-1,-1,-1, &
+       7, 6,10, 7,10, 8, 8,10, 9,-1,-1,-1,-1,-1,-1,-1, &
+       6, 8, 4,11, 8, 6,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       3, 6,11, 3, 0, 6, 0, 4, 6,-1,-1,-1,-1,-1,-1,-1, &
+       8, 6,11, 8, 4, 6, 9, 0, 1,-1,-1,-1,-1,-1,-1,-1, &
+       9, 4, 6, 9, 6, 3, 9, 3, 1,11, 3, 6,-1,-1,-1,-1, &
+       6, 8, 4, 6,11, 8, 2,10, 1,-1,-1,-1,-1,-1,-1,-1, &
+       1, 2,10, 3, 0,11, 0, 6,11, 0, 4, 6,-1,-1,-1,-1/           
+   data triangle_table(0:15,150:174)/                  &
+       4,11, 8, 4, 6,11, 0, 2, 9, 2,10, 9,-1,-1,-1,-1, &
+      10, 9, 3,10, 3, 2, 9, 4, 3,11, 3, 6, 4, 6, 3,-1, &
+       8, 2, 3, 8, 4, 2, 4, 6, 2,-1,-1,-1,-1,-1,-1,-1, &
+       0, 4, 2, 4, 6, 2,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       1, 9, 0, 2, 3, 4, 2, 4, 6, 4, 3, 8,-1,-1,-1,-1, &
+       1, 9, 4, 1, 4, 2, 2, 4, 6,-1,-1,-1,-1,-1,-1,-1, &
+       8, 1, 3, 8, 6, 1, 8, 4, 6, 6,10, 1,-1,-1,-1,-1, &
+      10, 1, 0,10, 0, 6, 6, 0, 4,-1,-1,-1,-1,-1,-1,-1, &
+       4, 6, 3, 4, 3, 8, 6,10, 3, 0, 3, 9,10, 9, 3,-1, &
+      10, 9, 4, 6,10, 4,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       4, 9, 5, 7, 6,11,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       0, 8, 3, 4, 9, 5,11, 7, 6,-1,-1,-1,-1,-1,-1,-1, &
+       5, 0, 1, 5, 4, 0, 7, 6,11,-1,-1,-1,-1,-1,-1,-1, &
+      11, 7, 6, 8, 3, 4, 3, 5, 4, 3, 1, 5,-1,-1,-1,-1, &
+       9, 5, 4,10, 1, 2, 7, 6,11,-1,-1,-1,-1,-1,-1,-1, &
+       6,11, 7, 1, 2,10, 0, 8, 3, 4, 9, 5,-1,-1,-1,-1, &
+       7, 6,11, 5, 4,10, 4, 2,10, 4, 0, 2,-1,-1,-1,-1, &
+       3, 4, 8, 3, 5, 4, 3, 2, 5,10, 5, 2,11, 7, 6,-1, &
+       7, 2, 3, 7, 6, 2, 5, 4, 9,-1,-1,-1,-1,-1,-1,-1, &
+       9, 5, 4, 0, 8, 6, 0, 6, 2, 6, 8, 7,-1,-1,-1,-1, &
+       3, 6, 2, 3, 7, 6, 1, 5, 0, 5, 4, 0,-1,-1,-1,-1, &
+       6, 2, 8, 6, 8, 7, 2, 1, 8, 4, 8, 5, 1, 5, 8,-1, &
+       9, 5, 4,10, 1, 6, 1, 7, 6, 1, 3, 7,-1,-1,-1,-1, &
+       1, 6,10, 1, 7, 6, 1, 0, 7, 8, 7, 0, 9, 5, 4,-1, &
+       4, 0,10, 4,10, 5, 0, 3,10, 6,10, 7, 3, 7,10,-1/  
+   data triangle_table(0:15,175:199)/                  &
+       7, 6,10, 7,10, 8, 5, 4,10, 4, 8,10,-1,-1,-1,-1, &
+       6, 9, 5, 6,11, 9,11, 8, 9,-1,-1,-1,-1,-1,-1,-1, &
+       3, 6,11, 0, 6, 3, 0, 5, 6, 0, 9, 5,-1,-1,-1,-1, &
+       0,11, 8, 0, 5,11, 0, 1, 5, 5, 6,11,-1,-1,-1,-1, &
+       6,11, 3, 6, 3, 5, 5, 3, 1,-1,-1,-1,-1,-1,-1,-1, &
+       1, 2,10, 9, 5,11, 9,11, 8,11, 5, 6,-1,-1,-1,-1, &
+       0,11, 3, 0, 6,11, 0, 9, 6, 5, 6, 9, 1, 2,10,-1, &
+      11, 8, 5,11, 5, 6, 8, 0, 5,10, 5, 2, 0, 2, 5,-1, &
+       6,11, 3, 6, 3, 5, 2,10, 3,10, 5, 3,-1,-1,-1,-1, &
+       5, 8, 9, 5, 2, 8, 5, 6, 2, 3, 8, 2,-1,-1,-1,-1, &
+       9, 5, 6, 9, 6, 0, 0, 6, 2,-1,-1,-1,-1,-1,-1,-1, &
+       1, 5, 8, 1, 8, 0, 5, 6, 8, 3, 8, 2, 6, 2, 8,-1, &
+       1, 5, 6, 2, 1, 6,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       1, 3, 6, 1, 6,10, 3, 8, 6, 5, 6, 9, 8, 9, 6,-1, &
+      10, 1, 0,10, 0, 6, 9, 5, 0, 5, 6, 0,-1,-1,-1,-1, &
+       0, 3, 8, 5, 6,10,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+      10, 5, 6,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+      11, 5,10, 7, 5,11,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+      11, 5,10,11, 7, 5, 8, 3, 0,-1,-1,-1,-1,-1,-1,-1, &
+       5,11, 7, 5,10,11, 1, 9, 0,-1,-1,-1,-1,-1,-1,-1, &
+      10, 7, 5,10,11, 7, 9, 8, 1, 8, 3, 1,-1,-1,-1,-1, &
+      11, 1, 2,11, 7, 1, 7, 5, 1,-1,-1,-1,-1,-1,-1,-1, &
+       0, 8, 3, 1, 2, 7, 1, 7, 5, 7, 2,11,-1,-1,-1,-1, &
+       9, 7, 5, 9, 2, 7, 9, 0, 2, 2,11, 7,-1,-1,-1,-1, &
+       7, 5, 2, 7, 2,11, 5, 9, 2, 3, 2, 8, 9, 8, 2,-1/
+   data triangle_table(0:15,200:224)/                  &
+       2, 5,10, 2, 3, 5, 3, 7, 5,-1,-1,-1,-1,-1,-1,-1, &
+       8, 2, 0, 8, 5, 2, 8, 7, 5,10, 2, 5,-1,-1,-1,-1, &
+       9, 0, 1, 5,10, 3, 5, 3, 7, 3,10, 2,-1,-1,-1,-1, &
+       9, 8, 2, 9, 2, 1, 8, 7, 2,10, 2, 5, 7, 5, 2,-1, &
+       1, 3, 5, 3, 7, 5,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       0, 8, 7, 0, 7, 1, 1, 7, 5,-1,-1,-1,-1,-1,-1,-1, &
+       9, 0, 3, 9, 3, 5, 5, 3, 7,-1,-1,-1,-1,-1,-1,-1, &
+       9, 8, 7, 5, 9, 7,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       5, 8, 4, 5,10, 8,10,11, 8,-1,-1,-1,-1,-1,-1,-1, &
+       5, 0, 4, 5,11, 0, 5,10,11,11, 3, 0,-1,-1,-1,-1, &
+       0, 1, 9, 8, 4,10, 8,10,11,10, 4, 5,-1,-1,-1,-1, &
+      10,11, 4,10, 4, 5,11, 3, 4, 9, 4, 1, 3, 1, 4,-1, &
+       2, 5, 1, 2, 8, 5, 2,11, 8, 4, 5, 8,-1,-1,-1,-1, &
+       0, 4,11, 0,11, 3, 4, 5,11, 2,11, 1, 5, 1,11,-1, &
+       0, 2, 5, 0, 5, 9, 2,11, 5, 4, 5, 8,11, 8, 5,-1, &
+       9, 4, 5, 2,11, 3,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       2, 5,10, 3, 5, 2, 3, 4, 5, 3, 8, 4,-1,-1,-1,-1, &
+       5,10, 2, 5, 2, 4, 4, 2, 0,-1,-1,-1,-1,-1,-1,-1, &
+       3,10, 2, 3, 5,10, 3, 8, 5, 4, 5, 8, 0, 1, 9,-1, &
+       5,10, 2, 5, 2, 4, 1, 9, 2, 9, 4, 2,-1,-1,-1,-1, &
+       8, 4, 5, 8, 5, 3, 3, 5, 1,-1,-1,-1,-1,-1,-1,-1, &
+       0, 4, 5, 1, 0, 5,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       8, 4, 5, 8, 5, 3, 9, 0, 5, 0, 3, 5,-1,-1,-1,-1, &
+       9, 4, 5,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       4,11, 7, 4, 9,11, 9,10,11,-1,-1,-1,-1,-1,-1,-1/  
+   data triangle_table(0:15,225:255)/                  &
+       0, 8, 3, 4, 9, 7, 9,11, 7, 9,10,11,-1,-1,-1,-1, &
+       1,10,11, 1,11, 4, 1, 4, 0, 7, 4,11,-1,-1,-1,-1, &
+       3, 1, 4, 3, 4, 8, 1,10, 4, 7, 4,11,10,11, 4,-1, &
+       4,11, 7, 9,11, 4, 9, 2,11, 9, 1, 2,-1,-1,-1,-1, &
+       9, 7, 4, 9,11, 7, 9, 1,11, 2,11, 1, 0, 8, 3,-1, &
+      11, 7, 4,11, 4, 2, 2, 4, 0,-1,-1,-1,-1,-1,-1,-1, &
+      11, 7, 4,11, 4, 2, 8, 3, 4, 3, 2, 4,-1,-1,-1,-1, & 
+       2, 9,10, 2, 7, 9, 2, 3, 7, 7, 4, 9,-1,-1,-1,-1, &
+       9,10, 7, 9, 7, 4,10, 2, 7, 8, 7, 0, 2, 0, 7,-1, &
+       3, 7,10, 3,10, 2, 7, 4,10, 1,10, 0, 4, 0,10,-1, &
+       1,10, 2, 8, 7, 4,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       4, 9, 1, 4, 1, 7, 7, 1, 3,-1,-1,-1,-1,-1,-1,-1, &
+       4, 9, 1, 4, 1, 7, 0, 8, 1, 8, 7, 1,-1,-1,-1,-1, &
+       4, 0, 3, 7, 4, 3,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       4, 8, 7,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       9,10, 8,10,11, 8,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       3, 0, 9, 3, 9,11,11, 9,10,-1,-1,-1,-1,-1,-1,-1, &
+       0, 1,10, 0,10, 8, 8,10,11,-1,-1,-1,-1,-1,-1,-1, &
+       3, 1,10,11, 3,10,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       1, 2,11, 1,11, 9, 9,11, 8,-1,-1,-1,-1,-1,-1,-1, &
+       3, 0, 9, 3, 9,11, 1, 2, 9, 2,11, 9,-1,-1,-1,-1, &
+       0, 2,11, 8, 0,11,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       3, 2,11,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       2, 3, 8, 2, 8,10,10, 8, 9,-1,-1,-1,-1,-1,-1,-1, &
+       9,10, 2, 0, 9, 2,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       2, 3, 8, 2, 8,10, 0, 1, 8, 1,10, 8,-1,-1,-1,-1, &
+       1,10, 2,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       1, 3, 8, 9, 1, 8,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       0, 9, 1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+       0, 3, 8,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1, &
+      -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1/
+
+contains
+
+   create
+   ! Create a object
+     self :: PTR
+     allocate(self)
+     ADD_MEMORY(MARCHINGCUBE_SIZE)
+     .set_defaults
+   end
+
+   create_copy(s)
+   ! Create self as a duplicate of "s".
+     self :: PTR
+     s :: MARCHINGCUBE, IN
+     .create
+     .copy(s)
+   end
+
+   copy(s) ::: leaky
+   ! Copy the contents of "s" to self.
+     s :: MARCHINGCUBE, IN
+     self = s
+   end
+
+   destroy 
+   ! Destroy the object
+      self :: PTR
+      if (.destroyed) return
+      deallocate(self)
+      DELETE_MEMORY(MARCHINGCUBE_SIZE)
+   end
+
+!   nullify_ptr_part
+!   ! Nullify the pointer parts 
+!   end
+
+!   destroy_ptr_part
+!   ! Destroy the pointer parts 
+!   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   set_defaults ::: leaky
+   ! Set up default isosurface information.
+     .vertex_pos            = ZERO
+     .vertex_gradient       = ZERO
+     .value_at_vertex       = ZERO
+     .iso_value             = ONE
+     .accuracy              = TOL(3)
+     .case                  = -1  ! This is not a real case
+     .interior_case         = 0   ! Interior function values assumed larger than exterior
+     .exterior_case         = 255 ! 0 means all the vertices are larger than iso_value
+     .edge_bit_string       = 0
+     .cube_bit_string       = 0
+     .skip_bit_string       = 0
+     .n_edge                = 0
+     .n_triangle            = 0
+     .n_pt                  = 0
+     .edge_vertex_pos       = ZERO
+     .edge_vertex_gradient  = ZERO
+     .edge_vertex_index     = ZERO
+     .vertex_edge_index     = ZERO
+   ! .destroy_ptr_part
+   ! .nullify_ptr_part
+     .triangle_edge_index   = 0
+     .triangle_vertex_index = 0
+   end
+
+   reset ::: leaky
+   ! Reset defaults. Compared to set_defaults, .iso_value is unchanged,
+   ! and .accuracy is unchanged.
+     .vertex_pos             = ZERO
+     .vertex_gradient        = ZERO
+     .value_at_vertex        = ZERO
+     .case                   = -1  ! This is not a real case
+     .edge_bit_string        = 0
+     .skip_bit_string        = 0
+     .n_edge                 = 0
+     .n_triangle             = 0
+     .n_pt                   = 0
+     .edge_vertex_pos        = ZERO
+     .edge_vertex_gradient   = ZERO
+     .edge_vertex_index      = ZERO
+     .vertex_edge_index      = ZERO
+   ! .destroy_ptr_part
+   ! .nullify_ptr_part
+     .triangle_edge_index    = 0
+     .triangle_vertex_index  = 0
+   end
+
+!  *************
+!  Input methods
+!  *************
+
+   read_keywords ::: get_from(OBJECT), recursive, leaky
+   ! Read data from "stdin" using keyword style input.
+   end
+
+   process_keyword(keyword) ::: leaky
+   ! Process command "keyword". Any required data needed by the "keyword" is
+   ! inputted from "stdin".
+      keyword :: STR(*)
+      word :: STR
+      word = keyword
+      word.to_lower_case
+      select case (word)
+         case ("}                ")  ! exit case
+         case ("accuracy=        "); .read_accuracy
+         case ("interior_is_big= "); .read_interior_is_big
+         case ("iso_value=       "); .read_iso_value
+         case ("put              "); .put
+         case ("side_length=     "); .read_side_length
+         case ("units=           "); .read_units
+         case default;           UNKNOWN(word)
+      end
+   end
+
+   read_units ::: get_from(OBJECT)
+   ! Read a string which describes the units to be used
+   end
+
+   read_junk ::: get_from(OBJECT)
+   ! Read in a junk string, useful for ignoring a field
+   end
+
+   read_accuracy
+   ! Read a number which tells to what accuracy each generated isosurface
+   ! is determined
+      stdin.read(.accuracy)
+   end
+
+   read_interior_is_big
+   ! Read a switch which tells whether the interior of the isosurface which the
+   ! cube is mapping is larger than the exterior. This sets the interior and
+   ! exterior case numbers, and would be determined by, for example, whether the
+   ! surface gradients are required to be reversed (since in this case the
+   ! gradients would be pointing inwards from the surface toward increasing
+   ! values).  i.e. interior_is_big = reverse_normals
+      big_interior :: BIN
+      stdin.read(big_interior)
+      .set_big_interior(big_interior)
+   end
+
+   read_iso_value
+   ! Read the defining iso_value for the isosurface
+      stdin.read(.iso_value)
+   end
+
+   read_side_length
+   ! Read the side length of the cube
+      stdin.read(.side_length)
+   end
+
+!  ***************
+!  Set/get methods
+!  ***************
+
+   set_vertex_info(px,py,pz,f)  
+   ! Set the marching cube vertex info, i.e. x, y z, coordinates of each vertex
+   ! "px", "py", "pz", and the function values "f" at each vertex. Vertex
+   ! gradient information is *not" set.
+      px,py,pz,f :: REALMAT3(0:1,0:1,0:1), IN
+      v,x,y,z :: INT
+      do v = 0, 7 ! loop over vertices
+          x = cube(1,v)
+          y = cube(2,v)
+          z = cube(3,v)
+          .vertex_pos(1,v)    = px(x,y,z)
+          .vertex_pos(2,v)    = py(x,y,z)
+          .vertex_pos(3,v)    = pz(x,y,z)
+          .value_at_vertex(v) = f(x,y,z)
+      end
+   end
+
+   set_vertex_info(p,f)  
+   ! Set the marching cube vertex info, i.e. x, y z, coordinates of each vertex
+   ! "p" and the function values "f" at each vertex. Vertex gradient information
+   ! is *not* set.
+      p :: REALMAT4(3,0:1,0:1,0:1), IN
+      f :: REALMAT3(0:1,0:1,0:1), IN
+      v,x,y,z :: INT
+      do v = 0, 7 ! loop over vertices
+          x = cube(1,v)
+          y = cube(2,v)
+          z = cube(3,v)
+          .vertex_pos(:,v)     =  p(:,x,y,z)
+          .value_at_vertex(v)  =  f(x,y,z)
+      end
+   end
+
+   set_gradient_info(f)  
+   ! Set the marching cube vertex gradient information, calculated by finite
+   ! differences, from a cube of values "f". The "f" array indices 2 & 3
+   ! correspond to the actual cube, indices 1 & 4 are the surrounding cube
+   ! edges, required to evaluate the gradients. NOTE: only those corners for
+   ! which .cube_bit_string is set have the gradients computed.
+      f :: REALMAT3(4,4,4), IN
+      v,x,y,z :: INT
+      fac :: REAL
+      fac = ONE/(TWO*.side_length)
+      if (.interior_case==0) fac = -fac
+      do v = 0, 7 ! loop over vertices
+          if (NOT btest(.cube_bit_string,v)) cycle
+          x = cube(1,v) + 2
+          y = cube(2,v) + 2
+          z = cube(3,v) + 2
+          .vertex_gradient(1,v)  = (f(x+1,y,z)-f(x-1,y,z)) * fac
+          .vertex_gradient(2,v)  = (f(x,y+1,z)-f(x,y-1,z)) * fac
+          .vertex_gradient(3,v)  = (f(x,y,z+1)-f(x,y,z-1)) * fac
+      end
+   end
+
+   set_hessian_info(f)  
+   ! Set the marching cube vertex gradient and hessian information, calculated by
+   ! finite differences, from a cube of values "f". The "f" array indices 2 & 3
+   ! correspond to the actual cube, indices 1 & 4 are the surrounding cube
+   ! edges, required to evaluate the gradients. NOTE: only those corners for
+   ! which .cube_bit_string is set have the gradients computed.
+      f :: REALMAT3(4,4,4), IN
+      v,x,y,z :: INT
+      fac,fac2,fac4 :: REAL
+      fac = ONE/(TWO*.side_length)
+      if (.interior_case==0) fac = -fac
+      fac2 = fac*fac
+      fac4 = fac2*FOUR
+      do v = 0, 7 ! loop over vertices
+          if (NOT btest(.cube_bit_string,v)) cycle
+          x = cube(1,v) + 2
+          y = cube(2,v) + 2
+          z = cube(3,v) + 2
+          .vertex_gradient(1,v) = (f(x+1,y,z)-f(x-1,y,z)) * fac
+          .vertex_gradient(2,v) = (f(x,y+1,z)-f(x,y-1,z)) * fac
+          .vertex_gradient(3,v) = (f(x,y,z+1)-f(x,y,z-1)) * fac
+          .vertex_hessian(1,1,v) = (f(x+1,y,z)+f(x-1,y,z)-TWO*f(x,y,z)) * fac4
+          .vertex_hessian(2,2,v) = (f(x,y+1,z)+f(x,y-1,z)-TWO*f(x,y,z)) * fac4
+          .vertex_hessian(3,3,v) = (f(x,y,z+1)+f(x,y,z-1)-TWO*f(x,y,z)) * fac4
+          .vertex_hessian(2,1,v) = (f(x+1,y+1,z)-f(x+1,y-1,z)-f(x-1,y+1,z)+f(x-1,y-1,z)) * fac2
+          .vertex_hessian(1,2,v) = .vertex_hessian(2,1,v)
+          .vertex_hessian(3,1,v) = (f(x+1,y,z+1)-f(x+1,y,z-1)-f(x-1,y,z+1)+f(x-1,y,z-1)) * fac2
+          .vertex_hessian(1,3,v) = .vertex_hessian(3,1,v)
+          .vertex_hessian(3,2,v) = (f(x,y+1,z+1)-f(x,y+1,z-1)-f(x,y-1,z+1)+f(x,y-1,z-1)) * fac2
+          .vertex_hessian(2,3,v) = .vertex_hessian(3,2,v)
+      end
+   end
+
+   set_hessian_eval_array(eval,ox,oy,oz)  
+   ! This routine is used only in conjunction with the recursive marching cube
+   ! algorithm. It sets an element of array "eval" TRUE if the corresponding
+   ! cube point is required for the evaluation of the gradient or hessian by
+   ! finite differences. Armed with this information, the number of function
+   ! calls to the isosurface routine can be reduced. The numbers "ox", "oy" and
+   ! "oz" are offsets telling how much to offset the x, y, and z indices of the
+   ! 4x4x4 cube. As before, indices 2 & 3 correspond to the actual cube, indices
+   ! 1 & 4 are the surrounding cube edges, required to evaluate the gradients.
+   ! NOTE: only those corners for which .cube_bit_string is set have the
+   ! gradients computed.
+      eval :: BINMAT3(5,5,5)
+      ox,oy,oz :: INT, IN
+      v,x,y,z :: INT
+      do v = 0, 7 ! loop over vertices
+          if (NOT btest(.cube_bit_string,v)) cycle
+          x = cube(1,v) + 2 + ox
+          y = cube(2,v) + 2 + oy
+          z = cube(3,v) + 2 + oz
+          eval(x,y,z) = TRUE
+          eval(x+1,y,z) = TRUE; eval(x-1,y,z) = TRUE
+          eval(x,y+1,z) = TRUE; eval(x,y-1,z) = TRUE
+          eval(x,y,z+1) = TRUE; eval(x,y,z-1) = TRUE
+          eval(x+1,y+1,z) = TRUE; eval(x+1,y-1,z) = TRUE; eval(x-1,y+1,z) = TRUE; eval(x-1,y-1,z) = TRUE
+          eval(x+1,y,z+1) = TRUE; eval(x+1,y,z-1) = TRUE; eval(x-1,y,z+1) = TRUE; eval(x-1,y,z-1) = TRUE
+          eval(x,y+1,z+1) = TRUE; eval(x,y+1,z-1) = TRUE; eval(x,y-1,z+1) = TRUE; eval(x,y-1,z-1) = TRUE;
+      end
+   end
+
+   set_vertex_and_gradient_info(p,f)  
+   ! Set the marching cube vertex info, i.e. x, y z, coordinates of each vertex
+   ! "p" and the function values "f" at each vertex, as well as the vertex
+   ! gradient information calculated by finite differences. The "f" array
+   ! indices 2 & 3 correspond to the current cube, indices 1 & 4 are the
+   ! surrounding cube edges, required to evaluate the gradients.
+      p :: REALMAT4(3,0:1,0:1,0:1), IN
+      f :: REALMAT3(-1:2,-1:2,-1:2), IN
+      v,x,y,z :: INT
+      fac :: REAL
+      fac = ONE/(TWO*.side_length)
+      if (.interior_case==0) fac = -fac
+      do v = 0, 7 ! loop over vertices
+          x = cube(1,v)
+          y = cube(2,v)
+          z = cube(3,v)
+          .vertex_pos(:,v)     =  p(:,x,y,z)
+          .value_at_vertex(v)  =  f(x,y,z)
+          .vertex_gradient(1,v)  = (f(x+1,y,z)-f(x-1,y,z)) * fac
+          .vertex_gradient(2,v)  = (f(x,y+1,z)-f(x,y-1,z)) * fac
+          .vertex_gradient(3,v)  = (f(x,y,z+1)-f(x,y,z-1)) * fac
+      end
+   end
+
+   set_n_pt(n)
+   ! Set the number of unique points found for all cubes up till this one.
+      n :: INT
+      ENSURE(n>=0,"must have non-negative number of points")
+      .n_pt = n
+   end
+
+   set_iso_value(iso_value)
+   ! Set the defining "iso_value"
+      iso_value :: REAL
+      .iso_value = iso_value
+   end
+
+   set_side_length(length)
+   ! Set the cube side length to "length"
+      length :: REAL
+      .side_length = length
+   end
+
+   set_accuracy(accuracy)
+   ! Set a number "accuracy" tells to what accuracy each generated isosurface
+   ! is determined
+      accuracy :: REAL 
+      .accuracy = accuracy
+   end
+
+   set_big_interior(big_interior)
+   ! Set a switch which tells whether the interior of the isosurface which the
+   ! cube is mapping is larger than the exterior. This sets the interior and
+   ! exterior case numbers, and would be determined by, for example, whether the
+   ! surface gradients are required to be reversed (since in this case the
+   ! gradients would be pointing inwards from the surface toward increasing
+   ! values).  i.e. interior_is_big = reverse_normals
+   ! NOTE: 0 means all the vertices are larger than iso_value
+   !       1 means all the vertices are less than iso_value
+      big_interior :: BIN
+      select case (big_interior)
+        case(TRUE)
+           .interior_case = 0   
+           .exterior_case = 255 
+        case(FALSE)
+           .interior_case = 255  
+           .exterior_case = 0
+      end
+   end
+
+   set_case_info 
+   ! Set the marching cube case information.
+      .case = .case_number
+   end
+
+   set_triangulation_info ::: leaky
+   ! Set the marching cube triangulation information i.e. whoich edges of the
+   ! cube are supposed to be interpolated, how many triangle faces are needed.
+   ! NOTE: the case number is assumed to be correctly set by a call to
+   ! .set_case_info
+      .set_edge_bit_string
+      .set_cube_bit_string ! WARNING: this routine notices .skip_bit_string
+      .n_triangle = .no_of_triangles(.case)
+      .triangle_edge_index = reshape(triangle_table(0:14,.case), [3,5])
+      .triangle_vertex_index  = 0
+   end
+
+   set_left_info(left) 
+   ! Set the .skip_bit_string based on when there is information from the
+   ! adjoing cube to the left this cube. The actual .edge_vertex_index values
+   ! for the left cube are given in the array "left". 
+      left :: INTVEC(0:11)
+      ! this skips the left face edges: 3,7,8,11
+      if (btest(.edge_bit_string,3)) then
+         .edge_vertex_index(3)  = left(1)
+         .skip_bit_string = ibset(.skip_bit_string,3)
+      end
+      if (btest(.edge_bit_string,7)) then
+         .edge_vertex_index(7)  = left(5)
+         .skip_bit_string = ibset(.skip_bit_string,7)
+      end
+      if (btest(.edge_bit_string,8)) then
+         .edge_vertex_index(8)  = left(9)
+         .skip_bit_string = ibset(.skip_bit_string,8)
+      end
+      if (btest(.edge_bit_string,11)) then
+         .edge_vertex_index(11) = left(10)
+         .skip_bit_string = ibset(.skip_bit_string,11)
+      end
+   end
+
+   set_front_info(front) 
+   ! Set the .skip_bit_string based on when there is information from the
+   ! adjoing cube to the front this cube. The actual .edge_vertex_index values
+   ! for the front cube are given in the array "front". 
+      front :: INTVEC(0:11)
+      ! this skips the front face edges: 0,4,8,9
+      if (btest(.edge_bit_string,0)) then
+         .edge_vertex_index(0)  = front(2)
+         .skip_bit_string = ibset(.skip_bit_string,0)
+      end
+      if (btest(.edge_bit_string,4)) then
+         .edge_vertex_index(4)  = front(6)
+         .skip_bit_string = ibset(.skip_bit_string,4)
+      end
+      if (btest(.edge_bit_string,8)) then
+         .edge_vertex_index(8)  = front(11)
+         .skip_bit_string = ibset(.skip_bit_string,8)
+      end
+      if (btest(.edge_bit_string,9)) then
+         .edge_vertex_index(9)  = front(10)
+         .skip_bit_string = ibset(.skip_bit_string,9)
+      end
+   end
+
+   set_below_info(below) 
+   ! Set the .skip_bit_string based on when there is information from the
+   ! adjoing cube below this cube. The actual .edge_vertex_index values for the
+   ! cube below are given in the array "below". 
+      below :: INTVEC(0:11)
+      ! this skips the bottom face edges: 0,1,2,3
+      if (btest(.edge_bit_string,0)) then
+         .edge_vertex_index(0)  = below(4)
+         .skip_bit_string = ibset(.skip_bit_string,0)
+      end
+      if (btest(.edge_bit_string,1)) then
+         .edge_vertex_index(1)  = below(5)
+         .skip_bit_string = ibset(.skip_bit_string,1)
+      end
+      if (btest(.edge_bit_string,2)) then
+         .edge_vertex_index(2)  = below(6)
+         .skip_bit_string = ibset(.skip_bit_string,2)
+      end
+      if (btest(.edge_bit_string,3)) then
+         .edge_vertex_index(3)  = below(7)
+         .skip_bit_string = ibset(.skip_bit_string,3)
+      end
+   end
+
+   set_left_skip_bit_string
+   ! Set the .skip_bit_string based on when there is information from the
+   ! adjoing cube to the left this cube. 
+      ! this skips the left face edges: 3,7,8,11
+      if (btest(.edge_bit_string,3))  .skip_bit_string = ibset(.skip_bit_string,3)
+      if (btest(.edge_bit_string,7))  .skip_bit_string = ibset(.skip_bit_string,7)
+      if (btest(.edge_bit_string,8))  .skip_bit_string = ibset(.skip_bit_string,8)
+      if (btest(.edge_bit_string,11)) .skip_bit_string = ibset(.skip_bit_string,11)
+   end
+
+   set_front_skip_bit_string 
+   ! Set the .skip_bit_string based on when there is information from the
+   ! adjoing cube to the front this cube. 
+      ! this skips the front face edges: 0,4,8,9
+      if (btest(.edge_bit_string,0)) .skip_bit_string = ibset(.skip_bit_string,0)
+      if (btest(.edge_bit_string,4)) .skip_bit_string = ibset(.skip_bit_string,4)
+      if (btest(.edge_bit_string,8)) .skip_bit_string = ibset(.skip_bit_string,8)
+      if (btest(.edge_bit_string,9)) .skip_bit_string = ibset(.skip_bit_string,9)
+   end
+
+   set_below_skip_bit_string 
+   ! Set the .skip_bit_string based on when there is information from the
+   ! adjoing cube below this cube. 
+      ! this skips the bottom face edges: 0,1,2,3
+      if (btest(.edge_bit_string,0)) .skip_bit_string = ibset(.skip_bit_string,0)
+      if (btest(.edge_bit_string,1)) .skip_bit_string = ibset(.skip_bit_string,1)
+      if (btest(.edge_bit_string,2)) .skip_bit_string = ibset(.skip_bit_string,2)
+      if (btest(.edge_bit_string,3)) .skip_bit_string = ibset(.skip_bit_string,3)
+   end
+
+   set_edge_bit_string 
+   ! Set the marching cube edge_bit_string which tells which edges cross the
+   ! isosurface and therefore are to be interpolated. NOTE: the case number is
+   ! assumed to be correctly set e.g. by a call to .set_case_info.
+      .edge_bit_string = edge_table(.case)
+   end
+
+   set_cube_bit_string 
+   ! Set the .cube_bit_string which tells which cube corners lie on either side
+   ! of the isosurface. The .cube_bit_string is used to save work when
+   ! calculating the gradients and hessians on the cube corners. NOTE: the
+   ! edge_bit_string is assumed to be correctly set e.g. by a call to
+   ! .set_edge_bit_string. NOTE: if some edges are to be explicitly skipped then
+   ! those vertices do not appear in .cube_bit_string.
+      e :: INT
+      .cube_bit_string = 0
+      do e = 0,11
+         if (NOT btest(.edge_bit_string,e)) cycle
+         if (    btest(.skip_bit_string,e)) cycle ! this edge is explicitly skipped
+         .cube_bit_string = ibset(.cube_bit_string,vertex_1_of_edge(e))
+         .cube_bit_string = ibset(.cube_bit_string,vertex_2_of_edge(e))
+      end
+   end
+
+   no_of_triangles(case) result (res)
+   ! Return the number of triangles for a marching cube with a
+   ! particular "case" number.
+      case :: INT, optional
+      res :: INT
+      e,c :: INT
+      triangle_edge_index :: INTVEC(0:15)
+      c = .case
+      if (present(case)) c = case
+   ENSURE(c>=0 AND c<=255,"case is out of range")
+      triangle_edge_index = triangle_table(:,c)
+      res = 0
+      do e = 0, 15, 3 ! loop over triangle edge triples
+        if (triangle_edge_index(e) == -1) exit
+        res = res + 1
+      end
+   end
+
+   no_of_edges result (res)
+   ! Return the number of edges to be interpolated on this cube
+      res :: INT
+      e :: INT
+   ENSURE(.case>=0 AND .case<=255,"case is out of range")
+      res = 0
+      do e = 0, 11 
+        if (NOT btest(.edge_bit_string,e)) cycle
+        res = res + 1
+      end
+   end
+
+   no_of_active_edges result (res)
+   ! Return the number of edges to be interpolated on this cube not including
+   ! those that are skipped.
+      res :: INT
+      e :: INT
+   ENSURE(.case>=0 AND .case<=255,"case is out of range")
+      res = 0
+      do e = 0, 11 
+        if (NOT btest(.edge_bit_string,e)) cycle
+        if (    btest(.skip_bit_string,e)) cycle
+        res = res + 1
+      end
+   end
+
+   get_edge_vertex_positions(pos) 
+   ! Set the new edge vertex positions found on this marching cube
+      pos :: REALMAT
+      i,n :: INT
+   ENSURE(pos.dim1==3,"wrong 1st dimension, pos")
+   ENSURE(pos.dim2>=.no_of_active_edges,"pos too small")
+      n = .no_of_active_edges
+      do i = 1,n
+        pos(:,i) = .edge_vertex_pos(:,.vertex_edge_index(i))
+      end
+   end
+
+   get_edge_vertex_gradients(g) 
+   ! Get the new edge vertex gradient vectors "g" on this marching cube
+      g :: REALMAT
+      i,n :: INT
+   ENSURE(g.dim1==3,"wrong 1st dimension, g")
+   ENSURE(g.dim2>=.no_of_active_edges,"g array too small")
+      n = .no_of_active_edges
+      do i = 1,n
+        g(:,i) = .edge_vertex_gradient(:,.vertex_edge_index(i))
+      end
+   end
+
+   get_edge_mean_curvatures(c) 
+   ! Get the new edge vertex mean curvatures "c" on this marching cube
+      c :: REALVEC
+      i,n :: INT
+   ENSURE(c.dim>=.no_of_active_edges,"c array too small")
+      n = .no_of_active_edges
+      do i = 1,n
+        c(i) = .edge_mean_curvature(.vertex_edge_index(i))
+      end
+   end
+
+   get_edge_gaussian_curvatures(c) 
+   ! Get the new edge vertex gaussian curvatures "c" on this marching cube
+      c :: REALVEC
+      i,n :: INT
+   ENSURE(c.dim>=.no_of_active_edges,"c array too small")
+      n = .no_of_active_edges
+      do i = 1,n
+        c(i) = .edge_gaussian_curvature(.vertex_edge_index(i))
+      end
+   end
+
+   get_triangle_vertex_indices(ind) 
+   ! Set the new edge vertex positions found on this marching cube
+      ind :: INTMAT
+   ENSURE(ind.dim1==3,"wrong 1st dimension, ind")
+   ENSURE(ind.dim2==.n_triangle,"wrong 2nd dimension, ind")
+      ind = .triangle_vertex_index(:,1:.n_triangle)
+   end
+
+!  *************************************
+!  Triangulation: this is the main thing
+!  *************************************
+
+   interpolate_faces ::: leaky
+   ! This routine interpolates the triangle coordinates that result from the
+   ! intersection of this cube with the isosurface. Any previously obtained
+   ! information abount adjoining cubes to the left, infront, or below this cube
+   ! should have already been set, e.g. using .set_left_info. This routine
+   ! assumes that cubes are generated in an order from left to right (along the
+   ! x-axis), front-to back (along the y-axis), and bottom to top (along the
+   ! z-axis). NOTE: the .case number must already have been set.
+      .interpolate_edge_info                   ! Skip some edges
+      .set_triangle_vertex_info
+   end 
+
+   interpolate_edge_info ::: private
+   ! This routine interpolates the required edge_vetrices, which are later
+   ! to become the triangle vertices. 
+      e,v1,v2 :: INT
+      f1,f2,del, L :: REAL
+      p1,p2,P,g1,g2,G,n,u,v :: REALVEC(3)
+      !GG :: REALVEC(3)
+      h1,h2,H :: REALMAT(3,3)
+      S  :: REALMAT(2,2)
+      UV :: REALMAT(3,2)
+      do e = 0,11
+        if (NOT btest(.edge_bit_string,e)) cycle ! this edge does not intersect
+        if (    btest(.skip_bit_string,e)) cycle ! this edge is explicitly skipped
+        v1 = vertex_1_of_edge(e)
+        v2 = vertex_2_of_edge(e)
+        f1 = .value_at_vertex(v1)
+        f2 = .value_at_vertex(v2)
+        ENSURE(.iso_value>=min(f1,f2),"iso_value is smaller than endpoint values")
+        ENSURE(.iso_value<=max(f1,f2),"iso_value is larger than endpoint values")
+        p1 = .vertex_pos(:,v1)
+        p2 = .vertex_pos(:,v2)
+        g1 = .vertex_gradient(:,v1)   ! The gradient and hessian are calculated
+        g2 = .vertex_gradient(:,v2)   ! w.r.t. the canonical box axes, NOT the
+        h1 = .vertex_hessian(:,:,v1)  ! true xyz axes.
+        h2 = .vertex_hessian(:,:,v2)
+        del = (.iso_value-f1)/(f2-f1) ! f2 cannot equal f1
+        P = p1 + del*(p2-p1)          ! Interpolate true P
+        H = h1 + del*(h2-h1)          ! Interpolate hessian values
+        G = g1 + del*(g2-g1)
+      ! p1 = cube(:,v1)*.side_length  ! Reset end points to canonical axes
+      ! p2 = cube(:,v2)*.side_length
+      ! GG = HALF*(g1 + del*matmul(h1,(p2-p1)) + g2 + (ONE-del)*matmul(h2,(p1-p2)))
+        .edge_vertex_pos(:,e)       = P
+        .edge_vertex_gradient(:,e)  = G
+        .edge_vertex_hessian(:,:,e) = H
+        DIE_IF(G.is_zero,"zero gradient, edge: "//e.to_str.trim)
+        L = G.norm
+        n = G/L
+        u = [ n(2),-n(1), ZERO]       ! Evaluate surface tangents u,v
+        if (u.is_zero) u = [-n(3), ZERO, n(1)]
+        u.normalise
+        v = n.cross(u)
+        UV(:,1) = u
+        UV(:,2) = v
+        S = -matmul(transpose(UV),matmul(H,UV))/L
+        .edge_mean_curvature(e) = HALF*(S(1,1)+S(2,2))
+        .edge_gaussian_curvature(e) = S(1,1)*S(2,2)-S(1,2)*S(1,2)
+      end
+   end
+
+   set_triangle_vertex_info ::: private
+   ! This routine sets the triangle vertex coordinates and indices.
+      n,e,v, skip, i :: INT
+      skip = .skip_bit_string
+      i = 0
+      do n = 1,.n_triangle
+        do v = 1,3
+          e = .triangle_edge_index(v,n)
+          if (btest(skip,e)) then ! edge vertex info exists 
+             .triangle_vertex_index(v,n) = .edge_vertex_index(e)
+             DIE_IF(.edge_vertex_index(e)==0,"zero edge vertex index, edge: "//e.to_str.trim)
+          else                    ! no edge vertex info, new point
+             i = i + 1
+             .n_pt = .n_pt + 1
+             .triangle_vertex_index(v,n) = .n_pt
+             .edge_vertex_index(e) = .n_pt
+             .vertex_edge_index(i) = e
+             skip = ibset(skip,e) ! skip this edge next time
+          end
+        end
+      end
+   end
+
+   triangulate(below,left,front) ::: leaky
+   ! This routine generates the triangle coordinates that result from the 
+   ! intersection of this cube with the isosurface, using information from
+   ! the adjoining cube "below", to the "left" of, and "front" of this cube, 
+   ! where that information is supplied. This assumes that cubes are generated 
+   ! in an order from left to right (along the x-axis), then from front-to back 
+   ! (along the y-axis), and finally from bottom to top (along the z-axis). 
+   ! NOTE: the .case number must have already been set by .set_case_info
+      below,left,front :: INTVEC_, optional
+      if (NOT .is_on_surface) return           ! Cube is entirely in/out of the surface 
+      .set_triangulation_info
+      .set_skip_bit_string(below,left,front)
+      .set_edge_vertex_info(below,left,front)  ! Fill in details for skipped edges
+      .interpolate_faces
+   end 
+
+   set_skip_bit_string(below,left,front) 
+   ! Set the skip bit string based on whether there is any information from 
+   ! the adjoining cube "below", to the "left", or in "front" of this cube.
+      below,left,front :: INTVEC_, optional
+      skip :: INT
+      skip = 0 
+      ! this skips the bottom face edges: 0,1,2,3
+      if (present(below))  skip = 15 
+      ! this skips the left face edges: 3,7,8,11
+      if (present(left))   skip = ior(skip,2440)
+      ! this skips the front face edges: 0,4,8,9
+      if (present(front))  skip = ior(skip,785)
+      .skip_bit_string = skip
+   end
+
+   set_edge_vertex_info(below,left,front)
+   ! This routine gets the triangle vertex positions using information from
+   ! the adjoining cube "below", to the "left", or in "front" of this cube, if
+   ! that information is available.
+   ! NOTE: this only sets the edge_vertex index information.
+      below,left,front :: INTVEC_, optional
+      edge :: INT
+      edge = .edge_bit_string
+      if (any(edge.bit_test([0,1,2,3])) AND present(below)) then
+         .edge_vertex_index(0)  = below.element(4)
+         .edge_vertex_index(1)  = below.element(5)
+         .edge_vertex_index(2)  = below.element(6)
+         .edge_vertex_index(3)  = below.element(7)
+      end
+      if (any(edge.bit_test([3,7,8,11])) AND present(left)) then
+         .edge_vertex_index(3)  = left.element(1)
+         .edge_vertex_index(7)  = left.element(5)
+         .edge_vertex_index(8)  = left.element(9)
+         .edge_vertex_index(11) = left.element(10)
+      end
+      if (any(edge.bit_test([0,4,8,9])) AND present(front)) then
+         .edge_vertex_index(0)  = front.element(2)
+         .edge_vertex_index(4)  = front.element(6)
+         .edge_vertex_index(8)  = front.element(11)
+         .edge_vertex_index(9)  = front.element(10)
+      end
+   end
+
+!  ****************
+!  Inquiry routines
+!  ****************
+
+   case_number result (res)
+   ! From the vertex values on the cube evaluate and return the case number
+   ! telling us which vertices are larger than the .iso_value.
+      res :: INT
+      res = 0
+      if (.value_at_vertex(0) < .iso_value) res = ibset(res,0)
+      if (.value_at_vertex(1) < .iso_value) res = ibset(res,1)
+      if (.value_at_vertex(2) < .iso_value) res = ibset(res,2)
+      if (.value_at_vertex(3) < .iso_value) res = ibset(res,3)
+      if (.value_at_vertex(4) < .iso_value) res = ibset(res,4)
+      if (.value_at_vertex(5) < .iso_value) res = ibset(res,5)
+      if (.value_at_vertex(6) < .iso_value) res = ibset(res,6)
+      if (.value_at_vertex(7) < .iso_value) res = ibset(res,7)
+   end
+
+   case_number(iso_value) result (res)
+   ! From the vertex values on the cube evaluate and return the case number
+   ! telling us which vertices are larger than the "iso_value".
+      iso_value :: REAL
+      res :: INT
+      res = 0
+      if (.value_at_vertex(0) < iso_value) res = ibset(res,0)
+      if (.value_at_vertex(1) < iso_value) res = ibset(res,1)
+      if (.value_at_vertex(2) < iso_value) res = ibset(res,2)
+      if (.value_at_vertex(3) < iso_value) res = ibset(res,3)
+      if (.value_at_vertex(4) < iso_value) res = ibset(res,4)
+      if (.value_at_vertex(5) < iso_value) res = ibset(res,5)
+      if (.value_at_vertex(6) < iso_value) res = ibset(res,6)
+      if (.value_at_vertex(7) < iso_value) res = ibset(res,7)
+   end
+
+   is_on_surface result (res)
+   ! Return TRUE if the cube is on the surface. NOTE: .case number must be
+   ! properly set beforehand with .set_case_info
+      res :: BIN
+      res = .case /= 0 AND .case /= 255
+   end
+
+   is_outside_surface result (res)
+   ! Return TRUE if the cube is wholly outside the surface. Usually the interior
+   ! of the isosurface has function values *smaller* than the .iso_value. 
+   ! NOTE: .case number must be properly set beforehand with .set_case_info
+      res :: BIN
+      res = .case == .exterior_case
+   end
+
+   is_inside_surface result (res)
+   ! Return TRUE if the cube is wholly inside the surface. Usually the interior
+   ! of the isosurface has function values *bigger* than the .iso_value. 
+   ! NOTE: .case number must be properly set beforehand with .set_case_info
+      res :: BIN
+      res = .case == .interior_case
+   end
+
+   is_nearly_on_surface(tol) result (res)
+   ! Return TRUE if the cube is nearly on the surface. This is worked out by
+   ! taking the maximum difference between any two vertices of the cube, and
+   ! then seeing if the .iso_value is within any one vertex value, plus or minus
+   ! this maximum difference, times a factor "tol" for good measure.
+      tol :: REAL
+      res :: BIN
+      diff :: REAL
+   ENSURE(tol>ZERO,"tol must be positive")
+      res = .is_on_surface
+      if (res) return
+      diff = maxval(.value_at_vertex) - minval(.value_at_vertex)
+      diff = diff*tol
+      res = any( abs(.value_at_vertex - .iso_value) < diff )
+   end
+
+   is_nearly_on_surface_old(tol) result (res)
+   ! Return TRUE if the cube is nearly on the surface, to within a factor "tol"
+   ! of the .iso_value.
+      tol :: REAL
+      res :: BIN
+   ENSURE(tol>ZERO,"tol must be positive")
+      res = .is_on_surface
+      if (res) return
+      res = any( abs(.value_at_vertex - .iso_value) < tol )
+   end
+
+   has_left_face_on_surface result (res)
+   ! Returns TRUE if the left face is on the surface.
+      res :: BIN
+      ! this tests left face edges: 3,7,8,11
+      res = any(.edge_bit_string.bit_test([3,7,8,11]))
+   end
+
+   has_front_face_on_surface result (res)
+   ! Returns TRUE if the front face is on the surface.
+      res :: BIN
+      ! this tests front face edges: 0,4,8,9
+      res = any(.edge_bit_string.bit_test([0,4,8,9]))
+   end
+
+   has_lower_face_on_surface result (res)
+   ! Returns TRUE if the bottom face is on the surface.
+      res :: BIN
+      ! this tests bottom face edges: 0,1,2,3
+      res = any(.edge_bit_string.bit_test([0,1,2,3]))
+   end
+
+   has_right_face_on_surface result (res)
+   ! Returns TRUE if the right face is on the surface.
+      res :: BIN
+      ! this tests right face edges: 1,5,9,10
+      res = any(.edge_bit_string.bit_test([1,5,9,10]))
+   end
+
+   has_back_face_on_surface result (res)
+   ! Returns TRUE if the back face is on the surface.
+      res :: BIN
+      ! this tests back face edges: 2,6,10,11
+      res = any(.edge_bit_string.bit_test([2,6,10,11]))
+   end
+
+   has_upper_face_on_surface result (res)
+   ! Returns TRUE if the upper face is on the surface.
+      res :: BIN
+      ! this tests upper face edges: 4,5,6,7
+      res = any(.edge_bit_string.bit_test([4,5,6,7]))
+   end
+
+   no_back_face_indices_in(edge_indices) result (res)
+   ! Returns TRUE if the "edge_indices" array has zero values in positions
+   ! corresponding to back face edges of the cube.
+      edge_indices :: INTVEC(0:11)
+      res :: BIN
+      ! this tests back face edges: 2,6,10,11
+      res = edge_indices(2)  == 0 AND &
+            edge_indices(6)  == 0 AND &
+            edge_indices(10) == 0 AND &
+            edge_indices(11) == 0
+   end
+
+   no_upper_face_indices_in(edge_indices) result (res)
+   ! Returns TRUE if the "edge_indices" array has zero values in positions
+   ! corresponding to upper face edges of the cube.
+      edge_indices :: INTVEC(0:11)
+      res :: BIN
+      ! this tests upper face edges: 4,5,6,7
+      res = edge_indices(4) == 0 AND &
+            edge_indices(5) == 0 AND &
+            edge_indices(6) == 0 AND &
+            edge_indices(7) == 0
+   end
+
+!  **************
+!  Output methods
+!  **************
+
+   put(output)
+   ! Put the list of vertices for the object
+      output :: TEXTFILE, target, optional
+!      out :: TEXTFILE*
+!      if (present(output)) then; out => output
+!      else;                      out => stdout
+!      end
+      .put_bitmask_info(output)
+      .put_vertex_index_info(output)
+      .put_positional_info(output)
+   end
+
+   put_bitmask_info(output)
+   ! Put the bit mask related info for the object.
+      output :: TEXTFILE, target, optional
+      out :: TEXTFILE*
+      if (present(output)) then; out => output
+      else;                      out => stdout
+      end
+      out.flush
+      out.show("iso_value       =",.iso_value)
+      out.show("accuracy        =",.accuracy)
+      out.show("case #          =",.case)
+      out.show_bit_string("case bit_string =",.case)
+      out.show_bit_string("edge_bit_string =",.edge_bit_string)
+      out.show_bit_string("cube_bit_string =",.cube_bit_string)
+      out.show_bit_string("skip_bit_string =",.skip_bit_string)
+      out.show("left  face on?  =",.has_left_face_on_surface)
+      out.show("right face on?  =",.has_right_face_on_surface)
+      out.show("front face on?  =",.has_front_face_on_surface)
+      out.show("back  face on?  =",.has_back_face_on_surface)
+      out.show("lower face on?  =",.has_lower_face_on_surface)
+      out.show("upper face on?  =",.has_upper_face_on_surface)
+      out.show("n_edge          =",.no_of_edges)
+      out.show("n_active_edges  =",.no_of_active_edges)
+      out.show("n_triangle      =",.n_triangle)
+      out.show("no_of_triangles =",.no_of_triangles)
+      out.show("n_pt            =",.n_pt)
+   end
+
+   put_vertex_index_info(output)
+   ! Put the list of indexc related entites.
+      output :: TEXTFILE, target, optional
+      out :: TEXTFILE*
+      if (present(output)) then; out => output
+      else;                      out => stdout
+      end
+      out.flush
+      if (.n_triangle>0) then
+      out.text("Triangle edge index:")
+      out.put(.triangle_edge_index(:,1:.n_triangle),"column")
+      out.text("Triangle vertex index:")
+      out.put(.triangle_vertex_index(:,1:.n_triangle),"column")
+      out.text("Edge vertex indices:")
+      out.put(.edge_vertex_index,"column")
+      end
+   end
+
+   put_positional_info(output)
+   ! Put the list of position and function related entities.
+      output :: TEXTFILE, target, optional
+      out :: TEXTFILE*
+      if (present(output)) then; out => output
+      else;                      out => stdout
+      end
+      out.flush
+      out.text("Vertex positons:")
+      out.put(.vertex_pos,"column")
+      out.text("Values at each vertex:")
+      out.put(.value_at_vertex,"column")
+      out.text("Vertex gradients:")
+      out.put(.vertex_gradient,"column")
+      if (.n_triangle>0) then
+      out.text("Edge vertex positions:")
+      out.put(.edge_vertex_pos,"column")
+      out.text("Edge vertex gradients:")
+      out.put(.edge_vertex_gradient,"column")
+      end
+   end
+
+end

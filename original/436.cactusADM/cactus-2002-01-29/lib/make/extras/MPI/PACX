@@ -1,0 +1,46 @@
+#! /bin/sh
+# /*@@
+#   @file      PACX
+#   @date      Mar 12 2000
+#   @author    Thomas Radke
+#   @desc 
+#   
+#   @enddesc
+#   @version
+# @@*/
+
+echo "PACX selected"
+
+if test -z "$PACX_MPI" ; then
+   echo "PACX selected but no underlying MPI method specified !"
+   echo "Please set PACX_MPI to the MPI method PACX was build with !"
+   exit 2
+fi
+
+if test $PACX_MPI = "PACX" ; then
+   echo "Cannot configure PACX with PACX MPI method !"
+   echo "Please set PACX_MPI to the MPI method PACX was build with !"
+   exit 2
+fi
+
+echo "Configuring PACX with MPI method $PACX_MPI"
+
+if test -r $srcdir/extras/MPI/$PACX_MPI ; then
+    . $srcdir/extras/MPI/$PACX_MPI
+else
+    echo "PACX_MPI selected, but no known MPI method - what is $PACX_MPI ?"
+    exit 2
+fi
+
+if test -z "$PACX_DIR" ; then
+   echo "PACX selected but no PACX_DIR set... Checking some places"
+   CCTK_Search PACX_DIR "/usr /usr/local /usr/local/pacx /usr/local/packages/pacx /usr/local/apps/pacx" include/pacx.h
+   if test -z "$PACX_DIR" ; then
+       echo "Unable to locate the PACX directory - please set PACX_DIR"
+       exit 2
+   fi
+fi
+
+MPI_LIBS="pacx pacxf $MPI_LIBS"
+MPI_LIB_DIRS="$PACX_DIR/lib $MPI_LIB_DIRS"
+MPI_INC_DIRS="$PACX_DIR/include $MPI_INC_DIRS"

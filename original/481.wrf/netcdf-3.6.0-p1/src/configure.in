@@ -1,0 +1,288 @@
+##                                               -*- Autoconf -*-
+## Process this file with autoconf to produce a configure script.
+
+# Autoconf initialization.
+
+## This puts the cvs ID tag in the output configure script.
+AC_REVISION($Id: configure.in,v 1.65 2004/12/18 16:32:32 ed Exp $)dnl
+
+## Running autoconf on this file will trigger a warning if 
+## autoconf is not at least version 2.59.
+AC_PREREQ(2.59)
+
+## Initialize autoconf with name of project, version, and support
+## email address. 
+AC_INIT(netCDF, 3.6.0, support@unidata.ucar.edu)
+
+## Autoconf will check for the existance of this file before proceeding.
+AC_CONFIG_SRCDIR([libsrc/nc.c])
+
+# Find out about the host we're building on.
+AC_CANONICAL_HOST
+
+dnl After some deliberation, Russ decided that -g would be the best
+dnl default flag for CFLAGS. Recall that ${VAR-exp} expands to $VAR
+dnl if var is set (even to null), and to exp otherwise.
+CFLAGS=${CFLAGS--g}
+
+UD_SRCDIR
+
+# No matter what, we need a C compiler. On cygwin, go right for gcc to
+# avoid microsoft. 
+if test $host_os != cygwin; then
+	AC_PROG_CC(xlc cc c89 gcc)
+else
+	AC_PROG_CC(gcc)
+fi
+
+# If the user has set CXX to null, we skip C++ interface.
+case "${CXX+set}" in
+     set)
+	case "$CXX" in
+	     '')
+	        AC_MSG_WARN([[CXX set to NULL, C++ interface will not be built.]])
+		;;
+	     *)
+	        AC_PROG_CXX(${CXX})
+		;;
+	esac
+	;;
+     *)
+        case "$host" in
+	     *cygwin*|*osf*|*apple*)
+		AC_PROG_CXX(g++)
+		;;
+	     *)
+		AC_PROG_CXX(cl KCC CC cxx cc++ xlC aCC c++ g++ egcs gcc)
+		;;
+	esac
+	;;
+esac
+
+case "$CXX" in
+    '') ;;
+    *)  # On some systems, a discovered compiler nevertheless
+        # won't work (because it's a script to a non-existant
+        # executable, for example); thus, we check the compiler
+        # with a test program.  We also test for "iostream" and
+        # the standard C++ library because we need these to
+        # work.
+	AC_MSG_CHECKING(C++ compiler \"$CXX\")
+	AC_LANG_SAVE()
+	AC_LANG_CPLUSPLUS()
+	AC_TRY_RUN(
+		    [
+		#include <iostream>
+		int main() {
+		    std::cout << "";
+		    return 0;
+		}
+	    ],
+	    [
+		AC_MSG_RESULT(works)
+	    ],
+	    [
+		AC_MSG_WARN($CXX failed on standard C++ test program)
+		CXX=
+		unset ac_cv_prog_CXX
+	    ])
+	AC_LANG_RESTORE()
+	;;
+esac
+
+# If the user has set FC to null, we skip F77 and F90 interface. 
+# If it's not set at all, try and find a compiler. Then there are a
+# lot of things to check relating to the fortran compiler, mostly for
+# flags that are required for some platforms.
+case "${FC+set}" in
+     set)     
+        case "$FC" in
+	     '')
+		AC_MSG_WARN([[FC set to NULL, F77 and F90 interfaces will not be built.]])
+		;;
+	esac
+	;;
+     *)
+	AC_PROG_FC(xlf f95 fort xlf95 ifc efc pgf95 lf95 gfortran frt pgf77 f77 fort77 fl32 af77 f90 xlf90 pgf90 epcf90 g77 )
+ 	;;
+esac
+
+# If FC isn't set, we couldn't find a fortran compiler.
+case "${FC+set}" in
+     set)     
+	case "$FC" in
+	     '')
+		AC_MSG_WARN([[No fortran compiler found, F77 and F90 interfaces will not be built.]])
+		;;
+	      *)
+		# If it is set, test various things about it.
+		AC_PROG_FC("$FC")
+
+		dnl Add -DpgiFortran to CPPFLAGS if we're using a Portland Group
+		dnl compiler. Add -Df2cFortran if we're using a GNU fortran 77
+		dnl compiler, and no F90 compiler. In either case, make sure it's 
+		dnl not already in CPPFLAGS before we add it, so it
+		dnl doesn't show up
+		dnl twice, and look ugly.
+		AC_MSG_CHECKING(if Fortran-related pre-processor flag needed)
+		case "$FC" in
+		     *pgf95*|*pgf90*|*pgf77*)
+			case "${CPPFLAGS}" in
+			     *-DpgiFortran*|*-Df2cFortran*)
+				;;
+			     *)
+				CPPFLAGS="${CPPFLAGS} -DpgiFortran"
+				;;
+			esac
+			;;
+		     *)	
+			case "$ac_cv_fc_compiler_gnu" in
+			     yes) 
+				case "${CPPFLAGS}" in
+				     *-DpgiFortran*|*-Df2cFortran*)
+				     ;;
+				*)
+				     CPPFLAGS="${CPPFLAGS} -Df2cFortran"
+				     ;;
+				esac
+				;;
+			esac
+			;;
+		esac
+		AC_MSG_RESULT($CPPFLAGS)
+
+		# The HP-UX fortran compiler needs a library for the
+		# linker to get getopts. Also needs CPPFLAGS to include 
+		# -D_HPUX_SOURCE if c89 compiler is used.
+		case "$host" in
+		     *hpux*)
+		        AC_MSG_CHECKING([if FLIBS needs extra F77 lib])
+		        case "$FC" in
+			   *f77*|*fort77*)
+				if test "x$ac_cv_fc_compiler_gnu" != xyes; then
+				   FLIBS="${FLIBS} -lU77"
+				fi
+				;;
+			esac
+			AC_MSG_RESULT($FLIBS)
+			AC_MSG_CHECKING([if -D_HPUX_SOURCE should be in CPPFLAGS])
+		        case "$CC" in
+			   *c89*)
+			      CPPFLAGS="${CPPFLAGS} -D_HPUX_SOURCE"
+			      ;;
+			esac
+			AC_MSG_RESULT($CPPFLAGS)
+			;;
+		esac
+
+		# Now check for F90 compiler.
+		UD_PROG_F90
+		;;
+      esac
+      ;;
+esac
+
+AC_PREFIX_DEFAULT(`(cd ..; pwd)`)
+AC_CONFIG_HEADER(
+    libsrc/ncconfig.h:libsrc/ncconfig.in
+    fortran/nfconfig.inc:fortran/nfconfig.in
+)
+dnl UD_CONFIG_HEADER(fortran/nfconfig.inc:fortran/nfconfig.in)
+dnl AC_DEFINE(_ANSI_C_SOURCE)
+dnl AC_DEFINE(_POSIX_SOURCE)
+dnl AC_DEFINE(_XOPEN_SOURCE)
+UD_PROG_M4
+UD_PROG_CC_MAKEDEPEND
+
+# AC_SYS_LARGEFILES doesn't seem to work on solaris with the c89
+# compiler, unless the -Xa flag is used, so take care of that...
+case "$host_os" in
+     *solaris*)
+        if test "$CC" = c89; then
+			case "${CPPFLAGS}" in
+			     *-Xa*)
+				;;
+			     *)
+			        CPPFLAGS="$CPPFLAGS -Xa"
+				;;
+			esac
+	fi
+	;;
+esac
+
+# AC_SYS_LARGEFILE has problems on AIX when OBJECT_MODE is 64. 
+AC_MSG_CHECKING([if we need to set _LARGE_FILES on AIX with OBJECT_MODE=64 or CFLAGS includes -q64])
+if test "$enable_largefile" != no; then
+case "$host_os" in
+     *aix*)
+	if test "$OBJECT_MODE" = 64; then
+	   AC_DEFINE(_LARGE_FILES, [1], [Turned on by netCDF configure.])
+	fi
+	case "$CFLAGS" in
+	     *q64*)
+	        AC_DEFINE(_LARGE_FILES, [1], [Turned on by netCDF configure.])
+                ;;
+	esac
+	;;
+esac
+fi
+AC_MSG_RESULT(${_LARGE_FILES})
+
+AC_SYS_LARGEFILE
+
+UD_PROG_AR()
+UD_PROG_NM()
+AC_PROG_RANLIB
+AC_PROG_INSTALL
+
+## This next macro just prints some results for debugging
+## support issues.
+UD_DISPLAY_RESULTS
+
+# Calling signal(3) to ignore SIGFPE in the f90(1) environment
+# on SunOS SunOS 5.9 doesn't work on i386 platform without this 
+# setting compiler flag ftrap on the sun compilers.
+AC_MSG_CHECKING(for SunOS Fortran -ftrap= option)
+if test "$host_cpu" = i386; then
+   case "$host_os-$FC" in
+	solaris*-*f90|solaris*-*f95)
+	   IGNORE_FPE=-ftrap=no%overflow
+	   ;;
+   esac
+fi
+IGNORE_FPE=${IGNORE_FPE-}
+AC_MSG_RESULT($IGNORE_FPE)
+AC_SUBST(IGNORE_FPE)
+
+UD_FORTRAN_TYPES
+UD_CHECK_LIB_MATH
+AC_CHECK_HEADER(stdlib.h, ,AC_DEFINE(NO_STDLIB_H))
+AC_CHECK_HEADER(sys/types.h, ,AC_DEFINE(NO_SYS_TYPES_H))
+AC_CHECK_FUNC(strerror, ,AC_DEFINE(NO_STRERROR))
+UD_CHECK_FTRUNCATE
+AC_FUNC_ALLOCA
+AC_STRUCT_ST_BLKSIZE
+UD_CHECK_IEEE
+AC_TYPE_SIZE_T
+AC_TYPE_OFF_T
+AC_CHECK_TYPE(ssize_t, int)
+AC_CHECK_TYPE(ptrdiff_t, int)
+AC_CHECK_TYPE(uchar, unsigned char)
+AC_C_CHAR_UNSIGNED
+AC_C_BIGENDIAN
+AC_CHECK_SIZEOF(short)
+AC_CHECK_SIZEOF(int)
+AC_CHECK_SIZEOF(long)
+AC_CHECK_SIZEOF(float)
+AC_CHECK_SIZEOF(double)
+UD_CHECK_SIZEOF(off_t)
+UD_CHECK_SIZEOF(size_t)
+UD_MAKEWHATIS
+UD_FTPBINDIR
+dnl
+dnl Ensure that the Fortran "header-file" "fortran/nfconfig.inc" doesn't
+dnl contain any C-style comments.
+AC_OUTPUT(macros.make,
+    [sed '1d;s%^/\* \(.*\) \*/%\1%' fortran/nfconfig.inc >conftest.tmp
+    mv conftest.tmp fortran/nfconfig.inc]
+)

@@ -1,0 +1,1510 @@
+This is gnugo.info, produced by makeinfo version 4.2 from gnugo.texi.
+
+INFO-DIR-SECTION GNU games
+START-INFO-DIR-ENTRY
+* GNU go: (gnugo).          The GNU Go program
+END-INFO-DIR-ENTRY
+
+
+File: gnugo.info,  Node: Protocol conventions,  Next: Regression with GTP,  Prev: Protocol applications,  Up: GTP
+
+Protocol conventions
+====================
+
+   The GTP is currently unfinished and unstandardized. It is hoped that
+it will grow to fill the needs currently served by the GMP and perhaps
+other functions. As it is yet unstandardized, this section gives some
+general remarks which we hope will constrain its development. We also
+discuss how the GTP is implemented in GNU Go, for the benefit of anyone
+wishing to add new commands. Notice that the current set of GTP commands
+is a mix of generally useful ones and highly GNU Go specific ones. Only
+the former should be part of a standardized protocol while the latter
+should be private extensions.
+
+   The purpose of the protocol is machine-machine communication. It may
+be tempting to modify the protocol so that it becomes more comfortable
+for the human user, for example with an automatic showboard after every
+move. *This is absolutely not the purpose of the protocol!* Use the
+ascii interface instead if you're inclined to make such a change.
+
+   Newlines are implemented differently on different operating systems.
+On Unix, a newline is just a line feed LF (ascii \012).  On DOS/Windows
+it is CRLF (\013\012). Thus whether GNU Go sends a carriage return with
+the line feed depends on which platform it is compiled for. The arbiter
+should silently discard carriage returns.
+
+   Applications using GTP should never have to guess about the basic
+structure of the responses, defined above. The basic construction for
+coding a GTP command can be found in `gtp_countlib()':
+
+     static int
+     gtp_countlib(char *s)
+     {
+       int i, j;
+       if (!gtp_decode_coord(s, &i, &j))
+         return gtp_failure("invalid coordinate");
+     
+       if (p[i][j] == EMPTY)
+         return gtp_failure("vertex must not be empty");
+     
+       return gtp_success("%d", countlib(POS(i, j)));
+     }
+
+   The functions `gtp_failure()' and `gtp_success()' automatically
+ensures the specified response format, assuming the strings they are
+printing do not end with a newline.
+
+   Sometimes the output is too complex for use with gtp_success, e.g. if
+we want to print vertices, which gtp_success() doesn't support. Then we
+have to fall back to the construction in e.g.  `gtp_genmove_white()':
+
+     static int
+     gtp_genmove_white(char *s)
+     {
+       int i, j;
+       UNUSED(s);
+       if (genmove(&i, &j, WHITE) >= 0)
+         play_move(POS(i, j), WHITE);
+     
+       gtp_start_response(GTP_SUCCESS);
+       gtp_print_vertex(i, j);
+       return gtp_finish_response();
+     }
+
+   Here `gtp_start_response()' writes the equal sign and the request id
+while `gtp_finish_response()' adds the final two newlines. The next
+example is from `gtp_influence()':
+
+       gtp_start_response(GTP_SUCCESS);
+       get_initial_influence(color, 1, white_influence,
+     			black_influence, influence_regions);
+       print_influence(white_influence, black_influence, influence_regions);
+       /* We already have one newline, thus can't use gtp_finish_response(). */
+       gtp_printf("\n");
+       return GTP_OK;
+
+   As we have said, the response should be finished with two newlines.
+Here we have to finish up the response ourselves since we already have
+one newline in place.
+
+   One problem that can be expected to be common is that an engine
+happens to finish its response with three (or more) rather than two
+consecutive newlines. This is an error by the engine that the
+controller can easily detect and ignore. Thus a well behaved engine
+should not send stray newlines, but should they appear the controller
+should ignore them. The opposite problem of an engine failing to
+properly finish its response with two newlines will result in deadlock.
+Don't do this mistake!
+
+   Although it doesn't suffice in more complex cases, gtp_success() is
+by far the most convenient construction when it does. For example, the
+function `gtp_report_uncertainty' takes a single argument which is
+expected to be "on" or "off", after which it sets the value of
+`report_uncertainty', a variable which affects the form of future GTP
+responses, reports success, and exits. The function is coded thus:
+
+     static int
+     gtp_report_uncertainty(char *s)
+     {
+       if (!strncmp(s, "on", 2)) {
+         report_uncertainty = 1;
+         return gtp_success("");
+       }
+       if (!strncmp(s, "off", 3)) {
+         report_uncertainty = 0;
+         return gtp_success("");
+       }
+       return gtp_failure("invalid argument");
+     }
+
+
+File: gnugo.info,  Node: Regression with GTP,  Next: GTP command reference,  Prev: Protocol conventions,  Up: GTP
+
+Regression testing with GTP
+===========================
+
+   GNU Go uses GTP for regression testing. These tests are implemented
+as files with GTP commands, which are fed to GNU Go simply by
+redirecting stdin to read from a file. The output is filtered so that
+equal signs and responses from commands without id numbers are removed.
+These results are then compared with expected results encoded in GTP
+comments in the file, using matching with regular expressions. More
+information can be found in the regression chapter (*note Regression::).
+
+
+File: gnugo.info,  Node: GTP command reference,  Prev: Regression with GTP,  Up: GTP
+
+GTP command reference
+=====================
+
+   This section lists the GTP command set along with some information
+about each command.  Each entry in the list has the following fields:
+
+   * Function: What this command does.
+
+   * Arguments: What other information, if any, this command requires.
+     Typical values include "none" or "vertex" or "integer" (there are
+     others).
+
+   * Fails: Circumstances which cause this command to fail.
+
+   * Returns: What is displayed after the "=" and before the two
+     newlines.  Typical values include "nothing" or "a move coordinate"
+     or some status string (there are others).
+
+   * Status: How this command fits in with the GTP API.
+
+   For suggestions on how to make effective use of the GTP command set,
+*Note Protocol applications::. Some of these commands are standard
+commands in the protocol, others are GNU Go private commands.
+
+   Without further ado, here is the big list (in no particular order):
+
+   * quit
+
+
+           Function:  Quit
+           Arguments: none
+           Fails:     never
+           Returns:   nothing
+          
+           Status:    GTP version 2 standard command.
+
+   * protocol_version
+
+
+           Function:  Report protocol version.
+           Arguments: none
+           Fails:     never
+           Returns:   protocol version number
+          
+           Status:    GTP version 2 standard command.
+
+   * name
+
+
+           Function:  Report the name of the program.
+           Arguments: none
+           Fails:     never
+           Returns:   program name
+          
+           Status:    GTP version 2 standard command.
+
+   * version
+
+
+           Function:  Report the version number of the program.
+           Arguments: none
+           Fails:     never
+           Returns:   version number
+          
+           Status:    GTP version 2 standard command.
+
+   * boardsize
+
+
+           Function:  Set the board size to NxN and clear the board.
+           Arguments: integer
+           Fails:     board size outside engine's limits
+           Returns:   nothing
+          
+           Status:    GTP version 2 standard command.
+
+   * query_boardsize
+
+
+           Function:  Find the current boardsize
+           Arguments: none
+           Fails:     never
+           Returns:   board_size
+
+   * clear_board
+
+
+           Function:  Clear the board.
+           Arguments: none
+           Fails:     never
+           Returns:   nothing
+          
+           Status:    GTP version 2 standard command.
+
+   * orientation
+
+
+           Function:  Set the orienation to N and clear the board
+           Arguments: integer
+           Fails:     illegal orientation
+           Returns:   nothing
+
+   * query_orientation
+
+
+           Function:  Find the current orientation
+           Arguments: none
+           Fails:     never
+           Returns:   orientation
+
+   * komi
+
+
+           Function:  Set the komi.
+           Arguments: float
+           Fails:     incorrect argument
+           Returns:   nothing
+          
+           Status:    GTP version 2 standard command.
+
+   * get_komi
+
+
+           Function:  Get the komi
+           Arguments: none
+           Fails:     never
+           Returns:   Komi
+
+   * black
+
+
+           Function:  Play a black stone at the given vertex.
+           Arguments: vertex
+           Fails:     invalid vertex, illegal move
+           Returns:   nothing
+          
+           Status:    Obsolete GTP version 1 command.
+
+   * playwhite
+
+
+           Function:  Play a white stone at the given vertex.
+           Arguments: vertex
+           Fails:     invalid vertex, illegal move
+           Returns:   nothing
+          
+           Status:    Obsolete GTP version 1 command.
+
+   * play
+
+
+           Function:  Play a stone of the given color at the given vertex.
+           Arguments: color, vertex
+           Fails:     invalid vertex, illegal move
+           Returns:   nothing
+          
+           Status:    GTP version 2 standard command.
+
+   * fixed_handicap
+
+
+           Function:  Set up fixed placement handicap stones.
+           Arguments: number of handicap stones
+           Fails:     invalid number of stones for the current boardsize
+           Returns:   list of vertices with handicap stones
+          
+           Status:    GTP version 2 standard command.
+
+   * place_free_handicap
+
+
+           Function:  Choose free placement handicap stones and put them on the board.
+           Arguments: number of handicap stones
+           Fails:     invalid number of stones
+           Returns:   list of vertices with handicap stones
+          
+           Status:    GTP version 2 standard command.
+
+   * set_free_handicap
+
+
+           Function:  Put free placement handicap stones on the board.
+           Arguments: list of vertices with handicap stones
+           Fails:     board not empty, bad list of vertices
+           Returns:   nothing
+          
+           Status:    GTP version 2 standard command.
+
+   * get_handicap
+
+
+           Function:  Get the handicap
+           Arguments: none
+           Fails:     never
+           Returns:   handicap
+
+   * loadsgf
+
+
+           Function:  Load an sgf file, possibly up to a move number or the first
+                      occurence of a move.
+           Arguments: filename + move number, vertex, or nothing
+           Fails:     missing filename or failure to open or parse file
+           Returns:   color to play
+          
+           Status:    GTP version 2 standard command.
+
+   * color
+
+
+           Function:  Return the color at a vertex.
+           Arguments: vertex
+           Fails:     invalid vertex
+           Returns:   "black", "white", or "empty"
+
+   * list_stones
+
+
+           Function:  List vertices with either black or white stones.
+           Arguments: color
+           Fails:     invalid color
+           Returns:   list of vertices
+
+   * countlib
+
+
+           Function:  Count number of liberties for the string at a vertex.
+           Arguments: vertex
+           Fails:     invalid vertex, empty vertex
+           Returns:   Number of liberties.
+
+   * findlib
+
+
+           Function:  Return the positions of the liberties for the string at a vertex.
+           Arguments: vertex
+           Fails:     invalid vertex, empty vertex
+           Returns:   Sorted space separated list of vertices.
+
+   * accuratelib
+
+
+           Function:  Determine which liberties a stone of given color
+                      will get if played at given vertex.
+           Arguments: move (color + vertex)
+           Fails:     invalid color, invalid vertex, occupied vertex
+           Returns:   Sorted space separated list of liberties
+
+   * accurate_approxlib
+
+
+           Function:  Determine which liberties a stone of given color
+                      will get if played at given vertex.
+           Arguments: move (color + vertex)
+           Fails:     invalid color, invalid vertex, occupied vertex
+           Returns:   Sorted space separated list of liberties
+          
+           Supposedly identical in behavior to the above function and
+           can be retired when this is confirmed.
+
+   * is_legal
+
+
+           Function:  Tell whether a move is legal.
+           Arguments: move
+           Fails:     invalid move
+           Returns:   1 if the move is legal, 0 if it is not.
+
+   * all_legal
+
+
+           Function:  List all legal moves for either color.
+           Arguments: color
+           Fails:     invalid color
+           Returns:   Sorted space separated list of vertices.
+
+   * captures
+
+
+           Function:  List the number of captures taken by either color.
+           Arguments: color
+           Fails:     invalid color
+           Returns:   Number of captures.
+
+   * trymove
+
+
+           Function:  Play a stone of the given color at the given vertex.
+           Arguments: move (color + vertex)
+           Fails:     invalid color, invalid vertex, illegal move
+           Returns:   nothing
+
+   * tryko
+
+
+           Function:  Play a stone of the given color at the given vertex,
+                      allowing illegal ko capture.
+           Arguments: move (color + vertex)
+           Fails:     invalid color, invalid vertex, illegal move
+           Returns:   nothing
+
+   * popgo
+
+
+           Function:  Undo a trymove or tryko.
+           Arguments: none
+           Fails:     stack empty
+           Returns:   nothing
+
+   * clear_cache
+
+
+           Function:  clear the caches.
+           Arguments: none.
+           Fails:     never.
+           Returns:   nothing.
+
+   * attack
+
+
+           Function:  Try to attack a string.
+           Arguments: vertex
+           Fails:     invalid vertex, empty vertex
+           Returns:   attack code followed by attack point if attack code nonzero.
+
+   * attack_either
+
+
+           Function:  Try to attack either of two strings
+           Arguments: two vertices
+           Fails:     invalid vertex, empty vertex
+           Returns:   attack code against the strings.  Guarantees there
+                      exists a move which will attack one of the two
+                      with attack_code, but does not return the move.
+
+   * defend
+
+
+           Function:  Try to defend a string.
+           Arguments: vertex
+           Fails:     invalid vertex, empty vertex
+           Returns:   defense code followed by defense point if defense code nonzero.
+
+   * ladder_attack
+
+
+           Function:  Try to attack a string strictly in a ladder.
+           Arguments: vertex
+           Fails:     invalid vertex, empty vertex
+           Returns:   attack code followed by attack point if attack code nonzero.
+
+   * increase_depths
+
+
+           Function:  Increase depth values by one.
+           Arguments: none
+           Fails:     never
+           Returns:   nothing
+
+   * decrease_depths
+
+
+           Function:  Decrease depth values by one.
+           Arguments: none
+           Fails:     never
+           Returns:   nothing
+
+   * owl_attack
+
+
+           Function:  Try to attack a dragon.
+           Arguments: vertex
+           Fails:     invalid vertex, empty vertex
+           Returns:   attack code followed by attack point if attack code nonzero.
+
+   * owl_defend
+
+
+           Function:  Try to defend a dragon.
+           Arguments: vertex
+           Fails:     invalid vertex, empty vertex
+           Returns:   defense code followed by defense point if defense code nonzero.
+
+   * owl_threaten_attack
+
+
+           Function:  Try to attack a dragon in 2 moves.
+           Arguments: vertex
+           Fails:     invalid vertex, empty vertex
+           Returns:   attack code followed by the two attack points if
+                      attack code nonzero.
+
+   * owl_threaten_defense
+
+
+           Function:  Try to defend a dragon with 2 moves.
+           Arguments: vertex
+           Fails:     invalid vertex, empty vertex
+           Returns:   defense code followed by the 2 defense points if
+                      defense code nonzero.
+
+   * owl_does_attack
+
+
+           Function:  Examine whether a specific move attacks a dragon.
+           Arguments: vertex (move), vertex (dragon)
+           Fails:     invalid vertex, empty vertex
+           Returns:   attack code
+
+   * owl_does_defend
+
+
+           Function:  Examine whether a specific move defends a dragon.
+           Arguments: vertex (move), vertex (dragon)
+           Fails:     invalid vertex, empty vertex
+           Returns:   defense code
+
+   * owl_connection_defends
+
+
+           Function:  Examine whether a connection defends involved dragons.
+           Arguments: vertex (move), vertex (dragon1), vertex (dragon2)
+           Fails:     invalid vertex, empty vertex
+           Returns:   defense code
+
+   * defend_both
+
+
+           Function:  Try to defend both of two strings
+           Arguments: two vertices
+           Fails:     invalid vertex, empty vertex
+           Returns:   defend code for the strings.  Guarantees there
+                      exists a move which will defend both of the two
+                      with defend_code, but does not return the move.
+
+   * owl_substantial
+
+
+           Function:  Determine whether capturing a string gives a living dragon
+           Arguments: vertex
+           Fails:     invalid vertex, empty vertex
+           Returns:   1 if dragon can live, 0 otherwise
+
+   * analyze_semeai
+
+
+           Function:  Analyze a semeai
+           Arguments: dragona, dragonb
+           Fails:     invalid vertices, empty vertices
+           Returns:   semeai defense result, semeai attack result, semeai move
+
+   * analyze_semeai_after_move
+
+
+           Function:  Analyze a semeai after a move have been made.
+           Arguments: color, vertex, dragona, dragonb
+           Fails:     invalid vertices
+           Returns:   semeai defense result, semeai attack result, semeai move
+
+   * tactical_analyze_semeai
+
+
+           Function:  Analyze a semeai, not using owl
+           Arguments: dragona, dragonb
+           Fails:     invalid vertices, empty vertices
+           Returns:   status of dragona, dragonb assuming dragona moves first
+
+   * connect
+
+
+           Function:  Try to connect two strings.
+           Arguments: vertex, vertex
+           Fails:     invalid vertex, empty vertex, vertices of different colors
+           Returns:   connect result followed by connect point if successful.
+
+   * disconnect
+
+
+           Function:  Try to disconnect two strings.
+           Arguments: vertex, vertex
+           Fails:     invalid vertex, empty vertex, vertices of different colors
+           Returns:   disconnect result followed by disconnect point if successful.
+
+   * break_in
+
+
+           Function:  Try to break from string into area.
+           Arguments: vertex, vertices
+           Fails:     invalid vertex, empty vertex.
+           Returns:   result followed by break in point if successful.
+
+   * block_off
+
+
+           Function:  Try to block string from area.
+           Arguments: vertex, vertices
+           Fails:     invalid vertex, empty vertex.
+           Returns:   result followed by block point if successful.
+
+   * eval_eye
+
+
+           Function:  Evaluate an eye space
+           Arguments: vertex
+           Fails:     invalid vertex
+           Returns:   Minimum and maximum number of eyes. If these differ an
+                      attack and a defense point are additionally returned.
+                      If the vertex is not an eye space or not of unique color,
+                      a single -1 is returned.
+
+   * dragon_status
+
+
+           Function:  Determine status of a dragon.
+           Arguments: optional vertex
+           Fails:     invalid vertex, empty vertex
+           Returns:   status ("alive", "critical", "dead", or "unknown"),
+                      attack point, defense point. Points of attack and
+                      defense are only given if the status is critical.
+                      If no vertex is given, the status is listed for all
+                      dragons, one per row in the format "A4: alive".
+          
+           FIXME: Should be able to distinguish between life in seki
+                  and independent life. Should also be able to identify ko.
+
+   * same_dragon
+
+
+           Function:  Determine whether two stones belong to the same dragon.
+           Arguments: vertex, vertex
+           Fails:     invalid vertex, empty vertex
+           Returns:   1 if the vertices belong to the same dragon, 0 otherwise
+
+   * combination_attack
+
+
+           Function:  Find a move by color capturing something through a
+                      combination attack.
+           Arguments: color
+           Fails:     invalid color
+           Returns:   Recommended move, PASS if no move found
+
+   * aa_confirm_safety
+
+
+           Function:  Run atari_atari_confirm_safety().
+           Arguments: move, optional int
+           Fails:     invalid move
+           Returns:   success code, if failure also defending move
+
+   * genmove_black
+
+
+           Function:  Generate and play the supposedly best black move.
+           Arguments: none
+           Fails:     never
+           Returns:   a move coordinate or "PASS" (or "resign" if resignation_allowed).
+          
+           Status:    Obsolete GTP version 1 command.
+
+   * genmove_white
+
+
+           Function:  Generate and play the supposedly best white move.
+           Arguments: none
+           Fails:     never
+           Returns:   a move coordinate (or "PASS")
+          
+           Status:    Obsolete GTP version 1 command.
+
+   * genmove
+
+
+           Function:  Generate and play the supposedly best move for either color.
+           Arguments: color to move
+           Fails:     invalid color
+           Returns:   a move coordinate (or "PASS")
+          
+           Status:    GTP version 2 standard command.
+
+   * reg_genmove
+
+
+           Function:  Generate the supposedly best move for either color.
+           Arguments: color to move
+           Fails:     invalid color
+           Returns:   a move coordinate (or "PASS")
+          
+           Status:    GTP version 2 standard command.
+
+   * gg_genmove
+
+
+           Function:  Generate the supposedly best move for either color.
+           Arguments: color to move, optionally a random seed
+           Fails:     invalid color
+           Returns:   a move coordinate (or "PASS")
+          
+           This differs from reg_genmove in the optional random seed.
+
+   * restricted_genmove
+
+
+           Function:  Generate the supposedly best move for either color from a
+                      choice of allowed vertices.
+           Arguments: color to move, allowed vertices
+           Fails:     invalid color, invalid vertex, no vertex listed
+           Returns:   a move coordinate (or "PASS")
+
+   * level
+
+
+           Function:  Set the playing level.
+           Arguments: int
+           Fails:     incorrect argument
+           Returns:   nothing
+
+   * undo
+
+
+           Function:  Undo one move
+           Arguments: none
+           Fails:     If move history is too short.
+           Returns:   nothing
+          
+           Status:    GTP version 2 standard command.
+
+   * gg-undo
+
+
+           Function:  Undo a number of moves
+           Arguments: optional int
+           Fails:     If move history is too short.
+           Returns:   nothing
+
+   * time_settings
+
+
+           Function:  Set time allowance
+           Arguments: int main_time, int byo_yomi_time, int byo_yomi_stones
+           Fails:     syntax error
+           Returns:   nothing
+          
+           Status:    GTP version 2 standard command.
+
+   * time_left
+
+
+           Function:  Report remaining time
+           Arguments: color color, int time, int stones
+           Fails:     syntax error
+           Returns:   nothing
+          
+           Status:    GTP version 2 standard command.
+
+   * final_score
+
+
+           Function:  Compute the score of a finished game.
+           Arguments: Optional random seed
+           Fails:     never
+           Returns:   Score in SGF format (RE property).
+          
+           Status:    GTP version 2 standard command.
+
+   * final_status
+
+
+           Function:  Report the final status of a vertex in a finished game.
+           Arguments: Vertex, optional random seed
+           Fails:     invalid vertex
+           Returns:   Status in the form of one of the strings "alive", "dead",
+                      "seki", "white_territory", "black_territory", or "dame".
+
+   * final_status_list
+
+
+           Function:  Report vertices with a specific final status in a finished game.
+           Arguments: Status in the form of one of the strings "alive", "dead",
+                      "seki", "white_territory", "black_territory", or "dame".
+                      An optional random seed can be added.
+           Fails:     missing or invalid status string
+           Returns:   Vertices having the specified status. These are split with
+                      one string on each line if the vertices are nonempty (i.e.
+                      for "alive", "dead", and "seki").
+          
+           Status:    GTP version 2 standard command.
+                      However, "dame", "white_territory", and "black_territory"
+                      are private extensions.
+
+   * estimate_score
+
+
+           Function:  Estimate the score
+           Arguments: None
+           Fails:     never
+           Returns:   upper and lower bounds for the score
+
+   * experimental_score
+
+
+           Function:  Estimate the score, taking into account which player moves next
+           Arguments: Color to play
+           Fails:     Invalid color
+           Returns:   Score.
+          
+           This function generates a move for color, then adds the
+           value of the move generated to the value of the position.
+           Critical dragons are awarded to the opponent since the
+           value of rescuing a critical dragon is taken into account
+           in the value of the move generated.
+
+   * reset_life_node_counter
+
+
+           Function:  Reset the count of life nodes.
+           Arguments: none
+           Fails:     never
+           Returns:   nothing
+          
+           Note: This function is obsolete and only remains for backwards
+           compatibility.
+
+   * get_life_node_counter
+
+
+           Function:  Retrieve the count of life nodes.
+           Arguments: none
+           Fails:     never
+           Returns:   number of life nodes
+          
+           Note: This function is obsolete and only remains for backwards
+           compatibility.
+
+   * reset_owl_node_counter
+
+
+           Function:  Reset the count of owl nodes.
+           Arguments: none
+           Fails:     never
+           Returns:   nothing
+
+   * get_owl_node_counter
+
+
+           Function:  Retrieve the count of owl nodes.
+           Arguments: none
+           Fails:     never
+           Returns:   number of owl nodes
+
+   * reset_reading_node_counter
+
+
+           Function:  Reset the count of reading nodes.
+           Arguments: none
+           Fails:     never
+           Returns:   nothing
+
+   * get_reading_node_counter
+
+
+           Function:  Retrieve the count of reading nodes.
+           Arguments: none
+           Fails:     never
+           Returns:   number of reading nodes
+
+   * reset_trymove_counter
+
+
+           Function:  Reset the count of trymoves/trykos.
+           Arguments: none
+           Fails:     never
+           Returns:   nothing
+
+   * get_trymove_counter
+
+
+           Function:  Retrieve the count of trymoves/trykos.
+           Arguments: none
+           Fails:     never
+           Returns:   number of trymoves/trykos
+
+   * reset_connection_node_counter
+
+
+           Function:  Reset the count of connection nodes.
+           Arguments: none
+           Fails:     never
+           Returns:   nothing
+
+   * get_connection_node_counter
+
+
+           Function:  Retrieve the count of connection nodes.
+           Arguments: none
+           Fails:     never
+           Returns:   number of connection nodes
+
+   * test_eyeshape
+
+
+           Function:  Test an eyeshape for inconsistent evaluations
+           Arguments: Eyeshape vertices
+           Fails:     Bad vertices
+           Returns:   Failure reports on stderr.
+
+   * analyze_eyegraph
+
+
+           Function:  Compute an eyevalue and vital points for an eye graph
+           Arguments: Eyeshape encoded in string
+           Fails:     Bad eyeshape, analysis failed
+           Returns:   Eyevalue, vital points
+
+   * cputime
+
+
+           Function:  Returns elapsed CPU time in seconds.
+           Arguments: none
+           Fails:     never
+           Returns:   Total elapsed (user + system) CPU time in seconds.
+
+   * showboard
+
+
+           Function:  Write the position to stdout.
+           Arguments: none
+           Fails:     never
+           Returns:   nothing
+          
+           Status:    GTP version 2 standard command.
+
+   * dump_stack
+
+
+           Function:  Dump stack to stderr.
+           Arguments: none
+           Fails:     never
+           Returns:   nothing
+
+   * influence
+
+
+           Function:  Return information about the influence function.
+           Arguments: color to move
+           Fails:     never
+           Returns:   Influence data formatted like:
+          
+           white:
+             0.51   1.34   3.20   6.60   9.09   8.06   1.96   0.00   0.00
+             0.45   1.65   4.92  12.19  17.47  15.92   4.03   0.00   0.00
+                             .
+                             .
+                             .
+             0.00   0.00   0.00   0.00   0.00 100.00  75.53  41.47  23.41
+           black:
+             1.57   2.51   4.10   3.10   3.60   4.54   8.32   4.15   2.71
+             2.96   4.62   9.18   5.47   5.89  10.88  20.54  10.19   4.08
+                             .
+                             .
+                             .
+           100.00 139.39 100.00 139.39 100.00   0.00   0.00   0.00   0.00
+           regions:
+           -1  0  0  1  1  0 -1 -3 -3
+                        .
+                        .
+                        .
+           -3 -3 -3 -3 -3  3  3  3  3
+          
+           The encoding of the regions is as follows:
+            3 white territory
+            2 white moyo
+            1 white area
+            0 neutral
+           -1 black area
+           -2 black moyo
+           -3 black territory
+
+   * worm_data
+
+
+           Function:  Return the information in the worm data structure.
+           Arguments: optional vertex
+           Fails:     never
+           Returns:   Worm data formatted like:
+          
+           A19:
+           color           black
+           size            10
+           effective_size  17.83
+           origin          A19
+           liberties       8
+           liberties2      15
+           liberties3      10
+           liberties4      8
+           attack          PASS
+           attack_code     0
+           lunch           B19
+           defend          PASS
+           defend_code     0
+           cutstone        2
+           cutstone2       0
+           genus           0
+           inessential     0
+           B19:
+           color           white
+           .
+           .
+           .
+           inessential     0
+           C19:
+           ...
+          
+           If an intersection is specified, only data for this one will be returned.
+
+   * worm_stones
+
+
+           Function:  List the stones of a worm
+           Arguments: the location, "BLACK" or "WHITE"
+           Fails:     if called on an empty or off-board location
+           Returns:   list of stones
+
+   * worm_cutstone
+
+
+           Function:  Return the cutstone field in the worm data structure.
+           Arguments: non-empty vertex
+           Fails:     never
+           Returns:   cutstone
+
+   * dragon_data
+
+
+           Function:  Return the information in the dragon data structure.
+           Arguments: optional intersection
+           Fails:     never
+           Returns:   Dragon data formatted in the corresponding way to worm_data.
+
+   * dragon_stones
+
+
+           Function:  List the stones of a dragon
+           Arguments: the location
+           Fails:     if called on an empty or off-board location
+           Returns:   list of stones
+
+   * start_sgftrace
+
+
+           Function:  Start storing moves executed during reading in an sgf
+                      tree in memory.
+           Arguments: none
+           Fails:     never
+           Returns:   nothing
+          
+           Warning: You had better know what you're doing if you try to use this
+                    command.
+
+   * finish_sgftrace
+
+
+           Function:  Finish storing moves in an sgf tree and write it to file.
+           Arguments: filename
+           Fails:     never
+           Returns:   nothing
+          
+           Warning: You had better know what you're doing if you try to use this
+                    command.
+
+   * printsgf
+
+
+           Function:  Dump the current position as a static sgf file
+           Arguments: filename
+           Fails:     missing filename
+           Returns:   nothing
+
+   * tune_move_ordering
+
+
+           Function:  Tune the parameters for the move ordering in the tactical
+                      reading.
+           Arguments: MOVE_ORDERING_PARAMETERS integers
+           Fails:     incorrect arguments
+           Returns:   nothing
+
+   * echo
+
+
+           Function:  Echo the parameter
+           Arguments: string
+           Fails:     never
+           Returns:   nothing
+
+   * echo_err
+
+
+           Function:  Echo the parameter to stdout AND stderr
+           Arguments: string
+           Fails:     never
+           Returns:   nothing
+
+   * help
+
+
+           Function:  List all known commands
+           Arguments: none
+           Fails:     never
+           Returns:   list of known commands, one per line
+          
+           Status:    GTP version 2 standard command.
+
+   * known_command
+
+
+           Function:  Tell whether a command is known.
+           Arguments: command name
+           Fails:     never
+           Returns:   "true" if command exists, "false" if not
+          
+           Status:    GTP version 2 standard command.
+
+   * report_uncertainty
+
+
+           Function:  Turn uncertainty reports from owl_attack
+                      and owl_defend on or off.
+           Arguments: "on" or "off"
+           Fails:     invalid argument
+           Returns:   nothing
+
+   * get_random_seed
+
+
+           Function:  Get the random seed
+           Arguments: none
+           Fails:     never
+           Returns:   random seed
+
+   * set_random_seed
+
+
+           Function:  Set the random seed
+           Arguments: integer
+           Fails:     invalid data
+           Returns:   nothing
+
+   * is_surrounded
+
+
+           Function:  Determine if a dragon is surrounded
+           Arguments: vertex (dragon)
+           Fails:     invalid vertex, empty vertex
+           Returns:   1 if surrounded, 2 if weakly surrounded, 0 if not
+
+   * does_surround
+
+
+           Function:  Determine if a move surrounds a dragon
+           Arguments: vertex (move), vertex (dragon)
+           Fails:     invalid vertex, empty (dragon, nonempty (move)
+           Returns:   1 if (move) surrounds (dragon)
+
+   * surround_map
+
+
+           Function:  Report the surround map for dragon at a vertex
+           Arguments: vertex (dragon), vertex (mapped location)
+           Fails:     invalid vertex, empty dragon
+           Returns:   value of surround map at (mapped location), or -1 if
+                      dragon not surrounded.
+
+   * set_search_diamond
+
+
+           Function:  limit search, and establish a search diamond
+           Arguments: pos
+           Fails:     invalid value
+           Returns:   nothing
+
+   * reset_search_mask
+
+
+           Function:  unmark the entire board for limited search
+           Arguments: none
+           Fails:     never
+           Returns:   nothing
+
+   * limit_search
+
+
+           Function:  sets the global variable limit_search
+           Arguments: value
+           Fails:     invalid arguments
+           Returns:   nothing
+
+   * set_search_limit
+
+
+           Function:  mark a vertex for limited search
+           Arguments: position
+           Fails:     invalid arguments
+           Returns:   nothing
+
+   * draw_search_area
+
+
+           Function:  Draw search area. Writes to stderr.
+           Arguments: none
+           Fails:     never
+           Returns:   nothing
+
+
+
+File: gnugo.info,  Node: Regression,  Next: Copying,  Prev: GTP,  Up: Top
+
+Regression testing
+******************
+
+   The standard purpose of regression testing is to avoid getting the
+same bug twice. When a bug is found, the programmer fixes the bug and
+adds a test to the test suite. The test should fail before the fix and
+pass after the fix. When a new version is about to be released, all the
+tests in the regression test suite are run and if an old bug reappears,
+this will be seen quickly since the appropriate test will fail.
+
+   The regression testing in GNU Go is slightly different. A typical
+test case involves specifying a position and asking the engine what
+move it would make. This is compared to one or more correct moves to
+decide whether the test case passes or fails. It is also stored whether
+a test case is expected to pass or fail, and deviations in this status
+signify whether a change has solved some problem and/or broken something
+else. Thus the regression tests both include positions highlighting some
+mistake being done by the engine, which are waiting to be fixed, and
+positions where the engine does the right thing, where we want to detect
+if a change breaks something.
+
+* Menu:
+
+* Regression Testing::          Regression Testing in GNU Go
+* Test Suites::                 Test Suites
+* Performance Testing::         Performance Testing
+* HTML Views::                  HTML Views
+
+
+File: gnugo.info,  Node: Regression Testing,  Next: Test Suites,  Up: Regression
+
+Regression testing in GNU Go
+============================
+
+   Regression testing is performed by the files in the `regression/'
+directory. The tests are specified as GTP commands in files with the
+suffix `.tst', with corresponding correct results and expected
+pass/fail status encoded in GTP comments following the test. To run a
+test suite the shell scripts `test.sh', `eval.sh', and `regress.sh' can
+be used. There are also Makefile targets to do this. If you `make
+all_batches' most of the tests are run.
+
+   Game records used by the regression tests are stored in the
+directory `regression/games/' and its subdirectories.
+
+
+File: gnugo.info,  Node: Test Suites,  Next: Performance Testing,  Prev: Regression Testing,  Up: Regression
+
+Test suites
+===========
+
+   The regression tests are grouped into suites and stored in files as
+GTP commands. A part of a test suite can look as follows:
+     # Connecting with ko at B14 looks best. Cutting at D17 might be
+     # considered. B17 (game move) is inferior.
+     loadsgf games/strategy25.sgf 61
+     90 gg_genmove black
+     #? [B14|D17]
+     
+     # The game move at P13 is a suicidal blunder.
+     loadsgf games/strategy25.sgf 249
+     95 gg_genmove black
+     #? [!P13]
+     
+     loadsgf games/strategy26.sgf 257
+     100 gg_genmove black
+     #? [M16]*
+
+   Lines starting with a hash sign, or in general anything following a
+hash sign, are interpreted as comments by the GTP mode and thus ignored
+by the engine. GTP commands are executed in the order they appear, but
+only those on numbered lines are used for testing. The comment lines
+starting with `#?' are magical to the regression testing scripts and
+indicate correct results and expected pass/fail status. The string
+within brackets is matched as a regular expression against the response
+from the previous numbered GTP command. A particular useful feature of
+regular expressions is that by using `|' it is possible to specify
+alternatives. Thus `B14|D17' above means that if either `B14' or `D17'
+is the move generated in test case 90, it passes. There is one
+important special case to be aware of. If the correct result string
+starts with an exclamation mark, this is excluded from the regular
+expression but afterwards the result of the matching is negated. Thus
+`!P13' in test case 95 means that any move except `P13' is accepted as
+a correct result.
+
+   In test case 100, the brackets on the `#?' line is followed by an
+asterisk. This means that the test is expected to fail. If there is no
+asterisk, the test is expected to pass. The brackets may also be
+followed by a `&', meaning that the result is ignored. This is
+primarily used to report statistics, e.g. how many tactical reading
+nodes were spent while running the test suite.
+
+
+File: gnugo.info,  Node: Performance Testing,  Next: HTML Views,  Prev: Test Suites,  Up: Regression
+
+Performing tests
+================
+
+   `./test.sh blunder.tst' runs the tests in `blunder.tst' and prints
+the results of the commands on numbered lines, which may look like:
+
+     1 E5
+     2 F9
+     3 O18
+     4 B7
+     5 A4
+     6 E4
+     7 E3
+     8 A3
+     9 D9
+     10 J9
+     11 B3
+     12 C6
+     13 C6
+
+   This is usually not very informative, however. More interesting is
+`./eval.sh blunder.tst' which also compares the results above against
+the correct ones in the test file and prints a report for each test on
+the form:
+
+     1 failed: Correct '!E5', got 'E5'
+     2 failed: Correct 'C9|H9', got 'F9'
+     3 PASSED
+     4 failed: Correct 'B5|C5|C4|D4|E4|E3|F3', got 'B7'
+     5 PASSED
+     6 failed: Correct 'D4', got 'E4'
+     7 PASSED
+     8 failed: Correct 'B4', got 'A3'
+     9 failed: Correct 'G8|G9|H8', got 'D9'
+     10 failed: Correct 'G9|F9|C7', got 'J9'
+     11 failed: Correct 'D4|E4|E5|F4|C6', got 'B3'
+     12 failed: Correct 'D4', got 'C6'
+     13 failed: Correct 'D4|E4|E5|F4', got 'C6'
+
+   The result of a test can be one of four different cases:
+
+   * `passed': An expected pass
+
+     This is the ideal result.
+
+   * `PASSED': An unexpected pass
+
+     This is a result that we are hoping for when we fix a bug. An old
+     test case that used to fail is now passing.
+
+   * `failed': An expected failure
+
+     The test failed but this was also what we expected, unless we were
+     trying to fix the particular mistake highlighted by the test case.
+     These tests show weaknesses of the GNU Go engine and are good
+     places to search if you want to detect an area which needs
+     improvement.
+
+   * `FAILED': An unexpected failure
+
+     This should nominally only happen if something is broken by a
+     change. However, sometimes GNU Go passes a test, but for the wrong
+     reason or for a combination of wrong reasons.  When one of these
+     reasons is fixed, the other one may shine through so that the test
+     suddenly fails. When a test case unexpectedly fails, it is
+     necessary to make a closer examination in order to determine
+     whether a change has broken something.
+
+
+   If you want a less verbose report, `./regress.sh . blunder.tst' does
+the same thing as the previous command, but only reports unexpected
+results. The example above is compressed to
+
+     3 unexpected PASS!
+     5 unexpected PASS!
+     7 unexpected PASS!
+
+   For convenience the tests are also available as makefile targets. For
+example, `make blunder' runs the tests in the blunder test suite by
+executing `eval.sh blunder.tst'. `make test' runs all test suites in a
+sequence using the `regress.sh' script.
+
+
+File: gnugo.info,  Node: HTML Views,  Prev: Performance Testing,  Up: Regression
+
+HTML Regression Views
+=====================
+
+   Extremely useful HTML Views of the regression tests may be produced
+using two perl scripts `regression/regress.pl' and
+`regression/regress.plx'.
+
+  1. The driver program (regress.pl) which:
+        * Runs the regression tests, invoking GNU Go.
+
+        * Captures the trace output, board position, and pass/fail
+          status, sgf output, and dragon status information.
+
+  2. The interface to view the captured output (regress.plx) which:
+        * Never invokes GNU Go.
+
+        * Displays the captured output in helpful formats (i.e. HTML).
+
+Setting up the HTML regression Views
+------------------------------------
+
+   This documentation assumes an apache configured as per Debian's
+Apache 1.3 distribution, but it should be fairly close to the config
+for other distributions.
+
+   First, you will need to configure Apache to run CGI scripts in the
+directory you wish to serve the html views from.  To do this, add the
+following to `/etc/apache/httpd.conf' (or to a user-specific conf file
+if applicable):
+
+     <Directory /path/to/script/>
+         Options +ExecCGI
+     </Directory>
+
+   This allows CGI scripts to be executed in the directory used by
+regress.plx.  Next, you need to tell Apache that `.plx' is a CGI script
+ending.  Your `httpd.conf' file should contain a section `<IfModule
+mod_mime.c>'.  Within that section, there may or may not be a line:
+
+   `AddHandler cgi-script ....'
+
+   If there isn't already, add it; add `.plx' to the list of extensions.
+
+   You will also need to make sure you have the necessary modules
+loaded to run CGI scripts; mod_cgi and mod_mime should be sufficient.
+Your `httpd.conf' should have the relevant `LoadModule' lines;
+uncomment them if neccessary.
+
+   Next, you need to put a copy of `regress.plx' in the directory that
+you plan to serve the html views from.
+
+   You will also need to install the Perl module GD, available from
+CPAN or via `apt-get install libgd-perl' on Debian.
+
+   Finally, run `regression/regress.pl' to create the xml data used to
+generate the html views; then, copy the `html/' directory to the same
+directory as `regress.plx' resides in.
+
+   At this point, you should have a working copy of the html regression
+views.
+
+
+File: gnugo.info,  Node: Copying,  Next: Concept Index,  Prev: Regression,  Up: Top
+
+Copying
+*******
+
+   The program GNU Go is distributed under the terms of the GNU General
+Public License (GPL). Its documentation is distributed under the terms
+of the GNU Free Documentation License (GFDL).
+
+* Menu:
+
+* GPL::            The GNU General Public License
+* GFDL::           The GNU Free Documentation License
+* GTP License::    The Go Text Protocol License
+

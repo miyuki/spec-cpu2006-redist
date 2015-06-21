@@ -1,0 +1,393 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>Examples of simple TONTO programs</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Are we hypocrites?"
+HREF="hypocrites.html"><LINK
+REL="NEXT"
+TITLE="The BUFFER module"
+HREF="module-buffer.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="CHAPTER"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="hypocrites.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="module-buffer.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="EXAMPLE-PROGRAMS"
+></A
+>Examples of simple TONTO programs</H1
+><P
+ALIGN="justify"
+>This chapter gives you some examples of simple TONTO programs that you
+can study, compile, or extend.</P
+><P
+ALIGN="justify"
+>All the programs are distributed with TONTO in the
+<TT
+CLASS="LITERAL"
+>foofiles</TT
+> directory, in files named
+<TT
+CLASS="LITERAL"
+>run_XXXX.foo</TT
+>, where <TT
+CLASS="LITERAL"
+>XXXX</TT
+> is the name of
+the module mainly being used.</P
+><P
+ALIGN="justify"
+>To compile these programs just type <TT
+CLASS="LITERAL"
+>make run_XXXX.x</TT
+> in
+the <TT
+CLASS="LITERAL"
+>tonto</TT
+> directory; an executable
+<TT
+CLASS="LITERAL"
+>run_XXXX.x</TT
+> will then be produced.</P
+><P
+ALIGN="justify"
+>To run the program, just tupe <TT
+CLASS="LITERAL"
+>run_XXXX.x</TT
+>.</P
+><P
+ALIGN="justify"
+>Except for the <TT
+CLASS="LITERAL"
+>TEXTFILE</TT
+> example, all results are
+deposited in the "stdout" file.</P
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="MODULE-TEXTFILE"
+></A
+>The <TT
+CLASS="LITERAL"
+>TEXTFILE</TT
+> module</H1
+><P
+ALIGN="justify"
+>One of the most often used modules is <TT
+CLASS="LITERAL"
+>TEXTFILE</TT
+>, which
+is concerned with reading and writing ASCII textfiles. The following example
+illustrates the basic use of this module, which used repeatedly in the following
+examples.</P
+><P
+ALIGN="justify"
+>You will need to edit a file "in" to get this program to work. This is
+described in the program body, and the results are written to your terminal
+screen.</P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="CODE-TEXTFILE"
+></A
+>Code</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>program run_textfile
+
+   use TYPES              ! Always use the TYPES module
+   use SYSTEM             ! Always use the SYSTEM module
+   use STR
+   use TEXTFILE
+
+#include "macros"
+
+   implicit none
+
+   TEXTFILE*  :: in
+   STR  :: junk,name
+   REALMAT(2,2) :: m
+
+   tonto.initialize      ! Always initialise "tonto" before anything
+
+   stdout.create_stdout  ! Always create "stdout" before you use it
+   stdout.flush          ! If you do not open "stdout" it goes to the terminal
+   stdout.flush
+   stdout.text('Hello! Welcome to TONTO!')
+   stdout.flush
+
+   stdout.flush
+   stdout.text('This message goes to the stdout -- unless I explicitly "open" the "stdout" file.')
+
+   stdout.flush
+   stdout.text('Now edit a file "in" and put your name in it, and also a matrix of four numbers.')
+   stdout.flush
+   stdout.text('Type ^Z now to suspend this program. When you are done editing the file, recommence')
+   stdout.text('the program by typing "fg" &lt;return&gt; and then "c" &lt;return&gt; to continue on.')
+
+   ! Pause a while by reading a junk string from "stdin". We can't do more than this
+   ! because fortran doesn't handle a stream very well yet.
+
+   stdin.create_stdin   ! Always create "stdin" before using it
+   stdin.read(junk)     ! Always open "stdin" except in this case where you want to "pause"
+
+   ! Open the file "in" and read the info
+
+   stdout.flush
+   stdout.text('Explicitly opening the file "in" now ...')
+   stdout.flush
+   stdout.flush
+
+   in.create("in")
+   in.open(for="read")
+   in.read(name)
+   in.read(m)
+   in.close
+
+   stdout.flush
+   stdout.text('Hello ' // name.trim// '!')
+   stdout.flush
+   stdout.text('If you see this message that means you succesfully edited the file "in"!') 
+   stdout.flush
+
+   stdout.flush
+   stdout.text('Here is the matrix you entered:')
+   stdout.flush
+   stdout.put(m)
+
+   stdout.flush
+   stdout.text('Here is the same matrix printed witha different number of decimal places:')
+   stdout.flush
+
+   stdout.set_real_precision(3)
+   stdout.set_real_width(8)
+   stdout.put(m)
+
+   stdout.flush
+   stdout.text('Here is the first column:')
+   stdout.flush
+   stdout.put(m(:,1),"column")
+
+   stdout.flush
+   stdout.text('Here is the second column:')
+   stdout.flush
+   stdout.put(m(:,2),"column")
+
+   stdout.flush
+   stdout.text('Good luck with thye rest of TONTO ...')
+   stdout.flush
+
+end</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RESULTS-TEXTFILE"
+></A
+>Results</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>Hello! Welcome to TONTO!
+ 
+ 
+This message goes to the stdout -- unless I explicitly "open" the "stdout" file.
+ 
+Now edit a file "in" and put your name in it, and also a matrix of four numbers.
+ 
+Type ^Z now to suspend this program. When you are done editing the file, recommence
+the program by typing "fg" &lt;return&gt; and then "c" &lt;return&gt; to continue on.
+c
+ 
+Explicitly opening the file "in" now ...
+ 
+ 
+ 
+Hello dylan!
+ 
+If you see this message that means you succesfully edited the file "in"!
+ 
+ 
+Here is the matrix you entered:
+ 
+                            1                   2
+ 
+        1         1.000000000         2.000000000
+        2         3.000000000         4.000000000
+ 
+Here is the same matrix printed witha different number of decimal places:
+ 
+                1       2
+ 
+        1   1.000   2.000
+        2   3.000   4.000
+ 
+Here is the first column:
+ 
+        1   1.000
+        2   3.000
+ 
+Here is the second column:
+ 
+        1   2.000
+        2   4.000
+ 
+Good luck with thye rest of TONTO ...</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="hypocrites.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="module-buffer.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Are we hypocrites?</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>The <TT
+CLASS="LITERAL"
+>BUFFER</TT
+> module</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

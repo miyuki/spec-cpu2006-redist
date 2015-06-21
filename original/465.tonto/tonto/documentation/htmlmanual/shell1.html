@@ -1,0 +1,755 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>SHELL1</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Keyword documentation for TONTO"
+HREF="keywords.html"><LINK
+REL="PREVIOUS"
+TITLE="SHELL"
+HREF="shell.html"><LINK
+REL="NEXT"
+TITLE="SPACEGROUP"
+HREF="spacegroup.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="shell.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="spacegroup.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="SHELL1"
+></A
+><TT
+CLASS="LITERAL"
+>SHELL1</TT
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SHELL1-PURPOSE"
+></A
+>Purpose</H2
+><P
+ALIGN="justify"
+>An object describing a contracted shell of gaussian functions,
+<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>including</I
+></SPAN
+> the position of the gaussian</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SHELL1-SYNOPSIS"
+></A
+>Synopsis</H2
+><P
+ALIGN="justify"
+>The module consists mainly of a contraction coefficient vector, and
+exponent vector, an integer describing the <SPAN
+CLASS="QUOTE"
+>"angular momentum"</SPAN
+> of
+the shell <TT
+CLASS="LITERAL"
+>l = n<SUB
+>1</SUB
+> + n<SUB
+>2</SUB
+> +
+n<SUB
+>3</SUB
+></TT
+>, where the <TT
+CLASS="LITERAL"
+>n</TT
+> are the
+powers of the cartesian gaussian function, and a position.</P
+><P
+ALIGN="justify"
+>This module differes from <TT
+CLASS="LITERAL"
+>SHELL</TT
+> in that the position is
+stored.</P
+><P
+ALIGN="justify"
+>The module contains routines for normalisation, and calculating the value
+of the contracted shell for various functions, such as the kinetic density, or
+laplacian.</P
+><P
+ALIGN="justify"
+>At the moment, only <SPAN
+CLASS="QUOTE"
+>"segmented"</SPAN
+> cartesian shells are
+modelled.</P
+><P
+ALIGN="justify"
+>The order of the cartesian components is given by routine
+<TT
+CLASS="LITERAL"
+>INT:make_gaussian_xyz_powers</TT
+>.  Refer to the online
+documentation for module <TT
+CLASS="LITERAL"
+>INT</TT
+></P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SHELL1-INPUT"
+></A
+>Default input data order</H2
+><P
+ALIGN="justify"
+>There is currently no <TT
+CLASS="LITERAL"
+>SHELL1VEC</TT
+> module. However, the
+data order is defined as:
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>SHELL1_INPUT_DATA_ORDER     [ l= pos= n_cc= ex,cc= ]</PRE
+></TD
+></TR
+></TABLE
+></P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="SHELL1-KEYWORDS"
+></A
+>Listing of keywords</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>cc= REALVEC(n_cc)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Enter a vector of contraction coefficients</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The value of <TT
+CLASS="LITERAL"
+>n_cc</TT
+> must be entered beforehand;
+see <TT
+CLASS="LITERAL"
+>n_cc=</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Normally modules will assume the coefficients are with respect
+to normalised gaussian</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Default units are atomic units</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>ex= REALVEC(n_cc)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Enter a vector of exponents </P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The value of <TT
+CLASS="LITERAL"
+>n_cc</TT
+> must be entered beforehand;
+see <TT
+CLASS="LITERAL"
+>n_cc=</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Normally modules will assume the coefficients are with
+respect to normalised gaussian</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Default units are atomic units</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>ex,cc= REALVEC(n_cc),REALVEC(n_cc)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Enter alternating vector of exponents and contraction
+coefficients</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The value of <TT
+CLASS="LITERAL"
+>n_cc</TT
+> must be entered beforehand;
+see <TT
+CLASS="LITERAL"
+>n_cc=</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Normally modules will assume the coefficients are with respect
+to normalised gaussian</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Default units are atomic units</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>junk,ex,cc= REALVEC(n_cc),REALVEC(n_cc),REALVEC(n_cc)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Enter alternating vector of a junk string, an exponent, and a
+contraction coefficient</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The value of <TT
+CLASS="LITERAL"
+>n_cc</TT
+> must be entered beforehand;
+see <TT
+CLASS="LITERAL"
+>n_cc=</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Normally modules will assume the coefficients are with respect
+to normalised gaussian</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Default units are atomic units</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>This style is useful for the GAMESS-US program</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>l= INT|STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read either an integer representing the <TT
+CLASS="LITERAL"
+>l</TT
+>
+value of the gaussian; or read a single character representing the angular
+momentum</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>If the inputted data in an integer, it must be
+non-negative</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>If the inputted data in a character is must be
+<TT
+CLASS="LITERAL"
+>s</TT
+>, <TT
+CLASS="LITERAL"
+>p</TT
+>, <TT
+CLASS="LITERAL"
+>d</TT
+>,
+<TT
+CLASS="LITERAL"
+>f</TT
+>, <TT
+CLASS="LITERAL"
+>g</TT
+>, <TT
+CLASS="LITERAL"
+>...</TT
+>,
+<TT
+CLASS="LITERAL"
+>z</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>See also <TT
+CLASS="LITERAL"
+>l_chr=</TT
+> and
+<TT
+CLASS="LITERAL"
+>l_int=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>l_chr= STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read a single character representing the angular momentum of the
+gaussian</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Must be <TT
+CLASS="LITERAL"
+>s</TT
+>, <TT
+CLASS="LITERAL"
+>p</TT
+>,
+<TT
+CLASS="LITERAL"
+>d</TT
+>, <TT
+CLASS="LITERAL"
+>f</TT
+>, <TT
+CLASS="LITERAL"
+>g</TT
+>,
+<TT
+CLASS="LITERAL"
+>...</TT
+>, <TT
+CLASS="LITERAL"
+>z</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>See also <TT
+CLASS="LITERAL"
+>l=</TT
+> and
+<TT
+CLASS="LITERAL"
+>l_int=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>l_int= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read a single integer which is the angular momentum of the
+gaussian</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Inputted data must be non-negative</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>See also <TT
+CLASS="LITERAL"
+>l=</TT
+> and
+<TT
+CLASS="LITERAL"
+>l_chr=</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>n_cc= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Enter the number od contractions in this shell</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>This must be enetred before <TT
+CLASS="LITERAL"
+>ex=</TT
+> or
+<TT
+CLASS="LITERAL"
+>cc=</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>A shell is a sum of gausian functions; this number is the length
+of the sum</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>pos= REALVEC(3)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Enter the position of the center of the shell</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>put</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Print out information about the <TT
+CLASS="LITERAL"
+>SHELL1</TT
+> to the
+<TT
+CLASS="LITERAL"
+>stdout</TT
+> file in human readable form</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>units= STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read a string which describes the units of the next inputted
+numerical entity; that is, the next real or complex number, real or complex
+vector, or real or complex matrix.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default atomic units are restored after the numerical entity
+has been inputted</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Warning: if the next inputted datum is not a numerical entity,
+the new units keyword remains in force</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="shell.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="spacegroup.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>SHELL</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="keywords.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>SPACEGROUP</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,23 @@
+#! /bin/sh
+# /*@@
+#   @file      HPVM
+#   @date      Tue Dec 12 18:36:57 2000
+#   @author    Tom Goodale
+#   @desc 
+#   HPVM config file - HPVM is a windows version of MPI.
+#   @enddesc
+#   @version $Header: /cactus/Cactus/lib/make/extras/MPI/HPVM,v 1.3 2000/12/12 18:13:38 goodale Exp $ 
+# @@*/
+
+echo "HPVM MPI selected"
+
+if test -z "$HPVM_DIR" ; then
+   echo "HPVM selected but no HPVM_DIR set.  Unable to proceed."
+   exit 2
+fi
+
+MPI_LIBS="mpi fm advapi32 kernel32 wsock32"
+MPI_LIB_DIRS="`echo $HPVM_DIR\\\lib | sed 's:\\\:\\\\\\\\:g'`"
+MPI_INC_DIRS="`echo $HPVM_DIR\\\include | sed 's:\\\:\\\\\\\\:g'`"
+
+

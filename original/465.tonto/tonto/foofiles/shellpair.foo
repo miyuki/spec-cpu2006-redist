@@ -1,0 +1,220 @@
+!-------------------------------------------------------------------------------
+!
+! SHELLPAIR : pair of gaussian SHELLs, incorporating stored intermediate data
+! valuable for integral evaluation.
+!
+! Copyright (C) Dylan Jayatilaka, 2000
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: shellpair.foo,v 1.2 2003/02/19 07:48:58 reaper Exp $
+!-------------------------------------------------------------------------------
+
+module SHELLPAIR
+
+   implicit none
+
+contains
+
+   create ::: leaky
+   ! Creates a shell2 object
+     self :: PTR
+     nullify(self)
+     allocate(self)
+     ADD_MEMORY(SHELLPAIR_SIZE)
+     .nullify_ptr_part
+   end
+ 
+   create(shell_a,shell_b) ::: leaky
+   ! Create a copy of a shell1 objects
+     self :: PTR
+     shell_a,shell_b :: SHELL, IN
+     .create
+     .copy(shell_a,shell_b)
+   end
+ 
+   destroy ::: leaky
+   ! Destroys a shell2 object
+     self :: PTR
+     if (.destroyed) return
+     .destroy_ptr_part
+     DELETE_MEMORY(SHELLPAIR_SIZE)
+     deallocate(self)
+   end
+ 
+   nullify_ptr_part
+   ! Nullify the pointer parts of self
+     .a.nullify_ptr_part
+     .b.nullify_ptr_part
+     nullify(.exponent_sum)
+     nullify(.exponent_inv)
+     nullify(.a_exponent_inv)
+     nullify(.b_exponent_inv)
+     nullify(.cc_prefactor)
+     nullify(.normalising_factors)
+     nullify(.hrr_comp_to_use)
+     nullify(.hrr_components)
+     nullify(.hrr_index_smaller)
+     nullify(.hrr_index_larger)
+     nullify(.form_3dints_x_indices)
+     nullify(.form_3dints_y_indices)
+     nullify(.form_3dints_z_indices)
+     nullify(.form_3dints_yz_rms_indices)
+   end
+ 
+   destroy_ptr_part
+   ! Destroy the pointer parts of self
+     .a.destroy_ptr_part
+     .b.destroy_ptr_part
+     .exponent_sum.destroy
+     .exponent_inv.destroy
+     .a_exponent_inv.destroy
+     .b_exponent_inv.destroy
+     .cc_prefactor.destroy
+     .normalising_factors.destroy
+     .hrr_comp_to_use.destroy
+     .hrr_components.destroy
+     .hrr_index_smaller.destroy
+     .hrr_index_larger.destroy
+     .form_3dints_x_indices.destroy
+     .form_3dints_y_indices.destroy
+     .form_3dints_z_indices.destroy
+     .form_3dints_yz_rms_indices.destroy
+   end
+ 
+!   created result(res)
+!   ! Returns true if self has been created
+!     self :: PTR
+!     res :: BIN
+!     res = associated(self)
+!   end
+ 
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!     self :: PTR
+!     res :: BIN
+!     res = NOT associated(self)
+!   end
+ 
+   create_copy(ab) ::: leaky
+   ! Create a copy of the "ab" shellpair
+     self :: PTR
+     ab :: SHELLPAIR, IN
+     .create
+     .copy(ab)
+   end
+ 
+   copy(ab) ::: leaky
+   ! Copy the using shellpair "ab" and also set precalculated data.
+   ! NOTE : ensure the ptr parts have been destroyed beforehand.
+     ab :: SHELLPAIR, IN
+     .a.copy(ab.a)
+     .b.copy(ab.b)
+     .make_precalculated_data
+   end
+ 
+   copy(shell_a,shell_b) ::: leaky
+   ! Copy the shell2 using shell1 objects
+     shell_a,shell_b :: SHELL, IN
+     .a.copy(shell_a)
+     .b.copy(shell_b)
+     .make_precalculated_data
+   end
+ 
+   copy_a(shell_a) ::: leaky
+   ! Copy the "a" shell of the shell2 objects from "shell_a"
+     shell_a :: SHELL, IN
+     .a.copy(shell_a)
+   end
+ 
+   copy_b(shell_b) ::: leaky
+   ! Copy the "b" shell of the shell2 objects from "shell_b"
+     shell_b :: SHELL, IN
+     .b.copy(shell_b)
+   end
+ 
+   unnormalise
+   ! Unnormalise each shell
+     .a.unnormalise
+     .b.unnormalise
+   end
+ 
+   make_precalculated_data ::: leaky
+   ! Precalculate some data for the 1/r_{12} electron repulsion integrals
+     b_cc,a,b,ab_sum,ab_inv :: REAL
+     ag,bg,i,j,ub :: INT
+     anorm,bnorm :: REALVEC*
+     .n_gaussian_pairs = .a.n_cc*.b.n_cc
+     .l_max = max(.a.l,.b.l)
+     .l_min = min(.a.l,.b.l)
+     .l_sum = .a.l + .b.l
+     .exponent_sum.create(.n_gaussian_pairs)
+     .exponent_inv.create(.n_gaussian_pairs)
+     .a_exponent_inv.create(.n_gaussian_pairs)
+     .b_exponent_inv.create(.n_gaussian_pairs)
+     .cc_prefactor.create(.n_gaussian_pairs)
+     .normalising_factors.create(.a.l.n_comp*.b.l.n_comp)
+     anorm.create(.a.l.n_comp)
+     bnorm.create(.b.l.n_comp)
+     anorm.normalising_factors(.a.l)
+     bnorm.normalising_factors(.b.l)
+     i = 0
+     do bg = 1,.b.n_cc
+       b      = .b.ex(bg)
+       b_cc   = .b.cc(bg)
+       do ag = 1,.a.n_cc
+         i = i + 1
+         a = .a.ex(ag)
+         ab_sum = a + b
+         ab_inv = ONE/ab_sum
+         .exponent_sum(i)        = ab_sum
+         .exponent_inv(i)        = ab_inv
+         .cc_prefactor(i)        = b_cc*.a.cc(ag) *ab_inv*sqrt(ab_inv)
+         .a_exponent_inv(i)      = a*ab_inv
+         .b_exponent_inv(i)      = b*ab_inv
+       end
+     end
+     i = 0
+     do bg=1,.b.l.n_comp
+       do ag=1,.a.l.n_comp
+         i = i + 1
+         .normalising_factors(i) = anorm(ag)*bnorm(bg)
+       end
+     end
+     bnorm.destroy
+     anorm.destroy
+ 
+     ub = .l_sum.n_comp_sum - (.l_max-1).n_comp_sum
+     .hrr_index_larger.create(0,.l_sum,0,.l_sum,0,.l_sum)
+     .hrr_index_smaller.create(0,.l_sum,0,.l_sum,0,.l_sum)
+     .form_3dints_x_indices.create(ub)
+     .form_3dints_y_indices.create(ub)
+     .form_3dints_z_indices.create(ub)
+     .hrr_components.create(3,.l_sum.n_comp_sum)
+     .hrr_comp_to_use.create(.l_sum.n_comp_sum)
+     i=0;
+     i.make_gaussian_xyz_powers(.hrr_components,.l_sum,.hrr_index_smaller,.hrr_comp_to_use)
+     .l_max.make_gaussian_xyz_indices(.form_3dints_x_indices,.form_3dints_y_indices, &
+                      .form_3dints_z_indices,.hrr_index_larger,.l_sum)
+     .form_3dints_yz_rms_indices.create(ub)
+     do i=1,ub
+       j = .form_3dints_z_indices(i)
+       .form_3dints_yz_rms_indices(i) = -.l_sum - 2 + j*(2*.l_sum+5-j)/2 + &
+                                   .form_3dints_y_indices(i)
+     end
+   end
+
+end

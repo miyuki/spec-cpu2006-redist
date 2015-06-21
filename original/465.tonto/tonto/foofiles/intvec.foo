@@ -1,0 +1,687 @@
+!---------------------------------------------------------------------------
+!
+!  INTVEC : Integer vector operations ...
+!
+! Copyright (C) Dylan Jayatilaka, 1997
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: intvec.foo,v 1.14.2.3 2003/11/06 10:06:14 dylan Exp $
+!---------------------------------------------------------------------------
+
+module INTVEC
+
+   implicit none
+
+contains
+
+   create(dim) ::: get_from(INTRINSICVEC), leaky
+   ! Create space for object
+      self :: PTR
+      dim :: INT, IN
+   end
+
+   create(lb,ub) ::: get_from(INTRINSICVEC), leaky
+   ! Create the vector with lower bound "lb", upper bound "ub"
+      self :: PTR
+      lb,ub :: INT, IN
+   end
+
+   create(bounds) ::: get_from(OBJECTVEC), leaky
+   ! Create the vector with "bounds"
+      self :: PTR
+      bounds :: INTVEC(2), IN
+   end
+
+   destroy ::: get_from(INTRINSICVEC), leaky
+   ! Destroy space for object
+      self :: PTR
+   end
+
+!   created result(res) ::: get_from(OBJECTVEC)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!   end
+
+!   destroyed result(res) ::: get_from(OBJECTVEC)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!   end
+
+   create_copy(vec) ::: get_from(INTRINSICVEC), leaky
+   ! Create a replica copy of vec.
+      vec :: SELF_TYPE, IN
+      self :: PTR
+   end
+
+   copy(vec) ::: get_from(INTRINSICVEC)
+   ! Copy "vec".
+      vec :: SELF_TYPE, IN
+   end
+
+   shrink(dim) ::: get_from(INTRINSICVEC), leaky
+   ! Shrink self to dimension dim.  Contents are retained.
+     self :: PTR
+     dim :: INT, IN
+   end
+
+   expand(dim) ::: get_from(INTRINSICVEC), leaky
+   ! Expand self to dimension dim. New slots are left undefined.
+     self :: PTR
+     dim :: INT, IN
+   end
+
+   append(v) ::: get_from(INTRINSICVEC), leaky
+   ! Expands self and appends the contents of vector "v".
+     self :: PTR
+     v :: SELF_TYPE, IN
+   end
+
+   append(value) ::: get_from(INTRINSICVEC), leaky
+   ! Expands self by 1, and appends the single scalar "value" onto the end.
+     self :: PTR
+     value :: ELEMENT_TYPE, IN
+   end
+
+   append_only_if_unique(value) ::: get_from(INTRINSICVEC), leaky
+   ! Expands self by 1, and appends the single scalar "value" onto the end, but
+   ! only if the "value" is unique
+     self :: PTR
+     value :: ELEMENT_TYPE, IN
+   end
+
+   remove_repetitions ::: get_from(INTRINSICVEC), leaky
+   ! Sort through the vector and remove repeated elements which come later in
+   ! the list.  NOTE: the vector may shrink
+      self :: PTR
+   end 
+
+   has_repetitions result (res) ::: get_from(INTRINSICVEC)
+   ! Return TRUE if self has at least one repeated element.
+      res :: BIN
+   end
+
+   join(v) result (res) ::: get_from(INTRINSICVEC), leaky
+   ! Yield a vector which is the concatenation of "self" and "v"
+     v :: SELF_TYPE, IN
+     res :: SELF_TYPE*
+   end
+
+   join(v1,v2) result (res) ::: get_from(INTRINSICVEC), leaky
+   ! Yield a vector which is the concatenation of "self" and "v1" and "v2"
+     v1,v2 :: SELF_TYPE, IN
+     res :: SELF_TYPE*
+   end
+
+   to_product_of(mat,vec,transpose)
+   ! Set "self" to the product of the matrix "mat" and vector "vec". If present,
+   ! "transpose" can be set to TRUE if the matrix needs to be transposed.
+      mat :: INTMAT, IN
+      vec :: SELF_TYPE, IN
+      transpose :: BIN, optional
+      i,k :: INT
+      trans :: BIN
+      temp :: REAL
+      trans = FALSE
+      if (present(transpose)) trans = transpose
+      if (trans) then
+        ENSURE(mat.dim2==.dim,"array dimensions do not agree")
+        ENSURE(mat.dim1==vec.dim,"array dimensions do not agree")
+        do i = 1,.dim
+          temp = mat(1,i) * vec(1)
+          do k=2,vec.dim
+            temp = temp + mat(k,i) * vec(k)
+          end
+          self(i) = temp
+        end
+      else
+        ENSURE(mat.dim1==.dim,"array dimensions do not agree")
+        ENSURE(mat.dim2==vec.dim,"array dimensions do not agree")
+        do i = 1,.dim
+          temp = mat(i,1) * vec(1)
+          do k=2,vec.dim
+            temp = temp + mat(i,k) * vec(k)
+          end
+          self(i) = temp
+        end
+      end
+   end
+
+   to_product_of(mat_a,mat_b,transpose_a,transpose_b)
+   ! Set "self" to the matrix product of "mat_a" and "mat_b". If present,
+   ! "transpose_a" and "transpose_b" can be set to TRUE if "mat_a" and "mat_b"
+   ! neeb to be transposed.
+     mat_a, mat_b :: INTMAT
+     transpose_a, transpose_b :: BIN, optional
+     dim_a1,dim_a2,dim_b1,dim_b2,dim1,i,k,opt :: INT
+     trans_a,trans_b :: BIN
+     temp :: REAL
+
+     trans_a = FALSE;       trans_b = FALSE
+     if (present(transpose_a)) trans_a = transpose_a
+     if (present(transpose_b)) trans_b = transpose_b
+
+     dim_a1 = size(mat_a,1);           dim_a2 = size(mat_a,2)
+     dim_b1 = size(mat_b,1);           dim_b2 = size(mat_b,2)
+     dim1   = size(self,1)
+
+     opt = 0
+     if (trans_a) opt = opt + 1
+     if (trans_b) opt = opt + 2
+
+     select case (opt)
+       case (0)
+         ENSURE(dim1==dim_a1,"array dimensions do not agree")
+         ENSURE(dim_a2==dim_b1,"array dimensions do not agree")
+         ENSURE(dim_b2==1,"b array dimensions incorrect")
+         do i=1,dim1
+           temp = ZERO
+           do k=1,dim_a2
+             temp = temp + mat_a(i,k) * mat_b(k,1)
+           end
+           self(i) = temp
+         end
+       case (1)
+         ENSURE(dim1==dim_a2,"array dimensions do not agree")
+         ENSURE(dim_a1==dim_b1,"array dimensions do not agree")
+         ENSURE(dim_b2==1,"b array dimension incorrect")
+         do i=1,dim1
+           temp = ZERO
+           do k=1,dim_a1
+             temp = temp + mat_a(k,i) * mat_b(k,1)
+           end
+           self(i) = temp
+         end
+       case (2)
+         ENSURE(dim1==dim_a1,"array dimensions do not agree")
+         ENSURE(dim_a2==dim_b2,"array dimensions do not agree")
+         ENSURE(dim_b1==1,"b array dimension incorrect")
+         do i=1,dim1
+           temp = ZERO
+           do k=1,dim_a2
+             temp = temp + mat_a(i,k) * mat_b(1,k)
+           end
+           self(i) = temp
+         end
+       case (3)
+         ENSURE(dim1==dim_a2,"array dimensions do not agree")
+         ENSURE(dim_a1==dim_b2,"array dimensions do not agree")
+         ENSURE(dim_b1==1,"b array dimension incorrect")
+         do i=1,dim1
+           temp = ZERO
+           do k=1,dim_a1
+             temp = temp + mat_a(k,i) * mat_b(1,k)
+           end
+           self(i) = temp
+         end
+     end
+   end
+
+   plus_product_of(mat,vec,transpose)
+   ! Add to "self" the product of the matrix and vector. If present,
+   ! "transpose" can be set to TRUE if the matrix needs to be transposed.
+      mat :: INTMAT, IN
+      vec :: SELF_TYPE, IN
+      transpose :: BIN, optional
+      dim_a1,dim_a2,dim_b1,dim1,i,k :: INT
+      trans :: BIN
+      temp :: REAL
+      trans = FALSE
+      if (present(transpose)) trans = transpose
+      dim_a1 = size(mat,1);   dim_a2 = size(mat,2)
+      dim_b1 = size(vec,1)
+      dim1   = size(self)
+      if (trans) then
+        ENSURE(dim1==dim_a2,"array dimensions do not agree")
+        ENSURE(dim_b1==dim_a1,"array dimensions do not agree")
+        do i=1,dim1
+          temp = mat(1,i) * vec(1)
+          do k=2,dim_b1
+            temp = temp + mat(k,i) * vec(k)
+          end
+          self(i) = self(i) + temp
+        end
+      else
+        ENSURE(dim1==dim_a1,"array dimensions do not agree")
+        ENSURE(dim_b1==dim_a2,"array dimensions do not agree")
+        do i=1,dim1
+          temp = mat(i,1) * vec(1)
+          do k=2,dim_b1
+            temp = temp + mat(i,k) * vec(k)
+          end
+          self(i) = self(i) + temp
+        end
+      end
+   end
+
+   minus_product_of(mat,vec,transpose)
+   ! Subtract from "self" the product of the matrix and vector. If present,
+   ! "transpose" can be set to TRUE if the matrix needs to be transposed.
+      mat :: INTMAT, IN
+      vec :: SELF_TYPE, IN
+      transpose :: BIN, optional
+      dim_a1,dim_a2,dim_b1,dim1,i,k :: INT
+      trans :: BIN
+      temp :: REAL
+      trans = FALSE
+      if (present(transpose)) trans = transpose
+      dim_a1 = size(mat,1);   dim_a2 = size(mat,2)
+      dim_b1 = size(vec,1)
+      dim1   = size(self)
+      if (trans) then
+        ENSURE(dim1==dim_a2,"array dimensions do not agree")
+        ENSURE(dim_b1==dim_a1,"array dimensions do not agree")
+        do i=1,dim1
+          temp = mat(1,i) * vec(1)
+          do k=2,dim_b1
+            temp = temp + mat(k,i) * vec(k)
+          end
+          self(i) = self(i) - temp
+        end
+      else
+        ENSURE(dim1==dim_a1,"array dimensions do not agree")
+        ENSURE(dim_b1==dim_a2,"array dimensions do not agree")
+        do i=1,dim1
+          temp = mat(i,1) * vec(1)
+          do k=2,dim_b1
+            temp = temp + mat(i,k) * vec(k)
+          end
+          self(i) = self(i) - temp
+        end
+      end
+   end
+
+   dot(b) result (res) ::: get_from(INTRINSICVEC), pure
+   ! Return the dot product with "b"
+      self :: IN
+      b :: SELF_TYPE, IN
+      res :: ELEMENT_TYPE
+   end
+
+   norm result (res) ::: pure
+   ! Return the norm of the vector
+      self :: IN
+      res :: REAL
+      res = sqrt(real(sum(self*self),kind=REAL_KIND))
+   end
+
+   cross(b) result(res) ::: get_from(INTRINSICVEC), pure
+   ! Return the cross product of "self" and "b".
+      self :: IN
+      b :: SELF_TYPE, IN
+      res :: SELF_TYPE(3)
+   end
+
+   to_cross_product(a,b) ::: get_from(INTRINSICVEC), pure
+   ! Set the vector to the cross product of "a" and "b".
+      self :: INOUT
+      a,b :: SELF_TYPE, IN
+   end
+
+   reverse_order ::: get_from(OBJECTVEC), pure
+   ! Reverse the order of the elements of self
+     self :: INOUT
+   end
+
+   equals(b) result(res)
+   ! Return true if "self" is the same as "b".
+      self :: IN
+      b :: SELF_TYPE, IN
+      res :: BIN
+      res = .same_as(b)
+   end
+
+   same_as(b) result(res)
+   ! Return true if "self" is the same as "b".
+      self :: IN
+      b :: SELF_TYPE, IN
+      res :: BIN
+      if (.dim/=b.dim) then; res = FALSE
+      else;                  res = all(self==b)
+      end
+   end
+
+   to_scaled_vec(fac,b) ::: get_from(INTRINSICVEC), pure
+   ! Set the vector to "b" scaled by "fac"
+      self :: INOUT
+      b :: SELF_TYPE, IN
+      fac :: ELEMENT_TYPE, IN
+   end
+
+   plus_scaled_vec(fac,b) ::: get_from(INTRINSICVEC), pure
+   ! Add a vector "b" scaled by "fac" to "self"
+      self :: INOUT
+      b :: SELF_TYPE, IN
+      fac :: ELEMENT_TYPE, IN
+   end
+
+   minus(b,mask) ::: get_from(INTRINSICVEC), pure
+   ! Subtract vector "b" from "self"
+      self :: INOUT
+      b :: SELF_TYPE, IN
+      mask :: BINVEC, IN, optional
+   end
+
+   plus(b,mask) ::: get_from(INTRINSICVEC), pure
+   ! Add vector "b" to "self"
+      self :: INOUT
+      mask :: BINVEC, IN, optional
+      b :: SELF_TYPE, IN
+   end
+
+   set_to(b) ::: get_from(INTRINSICVEC), pure
+   ! Set the vector to "b". See also the "copy" routine.
+      self :: INOUT
+      b :: SELF_TYPE, IN
+   end
+
+   swap_elements(e1,e2) ::: get_from(INTRINSICVEC), pure
+   ! Swap elements "e1" and "e2" in "self".
+      self :: INOUT
+      e1,e2 :: INT, IN
+   end
+
+   index_of_first_nonzero_value result(res) ::: pure
+   ! Returns the index of the first nonzero component of self.
+     self :: IN
+     res :: INT
+     i :: INT
+     res=0
+     do i=1,size(self)
+       if (self(i)/=0) then
+         res=i
+         exit
+       end
+     end
+   end
+
+   index_of_first_zero_value result(res) ::: pure
+   ! Returns the index of the first zero component of self.
+     self :: IN
+     res :: INT
+     i :: INT
+     res=0
+     do i=1,size(self)
+       if (self(i)==0) then
+         res=i
+         exit
+       end
+     end
+   end
+
+   index_of_value(val) result(pos) ::: pure
+   ! Returns the first index in "self" which has the value "val", or 0 if "val"
+   ! is not present in the array.
+     self :: IN
+     val :: ELEMENT_TYPE, IN
+     pos :: INT
+     i :: INT
+     pos = 0
+     do i = 1,.dim
+        if (self(i)/=val) cycle
+        pos = i
+        exit
+     end
+   end
+
+   chop_large_values(val) ::: get_from(INTRINSICVEC), pure
+   ! Set all values in the self whose absolute value is larger than "val" to
+   ! "val" times the sign of the original value.
+      self :: INOUT
+      val :: ELEMENT_TYPE, IN
+   end
+
+   index_of_maximum result (ind) ::: get_from(INTRINSICVEC), pure
+   ! Return the index of the maximum in the vector
+      self :: IN
+      ind :: INT
+   end
+
+   index_of_minimum result (ind) ::: get_from(INTRINSICVEC), pure
+   ! Return the index of the minimum in the vector
+      self :: IN
+      ind :: INT
+   end
+
+   is_zero result(res)
+   ! Return true if the vector is zero
+      res :: BIN
+      res = all(self==0)
+   end
+
+   all_in_range(range) result(res) ::: get_from(INTRINSICVEC)
+   ! Return TRUE if all values of self are within the specified "range".
+      self :: IN
+      range :: SELF_TYPE(2), IN
+      res :: BIN
+   end
+
+   in_range(range) result(res) ::: get_from(INTRINSICVEC)
+   ! Return element i as TRUE if self(i) is within the specified "range".
+      self :: IN
+      range :: SELF_TYPE(2), IN
+      res :: BINVEC(size(self))
+   end
+
+   range result(res) ::: get_from(INTRINSICVEC)
+   ! Return the range (smallest and largest value) of self.
+      self :: IN
+      res :: SELF_TYPE(2)
+   end
+
+   is_z_axis result(res)
+   ! Return true if the vector is set to the z-axis
+      res :: BIN
+      ENSURE(.dim==3,"must supply a 3 dimensional vector!")
+      res = self(1) == 0
+      res = self(2) == 0 AND res
+      res = (1-self(3)) == 0 AND res
+   end
+
+   largest_value result (maxval) ::: get_from(INTRINSICVEC), pure
+   ! Return the maximum absolute value in the vector
+      self :: IN
+      maxval :: ELEMENT_TYPE
+   end
+
+   smallest_value result (minval) ::: get_from(INTRINSICVEC), pure
+   ! Return minimum absolute value in the vector
+      self :: IN
+      minval :: ELEMENT_TYPE
+   end
+
+   index_of_largest_value result (ind) ::: get_from(INTRINSICVEC), pure
+   ! Return the index "ind" of the largest absolute value in the vector
+      self :: IN
+      ind :: INT
+   end
+
+   index_of_smallest_value result (ind) ::: get_from(INTRINSICVEC), pure
+   ! Return the index "ind" of the smallest value in the vector
+      self :: IN
+      ind :: INT
+   end
+
+   no_of_elements_larger_than(tol) result(res) ::: get_from(INTRINSICVEC), pure
+   ! Return the number of elements larger than "tol".
+      self :: IN
+      tol :: ELEMENT_TYPE, IN
+      res :: INT
+   end
+
+   sort(decreasing_order) ::: get_from(OBJECTVEC), pure
+   ! Sort array "self" from lowest to highest, using simple insertion sort.  If
+   ! "decreasing_order" is present and TRUE sort from highest to lowest instead.
+     self :: INOUT
+     decreasing_order :: BIN, IN, optional
+   end
+
+   quick_sort(decreasing_order) ::: get_from(OBJECTVEC)
+   ! Sort the vector into increasing order.If "decreasing_order" is present and
+   ! TRUE, the vector is sorted from largest to smallest
+      self :: IN
+      decreasing_order :: BIN, optional, IN
+   end
+
+   quick_sort_increasing ::: get_from(OBJECTVEC), recursive, private
+   ! Sort the vector into order, smallest to largest
+   end
+
+   quick_sort_decreasing ::: get_from(OBJECTVEC), recursive, private
+   ! Sort the vector into order, largest to smallest
+   end
+
+   quick_sort(indices,decreasing_order) ::: get_from(OBJECTVEC)
+   ! Return the "indices" which sort self from smallest to largest, i.e. on
+   ! return "self(indices)" is sorted. NOTE: self is *not* sorted.
+   ! If "decreasing_order" is present and TRUE, the indices are sorted from
+   ! largest to smallest
+      self :: IN
+      indices :: INTVEC, INOUT
+      decreasing_order :: BIN, optional, IN
+   end
+
+   quick_sort_increasing(indices) ::: get_from(OBJECTVEC), recursive, private
+   ! Return the indices which sort vector from smallest to largest, i.e. on
+   ! return "self(indices)" is sorted. NOTE: self is *not* sorted.
+      self :: IN
+      indices :: INTVEC, INOUT
+   end
+
+   quick_sort_decreasing(indices) ::: get_from(OBJECTVEC), recursive, private
+   ! Return the indices which sort vector from largest to smallest, i.e. on
+   ! return "self(indices)" is sorted. NOTE: self is *not* sorted.
+      self :: IN
+      indices :: INTVEC, INOUT
+   end
+
+   to_str(format,separator) result(string) ::: get_from(OBJECTVEC)
+   ! Change self to a "string" using default format.
+     format :: STR(*), optional
+     separator :: STR(*), optional
+     string :: STR
+   end
+
+   combinations_of_length(k) result(C) ::: recursive, leaky
+   ! Returns the combination matrix "C" of all p distinct combinations
+   ! C(:,p) of the elements in self(:) of length "k"
+     k :: INT
+     C :: INTMAT*
+     s,s_k,s1_k1,s1_k :: INT
+     L,R :: INTMAT*
+     ENSURE(k<=size(self),"k is too large")
+     ENSURE(k>0,"k must be positive")
+     s     = size(self)
+     s_k   = nint(    s.choose(k),  kind=INT_KIND)
+     s1_k  = nint((s-1).choose(k),  kind=INT_KIND)
+     s1_k1 = nint((s-1).choose(k-1),kind=INT_KIND)
+     allocate(C(k,s1_k))
+     if (k==1) &
+       C(1  ,:)             = self(:)
+     if ((s>k) AND (k/=1)) then
+       C(1  ,      1:s1_k1) = self(1)
+       L                   => self(2:).combinations_of_length(k-1)
+       C(2:k,      1:s1_k1) = L
+       deallocate(L)
+       R                   => self(2:).combinations_of_length(k)
+       C(:  ,s1_k1+1: s_k ) = R
+       deallocate(R)
+     end
+     if (k==s) &
+       C(:  ,1)             = self(:)
+   end
+
+   to_pair_vec_from(v1,v2)
+   ! If "v1" and "v2" are vectors which contain some common elements, set "self"
+   ! so that self(i)=j implies that v1(i)=v2(j). Further, self(i)=0 that implies
+   ! that the vector element i in "v1" is unpaired with any in "v2".
+     self :: INOUT
+     v1, v2 :: INTVEC
+     i, j :: INT
+   ENSURE(size(v1)==size(v2),"vectors are not compatible sizes")
+     self = ZERO
+     do i = 1, size(v1)
+        do j = 1, size(v2)
+           if ((v1(i)==v2(j)) AND (NOT(any(self==j)))) self(i)=j
+        end
+     end
+   end
+
+   no_of_unique_elements result (res) ::: pure
+   ! Return the number of unique elements in the vector.
+      self :: IN
+      res :: INT
+      n,i :: INT
+      same :: BIN
+      res = 1
+      do n = 2,size(self)
+         same = FALSE
+         do i = 1,n-1
+            if (self(n)==self(i)) then
+               same = TRUE
+               exit
+            end
+         end
+         if (NOT same) res = res + 1
+      end
+   end
+
+   bin_XY_data(X,Y,bin_side_length)
+   ! Return a vector of the same length as "X" and "Y", whose k-th element
+   ! contains the number of data points [X(k),Y(k)] which lie in the k-th bin.
+   ! A bin is simply a range of values (a square, in fact) of side length
+   ! "bin_side_length" covering the total set of data points from [X_min,Y_min]
+   ! to [X_max,Y_max], where X_min and X_max are the minimum and maximum data
+   ! values in X (and likewise for Y).
+      X,Y :: REALVEC, IN
+      bin_side_length :: REAL, IN
+      X_min,X_max,X_mid,X_ran :: REAL
+      Y_min,Y_max,Y_mid,Y_ran :: REAL
+      X_range,Y_range :: REALVEC(2)
+      n_X,n_Y,i,j,c,k :: INT
+   ENSURE(X.dim==.dim, "incompatible data points")
+   ENSURE(X.dim==Y.dim,"incompatible data points")
+      X_min = minval(X); Y_min = minval(Y)
+      X_max = maxval(X); Y_max = maxval(Y)
+      X_mid = HALF*(X_min+X_max)
+      Y_mid = HALF*(Y_min+Y_max)
+      X_ran = X_max-X_min
+      Y_ran = Y_max-Y_min
+      n_X = ceiling(X_ran/bin_side_length)
+      n_Y = ceiling(Y_ran/bin_side_length)
+      X_min = X_mid - (n_X/TWO)*bin_side_length
+      Y_min = Y_mid - (n_Y/TWO)*bin_side_length
+      X_ran = X_ran/n_X; Y_ran = Y_ran/n_Y
+      ! Now do the binning ...
+      do i = 1,n_X
+      do j = 1,n_Y
+         X_range(1) = X_min + (i-1)*bin_side_length
+         X_range(2) = X_range(1)  + bin_side_length
+         Y_range(1) = Y_min + (j-1)*bin_side_length
+         Y_range(2) = Y_range(1)  + bin_side_length
+         c = count(X_range(1)<=X AND X<=X_range(2) AND Y_range(1)<=Y AND Y<=Y_range(2))
+         do k = 1,.dim
+            if (X(k).is_in_range(X_range) AND Y(k).is_in_range(Y_range)) then
+            self(k) = c
+            end
+         end
+      end
+      end
+   end
+
+end

@@ -1,0 +1,4559 @@
+<HTML><HEAD><SCRIPT language="JavaScript" src="../resources/script.js" type="text/javascript"></SCRIPT><TITLE>XMLUni class Reference</TITLE><link href="XercesApi.css" rel="stylesheet" type="text/css"></HEAD><BODY alink="#ff0000" bgcolor="#ffffff" leftmargin="4" link="#0000ff" marginheight="4" marginwidth="4" text="#000000" topmargin="4" vlink="#0000aa"><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" height="60" rowspan="3" valign="top" width="135"><IMG border="0" height="60" hspace="0" src="../resources/logo.gif" vspace="0" width="135"></TD><TD align="left" colspan="4" height="5" valign="top" width="456"><IMG border="0" height="5" hspace="0" src="../resources/line.gif" vspace="0" width="456"></TD><TD align="left" height="60" rowspan="3" valign="top" width="29"><IMG border="0" height="60" hspace="0" src="../resources/right.gif" vspace="0" width="29"></TD></TR><TR><TD align="left" bgcolor="#0086b2" colspan="4" height="35" valign="top" width="456"><IMG alt="" border="0" height="35" hspace="0" src="../graphics/api-header.jpg" vspace="0" width="456"></TD></TR><TR><TD align="left" height="20" valign="top" width="168"><IMG border="0" height="20" hspace="0" src="../resources/bottom.gif" vspace="0" width="168"></TD><TD align="left" height="20" valign="top" width="96"><A href="http://xml.apache.org/" onMouseOut="rolloverOff('xml');" onMouseOver="rolloverOn('xml');" target="new"><IMG alt="http://xml.apache.org/" border="0" height="20" hspace="0" name="xml" onLoad="rolloverLoad('xml','../resources/button-xml-hi.gif','../resources/button-xml-lo.gif');" src="../resources/button-xml-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.apache.org/" onMouseOut="rolloverOff('asf');" onMouseOver="rolloverOn('asf');" target="new"><IMG alt="http://www.apache.org/" border="0" height="20" hspace="0" name="asf" onLoad="rolloverLoad('asf','../resources/button-asf-hi.gif','../resources/button-asf-lo.gif');" src="../resources/button-asf-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.w3.org/" onMouseOut="rolloverOff('w3c');" onMouseOver="rolloverOn('w3c');" target="new"><IMG alt="http://www.w3.org/" border="0" height="20" hspace="0" name="w3c" onLoad="rolloverLoad('w3c','../resources/button-w3c-hi.gif','../resources/button-w3c-lo.gif');" src="../resources/button-w3c-lo.gif" vspace="0" width="96"></A></TD></TR></TABLE><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" valign="top" width="120"><IMG border="0" height="14" hspace="0" src="../resources/join.gif" vspace="0" width="120"><BR>
+  <A href="../../index.html" onMouseOut="rolloverOff('side-ext-2');" onMouseOver="rolloverOn('side-ext-2');"><IMG alt="Home" border="0" height="12" hspace="0" name="side-ext-2" onLoad="rolloverLoad('side-ext-2','../graphics/ext-2-label-2.jpg','../graphics/ext-2-label-3.jpg');" src="../graphics/ext-2-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../index.html" onMouseOut="rolloverOff('side-index');" onMouseOver="rolloverOn('side-index');"><IMG alt="Readme" border="0" height="12" hspace="0" name="side-index" onLoad="rolloverLoad('side-index','../graphics/index-label-2.jpg','../graphics/index-label-3.jpg');" src="../graphics/index-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../releases.html" onMouseOut="rolloverOff('side-releases');" onMouseOver="rolloverOn('side-releases');"><IMG alt="Release Info" border="0" height="12" hspace="0" name="side-releases" onLoad="rolloverLoad('side-releases','../graphics/releases-label-2.jpg','../graphics/releases-label-3.jpg');" src="../graphics/releases-label-3.jpg" vspace="0" width="120"></A><BR>
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../install.html" onMouseOut="rolloverOff('side-install');" onMouseOver="rolloverOn('side-install');"><IMG alt="Installation" border="0" height="12" hspace="0" name="side-install" onLoad="rolloverLoad('side-install','../graphics/install-label-2.jpg','../graphics/install-label-3.jpg');" src="../graphics/install-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://xml.apache.org/dist/xerces-c/" onMouseOut="rolloverOff('side-ext-18');" onMouseOver="rolloverOn('side-ext-18');"><IMG alt="Download" border="0" height="12" hspace="0" name="side-ext-18" onLoad="rolloverLoad('side-ext-18','../graphics/ext-18-label-2.jpg','../graphics/ext-18-label-3.jpg');" src="../graphics/ext-18-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../build.html" onMouseOut="rolloverOff('side-build');" onMouseOver="rolloverOn('side-build');"><IMG alt="Build" border="0" height="12" hspace="0" name="side-build" onLoad="rolloverLoad('side-build','../graphics/build-label-2.jpg','../graphics/build-label-3.jpg');" src="../graphics/build-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../faqs.html" onMouseOut="rolloverOff('side-faqs');" onMouseOver="rolloverOn('side-faqs');"><IMG alt="FAQs" border="0" height="12" hspace="0" name="side-faqs" onLoad="rolloverLoad('side-faqs','../graphics/faqs-label-2.jpg','../graphics/faqs-label-3.jpg');" src="../graphics/faqs-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../samples.html" onMouseOut="rolloverOff('side-samples');" onMouseOver="rolloverOn('side-samples');"><IMG alt="Samples" border="0" height="12" hspace="0" name="side-samples" onLoad="rolloverLoad('side-samples','../graphics/samples-label-2.jpg','../graphics/samples-label-3.jpg');" src="../graphics/samples-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../api.html" onMouseOut="rolloverOff('side-api');" onMouseOver="rolloverOn('side-api');"><IMG alt="API Docs" border="0" height="12" hspace="0" name="side-api" onLoad="rolloverLoad('side-api','../graphics/api-label-2.jpg','../graphics/api-label-3.jpg');" src="../graphics/api-label-3.jpg" vspace="0" width="120"></A><BR>  
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../ApacheDOMC++Binding.html" onMouseOut="rolloverOff('side-ext-64');" onMouseOver="rolloverOn('side-ext-64');"><IMG alt="DOM C++ Binding" border="0" height="12" hspace="0" name="side-ext-64" onLoad="rolloverLoad('side-ext-64','../graphics/ext-64-label-2.jpg','../graphics/ext-64-label-3.jpg');" src="../graphics/ext-64-label-3.jpg" vspace="0" width="120"></A><BR> 
+  <A href="../program.html" onMouseOut="rolloverOff('side-program');" onMouseOver="rolloverOn('side-program');"><IMG alt="Programming" border="0" height="12" hspace="0" name="side-program" onLoad="rolloverLoad('side-program','../graphics/program-label-2.jpg','../graphics/program-label-3.jpg');" src="../graphics/program-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../migrate.html" onMouseOut="rolloverOff('side-migrate');" onMouseOver="rolloverOn('side-migrate');"><IMG alt="Migration Guide" border="0" height="12" hspace="0" name="side-migrate" onLoad="rolloverLoad('side-migrate','../graphics/migrate-label-2.jpg','../graphics/migrate-label-3.jpg');" src="../graphics/migrate-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../feedback.html" onMouseOut="rolloverOff('side-feedback');" onMouseOver="rolloverOn('side-feedback');"><IMG alt="Feedback" border="0" height="12" hspace="0" name="side-feedback" onLoad="rolloverLoad('side-feedback','../graphics/feedback-label-2.jpg','../graphics/feedback-label-3.jpg');" src="../graphics/feedback-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../bug-report.html" onMouseOut="rolloverOff('side-bug-report');" onMouseOver="rolloverOn('side-bug-report');"><IMG alt="Bug-Reporting" border="0" height="12" hspace="0" name="side-bug-report" onLoad="rolloverLoad('side-bug-report','../graphics/bug-report-label-2.jpg','../graphics/bug-report-label-3.jpg');" src="../graphics/bug-report-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../pdf.html" onMouseOut="rolloverOff('side-pdf');" onMouseOver="rolloverOn('side-pdf');"><IMG alt="PDF Document" border="0" height="12" hspace="0" name="side-pdf" onLoad="rolloverLoad('side-pdf','../graphics/pdf-label-2.jpg','../graphics/pdf-label-3.jpg');" src="../graphics/pdf-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="http://xml.apache.org/websrc/cvsweb.cgi/xml-xerces/c/" onMouseOut="rolloverOff('side-ext-96');" onMouseOver="rolloverOn('side-ext-96');"><IMG alt="CVS Repository" border="0" height="12" hspace="0" name="side-ext-96" onLoad="rolloverLoad('side-ext-96','../graphics/ext-96-label-2.jpg','../graphics/ext-96-label-3.jpg');" src="../graphics/ext-96-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://marc.theaimsgroup.com/?l=xerces-c-dev" onMouseOut="rolloverOff('side-ext-98');" onMouseOver="rolloverOn('side-ext-98');"><IMG alt="Mail Archive" border="0" height="12" hspace="0" name="side-ext-98" onLoad="rolloverLoad('side-ext-98','../graphics/ext-98-label-2.jpg','../graphics/ext-98-label-3.jpg');" src="../graphics/ext-98-label-3.jpg" vspace="0" width="120"></A><BR>
+
+<IMG border="0" height="14" hspace="0" src="../resources/close.gif" vspace="0" width="120"><BR></TD><TD align="left" valign="top" width="500"><TABLE border="0" cellpadding="3" cellspacing="0"><TR><TD>
+    <TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#FFFFFF" colspan="2" width="494"><TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#039acc" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#039acc" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#039acc" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" width="492"><FONT color="#ffffff" face="arial,helvetica,sanserif" size="+1"><IMG border="0" height="2" hspace="0" src="../resources/void.gif" vspace="0" width="2"><B>API Docs for SAX and DOM</B></FONT></TD><TD bgcolor="#017299" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#017299" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#017299" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></TD></TR><TR><TD width="10">&nbsp;</TD><TD width="484"><FONT color="#000000" face="arial,helvetica,sanserif">
+
+	    <P>
+<!-- Generated by Doxygen 1.2.14 -->
+<center>
+<a class="qindex" href="index.html">Main Page</a> &nbsp; <a class="qindex" href="hierarchy.html">Class Hierarchy</a> &nbsp; <a class="qindex" href="classes.html">Alphabetical List</a> &nbsp; <a class="qindex" href="annotated.html">Compound List</a> &nbsp; <a class="qindex" href="files.html">File List</a> &nbsp; <a class="qindex" href="functions.html">Compound Members</a> &nbsp; <a class="qindex" href="globals.html">File Members</a> &nbsp; </center>
+<hr><h1>XMLUni  Class Reference</h1><a href="classXMLUni-members.html">List of all members.</a><table border=0 cellpadding=0 cellspacing=0>
+<tr><td colspan=2><br><h2>Static Public Attributes</h2></td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p0">fgAnyString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p1">fgAttListString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p2">fgCommentString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p3">fgCDATAString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p4">fgDefaultString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p5">fgDocTypeString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p6">fgEBCDICEncodingString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p7">fgElemString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p8">fgEmptyString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p9">fgEncodingString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p10">fgEntitString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p11">fgEntityString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p12">fgEntitiesString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p13">fgEnumerationString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p14">fgExceptDomain</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p15">fgFixedString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p16">fgIBM037EncodingString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p17">fgIBM037EncodingString2</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p18">fgIBM1047EncodingString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p19">fgIBM1047EncodingString2</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p20">fgIBM1140EncodingString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p21">fgIBM1140EncodingString2</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p22">fgIBM1140EncodingString3</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p23">fgIBM1140EncodingString4</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p24">fgIESString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p25">fgIDString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p26">fgIDRefString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p27">fgIDRefsString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p28">fgImpliedString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p29">fgIgnoreString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p30">fgIncludeString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p31">fgISO88591EncodingString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p32">fgISO88591EncodingString2</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p33">fgISO88591EncodingString3</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p34">fgISO88591EncodingString4</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p35">fgISO88591EncodingString5</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p36">fgISO88591EncodingString6</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p37">fgISO88591EncodingString7</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p38">fgISO88591EncodingString8</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p39">fgISO88591EncodingString9</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p40">fgISO88591EncodingString10</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p41">fgISO88591EncodingString11</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p42">fgISO88591EncodingString12</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p43">fgLocalHostString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p44">fgNoString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p45">fgNotationString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p46">fgNDATAString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p47">fgNmTokenString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p48">fgNmTokensString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p49">fgPCDATAString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p50">fgPIString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p51">fgPubIDString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p52">fgRefString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p53">fgRequiredString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p54">fgStandaloneString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p55">fgVersion1_0</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p56">fgVersion1_1</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p57">fgSysIDString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p58">fgUnknownURIName</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p59">fgUCS4EncodingString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p60">fgUCS4EncodingString2</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p61">fgUCS4EncodingString3</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p62">fgUCS4BEncodingString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p63">fgUCS4BEncodingString2</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p64">fgUCS4LEncodingString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p65">fgUCS4LEncodingString2</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p66">fgUSASCIIEncodingString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p67">fgUSASCIIEncodingString2</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p68">fgUSASCIIEncodingString3</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p69">fgUSASCIIEncodingString4</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p70">fgUTF8EncodingString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p71">fgUTF8EncodingString2</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p72">fgUTF16EncodingString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p73">fgUTF16EncodingString2</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p74">fgUTF16EncodingString3</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p75">fgUTF16EncodingString4</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p76">fgUTF16EncodingString5</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p77">fgUTF16BEncodingString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p78">fgUTF16BEncodingString2</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p79">fgUTF16LEncodingString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p80">fgUTF16LEncodingString2</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p81">fgVersionString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p82">fgValidityDomain</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p83">fgWin1252EncodingString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p84">fgXMLChEncodingString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p85">fgXMLDOMMsgDomain</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p86">fgXMLString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p87">fgXMLStringSpace</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p88">fgXMLStringHTab</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p89">fgXMLStringCR</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p90">fgXMLStringLF</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p91">fgXMLStringSpaceU</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p92">fgXMLStringHTabU</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p93">fgXMLStringCRU</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p94">fgXMLStringLFU</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p95">fgXMLDeclString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p96">fgXMLDeclStringSpace</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p97">fgXMLDeclStringHTab</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p98">fgXMLDeclStringLF</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p99">fgXMLDeclStringCR</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p100">fgXMLDeclStringSpaceU</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p101">fgXMLDeclStringHTabU</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p102">fgXMLDeclStringLFU</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p103">fgXMLDeclStringCRU</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p104">fgXMLNSString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p105">fgXMLNSColonString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p106">fgXMLNSURIName</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p107">fgXMLErrDomain</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p108">fgXMLURIName</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p109">fgYesString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p110">fgZeroLenString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p111">fgDTDEntityString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p112">fgAmp</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p113">fgLT</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p114">fgGT</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p115">fgQuot</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p116">fgApos</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p117">fgWFXMLScanner</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p118">fgIGXMLScanner</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p119">fgSGXMLScanner</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p120">fgDGXMLScanner</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p121">fgCDataStart</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p122">fgCDataEnd</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p123">fgArrayIndexOutOfBoundsException_Name</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p124">fgEmptyStackException_Name</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p125">fgIllegalArgumentException_Name</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p126">fgInvalidCastException_Name</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p127">fgIOException_Name</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p128">fgNoSuchElementException_Name</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p129">fgNullPointerException_Name</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p130">fgXMLPlatformUtilsException_Name</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p131">fgRuntimeException_Name</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p132">fgTranscodingException_Name</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p133">fgUnexpectedEOFException_Name</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p134">fgUnsupportedEncodingException_Name</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p135">fgUTFDataFormatException_Name</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p136">fgNetAccessorException_Name</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p137">fgMalformedURLException_Name</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p138">fgNumberFormatException_Name</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p139">fgParseException_Name</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p140">fgInvalidDatatypeFacetException_Name</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p141">fgInvalidDatatypeValueException_Name</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p142">fgSchemaDateTimeException_Name</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p143">fgXPathException_Name</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p144">fgXSerializationException_Name</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p145">fgNegINFString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p146">fgNegZeroString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p147">fgPosZeroString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p148">fgPosINFString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p149">fgNaNString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p150">fgEString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p151">fgZeroString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p152">fgNullString</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p153">fgXercesDynamic</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p154">fgXercesSchema</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p155">fgXercesSchemaFullChecking</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p156">fgXercesSchemaExternalSchemaLocation</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p157">fgXercesSchemaExternalNoNameSpaceSchemaLocation</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p158">fgXercesSecurityManager</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p159">fgXercesLoadExternalDTD</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p160">fgXercesContinueAfterFatalError</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p161">fgXercesValidationErrorAsFatal</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p162">fgXercesUserAdoptsDOMDocument</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p163">fgXercesCacheGrammarFromParse</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p164">fgXercesUseCachedGrammarInParse</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p165">fgXercesScannerName</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p166">fgXercesParserUseDocumentFromImplementation</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p167">fgXercesCalculateSrcOfs</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p168">fgXercesStandardUriConformant</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p169">fgSAX2CoreValidation</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p170">fgSAX2CoreNameSpaces</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p171">fgSAX2CoreNameSpacePrefixes</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p172">fgDOMCanonicalForm</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p173">fgDOMCDATASections</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p174">fgDOMComments</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p175">fgDOMCharsetOverridesXMLEncoding</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p176">fgDOMDatatypeNormalization</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p177">fgDOMEntities</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p178">fgDOMInfoset</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p179">fgDOMNamespaces</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p180">fgDOMNamespaceDeclarations</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p181">fgDOMSupportedMediatypesOnly</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p182">fgDOMValidateIfSchema</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p183">fgDOMValidation</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p184">fgDOMWhitespaceInElementContent</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p185">fgDOMWRTCanonicalForm</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p186">fgDOMWRTDiscardDefaultContent</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p187">fgDOMWRTEntities</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p188">fgDOMWRTFormatPrettyPrint</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p189">fgDOMWRTNormalizeCharacters</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p190">fgDOMWRTSplitCdataSections</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p191">fgDOMWRTValidation</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p192">fgDOMWRTWhitespaceInElementContent</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p193">fgDOMWRTBOM</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const XMLCh&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p194">fgDOMXMLDeclaration</a> []</td></tr>
+<tr><td nowrap align=right valign=top>const char&nbsp;</td><td valign=bottom><a class="el" href="classXMLUni.html#p195">fgXercescDefaultLocale</a> []</td></tr>
+</table>
+<hr><h2>Member Data Documentation</h2>
+<a name="p112" doxytag="XMLUni::fgAmp"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgAmp[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p0" doxytag="XMLUni::fgAnyString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgAnyString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p116" doxytag="XMLUni::fgApos"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgApos[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p123" doxytag="XMLUni::fgArrayIndexOutOfBoundsException_Name"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgArrayIndexOutOfBoundsException_Name[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p1" doxytag="XMLUni::fgAttListString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgAttListString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p122" doxytag="XMLUni::fgCDataEnd"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgCDataEnd[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p121" doxytag="XMLUni::fgCDataStart"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgCDataStart[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p3" doxytag="XMLUni::fgCDATAString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgCDATAString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p2" doxytag="XMLUni::fgCommentString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgCommentString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p4" doxytag="XMLUni::fgDefaultString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgDefaultString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p120" doxytag="XMLUni::fgDGXMLScanner"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgDGXMLScanner[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p5" doxytag="XMLUni::fgDocTypeString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgDocTypeString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p172" doxytag="XMLUni::fgDOMCanonicalForm"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgDOMCanonicalForm[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p173" doxytag="XMLUni::fgDOMCDATASections"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgDOMCDATASections[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p175" doxytag="XMLUni::fgDOMCharsetOverridesXMLEncoding"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgDOMCharsetOverridesXMLEncoding[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p174" doxytag="XMLUni::fgDOMComments"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgDOMComments[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p176" doxytag="XMLUni::fgDOMDatatypeNormalization"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgDOMDatatypeNormalization[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p177" doxytag="XMLUni::fgDOMEntities"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgDOMEntities[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p178" doxytag="XMLUni::fgDOMInfoset"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgDOMInfoset[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p180" doxytag="XMLUni::fgDOMNamespaceDeclarations"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgDOMNamespaceDeclarations[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p179" doxytag="XMLUni::fgDOMNamespaces"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgDOMNamespaces[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p181" doxytag="XMLUni::fgDOMSupportedMediatypesOnly"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgDOMSupportedMediatypesOnly[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p182" doxytag="XMLUni::fgDOMValidateIfSchema"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgDOMValidateIfSchema[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p183" doxytag="XMLUni::fgDOMValidation"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgDOMValidation[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p184" doxytag="XMLUni::fgDOMWhitespaceInElementContent"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgDOMWhitespaceInElementContent[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p193" doxytag="XMLUni::fgDOMWRTBOM"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgDOMWRTBOM[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p185" doxytag="XMLUni::fgDOMWRTCanonicalForm"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgDOMWRTCanonicalForm[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p186" doxytag="XMLUni::fgDOMWRTDiscardDefaultContent"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgDOMWRTDiscardDefaultContent[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p187" doxytag="XMLUni::fgDOMWRTEntities"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgDOMWRTEntities[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p188" doxytag="XMLUni::fgDOMWRTFormatPrettyPrint"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgDOMWRTFormatPrettyPrint[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p189" doxytag="XMLUni::fgDOMWRTNormalizeCharacters"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgDOMWRTNormalizeCharacters[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p190" doxytag="XMLUni::fgDOMWRTSplitCdataSections"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgDOMWRTSplitCdataSections[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p191" doxytag="XMLUni::fgDOMWRTValidation"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgDOMWRTValidation[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p192" doxytag="XMLUni::fgDOMWRTWhitespaceInElementContent"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgDOMWRTWhitespaceInElementContent[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p194" doxytag="XMLUni::fgDOMXMLDeclaration"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgDOMXMLDeclaration[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p111" doxytag="XMLUni::fgDTDEntityString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgDTDEntityString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p6" doxytag="XMLUni::fgEBCDICEncodingString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgEBCDICEncodingString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p7" doxytag="XMLUni::fgElemString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgElemString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p124" doxytag="XMLUni::fgEmptyStackException_Name"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgEmptyStackException_Name[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p8" doxytag="XMLUni::fgEmptyString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgEmptyString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p9" doxytag="XMLUni::fgEncodingString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgEncodingString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p12" doxytag="XMLUni::fgEntitiesString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgEntitiesString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p10" doxytag="XMLUni::fgEntitString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgEntitString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p11" doxytag="XMLUni::fgEntityString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgEntityString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p13" doxytag="XMLUni::fgEnumerationString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgEnumerationString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p150" doxytag="XMLUni::fgEString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgEString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p14" doxytag="XMLUni::fgExceptDomain"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgExceptDomain[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p15" doxytag="XMLUni::fgFixedString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgFixedString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p114" doxytag="XMLUni::fgGT"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgGT[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p16" doxytag="XMLUni::fgIBM037EncodingString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgIBM037EncodingString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p17" doxytag="XMLUni::fgIBM037EncodingString2"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgIBM037EncodingString2[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p18" doxytag="XMLUni::fgIBM1047EncodingString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgIBM1047EncodingString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p19" doxytag="XMLUni::fgIBM1047EncodingString2"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgIBM1047EncodingString2[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p20" doxytag="XMLUni::fgIBM1140EncodingString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgIBM1140EncodingString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p21" doxytag="XMLUni::fgIBM1140EncodingString2"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgIBM1140EncodingString2[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p22" doxytag="XMLUni::fgIBM1140EncodingString3"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgIBM1140EncodingString3[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p23" doxytag="XMLUni::fgIBM1140EncodingString4"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgIBM1140EncodingString4[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p27" doxytag="XMLUni::fgIDRefsString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgIDRefsString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p26" doxytag="XMLUni::fgIDRefString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgIDRefString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p25" doxytag="XMLUni::fgIDString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgIDString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p24" doxytag="XMLUni::fgIESString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgIESString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p29" doxytag="XMLUni::fgIgnoreString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgIgnoreString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p118" doxytag="XMLUni::fgIGXMLScanner"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgIGXMLScanner[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p125" doxytag="XMLUni::fgIllegalArgumentException_Name"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgIllegalArgumentException_Name[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p28" doxytag="XMLUni::fgImpliedString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgImpliedString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p30" doxytag="XMLUni::fgIncludeString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgIncludeString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p126" doxytag="XMLUni::fgInvalidCastException_Name"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgInvalidCastException_Name[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p140" doxytag="XMLUni::fgInvalidDatatypeFacetException_Name"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgInvalidDatatypeFacetException_Name[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p141" doxytag="XMLUni::fgInvalidDatatypeValueException_Name"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgInvalidDatatypeValueException_Name[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p127" doxytag="XMLUni::fgIOException_Name"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgIOException_Name[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p31" doxytag="XMLUni::fgISO88591EncodingString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgISO88591EncodingString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p40" doxytag="XMLUni::fgISO88591EncodingString10"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgISO88591EncodingString10[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p41" doxytag="XMLUni::fgISO88591EncodingString11"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgISO88591EncodingString11[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p42" doxytag="XMLUni::fgISO88591EncodingString12"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgISO88591EncodingString12[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p32" doxytag="XMLUni::fgISO88591EncodingString2"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgISO88591EncodingString2[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p33" doxytag="XMLUni::fgISO88591EncodingString3"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgISO88591EncodingString3[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p34" doxytag="XMLUni::fgISO88591EncodingString4"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgISO88591EncodingString4[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p35" doxytag="XMLUni::fgISO88591EncodingString5"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgISO88591EncodingString5[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p36" doxytag="XMLUni::fgISO88591EncodingString6"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgISO88591EncodingString6[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p37" doxytag="XMLUni::fgISO88591EncodingString7"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgISO88591EncodingString7[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p38" doxytag="XMLUni::fgISO88591EncodingString8"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgISO88591EncodingString8[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p39" doxytag="XMLUni::fgISO88591EncodingString9"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgISO88591EncodingString9[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p43" doxytag="XMLUni::fgLocalHostString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgLocalHostString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p113" doxytag="XMLUni::fgLT"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgLT[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p137" doxytag="XMLUni::fgMalformedURLException_Name"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgMalformedURLException_Name[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p149" doxytag="XMLUni::fgNaNString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgNaNString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p46" doxytag="XMLUni::fgNDATAString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgNDATAString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p145" doxytag="XMLUni::fgNegINFString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgNegINFString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p146" doxytag="XMLUni::fgNegZeroString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgNegZeroString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p136" doxytag="XMLUni::fgNetAccessorException_Name"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgNetAccessorException_Name[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p48" doxytag="XMLUni::fgNmTokensString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgNmTokensString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p47" doxytag="XMLUni::fgNmTokenString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgNmTokenString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p44" doxytag="XMLUni::fgNoString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgNoString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p128" doxytag="XMLUni::fgNoSuchElementException_Name"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgNoSuchElementException_Name[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p45" doxytag="XMLUni::fgNotationString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgNotationString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p129" doxytag="XMLUni::fgNullPointerException_Name"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgNullPointerException_Name[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p152" doxytag="XMLUni::fgNullString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgNullString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p138" doxytag="XMLUni::fgNumberFormatException_Name"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgNumberFormatException_Name[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p139" doxytag="XMLUni::fgParseException_Name"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgParseException_Name[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p49" doxytag="XMLUni::fgPCDATAString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgPCDATAString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p50" doxytag="XMLUni::fgPIString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgPIString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p148" doxytag="XMLUni::fgPosINFString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgPosINFString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p147" doxytag="XMLUni::fgPosZeroString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgPosZeroString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p51" doxytag="XMLUni::fgPubIDString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgPubIDString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p115" doxytag="XMLUni::fgQuot"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgQuot[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p52" doxytag="XMLUni::fgRefString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgRefString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p53" doxytag="XMLUni::fgRequiredString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgRequiredString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p131" doxytag="XMLUni::fgRuntimeException_Name"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgRuntimeException_Name[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p171" doxytag="XMLUni::fgSAX2CoreNameSpacePrefixes"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgSAX2CoreNameSpacePrefixes[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p170" doxytag="XMLUni::fgSAX2CoreNameSpaces"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgSAX2CoreNameSpaces[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p169" doxytag="XMLUni::fgSAX2CoreValidation"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgSAX2CoreValidation[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p142" doxytag="XMLUni::fgSchemaDateTimeException_Name"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgSchemaDateTimeException_Name[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p119" doxytag="XMLUni::fgSGXMLScanner"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgSGXMLScanner[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p54" doxytag="XMLUni::fgStandaloneString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgStandaloneString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p57" doxytag="XMLUni::fgSysIDString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgSysIDString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p132" doxytag="XMLUni::fgTranscodingException_Name"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgTranscodingException_Name[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p62" doxytag="XMLUni::fgUCS4BEncodingString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgUCS4BEncodingString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p63" doxytag="XMLUni::fgUCS4BEncodingString2"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgUCS4BEncodingString2[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p59" doxytag="XMLUni::fgUCS4EncodingString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgUCS4EncodingString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p60" doxytag="XMLUni::fgUCS4EncodingString2"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgUCS4EncodingString2[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p61" doxytag="XMLUni::fgUCS4EncodingString3"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgUCS4EncodingString3[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p64" doxytag="XMLUni::fgUCS4LEncodingString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgUCS4LEncodingString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p65" doxytag="XMLUni::fgUCS4LEncodingString2"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgUCS4LEncodingString2[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p133" doxytag="XMLUni::fgUnexpectedEOFException_Name"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgUnexpectedEOFException_Name[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p58" doxytag="XMLUni::fgUnknownURIName"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgUnknownURIName[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p134" doxytag="XMLUni::fgUnsupportedEncodingException_Name"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgUnsupportedEncodingException_Name[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p66" doxytag="XMLUni::fgUSASCIIEncodingString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgUSASCIIEncodingString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p67" doxytag="XMLUni::fgUSASCIIEncodingString2"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgUSASCIIEncodingString2[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p68" doxytag="XMLUni::fgUSASCIIEncodingString3"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgUSASCIIEncodingString3[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p69" doxytag="XMLUni::fgUSASCIIEncodingString4"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgUSASCIIEncodingString4[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p77" doxytag="XMLUni::fgUTF16BEncodingString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgUTF16BEncodingString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p78" doxytag="XMLUni::fgUTF16BEncodingString2"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgUTF16BEncodingString2[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p72" doxytag="XMLUni::fgUTF16EncodingString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgUTF16EncodingString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p73" doxytag="XMLUni::fgUTF16EncodingString2"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgUTF16EncodingString2[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p74" doxytag="XMLUni::fgUTF16EncodingString3"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgUTF16EncodingString3[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p75" doxytag="XMLUni::fgUTF16EncodingString4"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgUTF16EncodingString4[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p76" doxytag="XMLUni::fgUTF16EncodingString5"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgUTF16EncodingString5[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p79" doxytag="XMLUni::fgUTF16LEncodingString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgUTF16LEncodingString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p80" doxytag="XMLUni::fgUTF16LEncodingString2"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgUTF16LEncodingString2[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p70" doxytag="XMLUni::fgUTF8EncodingString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgUTF8EncodingString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p71" doxytag="XMLUni::fgUTF8EncodingString2"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgUTF8EncodingString2[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p135" doxytag="XMLUni::fgUTFDataFormatException_Name"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgUTFDataFormatException_Name[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p82" doxytag="XMLUni::fgValidityDomain"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgValidityDomain[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p55" doxytag="XMLUni::fgVersion1_0"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgVersion1_0[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p56" doxytag="XMLUni::fgVersion1_1"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgVersion1_1[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p81" doxytag="XMLUni::fgVersionString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgVersionString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p117" doxytag="XMLUni::fgWFXMLScanner"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgWFXMLScanner[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p83" doxytag="XMLUni::fgWin1252EncodingString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgWin1252EncodingString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p163" doxytag="XMLUni::fgXercesCacheGrammarFromParse"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXercesCacheGrammarFromParse[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p167" doxytag="XMLUni::fgXercesCalculateSrcOfs"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXercesCalculateSrcOfs[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p195" doxytag="XMLUni::fgXercescDefaultLocale"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const char XMLUni::fgXercescDefaultLocale[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p160" doxytag="XMLUni::fgXercesContinueAfterFatalError"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXercesContinueAfterFatalError[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p153" doxytag="XMLUni::fgXercesDynamic"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXercesDynamic[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p159" doxytag="XMLUni::fgXercesLoadExternalDTD"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXercesLoadExternalDTD[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p166" doxytag="XMLUni::fgXercesParserUseDocumentFromImplementation"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXercesParserUseDocumentFromImplementation[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p165" doxytag="XMLUni::fgXercesScannerName"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXercesScannerName[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p154" doxytag="XMLUni::fgXercesSchema"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXercesSchema[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p157" doxytag="XMLUni::fgXercesSchemaExternalNoNameSpaceSchemaLocation"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXercesSchemaExternalNoNameSpaceSchemaLocation[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p156" doxytag="XMLUni::fgXercesSchemaExternalSchemaLocation"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXercesSchemaExternalSchemaLocation[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p155" doxytag="XMLUni::fgXercesSchemaFullChecking"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXercesSchemaFullChecking[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p158" doxytag="XMLUni::fgXercesSecurityManager"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXercesSecurityManager[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p168" doxytag="XMLUni::fgXercesStandardUriConformant"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXercesStandardUriConformant[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p164" doxytag="XMLUni::fgXercesUseCachedGrammarInParse"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXercesUseCachedGrammarInParse[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p162" doxytag="XMLUni::fgXercesUserAdoptsDOMDocument"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXercesUserAdoptsDOMDocument[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p161" doxytag="XMLUni::fgXercesValidationErrorAsFatal"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXercesValidationErrorAsFatal[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p84" doxytag="XMLUni::fgXMLChEncodingString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXMLChEncodingString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p95" doxytag="XMLUni::fgXMLDeclString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXMLDeclString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p99" doxytag="XMLUni::fgXMLDeclStringCR"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXMLDeclStringCR[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p103" doxytag="XMLUni::fgXMLDeclStringCRU"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXMLDeclStringCRU[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p97" doxytag="XMLUni::fgXMLDeclStringHTab"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXMLDeclStringHTab[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p101" doxytag="XMLUni::fgXMLDeclStringHTabU"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXMLDeclStringHTabU[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p98" doxytag="XMLUni::fgXMLDeclStringLF"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXMLDeclStringLF[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p102" doxytag="XMLUni::fgXMLDeclStringLFU"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXMLDeclStringLFU[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p96" doxytag="XMLUni::fgXMLDeclStringSpace"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXMLDeclStringSpace[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p100" doxytag="XMLUni::fgXMLDeclStringSpaceU"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXMLDeclStringSpaceU[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p85" doxytag="XMLUni::fgXMLDOMMsgDomain"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXMLDOMMsgDomain[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p107" doxytag="XMLUni::fgXMLErrDomain"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXMLErrDomain[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p105" doxytag="XMLUni::fgXMLNSColonString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXMLNSColonString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p104" doxytag="XMLUni::fgXMLNSString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXMLNSString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p106" doxytag="XMLUni::fgXMLNSURIName"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXMLNSURIName[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p130" doxytag="XMLUni::fgXMLPlatformUtilsException_Name"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXMLPlatformUtilsException_Name[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p86" doxytag="XMLUni::fgXMLString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXMLString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p89" doxytag="XMLUni::fgXMLStringCR"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXMLStringCR[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p93" doxytag="XMLUni::fgXMLStringCRU"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXMLStringCRU[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p88" doxytag="XMLUni::fgXMLStringHTab"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXMLStringHTab[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p92" doxytag="XMLUni::fgXMLStringHTabU"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXMLStringHTabU[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p90" doxytag="XMLUni::fgXMLStringLF"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXMLStringLF[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p94" doxytag="XMLUni::fgXMLStringLFU"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXMLStringLFU[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p87" doxytag="XMLUni::fgXMLStringSpace"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXMLStringSpace[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p91" doxytag="XMLUni::fgXMLStringSpaceU"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXMLStringSpaceU[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p108" doxytag="XMLUni::fgXMLURIName"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXMLURIName[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p143" doxytag="XMLUni::fgXPathException_Name"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXPathException_Name[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p144" doxytag="XMLUni::fgXSerializationException_Name"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgXSerializationException_Name[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p109" doxytag="XMLUni::fgYesString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgYesString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p110" doxytag="XMLUni::fgZeroLenString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgZeroLenString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="p151" doxytag="XMLUni::fgZeroString"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> const XMLCh XMLUni::fgZeroString[]<code> [static]</code>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<hr>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="XMLUni_8hpp-source.html">XMLUni.hpp</a></ul>
+    </FONT></TD></TR></TABLE><BR>
+</TD></TR></TABLE></TD></TR></TABLE><BR><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD bgcolor="#0086b2"><IMG height="1" src="images/dot.gif" width="1" alt=""></TD></TR><TR><TD align="center"><FONT color="#0086b2" size="-1"><I>
+              Copyright &copy; 2004 The Apache Software Foundation.
+              All Rights Reserved.
+            </I></FONT></TD></TR></TABLE></BODY></HTML>

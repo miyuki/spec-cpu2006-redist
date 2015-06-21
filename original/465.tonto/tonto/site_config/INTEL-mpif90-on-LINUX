@@ -1,0 +1,10 @@
+FOPTNS   = $(FFAST)
+FFLAGS   = -I$(srcdir) -I$(moddir) -module $(moddir) -Vaxlib
+FPROF    = -p 
+FDEBUG   = -g  -cerrs- -e95 -W1
+FFAST    = -O3 -axMi
+FSUFFIX  = F90
+DEFS     = -DUSE_PRE_AND_POST_CONDITIONS -DFLUSH -DMPI
+MODCASE  = -uc
+LIBS     = -L$(objdir) -llapack -lblas
+#LIBS     = -L$(objdir) /opt/intel/mkl/lib/32/libmkl_lapack.a /opt/intel/mkl/lib/32/libmkl_p3.a -L/opt/intel/mkl/lib/32/ -lguide -lpthread

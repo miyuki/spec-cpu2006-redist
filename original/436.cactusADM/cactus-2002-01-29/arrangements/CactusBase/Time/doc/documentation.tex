@@ -1,0 +1,102 @@
+\documentclass{article}
+\begin{document}
+
+\title{Time}
+\author{Gabrielle Allen}
+\date{1999}
+\maketitle
+
+\abstract{Calculates the timestep used for an evolution}
+
+\section{Purpose}
+
+This thorn provides a routines for calculating
+the timestep for an evolution based on the spatial Cartesian grid spacing and
+a wave speed. 
+
+\section{Description}
+
+Thorn {\tt Time} uses one of four methods to decide on the timestep
+to be used for the simulation. The method is chosen using the
+keyword parameter {\tt time::timestep\_method}. 
+
+\begin{itemize}
+
+\item{} {\tt time::timestep\_method = ``given''} The timestep is fixed to the
+	value of the parameter {\tt time::timestep}. 
+
+\item{} {\tt time::timestep\_method = ``courant\_static''} This is the default
+	method, which calculates the timestep once at the start of the
+	simulation, based on a simple courant type condition using 
+	the spatial gridsizes and the parameter {\tt time::dtfac}.
+$$
+\Delta t = \mbox{\tt dtfac} * \mbox{min}(\Delta x^i)
+$$
+	Note that it is up to the user to custom {\tt dtfac} to take
+	into account the dimension of the space being used, and the wave speed.
+
+\item{} {\tt time::timestep\_method = ``courant\_speed''} This choice implements a 
+	dynamic courant type condition, the timestep being set before each
+	timestep using the spatial dimension of the grid, the spatial grid sizes, the 
+	parameter {\tt courant\_fac} and the grid variable {\tt courant\_wave\_speed}. 
+	The algorithm used is
+$$
+\Delta t = \mbox{\tt courant\_fac} * \mbox{min}(\Delta x^i)/\mbox{courant\_wave\_speed}/\sqrt(\mbox{dim})
+$$
+	For this algorithm to be successful, the variable {\tt courant\_wave\_speed}
+	must have been set by a thorn to the maximum wave speed on the grid.
+
+\item{} {\tt time::timestep\_method = ``courant\_time''} This choice is similar to the
+	method {\tt courant\_speed} above, in implementing a dynamic timestep.
+	However the timestep is chosen using
+$$
+\Delta t = \mbox{\tt courant\_fac} * \mbox{\tt courant\_min\_time}/\sqrt(\mbox{dim})
+$$
+        where the grid variable {\tt courant\_min\_time} must be set by a thorn to
+	the minimum time for a wave to cross a gridzone.
+
+\end{itemize}
+
+In all cases, Thorn {\tt Time} sets the Cactus variable {\tt cctk\_delta\_time}
+which is passed as part of the macro {\tt CCTK\_ARGUMENTS} to thorns called 
+by the scheduler.
+
+Note that for hyperbolic problems, the Courant condition gives a minimum 
+requirement for stability, namely that the numerical domain of dependency
+must encompass the physical domain of dependency, or
+$$
+\Delta t \le \mbox{min}(\Delta x^i)/\mbox{wave speed}/\sqrt(\mbox{dim})
+$$
+
+\section{Examples}
+
+{\bf Fixed Value Timestep}
+
+{\tt
+\begin{verbatim}
+time::timestep_method = ``given''
+time::timestep        = 0.1
+\end{verbatim}
+}
+
+
+{\bf Calculate Static Timestep Based on Grid Spacings}
+
+The following parameters set the timestep to be 0.25
+
+{\tt
+\begin{verbatim}
+grid::dx    = 0.5
+grid::dy    = 1.0
+grid::dz    = 1.0
+time::timestep_method = ``courant_static''
+time::dtfac = 0.5
+\end{verbatim}
+}
+
+% Automatically created from the ccl files by using gmake thorndoc
+\include{interface}
+\include{param}
+\include{schedule}
+
+\end{document}

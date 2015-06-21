@@ -1,0 +1,936 @@
+   private
+
+   public    read_realmat4_
+   interface read_realmat4_
+      module procedure read_realmat4
+   end interface
+
+   public    put_intmat_
+   interface put_intmat_
+      module procedure put_intmat
+   end interface
+
+   public    show_realvec_
+   interface show_realvec_
+      module procedure show_realvec
+   end interface
+
+   public    put_text_
+   interface put_text_
+      module procedure put_text
+   end interface
+
+   public    read_cpx_
+   interface read_cpx_
+      module procedure read_cpx
+   end interface
+
+   public    put_strvec_
+   interface put_strvec_
+      module procedure put_strvec
+   end interface
+
+   public    read_formatted_real_
+   interface read_formatted_real_
+      module procedure read_formatted_real
+   end interface
+
+   public    close_
+   interface close_
+      module procedure close
+   end interface
+
+   private    put_realvec_by_row_
+   interface put_realvec_by_row_
+      module procedure put_realvec_by_row
+   end interface
+
+   public    set_use_labels_
+   interface set_use_labels_
+      module procedure set_use_labels
+   end interface
+
+   private    put_binvec_by_column_
+   interface put_binvec_by_column_
+      module procedure put_binvec_by_column
+   end interface
+
+   public    read_keywords_
+   interface read_keywords_
+      module procedure read_keywords
+   end interface
+
+   public    set_n_fields_
+   interface set_n_fields_
+      module procedure set_n_fields
+   end interface
+
+   public    read_int_
+   interface read_int_
+      module procedure read_int
+   end interface
+
+   public    skip_next_item_
+   interface skip_next_item_
+      module procedure skip_next_item
+   end interface
+
+   public    buffer_exhausted_
+   interface buffer_exhausted_
+      module procedure buffer_exhausted
+   end interface
+
+   public    line_number_
+   interface line_number_
+      module procedure line_number
+   end interface
+
+   public    look_backwards_for_item_
+   interface look_backwards_for_item_
+      module procedure look_backwards_for_item
+   end interface
+
+   private    read_line_internal_
+   interface read_line_internal_
+      module procedure read_line_internal
+   end interface
+
+   public    look_backwards_for_
+   interface look_backwards_for_
+      module procedure look_backwards_for
+   end interface
+
+   public    read_intvec_
+   interface read_intvec_
+      module procedure read_intvec
+   end interface
+
+   public    read_binvec_ptr_
+   interface read_binvec_ptr_
+      module procedure read_binvec_ptr
+   end interface
+
+   public    put_opmatrix_
+   interface put_opmatrix_
+      module procedure put_opmatrix
+   end interface
+
+   public    look_for_item_
+   interface look_for_item_
+      module procedure look_for_item
+   end interface
+
+   public    copy_
+   interface copy_
+      module procedure copy
+   end interface
+
+   public    read_realvec_ptr_
+   interface read_realvec_ptr_
+      module procedure read_realvec_ptr
+   end interface
+
+   private    open_for_read_
+   interface open_for_read_
+      module procedure open_for_read
+   end interface
+
+   public    read_real_
+   interface read_real_
+      module procedure read_real
+   end interface
+
+   private    format_for_int_
+   interface format_for_int_
+      module procedure format_for_int
+   end interface
+
+   public    read_intmat_
+   interface read_intmat_
+      module procedure read_intmat
+   end interface
+
+   private    revert_line_
+   interface revert_line_
+      module procedure revert_line
+   end interface
+
+   public    set_real_width_
+   interface set_real_width_
+      module procedure set_real_width
+   end interface
+
+   public    put_cpxvec_
+   interface put_cpxvec_
+      module procedure put_cpxvec
+   end interface
+
+   public    tab_
+   interface tab_
+      module procedure tab
+   end interface
+
+   private    put_realmat_by_column_
+   interface put_realmat_by_column_
+      module procedure put_realmat_by_column
+   end interface
+
+   public    read_strvec_
+   interface read_strvec_
+      module procedure read_strvec
+   end interface
+
+   public    flush_
+   interface flush_
+      module procedure flush
+      module procedure flush_1
+   end interface
+
+   public    look_for_any_item_
+   interface look_for_any_item_
+      module procedure look_for_any_item
+   end interface
+
+   public    destroy_
+   interface destroy_
+      module procedure destroy
+   end interface
+
+   public    close_and_delete_
+   interface close_and_delete_
+      module procedure close_and_delete
+   end interface
+
+   private    put_intmat_by_column_
+   interface put_intmat_by_column_
+      module procedure put_intmat_by_column
+   end interface
+
+   public    open_
+   interface open_
+      module procedure open
+      module procedure open_1
+   end interface
+
+   public    create_stdout_
+   interface create_stdout_
+      module procedure create_stdout
+   end interface
+
+   public    put_cpxmat_
+   interface put_cpxmat_
+      module procedure put_cpxmat
+   end interface
+
+   public    read_cpxmat3_
+   interface read_cpxmat3_
+      module procedure read_cpxmat3
+   end interface
+
+   public    read_cpxmat4_
+   interface read_cpxmat4_
+      module procedure read_cpxmat4
+   end interface
+
+   public    read_cpxmat5_
+   interface read_cpxmat5_
+      module procedure read_cpxmat5
+   end interface
+
+   public    read_formatted_mat_
+   interface read_formatted_mat_
+      module procedure read_formatted_mat
+   end interface
+
+   public    show_int_
+   interface show_int_
+      module procedure show_int
+   end interface
+
+   public    read_realmat_ptr_
+   interface read_realmat_ptr_
+      module procedure read_realmat_ptr
+   end interface
+
+   public    list_length_
+   interface list_length_
+      module procedure list_length
+   end interface
+
+   public    set_precision_
+   interface set_precision_
+      module procedure set_precision
+   end interface
+
+   public    put_unit_
+   interface put_unit_
+      module procedure put_unit
+   end interface
+
+   public    put_margin_
+   interface put_margin_
+      module procedure put_margin
+   end interface
+
+   private    update_line_
+   interface update_line_
+      module procedure update_line
+   end interface
+
+   public    show_int_3_
+   interface show_int_3_
+      module procedure show_int_3
+   end interface
+
+   public    next_line_item_
+   interface next_line_item_
+      module procedure next_line_item
+   end interface
+
+   public    destroy_ptr_part_
+   interface destroy_ptr_part_
+      module procedure destroy_ptr_part
+   end interface
+
+   public    move_to_previous_item_on_line_
+   interface move_to_previous_item_on_line_
+      module procedure move_to_previous_item_on_line
+   end interface
+
+   private    move_to_record_external_
+   interface move_to_record_external_
+      module procedure move_to_record_external
+   end interface
+
+   private    put_labelled_intmat_
+   interface put_labelled_intmat_
+      module procedure put_labelled_intmat
+   end interface
+
+   public    read_cpxvec_
+   interface read_cpxvec_
+      module procedure read_cpxvec
+   end interface
+
+   public    put_cpxmat3_
+   interface put_cpxmat3_
+      module procedure put_cpxmat3
+   end interface
+
+   public    put_cpxmat4_
+   interface put_cpxmat4_
+      module procedure put_cpxmat4
+   end interface
+
+   public    text_
+   interface text_
+      module procedure text
+   end interface
+
+   private    rewind_internal_
+   interface rewind_internal_
+      module procedure rewind_internal
+   end interface
+
+   public    put_cpxmat5_
+   interface put_cpxmat5_
+      module procedure put_cpxmat5
+   end interface
+
+   public    unit_used_
+   interface unit_used_
+      module procedure unit_used
+   end interface
+
+   public    show_binvec_
+   interface show_binvec_
+      module procedure show_binvec
+   end interface
+
+   public    read_cpxmat_
+   interface read_cpxmat_
+      module procedure read_cpxmat
+   end interface
+
+   private    put_binvec_by_row_
+   interface put_binvec_by_row_
+      module procedure put_binvec_by_row
+   end interface
+
+   public    create_
+   interface create_
+      module procedure create
+      module procedure create_1
+   end interface
+
+   public    put_real_
+   interface put_real_
+      module procedure put_real
+   end interface
+
+   public    create_copy_
+   interface create_copy_
+      module procedure create_copy
+   end interface
+
+   public    read_strvec_ptr_
+   interface read_strvec_ptr_
+      module procedure read_strvec_ptr
+   end interface
+
+   private    use_style_
+   interface use_style_
+      module procedure use_style
+   end interface
+
+   public    set_int_width_
+   interface set_int_width_
+      module procedure set_int_width
+   end interface
+
+   public    set_real_precision_
+   interface set_real_precision_
+      module procedure set_real_precision
+   end interface
+
+   private    put_cpxvec_by_row_
+   interface put_cpxvec_by_row_
+      module procedure put_cpxvec_by_row
+   end interface
+
+   public    rewind_
+   interface rewind_
+      module procedure rewind
+   end interface
+
+   private    format_for_real_
+   interface format_for_real_
+      module procedure format_for_real
+   end interface
+
+   private    open_new_file_for_write_
+   interface open_new_file_for_write_
+      module procedure open_new_file_for_write
+   end interface
+
+   public    read_imprecise_real_
+   interface read_imprecise_real_
+      module procedure read_imprecise_real
+   end interface
+
+   private    move_to_end_internal_
+   interface move_to_end_internal_
+      module procedure move_to_end_internal
+   end interface
+
+   public    read_intvecpxvec_ptr_
+   interface read_intvecpxvec_ptr_
+      module procedure read_intvecpxvec_ptr
+   end interface
+
+   public    unsave_
+   interface unsave_
+      module procedure unsave
+   end interface
+
+   private    nice_field_width_for_
+   interface nice_field_width_for_
+      module procedure nice_field_width_for
+   end interface
+
+   public    read_realvec_
+   interface read_realvec_
+      module procedure read_realvec
+   end interface
+
+   public    show_real_
+   interface show_real_
+      module procedure show_real
+   end interface
+
+   public    read_intvecvec_
+   interface read_intvecvec_
+      module procedure read_intvecvec
+   end interface
+
+   private    read_line_external_
+   interface read_line_external_
+      module procedure read_line_external
+   end interface
+
+   public    next_formatted_REAL_
+   interface next_formatted_REAL_
+      module procedure next_formatted_REAL
+   end interface
+
+   public    put_dash_
+   interface put_dash_
+      module procedure put_dash
+   end interface
+
+   public    nullify_ptr_part_
+   interface nullify_ptr_part_
+      module procedure nullify_ptr_part
+   end interface
+
+   public    skip_line_
+   interface skip_line_
+      module procedure skip_line
+   end interface
+
+   public    read_realmat_
+   interface read_realmat_
+      module procedure read_realmat
+   end interface
+
+   public    put_bin_
+   interface put_bin_
+      module procedure put_bin
+   end interface
+
+   public    set_real_style_
+   interface set_real_style_
+      module procedure set_real_style
+   end interface
+
+   public    read_realvec_pair_quantities_
+   interface read_realvec_pair_quantities_
+      module procedure read_realvec_pair_quantities
+   end interface
+
+   public    next_str_
+   interface next_str_
+      module procedure next_str
+   end interface
+
+   public    put_realvec_
+   interface put_realvec_
+      module procedure put_realvec
+   end interface
+
+   public    rest_of_line_
+   interface rest_of_line_
+      module procedure rest_of_line
+   end interface
+
+   private    put_labelled_mat_
+   interface put_labelled_mat_
+      module procedure put_labelled_mat
+   end interface
+
+   public    move_to_line_
+   interface move_to_line_
+      module procedure move_to_line
+   end interface
+
+   public    show_intvec_
+   interface show_intvec_
+      module procedure show_intvec
+   end interface
+
+   public    put_str_
+   interface put_str_
+      module procedure put_str
+   end interface
+
+   public    read_intvec_ptr_
+   interface read_intvec_ptr_
+      module procedure read_intvec_ptr
+   end interface
+
+   public    move_to_end_
+   interface move_to_end_
+      module procedure move_to_end
+   end interface
+
+   public    set_default_units_
+   interface set_default_units_
+      module procedure set_default_units
+   end interface
+
+   public    put_realmat_
+   interface put_realmat_
+      module procedure put_realmat
+   end interface
+
+   public    redirect_
+   interface redirect_
+      module procedure redirect
+      module procedure redirect_1
+   end interface
+
+   public    backspace_line_
+   interface backspace_line_
+      module procedure backspace_line
+   end interface
+
+   public    at_end_of_line_
+   interface at_end_of_line_
+      module procedure at_end_of_line
+   end interface
+
+   private    open_for_write_
+   interface open_for_write_
+      module procedure open_for_write
+   end interface
+
+   public    is_open_
+   interface is_open_
+      module procedure is_open
+   end interface
+
+   public    has_string_
+   interface has_string_
+      module procedure has_string
+   end interface
+
+   public    move_to_record_
+   interface move_to_record_
+      module procedure move_to_record
+   end interface
+
+   public    read_bin_
+   interface read_bin_
+      module procedure read_bin
+   end interface
+
+   public    put_info_
+   interface put_info_
+      module procedure put_info
+   end interface
+
+   public    show_strvec_
+   interface show_strvec_
+      module procedure show_strvec
+   end interface
+
+   public    save_
+   interface save_
+      module procedure save
+   end interface
+
+   public    set_default_format_
+   interface set_default_format_
+      module procedure set_default_format
+   end interface
+
+   public    delete_
+   interface delete_
+      module procedure delete
+   end interface
+
+   private    put_cpxvec_by_column_
+   interface put_cpxvec_by_column_
+      module procedure put_cpxvec_by_column
+   end interface
+
+   public    n_line_items_
+   interface n_line_items_
+      module procedure n_line_items
+   end interface
+
+   public    set_margin_
+   interface set_margin_
+      module procedure set_margin
+   end interface
+
+   public    read_str_
+   interface read_str_
+      module procedure read_str
+   end interface
+
+   private    rewind_external_
+   interface rewind_external_
+      module procedure rewind_external
+   end interface
+
+   public    put_binvec_
+   interface put_binvec_
+      module procedure put_binvec
+   end interface
+
+   public    revert_
+   interface revert_
+      module procedure revert
+   end interface
+
+   public    move_to_line_item_
+   interface move_to_line_item_
+      module procedure move_to_line_item
+   end interface
+
+   public    read_intmat_ptr_
+   interface read_intmat_ptr_
+      module procedure read_intmat_ptr
+   end interface
+
+   public    read_realmat_quantity_
+   interface read_realmat_quantity_
+      module procedure read_realmat_quantity
+   end interface
+
+   public    move_to_last_item_on_line_
+   interface move_to_last_item_on_line_
+      module procedure move_to_last_item_on_line
+   end interface
+
+   public    reverted_
+   interface reverted_
+      module procedure reverted
+   end interface
+
+   public    last_line_item_
+   interface last_line_item_
+      module procedure last_line_item
+   end interface
+
+   private    format_for_bin_
+   interface format_for_bin_
+      module procedure format_for_bin
+   end interface
+
+   public    read_real_quantity_
+   interface read_real_quantity_
+      module procedure read_real_quantity
+   end interface
+
+   public    show_bit_string_
+   interface show_bit_string_
+      module procedure show_bit_string
+   end interface
+
+   public    at_end_of_file_
+   interface at_end_of_file_
+      module procedure at_end_of_file
+   end interface
+
+   public    read_realvec_quantity_
+   interface read_realvec_quantity_
+      module procedure read_realvec_quantity
+   end interface
+
+   public    put_opvector_
+   interface put_opvector_
+      module procedure put_opvector
+   end interface
+
+   public    read_line_
+   interface read_line_
+      module procedure read_line
+   end interface
+
+   public    dash_
+   interface dash_
+      module procedure dash
+   end interface
+
+   private    format_for_bit_string_
+   interface format_for_bit_string_
+      module procedure format_for_bit_string
+   end interface
+
+   public    buffer_string_
+   interface buffer_string_
+      module procedure buffer_string
+   end interface
+
+   public    previous_line_item_
+   interface previous_line_item_
+      module procedure previous_line_item
+   end interface
+
+   public    look_for_
+   interface look_for_
+      module procedure look_for
+   end interface
+
+   public    read_cpxvec_ptr_
+   interface read_cpxvec_ptr_
+      module procedure read_cpxvec_ptr
+   end interface
+
+   public    next_item_
+   interface next_item_
+      module procedure next_item
+   end interface
+
+   public    process_keyword_
+   interface process_keyword_
+      module procedure process_keyword
+   end interface
+
+   public    show_bin_
+   interface show_bin_
+      module procedure show_bin
+   end interface
+
+   public    show_real_3_
+   interface show_real_3_
+      module procedure show_real_3
+   end interface
+
+   private    put_strvec_by_column_
+   interface put_strvec_by_column_
+      module procedure put_strvec_by_column
+   end interface
+
+   private    number_lines_col_
+   interface number_lines_col_
+      module procedure number_lines_col
+   end interface
+
+   private    move_to_end_external_
+   interface move_to_end_external_
+      module procedure move_to_end_external
+   end interface
+
+   public    read_binvec_
+   interface read_binvec_
+      module procedure read_binvec
+   end interface
+
+   public    list_list_length_
+   interface list_list_length_
+      module procedure list_list_length
+   end interface
+
+   public    put_formatted_mat_
+   interface put_formatted_mat_
+      module procedure put_formatted_mat
+   end interface
+
+   public    set_comment_chars_
+   interface set_comment_chars_
+      module procedure set_comment_chars
+   end interface
+
+   public    exists_
+   interface exists_
+      module procedure exists
+   end interface
+
+   private    put_intmat_by_row_
+   interface put_intmat_by_row_
+      module procedure put_intmat_by_row
+   end interface
+
+   public    create_stdin_
+   interface create_stdin_
+      module procedure create_stdin
+   end interface
+
+   private    move_to_record_internal_
+   interface move_to_record_internal_
+      module procedure move_to_record_internal
+   end interface
+
+   public    set_quote_chars_
+   interface set_quote_chars_
+      module procedure set_quote_chars
+   end interface
+
+   public    show_str_
+   interface show_str_
+      module procedure show_str
+   end interface
+
+   public    put_cpx_
+   interface put_cpx_
+      module procedure put_cpx
+   end interface
+
+   public    read_realvec_quantity_ptr_
+   interface read_realvec_quantity_ptr_
+      module procedure read_realvec_quantity_ptr
+   end interface
+
+   public    get_next_item_
+   interface get_next_item_
+      module procedure get_next_item
+   end interface
+
+   private    open_old_file_for_write_
+   interface open_old_file_for_write_
+      module procedure open_old_file_for_write
+   end interface
+
+   private    update_system_info_
+   interface update_system_info_
+      module procedure update_system_info
+   end interface
+
+   public    put_intvecvec_
+   interface put_intvecvec_
+      module procedure put_intvecvec
+   end interface
+
+   private    put_strvec_by_row_
+   interface put_strvec_by_row_
+      module procedure put_strvec_by_row
+   end interface
+
+   public    put_int_
+   interface put_int_
+      module procedure put_int
+   end interface
+
+   public    put_realmat3_
+   interface put_realmat3_
+      module procedure put_realmat3
+   end interface
+
+   private    put_realmat_by_row_
+   interface put_realmat_by_row_
+      module procedure put_realmat_by_row
+   end interface
+
+   public    put_intvec_
+   interface put_intvec_
+      module procedure put_intvec
+   end interface
+
+   public    put_realmat4_
+   interface put_realmat4_
+      module procedure put_realmat4
+   end interface
+
+   private    put_realvec_by_column_
+   interface put_realvec_by_column_
+      module procedure put_realvec_by_column
+   end interface
+
+   public    end_of_file_
+   interface end_of_file_
+      module procedure end_of_file
+   end interface
+
+   public    read_cadpac_mat_
+   interface read_cadpac_mat_
+      module procedure read_cadpac_mat
+   end interface
+
+   private    put_intvec_by_row_
+   interface put_intvec_by_row_
+      module procedure put_intvec_by_row
+   end interface
+
+   private    put_intvec_by_column_
+   interface put_intvec_by_column_
+      module procedure put_intvec_by_column
+   end interface
+
+   public    move_to_previous_item_
+   interface move_to_previous_item_
+      module procedure move_to_previous_item
+   end interface
+
+   public    read_realmat3_
+   interface read_realmat3_
+      module procedure read_realmat3
+   end interface
+
+   public    put_bit_string_
+   interface put_bit_string_
+      module procedure put_bit_string
+   end interface
+

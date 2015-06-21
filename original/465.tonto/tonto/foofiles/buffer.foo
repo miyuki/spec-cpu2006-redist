@@ -1,0 +1,521 @@
+!-----------------------------------------------------------------------------
+!
+!  BUFFER : operations on a string buffer ...
+!
+!  Synopsis
+!
+!  A BUFFER consists of a string (string), a pair of cursor positions
+!  (item_start, item_end), an item counter (item_index), the number of items
+!  in the buffer (n_items), a logical switch which indicates whether the
+!  buffer has been analysed (analysed), and a variable indicating which
+!  characters are to be regarded as initiating a comment (comment_chars).
+!
+!  Methods are divided into two types -- "put" operations and "get" operations.
+!  The former involving placing value type variables, strings, integers, real's,
+!  into the buffer, with or without formatting. The "get" operations involving
+!  extracting value type variables from the string buffer.
+!
+!  There are also methods for moving around the buffer, including skipping
+!  forwards or backwards, either by item or by character.
+!
+!  Notes
+!
+!  The buffer string is of length BSTR_SIZE. Problems will occur if you want
+!  to analyse strings larger than this. The maximum size of any item is
+!  STR_SIZE.
+!
+! Copyright (C) Dylan Jayatilaka, 1998
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: buffer.foo,v 1.12.2.3 2003/05/29 03:37:15 reaper Exp $
+!-----------------------------------------------------------------------------
+
+module BUFFER
+
+   implicit none
+
+   interface get
+      get_item, get_bin, get_int
+      get_real, get_formatted_real, get_imprecise_real
+      get_cpx
+   end
+
+   interface put
+      put_str, put_formatted_str, put_formatted_bin, put_formatted_int
+      put_formatted_real, put_formatted_cpx
+   end
+
+contains
+
+!  *************************
+!  Initialisation operations
+!  *************************
+
+   create(string,comment_chars,quote_chars)
+   ! Create a buffer and initialize it
+      self :: PTR
+      string,comment_chars,quote_chars :: STR(*), optional
+      nullify(self)
+      allocate(self)
+      ADD_MEMORY(BUFFER_SIZE)
+      .set(string,comment_chars,quote_chars)
+   end
+
+   destroy
+   ! Destroy a buffer
+      self :: PTR
+      if (.destroyed) return
+      DELETE_MEMORY(BUFFER_SIZE)
+      deallocate(self)
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   create_copy(b)
+   ! Copy a buffer "b"
+      self :: PTR
+       b :: BUFFER
+      .create
+      .copy(b)
+   end
+
+   copy(b)
+   ! Copy a buffer "b"
+      b :: BUFFER
+      self = b
+   end
+
+   set(string,comment_chars,quote_chars,eliminate_specials)
+   ! Set the buffer .string to "string", analyse it, and initialize the
+   ! counters. You can set the "comment_chars" used to define the end of a
+   ! parsable line, the allowed "quote_chars" used to defined a quoted item, and
+   ! you can define whether to "eliminate_special" unreadable characters.
+      string,comment_chars,quote_chars :: STR(*), IN, optional
+      eliminate_specials :: BIN, IN, optional
+      .set_defaults
+      if (present(string))        .string = string
+      if (present(comment_chars)) .comment_chars = comment_chars
+      if (present(quote_chars))   .quote_chars   = quote_chars
+      if (present(eliminate_specials)) .eliminate_special_chars
+      .analyse
+   end
+
+   set_defaults
+   ! Set default values
+      .string = " "
+      .item_start = 0
+      .item_end   = 0
+      .item_index = 0
+      .n_items = 0
+      .analysed = FALSE
+      .comment_chars = BUFFER_COMMENT_CHARS
+      .quote_chars   = BUFFER_QUOTE_CHARS
+   end
+
+   clear
+   ! Clear the buffer string and reset the counters
+      .set
+   end
+
+   analyse
+   ! Analyse the buffer string and process it into items
+      end,f,l :: INT
+      item :: BSTR
+      end = 0
+      .n_items = 0
+      do
+         item = " "
+         .string(end+1:).get_next_item(item,f,l,.comment_chars,.quote_chars)
+         if (item==" ") exit
+         end = end+l+1
+         .n_items = .n_items+1
+         if (end>BSTR_SIZE) exit
+      end
+      .analysed = TRUE
+   end
+
+   eliminate_special_chars
+   ! Remove any special characters from the buffer .string, by setting them to
+   ! the blank character. Useful for getting rid of control characters in funny
+   ! files from other crazy operating systems (read DOS).
+      letters :: STR(52) = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+      symbols :: STR(41) = "1234567890-=;',./`~!@#$%^&*()_+{}|:""<>?"
+      allowed :: STR(97)
+      i,k :: INT
+      allowed = letters//symbols//achar(91)//achar(92)//achar(93)
+      do i = 1,len_trim(.string)
+         k = verify(.string(i:i),set=allowed)
+         if (k==0) cycle
+         .string(i:i) = " "
+      end
+   end
+
+!  ************************
+!  Get operations on buffer
+!  ************************
+
+   get_item(item)
+   ! Get the next item in the buffer string as a str and increment
+   ! the cursor
+      item :: STR
+      bitem :: BSTR
+      f,l :: INT
+   ENSURE(.analysed,"buffer not analysed")
+      item = " "
+      if (NOT .exhausted) then
+         bitem = " "
+         .string(.item_end+1:).get_next_item(bitem,f,l,.comment_chars,.quote_chars)
+         item        = adjustl(bitem)
+         .item_start = .item_end + f
+         .item_end   = .item_end + l
+         .item_index = .item_index + 1
+      end
+   end
+
+   skip_item
+   ! Skip the next item in the buffer string, if there is one to skip.
+      bitem :: BSTR
+      f,l :: INT
+   ENSURE(.analysed,"buffer not analysed")
+      bitem = " "
+      if (NOT .exhausted) then
+         .string(.item_end+1:).get_next_item(bitem,f,l,.comment_chars,.quote_chars)
+         .item_start = .item_end + f
+         .item_end   = .item_end + l
+         .item_index = .item_index + 1
+      end
+   end
+
+   move_to_item(number)
+   ! Move the cursor over to the *start* of item "number" (actually, it is moved
+   ! to after the end of the previous item).
+      number :: INT
+      item :: INT
+   ENSURE(.analysed,"buffer not analysed")
+   ENSURE(number<=.n_items+1,"not enough items")
+   ENSURE(number>=1,"cannot move to items less than 1")
+      .item_start = 0
+      .item_end   = 0
+      .item_index = 0
+      do item=1,(number-1)
+         .skip_item
+      end
+   end
+
+   get_str(value)
+   ! Get the next item in the buffer string as a str
+      value :: STR
+      .get_item(value)
+   end
+
+   get_bin(value)
+   ! Get the next item in the buffer string as a logical
+      value :: BIN
+      item :: STR
+      .get_item(item)
+   ENSURE(item.is_bin, "expected logical in input")
+      value = item.to_bin
+   end
+
+   get_int(value)
+   ! Get the next item in the buffer string as an integer number
+      value :: INT
+      item :: STR
+      .get_item(item)
+   ENSURE( item.is_int, "expected integer in input")
+      value = item.to_int
+   end
+
+   get_real(value)
+   ! Get the next item in the buffer string as a real number
+      value :: REAL
+      item :: STR
+      .get_item(item)
+      ENSURE( item.is_real, "expected real number in input")
+      value = item.to_real
+   end
+
+   get_cpx(value)
+   ! Get the next item in the buffer string as a cpx number
+      value :: CPX
+      item,item2 :: STR
+      .get_item(item)
+      item2 = " "
+      if (NOT item.is_cpx) .get_item(item2) ! Try two real numbers
+      item = trim(item)//" "//trim(item2)
+   ENSURE( item.is_cpx, "expected complex number in input")
+      value = item.to_cpx
+   end
+
+   get_formatted_real(value,format)
+   ! Get a real "value" into the buffer string using fortran format string
+   ! "format", and increment the cursor.
+      value :: REAL
+      format :: STR(*), IN
+      first,last,width :: INT
+      first = format.scan("FfEeDd") + 1
+      last = format.scan(".") - 1
+      read(format(first:last),*) width
+      read( .string(.item_end+1:.item_end+1+width), format) value
+      .item_end = .item_end + width
+      .item_index = .item_index + 1
+   end
+
+   get_imprecise_real(value,error)
+   ! Get the next item in the buffer string as a real number "value" with a
+   ! quoted "error" in parentheses immediately afterwards. If the error is not
+   ! present in the string it is assumed to be zero. This only works for "f"
+   ! numbers.
+      value,error :: REAL
+      item :: STR
+      .get_item(item)
+      ENSURE(item.is_real OR item.is_imprecise_real, "expected imprecise REAL in input")
+      item.to_imprecise_real(value,error)
+   end
+
+!  ************************
+!  Put operations on buffer
+!  ************************
+
+   move_cursor(skip)
+   ! Move the cursor "skip" characters in the buffer string
+      skip :: INT
+      .item_end = .item_end + skip
+   ENSURE(.item_end<=BSTR_SIZE,"cursor beyond buffer end")
+   end
+
+   put_str(string)
+   ! Put "string" into the buffer string *after* the current position and
+   ! increment the cursor
+      string :: STR(*)
+       l :: INT
+   ENSURE(.item_end+len(string)<=BSTR_SIZE,"cursor beyond buffer end")
+      l = len(string)
+      .string(.item_end+1:.item_end+l) = string
+      .move_cursor(l)
+      .analysed = FALSE
+   end
+
+   put_formatted_str(value,format)
+   ! Put a string "value" into the buffer string using fortran format string
+   ! "format", and increment the cursor.
+      value :: STR(*)
+      format :: STR(*)
+      string :: STR
+      string = " "
+      write(string,"("//trim(format)//")") value
+      .put_str(trim(string))
+      .analysed = FALSE
+   end
+
+   put_formatted_bin(value,format)
+   ! Put a logical "value" into the buffer string using fortran format string
+   ! "format", and increment the cursor.
+      value :: BIN
+      format :: STR(*)
+      string :: STR
+      write(string,"("//trim(format)//")") value
+      .put_str(trim(string))
+      .analysed = FALSE
+   end
+
+   put_formatted_int(value,format)
+   ! Put an integer "value" into the buffer string using fortran format string
+   ! "format", and increment the cursor.
+      value :: INT
+      format :: STR(*)
+      string :: STR
+      write(string,"("//trim(format)//")") value
+      .put_str(trim(string))
+      .analysed = FALSE
+   end
+
+   put_formatted_real(value,format)
+   ! Put a real "value" into the buffer string using fortran format string
+   ! "format", and increment the cursor.
+      value :: REAL
+      format :: STR(*)
+      string :: STR
+      write(string,"("//trim(format)//")") value
+      .put_str(trim(string))
+      .analysed = FALSE
+   end
+
+   put_formatted_cpx(value,format)
+   ! Put a cpx "value" into the buffer string using fortran format string
+   ! "format", and increment the cursor.
+      value :: CPX
+    !  r,i :: REAL
+      format :: STR(*)
+      string :: STR
+    ! rstr,istr,sn :: STR
+    ! r = real(value)
+    ! i = aimag(value)
+    ! write(rstr,"("//trim(format)//")") real(value)
+    ! write(istr,"("//trim(format)//")") aimag(value)
+      write(string,"("//"2"//trim(format)//")") value
+    ! DIE_IF(sign(r)<1 AND rstr(2:2)/=" ","cannot convert "//r.to_str.trim//" to cmplx")
+    ! DIE_IF(rstr(1:1)/=" ","cannot convert "//r.to_str.trim//" to cmplx")
+    ! DIE_IF(sign(i)<1 AND istr(2:2)/=" ","cannot convert "//i.to_str.trim//" to cmplx")
+    ! DIE_IF(istr(1:1)/=" ","cannot convert "//i.to_str.trim//" to cmplx")
+    ! if (sign(r)<1) sn = "-"
+    ! string = adjustr("("//trim(sn)//
+      .put_str(trim(string))
+      .analysed = FALSE
+   end
+
+!  ***************
+!  Inquiry methods
+!  ***************
+
+!   next_item_index result(res)
+!   ! Return the number of the item which the cursor lies *before*,
+!   ! i.e. the next item to be processed.
+!      res :: INT
+!      res = .item_index+1 !
+!   end
+
+   next_item_number result(res)
+   ! Return the number of the item which the cursor lies *before*,
+   ! i.e. the next item to be processed.
+      res :: INT
+      res = .item_index+1 !
+   end
+
+   next_item result(res)
+   ! Return the actual item which the cursor lies *before*, i.e. the next
+   ! item to be processed. The cursor is positioned after the end of this
+   ! item when the routine concludes.
+      res :: STR
+      .get_item(res)
+   end
+
+   previous_item result(res)
+   ! Return the item which the cursor lies *after*, i.e. the previous item
+   ! to be processed. The cursor remains unchanged after this routine.
+      res :: STR
+      if (.item_start>0) then
+         res = .string(.item_start:.item_end)
+      else
+         res = " "
+      end
+   end
+
+   all_items result (res)
+   ! Return all items as a vector
+      res :: STRVEC(.n_items)
+      n :: INT
+   ENSURE(.analysed,"must be analysed first")
+   ENSURE(.n_items>=1,"must have at least one item")
+      .move_to_item(1)
+      do n = 1,.n_items
+         .get_item(res(n))
+      end
+   end
+
+   all_remaining_items result (res)
+   ! Return all remaining items in the buffer as a vector
+      res :: STRVEC(.n_items-.item_index)
+      n,i :: INT
+   ENSURE(.analysed,"must be analysed first")
+   ENSURE(.n_items-.item_index>=0,"must have some remaining items")
+      .skip_item
+      i = 0
+      do n = 1,.n_items-.item_index
+         i = i + 1
+         .get_item(res(i))
+      end
+   end
+
+   n_items result(res)
+   ! Return the number of items in the buffer string
+      res :: INT
+      if (NOT .analysed) .analyse
+      res = .n_items
+   end
+
+   buffer_string result(res)
+   ! Return the buffer string, less any blank spaces at the end
+      res :: BSTR
+      res = " "
+      res = .string(1:max(len_trim(.string),1))
+   end
+
+   cursor_pointer result(res)
+   ! Return a string of the form "----^" which is a pictorial representation
+   ! of where the cursor position lies
+      res :: BSTR
+      res = " "
+      res = repeat("-",.item_end-1)//"^"
+   end
+
+   analysed result(res)
+   ! Return true if the buffer string has been analysed
+      res :: BIN
+      res = .analysed
+   end
+
+   exhausted result(res)
+   ! Return true if there are no more items in the buffer string that could be
+   ! extracted
+      res :: BIN
+      res = (.n_items == 0) OR (.item_index >= .n_items)
+   end
+
+   not_exhausted result(res)
+   ! Return true if there are more items in the buffer string that could be
+   ! extracted
+      res :: BIN
+      res = NOT .exhausted
+   end
+
+   empty result(res)
+   ! Return true if the buffer string contains no items
+      res :: BIN
+      res = .n_items==0
+   end
+
+   includes(item) result (res)
+   ! Return TRUE if the buffer contains "item" as a separate entity
+     item :: STR(*)
+     res :: BIN
+     word :: STR
+     .move_to_item(1)
+     res = FALSE
+     item_search: do
+        .get_str(word)
+        if (word==item) then
+           res = TRUE
+           exit item_search
+        end
+        if (.exhausted) exit
+     end do item_search
+   end
+
+end

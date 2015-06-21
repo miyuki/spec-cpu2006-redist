@@ -1,0 +1,596 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>The TONTO input file: technical specification</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="The problem of unnecessary recompilation of Fortran90 modules"
+HREF="module-recompilation.html"><LINK
+REL="NEXT"
+TITLE="The input file: KEYWORD and
+DATA"
+HREF="input-data.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="CHAPTER"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="module-recompilation.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="input-data.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="TECH-INPUT"
+></A
+>The TONTO input file: technical specification</H1
+><P
+ALIGN="justify"
+>The TONTO input file serves the dual purpose of being a database style
+specification, and a command language interface.</P
+><P
+ALIGN="justify"
+>The input file itself is a sequence of characters written in a certain
+way, according to certain <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>grammar rules</I
+></SPAN
+>.  In order to
+explain these grammar rules, a Backus-Naur notation is first introduced. The
+specification is given in this notation.</P
+><P
+ALIGN="justify"
+>Programmers who write new modules should stick to the input format
+described</P
+><P
+ALIGN="justify"
+>The ideas for the input file described here are similar to the STAR (Self
+defining Text Archive) format already used and standardised in crystallographic
+databases.</P
+><P
+ALIGN="justify"
+>It is extremely important to have a well defined but flexible way to
+write input files, in order to facilitate data deposition and database
+construction.  Mining of databases for critical information will be a
+significant way in which future scientific research will be conducted.</P
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="INPUT-RULES"
+></A
+>Rules to explain the rules for writing input file</H1
+><P
+ALIGN="justify"
+>An input file is made up of a sequence of <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>grammar
+elements</I
+></SPAN
+>.  Grammar elements are represented in uppercase type-font,
+possibly followed by a comma separated list of other grammar elements all
+surrounded by round brackets, <TT
+CLASS="LITERAL"
+>LIKE-THIS</TT
+>, or
+<TT
+CLASS="LITERAL"
+>THIS(2,3)</TT
+>, or <TT
+CLASS="LITERAL"
+>EVEN(LIKE,THIS)</TT
+>.  A grammar
+element does not stand for itself, literally, but for a specific sequence of
+characters. The exact sequence of characters is given after an arrow symbol.
+Thus:
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>ZERO     -&#62; 0
+GREETING -&#62; hi 
+MY-NAME  -&#62; dylan</PRE
+></TD
+></TR
+></TABLE
+>
+means that the grammar element <TT
+CLASS="LITERAL"
+>ZERO</TT
+> stands for the digit
+<TT
+CLASS="LITERAL"
+>0</TT
+>, while grammar elements <TT
+CLASS="LITERAL"
+>GREETING</TT
+> and
+<TT
+CLASS="LITERAL"
+>MY-NAME</TT
+> stand for the characters <TT
+CLASS="LITERAL"
+>hi</TT
+> and
+<TT
+CLASS="LITERAL"
+>dylan</TT
+>, respectively.  Here, <TT
+CLASS="LITERAL"
+>0</TT
+> and
+<TT
+CLASS="LITERAL"
+>hi</TT
+> and <TT
+CLASS="LITERAL"
+>dylan</TT
+> stand literally for
+themselves, and not any other group of characters. Except for the special
+characters discussed below, literal text will be always represented in
+lowercase.</P
+><P
+ALIGN="justify"
+>Although it is possible to use uppercase characters in an input file, we
+shall not do so here to avoid confusion with the uppercase grammar element
+symbols. Uppercase characters in the input file are equivalent to lower case
+characters, unless surrounded by a double quote characters. </P
+><P
+ALIGN="justify"
+>Grammar elements can be composed of a number of alternatives.  The
+different possibilities are separated by a <TT
+CLASS="LITERAL"
+>|</TT
+> symbol. Thus:
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>POSITIVE-DIGITS -&#62; 1|2|3|4|5|6|7|8|9</PRE
+></TD
+></TR
+></TABLE
+>
+represents all the symbols <TT
+CLASS="LITERAL"
+>1</TT
+> to <TT
+CLASS="LITERAL"
+>9</TT
+>,
+inclusive. </P
+><P
+ALIGN="justify"
+>Sometimes, to save typing, we will use the ellipsis,
+<TT
+CLASS="LITERAL"
+>...</TT
+>, to indicate an obvious range of characters. For example,
+in the previous example, we might type
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>POSITIVE-DIGITS -&#62; 1| ... |9</PRE
+></TD
+></TR
+></TABLE
+></P
+><P
+ALIGN="justify"
+>Grammar elements can be composed of concatenations of characters.  The
+characters to be concatenated are enclosed by curly brackets,
+<TT
+CLASS="LITERAL"
+>&lcub;</TT
+> and <TT
+CLASS="LITERAL"
+>&rcub;</TT
+> and are followed
+immediately by a descriptor. Thus:
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>MANY-X -&#62; &lcub;x&rcub;*</PRE
+></TD
+></TR
+></TABLE
+>
+stands for any number of the letter <TT
+CLASS="LITERAL"
+>x</TT
+> concatenated together,
+including none at all. For example <TT
+CLASS="LITERAL"
+>MANY-X</TT
+> represents
+<TT
+CLASS="LITERAL"
+>xxxxx</TT
+>.  Similarly
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>AT-LEAST-ONE-X -&#62; &lcub;x&rcub;+</PRE
+></TD
+></TR
+></TABLE
+>
+stands for <TT
+CLASS="LITERAL"
+>xxxxx</TT
+>, but it does not stand for zero
+<TT
+CLASS="LITERAL"
+>x</TT
+> characters.  Finally,
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>TRIPLE-X -&#62; &lcub;x&rcub;3</PRE
+></TD
+></TR
+></TABLE
+>
+stands for three <TT
+CLASS="LITERAL"
+>x</TT
+> characters in succession,
+<TT
+CLASS="LITERAL"
+>xxx</TT
+>. Note that a curly bracket which is not matched, or not
+followed by a descriptor just stands for itself. (Sorry about the confusion, we
+should really be using a different font for these syntax elements).</P
+><P
+ALIGN="justify"
+>Grammar elements can be composed of optional strings of characters.  The
+optional characters are enclosed in square brackets <TT
+CLASS="LITERAL"
+>[</TT
+> and
+<TT
+CLASS="LITERAL"
+>]</TT
+>.  Thus
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>TO-BE -&#62; to be [or not to be]</PRE
+></TD
+></TR
+></TABLE
+>
+says that <TT
+CLASS="LITERAL"
+>TO-BE</TT
+> stands either for <TT
+CLASS="LITERAL"
+>to be</TT
+>,
+or <TT
+CLASS="LITERAL"
+>to be or not to be</TT
+>.</P
+><P
+ALIGN="justify"
+>Grammar elements can be composed of other grammar elements, like this:
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>SELF-GREETING -&#62; GREETING MY-NAME</PRE
+></TD
+></TR
+></TABLE
+>
+Note that blank spaces are always significant. The blank spaces before
+<TT
+CLASS="LITERAL"
+>GREETING</TT
+>, between <TT
+CLASS="LITERAL"
+>GREETING</TT
+> and
+<TT
+CLASS="LITERAL"
+>MY-NAME</TT
+>, and after <TT
+CLASS="LITERAL"
+>MY-NAME</TT
+> do not stand
+for themselves, literally, but it instead stand for
+<TT
+CLASS="LITERAL"
+>WHITESPACE</TT
+>.  <TT
+CLASS="LITERAL"
+>WHITESPACE</TT
+> is any combination
+of: blank spaces; end-of-line characters; or, comment characters
+(<TT
+CLASS="LITERAL"
+>!</TT
+>, and <TT
+CLASS="LITERAL"
+>#</TT
+>) and all the characters
+inclusive to the end of line.  Thus, <TT
+CLASS="LITERAL"
+>SELF-GREETING</TT
+> represents
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>   hi        dylan</PRE
+></TD
+></TR
+></TABLE
+>
+and also
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>hi 
+dylan</PRE
+></TD
+></TR
+></TABLE
+>
+and even
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>hi      ! this is a greeting
+dylan   ! this is my name</PRE
+></TD
+></TR
+></TABLE
+>
+In the above, the characters following the exclamation mark are treated as
+<TT
+CLASS="LITERAL"
+>WHITESPACE</TT
+>, and hence ignored, because the exclamation mark
+is a comment character. Since <TT
+CLASS="LITERAL"
+>WHITESPACE</TT
+> is quite
+complicated, but effectively just means a blank character or its equivalents, we
+represent it just as a blank character, for simplicity. The proper definition of
+it is:
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>WHITESPACE      -&#62; &lcub;WHITESPACE-CHAR&rcub;+
+WHITESPACE-CHAR -&#62; BLANK-CHAR |END-OF-LINE-CHAR | COMMENT
+COMMENT         -&#62; COMMENT-CHAR &lcub;^END-OF-LINE-CHAR&rcub;* END-OF-LINE-CHAR
+COMMENT-CHAR    -&#62; !|#</PRE
+></TD
+></TR
+></TABLE
+>
+In the above, the symbol <TT
+CLASS="LITERAL"
+>^END-OF-LINE</TT
+> represents any
+character which is not the <TT
+CLASS="LITERAL"
+>END-OF-LINE-CHAR</TT
+> character.
+<TT
+CLASS="LITERAL"
+>BLANK-CHAR</TT
+> is, of course the blank character, which we have
+to represent by <TT
+CLASS="LITERAL"
+>BLANK-CHAR</TT
+>, since we have agreed a literal
+blank character means <TT
+CLASS="LITERAL"
+>WHITESPACE</TT
+>.  The default
+<TT
+CLASS="LITERAL"
+>COMMENT-CHAR</TT
+> characters shown above are defined in the
+<TT
+CLASS="LITERAL"
+>macros</TT
+> file in a variable <TT
+CLASS="LITERAL"
+>COMMENT-CHARS</TT
+>,
+and they may be changed when the program is compiled.</P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="module-recompilation.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="input-data.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>The problem of unnecessary recompilation of Fortran90 modules</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>The input file: <TT
+CLASS="LITERAL"
+>KEYWORD</TT
+> and
+<TT
+CLASS="LITERAL"
+>DATA</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

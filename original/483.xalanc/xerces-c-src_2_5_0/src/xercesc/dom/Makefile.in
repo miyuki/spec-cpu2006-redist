@@ -1,0 +1,176 @@
+#
+# The Apache Software License, Version 1.1
+#
+# Copyright (c) 2001-2002 The Apache Software Foundation.  All rights
+# reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1. Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright
+#    notice, this list of conditions and the following disclaimer in
+#    the documentation and/or other materials provided with the
+#    distribution.
+#
+# 3. The end-user documentation included with the redistribution,
+#    if any, must include the following acknowledgment:
+#       "This product includes software developed by the
+#        Apache Software Foundation (http://www.apache.org/)."
+#    Alternately, this acknowledgment may appear in the software itself,
+#    if and wherever such third-party acknowledgments normally appear.
+#
+# 4. The names "Xerces" and "Apache Software Foundation" must
+#    not be used to endorse or promote products derived from this
+#    software without prior written permission. For written
+#    permission, please contact apache\@apache.org.
+#
+# 5. Products derived from this software may not be called "Apache",
+#    nor may "Apache" appear in their name, without prior written
+#    permission of the Apache Software Foundation.
+#
+# THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
+# WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+# OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR
+# ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+# USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+# OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+# SUCH DAMAGE.
+# ====================================================================
+#
+# This software consists of voluntary contributions made by many
+# individuals on behalf of the Apache Software Foundation, and was
+# originally based on software copyright (c) 2001, International
+# Business Machines, Inc., http://www.ibm.com .  For more information
+# on the Apache Software Foundation, please see
+# <http://www.apache.org/>.
+#
+#
+# $Id: Makefile.in,v 1.15 2003/08/20 11:31:22 gareth Exp $
+#
+
+PLATFORM = @platform@
+CC  = @cc@
+CXX = @cxx@
+GCC = @GCC@
+GXX = @GXX@
+CXXFLAGS = @cxxflags@
+CFLAGS = @cflags@
+PREFIX = @prefix@
+PREFIX_INCLUDE = @prefix_include@
+LDFLAGS = @ldflags@
+LIBS = @libs@
+OSVER = @osver@
+USELIBWWW = @uselibwww@
+MESSAGELOADER = @messageloader@
+TRANSCODER = @transcoder@
+THREADS = @threads@
+
+MODULE = dom
+
+include ../Makefile.incl
+
+DOM_CPP_PUBHEADERS = \
+	DOM.hpp \
+	DOMAttr.hpp \
+	DOMBuilder.hpp \
+	DOMCDATASection.hpp \
+	DOMCharacterData.hpp \
+	DOMComment.hpp \
+  DOMConfiguration.hpp \
+	DOMDocument.hpp \
+	DOMDocumentRange.hpp \
+	DOMDocumentTraversal.hpp \
+	DOMDocumentFragment.hpp \
+	DOMDocumentType.hpp \
+	DOMElement.hpp \
+	DOMEntity.hpp \
+	DOMEntityReference.hpp \
+	DOMEntityResolver.hpp \
+	DOMError.hpp \
+	DOMErrorHandler.hpp \
+	DOMException.hpp \
+	DOMImplementation.hpp \
+	DOMImplementationLS.hpp \
+	DOMImplementationRegistry.hpp \
+	DOMImplementationSource.hpp \
+	DOMInputSource.hpp \
+	DOMLocator.hpp \
+	DOMNamedNodeMap.hpp \
+	DOMNode.hpp \
+	DOMNodeFilter.hpp \
+	DOMNodeIterator.hpp \
+	DOMNodeList.hpp \
+	DOMNotation.hpp \
+	DOMProcessingInstruction.hpp \
+	DOMRange.hpp \
+	DOMRangeException.hpp \
+	DOMText.hpp \
+	DOMTreeWalker.hpp \
+	DOMTypeInfo.hpp \
+	DOMUserDataHandler.hpp \
+	DOMWriter.hpp \
+	DOMWriterFilter.hpp \
+	StDOMNode.hpp \
+	DOMXPathNamespace.hpp \
+	DOMXPathNSResolver.hpp \
+	DOMXPathResult.hpp \
+	DOMXPathEvaluator.hpp \
+	DOMXPathException.hpp \
+	DOMXPathExpression.hpp 
+
+DOM_CPP_PRIVHEADERS =
+
+DOM_C_FILES =
+
+DOM_CPP_OBJECTS = \
+	DOMException.$(TO) \
+	DOMRangeException.$(TO) \
+	DOMXPathException.$(TO) 
+
+all::	includes $(DOM_CPP_OBJECTS) impl deprecated
+
+includes:: pubheaders $(DOM_C_FILES)
+	${MAKE} -C impl $@
+	${MAKE} -C deprecated $@
+
+impl::
+	${MAKE} -C impl
+
+deprecated::
+	${MAKE} -C deprecated
+
+pubheaders::
+	-mkdir -p $(XML_INC_DIR)/$(MODULE)
+	$(CP) $(DOM_CPP_PUBHEADERS) $(DOM_C_FILES) $(XML_INC_DIR)/$(MODULE)
+
+# this may generate unnecessary dependencies, but it makes life easier
+depend:: includes
+	$(MAKE_DEPEND) $(XML_INCL)  *.cpp > $(DEPFILE)
+
+clean::
+	@echo "Making clean in $(MODULE) ..."
+	$(RM2) $(addprefix $(XML_OBJ_DIR)/,$(DOM_CPP_OBJECTS))
+	${MAKE} -C impl $@
+	${MAKE} -C deprecated $@
+
+distclean::	clean
+	$(RM) Makefile $(DEPFILE)
+	@echo "Removing all $(MODULE) header files ..."
+	$(RM2) $(addprefix $(XML_INC_DIR)/$(MODULE)/,$(DOM_CPP_PUBHEADERS))
+	${MAKE} -C impl $@
+	${MAKE} -C deprecated $@
+
+install::
+	-mkdir -p $(DESTDIR)$(PREFIX_INCLUDE)/$(MODULE)
+	$(CP) $(DOM_CPP_PUBHEADERS) $(DOM_C_FILES) $(DESTDIR)$(PREFIX_INCLUDE)/$(MODULE)
+	${MAKE} -C impl $@
+	${MAKE} -C deprecated $@

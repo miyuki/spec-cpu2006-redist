@@ -1,0 +1,10 @@
+FOPTNS   = $(FFAST)
+FFLAGS   = -cpp -module $(moddir) -I$(srcdir) -I$(moddir)
+FPROF    = -p -g3 -gen_feedback
+FDEBUG   = -g -ladebug -check bounds -check format -check overflow \
+           -error_limit 10 -warn argument_checking -warn declarations -std
+FFAST    = -g0 -O5 -arch host -align dcommons -assume noaccuracy_sensitive
+FSUFFIX  = f90
+
+LIBS     = -ldxml
+DEFS     = -DBROKEN_TYPE_INITIALIZATION -DUSE_PRE_AND_POST_CONDITIONS

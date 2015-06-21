@@ -1,0 +1,232 @@
+!---------------------------------------------------------------------------
+!
+! INTVEC3INTHASH :
+!
+! A hash table (or associative array) with INTVEC(3) keys and INT values.
+!
+! Copyright (C) Dylan Jayatilaka, 2002
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: intvec3inthash.foo,v 1.2 2003/02/19 07:48:57 reaper Exp $
+!---------------------------------------------------------------------------
+
+module INTVEC3INTHASH
+
+   implicit none
+
+contains
+
+   create
+   ! Create the hash object.
+      self :: PTR
+      allocate(self)
+      ADD_MEMORY(SELF_TYPE_SIZE)
+      .nullify_ptr_part
+      .set_defaults
+   end
+
+   create(n_size)
+   ! Create the hash with key array and value array with length "n_size".
+      self :: PTR
+      n_size :: INT
+      .create
+      .n_keys = 0
+      .n_size = n_size
+      .keys.create(3,n_size)
+      .values.create(n_size)
+   end
+
+   destroy
+   ! Destroy the object.
+      self :: PTR
+      if (.destroyed) return
+      .destroy_ptr_part
+      DELETE_MEMORY(SELF_TYPE_SIZE)
+      deallocate(self)
+   end
+
+   nullify_ptr_part
+   ! Nullify the pointer parts
+     nullify(.keys)
+     nullify(.values)
+   end
+
+   destroy_ptr_part
+   ! Destroy the pointer parts
+      .keys.destroy
+      .values.destroy
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   set_defaults
+   ! Set defaults
+      .n_keys = 0
+      .n_size = 0
+   end
+
+   create_copy(hash) ::: leaky
+   ! Create a copy of "hash"
+      self :: PTR
+      hash :: SELF_TYPE
+      .create
+      .copy(hash)
+   end
+
+   copy(hash) ::: leaky
+   ! Make a "self" copy of "hash". 
+      hash :: SELF_TYPE
+      self = hash
+      .keys.create_copy(hash.keys)
+      .values.create_copy(hash.values)
+   end
+
+   shrink_keys ::: leaky
+   ! Shrinks the size of the keys and values arrays to dimension ".n_keys",
+   ! *only* when ".n_size" is bigger than the number of keys stored.  Contents
+   ! are retained. This is used to save memory.
+     if (.n_size<=.n_keys) return
+     .shrink_keys(.n_keys)
+   end
+
+   shrink_keys(n_size) ::: leaky
+   ! Shrinks the size of the keys and values arrays to dimension "n_size".
+   ! Contents are retained, where possible.
+     n_size :: INT, IN
+     .n_keys = min(.n_keys,n_size)
+     .n_size = n_size
+     .keys.shrink_columns(n_size)
+     .values.shrink(n_size)
+   end
+
+   expand_keys(n_size) ::: leaky
+   ! Expands the size of the keys and values arrays to dimension "n_size".
+   ! Contents are retained.
+     n_size :: INT, IN
+     old :: INTVECVEC*
+     old_size,i :: INT
+   ENSURE(n_size>.n_size,"keys is already big enough")
+     .n_size = n_size
+     if (.keys.destroyed) then; .keys.create(3,n_size)
+     else;                      .keys.expand_columns(n_size)
+     end
+     if (.values.destroyed) then; .values.create(n_size)
+     else;                        .values.expand(n_size)
+     end
+   end
+
+   append_pair(key,value) ::: leaky
+   ! Append the "key" and the corresponding "value" to the hash table.
+   ! If the .keys or .values arrays are too small, they are doubled in size.
+     key :: INTVEC, IN
+     value :: INT, IN
+     n :: INT
+   ENSURE(key.dim==3,"key must have dimension 3")
+     if (.n_keys+1>.n_size) .expand_keys(2*(.n_keys+1))
+     n = .n_keys + 1
+     .n_keys = n
+     .keys(:,n) = key
+     .values(n) = value
+   end
+
+   set(key,value) ::: leaky
+   ! Append the "key" and the corresponding "value" to the hash table.
+   ! If the .keys or .values arrays are too small, they are doubled in size.
+     key :: INTVEC, IN
+     value :: INT, IN
+     .append_pair(key,value)
+   end
+
+   append_pairs(keys,values) ::: leaky
+   ! Append the "keys" and the corresponding "values" to the hash table.
+   ! If the .keys or .values arrays are too small, they are doubled in size.
+     keys :: INTMAT, IN
+     values :: INTVEC, IN
+     new,f,l :: INT
+   ENSURE(keys.dim1==3,"keys must have 1st dimension 3")
+   ENSURE(keys.dim2==values.dim,"keys and values must have same length")
+     new = keys.dim2
+     if (.n_keys+new>.n_size) .expand_keys(2*(.n_keys+new))
+     f = .n_keys + 1
+     l = .n_keys + new
+     .n_keys = l
+     .keys(:,f:l) = keys
+     .values(f:l) = values
+   end
+
+   set(keys,values) ::: leaky
+   ! Append the "keys" and the corresponding "values" to the hash table.
+   ! If the .keys or .values arrays are too small, they are doubled in size.
+     keys :: INTMAT, IN
+     values :: INTVEC, IN
+   ENSURE(keys.dim1==3,"keys must have 1st dimension 3")
+   ENSURE(keys.dim2==values.dim,"keys and values must have same length")
+     .append_pairs(keys,values)
+   end
+
+   index_of_key(key) result (res)
+   ! Returns the index of any key which matches "key" in the hash. If there is
+   ! no match, then the result is 0.
+     key :: INTVEC, IN
+     res :: INT
+     i :: INT
+     ENSURE(key.dim==3,"key must have dimension 3")
+     res = 0
+     do i = 1,.n_keys
+        if (NOT key.same_as(.keys(:,i))) cycle
+        res = i
+        exit
+     end
+   end
+
+   has_key(key) result (res)
+   ! Returns TRUE if the hash contains a specific "key".
+   ! .index_of_key is set to 0.
+     key :: INTVEC, IN
+     res :: BIN
+   ENSURE(key.dim==3,"key must have dimension 3")
+     res = .index_of_key(key) > 0
+   end
+
+   value_for_key(key) result (res)
+   ! Returns the value corresponding to the hash "key". An error in generated if
+   ! no matching "key" can be found in the hash.
+     key :: INTVEC, IN
+     res :: INT
+     i :: INT
+   ENSURE(key.dim==3,"key must have dimension 3")
+     i = .index_of_key(key)
+     if (i>0) then
+        res = .values(i)
+     else
+        DIE("no value exists for key = "//trim(key.to_str))
+     end
+   end
+
+end

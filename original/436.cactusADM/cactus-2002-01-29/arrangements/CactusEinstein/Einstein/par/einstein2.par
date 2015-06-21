@@ -1,0 +1,39 @@
+# einstein2.par
+
+# Evolve single black hole with ADM, geodesic slicing and 
+# radition boundary conditions
+
+ActiveThorns = "Time CartGrid3D Boundary PUGH PUGHSlab PUGHReduce Einstein IDAnalyticBH ADM IOASCII IOUtil IOBasic"
+
+# Flesh parameters
+
+cactus::cctk_itlast = 78
+
+# 3D Grid parameters
+grid::type = "byspacing"
+grid::dx = 0.15
+grid::dy = 0.15
+grid::dz = 0.15
+grid::domain = "octant"
+
+# Driver parameters
+driver::global_nx = 20;
+driver::global_ny = 20;
+driver::global_nz = 20;
+
+# Einstein parameters
+einstein::initial_lapse    = "one"
+einstein::evolution_system = "ADM"
+einstein::initial_data     = "schwarzschild"
+einstein::slicing          = "geodesic"
+
+# ADM parameters
+adm::bound  = "radiative"
+adm::method = "stagleap"
+
+# IO parameters
+IO::outdir = "einstein2"
+IOASCII::out1D_vars = "einstein::grr einstein::alp"
+IOASCII::out1D_every = 2       
+IOBasic::outInfo_vars = "einstein::grr"
+IOBasic::outInfo_every = 5       

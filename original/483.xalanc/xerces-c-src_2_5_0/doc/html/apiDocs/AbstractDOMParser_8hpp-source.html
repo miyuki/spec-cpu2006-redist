@@ -1,0 +1,745 @@
+<HTML><HEAD><SCRIPT language="JavaScript" src="../resources/script.js" type="text/javascript"></SCRIPT><TITLE>AbstractDOMParser.hpp Source File</TITLE><link href="XercesApi.css" rel="stylesheet" type="text/css"></HEAD><BODY alink="#ff0000" bgcolor="#ffffff" leftmargin="4" link="#0000ff" marginheight="4" marginwidth="4" text="#000000" topmargin="4" vlink="#0000aa"><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" height="60" rowspan="3" valign="top" width="135"><IMG border="0" height="60" hspace="0" src="../resources/logo.gif" vspace="0" width="135"></TD><TD align="left" colspan="4" height="5" valign="top" width="456"><IMG border="0" height="5" hspace="0" src="../resources/line.gif" vspace="0" width="456"></TD><TD align="left" height="60" rowspan="3" valign="top" width="29"><IMG border="0" height="60" hspace="0" src="../resources/right.gif" vspace="0" width="29"></TD></TR><TR><TD align="left" bgcolor="#0086b2" colspan="4" height="35" valign="top" width="456"><IMG alt="" border="0" height="35" hspace="0" src="../graphics/api-header.jpg" vspace="0" width="456"></TD></TR><TR><TD align="left" height="20" valign="top" width="168"><IMG border="0" height="20" hspace="0" src="../resources/bottom.gif" vspace="0" width="168"></TD><TD align="left" height="20" valign="top" width="96"><A href="http://xml.apache.org/" onMouseOut="rolloverOff('xml');" onMouseOver="rolloverOn('xml');" target="new"><IMG alt="http://xml.apache.org/" border="0" height="20" hspace="0" name="xml" onLoad="rolloverLoad('xml','../resources/button-xml-hi.gif','../resources/button-xml-lo.gif');" src="../resources/button-xml-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.apache.org/" onMouseOut="rolloverOff('asf');" onMouseOver="rolloverOn('asf');" target="new"><IMG alt="http://www.apache.org/" border="0" height="20" hspace="0" name="asf" onLoad="rolloverLoad('asf','../resources/button-asf-hi.gif','../resources/button-asf-lo.gif');" src="../resources/button-asf-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.w3.org/" onMouseOut="rolloverOff('w3c');" onMouseOver="rolloverOn('w3c');" target="new"><IMG alt="http://www.w3.org/" border="0" height="20" hspace="0" name="w3c" onLoad="rolloverLoad('w3c','../resources/button-w3c-hi.gif','../resources/button-w3c-lo.gif');" src="../resources/button-w3c-lo.gif" vspace="0" width="96"></A></TD></TR></TABLE><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" valign="top" width="120"><IMG border="0" height="14" hspace="0" src="../resources/join.gif" vspace="0" width="120"><BR>
+  <A href="../../index.html" onMouseOut="rolloverOff('side-ext-2');" onMouseOver="rolloverOn('side-ext-2');"><IMG alt="Home" border="0" height="12" hspace="0" name="side-ext-2" onLoad="rolloverLoad('side-ext-2','../graphics/ext-2-label-2.jpg','../graphics/ext-2-label-3.jpg');" src="../graphics/ext-2-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../index.html" onMouseOut="rolloverOff('side-index');" onMouseOver="rolloverOn('side-index');"><IMG alt="Readme" border="0" height="12" hspace="0" name="side-index" onLoad="rolloverLoad('side-index','../graphics/index-label-2.jpg','../graphics/index-label-3.jpg');" src="../graphics/index-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../releases.html" onMouseOut="rolloverOff('side-releases');" onMouseOver="rolloverOn('side-releases');"><IMG alt="Release Info" border="0" height="12" hspace="0" name="side-releases" onLoad="rolloverLoad('side-releases','../graphics/releases-label-2.jpg','../graphics/releases-label-3.jpg');" src="../graphics/releases-label-3.jpg" vspace="0" width="120"></A><BR>
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../install.html" onMouseOut="rolloverOff('side-install');" onMouseOver="rolloverOn('side-install');"><IMG alt="Installation" border="0" height="12" hspace="0" name="side-install" onLoad="rolloverLoad('side-install','../graphics/install-label-2.jpg','../graphics/install-label-3.jpg');" src="../graphics/install-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://xml.apache.org/dist/xerces-c/" onMouseOut="rolloverOff('side-ext-18');" onMouseOver="rolloverOn('side-ext-18');"><IMG alt="Download" border="0" height="12" hspace="0" name="side-ext-18" onLoad="rolloverLoad('side-ext-18','../graphics/ext-18-label-2.jpg','../graphics/ext-18-label-3.jpg');" src="../graphics/ext-18-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../build.html" onMouseOut="rolloverOff('side-build');" onMouseOver="rolloverOn('side-build');"><IMG alt="Build" border="0" height="12" hspace="0" name="side-build" onLoad="rolloverLoad('side-build','../graphics/build-label-2.jpg','../graphics/build-label-3.jpg');" src="../graphics/build-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../faqs.html" onMouseOut="rolloverOff('side-faqs');" onMouseOver="rolloverOn('side-faqs');"><IMG alt="FAQs" border="0" height="12" hspace="0" name="side-faqs" onLoad="rolloverLoad('side-faqs','../graphics/faqs-label-2.jpg','../graphics/faqs-label-3.jpg');" src="../graphics/faqs-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../samples.html" onMouseOut="rolloverOff('side-samples');" onMouseOver="rolloverOn('side-samples');"><IMG alt="Samples" border="0" height="12" hspace="0" name="side-samples" onLoad="rolloverLoad('side-samples','../graphics/samples-label-2.jpg','../graphics/samples-label-3.jpg');" src="../graphics/samples-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../api.html" onMouseOut="rolloverOff('side-api');" onMouseOver="rolloverOn('side-api');"><IMG alt="API Docs" border="0" height="12" hspace="0" name="side-api" onLoad="rolloverLoad('side-api','../graphics/api-label-2.jpg','../graphics/api-label-3.jpg');" src="../graphics/api-label-3.jpg" vspace="0" width="120"></A><BR>  
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../ApacheDOMC++Binding.html" onMouseOut="rolloverOff('side-ext-64');" onMouseOver="rolloverOn('side-ext-64');"><IMG alt="DOM C++ Binding" border="0" height="12" hspace="0" name="side-ext-64" onLoad="rolloverLoad('side-ext-64','../graphics/ext-64-label-2.jpg','../graphics/ext-64-label-3.jpg');" src="../graphics/ext-64-label-3.jpg" vspace="0" width="120"></A><BR> 
+  <A href="../program.html" onMouseOut="rolloverOff('side-program');" onMouseOver="rolloverOn('side-program');"><IMG alt="Programming" border="0" height="12" hspace="0" name="side-program" onLoad="rolloverLoad('side-program','../graphics/program-label-2.jpg','../graphics/program-label-3.jpg');" src="../graphics/program-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../migrate.html" onMouseOut="rolloverOff('side-migrate');" onMouseOver="rolloverOn('side-migrate');"><IMG alt="Migration Guide" border="0" height="12" hspace="0" name="side-migrate" onLoad="rolloverLoad('side-migrate','../graphics/migrate-label-2.jpg','../graphics/migrate-label-3.jpg');" src="../graphics/migrate-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../feedback.html" onMouseOut="rolloverOff('side-feedback');" onMouseOver="rolloverOn('side-feedback');"><IMG alt="Feedback" border="0" height="12" hspace="0" name="side-feedback" onLoad="rolloverLoad('side-feedback','../graphics/feedback-label-2.jpg','../graphics/feedback-label-3.jpg');" src="../graphics/feedback-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../bug-report.html" onMouseOut="rolloverOff('side-bug-report');" onMouseOver="rolloverOn('side-bug-report');"><IMG alt="Bug-Reporting" border="0" height="12" hspace="0" name="side-bug-report" onLoad="rolloverLoad('side-bug-report','../graphics/bug-report-label-2.jpg','../graphics/bug-report-label-3.jpg');" src="../graphics/bug-report-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../pdf.html" onMouseOut="rolloverOff('side-pdf');" onMouseOver="rolloverOn('side-pdf');"><IMG alt="PDF Document" border="0" height="12" hspace="0" name="side-pdf" onLoad="rolloverLoad('side-pdf','../graphics/pdf-label-2.jpg','../graphics/pdf-label-3.jpg');" src="../graphics/pdf-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="http://xml.apache.org/websrc/cvsweb.cgi/xml-xerces/c/" onMouseOut="rolloverOff('side-ext-96');" onMouseOver="rolloverOn('side-ext-96');"><IMG alt="CVS Repository" border="0" height="12" hspace="0" name="side-ext-96" onLoad="rolloverLoad('side-ext-96','../graphics/ext-96-label-2.jpg','../graphics/ext-96-label-3.jpg');" src="../graphics/ext-96-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://marc.theaimsgroup.com/?l=xerces-c-dev" onMouseOut="rolloverOff('side-ext-98');" onMouseOver="rolloverOn('side-ext-98');"><IMG alt="Mail Archive" border="0" height="12" hspace="0" name="side-ext-98" onLoad="rolloverLoad('side-ext-98','../graphics/ext-98-label-2.jpg','../graphics/ext-98-label-3.jpg');" src="../graphics/ext-98-label-3.jpg" vspace="0" width="120"></A><BR>
+
+<IMG border="0" height="14" hspace="0" src="../resources/close.gif" vspace="0" width="120"><BR></TD><TD align="left" valign="top" width="500"><TABLE border="0" cellpadding="3" cellspacing="0"><TR><TD>
+    <TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#FFFFFF" colspan="2" width="494"><TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#039acc" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#039acc" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#039acc" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" width="492"><FONT color="#ffffff" face="arial,helvetica,sanserif" size="+1"><IMG border="0" height="2" hspace="0" src="../resources/void.gif" vspace="0" width="2"><B>API Docs for SAX and DOM</B></FONT></TD><TD bgcolor="#017299" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#017299" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#017299" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></TD></TR><TR><TD width="10">&nbsp;</TD><TD width="484"><FONT color="#000000" face="arial,helvetica,sanserif">
+
+	    <P>
+<!-- Generated by Doxygen 1.2.14 -->
+<center>
+<a class="qindex" href="index.html">Main Page</a> &nbsp; <a class="qindex" href="hierarchy.html">Class Hierarchy</a> &nbsp; <a class="qindex" href="classes.html">Alphabetical List</a> &nbsp; <a class="qindex" href="annotated.html">Compound List</a> &nbsp; <a class="qindex" href="files.html">File List</a> &nbsp; <a class="qindex" href="functions.html">Compound Members</a> &nbsp; <a class="qindex" href="globals.html">File Members</a> &nbsp; </center>
+<hr><h1>AbstractDOMParser.hpp</h1><a href="AbstractDOMParser_8hpp.html">Go to the documentation of this file.</a><div class="fragment"><pre>00001 <font class="comment">/*</font>
+00002 <font class="comment"> * The Apache Software License, Version 1.1</font>
+00003 <font class="comment"> *</font>
+00004 <font class="comment"> * Copyright (c) 2002, 2003 The Apache Software Foundation.  All rights</font>
+00005 <font class="comment"> * reserved.</font>
+00006 <font class="comment"> *</font>
+00007 <font class="comment"> * Redistribution and use in source and binary forms, with or without</font>
+00008 <font class="comment"> * modification, are permitted provided that the following conditions</font>
+00009 <font class="comment"> * are met:</font>
+00010 <font class="comment"> *</font>
+00011 <font class="comment"> * 1. Redistributions of source code must retain the above copyright</font>
+00012 <font class="comment"> *    notice, this list of conditions and the following disclaimer.</font>
+00013 <font class="comment"> *</font>
+00014 <font class="comment"> * 2. Redistributions in binary form must reproduce the above copyright</font>
+00015 <font class="comment"> *    notice, this list of conditions and the following disclaimer in</font>
+00016 <font class="comment"> *    the documentation and/or other materials provided with the</font>
+00017 <font class="comment"> *    distribution.</font>
+00018 <font class="comment"> *</font>
+00019 <font class="comment"> * 3. The end-user documentation included with the redistribution,</font>
+00020 <font class="comment"> *    if any, must include the following acknowledgment:</font>
+00021 <font class="comment"> *       "This product includes software developed by the</font>
+00022 <font class="comment"> *        Apache Software Foundation (http://www.apache.org/)."</font>
+00023 <font class="comment"> *    Alternately, this acknowledgment may appear in the software itself,</font>
+00024 <font class="comment"> *    if and wherever such third-party acknowledgments normally appear.</font>
+00025 <font class="comment"> *</font>
+00026 <font class="comment"> * 4. The names "Xerces" and "Apache Software Foundation" must</font>
+00027 <font class="comment"> *    not be used to endorse or promote products derived from this</font>
+00028 <font class="comment"> *    software without prior written permission. For written</font>
+00029 <font class="comment"> *    permission, please contact apache\@apache.org.</font>
+00030 <font class="comment"> *</font>
+00031 <font class="comment"> * 5. Products derived from this software may not be called "Apache",</font>
+00032 <font class="comment"> *    nor may "Apache" appear in their name, without prior written</font>
+00033 <font class="comment"> *    permission of the Apache Software Foundation.</font>
+00034 <font class="comment"> *</font>
+00035 <font class="comment"> * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED</font>
+00036 <font class="comment"> * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES</font>
+00037 <font class="comment"> * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE</font>
+00038 <font class="comment"> * DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR</font>
+00039 <font class="comment"> * ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,</font>
+00040 <font class="comment"> * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT</font>
+00041 <font class="comment"> * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF</font>
+00042 <font class="comment"> * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND</font>
+00043 <font class="comment"> * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,</font>
+00044 <font class="comment"> * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT</font>
+00045 <font class="comment"> * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF</font>
+00046 <font class="comment"> * SUCH DAMAGE.</font>
+00047 <font class="comment"> * ====================================================================</font>
+00048 <font class="comment"> *</font>
+00049 <font class="comment"> * This software consists of voluntary contributions made by many</font>
+00050 <font class="comment"> * individuals on behalf of the Apache Software Foundation, and was</font>
+00051 <font class="comment"> * originally based on software copyright (c) 2001, International</font>
+00052 <font class="comment"> * Business Machines, Inc., http://www.ibm.com .  For more information</font>
+00053 <font class="comment"> * on the Apache Software Foundation, please see</font>
+00054 <font class="comment"> * &lt;http://www.apache.org/&gt;.</font>
+00055 <font class="comment"> */</font>
+00056 
+00057 <font class="comment">/*</font>
+00058 <font class="comment"> * $Id: AbstractDOMParser.hpp,v 1.27 2004/01/29 11:46:32 cargilld Exp $</font>
+00059 <font class="comment"> *</font>
+00060 <font class="comment"> */</font>
+00061 <font class="preprocessor">#if !defined(ABSTRACTDOMPARSER_HPP)</font>
+<a name="l00062"></a><a class="code" href="AbstractDOMParser_8hpp.html#a0">00062</a> <font class="preprocessor"></font><font class="preprocessor">#define ABSTRACTDOMPARSER_HPP</font>
+00063 <font class="preprocessor"></font>
+00064 <font class="preprocessor">#include &lt;<a class="code" href="DOMDocument_8hpp.html">xercesc/dom/DOMDocument.hpp</a>&gt;</font>
+00065 <font class="preprocessor">#include &lt;<a class="code" href="XMLDocumentHandler_8hpp.html">xercesc/framework/XMLDocumentHandler.hpp</a>&gt;</font>
+00066 <font class="preprocessor">#include &lt;<a class="code" href="XMLErrorReporter_8hpp.html">xercesc/framework/XMLErrorReporter.hpp</a>&gt;</font>
+00067 <font class="preprocessor">#include &lt;<a class="code" href="XMLEntityHandler_8hpp.html">xercesc/framework/XMLEntityHandler.hpp</a>&gt;</font>
+00068 <font class="preprocessor">#include &lt;<a class="code" href="SecurityManager_8hpp.html">xercesc/util/SecurityManager.hpp</a>&gt;</font>
+00069 <font class="preprocessor">#include &lt;xercesc/util/ValueStackOf.hpp&gt;</font>
+00070 <font class="preprocessor">#include &lt;xercesc/validators/DTD/DocTypeHandler.hpp&gt;</font>
+00071 <font class="preprocessor">#include &lt;<a class="code" href="DOMDocumentType_8hpp.html">xercesc/dom/DOMDocumentType.hpp</a>&gt;</font>
+00072 <font class="preprocessor">#include &lt;xercesc/validators/DTD/DTDElementDecl.hpp&gt;</font>
+00073 <font class="preprocessor">#include &lt;xercesc/framework/XMLBufferMgr.hpp&gt;</font>
+00074 
+00075 <a class="code" href="XercesDefs_8hpp.html#a2">XERCES_CPP_NAMESPACE_BEGIN</a>
+00076 
+<a name="l00077"></a><a class="code" href="AbstractDOMParser_8hpp.html#a1">00077</a> <font class="keyword">class </font><a class="code" href="AbstractDOMParser_8hpp.html#a1">XMLPScanToken</a>;
+00078 <font class="keyword">class </font>XMLScanner;
+00079 <font class="keyword">class </font><a class="code" href="classXMLValidator.html">XMLValidator</a>;
+00080 <font class="keyword">class </font>DOMDocumentImpl;
+00081 <font class="keyword">class </font>DOMDocumentTypeImpl;
+00082 <font class="keyword">class </font><a class="code" href="classDOMElement.html">DOMElement</a>;
+00083 <font class="keyword">class </font>GrammarResolver;
+00084 <font class="keyword">class </font><a class="code" href="classXMLGrammarPool.html">XMLGrammarPool</a>;
+00085 <font class="keyword">class </font><a class="code" href="classPSVIHandler.html">PSVIHandler</a>;
+00086 
+<a name="l00091"></a><a class="code" href="classAbstractDOMParser.html">00091</a> <font class="keyword">class </font><a class="code" href="XercesDefs_8hpp.html#a13"></a> <a class="code" href="classAbstractDOMParser.html">AbstractDOMParser</a> :
+00092 
+00093     <font class="keyword">public</font> <a class="code" href="classXMemory.html">XMemory</a>
+00094     , <font class="keyword">public</font> <a class="code" href="classXMLDocumentHandler.html">XMLDocumentHandler</a>
+00095     , <font class="keyword">public</font> <a class="code" href="classXMLErrorReporter.html">XMLErrorReporter</a>
+00096     , <font class="keyword">public</font> <a class="code" href="classXMLEntityHandler.html">XMLEntityHandler</a>
+00097     , <font class="keyword">public</font> DocTypeHandler
+00098 {
+00099 <font class="keyword">public</font> :
+00100     <font class="comment">// -----------------------------------------------------------------------</font>
+00101     <font class="comment">//  Class types</font>
+00102     <font class="comment">// -----------------------------------------------------------------------</font>
+00105 <font class="comment"></font>
+<a name="l00113"></a><a class="code" href="classAbstractDOMParser.html#z438_0">00113</a>     <font class="keyword">enum</font> ValSchemes
+00114     {
+00115         Val_Never
+00116         , Val_Always
+00117         , Val_Auto
+00118     };
+00120 
+00121 
+00122     <font class="comment">// -----------------------------------------------------------------------</font>
+00123     <font class="comment">//  Constructors and Detructor</font>
+00124     <font class="comment">// -----------------------------------------------------------------------</font>
+00127 <font class="comment"></font>
+00131     <font class="keyword">virtual</font> ~<a class="code" href="classAbstractDOMParser.html">AbstractDOMParser</a>();
+00132 
+00134 
+00135     <font class="comment">// -----------------------------------------------------------------------</font>
+00136     <font class="comment">//  Utility methods</font>
+00137     <font class="comment">// -----------------------------------------------------------------------</font>
+00138 
+00146     <font class="keywordtype">void</font> reset();
+00147 
+00161     <a class="code" href="classDOMDocument.html">DOMDocument</a>* adoptDocument();
+00162 
+00164 
+00165 
+00166     <font class="comment">// -----------------------------------------------------------------------</font>
+00167     <font class="comment">//  Getter methods</font>
+00168     <font class="comment">// -----------------------------------------------------------------------</font>
+00169 
+00172 
+00184     <a class="code" href="classDOMDocument.html">DOMDocument</a>* getDocument();
+00185 
+00193     <font class="keyword">const</font> <a class="code" href="classXMLValidator.html">XMLValidator</a>&amp; getValidator() <font class="keyword">const</font>;
+00194 
+00202     ValSchemes getValidationScheme() <font class="keyword">const</font>;
+00203 
+00214     <font class="keywordtype">bool</font> getDoSchema() <font class="keyword">const</font>;
+00215 
+00226     <font class="keywordtype">bool</font> getValidationSchemaFullChecking() <font class="keyword">const</font>;
+00227 
+00239     <font class="keywordtype">int</font> getErrorCount() <font class="keyword">const</font>;
+00240 
+00251     <font class="keywordtype">bool</font> getDoNamespaces() <font class="keyword">const</font>;
+00252 
+00265     <font class="keywordtype">bool</font> getExitOnFirstFatalError() <font class="keyword">const</font>;
+00266 
+00277     <font class="keywordtype">bool</font> getValidationConstraintFatal() <font class="keyword">const</font>;
+00278 
+00288     <font class="keywordtype">bool</font>  getCreateEntityReferenceNodes()<font class="keyword">const</font>;
+00289 
+00300     <font class="keywordtype">bool</font> getIncludeIgnorableWhitespace() <font class="keyword">const</font>;
+00301 
+00321     XMLCh* getExternalSchemaLocation() <font class="keyword">const</font>;
+00322 
+00342     XMLCh* getExternalNoNamespaceSchemaLocation() <font class="keyword">const</font>;
+00343 
+00359     <a class="code" href="classSecurityManager.html">SecurityManager</a>* getSecurityManager() <font class="keyword">const</font>;
+00360 
+00372     <font class="keywordtype">bool</font> getLoadExternalDTD() <font class="keyword">const</font>;
+00373 
+00382     <font class="keywordtype">bool</font>  getCreateCommentNodes()<font class="keyword">const</font>;
+00383 
+00395     <font class="keywordtype">bool</font> getCalculateSrcOfs() <font class="keyword">const</font>;
+00396 
+00407     <font class="keywordtype">bool</font> getStandardUriConformant() <font class="keyword">const</font>;
+00408 
+00415     <a class="code" href="classPSVIHandler.html">PSVIHandler</a>* getPSVIHandler();
+00416 
+00423     <font class="keyword">const</font> <a class="code" href="classPSVIHandler.html">PSVIHandler</a>* getPSVIHandler() <font class="keyword">const</font>;
+00424 
+00426 
+00427 
+00428     <font class="comment">// -----------------------------------------------------------------------</font>
+00429     <font class="comment">//  Setter methods</font>
+00430     <font class="comment">// -----------------------------------------------------------------------</font>
+00431 
+00434 
+00449     <font class="keywordtype">void</font> setDoNamespaces(<font class="keyword">const</font> <font class="keywordtype">bool</font> newState);
+00450 
+00467     <font class="keywordtype">void</font> setExitOnFirstFatalError(<font class="keyword">const</font> <font class="keywordtype">bool</font> newState);
+00468 
+00488     <font class="keywordtype">void</font> setValidationConstraintFatal(<font class="keyword">const</font> <font class="keywordtype">bool</font> newState);
+00489 
+00508     <font class="keywordtype">void</font> setCreateEntityReferenceNodes(<font class="keyword">const</font> <font class="keywordtype">bool</font> create);
+00509 
+00531     <font class="keywordtype">void</font> setIncludeIgnorableWhitespace(<font class="keyword">const</font> <font class="keywordtype">bool</font> include);
+00532 
+00549     <font class="keywordtype">void</font> setValidationScheme(<font class="keyword">const</font> ValSchemes newScheme);
+00550 
+00566     <font class="keywordtype">void</font> setDoSchema(<font class="keyword">const</font> <font class="keywordtype">bool</font> newState);
+00567 
+00584     <font class="keywordtype">void</font> setValidationSchemaFullChecking(<font class="keyword">const</font> <font class="keywordtype">bool</font> schemaFullChecking);
+00585 
+00606     <font class="keywordtype">void</font> setExternalSchemaLocation(<font class="keyword">const</font> XMLCh* <font class="keyword">const</font> schemaLocation);
+00607 
+00616     <font class="keywordtype">void</font> setExternalSchemaLocation(<font class="keyword">const</font> <font class="keywordtype">char</font>* <font class="keyword">const</font> schemaLocation);
+00617 
+00632     <font class="keywordtype">void</font> setExternalNoNamespaceSchemaLocation(<font class="keyword">const</font> XMLCh* <font class="keyword">const</font> noNamespaceSchemaLocation);
+00633 
+00642     <font class="keywordtype">void</font> setExternalNoNamespaceSchemaLocation(<font class="keyword">const</font> <font class="keywordtype">char</font>* <font class="keyword">const</font> noNamespaceSchemaLocation);
+00643 
+00659     <font class="keywordtype">void</font> setSecurityManager(<a class="code" href="classSecurityManager.html">SecurityManager</a>* <font class="keyword">const</font> securityManager);
+00660 
+00677     <font class="keywordtype">void</font> setLoadExternalDTD(<font class="keyword">const</font> <font class="keywordtype">bool</font> newState);
+00678 
+00689     <font class="keywordtype">void</font> setCreateCommentNodes(<font class="keyword">const</font> <font class="keywordtype">bool</font> create);
+00690 
+00703     <font class="keywordtype">void</font> setCalculateSrcOfs(<font class="keyword">const</font> <font class="keywordtype">bool</font> newState);
+00704 
+00715     <font class="keywordtype">void</font> setStandardUriConformant(<font class="keyword">const</font> <font class="keywordtype">bool</font> newState);
+00716 
+00724     <font class="keywordtype">void</font> useScanner(<font class="keyword">const</font> XMLCh* <font class="keyword">const</font> scannerName);
+00725 
+00733     <font class="keywordtype">void</font> useImplementation(<font class="keyword">const</font> XMLCh* <font class="keyword">const</font> implementationFeatures);
+00734 
+00743     <font class="keyword">virtual</font> <font class="keywordtype">void</font> setPSVIHandler(<a class="code" href="classPSVIHandler.html">PSVIHandler</a>* <font class="keyword">const</font> handler);
+00744 
+00746 
+00747 
+00748     <font class="comment">// -----------------------------------------------------------------------</font>
+00749     <font class="comment">//  Parsing methods</font>
+00750     <font class="comment">// -----------------------------------------------------------------------</font>
+00751 
+00754 
+00770     <font class="keywordtype">void</font> parse(<font class="keyword">const</font> <a class="code" href="classInputSource.html">InputSource</a>&amp; source);
+00771 
+00788     <font class="keywordtype">void</font> parse(<font class="keyword">const</font> XMLCh* <font class="keyword">const</font> systemId);
+00789 
+00805     <font class="keywordtype">void</font> parse(<font class="keyword">const</font> <font class="keywordtype">char</font>* <font class="keyword">const</font> systemId);
+00806 
+00833     <font class="keywordtype">bool</font> parseFirst
+00834     (
+00835         <font class="keyword">const</font>   XMLCh* <font class="keyword">const</font>    systemId
+00836         ,       <a class="code" href="AbstractDOMParser_8hpp.html#a1">XMLPScanToken</a>&amp;  toFill
+00837     );
+00838 
+00866     <font class="keywordtype">bool</font> parseFirst
+00867     (
+00868         <font class="keyword">const</font>   <font class="keywordtype">char</font>* <font class="keyword">const</font>     systemId
+00869         ,       <a class="code" href="AbstractDOMParser_8hpp.html#a1">XMLPScanToken</a>&amp;  toFill
+00870     );
+00871 
+00899     <font class="keywordtype">bool</font> parseFirst
+00900     (
+00901         <font class="keyword">const</font>   <a class="code" href="classInputSource.html">InputSource</a>&amp;    source
+00902         ,       <a class="code" href="AbstractDOMParser_8hpp.html#a1">XMLPScanToken</a>&amp;  toFill
+00903     );
+00904 
+00927     <font class="keywordtype">bool</font> parseNext(<a class="code" href="AbstractDOMParser_8hpp.html#a1">XMLPScanToken</a>&amp; token);
+00928 
+00954     <font class="keywordtype">void</font> parseReset(<a class="code" href="AbstractDOMParser_8hpp.html#a1">XMLPScanToken</a>&amp; token);
+00955 
+00957 
+00958     <font class="comment">// -----------------------------------------------------------------------</font>
+00959     <font class="comment">//  Implementation of the XMLDocumentHandler interface.</font>
+00960     <font class="comment">// -----------------------------------------------------------------------</font>
+00961 
+00964 
+00977     <font class="keyword">virtual</font> <font class="keywordtype">void</font> docCharacters
+00978     (
+00979         <font class="keyword">const</font>   XMLCh* <font class="keyword">const</font>    chars
+00980         , <font class="keyword">const</font> <font class="keywordtype">unsigned</font> <font class="keywordtype">int</font>    length
+00981         , <font class="keyword">const</font> <font class="keywordtype">bool</font>            cdataSection
+00982     );
+00983 
+00992     <font class="keyword">virtual</font> <font class="keywordtype">void</font> docComment
+00993     (
+00994         <font class="keyword">const</font>   XMLCh* <font class="keyword">const</font>    comment
+00995     );
+00996 
+01009     <font class="keyword">virtual</font> <font class="keywordtype">void</font> docPI
+01010     (
+01011         <font class="keyword">const</font>   XMLCh* <font class="keyword">const</font>    target
+01012         , <font class="keyword">const</font> XMLCh* <font class="keyword">const</font>    data
+01013     );
+01014 
+01019     <font class="keyword">virtual</font> <font class="keywordtype">void</font> <a class="code" href="classXMLDocumentHandler.html#z252_3">endDocument</a>();
+01020 
+01037     <font class="keyword">virtual</font> <font class="keywordtype">void</font> endElement
+01038     (
+01039         <font class="keyword">const</font>   <a class="code" href="classXMLElementDecl.html">XMLElementDecl</a>&amp; elemDecl
+01040         , <font class="keyword">const</font> <font class="keywordtype">unsigned</font> <font class="keywordtype">int</font>    urlId
+01041         , <font class="keyword">const</font> <font class="keywordtype">bool</font>            isRoot
+01042         , <font class="keyword">const</font> XMLCh* <font class="keyword">const</font>    elemPrefix
+01043     );
+01044 
+01053     <font class="keyword">virtual</font> <font class="keywordtype">void</font> endEntityReference
+01054     (
+01055         <font class="keyword">const</font>   <a class="code" href="classXMLEntityDecl.html">XMLEntityDecl</a>&amp;  entDecl
+01056     );
+01057 
+01076     <font class="keyword">virtual</font> <font class="keywordtype">void</font> ignorableWhitespace
+01077     (
+01078         <font class="keyword">const</font>   XMLCh* <font class="keyword">const</font>    chars
+01079         , <font class="keyword">const</font> <font class="keywordtype">unsigned</font> <font class="keywordtype">int</font>    length
+01080         , <font class="keyword">const</font> <font class="keywordtype">bool</font>            cdataSection
+01081     );
+01082 
+01089     <font class="keyword">virtual</font> <font class="keywordtype">void</font> <a class="code" href="classXMLDocumentHandler.html#z252_7">resetDocument</a>();
+01090 
+01095     <font class="keyword">virtual</font> <font class="keywordtype">void</font> <a class="code" href="classXMLDocumentHandler.html#z252_8">startDocument</a>();
+01096 
+01124     <font class="keyword">virtual</font> <font class="keywordtype">void</font> startElement
+01125     (
+01126         <font class="keyword">const</font>   <a class="code" href="classXMLElementDecl.html">XMLElementDecl</a>&amp;         elemDecl
+01127         , <font class="keyword">const</font> <font class="keywordtype">unsigned</font> <font class="keywordtype">int</font>            urlId
+01128         , <font class="keyword">const</font> XMLCh* <font class="keyword">const</font>            elemPrefix
+01129         , <font class="keyword">const</font> RefVectorOf&lt;XMLAttr&gt;&amp;   attrList
+01130         , <font class="keyword">const</font> <font class="keywordtype">unsigned</font> <font class="keywordtype">int</font>            attrCount
+01131         , <font class="keyword">const</font> <font class="keywordtype">bool</font>                    isEmpty
+01132         , <font class="keyword">const</font> <font class="keywordtype">bool</font>                    isRoot
+01133     );
+01134 
+01144     <font class="keyword">virtual</font> <font class="keywordtype">void</font> startEntityReference
+01145     (
+01146         <font class="keyword">const</font>   <a class="code" href="classXMLEntityDecl.html">XMLEntityDecl</a>&amp;  entDecl
+01147     );
+01148 
+01167     <font class="keyword">virtual</font> <font class="keywordtype">void</font> XMLDecl
+01168     (
+01169         <font class="keyword">const</font>   XMLCh* <font class="keyword">const</font>    versionStr
+01170         , <font class="keyword">const</font> XMLCh* <font class="keyword">const</font>    encodingStr
+01171         , <font class="keyword">const</font> XMLCh* <font class="keyword">const</font>    standaloneStr
+01172         , <font class="keyword">const</font> XMLCh* <font class="keyword">const</font>    actualEncStr
+01173     );
+01174 
+01194     <font class="keyword">virtual</font> <font class="keywordtype">void</font> elementTypeInfo
+01195     (
+01196         <font class="keyword">const</font>   XMLCh* <font class="keyword">const</font>    typeName
+01197         , <font class="keyword">const</font> XMLCh* <font class="keyword">const</font>    typeURI
+01198     );
+01200 
+01201 
+01202     <font class="comment">// -----------------------------------------------------------------------</font>
+01203     <font class="comment">//  Implementation of the deprecated DocTypeHandler interface.</font>
+01204     <font class="comment">// -----------------------------------------------------------------------</font>
+01207 <font class="comment"></font>    <font class="keyword">virtual</font> <font class="keywordtype">void</font> attDef
+01208     (
+01209         <font class="keyword">const</font>   DTDElementDecl&amp;     elemDecl
+01210         , <font class="keyword">const</font> DTDAttDef&amp;          attDef
+01211         , <font class="keyword">const</font> <font class="keywordtype">bool</font>                ignoring
+01212     );
+01213 
+01214     <font class="keyword">virtual</font> <font class="keywordtype">void</font> doctypeComment
+01215     (
+01216         <font class="keyword">const</font>   XMLCh* <font class="keyword">const</font>    comment
+01217     );
+01218 
+01219     <font class="keyword">virtual</font> <font class="keywordtype">void</font> doctypeDecl
+01220     (
+01221         <font class="keyword">const</font>   DTDElementDecl&amp; elemDecl
+01222         , <font class="keyword">const</font> XMLCh* <font class="keyword">const</font>    publicId
+01223         , <font class="keyword">const</font> XMLCh* <font class="keyword">const</font>    systemId
+01224         , <font class="keyword">const</font> <font class="keywordtype">bool</font>            hasIntSubset
+01225         , <font class="keyword">const</font> <font class="keywordtype">bool</font>            hasExtSubset = <font class="keyword">false</font>
+01226     );
+01227 
+01228     <font class="keyword">virtual</font> <font class="keywordtype">void</font> doctypePI
+01229     (
+01230         <font class="keyword">const</font>   XMLCh* <font class="keyword">const</font>    target
+01231         , <font class="keyword">const</font> XMLCh* <font class="keyword">const</font>    data
+01232     );
+01233 
+01234     <font class="keyword">virtual</font> <font class="keywordtype">void</font> doctypeWhitespace
+01235     (
+01236         <font class="keyword">const</font>   XMLCh* <font class="keyword">const</font>    chars
+01237         , <font class="keyword">const</font> <font class="keywordtype">unsigned</font> <font class="keywordtype">int</font>    length
+01238     );
+01239 
+01240     <font class="keyword">virtual</font> <font class="keywordtype">void</font> elementDecl
+01241     (
+01242         <font class="keyword">const</font>   DTDElementDecl&amp; decl
+01243         , <font class="keyword">const</font> <font class="keywordtype">bool</font>            isIgnored
+01244     );
+01245 
+01246     <font class="keyword">virtual</font> <font class="keywordtype">void</font> endAttList
+01247     (
+01248         <font class="keyword">const</font>   DTDElementDecl&amp; elemDecl
+01249     );
+01250 
+01251     <font class="keyword">virtual</font> <font class="keywordtype">void</font> endIntSubset();
+01252 
+01253     <font class="keyword">virtual</font> <font class="keywordtype">void</font> endExtSubset();
+01254 
+01255     <font class="keyword">virtual</font> <font class="keywordtype">void</font> entityDecl
+01256     (
+01257         <font class="keyword">const</font>   DTDEntityDecl&amp;  entityDecl
+01258         , <font class="keyword">const</font> <font class="keywordtype">bool</font>            isPEDecl
+01259         , <font class="keyword">const</font> <font class="keywordtype">bool</font>            isIgnored
+01260     );
+01261 
+01262     <font class="keyword">virtual</font> <font class="keywordtype">void</font> resetDocType();
+01263 
+01264     <font class="keyword">virtual</font> <font class="keywordtype">void</font> notationDecl
+01265     (
+01266         <font class="keyword">const</font>   <a class="code" href="classXMLNotationDecl.html">XMLNotationDecl</a>&amp;    notDecl
+01267         , <font class="keyword">const</font> <font class="keywordtype">bool</font>                isIgnored
+01268     );
+01269 
+01270     <font class="keyword">virtual</font> <font class="keywordtype">void</font> startAttList
+01271     (
+01272         <font class="keyword">const</font>   DTDElementDecl&amp; elemDecl
+01273     );
+01274 
+01275     <font class="keyword">virtual</font> <font class="keywordtype">void</font> startIntSubset();
+01276 
+01277     <font class="keyword">virtual</font> <font class="keywordtype">void</font> startExtSubset();
+01278 
+01279     <font class="keyword">virtual</font> <font class="keywordtype">void</font> TextDecl
+01280     (
+01281         <font class="keyword">const</font>   XMLCh* <font class="keyword">const</font>    versionStr
+01282         , <font class="keyword">const</font> XMLCh* <font class="keyword">const</font>    encodingStr
+01283     );
+01284 
+01285 
+01287 
+01288 
+01289     <font class="comment">// -----------------------------------------------------------------------</font>
+01290     <font class="comment">//  Deprecated Methods</font>
+01291     <font class="comment">// -----------------------------------------------------------------------</font>
+01304 <font class="comment"></font>    <font class="keywordtype">bool</font> getDoValidation() <font class="keyword">const</font>;
+01305 
+01319     <font class="keywordtype">void</font> setDoValidation(<font class="keyword">const</font> <font class="keywordtype">bool</font> newState);
+01320 
+01334     <font class="keywordtype">bool</font> getExpandEntityReferences() <font class="keyword">const</font>;
+01335 
+01352     <font class="keywordtype">void</font> setExpandEntityReferences(<font class="keyword">const</font> <font class="keywordtype">bool</font> expand);
+01353 
+01355 
+01356 <font class="keyword">protected</font> :
+01357     <font class="comment">// -----------------------------------------------------------------------</font>
+01358     <font class="comment">//  Protected Constructor Methods</font>
+01359     <font class="comment">// -----------------------------------------------------------------------</font>
+01378 <font class="comment"></font>    <a class="code" href="classAbstractDOMParser.html">AbstractDOMParser</a>
+01379     (
+01380           <a class="code" href="classXMLValidator.html">XMLValidator</a>* <font class="keyword">const</font>   valToAdopt = 0
+01381         , <a class="code" href="classMemoryManager.html">MemoryManager</a>* <font class="keyword">const</font>  manager = <a class="code" href="classXMLPlatformUtils.html#z477_4">XMLPlatformUtils::fgMemoryManager</a>
+01382         , <a class="code" href="classXMLGrammarPool.html">XMLGrammarPool</a>* <font class="keyword">const</font> gramPool = 0
+01383     );
+01384 
+01386 
+01387     <font class="comment">// -----------------------------------------------------------------------</font>
+01388     <font class="comment">//  Protected getter methods</font>
+01389     <font class="comment">// -----------------------------------------------------------------------</font>
+01397 <font class="comment"></font>    <a class="code" href="classDOMNode.html">DOMNode</a>* getCurrentNode();
+01398 
+01403     XMLScanner* getScanner() <font class="keyword">const</font>;
+01404 
+01409     GrammarResolver* getGrammarResolver() <font class="keyword">const</font>;
+01410 
+01416     <font class="keywordtype">bool</font> getParseInProgress() <font class="keyword">const</font>;
+01417 
+01418     <a class="code" href="classMemoryManager.html">MemoryManager</a>* getMemoryManager() <font class="keyword">const</font>;
+01419 
+01421 
+01422 
+01423     <font class="comment">// -----------------------------------------------------------------------</font>
+01424     <font class="comment">//  Protected setter methods</font>
+01425     <font class="comment">// -----------------------------------------------------------------------</font>
+01426 
+01429 
+01437     <font class="keywordtype">void</font> setCurrentNode(<a class="code" href="classDOMNode.html">DOMNode</a>* toSet);
+01438 
+01445     <font class="keywordtype">void</font> setDocument(<a class="code" href="classDOMDocument.html">DOMDocument</a>* toSet);
+01446 
+01453     <font class="keywordtype">void</font> setParseInProgress(<font class="keyword">const</font> <font class="keywordtype">bool</font> toSet);
+01455 
+01456     <font class="comment">// -----------------------------------------------------------------------</font>
+01457     <font class="comment">//  Protected Helper methods</font>
+01458     <font class="comment">// -----------------------------------------------------------------------</font>
+01461 <font class="comment"></font>    <font class="keyword">virtual</font> <a class="code" href="classDOMElement.html">DOMElement</a>* createElementNSNode(<font class="keyword">const</font> XMLCh *fNamespaceURI,
+01462                                               <font class="keyword">const</font> XMLCh *qualifiedName);
+01463 
+01464     <font class="keywordtype">void</font> resetPool();
+01465 
+01469     <font class="keywordtype">bool</font> isDocumentAdopted() <font class="keyword">const</font>;
+01470 
+01472 
+01473 
+01474 <font class="keyword">private</font> :
+01475     <font class="comment">// -----------------------------------------------------------------------</font>
+01476     <font class="comment">//  Initialize/Cleanup methods</font>
+01477     <font class="comment">// -----------------------------------------------------------------------</font>
+01478     <font class="keywordtype">void</font> initialize();
+01479     <font class="keywordtype">void</font> cleanUp();
+01480 
+01481     <font class="comment">// -----------------------------------------------------------------------</font>
+01482     <font class="comment">//  Unimplemented constructors and operators</font>
+01483     <font class="comment">// -----------------------------------------------------------------------</font>
+01484     <a class="code" href="classAbstractDOMParser.html">AbstractDOMParser</a>(<font class="keyword">const</font> <a class="code" href="classAbstractDOMParser.html">AbstractDOMParser</a>&amp;);
+01485     <a class="code" href="classAbstractDOMParser.html">AbstractDOMParser</a>&amp; operator=(<font class="keyword">const</font> <a class="code" href="classAbstractDOMParser.html">AbstractDOMParser</a>&amp;);
+01486 
+01487 <font class="keyword">protected</font>:
+01488     <font class="comment">// -----------------------------------------------------------------------</font>
+01489     <font class="comment">//  Protected data members</font>
+01490     <font class="comment">//</font>
+01491     <font class="comment">//  fCurrentNode</font>
+01492     <font class="comment">//  fCurrentParent</font>
+01493     <font class="comment">//      Used to track the current node during nested element events. Since</font>
+01494     <font class="comment">//      the tree must be built from a set of disjoint callbacks, we need</font>
+01495     <font class="comment">//      these to keep up with where we currently are.</font>
+01496     <font class="comment">//</font>
+01497     <font class="comment">//  fCurrentEntity</font>
+01498     <font class="comment">//      Used to track the current entity decl.  If a text decl is seen later on,</font>
+01499     <font class="comment">//      it is used to update the encoding and version information.</font>
+01500     <font class="comment">//</font>
+01501     <font class="comment">//  fDocument</font>
+01502     <font class="comment">//      The root document object, filled with the document contents.</font>
+01503     <font class="comment">//</font>
+01504     <font class="comment">//  fCreateEntityReferenceNodes</font>
+01505     <font class="comment">//      Indicates whether entity reference nodes should be created.</font>
+01506     <font class="comment">//</font>
+01507     <font class="comment">//  fIncludeIgnorableWhitespace</font>
+01508     <font class="comment">//      Indicates whether ignorable whiltespace should be added to</font>
+01509     <font class="comment">//      the DOM tree for validating parsers.</font>
+01510     <font class="comment">//</font>
+01511     <font class="comment">//  fScanner</font>
+01512     <font class="comment">//      The scanner used for this parser. This is created during the</font>
+01513     <font class="comment">//      constructor.</font>
+01514     <font class="comment">//</font>
+01515     <font class="comment">//  fImplementationFeatures</font>
+01516     <font class="comment">//      The implementation features that we use to get an implementation</font>
+01517     <font class="comment">//      for use in creating the DOMDocument used during parse. If this is</font>
+01518     <font class="comment">//      null then the default DOMImplementation is used</font>
+01519     <font class="comment">//</font>
+01520     <font class="comment">//  fNodeStack</font>
+01521     <font class="comment">//      Used to track previous parent nodes during nested element events.</font>
+01522     <font class="comment">//</font>
+01523     <font class="comment">//  fParseInProgress</font>
+01524     <font class="comment">//      Used to prevent multiple entrance to the parser while its doing</font>
+01525     <font class="comment">//      a parse.</font>
+01526     <font class="comment">//</font>
+01527     <font class="comment">//  fWithinElement</font>
+01528     <font class="comment">//      A flag to indicate that the parser is within at least one level</font>
+01529     <font class="comment">//      of element processing.</font>
+01530     <font class="comment">//</font>
+01531     <font class="comment">//  fDocumentType</font>
+01532     <font class="comment">//      Used to store and update the documentType variable information</font>
+01533     <font class="comment">//      in fDocument</font>
+01534     <font class="comment">//</font>
+01535     <font class="comment">//  fDocumentVector</font>
+01536     <font class="comment">//      Store all the previous fDocument(s) (thus not the current fDocument)</font>
+01537     <font class="comment">//      created in this parser.  It is destroyed when the parser is destructed.</font>
+01538     <font class="comment">//</font>
+01539     <font class="comment">//  fCreateCommentNodes</font>
+01540     <font class="comment">//      Indicates whether comment nodes should be created.</font>
+01541     <font class="comment">//</font>
+01542     <font class="comment">//  fDocumentAdoptedByUser</font>
+01543     <font class="comment">//      The DOMDocument ownership has been transferred to application</font>
+01544     <font class="comment">//      If set to true, the parser does not own the document anymore</font>
+01545     <font class="comment">//      and thus will not release its memory.</font>
+01546     <font class="comment">//</font>
+01547     <font class="comment">//  fInternalSubset</font>
+01548     <font class="comment">//      Buffer for storing the internal subset information.</font>
+01549     <font class="comment">//      Once complete (after DOCTYPE is finished scanning), send</font>
+01550     <font class="comment">//      it to DocumentType Node</font>
+01551     <font class="comment">//</font>
+01552     <font class="comment">//   fGrammarPool</font>
+01553     <font class="comment">//      The grammar pool passed from external application (through derivatives).</font>
+01554     <font class="comment">//      which could be 0, not owned.</font>
+01555     <font class="comment">//</font>
+01556     <font class="comment">// -----------------------------------------------------------------------</font>
+<a name="l01557"></a><a class="code" href="classAbstractDOMParser.html#n0">01557</a>     <font class="keywordtype">bool</font>                          fCreateEntityReferenceNodes;
+<a name="l01558"></a><a class="code" href="classAbstractDOMParser.html#n1">01558</a>     <font class="keywordtype">bool</font>                          fIncludeIgnorableWhitespace;
+<a name="l01559"></a><a class="code" href="classAbstractDOMParser.html#n2">01559</a>     <font class="keywordtype">bool</font>                          fWithinElement;
+<a name="l01560"></a><a class="code" href="classAbstractDOMParser.html#n3">01560</a>     <font class="keywordtype">bool</font>                          fParseInProgress;
+<a name="l01561"></a><a class="code" href="classAbstractDOMParser.html#n4">01561</a>     <font class="keywordtype">bool</font>                          fCreateCommentNodes;
+<a name="l01562"></a><a class="code" href="classAbstractDOMParser.html#n5">01562</a>     <font class="keywordtype">bool</font>                          fDocumentAdoptedByUser;
+<a name="l01563"></a><a class="code" href="classAbstractDOMParser.html#n6">01563</a>     XMLScanner*                   fScanner;
+<a name="l01564"></a><a class="code" href="classAbstractDOMParser.html#n7">01564</a>     XMLCh*                        fImplementationFeatures;
+<a name="l01565"></a><a class="code" href="classAbstractDOMParser.html#n8">01565</a>     <a class="code" href="classDOMNode.html">DOMNode</a>*                      fCurrentParent;
+<a name="l01566"></a><a class="code" href="classAbstractDOMParser.html#n9">01566</a>     <a class="code" href="classDOMNode.html">DOMNode</a>*                      fCurrentNode;
+<a name="l01567"></a><a class="code" href="classAbstractDOMParser.html#n10">01567</a>     <a class="code" href="classDOMEntity.html">DOMEntity</a>*                    fCurrentEntity;
+<a name="l01568"></a><a class="code" href="classAbstractDOMParser.html#n11">01568</a>     DOMDocumentImpl*              fDocument;
+<a name="l01569"></a><a class="code" href="classAbstractDOMParser.html#n12">01569</a>     ValueStackOf&lt;DOMNode*&gt;*       fNodeStack;
+<a name="l01570"></a><a class="code" href="classAbstractDOMParser.html#n13">01570</a>     DOMDocumentTypeImpl*          fDocumentType;
+<a name="l01571"></a><a class="code" href="classAbstractDOMParser.html#n14">01571</a>     RefVectorOf&lt;DOMDocumentImpl&gt;* fDocumentVector;
+<a name="l01572"></a><a class="code" href="classAbstractDOMParser.html#n15">01572</a>     GrammarResolver*              fGrammarResolver;
+<a name="l01573"></a><a class="code" href="classAbstractDOMParser.html#n16">01573</a>     <a class="code" href="XSNamedMap_8hpp.html#a1">XMLStringPool</a>*                fURIStringPool;
+<a name="l01574"></a><a class="code" href="classAbstractDOMParser.html#n17">01574</a>     <a class="code" href="classXMLValidator.html">XMLValidator</a>*                 fValidator;
+<a name="l01575"></a><a class="code" href="classAbstractDOMParser.html#n18">01575</a>     <a class="code" href="classMemoryManager.html">MemoryManager</a>*                fMemoryManager;
+<a name="l01576"></a><a class="code" href="classAbstractDOMParser.html#n19">01576</a>     <a class="code" href="classXMLGrammarPool.html">XMLGrammarPool</a>*               fGrammarPool;
+<a name="l01577"></a><a class="code" href="classAbstractDOMParser.html#n20">01577</a>     XMLBufferMgr                  fBufMgr;
+<a name="l01578"></a><a class="code" href="classAbstractDOMParser.html#n21">01578</a>     XMLBuffer&amp;                    fInternalSubset;
+<a name="l01579"></a><a class="code" href="classAbstractDOMParser.html#n22">01579</a>     <a class="code" href="classPSVIHandler.html">PSVIHandler</a>*                  fPSVIHandler;
+01580 };
+01581 
+01582 
+01583 
+01584 <font class="comment">// ---------------------------------------------------------------------------</font>
+01585 <font class="comment">//  AbstractDOMParser: Getter methods</font>
+01586 <font class="comment">// ---------------------------------------------------------------------------</font>
+<a name="l01587"></a><a class="code" href="classAbstractDOMParser.html#z446_2">01587</a> <font class="keyword">inline</font> <font class="keywordtype">bool</font> <a class="code" href="classAbstractDOMParser.html#z446_2">AbstractDOMParser::getExpandEntityReferences</a>()<font class="keyword"> const</font>
+01588 <font class="keyword"></font>{
+01589     <font class="keywordflow">return</font> !<a class="code" href="classAbstractDOMParser.html#n0">fCreateEntityReferenceNodes</a>;
+01590 }
+<a name="l01591"></a><a class="code" href="classAbstractDOMParser.html#z441_9">01591</a> <font class="keyword">inline</font> <font class="keywordtype">bool</font> <a class="code" href="classAbstractDOMParser.html#z441_9">AbstractDOMParser::getCreateEntityReferenceNodes</a>()<font class="keyword"> const</font>
+01592 <font class="keyword"></font>{
+01593     <font class="keywordflow">return</font> <a class="code" href="classAbstractDOMParser.html#n0">fCreateEntityReferenceNodes</a>;
+01594 }
+01595 
+<a name="l01596"></a><a class="code" href="classAbstractDOMParser.html#z441_10">01596</a> <font class="keyword">inline</font> <font class="keywordtype">bool</font> <a class="code" href="classAbstractDOMParser.html#z441_10">AbstractDOMParser::getIncludeIgnorableWhitespace</a>()<font class="keyword"> const</font>
+01597 <font class="keyword"></font>{
+01598     <font class="keywordflow">return</font> <a class="code" href="classAbstractDOMParser.html#n1">fIncludeIgnorableWhitespace</a>;
+01599 }
+01600 
+<a name="l01601"></a><a class="code" href="classAbstractDOMParser.html#z448_3">01601</a> <font class="keyword">inline</font> <font class="keywordtype">bool</font> <a class="code" href="classAbstractDOMParser.html#z448_3">AbstractDOMParser::getParseInProgress</a>()<font class="keyword"> const</font>
+01602 <font class="keyword"></font>{
+01603     <font class="keywordflow">return</font> <a class="code" href="classAbstractDOMParser.html#n3">fParseInProgress</a>;
+01604 }
+01605 
+<a name="l01606"></a><a class="code" href="classAbstractDOMParser.html#z448_1">01606</a> <font class="keyword">inline</font> XMLScanner* <a class="code" href="classAbstractDOMParser.html#z448_1">AbstractDOMParser::getScanner</a>()<font class="keyword"> const</font>
+01607 <font class="keyword"></font>{
+01608     <font class="keywordflow">return</font> <a class="code" href="classAbstractDOMParser.html#n6">fScanner</a>;
+01609 }
+01610 
+<a name="l01611"></a><a class="code" href="classAbstractDOMParser.html#z448_2">01611</a> <font class="keyword">inline</font> GrammarResolver* <a class="code" href="classAbstractDOMParser.html#z448_2">AbstractDOMParser::getGrammarResolver</a>()<font class="keyword"> const</font>
+01612 <font class="keyword"></font>{
+01613     <font class="keywordflow">return</font> <a class="code" href="classAbstractDOMParser.html#n15">fGrammarResolver</a>;
+01614 }
+01615 
+<a name="l01616"></a><a class="code" href="classAbstractDOMParser.html#z441_15">01616</a> <font class="keyword">inline</font> <font class="keywordtype">bool</font> <a class="code" href="classAbstractDOMParser.html#z441_15">AbstractDOMParser::getCreateCommentNodes</a>()<font class="keyword"> const</font>
+01617 <font class="keyword"></font>{
+01618     <font class="keywordflow">return</font> <a class="code" href="classAbstractDOMParser.html#n4">fCreateCommentNodes</a>;
+01619 }
+01620 
+<a name="l01621"></a><a class="code" href="classAbstractDOMParser.html#z441_18">01621</a> <font class="keyword">inline</font> <a class="code" href="classPSVIHandler.html">PSVIHandler</a>* <a class="code" href="classAbstractDOMParser.html#z441_18">AbstractDOMParser::getPSVIHandler</a>()
+01622 {
+01623     <font class="keywordflow">return</font> <a class="code" href="classAbstractDOMParser.html#n22">fPSVIHandler</a>;
+01624 }
+01625 
+<a name="l01626"></a><a class="code" href="classAbstractDOMParser.html#z441_19">01626</a> <font class="keyword">inline</font> <font class="keyword">const</font> <a class="code" href="classPSVIHandler.html">PSVIHandler</a>* <a class="code" href="classAbstractDOMParser.html#z441_18">AbstractDOMParser::getPSVIHandler</a>()<font class="keyword"> const</font>
+01627 <font class="keyword"></font>{
+01628     <font class="keywordflow">return</font> <a class="code" href="classAbstractDOMParser.html#n22">fPSVIHandler</a>;
+01629 }
+01630 <font class="comment">// ---------------------------------------------------------------------------</font>
+01631 <font class="comment">//  AbstractDOMParser: Setter methods</font>
+01632 <font class="comment">// ---------------------------------------------------------------------------</font>
+<a name="l01633"></a><a class="code" href="classAbstractDOMParser.html#z446_3">01633</a> <font class="keyword">inline</font> <font class="keywordtype">void</font> <a class="code" href="classAbstractDOMParser.html#z446_3">AbstractDOMParser::setExpandEntityReferences</a>(<font class="keyword">const</font> <font class="keywordtype">bool</font> expand)
+01634 {
+01635     <a class="code" href="classAbstractDOMParser.html#n0">fCreateEntityReferenceNodes</a> = !expand;
+01636 }
+01637 
+<a name="l01638"></a><a class="code" href="classAbstractDOMParser.html#z442_3">01638</a> <font class="keyword">inline</font> <font class="keywordtype">void</font> <a class="code" href="classAbstractDOMParser.html#z442_3">AbstractDOMParser::setCreateEntityReferenceNodes</a>(<font class="keyword">const</font> <font class="keywordtype">bool</font> create)
+01639 {
+01640     <a class="code" href="classAbstractDOMParser.html#n0">fCreateEntityReferenceNodes</a> = create;
+01641 }
+01642 
+<a name="l01643"></a><a class="code" href="classAbstractDOMParser.html#z442_4">01643</a> <font class="keyword">inline</font> <font class="keywordtype">void</font> <a class="code" href="classAbstractDOMParser.html#z442_4">AbstractDOMParser::setIncludeIgnorableWhitespace</a>(<font class="keyword">const</font> <font class="keywordtype">bool</font> include)
+01644 {
+01645     <a class="code" href="classAbstractDOMParser.html#n1">fIncludeIgnorableWhitespace</a> = include;
+01646 }
+01647 
+<a name="l01648"></a><a class="code" href="classAbstractDOMParser.html#z442_14">01648</a> <font class="keyword">inline</font> <font class="keywordtype">void</font> <a class="code" href="classAbstractDOMParser.html#z442_14">AbstractDOMParser::setCreateCommentNodes</a>(<font class="keyword">const</font> <font class="keywordtype">bool</font> create)
+01649 {
+01650     <a class="code" href="classAbstractDOMParser.html#n4">fCreateCommentNodes</a> = create;
+01651 }
+01652 
+<a name="l01653"></a><a class="code" href="classAbstractDOMParser.html#z442_18">01653</a> <font class="keyword">inline</font> <font class="keywordtype">void</font> <a class="code" href="classAbstractDOMParser.html#z442_18">AbstractDOMParser::useImplementation</a>(<font class="keyword">const</font> XMLCh* <font class="keyword">const</font> implementationFeatures)
+01654 {
+01655     <a class="code" href="classAbstractDOMParser.html#n18">fMemoryManager</a>-&gt;<a class="code" href="classMemoryManager.html#z217_1">deallocate</a>(<a class="code" href="classAbstractDOMParser.html#n7">fImplementationFeatures</a>); 
+01656     <a class="code" href="classAbstractDOMParser.html#n7">fImplementationFeatures</a> = <a class="code" href="classXMLString.html#z507_0">XMLString::replicate</a>(implementationFeatures, <a class="code" href="classAbstractDOMParser.html#n18">fMemoryManager</a>); 
+01657 }
+01658 
+01659 <font class="comment">// ---------------------------------------------------------------------------</font>
+01660 <font class="comment">//  AbstractDOMParser: Protected getter methods</font>
+01661 <font class="comment">// ---------------------------------------------------------------------------</font>
+<a name="l01662"></a><a class="code" href="classAbstractDOMParser.html#z448_0">01662</a> <font class="keyword">inline</font> <a class="code" href="classDOMNode.html">DOMNode</a>* <a class="code" href="classAbstractDOMParser.html#z448_0">AbstractDOMParser::getCurrentNode</a>()
+01663 {
+01664     <font class="keywordflow">return</font> <a class="code" href="classAbstractDOMParser.html#n9">fCurrentNode</a>;
+01665 }
+01666 
+<a name="l01667"></a><a class="code" href="classAbstractDOMParser.html#z448_4">01667</a> <font class="keyword">inline</font> <a class="code" href="classMemoryManager.html">MemoryManager</a>* <a class="code" href="classAbstractDOMParser.html#z448_4">AbstractDOMParser::getMemoryManager</a>()<font class="keyword"> const</font>
+01668 <font class="keyword"></font>{
+01669     <font class="keywordflow">return</font> <a class="code" href="classAbstractDOMParser.html#n18">fMemoryManager</a>;
+01670 }
+01671 
+01672 <font class="comment">// ---------------------------------------------------------------------------</font>
+01673 <font class="comment">//  AbstractDOMParser: Protected setter methods</font>
+01674 <font class="comment">// ---------------------------------------------------------------------------</font>
+<a name="l01675"></a><a class="code" href="classAbstractDOMParser.html#z449_0">01675</a> <font class="keyword">inline</font> <font class="keywordtype">void</font> <a class="code" href="classAbstractDOMParser.html#z449_0">AbstractDOMParser::setCurrentNode</a>(<a class="code" href="classDOMNode.html">DOMNode</a>* toSet)
+01676 {
+01677     <a class="code" href="classAbstractDOMParser.html#n9">fCurrentNode</a> = toSet;
+01678 }
+01679 
+<a name="l01680"></a><a class="code" href="classAbstractDOMParser.html#z449_1">01680</a> <font class="keyword">inline</font> <font class="keywordtype">void</font> <a class="code" href="classAbstractDOMParser.html#z449_1">AbstractDOMParser::setDocument</a>(<a class="code" href="classDOMDocument.html">DOMDocument</a>* toSet)
+01681 {
+01682     <a class="code" href="classAbstractDOMParser.html#n11">fDocument</a> = (DOMDocumentImpl *)toSet;
+01683 }
+01684 
+<a name="l01685"></a><a class="code" href="classAbstractDOMParser.html#z449_2">01685</a> <font class="keyword">inline</font> <font class="keywordtype">void</font> <a class="code" href="classAbstractDOMParser.html#z449_2">AbstractDOMParser::setParseInProgress</a>(<font class="keyword">const</font> <font class="keywordtype">bool</font> toSet)
+01686 {
+01687     <a class="code" href="classAbstractDOMParser.html#n3">fParseInProgress</a> = toSet;
+01688 }
+01689 
+01690 <a class="code" href="XercesDefs_8hpp.html#a3">XERCES_CPP_NAMESPACE_END</a>
+01691 
+01692 <font class="preprocessor">#endif</font>
+01693 <font class="preprocessor"></font>
+01694 
+01695 
+</pre></div>    </FONT></TD></TR></TABLE><BR>
+</TD></TR></TABLE></TD></TR></TABLE><BR><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD bgcolor="#0086b2"><IMG height="1" src="images/dot.gif" width="1" alt=""></TD></TR><TR><TD align="center"><FONT color="#0086b2" size="-1"><I>
+              Copyright &copy; 2004 The Apache Software Foundation.
+              All Rights Reserved.
+            </I></FONT></TD></TR></TABLE></BODY></HTML>

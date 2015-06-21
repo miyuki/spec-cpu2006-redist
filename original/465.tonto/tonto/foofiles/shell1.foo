@@ -1,0 +1,1164 @@
+!-------------------------------------------------------------------------------
+!
+! SHELL1: For describing contracted cartesian gaussian shells with a position
+! coordinate
+!
+! Copyright (C) Dylan Jayatilaka, 1997
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: shell1.foo,v 1.27.2.1 2003/03/06 10:40:57 dylan Exp $
+!
+!-------------------------------------------------------------------------------
+
+module SHELL1
+
+   implicit none
+
+contains
+
+   create ::: leaky
+   ! Create a shell object
+      self :: PTR
+      nullify(self)
+      allocate(self)
+      ADD_MEMORY(SHELL1_SIZE)
+      .nullify_ptr_part
+      .set_defaults
+   end
+
+   create(shell) ::: leaky
+   ! Create a shell object from another copy
+      self :: PTR
+      shell :: SHELL1, IN
+      .create
+      .copy(shell)
+   end
+
+   create_copy(shell) ::: leaky
+   ! Create a copy of a shell1 object
+      self :: PTR
+      shell :: SHELL1, IN
+      .create
+      .copy(shell)
+   end
+
+   create_copy(shell,pos) ::: leaky
+   ! Create a shell object from another copy
+      self :: PTR
+      shell :: SHELL, IN
+      pos :: REALVEC, IN
+      .create
+      .copy(shell,pos)
+   end
+
+   destroy ::: leaky
+   ! Destroy a shell object
+      self :: PTR
+      if (.destroyed) return
+      .destroy_ptr_part
+      DELETE_MEMORY(SHELL1_SIZE)
+      deallocate(self)
+   end
+
+   nullify_ptr_part
+   ! Nullify the pointer parts of self
+     nullify(.ex)
+     nullify(.cc)
+   end
+
+   destroy_ptr_part ::: leaky
+   ! Destroy pointer part of a shell object
+      .ex.destroy
+      .cc.destroy
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   copy(shell) ::: leaky
+   ! Make a shell1 object from a shell1 object.
+   ! NOTE : ensure the ptr parts have been destroyed or nullified beforehand.
+     shell :: SHELL1, IN
+     self = shell
+     .ex.create_copy(shell.ex)
+     .cc.create_copy(shell.cc)
+   end
+
+   copy(shell,pos) ::: leaky
+   ! Make a shell1 object from the shell and its position.
+   ! NOTE : ensure the ptr parts have been destroyed beforehand.
+     self :: OUT
+     shell :: SHELL, IN
+     pos :: REALVEC(:), IN
+     ENSURE(.ex.destroyed,"ex not destroyed")
+     ENSURE(.cc.destroyed,"cc not destroyed")
+     .n_cc = shell.n_cc
+     .l = shell.l
+     .n_comp = shell.n_comp
+     .pos = pos
+     .ex.create_copy(shell.ex)
+     .cc.create_copy(shell.cc)
+   end
+
+   set(shell,pos)
+   ! Set a shell1 object.
+      pos :: REALVEC, optional
+      shell :: SHELL, optional
+      if (present(pos)) .pos = pos
+      if (present(shell)) then
+         .l = shell.l
+         .n_comp = shell.n_comp
+         .n_cc = shell.n_cc
+         .ex => shell.ex
+         .cc => shell.cc
+      end
+   end
+
+   set(shell)
+   ! Set a shell1 object
+      shell :: SHELL1
+      self = shell
+   end
+
+   set_defaults
+   !
+      .l = 0
+      .n_comp = 0
+      .n_cc = 0
+      .pos = ZERO
+   end
+
+   n_prim result(res)
+   ! Return the number of primitive gaussians in the shell
+      res :: INT
+      res = .n_comp*.n_cc
+   end
+
+   update
+   ! Update the shell data
+      .n_comp = (.l+1)*(.l+2)/2
+   end
+
+!   n_comp_sum result (res)
+!   ! No. of cartesian components up to shell with momentum .l
+!     res :: INT
+!     res = (.l+1)*(.l+2)*(.l+3)/6
+!   end
+
+   put
+   ! Put the shell information to "stdout"
+       i :: INT
+      stdout.flush
+      stdout.show("L quantum number =",.l,real_width=TRUE)
+      stdout.show("Position         =",.pos)
+      stdout.flush
+      stdout.dash(int_fields=1,real_fields=2)
+      stdout.put("N", int_width=TRUE)
+      stdout.put("Exponents")
+      stdout.put("Contraction")
+      stdout.flush
+      stdout.dash(int_fields=1,real_fields=2)
+      do i = 1,.n_cc
+         stdout.put(i)
+         stdout.put( .ex(i))
+         stdout.put( .cc(i))
+         stdout.flush
+      end
+      stdout.dash(int_fields=1,real_fields=2)
+   end
+
+!  *************
+!  Input methods
+!  *************
+
+   read_keywords ::: recursive, leaky
+   ! Read data from "stdin" using keyword style input.
+      word :: STR
+      stdin.read(word)
+      DIE_IF(word/="{","expecting an open bracket symbol, {")
+      read_loop: do             ! Loop over keywords
+         stdin.read(word)
+         if (word=="}")         exit read_loop
+         if (stdin.reverted)    exit read_loop
+         .process_keyword(word)
+      end do read_loop
+      .update
+   end
+
+   process_keyword(keyword) ::: leaky
+   ! Process a command "keyword". Data is inputted from "stdin", unless
+   ! "word" is a sequence of blank separated strings. In this case,
+   ! the sequence is processed as if it were a separate file.
+      keyword :: STR(*)
+      word :: STR
+      word = keyword
+      word.to_lower_case
+      if (word.includes(" ")) then
+         stdin.redirect([word])
+         .read_keywords
+         stdin.revert
+      else
+         select case (word)
+           case ("}          "); ! exit case
+           case ("cc=        "); .read_cc
+           case ("ex=        "); .read_ex
+           case ("ex,cc=     "); .read_ex_cc
+           case ("junk,ex,cc="); .read_junk_ex_cc
+           case ("l=         "); .read_l
+           case ("l_chr=     "); .read_l_chr
+           case ("l_int=     "); .read_l_int
+           case ("n_cc=      "); .read_n_cc
+           case ("pos=       "); .read_pos
+           case ("put        "); .put
+           case ("units=     "); .read_units
+           case  default ;       UNKNOWN(word)
+         end
+      end
+   end
+
+   read_units
+   ! Read a string which describes the units to be used
+      stdin.set_default_units(stdin.next_str)
+   end
+
+   read_l
+   ! Read in the l symbol
+      word :: STR
+      stdin.read(word)
+      stdin.move_to_previous_item
+      if (word.is_int) then; .read_l_int
+      else;                  .read_l_chr
+      end
+   end
+
+   read_l_int
+   ! Read in the l integer
+      word :: STR
+      stdin.read(word)
+      ENSURE(word.is_int,"expecting an integer for L")
+      .l = word.to_int
+   end
+
+   read_l_chr
+   ! Read in the l symbol
+      word :: STR
+      l_c :: STR(1)
+      l :: INT
+      stdin.read(word)
+      ENSURE(len_trim(word)==1,"unknown L symbol")
+      l_c = word
+      l_c.to_lower_case
+      select case (l_c)
+         case ("s"); l = 0
+         case ("p"); l = 1
+         case ("d"); l = 2
+         case ("f"); l = 3
+         case ("g"); l = 4
+         case default;
+            DIE_IF(l_c<"g","unknown angular momentum character: "//l_c)
+            l = 4 + iachar(l_c)-iachar("g")
+      end
+      .l = l
+   end
+
+   read_pos
+   ! Read in the position
+      stdin.read(.pos)
+   end
+
+   read_n_cc
+   ! Read in the number of contraction coefficients
+      stdin.read(.n_cc)
+   ENSURE(.n_cc>0,"n_cc must be positive")
+   end
+
+   read_ex ::: leaky
+   ! Read in the exponents
+      ENSURE(.n_cc>0,"n_cc must be entered first")
+      ENSURE(.ex.destroyed,"ex already entered")
+      .ex.create(.n_cc)
+      stdin.read(.ex)
+   end
+
+   read_cc ::: leaky
+   ! Read in the contraction coefficients
+      ENSURE(.n_cc>0,"n_cc must be entered first")
+      ENSURE(.cc.destroyed,"cc already entered")
+      .cc.create(.n_cc)
+      stdin.read(.cc)
+   end
+
+   read_ex_cc ::: leaky
+   ! Read in the exponents and contractions
+      ENSURE(.n_cc>0,"n_cc must be entered first")
+      ENSURE(.ex.destroyed,"ex already entered")
+      ENSURE(.cc.destroyed,"ex already entered")
+      .ex.create(.n_cc)
+      .cc.create(.n_cc)
+      stdin.read(.ex,.cc)
+   end
+
+   read_junk_ex_cc ::: leaky
+   ! Read in the exponents and contractions preceded by a junk string
+      i :: INT
+      ENSURE(.n_cc>0,"n_cc must be entered first")
+      ENSURE(.ex.destroyed,"ex already entered")
+      ENSURE(.cc.destroyed,"ex already entered")
+      .ex.create(.n_cc)
+      .cc.create(.n_cc)
+      do i = 1,.n_cc
+         stdin.skip_next_item
+         stdin.read(.ex(i))
+         stdin.read(.cc(i))
+      end
+   end
+
+   same_as(sh) result(same)
+   ! Return TRUE if the shell "self" is the same as "sh".
+      sh :: SHELL1
+      same :: BIN
+      same = .l==sh.l AND .n_comp==sh.n_comp &
+         AND .ex.same_as(sh.ex) AND .cc.same_as(sh.cc) &
+         AND .pos.same_as(sh.pos)
+   end
+
+   l_chr result(res)
+   ! Return a character representation for the angular mtm
+      res :: STR(1)
+      l :: INT
+      l = .l
+      select case (l)
+         case (0); res="s"
+         case (1); res="p"
+         case (2); res="d"
+         case (3); res="f"
+         case (4); res="g"
+         case default;
+            DIE_IF(l>23,"angular momentum too large:"// trim(l.to_str))
+            res = achar(l-4+iachar("g"))
+      end select
+   end
+
+   make_contraction_matrix(ccm)
+   ! Return the contraction coefficient matrix. Size of ccm is (.n_prim,.n_comp).
+      ccm :: REALMAT
+      b,p,i :: INT
+      f :: REAL
+      fac :: REALVEC*
+      fac.create( .n_comp )
+      fac.normalising_factors( .l )
+      do b = 1,.n_comp       ! do over basis components
+         p = b               ! primitive p
+         f = fac(b)
+         do i = 1,.n_cc      ! do over contractions
+            ccm(p,b) = f*.cc(i)
+            p = p + .n_comp
+         end
+      end
+      fac.destroy
+   end
+
+   norm result (res)
+   ! Return the norm of the shell, assuming that the existing contraction
+   ! coefficients are with respect to NORMALISED gaussians
+      res :: REAL
+      i,j :: INT
+      sum,a,b,ab :: REAL
+      sum = ZERO
+      do i = 1,.n_cc
+         a = .ex(i)
+         do j = 1,i-1
+            b = .ex(j)
+            ab = TWO*sqrt(a*b)/(a+b);
+            sum = sum + TWO*.cc(i)*.cc(j)*ab**(.l+ONE+HALF);
+         end
+         sum = sum + .cc(i)*.cc(i)
+      end
+      res = sqrt(sum) * ((TWO*PI)**(THREE/FOUR))
+   end
+
+   unnormalise
+   ! Unnormalise self as if all components in the shell were x^l, and also
+   ! assuming the existing contraction coefficients are initially with respect
+   ! to NORMALISED gaussians. It is up to you to correct this factor with
+   ! appropriate double factorial square roots for other components.
+
+      ! Take out the normalisation of each primitive.
+      ! The double factorial should be: fac = 1/sqrt(df(nx)*df(ny)*df(nz))
+      ! where n are the cartesian powers of the basis component
+       .cc(:) = .cc(:) * (FOUR*.ex(:))**(HALF*.l+HALF+QUARTER) &
+                * (ONE/(.norm*sqrt(.l.double_factorial)))
+   end
+
+   renormalise
+   ! Normalise self as if all components in the shell were x^l, and also
+   ! assuming the existing contraction coefficients are with respect to raw
+   ! unnormalised gaussians. This will undo routine "unnormalise".
+   ! The overall ((TWO*PI)**(THREE/FOUR)) / .norm factor is to make the
+   ! cc=1 for a shell with one primitive
+      .cc(:) = .cc(:) / ((FOUR*.ex(:))**(HALF*.l+HALF+QUARTER)) &
+               * (sqrt(.l.double_factorial) * ((TWO*PI)**(THREE/FOUR)) / .norm)
+   end
+
+   make_grid(g,pt)
+   ! Return "g(i,n)", the value of the shell component "n" on grid point "i"
+   ! given a set of grid points "pt(i,1:3)"
+   ! Note: it is assumed that the shell is normalised, and the appropriate
+   ! double factorial normalising factors are introduced for each component
+      pt :: REALMAT, target
+       g :: REALMAT, target
+      x,y,z :: REALVEC*
+      x => pt(:,1); y => pt(:,2); z => pt(:,3)
+      .make_grid(g,x,y,z)
+   end
+
+   make_grid(f,x,y,z)
+   ! Return "f(i,n)", the value of the shell component "n" on grid point "i"
+   ! given a set of grid points "(x(i),y(i),z(i))"
+   ! Note: it is assumed that the shell is normalised; the appropriate
+   ! double factorial normalising factors are introduced for each component
+      x,y,z :: REALVEC
+      f :: REALMAT
+      fac,bx,by,bz :: REALVEC*
+      nx,ny,nz :: INTVEC*
+      n_pt,n,b :: INT
+      rr,xx,yy,zz,posx,posy,posz,f0,f1,bxb,byb,bzb :: REAL
+      xx2,yy2,zz2,xx3,yy3,zz3,zz_f1 :: REAL
+      n_pt = size(x)
+      posx = .pos(1); posy = .pos(2); posz = .pos(3)
+      select case (.l)
+        case (0)
+          do n = 1,n_pt
+             xx=x(n) - posx; yy=y(n) - posy; zz=z(n) - posz
+             rr = xx*xx + yy*yy + zz*zz
+             f(n,1) = sum( .cc * exp( -rr * .ex ))
+          end
+        case (1)
+          do n = 1,n_pt
+             xx=x(n) - posx; yy=y(n) - posy; zz=z(n) - posz
+
+             ! Radial part, summed over primitives
+             rr = xx*xx + yy*yy + zz*zz
+             f0 = sum( .cc * exp( -rr * .ex ))
+
+             f(n,1) = xx*f0
+             f(n,2) = yy*f0
+             f(n,3) = zz*f0
+          end
+        case (2)
+          do n = 1,n_pt
+             xx=x(n) - posx; yy=y(n) - posy; zz=z(n) - posz
+
+             ! Radial part, summed over primitives
+             rr = xx*xx + yy*yy + zz*zz
+             f0 = sum( .cc * exp( -rr * .ex ))
+
+             f1 = sqrt(THREE)*f0
+             zz_f1 = zz*f1
+             f(n,1) = xx*xx*f0
+             f(n,2) = yy*yy*f0
+             f(n,3) = zz*zz*f0
+             f(n,4) = xx*yy*f1
+             f(n,5) = xx*zz_f1
+             f(n,6) = yy*zz_f1
+          end
+        case (3)
+          fac.create( .n_comp );    fac.normalising_factors( .l )
+          do n = 1,n_pt
+             xx=x(n) - posx; yy=y(n) - posy; zz=z(n) - posz
+             xx2 = xx*xx
+             yy2 = yy*yy
+             zz2 = zz*zz
+             xx3 = xx2*xx
+             yy3 = yy2*yy
+             zz3 = zz2*zz
+
+             ! Radial part, summed over primitives
+             rr = xx2 + yy2 + zz2
+             f0 = sum( .cc * exp( -rr * .ex ))
+
+             f(n,1)  = fac(1)*f0*xx3
+             f(n,2)  = fac(2)*f0*yy3
+             f(n,3)  = fac(3)*f0*zz3
+             f(n,4)  = fac(4)*f0*xx2*yy
+             f(n,5)  = fac(5)*f0*xx2*zz
+             f(n,6)  = fac(6)*f0*xx*yy2
+             f(n,7)  = fac(7)*f0*yy2*zz
+             f(n,8)  = fac(8)*f0*xx*zz2
+             f(n,9)  = fac(9)*f0*yy*zz2
+             f(n,10) = fac(10)*f0*xx*yy*zz
+          end
+          fac.destroy
+        case default
+          nx.create(.n_comp); ny.create(.n_comp); nz.create(.n_comp)
+          .l.make_gaussian_xyz_powers(nx,ny,nz)
+          fac.create( .n_comp );    fac.normalising_factors( .l )
+          bx.create(0,.l)
+          by.create(0,.l)
+          bz.create(0,.l)
+          do n = 1,n_pt
+             xx=x(n) - posx; yy=y(n) - posy; zz=z(n) - posz
+
+             ! Radial part, summed over primitives
+             rr = xx*xx + yy*yy + zz*zz
+             f0 = sum( .cc * exp( -rr * .ex ))
+
+             ! Cartesian orbital part
+             ! x**b,y**b,z**b for b=0,.l
+             bx(0) = ONE;   by(0) = ONE;   bz(0) = ONE
+             bx(1) = xx;    by(1) = yy;    bz(1) = zz
+             bxb = xx;      byb = yy;      bzb = zz
+             do b=2,.l
+               bxb = bxb*xx;   byb = byb*yy;   bzb = bzb*zz
+               bx(b) = bxb;    by(b) = byb;    bz(b) = bzb
+             end
+
+             ! Combine cartesian orbital powers with the exponential part
+             f(n,:) = fac(:)*f0*bx(nx(:))*by(ny(:))*bz(nz(:))
+          end
+          bz.destroy
+          by.destroy
+          bx.destroy
+          fac.destroy
+          nz.destroy; ny.destroy; nx.destroy
+     end
+   end
+
+   make_nabla_grid(g,pt)
+   ! Return "g(i,n,1:3)", the value of the gradient of the shell component "n"
+   ! on grid point "i" given a set of grid points "pt(i,1:3)".
+      pt :: REALMAT
+      g :: REALMAT3
+      fac,cc_exp_rr,bx,by,bz,gxb,gyb,gzb :: REALVEC*
+      nn :: INTMAT*
+      n_pt,n,b,nxb,nyb,nzb :: INT
+      xx,yy,zz,rr,facb :: REAL
+      g0,g1,g1x,g1y,g1z,x,y,z,bxb,byb,bzb :: REAL
+      ENSURE(size(pt,2)==3,"pt matrix incorrectly dimensioned")
+      n_pt = size(pt,1)
+      x = .pos(1);  y = .pos(2);  z = .pos(3)
+      select case (.l)
+        case (0)
+          do n = 1,n_pt              ! Do the exponential part of the gaussian
+             xx=pt(n,1) - x;   yy=pt(n,2) - y;   zz=pt(n,3) - z
+             rr = xx*xx + yy*yy + zz*zz
+             g1 = -TWO*sum(.ex*.cc*exp(-.ex*rr))
+             g(n,1,1) = g1*xx
+             g(n,1,2) = g1*yy
+             g(n,1,3) = g1*zz
+          end
+        case (1)
+          cc_exp_rr.create(.n_cc)
+          do n = 1,n_pt              ! Do the exponential part of the gaussian
+             xx=pt(n,1) - x;   yy=pt(n,2) - y;   zz=pt(n,3) - z
+             rr = xx*xx + yy*yy + zz*zz
+             cc_exp_rr = .cc*exp(-.ex*rr)
+             g0 = sum(cc_exp_rr)
+             g1 = -TWO*sum(.ex*cc_exp_rr)
+             g1x = g1*xx
+             g1y = g1*yy
+             g1z = g1*zz
+             g(n,1,1) = g0+xx*g1x
+             g(n,1,2) = xx*g1y
+             g(n,1,3) = xx*g1z
+             g(n,2,1) = yy*g1x
+             g(n,2,2) = g0+yy*g1y
+             g(n,2,3) = yy*g1z
+             g(n,3,1) = zz*g1x
+             g(n,3,2) = zz*g1y
+             g(n,3,3) = g0+zz*g1z
+          end
+          cc_exp_rr.destroy
+        case default
+          cc_exp_rr.create(.n_cc)
+          nn.create(3, .n_comp );   .l.make_gaussian_xyz_powers(nn)
+          fac.create( .n_comp );    fac.normalising_factors( .l )
+          bx.create(0,.l);   by.create(0,.l);   bz.create(0,.l)
+          gxb.create(0,.l);  gyb.create(0,.l);  gzb.create(0,.l)
+          do n = 1,n_pt              ! Do the exponential part of the gaussian
+             xx=pt(n,1) - x;   yy=pt(n,2) - y;   zz=pt(n,3) - z
+             rr = xx*xx + yy*yy + zz*zz
+             cc_exp_rr = .cc*exp(-.ex*rr)
+             g0 = sum(cc_exp_rr)
+             g1 = -TWO*sum(.ex*cc_exp_rr)
+             g1x = g1*xx
+             g1y = g1*yy
+             g1z = g1*zz
+             ! gxb(b)=x**(b-1),  bx(b)=x**b for b=0,.l
+             bx(0) = ONE;         by(0) = ONE;         bz(0) = ONE
+             bx(1) = xx;          by(1) = yy;          bz(1) = zz
+             bxb = xx;            byb = yy;            bzb = zz
+             gxb(0) = g1x;        gyb(0) = g1y;        gzb(0) = g1z
+             gxb(1) = g0+xx*g1x;  gyb(1) = g0+yy*g1y;  gzb(1) = g0+zz*g1z
+             do b=2,.l
+               gxb(b) = (b*g0+xx*g1x) * bxb           ! (n-1)th power
+               gyb(b) = (b*g0+yy*g1y) * byb           ! of the xyz part
+               gzb(b) = (b*g0+zz*g1z) * bzb
+               bxb = bxb*xx;   byb = byb*yy;   bzb = bzb*zz
+               bx(b) = bxb;    by(b) = byb;    bz(b) = bzb
+             end
+             ! Loop over basis functions
+             do b = 1,.n_comp
+                nxb = nn(1,b)
+                nyb = nn(2,b)
+                nzb = nn(3,b)
+                facb = fac(b)         ! Basis fn. normalisation factor
+                g(n,b,1) = facb * gxb(nxb) *  by(nyb) *  bz(nzb)
+                g(n,b,2) = facb *  bx(nxb) * gyb(nyb) *  bz(nzb)
+                g(n,b,3) = facb *  bx(nxb) *  by(nyb) * gzb(nzb)
+             end
+          end
+          gzb.destroy;  gyb.destroy;  gxb.destroy
+          bz.destroy;   by.destroy;   bx.destroy
+          fac.destroy
+          nn.destroy
+          cc_exp_rr.destroy
+      end
+   end
+
+   make_nabla_grid(g,f,pt)
+   ! Return "g(i,n,1:3)", the value of the gradient of the shell component "n"
+   ! on grid point "i" given a set of grid points "pt(i,1:3)".
+      f,pt :: REALMAT
+      g :: REALMAT3
+      fac,cc_exp_rr,bx,by,bz,gxb,gyb,gzb :: REALVEC*
+      nn :: INTMAT*
+      n_pt,n,b,nxb,nyb,nzb :: INT
+      xx,yy,zz,rr,facb,xx_g1x,yy_g1y,zz_g1z :: REAL
+      g0,g1,g1x,g1y,g1z,x,y,z,bxb,byb,bzb,by_bz,facb_bx :: REAL
+      ENSURE(size(pt,2)==3,"pt matrix incorrectly dimensioned")
+      n_pt = size(pt,1)
+      x = .pos(1);  y = .pos(2);  z = .pos(3)
+      cc_exp_rr.create(.n_cc)
+      select case (.l)
+        case (0)
+          do n = 1,n_pt              ! Do the exponential part of the gaussian
+             xx=pt(n,1) - x;   yy=pt(n,2) - y;   zz=pt(n,3) - z
+
+             ! Radial part, summed over primitives
+             rr = xx*xx + yy*yy + zz*zz
+             cc_exp_rr = .cc*exp(-.ex*rr)
+             g1 = -TWO*sum(.ex*cc_exp_rr)
+
+             f(n,1)   = sum(cc_exp_rr)
+             g(n,1,1) = g1*xx
+             g(n,1,2) = g1*yy
+             g(n,1,3) = g1*zz
+          end
+        case (1)
+          do n = 1,n_pt              ! Do the exponential part of the gaussian
+             xx=pt(n,1) - x;   yy=pt(n,2) - y;   zz=pt(n,3) - z
+
+             ! Radial part, summed over primitives
+             rr = xx*xx + yy*yy + zz*zz
+             cc_exp_rr = .cc*exp(-.ex*rr)
+             g0 = sum(cc_exp_rr)
+             g1 = -TWO*sum(.ex*cc_exp_rr)
+
+             g1x = g1*xx
+             g1y = g1*yy
+             g1z = g1*zz
+             f(n,1) = xx*g0
+             f(n,2) = yy*g0
+             f(n,3) = zz*g0
+             g(n,1,1) = g0+xx*g1x
+             g(n,1,2) = xx*g1y
+             g(n,1,3) = xx*g1z
+             g(n,2,1) = yy*g1x
+             g(n,2,2) = g0+yy*g1y
+             g(n,2,3) = yy*g1z
+             g(n,3,1) = zz*g1x
+             g(n,3,2) = zz*g1y
+             g(n,3,3) = g0+zz*g1z
+          end
+        case default
+          nn.create(3, .n_comp );   .l.make_gaussian_xyz_powers(nn)
+          fac.create( .n_comp );    fac.normalising_factors( .l )
+          bx.create(0,.l);   by.create(0,.l);   bz.create(0,.l)
+          gxb.create(0,.l);  gyb.create(0,.l);  gzb.create(0,.l)
+          do n = 1,n_pt              ! Do the exponential part of the gaussian
+             xx=pt(n,1) - x;   yy=pt(n,2) - y;   zz=pt(n,3) - z
+             ! Radial part, summed over primitives
+             rr = xx*xx + yy*yy + zz*zz
+             cc_exp_rr = .cc*exp(-.ex*rr)
+             g0 = sum(cc_exp_rr)
+             g1 = -TWO*sum(.ex*cc_exp_rr)
+             ! Cartesian orbital part
+             ! gxb(b)=x**(b-1),  bx(b)=x**b for b=0,.l
+             g1x = g1*xx
+             g1y = g1*yy
+             g1z = g1*zz
+             xx_g1x = xx*g1x
+             yy_g1y = yy*g1y
+             zz_g1z = zz*g1z
+             bxb = xx;            byb = yy;            bzb = zz
+             bx(0) = ONE;         by(0) = ONE;         bz(0) = ONE
+             bx(1) = xx;          by(1) = yy;          bz(1) = zz
+             gxb(0) = g1x;        gyb(0) = g1y;        gzb(0) = g1z
+             gxb(1) = g0+xx_g1x;  gyb(1) = g0+yy_g1y;  gzb(1) = g0+zz_g1z
+             do b=2,.l
+               gxb(b) = (b*g0+xx_g1x) * bxb          ! (n-1)th power
+               gyb(b) = (b*g0+yy_g1y) * byb          ! of the xyz part
+               gzb(b) = (b*g0+zz_g1z) * bzb
+               bxb = bxb*xx;   byb = byb*yy;   bzb = bzb*zz
+               bx(b) = bxb;    by(b) = byb;    bz(b) = bzb
+             end
+             ! Combine cartesian orbital powers with the exponential part
+             do b = 1,.n_comp
+               nxb = nn(1,b)
+               nyb = nn(2,b)
+               nzb = nn(3,b)
+               facb = fac(b)         ! Basis fn. normalisation factor
+               bxb = bx(nxb)
+               byb = by(nyb)
+               bzb = bz(nzb)
+               by_bz = byb *  bzb
+               facb_bx = facb  *  bxb
+               f(n,b)   = facb_bx * by_bz * g0
+               g(n,b,1) = facb    * gxb(nxb) * by_bz
+               g(n,b,2) = facb_bx * gyb(nyb) * bzb
+               g(n,b,3) = facb_bx * byb      * gzb(nzb)
+             end
+
+          end
+          gzb.destroy;  gyb.destroy;  gxb.destroy
+          bz.destroy;   by.destroy;   bx.destroy
+          fac.destroy
+          nn.destroy
+      end
+      cc_exp_rr.destroy
+   end
+
+   make_nabla_grid_fdm(g,f,pt)
+   ! Return "g(i,n,1:3)", the value of the gradient of the shell component "n"
+   ! on grid point "i" given a set of grid points "pt(i,1:3)".
+   ! This nabla grid is produced using the finite difference method.  It is much
+   ! slower, but useful for checking.
+      f,pt :: REALMAT
+      g :: REALMAT3
+      f1,f2,pt1 :: REALMAT*
+      comp :: REALVEC*
+      alpha :: REAL
+      n_pt,i :: INT
+      ENSURE(size(pt,2)==3,"pt matrix incorrectly dimensioned")
+      n_pt = size(pt,1)
+      .make_grid(f,pt)
+      alpha = TOL(6)
+      pt1.create(n_pt,3)
+      f1.create(n_pt,.n_comp)
+      f2.create(n_pt,.n_comp)
+      do i=1,3
+        comp => pt1(:,i)
+        pt1 = pt
+        comp = comp + alpha
+        .make_grid(f1,pt1)
+        pt1 = pt
+        comp = comp - alpha
+        .make_grid(f2,pt1)
+        g(:,:,i) = HALF/alpha * (f2(:,:) - f1(:,:))
+      end
+      f2.destroy
+      f1.destroy
+      pt1.destroy
+   end
+
+   make_laplacian_grid(g,pt)
+   ! Return "g(i,n,1:3)", the value of the second derivatives
+   ! (d/dx2,d/dy2,d/dz2) of the shell component "n" on grid point "i" given a
+   ! set of grid points "pt(i,1:3)".
+      pt :: REALMAT
+      g :: REALMAT3
+      fac :: REALVEC*
+      nn :: INTMAT*
+      n_pt,n,b,p,j,nx,ny,nz :: INT
+      aa,a2,x,y,z,rr,val :: REAL
+      g0,g1,g2,g2x,g2y,g2z :: REAL
+      gnbx,gnby,gnbz,x2,y2,z2 :: REAL
+      gx0,gx1,gy0,gy1,gz0,gz1,facb :: REAL
+      tn,tn2 :: REAL
+      ENSURE(size(pt,2)==3,"pt matrix incorrectly dimensioned")
+      n_pt = size(pt,1)
+      select case (.l)
+        case (0)
+          do n = 1,n_pt             ! Do the exponential part of the gaussian
+            x=pt(n,1) - .pos(1); y=pt(n,2) - .pos(2); z=pt(n,3) - .pos(3)
+            x2 = x*x;   y2 = y*y;   z2 = z*z
+            rr = x2 + y2 + z2
+            g1 = ZERO
+            g2 = ZERO
+            do p = 1,.n_cc          ! Loop over primitives
+              aa = .ex(p)
+              a2 = aa+aa
+              val = .cc(p)*exp(-aa*rr)
+              g1 = g1 - a2*val
+              g2 = g2 + a2*a2*val
+            end
+            g(n,1,1) = g1 + g2*x2
+            g(n,1,2) = g1 + g2*y2
+            g(n,1,3) = g1 + g2*z2
+          end
+        case (1)
+          do n = 1,n_pt             ! Do the exponential part of the gaussian
+            x=pt(n,1) - .pos(1); y=pt(n,2) - .pos(2); z=pt(n,3) - .pos(3)
+            x2 = x*x;   y2 = y*y;   z2 = z*z
+            rr = x2 + y2 + z2
+            g1 = ZERO
+            g2 = ZERO
+            do p = 1,.n_cc          ! Loop over primitives
+              aa = .ex(p)
+              a2 = aa+aa
+              val = .cc(p)*exp(-aa*rr)
+              g1 = g1 - a2*val
+              g2 = g2 + a2*a2*val
+            end
+            g2x = g2 * x2
+            g2y = g2 * y2
+            g2z = g2 * z2
+            g(n,1,1) = x * (3 * g1 + g2x)
+            g(n,1,2) = x * (g1 + g2y)
+            g(n,1,3) = x * (g1 + g2z)
+            g(n,2,1) = y * (g1 + g2x)
+            g(n,2,2) = y * (3 * g1 + g2y)
+            g(n,2,3) = y * (g1 + g2z)
+            g(n,3,1) = z * (g1 + g2x)
+            g(n,3,2) = z * (g1 + g2y)
+            g(n,3,3) = z * (3 * g1 + g2z)
+          end
+        case default
+          nn.create(3,.n_comp);   .l.make_gaussian_xyz_powers(nn)
+          fac.create(.n_comp);    fac.normalising_factors(.l)
+          do n = 1,n_pt             ! Do the exponential part of the gaussian
+            x=pt(n,1) - .pos(1); y=pt(n,2) - .pos(2); z=pt(n,3) - .pos(3)
+            x2 = x*x;   y2 = y*y;   z2 = z*z
+            rr = x2 + y2 + z2
+            g0 = ZERO
+            g1 = ZERO
+            g2 = ZERO
+            do p = 1,.n_cc          ! Loop over primitives
+              aa = .ex(p)
+              a2 = aa+aa
+              val = .cc(p)*exp(-aa*rr)
+              g0 = g0 +    val
+              g1 = g1 - a2*val
+              g2 = g2 + a2*a2*val
+            end
+            g2x = g2 * x2
+            g2y = g2 * y2
+            g2z = g2 * z2
+
+            ! Some that are used multiple times.
+            ! Taken out of loop over n_comp.
+            gx0 = g1 + g2x
+            gy0 = g1 + g2y
+            gz0 = g1 + g2z
+            gx1 = (THREE * g1 + g2x)*x  ! *x^1
+            gy1 = (THREE * g1 + g2y)*y  ! *y^1
+            gz1 = (THREE * g1 + g2z)*z  ! *z^1
+
+            do b = 1,.n_comp        ! Loop over basis functions
+                nx = nn(1,b)
+                ny = nn(2,b)
+                nz = nn(3,b)
+
+                select case (nx)
+                  case (0);     gnbx = gx0
+                  case (1);     gnbx = gx1
+                  case (2);     gnbx = g0+g0 + (5 * g1 + g2x) * x * x
+                  case default
+                    tn2 = x**(nx-2)
+                    tn = tn2*x*x
+                    gnbx = nx*(nx-1)*g0*tn2 + ((nx+nx+1) * g1 + g2x) * tn
+                end
+                select case (ny)
+                  case (0);     gnby = gy0
+                  case (1);     gnby = gy1
+                  case (2);     gnby = g0+g0 + (5 * g1 + g2y) * y * y
+                  case default
+                    tn2 = y**(ny-2)
+                    tn = tn2*y*y
+                    gnby = ny*(ny-1)*g0*tn2 + ((ny+ny+1) * g1 + g2y) * tn
+                end
+                select case (nz)
+                  case (0);     gnbz = gz0
+                  case (1);     gnbz = gz1
+                  case (2);     gnbz = g0+g0 + (5 * g1 + g2z) * z * z
+                  case default
+                    tn2 = z**(nz-2)
+                    tn = tn2*z*z
+                    gnbz = nz*(nz-1)*g0*tn2 + ((nz+nz+1) * g1 + g2z) * tn
+                end
+
+                do j = 1,nx
+                   gnby = x*gnby    ! Do the cartesian (x_i)^j, i/=k part of
+                   gnbz = x*gnbz    ! gaussian power of the xyz part not equal
+                end                 ! to deriv. component k
+                do j = 1,ny
+                   gnbx = y*gnbx
+                   gnbz = y*gnbz
+                end
+                do j = 1,nz
+                   gnbx = z*gnbx
+                   gnby = z*gnby
+                end
+
+                facb = fac(b)
+                g(n,b,1) = gnbx*facb ! Basis fn. normalisation factor
+                g(n,b,2) = gnby*facb
+                g(n,b,3) = gnbz*facb
+             end
+          end
+          fac.destroy
+          nn.destroy
+      end
+   end
+
+   make_laplacian_grid(g,h,i,pt)
+   ! Return "g(j,n,1:3)", the value of the second derivatives
+   ! (d/dx2,d/dy2,d/dz2) of the shell component n on grid point j given a
+   ! set of grid points "pt(j,1:3)". Also return "h(j,n,1:3)", the value of the
+   ! first derivative, and return "i(n)", the value of the gaussian
+      pt :: REALMAT
+      g,h :: REALMAT3
+      i :: REALMAT
+      fac :: REALVEC*
+      nn :: INTMAT*
+      n_pt,n,b,p,j,nx,ny,nz :: INT
+      aa,a2,x,y,z,rr,val :: REAL
+      g0,g1,g2,g2x,g2y,g2z :: REAL
+      gnbx,gnby,gnbz,x2,y2,z2 :: REAL
+      gx0,gx1,gy0,gy1,gz0,gz1,facb,inb :: REAL
+      hnbx,hnby,hnbz,hx1,hy1,hz1,h1x,h1y,h1z :: REAL
+      tn,tn1,tn2,twog0 :: REAL
+      ENSURE(size(pt,2)==3,"pt matrix incorrectly dimensioned")
+      n_pt = size(pt,1)
+      select case (.l)
+        case (0)
+          do n = 1,n_pt             ! Do the exponential part of the gaussian
+            x=pt(n,1) - .pos(1); y=pt(n,2) - .pos(2); z=pt(n,3) - .pos(3)
+            x2 = x*x;   y2 = y*y;   z2 = z*z
+            rr = x2 + y2 + z2
+            g0 = ZERO
+            g1 = ZERO
+            g2 = ZERO
+            do p = 1,.n_cc          ! Loop over primitives
+              aa = .ex(p)
+              a2 = aa+aa
+              val = .cc(p)*exp(-aa*rr)
+              g0 = g0 + val
+              g1 = g1 - a2*val
+              g2 = g2 + a2*a2*val
+            end
+            g(n,1,1) = g1 + g2*x2
+            g(n,1,2) = g1 + g2*y2
+            g(n,1,3) = g1 + g2*z2
+            h(n,1,1) = g1*x
+            h(n,1,2) = g1*y
+            h(n,1,3) = g1*z
+            i(n,1)   = g0
+          end
+        case (1)
+          do n = 1,n_pt             ! Do the exponential part of the gaussian
+            x=pt(n,1) - .pos(1); y=pt(n,2) - .pos(2); z=pt(n,3) - .pos(3)
+            x2 = x*x;   y2 = y*y;   z2 = z*z
+            rr = x2 + y2 + z2
+            g0 = ZERO
+            g1 = ZERO
+            g2 = ZERO
+            do p = 1,.n_cc          ! Loop over primitives
+              aa = .ex(p)
+              a2 = aa+aa
+              val = .cc(p)*exp(-aa*rr)
+              g0 = g0 + val
+              g1 = g1 - a2*val
+              g2 = g2 + a2*a2*val
+            end
+            g2x = g2 * x2
+            g2y = g2 * y2
+            g2z = g2 * z2
+            g(n,1,1) = x * (3 * g1 + g2x)
+            g(n,1,2) = x * (g1 + g2y)
+            g(n,1,3) = x * (g1 + g2z)
+            g(n,2,1) = y * (g1 + g2x)
+            g(n,2,2) = y * (3 * g1 + g2y)
+            g(n,2,3) = y * (g1 + g2z)
+            g(n,3,1) = z * (g1 + g2x)
+            g(n,3,2) = z * (g1 + g2y)
+            g(n,3,3) = z * (3 * g1 + g2z)
+            h1x = g1*x
+            h1y = g1*y
+            h1z = g1*z
+            h(n,1,1) = g0+x2*g1
+            h(n,1,2) = x*h1y
+            h(n,1,3) = x*h1z
+            h(n,2,1) = y*h1x
+            h(n,2,2) = g0+y2*g1
+            h(n,2,3) = y*h1z
+            h(n,3,1) = z*h1x
+            h(n,3,2) = z*h1y
+            h(n,3,3) = g0+z2*g1
+            i(n,1)   = g0*x
+            i(n,2)   = g0*y
+            i(n,3)   = g0*z
+          end
+        case default
+          nn.create(3,.n_comp);   .l.make_gaussian_xyz_powers(nn)
+          fac.create(.n_comp);    fac.normalising_factors(.l)
+          do n = 1,n_pt             ! Do the exponential part of the gaussian
+            x=pt(n,1) - .pos(1); y=pt(n,2) - .pos(2); z=pt(n,3) - .pos(3)
+            x2 = x*x;   y2 = y*y;   z2 = z*z
+            rr = x2 + y2 + z2
+            g0 = ZERO
+            g1 = ZERO
+            g2 = ZERO
+            do p = 1,.n_cc          ! Loop over primitives
+              aa = .ex(p)
+              a2 = aa+aa
+              val = .cc(p)*exp(-aa*rr)
+              g0 = g0 + val
+              g1 = g1 - aa*val
+              g2 = g2 + aa*aa*val
+!              g1 = g1 - a2*val
+!              g2 = g2 + a2*a2*val
+            end
+            g1 = g1 * TWO
+            g2 = g2 * FOUR
+            g2x = g2 * x2
+            g2y = g2 * y2
+            g2z = g2 * z2
+
+            ! Some that are used multiple times.
+            ! Taken out of loop over n_comp.
+            gx0 = g1 + g2x
+            gy0 = g1 + g2y
+            gz0 = g1 + g2z
+            gx1 = (THREE * g1 + g2x)*x  ! *x^1
+            gy1 = (THREE * g1 + g2y)*y  ! *y^1
+            gz1 = (THREE * g1 + g2z)*z  ! *z^1
+            h1x = g1*x
+            h1y = g1*y
+            h1z = g1*z
+            hx1 = g0 + x2*g1
+            hy1 = g0 + y2*g1
+            hz1 = g0 + z2*g1
+
+            do b = 1,.n_comp        ! Loop over basis functions
+                inb = g0
+                nx = nn(1,b)
+                ny = nn(2,b)
+                nz = nn(3,b)
+
+                select case (nx)
+                  case (0);     gnbx = gx0
+                                hnbx = h1x
+                  case (1);     gnbx = gx1
+                                hnbx = hx1
+                  case (2)
+                    tn = x*x
+                    twog0 = g0+g0
+                    gnbx = twog0 + (5 * g1 + g2x)*tn
+                    hnbx = twog0*x + h1x*tn
+                  case default
+                    tn2 = x**(nx-2)
+                    tn1 = tn2*x
+                    tn = tn2*x*x
+                    gnbx = nx*(nx-1)*g0*tn2 + ((2*nx+1) * g1 + g2x)*tn
+                    hnbx = nx*g0*tn1 + h1x*tn
+                end
+                select case (ny)
+                  case (0);     gnby = gy0
+                                hnby = h1y
+                  case (1);     gnby = gy1
+                                hnby = hy1
+                  case (2)
+                    tn = y*y
+                    twog0 = g0+g0
+                    gnby = twog0 + (5 * g1 + g2y)*tn
+                    hnby = twog0*y + h1y*tn
+                  case default
+                    tn2 = y**(ny-2)
+                    tn1 = tn2*y
+                    tn = tn2*y*y
+                    gnby = ny*(ny-1)*g0*tn2 + ((2*ny+1) * g1 + g2y)*tn
+                    hnby = ny*g0*tn1 + h1y*tn
+                end
+                select case (nz)
+                  case (0);     gnbz = gz0
+                                hnbz = h1z
+                  case (1);     gnbz = gz1
+                                hnbz = hz1
+                  case (2)
+                    tn = z*z
+                    twog0 = g0+g0
+                    gnbz = twog0 + (5 * g1 + g2z)*tn
+                    hnbz = twog0*z + h1z*tn
+                  case default
+                    tn2 = z**(nz-2)
+                    tn1 = tn2*z
+                    tn = tn2*z*z
+                    gnbz = nz*(nz-1)*g0*tn2 + ((2*nz+1) * g1 + g2z)*tn
+                    hnbz = nz*g0*tn1 + h1z*tn
+                end
+
+                do j = 1,nx
+                   gnby = x*gnby    ! Do the cartesian (x_i)^j, i/=k part of
+                   gnbz = x*gnbz    ! gaussian power of the xyz part not equal
+                   hnby = x*hnby
+                   hnbz = x*hnbz
+                   inb  = x*inb
+                end                 ! to deriv. component k
+                do j = 1,ny
+                   gnbx = y*gnbx
+                   gnbz = y*gnbz
+                   hnbx = y*hnbx
+                   hnbz = y*hnbz
+                   inb  = y*inb
+                end
+                do j = 1,nz
+                   gnbx = z*gnbx
+                   gnby = z*gnby
+                   hnbx = z*hnbx
+                   hnby = z*hnby
+                   inb  = z*inb
+                end
+
+                facb = fac(b)
+                g(n,b,1) = gnbx*facb ! Basis fn. normalisation factor
+                g(n,b,2) = gnby*facb
+                g(n,b,3) = gnbz*facb
+                h(n,b,1) = hnbx*facb
+                h(n,b,2) = hnby*facb
+                h(n,b,3) = hnbz*facb
+                i(n,b)   = inb *facb
+             end
+          end
+          fac.destroy
+          nn.destroy
+      end
+   end
+
+end

@@ -1,0 +1,603 @@
+# Makefile.in generated automatically by automake 1.5 from Makefile.am.
+
+# Copyright 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001
+# Free Software Foundation, Inc.
+# This Makefile.in is free software; the Free Software Foundation
+# gives unlimited permission to copy and/or distribute it,
+# with or without modifications, as long as this notice is preserved.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.
+
+@SET_MAKE@
+
+# Note: Makefile is automatically generated from Makefile.in by the configure
+# script, and Makefile.in is generated from Makefile.am by automake.
+
+SHELL = @SHELL@
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+libdir = @libdir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
+oldincludedir = /usr/include
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
+top_builddir = ../..
+
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOMAKE = @AUTOMAKE@
+AUTOHEADER = @AUTOHEADER@
+
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+INSTALL_HEADER = $(INSTALL_DATA)
+transform = @program_transform_name@
+NORMAL_INSTALL = :
+PRE_INSTALL = :
+POST_INSTALL = :
+NORMAL_UNINSTALL = :
+PRE_UNINSTALL = :
+POST_UNINSTALL = :
+host_alias = @host_alias@
+host_triplet = @host@
+AMTAR = @AMTAR@
+AS = @AS@
+ASFLAGS = @ASFLAGS@
+AWK = @AWK@
+CC = @CC@
+CC_FOR_BUILD = @CC_FOR_BUILD@
+CPP = @CPP@
+CXX = @CXX@
+CXXCPP = @CXXCPP@
+DEPDIR = @DEPDIR@
+DLLTOOL = @DLLTOOL@
+ECHO = @ECHO@
+EXEEXT = @EXEEXT@
+F77 = @F77@
+F77LINK = @F77LINK@
+FLIBS = @FLIBS@
+GCJ = @GCJ@
+GCJFLAGS = @GCJFLAGS@
+GMXLIB_LIBOBJS = @GMXLIB_LIBOBJS@
+IDENT = @IDENT@
+INCLUDES = @INCLUDES@
+INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
+LIBSUFFIX = @LIBSUFFIX@
+LIBTOOL = @LIBTOOL@
+LN_S = @LN_S@
+MDLIB_LIBOBJS = @MDLIB_LIBOBJS@
+MPICC = @MPICC@
+OBJDUMP = @OBJDUMP@
+OBJEXT = @OBJEXT@
+PACKAGE = @PACKAGE@
+RANLIB = @RANLIB@
+RC = @RC@
+RPM = @RPM@
+SHARED_VERSION_INFO = @SHARED_VERSION_INFO@
+STRIP = @STRIP@
+VERSION = @VERSION@
+X_CFLAGS = @X_CFLAGS@
+X_EXTRA_LIBS = @X_EXTRA_LIBS@
+X_LIBS = @X_LIBS@
+X_PRE_LIBS = @X_PRE_LIBS@
+am__include = @am__include@
+am__quote = @am__quote@
+install_sh = @install_sh@
+
+AM_CPPFLAGS = -I$(top_srcdir)/include -DGMXLIBDIR=\"$(datadir)/top\"
+
+lib_LTLIBRARIES = libgmx@LIBSUFFIX@.la
+
+libgmx@LIBSUFFIX@_la_LIBADD = @GMXLIB_LIBOBJS@
+libgmx@LIBSUFFIX@_la_DEPENDENCIES = @GMXLIB_LIBOBJS@
+libgmx@LIBSUFFIX@_la_LDFLAGS = -version-info @SHARED_VERSION_INFO@
+
+libgmx@LIBSUFFIX@_la_SOURCES = \
+	3dview.c	atomprop.c	block_tx.c	bondfree.c	\
+	buffer.c	calcgrid.c	calch.c		inner.h		\
+	confio.c	copyrite.c	disre.c		do_fit.c	\
+	enxio.c		ewald_util.c	fatal.c		ffscanf.c	\
+	filenm.c	futil.c		gbutil.c	fnbf.c		\
+	gmxfio.c	ifunc.c		index.c		cinvsqrtdata.c	\
+	crecipdata.c    invblock.c	macros.c	\
+	main.c		maths.c		matio.c		memdump.c	\
+	mshift.c	mvdata.c	mvxvf.c		names.c		\
+	network.c	nrama.c		nrjac.c		nrnb.c		\
+	orires.c	\
+	pargs.c		pbc.c		pdbio.c		princ.c		\
+	rando.c		random.c	rbin.c		rdgroup.c	\
+	readinp.c	replace.c	rmpbc.c		shift_util.c	\
+	sortwater.c	smalloc.c	stat.c		statutil.c	\
+	strdb.c		string2.c	symtab.c	tpxio.c		\
+	trnio.c		trxio.c		txtdump.c	typedefs.c	\
+	viewit.c	wgms.c		wman.c		writeps.c	\
+	xdrd.c		xtcio.c		xvgr.c   	replace.h	\
+	detectcpu.c	libxdrf.c	vec.c		
+
+
+EXTRA_libgmx@LIBSUFFIX@_la_SOURCES = \
+	x86_sse.s	x86_sse2.s	x86_3dnow.s  	inner_altivec.c \
+	mgmx.c		widget.c	widget.h	x86_cpuid.s	\
+	axp_asm.s	f77_wrappers.c	
+
+
+nodist_EXTRA_libgmx@LIBSUFFIX@_la_SOURCES = innerf.f innerc.c
+
+
+# mkinl is special - cant use a noinst_PROGRAMS target, since it might have 
+# to be compiled with a non-MPI compiler whose files can be executed directly:
+EXTRA_DIST = mkinl_declarations.c	\
+		mkinl_outerloop.c	mkinl_innerloop.c	\
+		mkinl_invsqrt.c		mkinl_calcdist.c	\
+		mkinl_recip.c		mkinl_interactions.c	\
+		metacode.c		mkinl.h			\
+		mkinl_fortrandata.h	mkinl.c
+
+
+BUILD_COMPILE = $(CC_FOR_BUILD) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+
+MKINL_OBJ = \
+		mkinl.o mkinl_declarations.o mkinl_outerloop.o mkinl_innerloop.o \
+		mkinl_calcdist.o mkinl_invsqrt.o mkinl_recip.o mkinl_interactions.o \
+		metacode.o
+
+
+# clean all libtool libraries, since the target names might have changed
+CLEANFILES = *.la *~ \\\#* innerc.c innerf.f mkinl axp_asm.S
+subdir = src/gmxlib
+mkinstalldirs = $(SHELL) $(top_srcdir)/config/mkinstalldirs
+CONFIG_HEADER = $(top_builddir)/src/config.h
+CONFIG_CLEAN_FILES =
+LTLIBRARIES = $(lib_LTLIBRARIES)
+
+am_libgmx@LIBSUFFIX@_la_OBJECTS = 3dview.lo atomprop.lo block_tx.lo \
+	bondfree.lo buffer.lo calcgrid.lo calch.lo confio.lo \
+	copyrite.lo disre.lo do_fit.lo enxio.lo ewald_util.lo fatal.lo \
+	ffscanf.lo filenm.lo futil.lo gbutil.lo fnbf.lo gmxfio.lo \
+	ifunc.lo index.lo cinvsqrtdata.lo crecipdata.lo invblock.lo \
+	macros.lo main.lo maths.lo matio.lo memdump.lo mshift.lo \
+	mvdata.lo mvxvf.lo names.lo network.lo nrama.lo nrjac.lo \
+	nrnb.lo orires.lo pargs.lo pbc.lo pdbio.lo princ.lo rando.lo \
+	random.lo rbin.lo rdgroup.lo readinp.lo replace.lo rmpbc.lo \
+	shift_util.lo sortwater.lo smalloc.lo stat.lo statutil.lo \
+	strdb.lo string2.lo symtab.lo tpxio.lo trnio.lo trxio.lo \
+	txtdump.lo typedefs.lo viewit.lo wgms.lo wman.lo writeps.lo \
+	xdrd.lo xtcio.lo xvgr.lo detectcpu.lo libxdrf.lo vec.lo
+libgmx@LIBSUFFIX@_la_OBJECTS = $(am_libgmx@LIBSUFFIX@_la_OBJECTS)
+
+DEFS = @DEFS@
+DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)/src
+CPPFLAGS = @CPPFLAGS@
+LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
+depcomp = $(SHELL) $(top_srcdir)/config/depcomp
+@AMDEP_TRUE@DEP_FILES = $(DEPDIR)/3dview.Plo $(DEPDIR)/atomprop.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/block_tx.Plo $(DEPDIR)/bondfree.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/buffer.Plo $(DEPDIR)/calcgrid.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/calch.Plo $(DEPDIR)/cinvsqrtdata.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/confio.Plo $(DEPDIR)/copyrite.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/crecipdata.Plo $(DEPDIR)/detectcpu.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/disre.Plo $(DEPDIR)/do_fit.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/enxio.Plo $(DEPDIR)/ewald_util.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/f77_wrappers.Plo $(DEPDIR)/fatal.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/ffscanf.Plo $(DEPDIR)/filenm.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/fnbf.Plo $(DEPDIR)/futil.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/gbutil.Plo $(DEPDIR)/gmxfio.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/ifunc.Plo $(DEPDIR)/index.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/inner_altivec.Plo $(DEPDIR)/innerc.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/invblock.Plo $(DEPDIR)/libxdrf.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/macros.Plo $(DEPDIR)/main.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/maths.Plo $(DEPDIR)/matio.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/memdump.Plo $(DEPDIR)/mgmx.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/mshift.Plo $(DEPDIR)/mvdata.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/mvxvf.Plo $(DEPDIR)/names.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/network.Plo $(DEPDIR)/nrama.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/nrjac.Plo $(DEPDIR)/nrnb.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/orires.Plo $(DEPDIR)/pargs.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/pbc.Plo $(DEPDIR)/pdbio.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/princ.Plo $(DEPDIR)/rando.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/random.Plo $(DEPDIR)/rbin.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/rdgroup.Plo $(DEPDIR)/readinp.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/replace.Plo $(DEPDIR)/rmpbc.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/shift_util.Plo $(DEPDIR)/smalloc.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/sortwater.Plo $(DEPDIR)/stat.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/statutil.Plo $(DEPDIR)/strdb.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/string2.Plo $(DEPDIR)/symtab.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/tpxio.Plo $(DEPDIR)/trnio.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/trxio.Plo $(DEPDIR)/txtdump.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/typedefs.Plo $(DEPDIR)/vec.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/viewit.Plo $(DEPDIR)/wgms.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/widget.Plo $(DEPDIR)/wman.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/writeps.Plo $(DEPDIR)/xdrd.Plo \
+@AMDEP_TRUE@	$(DEPDIR)/xtcio.Plo $(DEPDIR)/xvgr.Plo
+COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
+	$(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+CFLAGS = @CFLAGS@
+F77COMPILE = $(F77) $(AM_FFLAGS) $(FFLAGS)
+LTF77COMPILE = $(LIBTOOL) --mode=compile $(F77) $(AM_FFLAGS) $(FFLAGS)
+F77LD = $(F77)
+FFLAGS = @FFLAGS@
+ASCOMPILE = $(AS) $(AM_ASFLAGS) $(ASFLAGS)
+LTASCOMPILE = $(LIBTOOL) --mode=compile $(AS) $(AM_ASFLAGS) $(ASFLAGS)
+DIST_SOURCES = $(libgmx@LIBSUFFIX@_la_SOURCES) \
+	$(EXTRA_libgmx@LIBSUFFIX@_la_SOURCES)
+DIST_COMMON = Makefile.am Makefile.in
+SOURCES = $(libgmx@LIBSUFFIX@_la_SOURCES) $(EXTRA_libgmx@LIBSUFFIX@_la_SOURCES) $(nodist_EXTRA_libgmx@LIBSUFFIX@_la_SOURCES)
+
+all: all-am
+
+.SUFFIXES:
+.SUFFIXES: .c .f .lo .o .obj .s
+
+mostlyclean-libtool:
+	-rm -f *.lo
+
+clean-libtool:
+	-rm -rf .libs _libs
+
+distclean-libtool:
+	-rm -f libtool
+$(srcdir)/Makefile.in:  Makefile.am  $(top_srcdir)/configure.ac $(ACLOCAL_M4)
+	cd $(top_srcdir) && \
+	  $(AUTOMAKE) --gnu  src/gmxlib/Makefile
+Makefile:  $(srcdir)/Makefile.in  $(top_builddir)/config.status
+	cd $(top_builddir) && \
+	  CONFIG_HEADERS= CONFIG_LINKS= \
+	  CONFIG_FILES=$(subdir)/$@ $(SHELL) ./config.status
+install-libLTLIBRARIES: $(lib_LTLIBRARIES)
+	@$(NORMAL_INSTALL)
+	$(mkinstalldirs) $(DESTDIR)$(libdir)
+	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    echo " $(LIBTOOL) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$p $(DESTDIR)$(libdir)/$$p"; \
+	    $(LIBTOOL) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$p $(DESTDIR)$(libdir)/$$p; \
+	  else :; fi; \
+	done
+
+uninstall-libLTLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  echo " $(LIBTOOL) --mode=uninstall rm -f $(DESTDIR)$(libdir)/$$p"; \
+	  $(LIBTOOL) --mode=uninstall rm -f $(DESTDIR)$(libdir)/$$p; \
+	done
+
+clean-libLTLIBRARIES:
+	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
+libgmx@LIBSUFFIX@.la: $(libgmx@LIBSUFFIX@_la_OBJECTS) $(libgmx@LIBSUFFIX@_la_DEPENDENCIES) 
+	$(F77LINK) -rpath $(libdir) $(libgmx@LIBSUFFIX@_la_LDFLAGS) $(libgmx@LIBSUFFIX@_la_OBJECTS) $(libgmx@LIBSUFFIX@_la_LIBADD) $(LIBS)
+
+mostlyclean-compile:
+	-rm -f *.$(OBJEXT) core *.core
+
+distclean-compile:
+	-rm -f *.tab.c
+
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/3dview.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/atomprop.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/block_tx.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/bondfree.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/buffer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/calcgrid.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/calch.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/cinvsqrtdata.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/confio.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/copyrite.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/crecipdata.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/detectcpu.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/disre.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/do_fit.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/enxio.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/ewald_util.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/f77_wrappers.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/fatal.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/ffscanf.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/filenm.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/fnbf.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/futil.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/gbutil.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/gmxfio.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/ifunc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/index.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/inner_altivec.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/innerc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/invblock.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/libxdrf.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/macros.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/main.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/maths.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/matio.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/memdump.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/mgmx.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/mshift.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/mvdata.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/mvxvf.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/names.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/network.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/nrama.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/nrjac.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/nrnb.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/orires.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/pargs.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/pbc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/pdbio.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/princ.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/rando.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/random.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/rbin.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/rdgroup.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/readinp.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/replace.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/rmpbc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/shift_util.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/smalloc.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/sortwater.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/stat.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/statutil.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/strdb.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/string2.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/symtab.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/tpxio.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/trnio.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/trxio.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/txtdump.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/typedefs.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/vec.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/viewit.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/wgms.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/widget.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/wman.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/writeps.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/xdrd.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/xtcio.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@$(DEPDIR)/xvgr.Plo@am__quote@
+
+distclean-depend:
+	-rm -rf $(DEPDIR)
+
+.c.o:
+@AMDEP_TRUE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(COMPILE) -c `test -f $< || echo '$(srcdir)/'`$<
+
+.c.obj:
+@AMDEP_TRUE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/$*.Po' tmpdepfile='$(DEPDIR)/$*.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(COMPILE) -c `cygpath -w $<`
+
+.c.lo:
+@AMDEP_TRUE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/$*.Plo' tmpdepfile='$(DEPDIR)/$*.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(LTCOMPILE) -c -o $@ `test -f $< || echo '$(srcdir)/'`$<
+CCDEPMODE = @CCDEPMODE@
+
+.f.o:
+	$(F77COMPILE) -c -o $@ `test -f $< || echo '$(srcdir)/'`$<
+
+.f.obj:
+	$(F77COMPILE) -c -o $@ `cygpath -w $<`
+
+.f.lo:
+	$(LTF77COMPILE) -c -o $@ `test -f $< || echo '$(srcdir)/'`$<
+
+.s.o:
+	$(ASCOMPILE) -c `test -f $< || echo '$(srcdir)/'`$<
+
+.s.obj:
+	$(ASCOMPILE) -c `cygpath -w $<`
+
+.s.lo:
+	$(LTASCOMPILE) -c -o $@ `test -f $< || echo '$(srcdir)/'`$<
+uninstall-info-am:
+
+tags: TAGS
+
+ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
+	list='$(SOURCES) $(HEADERS) $(TAGS_FILES)'; \
+	unique=`for i in $$list; do \
+	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
+	  done | \
+	  $(AWK) '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	mkid -fID $$unique $(LISP)
+
+TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
+		$(TAGS_FILES) $(LISP)
+	tags=; \
+	here=`pwd`; \
+	list='$(SOURCES) $(HEADERS) $(TAGS_FILES)'; \
+	unique=`for i in $$list; do \
+	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
+	  done | \
+	  $(AWK) '    { files[$$0] = 1; } \
+	       END { for (i in files) print i; }'`; \
+	test -z "$(ETAGS_ARGS)$$unique$(LISP)$$tags" \
+	  || etags $(ETAGS_ARGS) $$tags  $$unique $(LISP)
+
+GTAGS:
+	here=`CDPATH=: && cd $(top_builddir) && pwd` \
+	  && cd $(top_srcdir) \
+	  && gtags -i $(GTAGS_ARGS) $$here
+
+distclean-tags:
+	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH
+
+DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
+
+top_distdir = ../..
+distdir = $(top_distdir)/$(PACKAGE)-$(VERSION)
+
+distdir: $(DISTFILES)
+	@for file in $(DISTFILES); do \
+	  if test -f $$file; then d=.; else d=$(srcdir); fi; \
+	  dir=`echo "$$file" | sed -e 's,/[^/]*$$,,'`; \
+	  if test "$$dir" != "$$file" && test "$$dir" != "."; then \
+	    $(mkinstalldirs) "$(distdir)/$$dir"; \
+	  fi; \
+	  if test -d $$d/$$file; then \
+	    cp -pR $$d/$$file $(distdir) \
+	    || exit 1; \
+	  else \
+	    test -f $(distdir)/$$file \
+	    || cp -p $$d/$$file $(distdir)/$$file \
+	    || exit 1; \
+	  fi; \
+	done
+check-am: all-am
+check: check-am
+all-am: Makefile $(LTLIBRARIES)
+
+installdirs:
+	$(mkinstalldirs) $(DESTDIR)$(libdir)
+
+install: install-am
+install-exec: install-exec-am
+install-data: install-data-am
+uninstall: uninstall-am
+
+install-am: all-am
+	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
+
+installcheck: installcheck-am
+install-strip:
+	$(MAKE) $(AM_MAKEFLAGS) INSTALL_PROGRAM="$(INSTALL_STRIP_PROGRAM)" \
+	  `test -z '$(STRIP)' || \
+	    echo "INSTALL_PROGRAM_ENV=STRIPPROG='$(STRIP)'"` install
+mostlyclean-generic:
+
+clean-generic:
+	-test -z "$(CLEANFILES)" || rm -f $(CLEANFILES)
+
+distclean-generic:
+	-rm -f Makefile $(CONFIG_CLEAN_FILES) stamp-h stamp-h[0-9]*
+
+maintainer-clean-generic:
+	@echo "This command is intended for maintainers to use"
+	@echo "it deletes files that may require special tools to rebuild."
+clean: clean-am
+
+clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
+	mostlyclean-am
+
+distclean: distclean-am
+
+distclean-am: clean-am distclean-compile distclean-depend \
+	distclean-generic distclean-libtool distclean-tags
+
+dvi: dvi-am
+
+dvi-am:
+
+info: info-am
+
+info-am:
+
+install-data-am:
+
+install-exec-am: install-libLTLIBRARIES
+	@$(NORMAL_INSTALL)
+	$(MAKE) $(AM_MAKEFLAGS) install-exec-hook
+
+install-info: install-info-am
+
+install-man:
+
+installcheck-am:
+
+maintainer-clean: maintainer-clean-am
+
+maintainer-clean-am: distclean-am maintainer-clean-generic
+
+mostlyclean: mostlyclean-am
+
+mostlyclean-am: mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool
+
+uninstall-am: uninstall-info-am uninstall-libLTLIBRARIES
+
+.PHONY: GTAGS all all-am check check-am clean clean-generic \
+	clean-libLTLIBRARIES clean-libtool distclean distclean-compile \
+	distclean-depend distclean-generic distclean-libtool \
+	distclean-tags distdir dvi dvi-am info info-am install \
+	install-am install-data install-data-am install-exec \
+	install-exec-am install-info install-info-am \
+	install-libLTLIBRARIES install-man install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool tags uninstall \
+	uninstall-am uninstall-info-am uninstall-libLTLIBRARIES
+
+
+# Compaq are fscking around with their compiler... some versions require
+# .s and some .S. It's checked by configure. COMPAQ: FIX YOUR COMPILER!
+@AXP_ASM_CAPITAL_S_TRUE@axp_asm.lo: $(srcdir)/axp_asm.s
+@AXP_ASM_CAPITAL_S_TRUE@	ln -sf $(srcdir)/axp_asm.s axp_asm.S
+@AXP_ASM_CAPITAL_S_TRUE@	$(LTASCOMPILE) -c axp_asm.S
+
+# The inner loops are made with our program and not included in the dist.
+innerf.f: mkinl 
+	./mkinl	fortran	
+innerc.c: mkinl
+	./mkinl c
+
+metacode.o:	metacode.c
+		$(BUILD_COMPILE) -c $(srcdir)/metacode.c
+mkinl.o:	mkinl.c
+		$(BUILD_COMPILE) -c $(srcdir)/mkinl.c
+mkinl_declarations.o: mkinl_declarations.c
+		$(BUILD_COMPILE) -c $(srcdir)/mkinl_declarations.c
+mkinl_outerloop.o: mkinl_outerloop.c
+		$(BUILD_COMPILE) -c $(srcdir)/mkinl_outerloop.c
+mkinl_innerloop.o: mkinl_innerloop.c	
+		$(BUILD_COMPILE) -c $(srcdir)/mkinl_innerloop.c
+mkinl_calcdist.o: mkinl_calcdist.c	
+		$(BUILD_COMPILE) -c $(srcdir)/mkinl_calcdist.c	
+mkinl_invsqrt.o: mkinl_invsqrt.c
+		$(BUILD_COMPILE) -c $(srcdir)/mkinl_invsqrt.c
+mkinl_recip.o:	mkinl_recip.c
+		$(BUILD_COMPILE) -c $(srcdir)/mkinl_recip.c
+mkinl_interactions.o: mkinl_interactions.c
+		$(BUILD_COMPILE) -c $(srcdir)/mkinl_interactions.c
+
+mkinl:		$(MKINL_OBJ)
+		$(BUILD_COMPILE) -o $@ $(MKINL_OBJ)
+
+# link the mpi library to non-mpi names if the latter are not present after install
+install-exec-hook:
+	libname="libgmx@LIBSUFFIX@"; \
+	nompi="`echo $$libname | sed -e 's,_mpi,,'`"; \
+	libdir="$(libdir)"; \
+	if echo $$libname | grep mpi >/dev/null ; then \
+	  (cd $$libdir && test -e $$libname.a -a ! -e $$nompi.a && $(LN_S) $$libname.a $$nompi.a ; exit 0); \
+	  (cd $$libdir && test -e $$libname.so -a ! -e $$nompi.so && $(LN_S) $$libname.so $$nompi.so ; exit 0); \
+	fi; 
+# Tell versions [3.59,3.63) of GNU make to not export all variables.
+# Otherwise a system limit (for SysV at least) may be exceeded.
+.NOEXPORT:

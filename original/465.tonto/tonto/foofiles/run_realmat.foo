@@ -1,0 +1,79 @@
+! Copyright (C) Dylan Jayatilaka, 1999
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: run_realmat.foo,v 1.6.2.1 2003/11/13 06:34:04 reaper Exp $
+
+program run_REALMAT
+
+  implicit none
+
+  matrix,V,S :: REALMAT*
+  eigenvectors :: REALMAT*
+  inverse :: REALMAT*
+  eigenvalues :: REALVEC*
+  dim :: INT
+
+  tonto.initialize
+
+  stdin.create_stdin
+  stdin.open
+
+  stdout.create_stdout
+  stdout.open
+
+  stdin.read(dim)
+
+  stdout.flush
+  stdout.put("Dimension of matrix is " // trim(dim.to_str))
+
+  matrix.create(dim,dim)
+  S.create(dim,dim)
+  V.create(dim,dim)
+  inverse.create(dim,dim)
+  eigenvectors.create(dim,dim)
+  eigenvalues.create(dim)
+
+  stdin.read(S)
+  stdout.flush
+  stdout.text("Here is S:")
+  stdout.put(S)
+
+  stdin.read(V)
+  stdout.flush
+  stdout.text("Here is V:")
+  stdout.put(V)
+
+  inverse.to_inverse_of(V)
+
+! stdout.text("Here are the eigenvalues:")
+! stdout.put(eigenvalues)
+  stdout.text("Here is the V inverse:")
+  stdout.put(inverse)
+
+  matrix = matmul(V,matmul(S,inverse))
+
+  stdout.text("Here is S dash:")
+  stdout.put(matrix)
+
+  eigenvalues.destroy
+  eigenvectors.destroy
+  V.destroy
+  S.destroy
+  matrix.destroy
+
+end
+

@@ -1,0 +1,314 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>The INT module</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Examples of simple TONTO programs"
+HREF="example-programs.html"><LINK
+REL="PREVIOUS"
+TITLE="The BUFFER module"
+HREF="module-buffer.html"><LINK
+REL="NEXT"
+TITLE="The STRVEC module"
+HREF="module-strvec.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="module-buffer.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="module-strvec.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="MODULE-INT"
+></A
+>The <TT
+CLASS="LITERAL"
+>INT</TT
+> module</H1
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>INT</TT
+> module is concerned with integers. This
+illustrates basic functionality including a routine to return the Legendre
+polynomial coefficients.</P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="CODE-INT"
+></A
+>Code</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>program run_int
+
+  use TYPES
+  use SYSTEM
+  use STR
+  use INT
+  use REAL
+  use TEXTFILE
+
+#include "macros"
+
+  implicit none
+
+  INT  :: i
+  REALVEC* :: answer
+
+  tonto.initialize
+
+  stdout.create_stdout
+  stdout.open
+
+  stdout.flush
+  stdout.text("Factorials:")
+  stdout.flush
+  do i = 0,15
+    stdout.text( i.to_str.trim //"! = " &#38;
+              // i.factorial.to_str_no_zeros.trim )
+  end
+
+  stdout.flush
+  stdout.text("Double factorials:")
+  stdout.flush
+  do i = 0,15
+    stdout.text( i.to_str.trim //"!! = " &#38;
+              // i.double_factorial.to_str_no_zeros.trim )
+  end
+
+  stdout.set_real_precision(2)
+  stdout.set_real_width(7)
+  stdout.set_fields(10)
+
+  stdout.flush
+  stdout.text("Coefficients of the Legendre polynomials:")
+  stdout.flush
+  do i = 0,8
+    allocate(answer(i+1))
+    answer = i.legendre_polynomials
+    stdout.show("n = "//i.to_str.trim//", coeffs = ",answer)
+    deallocate(answer)
+  end
+
+end </PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RESULTS-INT"
+></A
+>Results</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>Factorials:
+
+0! = 1
+1! = 1
+2! = 2
+3! = 6
+4! = 24
+5! = 120
+6! = 720
+7! = 5040
+8! = 40320
+9! = 362880
+10! = 3628800
+11! = 39916800
+12! = 479001600
+13! = 6227020800
+14! = 87178291200
+15! = 1307674368000
+
+Double factorials:
+
+0!! = 1
+1!! = 1
+2!! = 3
+3!! = 15
+4!! = 105
+5!! = 945
+6!! = 10395
+7!! = 135135
+8!! = 2027025
+9!! = 34459425
+10!! = 654729075
+11!! = 13749310575
+12!! = 316234143225
+13!! = 7905853580625
+14!! = 213458046676875
+15!! = 6190283353629375
+
+Coefficients of the Legendre polynomials:
+
+n = 0, coeffs =    1.00
+n = 1, coeffs =    0.00   1.00
+n = 2, coeffs =   -0.50   0.00   1.50
+n = 3, coeffs =    0.00  -1.50   0.00   2.50
+n = 4, coeffs =    0.38   0.00  -3.75   0.00   4.38
+n = 5, coeffs =    0.00   1.88   0.00  -8.75   0.00   7.88
+n = 6, coeffs =   -0.31   0.00   6.56   0.00 -19.69   0.00  14.44
+n = 7, coeffs =    0.00  -2.19   0.00  19.69   0.00 -43.31   0.00  26.81
+n = 8, coeffs =    0.27   0.00  -9.84   0.00  54.14   0.00 -93.84   0.00  50.27</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="module-buffer.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="module-strvec.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>The <TT
+CLASS="LITERAL"
+>BUFFER</TT
+> module</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="example-programs.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>The <TT
+CLASS="LITERAL"
+>STRVEC</TT
+> module</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

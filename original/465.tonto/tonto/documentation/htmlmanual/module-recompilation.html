@@ -1,0 +1,199 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>The problem of unnecessary recompilation of Fortran90 modules</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="How TONTO builds executables"
+HREF="building-executables.html"><LINK
+REL="PREVIOUS"
+TITLE="Code dependencies in TONTO"
+HREF="make-dependencies.html"><LINK
+REL="NEXT"
+TITLE="The TONTO input file: technical specification"
+HREF="tech-input.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="make-dependencies.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="tech-input.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="MODULE-RECOMPILATION"
+></A
+>The problem of unnecessary recompilation of Fortran90 modules</H1
+><P
+ALIGN="justify"
+>A problem with the current use of modules in Fortran90 is the unnecessary
+recompilation of dependent files when the interface has not changed.</P
+><P
+ALIGN="justify"
+>If the interface to a module is not changed, and there are no inter-module
+optimisations, then there is no logical reason why other modules that depend on
+this module need recompiling. Compilers of today however do not allow for this,
+as they replace a module information file even if it's contents have not
+changed. To make matters worse, some compilers insert the compilation date into
+the module information file, and often this can be the only change made to that
+file.</P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="AEN6329"
+></A
+><TT
+CLASS="LITERAL"
+>make</TT
+> and the recompilation strategy used in
+TONTO</H2
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>make</TT
+> command uses file time stamps to determine
+whether dependencies need recompiling. </P
+><P
+ALIGN="justify"
+>To solve the problem of unchanging, or hardly changing module files, what
+we need to do is use the old time stamp if an updated module information file is
+the same as the old one. In this way, <TT
+CLASS="LITERAL"
+>make</TT
+> will determine
+that the module file has not been changed and will not recompile any
+dependents.</P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="make-dependencies.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="tech-input.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Code dependencies in TONTO</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="building-executables.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>The TONTO input file: technical specification</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,203 @@
+2003-12-09 06:30  jmason
+
+	* lib/Mail/SpamAssassin.pm: READY FOR RELEASE
+
+2003-12-09 06:19  jmason
+
+	* lib/Mail/SpamAssassin/BayesStore.pm: bug 2805: reduce memory
+	usage of Bayes expiry dramatically by using the right iteration
+	method
+
+2003-12-09 06:16  jmason
+
+	* lib/Mail/SpamAssassin/Received.pm: bug 2787: Received line
+	misparsed due to ordering problem
+
+2003-12-09 06:14  jmason
+
+	* rules/20_dnsbl_tests.cf: bug 2777: Dynablock shut down, reopened
+	at SORBS
+
+2003-12-04 17:32  jmason
+
+	* sql/README: minor updates to SQL doco, note use of spamd -q
+	switch
+
+2003-12-03 22:42  felicity
+
+	* lib/Mail/SpamAssassin/Conf.pm: fixed documentation concerning the
+	bayes_journal_max_size parameter.  setting to 0 disables the
+	opportunistic sync, not force it to be once a day.
+
+2003-12-02 07:47  jmason
+
+	* lib/Mail/SpamAssassin/PerMsgStatus.pm: bug 2437: mails hitting
+	BAYES_99 should not be autolearned as ham
+
+2003-11-20 07:29  jmason
+
+	* rules/30_text_fr.cf: bug 2742: new set of French translations
+	from Michel Bouissou
+
+2003-11-20 07:22  jmason
+
+	* lib/Mail/SpamAssassin/: Conf.pm, Received.pm, Win32Locker.pm: bug
+	2759: Received parser can't deal with a variety of qmail formats
+
+2003-11-18 06:55  jmason
+
+	* rules/20_ratware.cf: bug 2506: FORGED_AOL_HTML fixed; it was
+	matching all sorts of AOL MUAs instead of the flagship one
+
+2003-11-15 02:58  jmason
+
+	* lib/Mail/SpamAssassin/Received.pm: bug 2745: pobox.com Received
+	header format handled
+
+2003-11-15 02:55  jmason
+
+	* spamd/spamd.raw: bug 2633: spamd giving undef warnings if DNS is
+	not available for spamc client
+
+2003-11-15 02:53  jmason
+
+	* rules/20_ratware.cf: bug 2654: fixed FORGED_MUA_EUDORA fps on
+	Mac, localized versions of Eudora
+
+2003-11-15 02:49  jmason
+
+	* MANIFEST, MANIFEST.SKIP: bug 2630: spamd_parallel test no longer
+	distributed due to load problems it causes
+
+2003-11-15 02:47  jmason
+
+	* spamd/spamd.raw: bug 2504: fixed 'Use of uninitialized value in
+	numeric eq' in spamd
+
+2003-11-15 02:46  jmason
+
+	* spamd/spamc.c: bug 2502: -H switch broken due to lack of srand
+	seeding
+
+2003-11-15 02:44  jmason
+
+	* lib/Mail/SpamAssassin/Received.pm: bug 2591: Received header
+	format for something called 'smtpd' supported
+
+2003-11-12 07:36  jmason
+
+	* rules/: 20_ratware.cf, 30_text_de.cf, 30_text_fr.cf,
+	30_text_sk.cf, 50_scores.cf, STATISTICS-set1.txt,
+	STATISTICS-set2.txt, STATISTICS-set3.txt, STATISTICS.txt: bug 2294:
+	removed FORGED_MUA_THEBAT due to FPs and 2 other better variants
+	being present anyway
+
+2003-11-12 07:31  jmason
+
+	* lib/Mail/SpamAssassin/: AutoWhitelist.pm, DBBasedAddrList.pm: bug
+	2734: avoid AWL bonuses for spammer forgeries
+
+2003-11-07 03:04  jmason
+
+	* spamd/spamd.raw: bug 2580: undefined value in spamd check()
+
+2003-11-05 04:53  jmason
+
+	* lib/Mail/SpamAssassin/PerMsgStatus.pm: bug 2122: FORGED_MUA rules
+	matching for some mailing lists
+
+2003-11-05 04:50  jmason
+
+	* t/: SATest.pm, spamd_hup.t: bug 2505: make test fails on
+	t/spamd_hup.t on slow systems
+
+2003-11-05 02:59  jmason
+
+	* MANIFEST, windows_install.pl: bug 2636: windows_install.pl
+	obsolete
+
+2003-11-02 00:42  jmason
+
+	* Makefile.PL: bug 2596: space missing in 'make clean' list of
+	files, so 2 files were not being cleaned
+
+2003-10-28 06:16  jmason
+
+	* lib/Mail/SpamAssassin/PerMsgStatus.pm: oops, accidentally checked
+	in fix for 2122, reverting
+
+2003-10-28 06:15  jmason
+
+	* lib/Mail/SpamAssassin/PerMsgStatus.pm, rules/20_dnsbl_tests.cf,
+	rules/50_scores.cf, rules/STATISTICS-set1.txt,
+	rules/STATISTICS-set3.txt: bug 2559: SORBS zone numbers don't match
+	names and descriptions
+
+2003-10-04 02:42  quinlan
+
+	* rules/: 20_head_tests.cf, 20_ratware.cf: bug 2538: address
+	problems with Outlook forgery rules
+
+2003-09-30 18:56  felicity
+
+	* rules/20_ratware.cf: bug 2140: Eudora sometimes has a slightly
+	different format for Message-ID, so we should deal with those to
+	avoid FPs.
+
+2003-09-29 23:55  felicity
+
+	* spamassassin.spec: bug 2494: 1) deal with bz2 builds... ;) 2)
+	allow release to be overriden via commandline 3) allow CFLAGS to be
+	modified in the usual method (RPM_OPT_FLAGS) 4) add more
+	documentation to be installed 5) update to 2.61
+
+2003-09-29 21:37  msquadrat
+
+	* BUGS: bug 304 is obsolete
+
+2003-09-29 20:31  felicity
+
+	* lib/Mail/SpamAssassin/Util.pm: bug 2510: when we're cleaning the
+	PATH in taint mode, we need to also remove world-writable
+	directories or else that could potentially cause an error.  see
+	"perldoc perldiag"'s section on "insecure directory".
+
+2003-09-29 19:41  felicity
+
+	* lib/Mail/SpamAssassin/Received.pm: bug 1889: rbl_check() wasn't
+	able to parse a certain Received header if it included an ident
+	string.
+
+2003-09-29 01:11  felicity
+
+	* lib/Mail/SpamAssassin/Conf.pm: added documentation about
+	add_header name convention
+
+2003-09-28 16:21  felicity
+
+	* INSTALL, README: bug 2501: added documentation about bayes
+	changes to README and INSTALL
+
+2003-09-28 16:10  felicity
+
+	* lib/Mail/SpamAssassin/Bayes.pm: bug 2495: have Bayes ignore
+	header additions by Gnus
+
+2003-09-28 15:59  felicity
+
+	* lib/Mail/SpamAssassin/EvalTests.pm: bug 2492:
+	MICROSOFT_EXECUTABLE would sometimes not hit because of slightly
+	different characters in the base64 encoding.
+
+2003-09-27 01:30  felicity
+
+	* spamd/spamd.raw: bug 2511: in spamd, we call Cwd without cleaning
+	out the PATH variable first.  This can lead to tainting issues, so
+	we should clean the path first.
+
+2003-09-23 20:35  felicity
+
+	* README: WRT Razor patching, the README said "until at least 2.36"
+	which some people implied meant 2.36 fixed the problem.  It now
+	says "through at least 2.36" to help avoid confusion.
+

@@ -1,0 +1,31 @@
+Cactus Code Thorn IOBasic
+Authors    : Gabrielle Allen
+CVS info   : $Header: /cactus/CactusBase/IOBasic/README,v 1.2 2001/11/30 14:43:01 tradke Exp $
+--------------------------------------------------------------------------
+
+1. Purpose of the thorn
+
+This thorn provides two I/O methods "Info" and "Scalar" which output grid
+variables as scalars as a function on time.
+
+Grid scalars:
+ - Output the value of the scalar straight forwardly
+
+Grid functions:
+ - Output the reduction value of the grid function versus time.
+   For this you also need to activate a thorn which implements reduction
+   operators (eg. PUGHReduce which provides the standard reductions
+   "minimum", "maximum", "sum", "norm1", "norm2", and "norm_inf").
+
+
+The "Info" method would print the values, along with the current iteration
+number and the physical time, in a formatted table to stdout.
+
+The "Scalar" methods outputs to ASCII files which can be processed with
+gnuplot or xgraph.
+
+
+2. Additional information
+
+There is more comprehensive documention available in this thorn's
+doc/documentation.tex file which is included in the Cactus Thorn Guide.

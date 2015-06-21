@@ -1,0 +1,11 @@
+There's no news.
+
+This is basically just md5sum and sha*sum taken from GNU coreutils, wrapped
+up in a more minimal extraction of GNUlib, and repackaged.
+
+The programs have been patched to be able to recurse into directories when
+generating sums (which is handy on Windows), and also to be able to generate
+an "extended" format which outputs the file size as well as the checksum.
+When checking files, the size is compared first and the file isn't even read
+if the sizes don't match.  That's okay, because it treats all files as
+binary.

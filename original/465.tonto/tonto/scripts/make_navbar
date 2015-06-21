@@ -1,0 +1,57 @@
+#!/bin/sh
+#
+# This script makes the TONTO-nav-bar.html from the .html files.
+#
+# ! $Id: make_navbar,v 1.19 2001/04/10 04:14:39 reaper Exp $
+#
+################################################################################
+
+echo '<HTML>'
+echo '<HEAD>'
+echo '  <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">'
+echo '  <META name="robots" content="noindex, nofollow">'
+echo '  <TITLE>Tonto Navigation</TITLE>'
+echo '<BASE TARGET="main">'
+echo '</HEAD>'
+echo '<body BGCOLOR="#FFFBF0">'
+echo '<BR>'
+echo '<CENTER>'
+echo '<IMG SRC="htmldocs/tonto_nav.png" HEIGHT=61 WIDTH=113 BORDER="1">'
+echo '<DL COMPACT>'
+
+echo '<BR>'
+echo '<HR NOSHADE WIDTH=80%>'
+echo '      <DT><A HREF="htmldocs/index.html">What is TONTO?</A>'
+echo '      <DT><A HREF="foofiles">.foo source files</A>'
+echo '      <DT><A HREF="f90files">.f90 source files</A>'
+echo '      <DT><A HREF="htmldocs/build.html">Building Tonto</A>'
+
+echo '<BR>'
+echo '<HR NOSHADE WIDTH=80%>'
+echo '<BR>CONFIGURATION FILES<BR><BR>'
+echo '      <DT><A HREF="htmldocs/macros.html">macros</A>'
+echo '      <DT><A HREF="htmldocs/build.html#site_config">site_conf file</A>'
+
+echo '<BR>'
+echo '<HR NOSHADE WIDTH=80%>'
+echo '<BR>SCRIPTS AND UTILITIES<BR><BR>'
+echo '      <DT><A HREF="htmldocs/configure.html">configure</A>'
+echo '      <DT><A HREF="htmldocs/Makefile.html">Makefile</A>'
+echo '      <DT><A HREF="htmldocs/foo.perl.html">foo.perl</A>'
+echo '      <DT><A HREF="htmldocs/foo2html.perl.html">foo2html.perl</A>'
+echo '      <DT><A HREF="htmldocs/make_deps.perl.html">make_deps.perl</A>'
+echo '      <DT><A HREF="htmldocs/make_dist.html">make_dist</A>'
+echo '      <DT><A HREF="htmldocs/update_module_file.html">update_module_file</A>'
+
+echo '<BR>'
+echo '<HR NOSHADE WIDTH=80%>'
+echo '<BR>MODULES<BR><BR>'
+
+for i in $* ; do
+   echo '<DT><A HREF="htmlfiles/'$i'_short.html">'$i'</A> <A HREF="foofiles/'$i'.foo">.foo</A>'
+done
+
+echo '</DL>'
+echo '</CENTER>'
+echo '</BODY>'
+echo '</HTML>'

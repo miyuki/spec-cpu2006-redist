@@ -1,0 +1,6286 @@
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# This is GNU Go, a Go program. Contact gnugo@gnu.org, or see       #
+# http://www.gnu.org/software/gnugo/ for more information.          #
+#                                                                   #
+# Copyright 1999, 2000, 2001, 2002 and 2003                         #
+# by the Free Software Foundation.                                  #
+#                                                                   #
+# This program is free software; you can redistribute it and/or     #
+# modify it under the terms of the GNU General Public License       #
+# as published by the Free Software Foundation - version 2.         #
+#                                                                   #
+# This program is distributed in the hope that it will be useful,   #
+# but WITHOUT ANY WARRANTY; without even the implied warranty of    #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU #
+# General Public License in file COPYING for more details.          #
+#                                                                   #
+# You should have received a copy of the GNU General Public License #
+# along with this program; if not, write to the Free Software       #
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111,  #
+# USA.                                                              #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#                                                                   #
+#                  Eye Shape Database                               #
+#                                                                   #
+#     . - ordinary eye space                                        #
+#     * - ordinary eye space and key point, attack/defense          #
+#     < - ordinary eye space and attack key point (shrinks)         #
+#     > - ordinary eye space and defense key point (expands)        #
+#     ! - marginal eye space                                        #
+#     @ - marginal eye space and key point, attack/defense          #
+#     $ - marginal eye space containing an opponent stone           #
+#     ( - marginal eye space and attack key point                   #
+#     ) - marginal eye space and defense key point                  #
+#     X - dead opponent stone                                       #
+#     x - . or X                                                    #
+#                                                                   #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+#
+# The patterns are sorted as follows within each size, with the primary
+# criterium first: 
+#
+# 1. Edge and corner specific patterns.
+# 2. Number of rows, lowest first.
+# 3. Number of marginal vertices.
+# 4. Number of possible eyes
+#
+# In addition to 2, there is also the requirement that all patterns
+# with the same topology come together. E.g. among the four vertices,
+# two rows patterns, those with topology
+#
+#  .
+# ...
+#
+# come together and those with topology
+#
+# ..
+# ..
+#
+# follows later.
+#
+# Similarly, in addition to 3, patterns with the same configuration of
+# marginal vertices are grouped together.
+#
+# To make best use of the "x" wildcard, it is occasionally
+# advantageous to have a specific exceptional pattern before a more
+# general one. In these cases criterium 4 above may be violated.
+#
+# #######
+#
+# The colon line below the pattern gives the eye value of the matched
+# eye shape. This consists of four digits, each of which is the number
+# of eyes obtained during the following conditions:
+#
+# 1. The attacker moves first and is allowed yet another move because
+#    the defender plays tenuki.
+# 2. The attacker moves first and the defender responds locally.
+# 3. The defender moves first and the attacker responds locally.
+# 4. The defender moves first and is allowed yet another move because
+#    the attacker plays tenuki.
+#
+# Notice that 1 does not necessarily mean that the attacker is
+# allowed two consecutive moves. This is explained with an example
+# later.
+#
+# Also, since two eyes suffice to live, all higher numbers also count
+# as two.
+#
+# The following 15 cases are of interest:
+#
+# 0000   0 eyes.
+# 0001   0 eyes, but the defender can threaten to make one eye.
+# 0002   0 eyes, but the defender can threaten to make two eyes.
+# 0011   1/2 eye, 1 eye if defender moves first, 0 eyes if attacker does.
+# 0012   3/4 eyes, 3/2 eyes if defender moves first, 0 eyes if attacker does.
+# 0022   1* eye, 2 eyes if defender moves first, 0 eyes if attacker does.
+# 0111   1 eye, attacker can threaten to destroy the eye.
+# 0112   1 eye, attacker can threaten to destroy the eye,
+#               defender can threaten to make another eye.
+# 0122   5/4 eyes, 2 eyes if defender moves first, 1/2 eye if attacker does.
+# 0222   2 eyes, attacker can threaten to destroy both.
+# 1111   1 eye.
+# 1112   1 eye, defender can threaten to make another eye.
+# 1122   3/2 eyes, 2 eyes if defender moves first, 1 eye if attacker does.
+# 1222   2 eyes, attacker can threaten to destroy one eye.
+# 2222   2 eyes.
+#
+# The 3/4, 5/4, and 1* eye values are the same as in Howard Landman's paper
+# Eyespace Values in Go. Attack and defense points are only marked in
+# the patterns when they have definite effects on the eye value,
+# i.e. pure threats are not marked.
+#
+#
+# Examples of all different cases can be found among the patterns in
+# this file. Some of them might be slightly counterintuitive, so we
+# explain one important case here. Consider
+# 
+# Pattern 6141
+# 
+#  X
+# XX.@x
+# 
+# :1122
+#
+# which e.g. matches in this position:
+#
+# .OOOXXX
+# OOXOXOO
+# OXXba.O
+# OOOOOOO
+#
+# Now it may look like X could take away both eyes by playing a
+# followed by b, giving 0122 as eye value. This is where the subtlety
+# of the definition of the first digit in the eye value comes into
+# play. It does not say that the attacker is allowed two consecutive
+# moves but only that he is allowed to play "another move". The
+# crucial property of this shape is that when X plays at a to destroy
+# (at least) one eye, O can answer at b, giving:
+#
+# .OOOXXX
+# OO.OXOO
+# O.cOX.O
+# OOOOOOO
+#
+# Now X has to continue at c in order to keep O at one eye. After this
+# O plays tenuki and X cannot destroy the remaining eye by another
+# move. Thus the eye value is indeed 1122.
+#
+#
+# As a final note, some of the eye values indicating a threat depend
+# on suicide to be allowed, e.g.
+#
+# Pattern 301
+# 
+# X.X
+# 
+# :1222
+#
+# We always assume suicide to be allowed in this database. It is easy
+# enough to sort out such moves at a higher level when suicide is
+# disallowed.
+
+
+###############################
+#          1 element          #
+###############################
+
+Pattern 101
+
+x
+
+:1111
+
+
+Pattern 102
+
+$
+
+:0000
+
+
+Pattern 103
+
+!
+
+:0000
+
+
+###############################
+#          2 elements         #
+###############################
+
+Pattern 201
+
+xx
+
+:1111
+
+
+Pattern 202
+
+@x
+
+:0011
+
+
+Pattern 203
+
+$.
+
+:0000
+
+
+###############################
+#          3 elements         #
+###############################
+
+Pattern 301
+# Must be matched before 302.
+
+X.X
+
+:1222
+
+
+Pattern 302
+
+x*x
+
+:1122
+
+
+Pattern 303
+
+xXx
+
+:1111
+
+
+Pattern 304
+
+!.x
+
+:0111
+
+
+Pattern 305
+
+@Xx
+
+:0011
+
+
+Pattern 306
+# A chimera.
+
+x@x
+
+:0022
+
+
+Pattern 307
+
+$*.
+
+:0011
+
+
+Pattern 308
+
+$.X
+
+:1111
+
+
+Pattern 309
+
+$X.
+
+:0001
+
+
+Pattern 310
+
+!x!
+
+:0001
+
+
+###############################
+#          4 elements         #
+###############################
+
+# Special cases in corners and on edges. These must be matched before
+# the same shape is matched in the center.
+
+Pattern 401
+# Bent four in the corner. The attack depends on a ko and sufficiently
+# few outer liberties.
+
+|.
+|.*.
++---
+
+:1122
+
+
+Pattern 402
+#tm new pattern (3.1.14)
+#see trevor:1001
+
+@
+..!
+---
+
+:0011
+
+
+#
+# Topology: ....
+#
+
+
+Pattern 410
+# The XXXX pattern is a special case. It can only come up when dealing
+# with false marginals. In that case it is equivalent
+# to .... which yields 2 eyes.
+
+XxxX
+
+:2222
+
+
+Pattern 411
+
+x...
+
+:1222
+
+
+Pattern 412
+
+x*Xx
+
+:1122
+
+
+Pattern 413
+
+XXX.
+
+:1112
+
+
+Pattern 414
+
+.XX.
+
+:1111
+
+
+Pattern 416
+
+@X.X
+
+:0122
+
+
+Pattern 417
+
+x@.x
+
+:0122
+
+
+Pattern 418
+
+x@Xx
+
+:0022
+
+
+Pattern 419
+
+!.Xx
+
+:0111
+
+
+Pattern 420
+
+!..x
+
+:1112
+
+
+Pattern 421
+
+!X..
+
+:0112
+
+
+Pattern 422
+
+@XXX
+
+:0012
+
+
+Pattern 423
+
+@XX.
+
+:0011
+
+
+Pattern 424
+
+@..@
+
+:0011
+
+
+Pattern 425
+
+(.X@
+
+:0011
+
+
+Pattern 426
+
+!x@x
+
+:0012
+
+
+Pattern 427
+
+!XX!
+
+:0001
+
+
+Pattern 428
+
+!.x$
+
+:0001
+
+
+Pattern 429
+
+@X.$
+
+:0011
+
+
+Pattern 430
+
+.XX$
+
+:1111
+
+
+Pattern 431
+
+$.X$
+
+:0001
+
+
+Pattern 432
+
+$xx$
+
+:0000
+
+
+#            .
+# Topology: ...
+#
+
+Pattern 441
+# Match before 442
+
+ X
+X.X
+
+:1222
+
+
+Pattern 442
+
+ x
+x*x
+
+:1122
+
+
+Pattern 443
+
+ .
+XXX
+
+:1112
+
+
+Pattern 444
+
+ x
+xXx
+
+:1111
+
+
+Pattern 445
+
+ !
+X*X
+
+:1122
+
+
+Pattern 446
+
+ !
+x*x
+
+:0122
+
+
+Pattern 447
+
+ x
+x@x
+
+:0022
+
+
+Pattern 448
+
+ !
+!*x
+
+:0011
+
+
+Pattern 449
+
+ X
+@XX
+
+:0012
+
+
+Pattern 450
+
+ x
+@Xx
+
+:0011
+
+
+Pattern 451
+
+ x
+!X!
+
+:0001
+
+
+#           ..
+# Topology: ..
+#
+
+Pattern 461
+
+*X
+X.
+
+:1122
+
+
+Pattern 462
+
+..
+x.
+
+:1112
+
+
+Pattern 463
+
+XX
+X.
+
+:1112
+
+
+Pattern 464
+
+xx
+xx
+
+:1111
+
+
+Pattern 465
+# Must be matched before 466.
+
+@X
+X.
+
+:0022
+
+
+Pattern 466
+
+@x
+x.
+
+:0012
+
+
+Pattern 467
+
+@X
+XX
+
+:0012
+
+
+Pattern 468
+
+@x
+xX
+
+:0011
+
+
+Pattern 469
+
+!@
+.x
+
+:0011
+
+#
+# Completely dead patterns.
+#
+
+Pattern 491
+
+!!
+XX
+
+:0001
+
+
+Pattern 492
+
+!x
+x!
+
+:0002
+
+
+Pattern 493
+
+ !
+!x!
+
+:0000
+
+
+###############################
+#          5 elements         #
+###############################
+
+
+#
+# 5 vertices.  Now it is getting tricky...  
+# At least we will get all the linear patterns correct.
+#
+
+# Special cases in corners and on edges. These must be matched before
+# the same shape is matched in the center.
+#
+# Special care must be taken to get these patterns in the right order.
+# In particular the bent four in the corner patterns must be matched
+# before the patterns of topology
+#
+# |...
+# |. .
+# +---
+
+Pattern 5001
+# Bent four in the corner.
+
+|.
+|X
+|xX.
++---
+
+:1111
+
+
+Pattern 5002
+# Bent four in the corner.
+
+|.
+|XXX.
++---
+
+:1111
+
+
+Pattern 5003
+# Bent four in the corner.
+#
+# This one is tricky. Black has two certain eyes if there are at least
+# two outside liberties, but at most one if they are fewer.
+# It seems likely that calling this only one eye leads to the fewest
+# errors in the surrounding code. (Unfortunately we have no provisions
+# to check the number of liberties at this point.)
+
+|.
+|X
+|.XX
++---
+
+:1111
+
+
+Pattern 5004
+# Bent four in the corner.
+#
+# This pattern is similar to the previous one. Black has two certain eyes
+# if there are at least two outside liberties, but needs to fight a ko
+# if there is only one.
+
+|.
+|X
+|XXX
++---
+
+:1111
+
+
+Pattern 5005
+# Bent four in the corner.
+#
+# This pattern behaves identically to the previous one.
+
+|X
+|XXX.
++---
+
+:1111
+
+
+Pattern 5006
+# Bent four in the corner. The attack depends on ko and sufficiently
+# few outer liberties if the corner vertex is empty.
+
+|.
+|xX*.
++---
+
+:1122
+
+
+Pattern 5007
+# Bent four in the corner. The attack depends on ko and sufficiently
+# few outer liberties if the corner vertex is empty.
+
+|.
+|x*X.
++---
+
+:1122
+
+
+Pattern 5008
+# Bent four in the corner. An O move in the corner may or may not give
+# another eye (depending on ko and/or outer liberties). An X move in
+# the corner definitely settles the number of eyes to 1.
+
+|.
+|.XX.
++---
+
+:1111
+
+
+Pattern 5009
+# Bent four in the corner.
+
+|.
+|*
+|xX.
++---
+
+:1122
+
+
+Pattern 5010
+# Bent four shape that X must fight. Ko if at most one outer liberty.
+
+|X
+|XX*.
++---
+
+:1122
+
+
+Pattern 5011
+
+xxxxx
+-----
+
+:2222
+
+
+Pattern 5021
+
+|XX*
+|. .
++---
+
+:1122
+
+
+Pattern 5022
+
+|X*X
+|. .
++---
+
+:1122
+
+
+Pattern 5023
+
+|*XX
+|. .
++---
+
+:1122
+
+
+Pattern 5024
+
+|.X>
+|< X
++---
+
+:1122
+
+
+Pattern 5025
+
+|XXX
+|. .
++---
+
+:1111
+
+
+Pattern 5031
+
+|.X
+| X*.
++----
+
+:1122
+
+
+Pattern 5032
+
+|.X
+| *X.
++----
+
+:1122
+
+
+Pattern 5033
+
+|.*
+| XX.
++----
+
+:1122
+
+
+Pattern 5034
+
+|.X
+| XX.
++----
+
+:1111
+
+
+#
+# Topology: .....
+#
+
+#
+# Linear, no marginal vertices.
+#
+
+Pattern 5101
+# Usually at least seki.
+#
+# There are rare exceptions where this is only
+# one eye. See strategy test 38 for an example
+# where .XXX. gives only one eye since one of
+# the . is not a liberty of the dragon.
+
+xxxxx
+
+:2222
+
+#
+# Linear, one marginal vertex.
+#
+
+
+Pattern 5111
+
+@X.<.
+
+:1122
+
+  
+Pattern 5112
+
+@..<x
+
+:1122
+
+  
+Pattern 5113
+
+@x..x
+
+:1122
+
+  
+Pattern 5114
+
+!.X*x
+
+:1122
+
+
+Pattern 5115
+
+@XXXX
+
+:0022
+
+
+Pattern 5116
+
+@XXX.
+
+:0011
+
+
+Pattern 5117
+
+@X.XX
+
+:0122
+
+
+Pattern 5118
+
+!X.X.
+
+:0112
+
+
+Pattern 5119
+
+@XX.X
+
+:0122
+
+
+Pattern 5120
+
+!XX..
+
+:0112
+
+
+Pattern 5121
+
+!..Xx
+
+:1112
+
+
+Pattern 5122
+
+!.XXX
+
+:1112
+
+
+Pattern 5123
+
+!.XX.
+
+:0111
+
+
+Pattern 5131
+
+x@.Xx
+
+:0122
+
+
+Pattern 5132
+
+x@..x
+
+:1122
+
+
+Pattern 5133
+
+x@X.x
+
+:0122
+
+
+Pattern 5134
+
+x@XXx
+
+:0022
+
+
+Pattern 5141
+
+x.@.x
+
+:1122
+
+
+Pattern 5142
+
+x.@Xx
+
+:0122
+
+
+Pattern 5143
+
+xX@Xx
+
+:0022
+
+
+#
+# Linear, two marginal vertices.
+#
+
+Pattern 5151
+
+!.x.!
+
+:0111
+
+
+Pattern 5152
+
+!.>X@
+
+:0011
+
+
+Pattern 5153
+
+@X.X@
+
+:0011
+
+
+Pattern 5154
+
+!XXX!
+
+:0001
+
+
+Pattern 5155
+
+@Xxx!
+
+:0011
+
+
+Pattern 5156
+
+!x!.x
+
+:0112
+
+
+Pattern 5157
+
+!x@Xx
+
+:0012
+
+
+Pattern 5158
+# Must be matched before 5159.
+
+!.x@x
+
+:0022
+
+
+Pattern 5159
+
+!x.@x
+
+:0012
+
+
+Pattern 5160
+
+!XX@x
+
+:0012
+
+
+Pattern 5161
+
+x!x!x
+
+:0112
+
+
+#
+# Linear, three marginal vertices.
+#
+
+Pattern 5171
+
+!x@x!
+
+:0011
+
+
+Pattern 5181
+
+xx.x$
+
+:1111
+
+
+Pattern 5182
+
+x*XX$
+
+:1122
+
+
+#            .
+# Topology: ....
+#
+
+Pattern 5201
+
+ x
+x..X
+
+:2222
+
+
+Pattern 5202
+
+ x
+x...
+
+:1222
+
+
+Pattern 5203
+
+ x
+xXXX
+
+:2222
+
+
+Pattern 5204
+
+ X
+XXX.
+
+:1112
+
+
+Pattern 5205
+
+ x
+xXX.
+
+:1111
+
+
+Pattern 5211
+
+ x
+xX*.
+
+:1122
+
+
+Pattern 5212
+
+ x
+x*X.
+
+:1122
+
+
+Pattern 5213
+# Must be matched before 5214.
+
+ X
+!..X
+
+:1222
+
+
+Pattern 5214
+
+ x
+)*.x
+
+:1122
+
+
+Pattern 5215
+# Must be matched before 5216.
+
+ X
+!.XX
+
+:0222
+
+
+Pattern 5216
+
+ x
+!*Xx
+
+:0122
+
+
+Pattern 5217
+
+ X
+@X.X
+
+:0122
+
+
+Pattern 5218
+
+ x
+!X.x
+
+:0112
+
+
+Pattern 5219
+
+ X
+@XXX
+
+:0022
+
+
+Pattern 5220
+
+ x
+@XXx
+
+:0011
+
+
+Pattern 5221
+
+ x
+x@.x
+
+:0122
+
+
+Pattern 5222
+
+ x
+x@Xx
+
+:0022
+
+
+Pattern 5223
+
+ x
+x.!x
+
+:0222
+
+
+Pattern 5224
+
+ x
+xX@x
+
+:0022
+
+
+Pattern 5225
+
+ X
+XX.!
+
+:1112
+
+
+Pattern 5226
+
+ x
+xX.!
+
+:0111
+
+
+Pattern 5227
+
+ X
+XXX@
+
+:0012
+
+
+Pattern 5228
+
+ x
+xXX@
+
+:0011
+
+
+Pattern 5231
+
+ ! 
+!..x
+
+:0111
+
+
+Pattern 5232
+
+ !
+!*Xx
+
+:0011
+
+
+Pattern 5233
+
+ )
+)X<X
+
+:0011
+
+
+Pattern 5234
+
+ )
+)X<.
+
+:0011
+
+
+Pattern 5235
+
+ !
+!XXx
+
+:0001
+
+
+Pattern 5236
+
+ x
+!..!
+
+:0112
+
+
+Pattern 5237
+
+ x
+@X.(
+
+:0011
+
+
+Pattern 5238
+
+ x
+!*X!
+
+:0012
+
+
+Pattern 5239
+
+ x
+!XX!
+
+:0001
+
+
+Pattern 5240
+
+ x
+!.@x
+
+:0122
+
+
+Pattern 5241
+
+ x
+!X@x
+
+:0012
+
+
+Pattern 5242
+
+ x
+x*.!
+
+:1122
+
+
+Pattern 5243
+
+ X
+X*X!
+
+:1122
+
+
+Pattern 5244
+
+ x
+x*X!
+
+:0122
+
+
+Pattern 5245
+
+ x
+x@x!
+
+:0022
+
+
+Pattern 5251
+
+ !
+!x@x
+
+:0011
+
+
+Pattern 5252
+
+ !
+!.x!
+
+:0001
+
+
+Pattern 5253
+
+ !
+!X.!
+
+:0001
+
+
+#           ..
+# Topology: ...
+#
+
+Pattern 5301
+
+X.
+XXX
+
+:1222
+
+
+Pattern 5302
+
+XX
+X.X
+
+:1222
+
+
+Pattern 5303
+
+Xx
+xxX
+
+:2222
+
+
+Pattern 5304
+
+xx
+x*x
+
+:1122
+
+
+Pattern 5305
+
+x.
+.Xx
+
+:1112
+
+
+Pattern 5306
+
+.X
+XXX
+
+:1112
+
+
+Pattern 5307
+
+xx
+xXx
+
+:1111
+
+
+Pattern 5311
+
+..
+@.x
+
+:1122
+
+
+Pattern 5312
+
+X.
+@.x
+
+:0122
+
+
+Pattern 5313
+
+Xx
+@XX
+
+:0022
+
+
+Pattern 5314
+
+x.
+@Xx
+
+:0012
+
+
+Pattern 5315
+
+xX
+@Xx
+
+:0011
+
+
+Pattern 5316
+
+.X
+!*x
+
+:0122
+
+
+Pattern 5317
+
+XX
+@.X
+
+:0122
+
+
+Pattern 5318
+
+xX
+!.x
+
+:0112
+
+
+Pattern 5321
+
+xx
+x@x
+
+:0022
+
+
+Pattern 5331
+
+.X 
+X*!
+ 
+:0122
+
+
+Pattern 5332
+
+.x 
+x.!
+ 
+:0112
+
+
+Pattern 5333
+
+XX 
+X.!
+ 
+:0112
+
+
+Pattern 5334
+
+Xx 
+x.!
+ 
+:0111
+
+
+Pattern 5335
+
+X. 
+.X@
+ 
+:0012
+
+
+Pattern 5336
+
+xx 
+xX@
+ 
+:0011
+
+
+Pattern 5341
+
+@X 
+XXX
+ 
+:0012
+
+
+Pattern 5342
+
+@x 
+xXx
+ 
+:0011
+
+
+Pattern 5343
+
+@X 
+X.X
+ 
+:0122
+
+
+Pattern 5344
+
+!x 
+x.x
+ 
+:0112
+
+
+Pattern 5351
+
+!.
+!.x
+
+:0112
+
+
+Pattern 5352
+
+..
+!@.
+
+:0022
+
+
+Pattern 5353
+
+xx
+@.!
+
+:0011
+
+
+Pattern 5354
+
+X.
+@X(
+
+:0011
+
+
+Pattern 5355
+
+..
+@X(
+
+:0011
+
+
+Pattern 5356
+
+xx
+!X!
+
+:0001
+
+
+Pattern 5357
+
+@X
+X.(
+
+:0012
+
+
+Pattern 5358
+
+@x
+x.(
+
+:0011
+
+
+Pattern 5359
+
+!x
+xX!
+
+:0001
+
+
+Pattern 5360
+
+!x
+x@x
+
+:0012
+
+
+Pattern 5361
+
+x)
+)<x
+
+:0011
+
+
+Pattern 5362
+
+x!
+!Xx
+
+:0002
+
+
+Pattern 5371
+
+!X
+!X!
+
+:0000
+
+
+Pattern 5372
+
+!x
+!x!
+
+:0001
+
+
+Pattern 5373
+
+x!
+!x!
+
+:0001
+
+
+#            .
+# Topology: ...
+#            .
+
+Pattern 5401
+# This pattern must be matched before 5402. The vital point would be
+# suicide for X.
+
+ X
+X.X
+ X
+
+:1222
+
+
+Pattern 5402
+
+ x
+x*x
+ x
+
+:1122
+
+
+Pattern 5403
+
+ X
+XXX
+ .
+
+:1112
+
+
+Pattern 5404
+
+ x
+xXx
+ x
+
+:1111
+
+
+Pattern 5411
+
+ !
+X*X
+ X
+
+:1122
+
+
+Pattern 5412
+
+ !
+x*x
+ x
+
+:0122
+
+
+Pattern 5413
+
+ @
+XXX
+ X
+
+:0012
+
+
+Pattern 5414
+
+ @
+xXx
+ x
+
+:0011
+
+
+Pattern 5421
+
+ x 
+x*!
+ ! 
+
+:0022
+
+
+Pattern 5422
+
+ x 
+xX!
+ ! 
+
+:0001
+
+
+Pattern 5431
+
+ !
+x*!
+ ! 
+
+:0011
+
+
+###############################
+#          6 elements         #
+###############################
+
+#
+# Topology: ......
+#
+
+Pattern 6000
+# Bent four in the corner.
+
+|.
+|*
+|...!
++---
+
+:1122
+
+
+Pattern 6001
+# Bent four in the corner.
+
+|.
+|*X..!
++---
+
+:1122
+
+
+Pattern 6002
+# Bent four in the corner.
+
+ !
+|.
+|.XX.
++---
+
+:1111
+
+
+Pattern 6003
+# Bent four in the corner.
+
+ !
+|.
+|X
+|.*.
++---
+
+:1122
+
+
+Pattern 6004
+# Special corner shape
+
+|*X.
+|. .)
++----
+
+:1122
+
+
+Pattern 6011
+
+xxxxxx
+
+:2222
+
+
+Pattern 6021
+
+!.x..x
+
+:1222
+
+
+Pattern 6022
+
+@..xXx
+
+:1122
+
+
+Pattern 6023
+
+@.XX>.
+
+:1122
+
+
+Pattern 6024
+
+!..X.x
+
+:1222
+
+
+Pattern 6026
+
+!.XXXX
+
+:0222
+
+
+Pattern 6028
+
+!.XxxX
+
+:1222
+
+
+Pattern 6029
+
+@.X.X.
+
+:1122
+
+
+Pattern 6030
+
+@.XXX.
+
+:0122
+
+
+Pattern 6031
+
+@X.XXX
+
+:1122
+
+
+Pattern 6032
+
+!X.X.X
+
+:1222
+
+
+Pattern 6033
+
+@X.XX.
+
+:0122
+
+
+Pattern 6034
+
+@X.xxx
+
+:1122
+
+
+Pattern 6035
+
+@XX.Xx
+
+:0122
+
+
+Pattern 6036
+
+@Xx.xx
+
+:1122
+
+
+Pattern 6037
+
+@XXX.x
+
+:0122
+
+
+Pattern 6038
+
+@XXXXx
+
+:0022
+
+
+Pattern 6041
+
+x!.X.X
+
+:1222
+
+
+Pattern 6042
+
+x@.XX.
+
+:0122
+
+
+Pattern 6043
+
+x@.XXX
+
+:1122
+
+
+Pattern 6044
+
+x@.xxx
+
+:1122
+
+
+Pattern 6045
+
+x@X.Xx
+
+:0122
+
+
+Pattern 6046
+
+x@X..x
+
+:1122
+
+
+Pattern 6047
+
+x@XX.x
+
+:0122
+
+
+Pattern 6048
+
+x@XXXx
+
+:0022
+
+
+Pattern 6051
+
+x.!..x
+
+:1222
+
+
+Pattern 6052
+
+x.@.Xx
+
+:1122
+
+
+Pattern 6053
+
+x.@XXx
+
+:0122
+
+
+Pattern 6054
+
+x.@X.x
+
+:1122
+
+
+Pattern 6055
+
+xX@.Xx
+
+:0122
+
+
+Pattern 6056
+
+xX@..x
+
+:1122
+
+
+Pattern 6057
+
+xX@X.x
+
+:0122
+
+
+Pattern 6058
+
+xX@XXx
+
+:0022
+
+
+Pattern 6061
+
+!x@..x
+
+:1122
+
+
+Pattern 6062
+
+!x@X.x
+
+:0122
+
+
+Pattern 6063
+
+!x!.Xx
+
+:0112
+
+
+Pattern 6064
+
+!x@XXX
+
+:0022
+
+
+Pattern 6065
+
+!x@XX.
+
+:0012
+
+
+Pattern 6066
+
+!.x@.x
+
+:0122
+
+
+Pattern 6067
+
+!Xx!.x
+
+:0112
+
+
+Pattern 6068
+
+!Xx@Xx
+
+:0012
+
+
+Pattern 6069
+
+!.x@Xx
+
+:0022
+
+
+Pattern 6070
+
+!XX.@x
+
+:0012
+
+
+Pattern 6071
+
+!xx.@x
+
+:0122
+
+
+Pattern 6072
+
+!XXX@x
+
+:0012
+
+
+Pattern 6073
+
+!xxX@x
+
+:0022
+
+
+Pattern 6074
+
+!....!
+
+:1112
+
+
+Pattern 6075
+
+!.X.x!
+
+:0112
+
+
+Pattern 6076
+
+!.XX.!
+
+:0111
+
+
+Pattern 6077
+
+!x..X!
+
+:0112
+
+
+Pattern 6078
+
+@XX>X!
+
+:0011
+
+
+Pattern 6079
+
+@XXx.!
+
+:0011
+
+
+Pattern 6080
+
+!XXXX!
+
+:0002
+
+
+Pattern 6082
+
+x@x!.x
+
+:1122
+
+
+Pattern 6083
+
+x!x!Xx
+
+:0112
+
+
+Pattern 6084
+
+x@..@x
+
+:1122
+
+
+Pattern 6085
+
+x@X.!x
+
+:0122
+
+
+Pattern 6086
+
+x!XX!x
+
+:0112
+
+
+Pattern 6087
+
+x@x!x!
+
+:0012
+
+
+Pattern 6091
+
+!....$
+
+:0111
+
+
+Pattern 6092
+
+@Xx..$
+
+:0011
+
+
+#            .
+# Topology: .....
+#
+
+Pattern 6101
+
+ X
+X..x!
+
+:1222
+
+
+Pattern 6102
+
+ x
+x*x.!
+
+:1122
+
+
+Pattern 6103
+
+ X
+XX*.(
+
+:1122
+
+
+Pattern 6104
+
+ X
+XX>X@
+
+:1122
+
+
+Pattern 6105
+
+ x
+xX..!
+
+:1112
+
+
+Pattern 6106
+
+ X
+XXX.!
+
+:1112
+
+
+Pattern 6107
+
+ x
+xXX.!
+
+:0111
+
+
+Pattern 6108
+
+ x
+xX.X@
+
+:0122
+
+
+Pattern 6109
+
+ x
+xXXX@
+
+:0022
+
+
+Pattern 6111
+
+ x
+x@..x
+
+:1122
+
+
+Pattern 6112
+
+ x
+x@XXx
+
+:0022
+
+
+Pattern 6113
+
+ x
+x@xxx
+
+:0122
+
+
+Pattern 6121
+
+ x
+@X..x
+
+:1122
+
+
+Pattern 6122
+
+ x
+@XXXx
+
+:0022
+
+
+Pattern 6123
+
+ x
+@Xxxx
+
+:0122
+
+
+Pattern 6131
+
+ x
+xX@.x
+
+:0122
+
+
+Pattern 6132
+
+ x
+xX@Xx
+
+:0022
+
+
+Pattern 6141
+
+ X
+XX.@x
+
+:1122
+
+
+Pattern 6142
+
+ x
+xX.@x
+
+:0122
+
+
+Pattern 6143
+
+ x
+xXX@x
+
+:0022
+
+
+Pattern 6151
+
+ !
+x*x.!
+
+:0122
+
+
+Pattern 6152
+
+ !
+!..x@
+
+:0011
+
+
+#             .
+# Topology: .....
+#
+
+Pattern 6201
+
+  x
+.*X.!
+
+:1122
+
+
+Pattern 6202
+
+  .
+X>X.@
+
+:1122
+
+
+Pattern 6203
+
+  x
+.X*.!
+
+:1122
+
+
+Pattern 6204
+
+  X
+XXX.!
+
+:0222
+
+
+Pattern 6205
+
+  .
+XXX.@
+
+:0122
+
+
+Pattern 6206
+
+  x
+.XX.!
+
+:0111
+
+
+Pattern 6207
+
+  x
+..*X)
+
+:1122
+
+
+Pattern 6208
+
+  x
+.X*X!
+
+:0122
+
+
+Pattern 6209
+
+  x
+..XX!
+
+:0112
+
+
+Pattern 6210
+
+  x
+.XXX@
+
+:0011
+
+
+Pattern 6211
+
+  x
+X.XX@
+
+:0122
+
+
+Pattern 6212
+
+  x
+XXXX@
+
+:0022
+
+
+Pattern 6221
+
+  x
+x.@.x
+
+:1122
+
+
+Pattern 6222
+
+  x
+x.@Xx
+
+:0122
+
+
+Pattern 6223
+
+  x
+xX@Xx
+
+:0022
+
+
+Pattern 6231
+
+  x
+x@X.x
+
+:0122
+
+
+Pattern 6232
+
+  x
+x@XXx
+
+:0022
+
+
+Pattern 6241
+
+  @
+x.X.x
+
+:1122
+
+
+Pattern 6242
+
+  @
+x.XXx
+
+:0122
+
+
+Pattern 6243
+
+  @
+xXXXx
+
+:0022
+
+
+Pattern 6251
+
+  x
+!.*.!
+
+:1122
+
+
+Pattern 6252
+
+  x
+!X*X!
+
+:0022
+
+
+Pattern 6253
+
+  x
+!.*X!
+
+:0122
+
+
+Pattern 6254
+
+  !
+X...!
+
+:1112
+
+
+Pattern 6255
+
+  !
+X.<X)
+
+:0122
+
+
+Pattern 6256
+
+  !
+...X!
+
+:0112
+
+
+Pattern 6261
+# tm New Pattern (3.1.22) (see owl:111)
+
+  )
+@.>.@
+
+:0011
+
+
+Pattern 6262
+# FIXME: I don't understand this pattern. Is it correct? -pp
+
+  !
+!x..!
+ ---
+
+:0000
+
+
+Pattern 6263
+# tm modified (3.1.22)
+
+  !
+@X*.!
+
+:0011
+
+
+#            ..
+# Topology: ....
+#
+
+Pattern 6301
+
+ .X
+!.*.
+----
+
+:0122
+
+
+Pattern 6302
+
+ xx
+XXXX
+
+:2222
+
+
+Pattern 6303
+
+ *x
+XXX.
+
+:1122
+
+
+Pattern 6304
+
+ XX
+XXX.
+
+:1112
+
+
+Pattern 6305
+
+ xx
+xXXx
+
+:1111
+
+
+Pattern 6306
+
+ xX
+X.XX
+
+:2222
+
+
+Pattern 6307
+
+ .X
+X.X.
+
+:1222
+
+
+Pattern 6308
+
+ XX
+X*X.
+
+:1122
+
+
+Pattern 6309
+
+ xX
+x*Xx
+
+:1122
+
+
+Pattern 6310
+
+ X.
+X*X.
+
+:1122
+
+
+Pattern 6311
+
+ x.
+.*X.
+
+:1122
+
+
+Pattern 6312
+
+ Xx
+!..X
+
+:1222
+
+
+Pattern 6313
+
+ xx
+!.*x
+
+:1122
+
+
+Pattern 6314
+
+ XX
+!*XX
+
+:1122
+
+
+Pattern 6315
+
+ X.
+!.XX
+
+:0222
+
+
+Pattern 6316
+
+ x.
+!.Xx
+
+:0112
+
+
+Pattern 6317
+
+ xX
+!.Xx
+
+:0111
+
+
+Pattern 6318
+
+ XX
+@X.X
+
+:0122
+
+
+Pattern 6319
+
+ .x
+!X*x
+
+:0122
+
+
+Pattern 6320
+
+ Xx
+@X.X
+
+:0122
+
+
+Pattern 6321
+
+ Xx
+!X..
+
+:0112
+
+
+Pattern 6322
+
+ X.
+@XXX
+
+:0022
+
+
+Pattern 6323
+
+ XX
+@XXX
+
+:0012
+
+
+Pattern 6324
+
+ xx
+@XXx
+
+:0011
+
+
+Pattern 6331
+
+ .x
+x@.x
+
+:1122
+
+
+Pattern 6332
+
+ Xx
+x@.x
+
+:0122
+
+
+Pattern 6333
+
+ xx
+x@Xx
+
+:0022
+
+
+Pattern 6341
+
+ !x
+.*.x
+
+:1122
+
+
+Pattern 6342
+
+ !.
+.*Xx
+
+:0122
+
+
+Pattern 6343
+
+ (.
+X>Xx
+
+:1122
+
+
+Pattern 6344
+
+ @X
+x..x
+
+:1122
+
+
+Pattern 6345
+
+ @X
+X.Xx
+
+:0122
+
+
+Pattern 6346
+
+ !X
+..Xx
+
+:0112
+
+
+Pattern 6347
+
+ !x
+.X.x
+
+:0112
+
+
+Pattern 6348
+
+ @x
+XX.x
+
+:0122
+
+
+Pattern 6349
+
+ @x
+.XXx
+
+:0011
+
+
+Pattern 6350
+
+ @x
+XXXx
+
+:0022
+
+
+Pattern 6361
+
+ !!
+!.*.
+
+:0011
+
+
+Pattern 6362
+
+ .@
+!..!
+
+:0011
+
+
+#           ..
+# Topology: ....
+#
+
+Pattern 6400
+
+|.x
+|xX*.
++----
+
+:1122
+
+
+Pattern 6401
+
+|XX
+|<XX>
++----
+
+:1122
+
+
+Pattern 6402
+
+|.x
+|X.*.
++----
+
+:1122
+
+
+Pattern 6403
+
+|.X
+|x.*.
++----
+
+:1122
+
+
+Pattern 6404
+
+|.<
+|.>X.
++----
+
+:1122
+
+
+Pattern 6405
+# Not possible to do better than bent four in the corner.
+
+|..
+|.XX.
++----
+
+:1111
+
+
+Pattern 6406
+# Nothing to do.
+
+|.X
+|..X.
++----
+
+:1111
+
+
+Pattern 6407
+# Nothing to do.
+
+|.x
+|X.X.
++----
+
+:1111
+
+
+Pattern 6411
+
+xX
+X*X.
+
+:1122
+
+
+Pattern 6412
+
+.*
+XXX.
+
+:1122
+
+
+Pattern 6413
+
+..
+.XX.
+
+:1222
+
+
+Pattern 6414
+
+XX
+*XX>
+
+:1122
+
+
+Pattern 6416
+
+XX
+XXX.
+
+:1112
+
+
+Pattern 6417
+
+xX
+XXX.
+
+:1111
+
+
+Pattern 6418
+
+xX
+XX*.
+
+:1122
+
+
+Pattern 6421
+
+.x
+x*.!
+
+:1122
+
+
+Pattern 6422
+
+.x
+x*X!
+
+:0122
+
+
+Pattern 6423
+
+XX
+X*x!
+
+:1122
+
+
+Pattern 6424
+
+Xx
+x.X@
+
+:0122
+
+
+Pattern 6425
+
+XX
+XXX@
+
+:0012
+
+
+Pattern 6426
+
+Xx
+xXX@
+
+:0022
+
+
+Pattern 6427
+
+X.
+x..!
+
+:1112
+
+
+Pattern 6429
+
+X.
+.X.!
+
+:1112
+
+
+Pattern 6430
+
+..
+.X.!
+
+:0112
+
+
+Pattern 6431
+
+xx
+xX.!
+
+:0111
+
+
+Pattern 6432
+
+.x
+xXX@
+
+:0011
+
+
+Pattern 6433
+
+xx
+@..x
+
+:1122
+
+
+Pattern 6434
+
+.x
+@.Xx
+
+:1122
+
+
+Pattern 6435
+
+xx
+@.Xx
+
+:0122
+
+
+Pattern 6436
+
+xx
+@X.x
+
+:0122
+
+
+Pattern 6437
+
+xx
+@XXx
+
+:0022
+
+
+Pattern 6441
+
+@x
+x..x
+
+:1122
+
+
+Pattern 6442
+
+@x
+x.XX
+
+:0122
+
+
+Pattern 6443
+
+!x
+x.X.
+
+:0112
+
+
+Pattern 6444
+
+@.
+.X.X
+
+:0122
+
+
+Pattern 6445
+
+!.
+.X..
+
+:0112
+
+
+Pattern 6446
+
+!X
+xX..
+
+:0112
+
+
+Pattern 6447
+
+@X
+xX.X
+
+:0122
+
+
+Pattern 6448
+
+@X
+xXX.
+
+:0011
+
+
+Pattern 6449
+
+@x
+xXXX
+
+:0022
+
+
+Pattern 6450
+
+@x
+xXX.
+
+:0011
+
+
+Pattern 6461
+
+xx
+x@.x
+
+:0122
+
+
+Pattern 6462
+
+xx
+x@Xx
+
+:0022
+
+
+Pattern 6471
+
+XX
+X.@x
+
+:1122
+
+
+Pattern 6472
+
+.X
+X.!x
+
+:0222
+
+
+Pattern 6473
+
+.x
+x.@x
+
+:1122
+
+
+Pattern 6474
+
+xx
+x.@x
+
+:0122
+
+
+Pattern 6475
+
+xx
+xX@x
+
+:0022
+
+
+#           ...
+# Topology: ...
+#
+
+Pattern 6501
+
+>XX
+X<X
+---
+
+:1122
+
+
+Pattern 6502
+
+.*.
+..X
+---
+
+:1122
+
+
+Pattern 6503
+
+.x.
+X.X
+---
+
+:1111
+
+
+Pattern 6504
+
+.X.
+x.X
+---
+
+:1111
+
+
+Pattern 6511
+
+XX.
+..X
+
+:1222
+
+
+Pattern 6512
+
+XXX
+X.X
+
+:2222
+
+
+Pattern 6513
+
+xXx
+x*x
+
+:1122
+
+
+Pattern 6514
+# Need to mark both empty vertices. In the corner one of them may not
+# be a valid defense (suicide move).
+
+XX*
+*XX
+
+:1122
+
+
+Pattern 6515
+
+XXX
+XX.
+
+:1112
+
+
+Pattern 6516
+
+xXx
+xXx
+
+:1111
+
+
+Pattern 6521
+
+!.x
+..x
+
+:0112
+
+
+Pattern 6522
+
+@XX
+X.x
+
+:0022
+
+
+Pattern 6523
+
+@Xx
+x.x
+
+:0012
+
+
+Pattern 6524
+
+@XX
+XXX
+
+:0012
+
+
+Pattern 6525
+
+@XX
+XX.
+
+:0022
+
+
+Pattern 6526
+
+@Xx
+xXx
+
+:0011
+
+
+Pattern 6527
+
+@.X
+X..
+
+:0122
+
+
+Pattern 6528
+
+@.X
+X.X
+
+:0022
+
+
+Pattern 6529
+
+!..
+X.x
+
+:0112
+
+
+Pattern 6530
+
+!.x
+.X.
+
+:0112
+
+
+Pattern 6531
+
+@xX
+.XX
+
+:0011
+
+
+Pattern 6532
+
+@x.
+xXx
+
+:0011
+
+
+Pattern 6533
+
+@xX
+XXx
+
+:0022
+
+
+Pattern 6541
+
+.@.
+x.x
+
+:0122
+
+
+Pattern 6542
+
+x@x
+xXx
+
+:0022
+
+
+Pattern 6543
+
+x@x
+x.x
+
+:0022
+
+
+Pattern 6551
+
+!.x
+!.x
+
+:0111
+
+
+#            ...
+# Topology: ...
+#
+
+Pattern 6601
+
+ ...
+...
+
+:2222
+
+
+Pattern 6602
+
+ *Xx
+.XX
+
+:1122
+
+
+Pattern 6603
+
+ X*X
+.XX
+
+:1122
+
+
+Pattern 6604
+
+ X*.
+xXX
+
+:1122
+
+
+Pattern 6605
+
+ XX.
+.XX
+
+:1111
+
+
+Pattern 6606
+
+ XXX
+.XX
+
+:1112
+
+
+Pattern 6611
+
+ x*x
+!.x
+ 
+:1122
+
+
+Pattern 6612
+
+ XXX
+!.X
+
+:1112
+
+
+Pattern 6613
+
+ xXx
+!.x
+
+:0111
+
+
+Pattern 6614
+
+ x..
+!Xx
+
+:0112
+
+
+Pattern 6615
+
+ x.X
+@Xx
+
+:0122
+
+
+Pattern 6616
+
+ XXX
+@XX
+
+:0012
+
+
+Pattern 6617
+
+ xXX
+@Xx
+
+:0022
+
+
+Pattern 6618
+
+ xX.
+@Xx
+
+:0011
+
+
+Pattern 6621
+
+ x.x
+x@x
+ 
+:0122
+
+
+Pattern 6622
+
+ xXx
+x@x
+ 
+:0022
+
+
+Pattern 6631
+
+ x.x
+x.@
+ 
+:1122
+
+
+Pattern 6632
+
+ x.x
+xX@
+ 
+:0122
+
+
+Pattern 6633
+
+ xXx
+xX@
+ 
+:0022
+
+
+#            .
+# Topology: ....
+#            .
+
+Pattern 6701
+
+ x
+xX*.
+ x
+
+:1122
+
+
+Pattern 6702
+
+ x
+x*X.
+ x
+
+:1122
+
+
+Pattern 6703
+
+ X
+XXX.
+ X
+
+:1112
+
+
+Pattern 6704
+
+ x
+xXX.
+ x
+
+:1111
+
+
+Pattern 6711
+
+ x
+!*..
+ x
+
+:1122
+
+
+Pattern 6712
+
+ x
+!..X
+ x
+
+:1222
+
+
+Pattern 6713
+
+ x
+!.XX
+ x
+
+:0222
+
+
+Pattern 6714
+
+ x
+!*Xx
+ x
+
+:0122
+
+
+Pattern 6715
+
+ x
+@X.X
+ x
+
+:0122
+
+
+Pattern 6716
+
+ x
+!X..
+ x
+
+:0112
+
+
+Pattern 6717
+
+ x
+@XXX
+ x
+
+:0022
+
+
+Pattern 6718
+
+ x
+@XX.
+ x
+
+:0011
+
+
+Pattern 6721
+# Cannot exist.
+
+ x
+x.!x
+ x
+
+:0222
+
+
+Pattern 6722
+# Cannot exist.
+
+ x
+xX@x
+ x
+
+:0022
+
+
+Pattern 6731
+
+ x
+x*.!
+ x
+
+:1122
+
+
+Pattern 6732
+
+ X
+X*X!
+ X
+
+:1122
+
+
+Pattern 6733
+
+ x
+x*X!
+ x
+
+:0122
+
+
+Pattern 6734
+
+ X
+XX.!
+ X
+
+:1112
+
+
+Pattern 6735
+
+ x
+xX.!
+ x
+
+:0111
+
+
+Pattern 6736
+
+ X
+XXX@
+ X
+
+:0012
+
+
+Pattern 6737
+
+ x
+xXX@
+ x
+
+:0011
+
+
+#            .
+# Topology: ....
+#             .
+
+Pattern 6801
+
+ x
+xX.!
+  X
+
+:0222
+
+
+Pattern 6802
+
+ x
+xX*!
+  .
+
+:0122
+
+
+Pattern 6803
+
+ x
+x.X!
+  X
+
+:0222
+
+
+Pattern 6804
+
+ x
+x*X!
+  .
+
+:0122
+
+
+Pattern 6805
+
+ x
+xXX@
+  .
+
+:0011
+
+
+Pattern 6806
+
+ x
+xXX@
+  X
+
+:0022
+
+
+Pattern 6811
+# Cannot exist.
+
+ x
+x.!x
+  x
+
+:0222
+
+
+Pattern 6812
+# Cannot exist.
+
+ x
+xX@x
+  x
+
+:0022
+
+
+#           ..
+# Topology: ...
+#            .
+
+
+Pattern 6901
+# This pattern must be matched before 6902.
+
+XX
+X.X
+ X
+
+:1222
+
+
+Pattern 6902
+
+.x
+x*x
+ x
+
+:1122
+
+
+Pattern 6903
+
+XX
+X*x
+ x
+
+:1122
+
+
+Pattern 6904
+
+X.
+.XX
+ X
+
+:2222
+
+
+Pattern 6905
+
+X.
+.Xx
+ x
+
+:1222
+
+
+Pattern 6906
+
+XX
+.XX
+ X
+
+:1222
+
+
+Pattern 6907
+
+XX
+*Xx
+ x
+
+:1122
+
+
+Pattern 6908
+
+..
+.Xx
+ x
+
+:1112
+
+
+Pattern 6909
+
+XX
+XXX
+ .
+
+:1112
+
+
+Pattern 6910
+
+.X
+XXX
+ X
+
+:1112
+
+
+Pattern 6911
+
+xx
+xXx
+ x
+
+:1111
+
+
+Pattern 6912
+
+!.
+.*x
+ x
+
+:0122
+
+
+Pattern 6913
+
+!X
+X*X
+ X
+
+:1122
+
+
+Pattern 6914
+
+!x
+x*x
+ x
+
+:0122
+
+
+Pattern 6915
+
+@.
+.Xx
+ x
+
+:0011
+
+
+Pattern 6916
+
+@X
+XXX
+ X
+
+:0012
+
+
+Pattern 6917
+
+@x
+xXx
+ x
+
+:0011
+
+
+Pattern 6921
+
+.!
+.*x
+ x
+
+:1122
+
+
+Pattern 6922
+
+.!
+X*x
+ x
+
+:0122
+
+
+Pattern 6923
+
+.@
+.Xx
+ x
+
+:0012
+
+
+Pattern 6924
+
+.@
+XXx
+ x
+
+:0011
+
+
+Pattern 6925
+
+X@
+xXx
+ x
+
+:0022
+
+
+Pattern 6931
+
+.x
+x*!
+ x
+
+:0122
+
+
+Pattern 6932
+
+Xx
+x*!
+ .
+
+:0122
+
+
+Pattern 6933
+
+XX
+X*!
+ X
+
+:1122
+
+
+Pattern 6934
+
+Xx
+x.!
+ X
+
+:0222
+
+
+Pattern 6935
+
+.x
+xX@
+ x
+
+:0011
+
+
+Pattern 6936
+
+XX
+XX@
+ X
+
+:0012
+
+
+Pattern 6937
+
+Xx
+xX@
+ X
+
+:0022
+
+
+Pattern 6938
+
+Xx
+xX@
+ x
+
+:0011
+
+
+###############################
+#          7 elements         #
+###############################
+
+#            
+# Topology: .......
+#
+
+Pattern 70000
+# There is some ko potential here.
+
+|.
+|X
+|X
+|...@
++----
+
+:1122
+
+
+Pattern 70001
+# tm added (3.1.15)
+# Though pattern 7003 matches with a defense point at
+# the proper place, the code doesn't seem to provide
+# more than one defense point.
+|(
+|.
+|.
+|>..(
++----
+
+:1122
+
+
+Pattern 70010
+
+@..>X.(
+
+:1122
+
+
+Pattern 70011
+
+@..>..@
+
+:1122
+
+
+Pattern 70012
+
+(.x..X@
+
+:1122
+
+
+Pattern 70013
+
+@..X..@
+
+:1122
+
+
+Pattern 70014
+
+(.X*X.(
+
+:1122
+
+
+Pattern 70015
+
+@X.X.X@
+
+:0122
+
+
+Pattern 70016
+
+@X.X..!
+
+:0122
+
+
+Pattern 70017
+
+@XXXX.!
+
+:0022
+
+
+Pattern 70018
+
+@XxxX.(
+
+:0122
+
+
+Pattern 70019
+
+!Xx..x!
+
+:0112
+
+
+Pattern 70020
+
+!.XX..!
+
+:0112
+
+
+Pattern 70021
+
+!.XXX.!
+
+:0111
+
+
+Pattern 70022
+
+@XXX.x!
+
+:0012
+
+
+Pattern 70023
+
+@XX*XX@
+
+:0011
+
+
+Pattern 70024
+
+!XXXXX!
+
+:0002
+
+
+Pattern 70030
+# FIXME: This pattern looks like 1112 to me. "$...<." seems to be
+#	 attackable at '<'. -pp
+
+$.....@
+
+:1122
+
+
+#            .
+# Topology: ......
+#
+
+Pattern 70500
+
+ x
+!<XXX)
+
+:0022
+
+
+Pattern 70501
+
+ X
+!..X.!
+
+:1222
+
+
+Pattern 70502
+
+ X
+!.XX.!
+
+:0222
+
+
+Pattern 70503
+
+ x
+!..XX@
+
+:0122
+
+
+Pattern 70504
+
+ .
+!*X.X)
+
+:0122
+
+
+Pattern 70505
+
+ .
+!*XX.!
+
+:0122
+
+
+Pattern 70506
+
+ x
+!*xxx!
+
+:1122
+
+
+Pattern 70507
+
+ )
+)*x..x
+
+:1122
+
+
+#             .
+# Topology: ......
+#
+
+Pattern 71000
+
+  . @|
+!...x|
+-----+
+
+:1122
+
+
+Pattern 71010
+
+  !
+!..X.X
+
+:1222
+
+
+Pattern 71011
+
+  !
+@.>XXX
+
+:1122
+
+
+Pattern 71012
+# Defending the other marginal vertex is sometimes incorrect,
+# see regression/games/owl27.sgf.
+
+  )
+(..x.x
+
+:1122
+
+
+Pattern 71013
+
+  (
+@...Xx
+
+:1122
+
+
+Pattern 71014
+
+  !
+)X<XXx
+
+:0022
+
+
+Pattern 71015
+
+  !
+)x<xXx
+
+:0122
+
+
+Pattern 71016
+
+  !
+@X*..x
+
+:1122
+
+
+Pattern 71017
+
+  !
+!X*X.x
+
+:0122
+
+
+Pattern 71020
+
+  x
+!X*XX!
+
+:0022
+
+
+Pattern 71021
+
+  X
+!.>xX(
+
+:1122
+
+
+Pattern 71022
+
+  .
+!.*XX!
+
+:0122
+
+
+Pattern 71023
+
+  .
+!X*.x!
+
+:0122
+
+
+Pattern 71024
+
+  x
+!X*X.!
+
+:0122
+
+
+Pattern 71025
+
+  x
+!x*xx!
+
+:1122
+
+
+Pattern 71030
+
+  )
+..>..@
+
+:1122
+
+
+Pattern 71040
+
+  !
+!..x.!
+
+:0112
+
+
+#            . .
+# Topology: .....
+#
+
+
+Pattern 71500
+
+ . !
+!...!
+
+:0112
+
+
+#            .
+# Topology: .....
+#            .
+
+Pattern 72000
+
+ x
+x*X.!
+ x 
+
+:1122
+
+
+Pattern 72001
+
+ x
+x..X!
+ x 
+
+:1222
+
+
+Pattern 72002
+
+ X
+X...!
+ X 
+
+:1222
+
+
+Pattern 72003
+
+ x
+x*..)
+ x 
+
+:1122
+
+
+#             .
+# Topology: .....
+#            .
+
+# Pattern 72500
+
+#             .
+# Topology: .....
+#             .
+
+
+# Pattern 73000
+
+#             .
+# Topology:   .
+#           .....
+
+Pattern 73500
+
+  @
+  .
+x...@
+
+:1122
+
+
+Pattern 73501
+
+  !
+  .
+.*X.!
+
+:1122
+
+
+#           ..
+# Topology: .....
+#
+
+Pattern 74000
+# Bent four in the corner
+
+|..
+|.*..!
++----
+
+:1122
+
+
+Pattern 74001
+
+XX
+X*x.!
+
+:1122
+
+
+Pattern 74002
+
+X.
+x.X.!
+
+:1222
+
+
+Pattern 74003
+
+Xx
+x>x.@
+
+:1122
+
+
+#            ..
+# Topology: .....
+#
+
+Pattern 74500
+
+|.
+|X
+|XX.
+|.X
++--
+
+:1111
+
+
+Pattern 74510
+
+ ..
+.X*.!
+
+:1122
+
+
+Pattern 74511
+
+ .x
+....!
+
+:1222
+
+
+Pattern 74512
+
+ xx
+.*x.!
+
+:1122
+
+
+Pattern 74513
+
+ Xx
+.X..!
+
+:1112
+
+
+Pattern 74514
+
+ Xx
+.XX.!
+
+:0111
+
+
+Pattern 74515
+
+ .x
+!...!
+
+:1112
+
+
+Pattern 74516
+
+ xX
+!.X.!
+
+:0111
+
+
+Pattern 74517
+
+ xx
+!.x.!
+
+:0112
+
+
+#             ...
+# Topology: ....
+#
+
+Pattern 75000
+
+|.
+|X
+|XX
+|.*.
++---
+
+:1122
+
+
+Pattern 75001
+
+|.
+|*
+|XX
+|.X.
++---
+
+:1122
+
+
+Pattern 75002
+
+|.
+|*
+|Xx
+|x.!
++---
+
+:1122
+
+
+Pattern 75003
+
+|.
+|X
+|XX
+|.X.
++---
+
+:1111
+
+
+Pattern 75004
+
+  XX.
+!..X
+
+:1112
+
+
+Pattern 75005
+
+  XXX
+(.*X
+
+:1122
+
+
+Pattern 75006
+
+  xXx
+@..x
+
+:1122
+
+
+Pattern 75007
+
+  X.(
+(.*X
+
+:1122
+
+
+Pattern 75008
+
+  x.!
+!..x
+
+:0112
+
+
+Pattern 75009
+
+  x.!
+!.Xx
+
+:0111
+
+
+#           ..
+# Topology: ....
+#            .
+
+Pattern 75500
+
+xX
+XX*.
+ x
+
+:1122
+
+
+Pattern 75501
+# O here may give ko.
+
+xX
+X*X.
+ x
+
+:1122
+
+
+Pattern 75502
+# X here gives ko.
+
+.*
+X.X.
+ x
+
+:1122
+
+
+Pattern 75504
+# X here gives ko.
+
+.X
+X.*.
+ x
+
+:1122
+
+
+Pattern 75505
+
+xX
+*XX.
+ x
+
+:1122
+
+
+Pattern 75506
+
+XX
+XXX.
+ X
+
+:1112
+
+
+Pattern 75507
+
+xX
+XXX.
+ x
+
+:1111
+
+
+#            ..
+# Topology: ....
+#            .
+
+Pattern 76000
+
+ Xx
+x*X.
+ x
+
+:1122
+
+
+Pattern 76001
+
+ Xx
+xX*.
+ x
+
+:1122
+
+
+Pattern 76002
+
+ *x
+xXX.
+ x
+
+:1122
+
+
+Pattern 76003
+
+ XX
+XXX.
+ X
+
+:1112
+
+
+Pattern 76004
+
+ Xx
+xXX.
+ x
+
+:1111
+
+
+#            .
+# Topology: ...
+#            ...
+
+Pattern 76500
+
+ x
+x*X
+ XX.
+
+:1122
+
+
+Pattern 76501
+
+ x
+xXX
+ X*.
+
+:1122
+
+
+Pattern 76502
+
+ X
+XX*
+ XX>
+
+:1122
+
+
+Pattern 76503
+
+ x
+xX*
+ XX.
+
+:1122
+
+
+Pattern 76504
+
+ X
+XXX
+ XX.
+
+:1112
+
+
+Pattern 76505
+
+ x
+xXX
+ XX.
+
+:1111
+
+
+#            .
+# Topology:  ..
+#           ....
+
+Pattern 77000
+
+ !
+ .x
+!.*x
+
+:1122
+
+
+#             .
+# Topology: ....
+#           ..
+
+# Pattern 77500
+
+
+#           ..
+# Topology: ...
+#            ..
+
+Pattern 78000
+
+..
+XXX
+ X.
+
+:1111
+
+
+Pattern 78001
+
+.*
+*X*
+ X.
+
+:1122
+
+
+Pattern 78002
+
+..
+xXx
+ X.
+
+:1112
+
+
+Pattern 78003
+
+.X
+x.X
+ X.
+
+:1112
+
+
+Pattern 78004
+
+.X
+x*x
+ X.
+
+:1122
+
+
+Pattern 78005
+
+.x
+x*X
+ Xx
+
+:1122
+
+
+Pattern 78006
+
+.x
+xX*
+ Xx
+
+:1122
+
+
+Pattern 78010
+
+.X
+xXx
+ X.
+
+:1111
+
+
+Pattern 78011
+
+.X
+.XX
+ XX
+
+:1111
+
+
+Pattern 78012
+
+.x
+xXX
+ Xx
+
+:1112
+
+
+#           ...
+# Topology: ....
+#
+
+Pattern 78500
+
+---
+X.X
+.XX.
+
+:1111
+
+
+Pattern 78501
+
+---
+X.X
+.X*.
+
+:1122
+
+
+Pattern 78502
+
+----
+X.X.
+.Xx
+
+:1111
+
+
+Pattern 78503
+
+----
+X.X.
+xX.
+
+:1111
+
+
+Pattern 78504
+
+----
+X.*.
+.Xx
+
+:1122
+
+
+Pattern 78505
+
+----
+X.*.
+xX.
+
+:1122
+
+
+Pattern 78506
+
+----
+*.X.
+.Xx
+
+:1122
+
+
+Pattern 78507
+
+----
+*.X.
+xX.
+
+:1122
+
+
+Pattern 78508
+
+----
+X.X.
+.*x
+
+:1122
+
+
+Pattern 78509
+
+----
+X.X.
+x*.
+
+:1122
+
+
+Pattern 78520
+
+|.
+|X.
+|XX
+|.X
++--
+
+:1111
+
+
+Pattern 78521
+
+|X.
+|XX
+|.X.
++---
+
+:1111
+
+
+Pattern 78522
+
+|X
+|XX.
+|.X.
++---
+
+:1111
+
+
+Pattern 78550
+
+..X
+X..!
+
+:1222
+
+
+Pattern 78551
+
+X.X
+X..!
+
+:0222
+
+
+Pattern 78552
+
+x.x
+x..@
+
+:1122
+
+
+Pattern 78553
+
+.XX
+...!
+
+:0112
+
+
+Pattern 78554
+
+.XX
+X>*)
+
+:1122
+
+
+Pattern 78555
+
+.xx
+x*.!
+
+:1122
+
+
+#            .
+# Topology: ...
+#           ...
+
+Pattern 79000
+
+|X.
+|XX.
+|.X
++--
+
+:1111
+
+
+Pattern 79010
+# Big nakade.
+ x
+.X.
+.*.
+
+:1122
+
+
+Pattern 79011
+# Big nakade.
+ .
+.X.
+.*X
+
+:1122
+
+
+Pattern 79012
+# Big nakade.
+
+ X
+..x
+XX.
+
+:1222
+
+
+Pattern 79013
+# Big nakade.
+
+ x
+x*x
+xX.
+
+:1122
+
+
+Pattern 79014
+# X here may give ko.
+
+ .
+X.X
+X..
+
+:1222
+
+
+Pattern 79015
+# X here may give ko.
+
+ .
+X>X
+.*.
+
+:1122
+
+
+Pattern 79016
+# Big nakade.
+
+ x
+XXx
+x*.
+
+:1122
+
+
+Pattern 79017
+# Big nakade.
+
+ X
+XX.
+..X
+
+:1222
+
+
+Pattern 79018
+# Big nakade.
+
+ x
+XXx
+.*x
+
+:1122
+
+
+Pattern 79019
+# Big nakade.
+
+ X
+XX*
+.XX
+
+:1122
+
+
+Pattern 79020
+# Big nakade.
+
+ .
+XX.
+.XX
+
+:1112
+
+
+Pattern 79021
+# Big nakade.
+
+ X
+xX*
+.XX
+
+:1122
+
+
+Pattern 79022
+# Big nakade.
+
+ X
+.X.
+.X.
+
+:1112
+
+
+Pattern 79023
+# Big nakade.
+
+ .
+.X.
+XX.
+
+:1112
+
+
+Pattern 79024
+# Big nakade.
+
+ .
+xX.
+xX.
+
+:1111
+
+
+Pattern 79025
+# Big nakade.
+
+ x
+xXx
+.X.
+
+:1111
+
+
+Pattern 79026
+# Big nakade.
+
+ X
+XXX
+XX.
+
+:1112
+
+
+Pattern 79027
+# Big nakade.
+
+ x
+XXX
+xX.
+
+:1111
+
+
+Pattern 79028
+# Big nakade.
+
+ x
+XXx
+XX.
+
+:1111
+
+
+###############################
+#          8 elements         #
+###############################
+
+#           
+# Topology: ........
+#
+
+Pattern 80000
+# Bent four in the corner, some ko potential
+
+ !
+ .
+|X
+|X
+|...!
++---
+
+:1111
+
+#           ....
+# Topology:  ....
+#
+
+Pattern 80100
+
+!...
+ ...!
+
+:1112
+
+
+#             .
+# Topology:   .
+#           ......
+
+Pattern 80200
+
+  !
+  .
+!..X.X
+
+:2222
+
+
+Pattern 80201
+
+  !
+  .
+!..Xxx
+
+:1222
+
+
+Pattern 80202
+
+  !
+  .
+!.X.XX
+
+:1222
+
+
+Pattern 80203
+
+  @
+  .
+@.X>X.
+
+:1122
+
+
+Pattern 80204
+
+  !
+  .
+!.x..x
+
+:1222
+
+
+Pattern 80205
+
+  ( 
+  . 
+(.*..(
+
+:1122
+
+
+#             ..
+# Topology: ......
+#
+
+Pattern 80300
+
+  ..
+@.>>.@
+
+:1122
+
+
+Pattern 80301
+
+  ..
+!.X*.!
+
+:1122
+
+
+
+#            ..
+# Topology: ......
+#
+
+Pattern 80400
+# nn New pattern (3.3.12)
+
+|@ ..
+|....!
++-----
+
+:1122
+
+
+Pattern 80401
+
+ X.
+!..X.!
+
+:1222
+
+
+Pattern 80402
+
+ ..
+)>>..@
+
+:1122
+
+
+Pattern 80403
+
+ X.
+!*>..@
+
+:1122
+
+
+Pattern 80404
+
+ XX
+)*>X.!
+
+:1122
+
+
+Pattern 80405
+
+ xx
+!.*x.@
+
+:1122
+
+
+#           ...
+# Topology:  .....
+#
+
+Pattern 80500
+
+ !
+|.
+|.
+|XX
+|.*.
++---
+
+:1122
+
+
+Pattern 80501
+
+!.x
+ x*x.!
+
+:1122
+
+
+Pattern 80502
+# in some cases this could become seki
+
+!.x
+ xX..!
+
+:0112
+
+
+Pattern 80503
+# in some cases this could become seki
+
+!.x
+ xXX.!
+
+:0111
+
+
+#              .
+# Topology: .......
+#
+
+Pattern 80600
+
+   !
+(..*..(
+
+:1122
+
+
+#             ....
+# Topology: ....
+#
+
+Pattern 80700
+
+|.
+|*
+|XX
+|...!
++----
+
+:1122
+
+
+Pattern 80701
+
+|.
+|X
+|XX
+|...!
++----
+
+:1111
+
+
+#            . .
+# Topology:  . .
+#           ....
+
+Pattern 80800
+# tm New Pattern (3.1.20) (see viking:9)
+
+  ! @
+  . .
+ .X..
+
+:1122
+
+
+#            .
+# Topology: ...
+#           ....
+
+Pattern 80900
+# gf New pattern. (3.3.18)
+
+  .
+|XX.
+|.XX.
++----
+
+:1111
+
+
+#           . 
+# Topology: ...
+#           ....
+
+Pattern 81000
+# gf New pattern. (3.3.18)
+
+|. 
+|XX.
+|.XX.
++----
+
+:1111
+
+
+#           ..
+# Topology: ..
+#           ....
+
+Pattern 81100
+# gf New pattern. (3.3.18)
+
+|..
+|XX
+|.XX.
++----
+
+:1111
+
+
+#           ..
+# Topology: ...
+#           ...
+
+Pattern 81200
+# gf New pattern. (3.3.18)
+
+|..
+|XX.
+|.XX
++---
+
+:1111
+
+
+###############################
+#          9 elements         #
+###############################
+
+
+Pattern 90100
+
+@.>..
+  ...!
+
+:1122
+
+
+Pattern 90200
+
+  ! .
+!.....!
+
+:1222
+
+
+Pattern 90300
+
+  !
+  .
+ ..
+!...!
+
+:1112
+
+
+Pattern 90400
+
+ !
+ ..
+!.*..!
+
+:1122
+
+
+Pattern 90500
+
+ .....!
+!..
+
+:1222
+
+ 
+Pattern 90600
+
+ !
+|.
+|.
+|*X
+|...!
++----
+
+:1122
+
+
+Pattern 90700
+
+   !
+@..>...!
+
+:1122
+
+
+###############################
+#         10 elements         #
+###############################
+
+
+Pattern 100100
+
+ @
+ .
+ ..
+xX*
+ x.
+  !
+
+:1122
+
+
+Pattern 100200
+
+   !
+ ! .
+ ..*
+!...
+
+:1122
+
+
+Pattern 100300
+
+
+  !
+  *.
+  .>
+@...@
+
+:1122
+
+
+Pattern 100400
+
+   (
+  ..
+  *.
+(.X.(
+
+:1122
+
+
+Pattern 100401
+
+   (
+  ..
+  >.
+@...(
+
+:1122
+
+
+Pattern 100500
+
+  )
+@.>
+  .
+ .>
+)*.
+
+:1122

@@ -1,0 +1,237 @@
+!---------------------------------------------------------------------------
+!
+!  INTVECVEC : a matrix where each column is (possibly) a different length
+!
+! Copyright (C) Daniel Grimwood, 1998
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: intvecvec.foo,v 1.4.2.3 2003/11/13 05:35:09 reaper Exp $
+!---------------------------------------------------------------------------
+
+module INTVECVEC
+
+   implicit none
+
+contains
+
+   create(dim)
+   ! Create space for a vector of integer vectors
+      self :: PTR
+      dim :: INT
+      nullify(self)
+      allocate(self(dim))
+      ADD_MEMORY(dim*PTR_SIZE)
+      .nullify_ptr_part
+   end
+
+   create(dim,dimv)
+   ! Create space for a vector of integer vectors
+      self :: PTR
+      dim,dimv :: INT
+      nullify(self)
+      allocate(self(dim))
+      ADD_MEMORY(dim*PTR_SIZE)
+      .nullify_ptr_part
+      .create_vec(dimv)
+   end
+
+   create(dim,dimv)
+   ! Create space for a vector of integer vectors
+      self :: PTR
+      dim :: INT
+      dimv :: INTVEC(2)
+      nullify(self)
+      allocate(self(dim))
+      ADD_MEMORY(dim*PTR_SIZE)
+      .nullify_ptr_part
+      .create_vec(dimv)
+   end
+
+   create_vec(dimv)
+   ! Allocate the "vec" pointer parts
+      dimv :: INT
+      i :: INT
+      do i = 1,.dim
+         self(i).element.create(dimv)
+      end
+   end
+
+   create_vec(dimv)
+   ! Allocate the "vec" pointer parts
+      dimv :: INTVEC(2)
+      i :: INT
+      do i = 1,.dim
+         self(i).element.create(dimv)
+      end
+   end
+
+   destroy
+   ! Destroy allocated space for ivec vector
+      self :: PTR
+      if (.destroyed) return
+      .destroy_ptr_part
+      DELETE_MEMORY(size(self)*PTR_SIZE)
+      deallocate(self)
+   end
+
+   nullify_ptr_part
+   ! Nullify the pointer parts of an ivecvec
+      self :: PTR
+      s :: INT
+      do s = 1,.dim
+         nullify(self(s).element)
+      end
+   end
+
+   destroy_ptr_part
+   ! Destroy the pointer parts of an ivecvec
+      self :: PTR
+       s :: INT
+      do s = 1,size(self)
+         self(s).element.destroy
+      end
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   create_copy(vec) ::: get_from(OBJECTVEC), leaky
+   ! Create a replica copy of "vec".
+      vec :: SELF_TYPE, IN
+      self :: PTR
+   end
+
+   copy(v) ::: leaky
+   ! Make a copy of "v".
+      v :: SELF_TYPE
+      i :: INT
+      ENSURE(.dim==v.dim,"v has incompatible size")
+      do i = 1,v.dim
+         self(i).element.create_copy(v(i).element)
+      end
+   end
+
+   shrink(dim) ::: leaky
+   ! Shrinks self to dimension dim.  Contents are retained.
+     self :: PTR
+     dim :: INT, IN
+     i,old_size :: INT
+     old :: INTVECVEC*
+     ENSURE(.created, "no self array")
+     ENSURE(dim<=.dim, "dim not small enough")
+     if (dim==.dim) return
+     old => self
+     old_size = old.dim
+     nullify(self)
+     self.create(dim)
+     do i = 1,dim
+        self(i).element => old(i).element
+        nullify(old(i).element)
+     end
+     do i = dim+1,old_size
+        old(i).element.destroy
+     end
+     old.destroy
+   end
+
+   expand(dim) ::: leaky
+   ! Expands self to dimension dim.  Contents are retained.
+   ! Note: pointer assignment is used to retain contents.
+   ! Note: Elements which are added are nullified.
+     self :: PTR
+     dim :: INT, IN
+     old :: INTVECVEC*
+     old_size,i :: INT
+     if (.destroyed) then
+        .create(dim)
+     else
+        ENSURE(dim>=.dim, "dim not large enough")
+        old => self
+        old_size = old.dim
+        nullify(self)
+        self.create(dim)
+        do i = 1,old_size
+           self(i).element => old(i).element
+           nullify(old(i).element)
+        end
+        old.destroy
+        do i = old_size+1,dim
+           nullify(self(i).element)
+        end
+     end
+   end
+
+   append(v) ::: leaky
+   ! Expands self to the required dimension, and append the contents
+   ! of encapsulated vector "v". Note: appended element parts are pointer
+   ! assigned, not copied.
+     self :: PTR
+     v :: INTVECVEC, IN
+     dim,i :: INT
+     if (.destroyed) then; dim = 0
+     else;                 dim = .dim
+     end
+     .expand(dim+v.dim)
+     do i = 1,v.dim
+        self(dim+i).element => v(i).element
+     end
+   end
+
+   append(value) ::: leaky
+   ! Expands self to the required dimension, and append the single
+   ! INTVEC "value" onto the end of self.
+     self :: PTR
+     value :: INTVEC, IN
+     dim :: INT
+     if (.destroyed) then; dim = 0
+     else;                 dim = .dim
+     end
+     .expand(dim+1)
+     self(dim+1).element.append(value)
+   end
+
+   join(list) result (res) ::: leaky
+   ! Join together the vectors in self whose indices are listed in "list".
+      list :: INTVEC
+      res :: INTVEC*
+      temp :: INTVEC*
+      i,l :: INT
+      ENSURE(list.dim>=1,"list must not have zero dimension")
+      ENSURE(maxval(list)<=.dim,"some elements of list are too large")
+      ENSURE(minval(list)>=1,"list elements must be +ve")
+      l = list(1)
+      res.create_copy(self(l).element)
+      do i = 2,list.dim
+         l = list(i)
+         temp => res.join(self(l).element)
+         res.destroy
+         res => temp
+      end
+   end
+
+end

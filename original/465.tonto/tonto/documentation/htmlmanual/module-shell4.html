@@ -1,0 +1,378 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>The SHELL4 module</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Examples of simple TONTO programs"
+HREF="example-programs.html"><LINK
+REL="PREVIOUS"
+TITLE="The GAUSSIAN2 and DFTGRID modules"
+HREF="module-gaussian2.html"><LINK
+REL="NEXT"
+TITLE="The underlying philosophy of TONTO"
+HREF="philosophy.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="module-gaussian2.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="philosophy.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="MODULE-SHELL4"
+></A
+>The <TT
+CLASS="LITERAL"
+>SHELL4</TT
+> module</H1
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>SHELL4</TT
+> module is concerned with quartets of
+(segmented) contracted shells of gaussian functions. Each component of the shell
+is assumed normalised, unlike the <TT
+CLASS="LITERAL"
+>GAUSSIAN2</TT
+> module.  This
+illustrates the calculation of electron repulsion integrals (ERI's) using Roland
+Lindh's method, and also the basic HONDO Rys method. Other integral types such
+as spin-orbit integrals are also available.</P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="CODE-SHELL4"
+></A
+>Code</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>program run_shell4
+
+   use TYPES
+   use SYSTEM
+   use TIME
+   use INT
+   use REALVEC
+   use REALMAT4
+   use TEXTFILE
+   use SHELL4
+
+#include "macros"
+
+   implicit none
+
+   SHELL4* :: s
+   REALMAT4* :: I
+
+   tonto.initialize
+   stdout.create_stdout
+   stdout.open
+
+   stdout.flush
+   stdout.text("Here is a shell quartet:")
+   stdout.flush
+
+   s.create 
+
+   s.a.n_cc = 2
+   s.b.n_cc = 2
+   s.c.n_cc = 2
+   s.d.n_cc = 2
+   s.a.cc.create(2)
+   s.b.cc.create(2)
+   s.c.cc.create(2)
+   s.d.cc.create(2)
+   s.a.cc(1) = ONE
+   s.b.cc(1) = ONE
+   s.c.cc(1) = ONE
+   s.d.cc(1) = ONE
+   s.a.cc(2) = TWO
+   s.b.cc(2) = TWO
+   s.c.cc(2) = TWO
+   s.d.cc(2) = TWO
+   s.a.ex.create(2)
+   s.b.ex.create(2)
+   s.c.ex.create(2)
+   s.d.ex.create(2)
+   s.a.ex(1) = 2d0
+   s.b.ex(1) = 1d0
+   s.c.ex(1) = 50d0
+   s.d.ex(1) = 0.1d0
+   s.a.ex(2) = 20d0
+   s.b.ex(2) = 10d0
+   s.c.ex(2) = 5d0
+   s.d.ex(2) = 1d0
+
+   s.a.l = 0
+   s.b.l = 2
+   s.c.l = 0
+   s.d.l = 1
+   s.a.n_comp = s.a.l.n_comp
+   s.b.n_comp = s.b.l.n_comp
+   s.c.n_comp = s.c.l.n_comp
+   s.d.n_comp = s.d.l.n_comp
+
+   s.a.pos = [0.0d0, 0.2d0, 0.0d0]
+   s.b.pos = [0.3d0,-0.3d0, 0.6d0]
+   s.c.pos = [0.8d0, 0.5d0, 0.2d0]
+   s.d.pos = [0.0d0, 0.2d0,-0.3d0]
+
+   stdout.set_real_precision(6)
+   stdout.set_real_width(11)
+   stdout.set_int_width(3)
+
+   s.put
+
+   stdout.flush
+   stdout.text("Here are the ERI integrals")
+   stdout.flush
+   stdout.text("Calculated using Roland Lindh's method:")
+   stdout.flush
+
+   I.create(1,6,1,3)
+
+   s.get_eri(I)
+   stdout.put(I)
+
+   stdout.flush
+   stdout.text("Calculated using the HONDO Rys method:")
+   stdout.flush
+
+   s.make_ERI_ints(I)
+   stdout.put(I)
+
+   I.destroy
+
+end </PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RESULTS-SHELL4"
+></A
+>Results</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>Here is a shell quartet:
+
+A shell l quantum number =  0
+B shell l quantum number =  2
+C shell l quantum number =  0
+D shell l quantum number =  1
+A position               =   0.000000   0.200000   0.000000
+B position               =   0.300000  -0.300000   0.600000
+C position               =   0.800000   0.500000   0.200000
+D position               =   0.000000   0.200000  -0.300000
+
+-------------------------------------------------------------------------------------------
+  N       ex_a       cc_a       ex_b       cc_b       ex_c       cc_c       ex_d       cc_d
+-------------------------------------------------------------------------------------------
+  1   2.000000   1.000000   1.000000   1.000000  50.000000   1.000000   0.100000   1.000000
+  2  20.000000   2.000000  10.000000   2.000000   5.000000   2.000000   1.000000   2.000000
+-------------------------------------------------------------------------------------------
+
+Here are the ERI integrals
+
+Calculated using Roland Lindh's method:
+
+  1  1  1  1   0.144952
+  1  1  1  2   0.051436
+  1  1  1  3   0.096599
+  1  2  1  1   0.271482
+  1  2  1  2   0.110750
+  1  2  1  3   0.186951
+  1  3  1  1   0.280387
+  1  3  1  2   0.098742
+  1  3  1  3   0.175365
+  1  4  1  1  -0.053682
+  1  4  1  2  -0.025814
+  1  4  1  3  -0.042450
+  1  5  1  1   0.069175
+  1  5  1  2   0.030760
+  1  5  1  3   0.051905
+  1  6  1  1  -0.264489
+  1  6  1  2  -0.104083
+  1  6  1  3  -0.168855
+
+Calculated using the HONDO Rys method:
+
+  1  1  1  1   0.144952
+  1  1  1  2   0.051436
+  1  1  1  3   0.096599
+  1  2  1  1   0.271482
+  1  2  1  2   0.110750
+  1  2  1  3   0.186951
+  1  3  1  1   0.280387
+  1  3  1  2   0.098742
+  1  3  1  3   0.175365
+  1  4  1  1  -0.053682
+  1  4  1  2  -0.025814
+  1  4  1  3  -0.042450
+  1  5  1  1   0.069175
+  1  5  1  2   0.030760
+  1  5  1  3   0.051905
+  1  6  1  1  -0.264489
+  1  6  1  2  -0.104083
+  1  6  1  3  -0.168855</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="module-gaussian2.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="philosophy.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>The <TT
+CLASS="LITERAL"
+>GAUSSIAN2</TT
+> and <TT
+CLASS="LITERAL"
+>DFTGRID</TT
+> modules</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="example-programs.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>The underlying philosophy of TONTO</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

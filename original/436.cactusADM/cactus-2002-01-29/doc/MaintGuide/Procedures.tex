@@ -1,0 +1,191 @@
+% /*@@
+%   @file      Procedures.tex
+%   @date      Fri May 11 11:18:04 2001
+%   @author    Tom Goodale
+%   @desc 
+%   Various procedures
+%   @enddesc 
+%   @version $Header: /cactus/Cactus/doc/MaintGuide/Procedures.tex,v 1.3 2001/05/16 09:32:53 goodale Exp $
+% @@*/
+
+\begin{cactuspart}{2}{Procedures}{$RCSfile: Procedures.tex,v $}{$Revision: 1.3 $}
+\renewcommand{\thepage}{\Alph{part}\arabic{page}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Use of CVS} 
+
+Version control in Cactus is maintained by the use of the CVS
+software.  This software allows one to trace any change to a file from 
+the creation of a file to the present version, and provides an
+automatic notification system to alert interested parties of changes
+to files.  In order to make effective use of the system, the following 
+commit procedure is recommended as a guideline
+
+\begin{Lentry}
+\item[{\em Only make one change at a time}]
+Don't make a commit which changes several distinct things at once, as
+it is difficult then for people tracing changes back to distinguish
+which bit was changed for which reason.  See the note on commit
+messages below.
+\item[{\em Run the test suite}]
+This makes sure the code compiles, runs, and produces the correct results. 
+\item[{\em Know which files you are going to commit}]
+Always check what you are about to commit by use of the
+
+{\tt cvs -n -q update} 
+
+command.  This ensures that you know which files have been modified,
+which files have been removed and which files have been added, and
+provides a useful reminder to use the {\tt \verb.cvs add.} and {\tt
+\verb.cvs remove.} commands.
+\item[{\em Know what has changed}]
+The use of the
+
+{\tt cvs diff} 
+
+command on each modified file is a good check that you are not just
+committing an accidental keystroke or a debug statement.  Moreover it
+is a good reminder of what has changed and needs to be mentioned in
+the commit message.
+\item[{\em Provide clear and meaningful and relevant commit messages}]
+The commit message should explain what has changed and why, for
+details people can use {\tt \verb.cvs diff.}, however the commit
+message should be clear enough for people to have a good idea of what
+is going on.  This is strongly coupled to the item about making only
+one change listed above - if two distinct things have been changed,
+they should be committed separately, with relevant commit messages.
+If the change resulted from a {\tt Problem Report} (PR) the PR number
+should be noted in the commit message.
+\end{Lentry}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Use of GNATS}
+
+Bug tracking in Cactus is maintained by use of the GNATS software.
+This software provides audit trails of the status and all
+correspondence concerning any problem report (PR).  Each problem is
+given a unique number and assigned a responsible person.
+
+\begin{Lentry}
+\item[{\em Correspondence}]
+All correspondence with the author of the PR should be copied to {\tt
+\verb,bugs@cactuscode.org,} with the subject line assigned by Gnats.
+This ensures that the correspondence is entered into the audit trail.
+\item[{\em Responsiblity}]
+When a PR comes in, it is assigned a responsible person.  If another
+person wishes to tackle the problem they should check with the
+responsible person, and then assign themselves as the responsible
+person.
+\item[{\em Initial auditing}]
+The responsible person should review the PR and check that the user
+supplied fields are sensible.  I particular the {\tt Synopsis} should
+be an accurate reflection of the problem, and the {\tt Priority} and
+{\tt Severity} fields should be set to the correct levels.  If the
+{\tt Release} field is badly filled out, attempts should be made to
+determine the relase version used by the PR submitter.  If it is a
+duplicate of a previous PR it should be marked as {\tt Duplicate}.
+\item[{\em Analysing the PR}]
+Once the responsible person has had a chance to review the PR, they
+should either seek further information from the submitter and mark the 
+PR state as {\tt Feedback}, or they should seek to determine the cause 
+of the problem and mark it as {\tt Analysed}.
+\item[{\em Closing a PR}]
+Once a problem is fixed, the PR state should be changed to the current 
+version number of Cactus.  The {\tt Fix} field should be filled out
+with what was done, and {\tt CVS} version numbers for the changed
+files should be noted.  Any miscellaneous comments about the problem
+should be noted in the {\tt Release-Note} field.
+\end{Lentry}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{Release procedure}
+
+In the beta release cycle, Cactus is maintained in two CVS
+repositories - the `stable' \verb./cactus. and the development
+\verb./cactusdevcvs..  The stable version is the last beta release and 
+no commits should ever be made to it - it is for people who do not
+want to worry about things breaking from day to day.  The development
+version is the tree used for developing the next beta release.
+
+Making a beta release consists of copying the cvs modules from the
+development repository to the stable repository.  The following
+procedure is used:
+
+\begin{Lentry}
+\item[{\em Notify committers of start of release procedure}]
+This ensures that no commits are made during the following procedure.
+If it is impossible, for some reason, to notify a person of the start
+of the procedure, that person's commit rights should be revoked during 
+the procedure to prevent accidents.
+\item[{\em Check the code on all supported architectures}]
+The code should be checked out (in a fresh place), compiled and the
+test-suites run on all suppported architectures.  Problems found
+should be fixed or noted in the release notes.  This is an iterative
+procedure, as any commits made to fix problems need to be checked on
+all other architectures.
+\item[{\em Tag the code}]
+Tag the code with the latest release tag and update the {\tt LATEST}
+and {\tt STABLE} tags.  The easiest way to do this is from a clean
+checkout.
+\begin{verbatim}
+cd /Cactus
+cvs -q update -d  # To check for any missing/not up-to-date files.
+cvs tag Cactus_4_0_Beta_X
+cvs tag -F LATEST
+cvs tag -F STABLE
+\end{verbatim}
+
+\item[{\em Log into cvs machine as cactus\_admin}]
+All repository maintanence should be done as the cactus admin user.
+\item[{\em Store old module files}]
+A directory should be made in the stable repository, and all
+releaseable modules should be moved into that directory.  This will
+temporarily break checkouts/updates from that repository.  A suggested 
+command is of the form
+
+\begin{verbatim}
+cd /cactus
+mkdir betaX
+mv Cactus{,Base,Connect,Einstein,X,X,X} betaX
+\end{verbatim}
+
+\item[{\em Copy new module files}]
+e.g.
+\begin{verbatim}
+cp -r /cactusdevcvs/Cactus{,Base,Connect,Einstein,X,X,X} .
+\end{verbatim}
+\item[{\em Fix permissions on new module files}]
+\begin{verbatim}
+find Cactus{,Base,Connect,Einstein,X,X,X} -type d -exec chmod 777 \;
+Setperms.pl public Cactus{,Base,Connect,Einstein,X,X,X}
+\end{verbatim}
+\item[{\em Update CVS {\tt modules} file for new modules}]
+The stable repository's {\tt modules} file should be updated with any
+new module information added. 
+\item[{\em Check that checkout/update works}]
+A fresh checkout should be made as a double check that all permissions 
+have been set correctly.
+\item[{\em Update version of development tree}]
+Update the version in {\tt Makefile} and commit it to the development
+tree.
+\item[{\em Re-enable commit access}]
+People whose commit access was removed in the first part of this
+procedure should have access re-enabled.
+\item[{\em Notify people}]
+The relase notes should be sent out to the cactus mailing lists and
+any other relevant places such as linux-announce and Freshmeat.
+\item[{\em Update web page}]
+The release should be noted in the news section of the web page.
+Additionally the html versions of the documentation should be updated.
+\item[{\em Close PRs}]
+Any problem reports which were closed in the beta relase should be
+audited for correct entries in the {\tt Fix} field and then their
+state should be marked as {\tt closed}.
+\end{Lentry}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\end{cactuspart}

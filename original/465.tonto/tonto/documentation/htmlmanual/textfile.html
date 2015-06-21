@@ -1,0 +1,607 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>TEXTFILE</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Keyword documentation for TONTO"
+HREF="keywords.html"><LINK
+REL="PREVIOUS"
+TITLE="SPACEGROUP"
+HREF="spacegroup.html"><LINK
+REL="NEXT"
+TITLE="Writing programs with TONTO"
+HREF="writing-programs.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="spacegroup.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="writing-programs.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="TEXTFILE"
+></A
+><TT
+CLASS="LITERAL"
+>TEXTFILE</TT
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="TEXTFILE-PURPOSE"
+></A
+>Purpose</H2
+><P
+ALIGN="justify"
+>An object for reading or writing ASCII textfiles</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="TEXTFILE-SYNOPSIS"
+></A
+>Synopsis</H2
+><P
+ALIGN="justify"
+><TT
+CLASS="LITERAL"
+>TEXTFILE</TT
+> is a line-oriented formatted sequential
+advancing file.  It can handle input and output, including input from standard
+input, and output to standard output.</P
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>TEXTFILE</TT
+> object is a <TT
+CLASS="LITERAL"
+>FILE</TT
+> with a
+<TT
+CLASS="LITERAL"
+>BUFFER</TT
+> and a <TT
+CLASS="LITERAL"
+>REALFMT</TT
+> formatting object. The
+input/output proceeds via a line buffer. It is forbidden to open a TEXTFILE
+simultaneously for input and output.</P
+><P
+ALIGN="justify"
+>There is a default internal standard input object,
+<TT
+CLASS="LITERAL"
+>stdin</TT
+>, and a default standard output object,
+<TT
+CLASS="LITERAL"
+>stdout</TT
+>. Usually these are connected to real files with those
+names, <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>not</I
+></SPAN
+> the terminal.</P
+><P
+ALIGN="justify"
+>A line count is maintained to allow back-tracking to previous lines, and
+particular items on each line. This is useful for input.</P
+><P
+ALIGN="justify"
+>For output, items can be put in columns of a specified width, with double
+precision numbers having a specified precision and "style" (set using fortran
+conventions). This is useful for dynamic tables, which the user can change at
+run time. Rewind and backtracking are not allowed for output files.</P
+><P
+ALIGN="justify"
+>It is possible to redirect the input or output to a new file using the
+"redirect" command. The previous file can be recovered using "revert", or it
+will revert back automatically to the previous file if the redirected file ends.
+It is also possibile to redirect input to an internal file. This is useful for
+processing a list of text as if it were a file. Output to an internal file is
+not allowed.</P
+><P
+ALIGN="justify"
+>Note that the input buffer is limited to size
+<TT
+CLASS="LITERAL"
+>BSTR_SIZE</TT
+>, set in the <TT
+CLASS="LITERAL"
+>macros</TT
+> file.</P
+><P
+ALIGN="justify"
+>The system information in the system variable <TT
+CLASS="LITERAL"
+>tonto</TT
+> is
+updated whenever a I/O operation or a buffer operation is performed, so that
+TONTO knows where it is at and can tell you where it was up to in processing
+any file.  </P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="TEXTFILE-NOTE"
+></A
+>Important note</H2
+><P
+ALIGN="justify"
+>Keywords are normally inputted from <TT
+CLASS="LITERAL"
+>stdin</TT
+> using the
+<TT
+CLASS="LITERAL"
+>read</TT
+> routine and processed by the conventional routine
+<TT
+CLASS="LITERAL"
+>process_input</TT
+>.</P
+><P
+ALIGN="justify"
+>In the case of <TT
+CLASS="LITERAL"
+>TEXTFILE</TT
+>, these keywords are processed
+by <TT
+CLASS="LITERAL"
+>process(word,in)</TT
+>.  There is no input from
+<TT
+CLASS="LITERAL"
+>stdin</TT
+> since this file defined the properties of
+<TT
+CLASS="LITERAL"
+>stdin</TT
+>.</P
+><P
+ALIGN="justify"
+>The keywords in this module only affect the way output is
+presented.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="TEXTFILE-INPUT"
+></A
+>Default input data order</H2
+><P
+ALIGN="justify"
+>There is no associated <TT
+CLASS="LITERAL"
+>TEXTFILEVEC</TT
+> module.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="TEXTFILE-KEYWORDS"
+></A
+>Listing of keywords</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>real_precision= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Equivalent to <TT
+CLASS="LITERAL"
+>precision=</TT
+></P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>real_style= STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read a character indicating the style of output wanted for
+real numbers</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is <TT
+CLASS="LITERAL"
+>f</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The style symbols are those used in the fortran language:
+<TT
+CLASS="LITERAL"
+>f</TT
+>, <TT
+CLASS="LITERAL"
+>g</TT
+>, <TT
+CLASS="LITERAL"
+>e</TT
+>,
+etc.</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>real_width= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Equivalent to <TT
+CLASS="LITERAL"
+>field_width=</TT
+></P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>fields= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read a number indicating the number of fields across the page
+wanted when outputting a vector or matrix</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is 5</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>field_width= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read an integer indicating the width of a field required for
+real numbers</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is 20</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>int_width= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read an integer indicating the width of a field required for an
+integer, or string variable</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is 9</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>labels= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>If set <TT
+CLASS="LITERAL"
+>TRUE</TT
+>, integer labels are used on the
+columns or rows of vectords and matrices when they are outputted</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is <TT
+CLASS="LITERAL"
+>TRUE</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>margin= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read an integer setting the number of blank characters used in
+the margin when outputting text</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is 0</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>precision= INT</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read an integer telling the number of significant figures
+desired when outputting real number</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The default is 9</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>style= STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Equivalent to <TT
+CLASS="LITERAL"
+>real_style=</TT
+></P
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="spacegroup.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="writing-programs.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>SPACEGROUP</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="keywords.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Writing programs with TONTO</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

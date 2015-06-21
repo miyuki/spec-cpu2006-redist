@@ -1,0 +1,309 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>Aesthetic requirements</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Writing Fortran modules for TONTO"
+HREF="fortran-modules.html"><LINK
+REL="PREVIOUS"
+TITLE="Writing Fortran modules for TONTO"
+HREF="fortran-modules.html"><LINK
+REL="NEXT"
+TITLE="Linking your Fortran code"
+HREF="linking-code.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="fortran-modules.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="linking-code.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AESTHETIC-REQUIREMENTS"
+></A
+><TT
+CLASS="LITERAL"
+>Aesthetic requirements</TT
+></H1
+><P
+ALIGN="justify"
+>Here is a list of highly recommended conventions to be used in
+TONTO:</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Only one module statement can be used per
+file.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Except for module names and preprocessor macros, lowercase is
+always used.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The name of module always ends in
+<TT
+CLASS="LITERAL"
+>_MODULE</TT
+>.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The name of the derived type used in a module to represent the
+abstract data type has the same name as the module name followed by
+<TT
+CLASS="LITERAL"
+>_type</TT
+>.</P
+><DIV
+CLASS="INFORMALEXAMPLE"
+><A
+NAME="AEN6644"
+></A
+><P
+></P
+><P
+ALIGN="justify"
+><TT
+CLASS="LITERAL"
+>shell_type</TT
+> is the name of the derived type defined and
+manipulated within the module <TT
+CLASS="LITERAL"
+>SHELL</TT
+>.</P
+><P
+></P
+></DIV
+></LI
+><LI
+><P
+ALIGN="justify"
+>For every module, a macro with the same name as the module name
+is always defined, and expands to the actual type used and manipulated in that
+module.</P
+><DIV
+CLASS="INFORMALEXAMPLE"
+><A
+NAME="AEN6650"
+></A
+><P
+></P
+><P
+ALIGN="justify"
+><TT
+CLASS="LITERAL"
+>SHELL</TT
+> is a macro for the type definition
+<TT
+CLASS="LITERAL"
+>type(shell_type)</TT
+>. </P
+><P
+></P
+></DIV
+><DIV
+CLASS="INFORMALEXAMPLE"
+><A
+NAME="AEN6654"
+></A
+><P
+></P
+><P
+ALIGN="justify"
+>Using the same name for the type and the module name hides the distinction
+between modules and types. This is the main feature of a <SPAN
+CLASS="QUOTE"
+>"class"</SPAN
+> in
+object oriented languages.</P
+><P
+></P
+></DIV
+><DIV
+CLASS="INFORMALEXAMPLE"
+><A
+NAME="AEN6657"
+></A
+><P
+></P
+><P
+ALIGN="justify"
+><TT
+CLASS="LITERAL"
+>INT</TT
+> is a macro for the type <TT
+CLASS="LITERAL"
+>integer</TT
+>,
+and it is a built-in type.  The use of macros hides the distinction between
+built-in and derived types.  This is also a feature of many object oriented
+languages.</P
+><P
+></P
+></DIV
+></LI
+><LI
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>result</TT
+> syntax for a function routine is
+always used.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The name <TT
+CLASS="LITERAL"
+>self</TT
+> is always used as the first
+dummy argument to any routine.</P
+></LI
+></UL
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="fortran-modules.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="linking-code.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>Writing Fortran modules for TONTO</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="fortran-modules.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>Linking your Fortran code</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

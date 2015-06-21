@@ -1,0 +1,84 @@
+!---------------------------------------------------------------------------
+!
+!  CPXMAT5: Complex 5 dimensional matrices
+!
+! Copyright (C) Dylan Jayatilaka, 1998
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: cpxmat5.foo,v 1.5 2003/02/19 07:48:57 reaper Exp $
+!---------------------------------------------------------------------------
+
+module CPXMAT5
+
+   implicit none
+
+contains
+
+   create(dim1,dim2,dim3,dim4,dim5)
+   ! Create a cmat5 object
+      self :: PTR
+      dim1,dim2,dim3,dim4,dim5 :: INT
+      nullify(self)
+      allocate(self(dim1,dim2,dim3,dim4,dim5))
+      ADD_MEMORY(dim1*dim2*dim3*dim4*dim5*CPX_SIZE)
+   end
+
+   create(lb1,ub1,lb2,ub2,lb3,ub3,lb4,ub4,lb5,ub5)
+   ! Create a cmat5 object with the specified bounds
+      self :: PTR
+      lb1,lb2,lb3,lb4,lb5 :: INT
+      ub1,ub2,ub3,ub4,ub5 :: INT
+      nullify(self)
+      allocate(self(lb1:ub1,lb2:ub2,lb3:ub3,lb4:ub4,lb5:ub5))
+      ADD_MEMORY((ub1-lb1+1)*(ub2-lb2+1)*(ub3-lb3+1)*(ub4-lb4+1)*(ub5-lb5+1)*CPX_SIZE)
+   end
+
+   create_copy(c)
+   ! Create a copy of matrix "c"
+      self :: PTR
+       c :: CPXMAT5*
+      .create(lbound(c,1),ubound(c,1), &
+              lbound(c,2),ubound(c,2), &
+              lbound(c,3),ubound(c,3), &
+              lbound(c,4),ubound(c,4), &
+              lbound(c,5),ubound(c,5)  )
+      self = c
+   end
+
+   destroy
+   ! Destroy a cmat5 object
+      self :: PTR
+      if (.destroyed) return
+      DELETE_MEMORY(size(self)*CPX_SIZE)
+      deallocate(self)
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+end

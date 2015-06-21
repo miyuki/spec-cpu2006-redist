@@ -1,0 +1,26 @@
+# Schedule definitions for thorn CartGrid3D
+# $Header: /cactus/CactusBase/CartGrid3D/schedule.ccl,v 1.10 2001/08/30 10:46:44 tradke Exp $
+
+STORAGE: coordinates gridspacings
+
+schedule SymmetryStartup at CCTK_STARTUP
+{
+  LANG: C
+} "Register GH Extension for GridSymmetry"
+
+schedule RegisterCartGrid3DCoords at CCTK_STARTUP
+{
+  LANG:C
+} "Register coordinates for the Cartesian grid"
+
+schedule ParamCheck_CartGrid3D at CCTK_PARAMCHECK
+{
+  LANG:C
+} "Check coordinates for CartGrid3D"
+
+schedule CartGrid3D as SpatialCoordinates at CCTK_BASEGRID
+{
+  LANG:C
+} "Set up spatial 3D Cartesian coordinates on the GH"
+
+

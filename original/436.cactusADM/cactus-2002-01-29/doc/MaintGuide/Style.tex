@@ -1,0 +1,233 @@
+% /*@@
+%   @file      Style.tex
+%   @date      Wed Jan 12 15:01:09 2000
+%   @author    Tom Goodale
+%   @desc 
+%   
+%   @enddesc 
+%   @version $Header: /cactus/Cactus/doc/MaintGuide/Style.tex,v 1.7 2001/08/25 14:44:35 allen Exp $
+% @@*/
+\begin{cactuspart}{1}{Philosphy and Style}{$RCSfile: Style.tex,v $}{$Revision: 1.7 $}
+\renewcommand{\thepage}{\Alph{part}\arabic{page}}
+
+\chapter{Philosophy} 
+
+\begin{itemize}
+\item
+Portable
+\item
+Extensable
+\item
+Modular
+\end{itemize}
+
+\chapter{Coding Style}
+
+The flesh has been written with the following coding guidelines...
+
+
+\section{Indentation}
+
+Two spaces, no tabs.
+
+Two spaces are enough to clearly indent, more would be a waste of
+space, less not really noticeable.
+
+\section{Brace positioning}
+
+Each opening brace should appear on a line by itself,
+aligned with the preceeding statement.
+
+Closing braces should line up with the corresponding
+opening brace, and should be on lines by themselves
+apart from the {\tt while} in a 
+%
+\begin{verbatim}
+do
+{
+
+...
+
+} while(...);
+
+\end{verbatim}
+%
+statement.
+
+This brace positioning stategy makes it easy to run ones eye from a closing
+or opening brace to its matching opening or closing brace.
+
+Braces should be used for all {\tt if} and {\tt for} statements.
+
+\section{GRDOC}
+
+All files should start with a grdoc header, and all functions
+should have grdoc headers.
+
+The file grdoc should contain a description of the contents of the file
+and an \@version with the CVS \$Header\$ tag.
+
+The function grdoc should contain
+
+\begin{itemize}
+\item
+a description of the function, saying what it does.
+\item
+the functions called by this function.
+\item
+all function arguments with descriptions
+of what they are and what they are used for.
+\item
+the return codes should be described.
+\end{itemize}
+
+Note the that `calledby' field {\em should not} be filled in as
+this is unmaintainable.
+
+The standard grdoc function header is of the form
+
+\begin{verbatim}
+ /*@@
+   @routine    Template
+   @date       Fri Oct  6 10:51:49 2000
+   @author     Tom Goodale
+   @desc 
+   An example of grdoc
+   @enddesc 
+   @calls     templatefunc2
+   @calledby   
+   @history 
+ 
+   @endhistory 
+   @var     templatestring
+   @vdesc   string describing foobar
+   @vtype   const char *
+   @vio     in
+   @vcomment 
+ 
+   @endvar 
+
+   @returntype int *
+   @returndesc
+   0 - success
+   or the returncode of @seeroutine templatefunc2
+   @endreturndesc
+@@*/
+\end{verbatim}
+
+This is the form which will be created if you use the grdoc emacs mode.  
+The variable descriptions and the return code decription should be placed
+after the history so that they are close to the actual function.
+
+After the first actual release the history should be filled
+in with each change.
+
+\section{Header Files}
+
+Header files should not include any system header file, but should
+contain in the initial comment a list of system header files which
+are assumed to have been included before this file is included.
+
+The body of a header should be protected against multiple inclusion
+by lines of the form
+
+\begin{verbatim}
+#ifndef _NAMEOFHEADERFILEINCAPITALS_H_
+#define _NAMEOFHEADERFILEINCAPITALS_H_ 1
+
+...body of header file...
+
+#endif /* _NAMEOFHEADERFILEINCAPITALS_H_ */
+
+\end{verbatim}
+
+Function prototypes in header files should be protected
+against C++ linkage by
+
+\begin{verbatim}
+#ifdef __cplusplus
+extern "C" 
+{
+#endif
+
+...prototypes...
+
+#ifdef __cplusplus
+}
+#endif
+\end{verbatim}
+
+The Cactus header files ({\tt cctk\_<name>}) should only include
+information relevant for thorn programmers. 
+
+There is a template file in the doc/MaintGuide directory.
+
+\section{Source Files}
+
+Source files should have as their first lines after all the include
+files:
+
+%\begin{verbatim}
+\vskip .3cm
+{\bf static const char $*$rcsid = "\$Header\$"; }
+\newline
+{\bf CCTK\_FILEVERSION($<$source file$>$)}
+%\end{verbatim}
+\vskip .3cm
+or the expanded rcs version of this. The macro {\bf CCTK\_FILEVERSION} is 
+simply there to prevent compiler warnings, and {\bf $<$source file$>$}
+should be replaced by
+\begin{itemize}
+
+\item{} Flesh: {\bf $<$directory$>$\_$<$core filename$>$\_$<$extension$>$} (e.g. {\bf main\_Groups\_c})
+
+\item{} Thorn: {\bf $<$arrangement$>$\_$<$thorn$>$\_$<$core filename$>$\_$<$extension$>$}\\ (e.g. {\bf CactusBase\_CartGrid3D\_CartGrid3D\_c})
+
+\end{itemize}
+
+Globally visable functions should appear before local
+functions.
+
+(NOTE: currently the schedule stuff is a good example of
+what I'm coming to like as a style, e.g.
+src/main/ScheduleInterface.c )
+
+There is a template file in the doc/MaintGuide directory.
+
+\section{Naming Conventions}
+
+All functions which may be used by thorns should have names beginning
+with {\tt CCTK\_} and then capitalised words with no underscores.
+
+All functions used internally by the flesh should have names beginning with
+{\tt CCTKi\_} and then capitalised words with no underscores.
+
+Header files to be included by thorns should have names beginning with
+{\tt cctk\_}, and followed by capitalised words with no underscores.
+
+Structures which may be used by thorns should have names beginning with
+{\tt c} and then capitalised words, {\it e.g.} {\tt cGroup}. The 
+exception here is structures associated with utility routines which
+are not Cactus specific, there the structure names should start with a
+{\tt t\_}. 
+
+Structures which are purely internal to the flesh should have
+names beginning with {\tt i}.
+
+All Cactus sourcefile names (except general utility files) should 
+use capitilised words without underscores.
+
+\section{Functions}
+
+All functions should have a grdoc header.
+
+They should have a single place of return at the end of the function to
+make it easy to tidy up and work out what is going on.
+
+Where possible variables should be declared at the top of the function with
+no initialisation, and then initialised after all variable declarations. Of
+course this can't apply to static variables, 'though these should be kept to
+a minimum so we can make a thread-safe version of Cactus later.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{cactuspart}

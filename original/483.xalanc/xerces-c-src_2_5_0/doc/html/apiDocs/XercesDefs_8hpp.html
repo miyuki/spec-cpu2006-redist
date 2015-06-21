@@ -1,0 +1,566 @@
+<HTML><HEAD><SCRIPT language="JavaScript" src="../resources/script.js" type="text/javascript"></SCRIPT><TITLE>XercesDefs.hpp File Reference</TITLE><link href="XercesApi.css" rel="stylesheet" type="text/css"></HEAD><BODY alink="#ff0000" bgcolor="#ffffff" leftmargin="4" link="#0000ff" marginheight="4" marginwidth="4" text="#000000" topmargin="4" vlink="#0000aa"><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" height="60" rowspan="3" valign="top" width="135"><IMG border="0" height="60" hspace="0" src="../resources/logo.gif" vspace="0" width="135"></TD><TD align="left" colspan="4" height="5" valign="top" width="456"><IMG border="0" height="5" hspace="0" src="../resources/line.gif" vspace="0" width="456"></TD><TD align="left" height="60" rowspan="3" valign="top" width="29"><IMG border="0" height="60" hspace="0" src="../resources/right.gif" vspace="0" width="29"></TD></TR><TR><TD align="left" bgcolor="#0086b2" colspan="4" height="35" valign="top" width="456"><IMG alt="" border="0" height="35" hspace="0" src="../graphics/api-header.jpg" vspace="0" width="456"></TD></TR><TR><TD align="left" height="20" valign="top" width="168"><IMG border="0" height="20" hspace="0" src="../resources/bottom.gif" vspace="0" width="168"></TD><TD align="left" height="20" valign="top" width="96"><A href="http://xml.apache.org/" onMouseOut="rolloverOff('xml');" onMouseOver="rolloverOn('xml');" target="new"><IMG alt="http://xml.apache.org/" border="0" height="20" hspace="0" name="xml" onLoad="rolloverLoad('xml','../resources/button-xml-hi.gif','../resources/button-xml-lo.gif');" src="../resources/button-xml-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.apache.org/" onMouseOut="rolloverOff('asf');" onMouseOver="rolloverOn('asf');" target="new"><IMG alt="http://www.apache.org/" border="0" height="20" hspace="0" name="asf" onLoad="rolloverLoad('asf','../resources/button-asf-hi.gif','../resources/button-asf-lo.gif');" src="../resources/button-asf-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.w3.org/" onMouseOut="rolloverOff('w3c');" onMouseOver="rolloverOn('w3c');" target="new"><IMG alt="http://www.w3.org/" border="0" height="20" hspace="0" name="w3c" onLoad="rolloverLoad('w3c','../resources/button-w3c-hi.gif','../resources/button-w3c-lo.gif');" src="../resources/button-w3c-lo.gif" vspace="0" width="96"></A></TD></TR></TABLE><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" valign="top" width="120"><IMG border="0" height="14" hspace="0" src="../resources/join.gif" vspace="0" width="120"><BR>
+  <A href="../../index.html" onMouseOut="rolloverOff('side-ext-2');" onMouseOver="rolloverOn('side-ext-2');"><IMG alt="Home" border="0" height="12" hspace="0" name="side-ext-2" onLoad="rolloverLoad('side-ext-2','../graphics/ext-2-label-2.jpg','../graphics/ext-2-label-3.jpg');" src="../graphics/ext-2-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../index.html" onMouseOut="rolloverOff('side-index');" onMouseOver="rolloverOn('side-index');"><IMG alt="Readme" border="0" height="12" hspace="0" name="side-index" onLoad="rolloverLoad('side-index','../graphics/index-label-2.jpg','../graphics/index-label-3.jpg');" src="../graphics/index-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../releases.html" onMouseOut="rolloverOff('side-releases');" onMouseOver="rolloverOn('side-releases');"><IMG alt="Release Info" border="0" height="12" hspace="0" name="side-releases" onLoad="rolloverLoad('side-releases','../graphics/releases-label-2.jpg','../graphics/releases-label-3.jpg');" src="../graphics/releases-label-3.jpg" vspace="0" width="120"></A><BR>
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../install.html" onMouseOut="rolloverOff('side-install');" onMouseOver="rolloverOn('side-install');"><IMG alt="Installation" border="0" height="12" hspace="0" name="side-install" onLoad="rolloverLoad('side-install','../graphics/install-label-2.jpg','../graphics/install-label-3.jpg');" src="../graphics/install-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://xml.apache.org/dist/xerces-c/" onMouseOut="rolloverOff('side-ext-18');" onMouseOver="rolloverOn('side-ext-18');"><IMG alt="Download" border="0" height="12" hspace="0" name="side-ext-18" onLoad="rolloverLoad('side-ext-18','../graphics/ext-18-label-2.jpg','../graphics/ext-18-label-3.jpg');" src="../graphics/ext-18-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../build.html" onMouseOut="rolloverOff('side-build');" onMouseOver="rolloverOn('side-build');"><IMG alt="Build" border="0" height="12" hspace="0" name="side-build" onLoad="rolloverLoad('side-build','../graphics/build-label-2.jpg','../graphics/build-label-3.jpg');" src="../graphics/build-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../faqs.html" onMouseOut="rolloverOff('side-faqs');" onMouseOver="rolloverOn('side-faqs');"><IMG alt="FAQs" border="0" height="12" hspace="0" name="side-faqs" onLoad="rolloverLoad('side-faqs','../graphics/faqs-label-2.jpg','../graphics/faqs-label-3.jpg');" src="../graphics/faqs-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../samples.html" onMouseOut="rolloverOff('side-samples');" onMouseOver="rolloverOn('side-samples');"><IMG alt="Samples" border="0" height="12" hspace="0" name="side-samples" onLoad="rolloverLoad('side-samples','../graphics/samples-label-2.jpg','../graphics/samples-label-3.jpg');" src="../graphics/samples-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../api.html" onMouseOut="rolloverOff('side-api');" onMouseOver="rolloverOn('side-api');"><IMG alt="API Docs" border="0" height="12" hspace="0" name="side-api" onLoad="rolloverLoad('side-api','../graphics/api-label-2.jpg','../graphics/api-label-3.jpg');" src="../graphics/api-label-3.jpg" vspace="0" width="120"></A><BR>  
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../ApacheDOMC++Binding.html" onMouseOut="rolloverOff('side-ext-64');" onMouseOver="rolloverOn('side-ext-64');"><IMG alt="DOM C++ Binding" border="0" height="12" hspace="0" name="side-ext-64" onLoad="rolloverLoad('side-ext-64','../graphics/ext-64-label-2.jpg','../graphics/ext-64-label-3.jpg');" src="../graphics/ext-64-label-3.jpg" vspace="0" width="120"></A><BR> 
+  <A href="../program.html" onMouseOut="rolloverOff('side-program');" onMouseOver="rolloverOn('side-program');"><IMG alt="Programming" border="0" height="12" hspace="0" name="side-program" onLoad="rolloverLoad('side-program','../graphics/program-label-2.jpg','../graphics/program-label-3.jpg');" src="../graphics/program-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../migrate.html" onMouseOut="rolloverOff('side-migrate');" onMouseOver="rolloverOn('side-migrate');"><IMG alt="Migration Guide" border="0" height="12" hspace="0" name="side-migrate" onLoad="rolloverLoad('side-migrate','../graphics/migrate-label-2.jpg','../graphics/migrate-label-3.jpg');" src="../graphics/migrate-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../feedback.html" onMouseOut="rolloverOff('side-feedback');" onMouseOver="rolloverOn('side-feedback');"><IMG alt="Feedback" border="0" height="12" hspace="0" name="side-feedback" onLoad="rolloverLoad('side-feedback','../graphics/feedback-label-2.jpg','../graphics/feedback-label-3.jpg');" src="../graphics/feedback-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../bug-report.html" onMouseOut="rolloverOff('side-bug-report');" onMouseOver="rolloverOn('side-bug-report');"><IMG alt="Bug-Reporting" border="0" height="12" hspace="0" name="side-bug-report" onLoad="rolloverLoad('side-bug-report','../graphics/bug-report-label-2.jpg','../graphics/bug-report-label-3.jpg');" src="../graphics/bug-report-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../pdf.html" onMouseOut="rolloverOff('side-pdf');" onMouseOver="rolloverOn('side-pdf');"><IMG alt="PDF Document" border="0" height="12" hspace="0" name="side-pdf" onLoad="rolloverLoad('side-pdf','../graphics/pdf-label-2.jpg','../graphics/pdf-label-3.jpg');" src="../graphics/pdf-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="http://xml.apache.org/websrc/cvsweb.cgi/xml-xerces/c/" onMouseOut="rolloverOff('side-ext-96');" onMouseOver="rolloverOn('side-ext-96');"><IMG alt="CVS Repository" border="0" height="12" hspace="0" name="side-ext-96" onLoad="rolloverLoad('side-ext-96','../graphics/ext-96-label-2.jpg','../graphics/ext-96-label-3.jpg');" src="../graphics/ext-96-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://marc.theaimsgroup.com/?l=xerces-c-dev" onMouseOut="rolloverOff('side-ext-98');" onMouseOver="rolloverOn('side-ext-98');"><IMG alt="Mail Archive" border="0" height="12" hspace="0" name="side-ext-98" onLoad="rolloverLoad('side-ext-98','../graphics/ext-98-label-2.jpg','../graphics/ext-98-label-3.jpg');" src="../graphics/ext-98-label-3.jpg" vspace="0" width="120"></A><BR>
+
+<IMG border="0" height="14" hspace="0" src="../resources/close.gif" vspace="0" width="120"><BR></TD><TD align="left" valign="top" width="500"><TABLE border="0" cellpadding="3" cellspacing="0"><TR><TD>
+    <TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#FFFFFF" colspan="2" width="494"><TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#039acc" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#039acc" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#039acc" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" width="492"><FONT color="#ffffff" face="arial,helvetica,sanserif" size="+1"><IMG border="0" height="2" hspace="0" src="../resources/void.gif" vspace="0" width="2"><B>API Docs for SAX and DOM</B></FONT></TD><TD bgcolor="#017299" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#017299" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#017299" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></TD></TR><TR><TD width="10">&nbsp;</TD><TD width="484"><FONT color="#000000" face="arial,helvetica,sanserif">
+
+	    <P>
+<!-- Generated by Doxygen 1.2.14 -->
+<center>
+<a class="qindex" href="index.html">Main Page</a> &nbsp; <a class="qindex" href="hierarchy.html">Class Hierarchy</a> &nbsp; <a class="qindex" href="classes.html">Alphabetical List</a> &nbsp; <a class="qindex" href="annotated.html">Compound List</a> &nbsp; <a class="qindex" href="files.html">File List</a> &nbsp; <a class="qindex" href="functions.html">Compound Members</a> &nbsp; <a class="qindex" href="globals.html">File Members</a> &nbsp; </center>
+<hr><h1>XercesDefs.hpp File Reference</h1>
+<p>
+Include dependency graph for XercesDefs.hpp:<p><center><img src="XercesDefs_8hpp__incl.gif" border="0" usemap="#XercesDefs.hpp_map" alt="Include dependency graph"></center>
+<map name="XercesDefs.hpp_map">
+<area href="XercesVersion_8hpp.html" shape="rect" coords="7,36,204,17" alt="">
+<area href="AutoSense_8hpp.html" shape="rect" coords="228,36,401,17" alt="">
+</map>
+
+<p>
+This graph shows which files directly or indirectly include this file:<p><center><img src="XercesDefs_8hpp__dep__incl.gif" border="0" usemap="#XercesDefs.hppdep_map" alt="Included by dependency graph"></center>
+<map name="XercesDefs.hppdep_map">
+<area href="DOMAttr_8hpp.html" shape="rect" coords="451,86,541,68" alt="">
+<area href="DOMNode_8hpp.html" shape="rect" coords="705,378,804,360" alt="">
+<area href="DOMCharacterData_8hpp.html" shape="rect" coords="417,577,575,558" alt="">
+<area href="DOMText_8hpp.html" shape="rect" coords="241,577,335,558" alt="">
+<area href="DOMCDATASection_8hpp.html" shape="rect" coords="17,628,177,609" alt="">
+<area href="DOMComment_8hpp.html" shape="rect" coords="225,624,351,605" alt="">
+<area href="DOMDocument_8hpp.html" shape="rect" coords="432,818,560,800" alt="">
+<area href="DOMDocumentRange_8hpp.html" shape="rect" coords="671,818,839,800" alt="">
+<area href="DOMDocumentTraversal_8hpp.html" shape="rect" coords="663,861,847,842" alt="">
+<area href="DOMXPathEvaluator_8hpp.html" shape="rect" coords="675,904,835,885" alt="">
+<area href="DOMDocumentFragment_8hpp.html" shape="rect" coords="404,138,588,120" alt="">
+<area href="DOMDocumentType_8hpp.html" shape="rect" coords="416,192,576,173" alt="">
+<area href="DOMElement_8hpp.html" shape="rect" coords="439,248,553,229" alt="">
+<area href="DOMEntity_8hpp.html" shape="rect" coords="445,308,547,289" alt="">
+<area href="DOMEntityReference_8hpp.html" shape="rect" coords="415,365,577,346" alt="">
+<area href="DOMNotation_8hpp.html" shape="rect" coords="437,417,555,398" alt="">
+<area href="DOMProcessingInstruction_8hpp.html" shape="rect" coords="399,468,593,449" alt="">
+<area href="DOMUserDataHandler_8hpp.html" shape="rect" coords="412,518,580,500" alt="">
+<area href="DOMBuilder_8hpp.html" shape="rect" coords="700,776,809,757" alt="">
+<area href="DOMEntityResolver_8hpp.html" shape="rect" coords="679,946,831,928" alt="">
+<area href="DOMError_8hpp.html" shape="rect" coords="705,1082,804,1064" alt="">
+<area href="XMLErrorCodes_8hpp.html" shape="rect" coords="429,1040,563,1021" alt="">
+<area href="XMLErrorReporter_8hpp.html" shape="rect" coords="680,1040,829,1021" alt="">
+<area href="XMLValidityCodes_8hpp.html" shape="rect" coords="423,1082,569,1064" alt="">
+<area href="XMLDOMMsg_8hpp.html" shape="rect" coords="436,1125,556,1106" alt="">
+<area href="DOMErrorHandler_8hpp.html" shape="rect" coords="683,1176,827,1157" alt="">
+<area href="DOMException_8hpp.html" shape="rect" coords="691,1218,819,1200" alt="">
+<area href="DOMImplementationRegistry_8hpp.html" shape="rect" coords="652,1261,857,1242" alt="">
+<area href="DOMImplementationSource_8hpp.html" shape="rect" coords="655,1304,855,1285" alt="">
+<area href="DOMInputSource_8hpp.html" shape="rect" coords="684,1346,825,1328" alt="">
+<area href="DOMLocator_8hpp.html" shape="rect" coords="699,1389,811,1370" alt="">
+<area href="DOMNamedNodeMap_8hpp.html" shape="rect" coords="672,1432,837,1413" alt="">
+<area href="DOMNodeList_8hpp.html" shape="rect" coords="696,1474,813,1456" alt="">
+<area href="DOMRange_8hpp.html" shape="rect" coords="701,1517,808,1498" alt="">
+<area href="DOMXPathException_8hpp.html" shape="rect" coords="672,1560,837,1541" alt="">
+<area href="DOMXPathExpression_8hpp.html" shape="rect" coords="671,1602,839,1584" alt="">
+<area href="DOMXPathNSResolver_8hpp.html" shape="rect" coords="667,1645,843,1626" alt="">
+<area href="DOMXPathResult_8hpp.html" shape="rect" coords="684,1688,825,1669" alt="">
+<area href="MemoryManager_8hpp.html" shape="rect" coords="687,1832,823,1813" alt="">
+<area href="Base64_8hpp.html" shape="rect" coords="456,1832,536,1813" alt="">
+<area href="XMLUniDefs_8hpp.html" shape="rect" coords="699,1960,811,1941" alt="">
+<area href="XMLAttDefList_8hpp.html" shape="rect" coords="435,3192,557,3173" alt="">
+<area href="XMemory_8hpp.html" shape="rect" coords="707,3213,803,3194" alt="">
+<area href="XMLDocumentHandler_8hpp.html" shape="rect" coords="669,1874,840,1856" alt="">
+<area href="XMLEntityHandler_8hpp.html" shape="rect" coords="683,1917,827,1898" alt="">
+<area href="AttributeList_8hpp.html" shape="rect" coords="700,2002,809,1984" alt="">
+<area href="DocumentHandler_8hpp.html" shape="rect" coords="684,2045,825,2026" alt="">
+<area href="DTDHandler_8hpp.html" shape="rect" coords="700,2088,809,2069" alt="">
+<area href="EntityResolver_8hpp.html" shape="rect" coords="695,2130,815,2112" alt="">
+<area href="ErrorHandler_8hpp.html" shape="rect" coords="699,2173,811,2154" alt="">
+<area href="Locator_8hpp.html" shape="rect" coords="715,2216,795,2197" alt="">
+<area href="Parser_8hpp.html" shape="rect" coords="717,2258,792,2240" alt="">
+<area href="EmptyStackException_8hpp.html" shape="rect" coords="671,2301,839,2282" alt="">
+<area href="HexBin_8hpp.html" shape="rect" coords="716,2344,793,2325" alt="">
+<area href="IllegalArgumentException_8hpp.html" shape="rect" coords="663,2386,847,2368" alt="">
+<area href="InvalidCastException_8hpp.html" shape="rect" coords="675,2429,835,2410" alt="">
+<area href="IOException_8hpp.html" shape="rect" coords="700,2472,809,2453" alt="">
+<area href="NoSuchElementException_8hpp.html" shape="rect" coords="660,2514,849,2496" alt="">
+<area href="NullPointerException_8hpp.html" shape="rect" coords="675,2557,835,2538" alt="">
+<area href="NumberFormatException_8hpp.html" shape="rect" coords="663,2600,847,2581" alt="">
+<area href="ParseException_8hpp.html" shape="rect" coords="691,2642,819,2624" alt="">
+<area href="RuntimeException_8hpp.html" shape="rect" coords="683,2685,827,2666" alt="">
+<area href="SchemaDateTimeException_8hpp.html" shape="rect" coords="653,2728,856,2709" alt="">
+<area href="SecurityManager_8hpp.html" shape="rect" coords="685,2770,824,2752" alt="">
+<area href="TranscodingException_8hpp.html" shape="rect" coords="671,2813,839,2794" alt="">
+<area href="UnexpectedEOFException_8hpp.html" shape="rect" coords="659,2856,851,2837" alt="">
+<area href="UnsupportedEncodingException_8hpp.html" shape="rect" coords="643,2898,867,2880" alt="">
+<area href="UTFDataFormatException_8hpp.html" shape="rect" coords="660,2941,849,2922" alt="">
+<area href="XMLEntityResolver_8hpp.html" shape="rect" coords="421,3236,571,3217" alt="">
+<area href="XMLDeleterFor_8hpp.html" shape="rect" coords="691,3085,819,3066" alt="">
+<area href="XMLIBM1047Transcoder_8hpp.html" shape="rect" coords="663,3128,847,3109" alt="">
+<area href="XMLUni_8hpp.html" shape="rect" coords="712,3170,797,3152" alt="">
+<area href="SAX2XMLReader_8hpp.html" shape="rect" coords="424,2474,568,2456" alt="">
+<area href="Attributes_8hpp.html" shape="rect" coords="708,3306,801,3288" alt="">
+<area href="ContentHandler_8hpp.html" shape="rect" coords="691,3349,819,3330" alt="">
+<area href="DeclHandler_8hpp.html" shape="rect" coords="700,3392,809,3373" alt="">
+<area href="LexicalHandler_8hpp.html" shape="rect" coords="693,3434,816,3416" alt="">
+</map>
+
+<p>
+<a href="XercesDefs_8hpp-source.html">Go to the source code of this file.</a><table border=0 cellpadding=0 cellspacing=0>
+<tr><td colspan=2><br><h2>Defines</h2></td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="XercesDefs_8hpp.html#a0">XERCESDEFS_HPP</a></td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="XercesDefs_8hpp.html#a1">XMLStrL</a>(str)&nbsp;&nbsp;&nbsp;str</td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="XercesDefs_8hpp.html#a2">XERCES_CPP_NAMESPACE_BEGIN</a></td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="XercesDefs_8hpp.html#a3">XERCES_CPP_NAMESPACE_END</a></td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="XercesDefs_8hpp.html#a4">XERCES_CPP_NAMESPACE_USE</a></td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="XercesDefs_8hpp.html#a5">XERCES_CPP_NAMESPACE_QUALIFIER</a></td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="XercesDefs_8hpp.html#a6">XERCES_USING_STD</a>(NAME)</td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="XercesDefs_8hpp.html#a7">XERCES_STD_QUALIFIER</a></td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="XercesDefs_8hpp.html#a8"></a>&nbsp;&nbsp;&nbsp;PLATFORM_IMPORT</td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="XercesDefs_8hpp.html#a9"></a>&nbsp;&nbsp;&nbsp;PLATFORM_IMPORT</td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="XercesDefs_8hpp.html#a10"></a>&nbsp;&nbsp;&nbsp;PLATFORM_IMPORT</td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="XercesDefs_8hpp.html#a11"></a>&nbsp;&nbsp;&nbsp;PLATFORM_IMPORT</td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="XercesDefs_8hpp.html#a12"></a>&nbsp;&nbsp;&nbsp;PLATFORM_IMPORT</td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="XercesDefs_8hpp.html#a13"></a>&nbsp;&nbsp;&nbsp;PLATFORM_IMPORT</td></tr>
+<tr><td nowrap align=right valign=top>#define&nbsp;</td><td valign=bottom><a class="el" href="XercesDefs_8hpp.html#a14">VALIDATORS_EXPORT</a>&nbsp;&nbsp;&nbsp;PLATFORM_IMPORT</td></tr>
+<tr><td colspan=2><br><h2>Typedefs</h2></td></tr>
+<tr><td nowrap align=right valign=top>typedef unsigned char&nbsp;</td><td valign=bottom><a class="el" href="XercesDefs_8hpp.html#a15">XMLByte</a></td></tr>
+<tr><td nowrap align=right valign=top>typedef XMLUInt16&nbsp;</td><td valign=bottom><a class="el" href="XercesDefs_8hpp.html#a16">UTF16Ch</a></td></tr>
+<tr><td nowrap align=right valign=top>typedef XMLUInt32&nbsp;</td><td valign=bottom><a class="el" href="XercesDefs_8hpp.html#a17">UCS4Ch</a></td></tr>
+</table>
+<hr><h2>Define Documentation</h2>
+<a name="a12" doxytag="XercesDefs.hpp::"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define &nbsp;&nbsp;&nbsp;PLATFORM_IMPORT
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a13" doxytag="XercesDefs.hpp::"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define &nbsp;&nbsp;&nbsp;PLATFORM_IMPORT
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a11" doxytag="XercesDefs.hpp::"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define &nbsp;&nbsp;&nbsp;PLATFORM_IMPORT
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a10" doxytag="XercesDefs.hpp::"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define &nbsp;&nbsp;&nbsp;PLATFORM_IMPORT
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a14" doxytag="XercesDefs.hpp::VALIDATORS_EXPORT"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define VALIDATORS_EXPORT&nbsp;&nbsp;&nbsp;PLATFORM_IMPORT
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a2" doxytag="XercesDefs.hpp::XERCES_CPP_NAMESPACE_BEGIN"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define XERCES_CPP_NAMESPACE_BEGIN
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a3" doxytag="XercesDefs.hpp::XERCES_CPP_NAMESPACE_END"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define XERCES_CPP_NAMESPACE_END
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a5" doxytag="XercesDefs.hpp::XERCES_CPP_NAMESPACE_QUALIFIER"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define XERCES_CPP_NAMESPACE_QUALIFIER
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a4" doxytag="XercesDefs.hpp::XERCES_CPP_NAMESPACE_USE"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define XERCES_CPP_NAMESPACE_USE
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a7" doxytag="XercesDefs.hpp::XERCES_STD_QUALIFIER"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define XERCES_STD_QUALIFIER
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a6" doxytag="XercesDefs.hpp::XERCES_USING_STD"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define XERCES_USING_STD</td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">NAME&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap>
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a0" doxytag="XercesDefs.hpp::XERCESDEFS_HPP"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define XERCESDEFS_HPP
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a9" doxytag="XercesDefs.hpp::"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define &nbsp;&nbsp;&nbsp;PLATFORM_IMPORT
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a1" doxytag="XercesDefs.hpp::XMLStrL"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define XMLStrL</td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">str&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap>&nbsp;&nbsp;&nbsp;str
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a8" doxytag="XercesDefs.hpp::"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> #define &nbsp;&nbsp;&nbsp;PLATFORM_IMPORT
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<hr><h2>Typedef Documentation</h2>
+<a name="a17" doxytag="XercesDefs.hpp::UCS4Ch"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> typedef XMLUInt32 UCS4Ch
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a16" doxytag="XercesDefs.hpp::UTF16Ch"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> typedef XMLUInt16 UTF16Ch
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="a15" doxytag="XercesDefs.hpp::XMLByte"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> typedef unsigned char XMLByte
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+    </FONT></TD></TR></TABLE><BR>
+</TD></TR></TABLE></TD></TR></TABLE><BR><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD bgcolor="#0086b2"><IMG height="1" src="images/dot.gif" width="1" alt=""></TD></TR><TR><TD align="center"><FONT color="#0086b2" size="-1"><I>
+              Copyright &copy; 2004 The Apache Software Foundation.
+              All Rights Reserved.
+            </I></FONT></TD></TR></TABLE></BODY></HTML>

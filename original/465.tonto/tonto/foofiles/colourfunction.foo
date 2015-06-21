@@ -1,0 +1,371 @@
+!------------------------------------------------------------------------------
+!
+! COLOURFUNCTION:
+!
+! For generating an RGB colour triple from a given data value.
+!
+! The module takes as input a series of data values with their assigned RGB
+! colours. Any data value is then assigned an RGB colour by interpolation from
+! the colour table.
+!
+! The default data range is [0...1]. The colours assigned are:
+! Blue-Green for the range [0...0.5
+! Green-Red  for the range [0.5...1].
+!
+! Copyright (C) Dylan Jayatilaka, 2002
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: colourfunction.foo,v 1.2.2.4 2003/09/18 05:28:23 reaper Exp $
+!
+!------------------------------------------------------------------------------
+
+module COLOURFUNCTION
+
+   implicit none
+
+contains
+
+   create(range)
+   ! Create the object
+     self :: PTR
+     range :: REALVEC(2), optional
+     nullify(self)
+     allocate(self)
+     ADD_MEMORY(COLOURFUNCTION_SIZE)
+     .nullify_ptr_part
+     .set_defaults(range)
+   end
+
+   create_copy(object)
+   ! Create a copy of object
+     self :: PTR
+     object :: COLOURFUNCTION, IN
+     .create
+     .copy(object)
+   end
+
+
+   copy(c) ::: leaky
+   ! Copy the contents of "c" to self.
+     c :: COLOURFUNCTION, IN
+     .n_data = c.n_data
+     .data.create_copy(c.data)
+     .RGB.create_copy(c.RGB)
+   end
+
+   destroy ::: get_from(OBJECT), leaky
+   ! Destroy an object
+      self :: PTR
+   end
+
+   nullify_ptr_part
+   ! Nullify the pointer parts
+      nullify(.data)
+      nullify(.RGB)
+   end
+
+   destroy_ptr_part
+   ! Destroy the pointer parts
+      .data.destroy
+      .RGB.destroy
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   set_defaults(range) ::: leaky
+   ! Set up a defaults
+      range :: REALVEC(2), optional
+      .n_data = 3
+      .data.destroy
+      .data.create(3)
+      .data     = [ZERO,HALF, ONE]
+      .RGB.destroy
+      .RGB.create(3,3)
+      .RGB(:,1) = [ZERO,ZERO, ONE]
+      .RGB(:,2) = [ZERO, ONE,ZERO]
+      .RGB(:,3) = [ ONE,ZERO,ZERO]
+      if (present(range)) .rescale_data(range)
+      .finalised = TRUE
+   end
+
+   set_reverse_defaults(range)
+   ! Set up reversed defaults
+      range :: REALVEC(2), optional
+      .n_data = 3
+      .data.destroy
+      .data.create(3)
+      .data     = [ZERO,HALF, ONE]
+      .RGB.destroy
+      .RGB.create(3,3)
+      .RGB(:,1) = [ ONE,ZERO,ZERO]
+      .RGB(:,2) = [ZERO, ONE,ZERO]
+      .RGB(:,3) = [ZERO,ZERO, ONE]
+      if (present(range)) .rescale_data(range)
+      .finalised = TRUE
+   end
+
+!  *************
+!  Input methods
+!  *************
+
+   read_keywords ::: get_from(OBJECT), recursive, leaky
+   ! Read data from "stdin" using keyword style input.
+   end
+
+   process_keyword(keyword) ::: leaky
+   ! Process command "keyword". Any required data needed by the "keyword" is
+   ! inputted from "stdin".
+      keyword :: STR(*)
+      word :: STR
+      word = keyword
+      word.to_lower_case
+      select case (word)
+         case ("}               ")  ! exit case
+         case ("data_and_colour="); .read_data_and_colour
+         case ("put             "); .put
+         case ("units=          "); .read_units
+         case default;         UNKNOWN(word)
+      end
+   end
+
+   read_units ::: get_from(OBJECT)
+   ! Read a string which describes the units to be used
+   end
+
+   read_junk ::: get_from(OBJECT)
+   ! Read in a junk string, useful for ignoring a field
+   end
+
+   read_data_and_colour ::: leaky
+   ! Read in the data-colour pair. The colour can be a text string of a known
+   ! colour, an RGB 255 integer triple, or an RGB real triple. Only the latter
+   ! is used and stored.
+      word :: STR
+      colour :: COLOUR
+      length,line,item,i :: INT
+      data :: REAL
+      ENSURE(stdin.next_item=="{","open bracket '{' expected")
+      stdin.read(word)
+      stdin.read(word)
+      length = 0
+      line = stdin.line_number
+      item = stdin.previous_line_item
+      do
+         stdin.move_to_previous_item
+         stdin.read(data)
+         colour.read
+         length = length + 1
+         stdin.read(word)
+         word.to_lower_case
+         if (word=="}") exit
+      end
+      stdin.move_to_line(line)
+      stdin.move_to_line_item(item)
+      .data.destroy
+      .data.create(length)
+      .RGB.destroy
+      .RGB.create(3,length)
+      do i = 1,length
+         stdin.read(data)
+         colour.read
+         .data(i)  = data
+         .RGB(:,i) = colour.RGB
+      end
+      stdin.read(word)
+      word.to_lower_case
+      ENSURE(word=="}","expecting a }")
+   end
+
+   finalise ::: leaky
+   ! Check everything is OK after reading data. Saturation must exist but it is
+   ! applied into the RGB triples and then destroyed.
+      order :: INTVEC*
+   ENSURE(.data.created,"no data values")
+   ENSURE(.RGB.created,"no RGB values")
+   ENSURE(.data.dim==.RGB.dim2,"incompatible #: data and RGB")
+   ENSURE(all(.RGB>=ZERO),"negative RGB values exist")
+   ENSURE(all(.RGB<=ONE),"some RGB values greater than 1")
+   ENSURE(all(.RGB.column_norms<=THREE),"some RGB norms larger than 3")
+      .n_data = .data.dim
+      order.create(.n_data)
+      ! Re-order from smallest to largest
+      .data.quick_sort(order)
+      .data       = .data(order)
+      .RGB        = .RGB(:,order)
+      order.destroy
+      .finalised = TRUE
+   end
+
+!  ************
+!  Set routines
+!  ************
+
+   set_data(data) ::: leaky
+   ! Set the data. Make sure that .finalise is called after all set routines.
+      data :: REALVEC
+      .data.destroy
+      .data.create_copy(data)
+   end
+
+   set_RGB(RGB) ::: leaky
+   ! Set the RGB's. Make sure that .finalise is called after all set routines.
+      RGB :: REALMAT
+      .RGB.destroy
+      .RGB.create_copy(RGB)
+   end
+
+!  ****************
+!  Colours for data
+!  ****************
+
+   RGB_for(value,truncate_to_range) result (res)
+   ! Return the RGB triple corresponding to a certain "value".
+      self :: IN
+      value :: REAL, IN
+      truncate_to_range :: BIN, optional, IN
+      res :: REALVEC(3)
+      colour :: REALVEC(3)
+      frac,thevalue :: REAL
+      i1,i2 :: INT
+      truncate :: BIN
+      ENSURE(.finalised,"not finalised")
+      thevalue = value
+      truncate = TRUE
+      if (present(truncate_to_range)) truncate = truncate_to_range
+      if (NOT truncate) then
+        ENSURE(thevalue.is_in_range(.data.range),"value out of range")
+      else
+        thevalue = min(thevalue,maxval(.data))
+        thevalue = max(thevalue,minval(.data))
+      end
+      i1 = count(.data<=thevalue) ! assuming .data is ordered !
+      i1 = min(i1,.n_data-1)
+      i2 = i1 + 1
+      frac   = (thevalue - .data(i1))/(.data(i2)-.data(i1))
+      colour = .RGB(:,i2) - .RGB(:,i1)
+      res    = .RGB(:,i1) + frac*colour
+   end
+
+   RGB255_for(value) result (res)
+   ! Return the RGB255 triple corresponding to a certain "value".
+      value :: REAL
+      res :: INTVEC(3)
+      colour :: REALVEC(3)
+      frac :: REAL
+      i1,i2 :: INT
+   ENSURE(.finalised,"not finalised")
+   ENSURE(value.is_in_range(.data.range),"value out of range")
+      i1 = count(.data<=value) ! assuming .data is ordered !
+      i1 = min(i1,.n_data-1)
+      i2 = i1 + 1
+      frac   = (value - .data(i1))/(.data(i2)-.data(i1))
+      colour = .RGB(:,i2) - .RGB(:,i1)
+      res    = nint(255*(.RGB(:,i1) + frac*colour))
+   end
+
+   get_RGB_for(values,RGB)
+   ! Return the "RGB" triples corresponding to a set of "values".
+      values :: REALVEC
+      RGB :: REALMAT
+      i,n :: INT
+   ENSURE(.finalised,"not finalised")
+   ENSURE(RGB.dim2==values.dim,"values and RGB are incompatible")
+      n = values.dim
+      do i = 1,n
+         RGB(:,i) = .RGB_for(values(i))
+      end
+   end
+
+   get_RGB255_for(values,RGB255)
+   ! Return the "RGB255" triples corresponding to a set of "values".
+      values :: REALVEC
+      RGB255 :: INTMAT
+      i,n :: INT
+   ENSURE(.finalised,"not finalised")
+   ENSURE(RGB255.dim2==values.dim,"values and RGB255 are incompatible")
+      n = values.dim
+      do i = 1,n
+         RGB255(:,i) = .RGB255_for(values(i))
+      end
+   end
+
+   rescale_data(range)
+   ! Rescale the .data so that the lowest value corresponds to
+   ! range(1), and the largest value corresponds to range(2).
+      range :: REALVEC(2)
+      data1,del,frac :: REAL
+      i :: INT
+   ENSURE(.data.created,"no data")
+   ENSURE(.n_data>1,"not enough data")
+      data1 = .data(1)
+      del   = .data(.n_data) - data1
+      do i = 1,.n_data
+         frac = (.data(i) - data1)/del
+         .data(i) = range(1) + frac*(range(2)-range(1))
+      end
+   end
+
+   set_default_colours(values) ::: leaky
+   ! Set up default colours for a set of "values".
+      values :: REALVEC
+      .rescale_data(values.range)
+   end
+
+!  **************
+!  Output methods
+!  **************
+
+   put
+   ! Put the list of interpolating colours.
+      i :: INT
+      stdout.flush
+      stdout.text("Colourfunction data")
+      stdout.flush
+      stdout.show("No. of interpolating data points =",.n_data)
+      stdout.flush
+      stdout.dash(int_fields=1,real_fields=4)
+      stdout.put("#",int_width=TRUE)
+      stdout.put("Data")
+      stdout.put("Red")
+      stdout.put("Green")
+      stdout.put("Blue")
+      stdout.flush
+      stdout.dash(int_fields=1,real_fields=4)
+      do i = 1,.n_data
+         stdout.put(i)
+         stdout.put(.data(i))
+         stdout.put(.RGB(1,i))
+         stdout.put(.RGB(2,i))
+         stdout.put(.RGB(3,i))
+         stdout.flush
+      end
+      stdout.dash(int_fields=1,real_fields=4)
+   end
+
+end

@@ -1,0 +1,37 @@
+% /*@@
+%   @file      Appendices.tex
+%   @date      Wed Jan 12 14:38:29 2000
+%   @author    Tom Goodale
+%   @desc 
+%   
+%   @enddesc 
+%   @version $Header: /cactus/Cactus/doc/MaintGuide/Appendices.tex,v 1.2 2001/05/11 10:40:34 goodale Exp $
+% @@*/
+
+\begin{cactuspart}{10}{Appendices}{$RCSfile: Appendices.tex,v $}{$Revision: 1.2 $}
+\renewcommand{\thepage}{\Alph{part}\arabic{page}}
+
+\chapter{XEmacs customisation}
+
+Here's the relevent section from my .emacs file for the coding guidelines
+
+\begin{verbatim}
+(require 'grdoc)
+
+; C-mode customisation
+
+(defun my-c-mode-common-hook ()
+  ;; my customizations for all of c-mode, c++-mode, objc-mode, java-mode
+  (c-set-offset 'substatement-open 0)
+  (c-set-offset 'case-label '+)
+  ;; other customizations can go here
+  (turn-on-grdoc-mode)
+  (font-lock-mode)
+  (setq indent-tabs-mode nil)
+  )
+(add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
+\end{verbatim}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{cactuspart}

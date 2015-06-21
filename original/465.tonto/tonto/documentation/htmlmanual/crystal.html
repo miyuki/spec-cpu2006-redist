@@ -1,0 +1,1301 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>CRYSTAL</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Keyword documentation for TONTO"
+HREF="keywords.html"><LINK
+REL="PREVIOUS"
+TITLE="BASIS"
+HREF="basis.html"><LINK
+REL="NEXT"
+TITLE="DFTGRID"
+HREF="dftgrid.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="basis.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="dftgrid.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="CRYSTAL"
+></A
+><TT
+CLASS="LITERAL"
+>CRYSTAL</TT
+></H1
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="CRYSTAL-PURPOSE"
+></A
+>Purpose</H2
+><P
+ALIGN="justify"
+>A representation of a crystal, from a mainly diffraction perpective</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="CRYSTAL-SYNOPSIS"
+></A
+>Synopsis</H2
+><P
+ALIGN="justify"
+>A crystal is comprised of a unit cell information, 
+<TT
+CLASS="LITERAL"
+>SPACEGROUP</TT
+> information, and diffraction reflection
+information stored as <TT
+CLASS="LITERAL"
+>REFLECTIONVEC</TT
+>.</P
+><P
+ALIGN="justify"
+>The module provides considerable functionality, including the ability to
+produce predicted structure factors by optimising scla e and extinction
+corrections. It can also sum certain fourier transform integrals (charge, spin,
+current) into unique combinations for structure factor calculations, or
+constrained wavefunction calculations. It can also determine neighbouring atoms
+and clusters from an initial fragment, as well as repetition factors,
+<TT
+CLASS="LITERAL"
+>Z</TT
+> factors, asymmetric units and so on. There are various
+statistical routines which calculate agreement factors between calculated and
+observed structure factors, inclusing some plot-generating routines (scatter
+plots, QQ-plots, etc).</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="CRYSTAL-INPUT"
+></A
+>Default input data order</H2
+><P
+ALIGN="justify"
+>There is no associated CRYSTALVEC type; an input data order has not been
+defined.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="CRYSTAL-KEYWORDS"
+></A
+>Listing of keywords</H2
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>cell_angles= REALVEC(3)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the unit cell angles in the order &alpha;, &beta;,
+&gamma;.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Use the <TT
+CLASS="LITERAL"
+>degrees</TT
+> unit modifier to change from
+default of radians</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><TT
+CLASS="LITERAL"
+>unit_cell_angles=</TT
+> is
+synonymous</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>cell_lengths= REALVEC(3)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the unit cell lengths in the order <TT
+CLASS="LITERAL"
+>a</TT
+>,
+<TT
+CLASS="LITERAL"
+>b</TT
+>, <TT
+CLASS="LITERAL"
+>c</TT
+>.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Use the <TT
+CLASS="LITERAL"
+>angstrom</TT
+> unit modifier to change from
+default of atomic units</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><TT
+CLASS="LITERAL"
+>unit_cell_lengths=</TT
+> and
+<TT
+CLASS="LITERAL"
+>unit_cell_dimensions=</TT
+> are synonymous</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>correct_dispersion= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read a switch which tells whether to correct dispersion when
+calculating the structure factors</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The method uses atomic dispersion factors</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>The method may be buggy</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>destroy_reflection_data</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>If any reflection data are stored, destroy it in preparation for
+fresh data</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The reflection data are entered using the
+<TT
+CLASS="LITERAL"
+>reflection_data=</TT
+> keyword</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>This is synonymous with
+<TT
+CLASS="LITERAL"
+>erase_reflection_data</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>destroy_spacegroup</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>If any spacegroup data are stored, destroy it in preparation for
+fresh data</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The spacegroup data are entered using the
+<TT
+CLASS="LITERAL"
+>spacegroup_symbol=</TT
+>, <TT
+CLASS="LITERAL"
+>spacegroup_it_symbol=</TT
+>
+or <TT
+CLASS="LITERAL"
+>spacegroup_hall_symbol=</TT
+>.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>This is synonymous with
+<TT
+CLASS="LITERAL"
+>erase_spacegroup</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>erase_reflection_data</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>If any reflection data are stored, destroy it in preparation for
+fresh data</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The reflection data are entered using the
+<TT
+CLASS="LITERAL"
+>reflection_data=</TT
+> keyword</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>This is synonymous with
+<TT
+CLASS="LITERAL"
+>destroy_reflection_data</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>erase_spacegroup</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>If any spacegroup data are stored, destroy it in preparation for
+fresh data.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The spacegroup data are entered using the
+<TT
+CLASS="LITERAL"
+>spacegroup_symbol=</TT
+>, <TT
+CLASS="LITERAL"
+>spacegroup_it_symbol=</TT
+>
+or <TT
+CLASS="LITERAL"
+>spacegroup_hall_symbol=</TT
+>.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>This is synonymous with
+<TT
+CLASS="LITERAL"
+>destroy_spacegroup</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>exp_scale_factor</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read in a scale factor which is used to multiply any
+experimental structure factors or experimental sigma values.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The scale factor is applied only once</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to the <TT
+CLASS="LITERAL"
+>reflection_data=</TT
+>
+keyword</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>kind= STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the kind of crystal data that is to be stored.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The allowed kinds are <TT
+CLASS="LITERAL"
+>x-ray</TT
+> or
+<TT
+CLASS="LITERAL"
+>pnd</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>make_f_predicted</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Make the predicted magnitudes of the structure factors,
+including possibly an overall scale factor and extinction correction.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Refer to the <TT
+CLASS="LITERAL"
+>optimise_scale=</TT
+>
+keyword</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to the <TT
+CLASS="LITERAL"
+>optimise_extinction_factor=</TT
+>
+keyword</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>optimise_extinction= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Equivalent to <TT
+CLASS="LITERAL"
+>optimise_scale_factor=</TT
+></P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>optimise_extinction_factor= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read a switch whether to use an extincton factor when
+calculating the magnitudes of the predicted structure factors.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Refer to the
+<TT
+CLASS="LITERAL"
+>make_f_predicted</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>optimize_extinction= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Equivalent to <TT
+CLASS="LITERAL"
+>optimise_scale_factor=</TT
+></P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>optimize_extinction_factor= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Equivalent to <TT
+CLASS="LITERAL"
+>optimise_scale_factor=</TT
+></P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>optimise_scale= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Equivalent to <TT
+CLASS="LITERAL"
+>optimise_scale_factor=</TT
+>.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>optimise_scale_factor= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read a switch whether to optimise a scale factor when
+calculating the magnitudes of the predicted structure factors.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The X-ray structure factors are often not determined on an
+absolute scale, so a scale factor may be used to minimise the
+&chi;<SUP
+>2</SUP
+> agreement statistic between the experimental
+and calculated structure factors</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>By convention it is the calculate structure factors which are
+scaled, even though in reality it is the experimental structure factors which
+should be</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>optimize_scale= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Equivalent to <TT
+CLASS="LITERAL"
+>optimise_scale_factor=</TT
+>.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>optimize_scale_factor= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Equivalent to <TT
+CLASS="LITERAL"
+>optimise_scale_factor=</TT
+>.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>partition_model= STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the <SPAN
+CLASS="QUOTE"
+>"partition model"</SPAN
+> used to calculate
+structure factors when using <SPAN
+CLASS="QUOTE"
+>"oversampled"</SPAN
+> model of the crystal
+unit cell.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>An oversampled cell is one which is greater than the asymmetric
+unit; partition factord are introduced to obtain a correct repeating density for
+the crystal</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Allowed options are <TT
+CLASS="LITERAL"
+>none</TT
+>,
+<TT
+CLASS="LITERAL"
+>mulliken</TT
+> or <TT
+CLASS="LITERAL"
+>gaussian</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>reflection_data= REFLECTIONVEC</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Enter a list of reflection data.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>spacegroup_hall_symbol= STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Enter the spacegroup in Hall notation.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Refer to
+<TT
+CLASS="LITERAL"
+>spacegroup_it_symbol</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Refer to <TT
+CLASS="LITERAL"
+>SPACEGROUP:set_Hall_conversion_table</TT
+>
+so see the relationship between Hall symbols and international table
+symbols</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>For details of notation and non standard axis and origin
+settings, see: S. R. Hall, Acta Cryst. A37, 517 (1981)</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>spacegroup_it_symbol= STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the international table (IT) symbol for the
+spacegroup.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Use a caret <TT
+CLASS="LITERAL"
+>^</TT
+> before a character to represent
+a bar over that character; e.g  is
+<TT
+CLASS="LITERAL"
+>^P</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Use an underscore <TT
+CLASS="LITERAL"
+>_</TT
+> after a character to represent a subscript; 
+e.g.  2<SUB
+>ab</SUB
+> is <TT
+CLASS="LITERAL"
+>2_ab</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Use a slash <TT
+CLASS="LITERAL"
+>/</TT
+> where a slash should
+go</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Do not use spaces between symbols</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>spacegroup_symbol= STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Equivalent to <TT
+CLASS="LITERAL"
+>spacegroup_it_sumbol=</TT
+>.</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>synthesize_sigma_i= BIN</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the switch whether to artificially
+create<TT
+CLASS="LITERAL"
+>&sigma;(I)</TT
+> errors, where<TT
+CLASS="LITERAL"
+>I</TT
+> is an
+intensity, when evaluating the<TT
+CLASS="LITERAL"
+>&chi;^2</TT
+> agreement statistic
+based on intensities.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Refer to routine <TT
+CLASS="LITERAL"
+>I_sigma</TT
+></P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>thermal_smearing_model= STR</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the thermal smearing model to use to correct for thermal
+vibration in the calculated structure factors.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Allowed models are <TT
+CLASS="LITERAL"
+>none</TT
+>,
+<TT
+CLASS="LITERAL"
+>coppens</TT
+>, <TT
+CLASS="LITERAL"
+>stewart</TT
+>,
+<TT
+CLASS="LITERAL"
+>tanaka</TT
+></P
+></LI
+><LI
+><P
+ALIGN="justify"
+>For explanation, refer to: Grimwood and Jayatilaka, (2001),
+Acta. Cryst., A57, 87-100.</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>unit_cell_angles= REALVEC(3)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the unit cell angles in the order
+<TT
+CLASS="LITERAL"
+>&alpha;</TT
+>, <TT
+CLASS="LITERAL"
+>&beta;</TT
+>,
+<TT
+CLASS="LITERAL"
+>&gamma;</TT
+>.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Use the <TT
+CLASS="LITERAL"
+>degrees</TT
+> unit modifier to change from
+default of radians</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><TT
+CLASS="LITERAL"
+>cell_angles=</TT
+> is synonymous</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>unit_cell_dimensions= REALVEC(3)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the unit cell dimensions in the order <TT
+CLASS="LITERAL"
+>a</TT
+>,
+<TT
+CLASS="LITERAL"
+>b</TT
+>, <TT
+CLASS="LITERAL"
+>c</TT
+>.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Use the <TT
+CLASS="LITERAL"
+>angstrom</TT
+> unit modifier to change from
+default of atomic units</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><TT
+CLASS="LITERAL"
+>cell_lengths=</TT
+> and
+<TT
+CLASS="LITERAL"
+>unit_cell_lengths=</TT
+> are synonymous</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>unit_cell_lengths= REALVEC(3)</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the unit cell lengths in the order <TT
+CLASS="LITERAL"
+>a</TT
+>,
+<TT
+CLASS="LITERAL"
+>b</TT
+>, <TT
+CLASS="LITERAL"
+>c</TT
+>.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Use the <TT
+CLASS="LITERAL"
+>angstrom</TT
+> unit modifier to change from
+default of atomic units</P
+></LI
+><LI
+><P
+ALIGN="justify"
+><TT
+CLASS="LITERAL"
+>cell_lengths=</TT
+> and
+<TT
+CLASS="LITERAL"
+>unit_cell_dimensions=</TT
+> are synonymous</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+><TT
+CLASS="LITERAL"
+>wavelength= REAL</TT
+></DT
+><DD
+><P
+ALIGN="justify"
+>Read the wavelength &lambda; used in the X-ray or netron
+diffraction experiment.</P
+><P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>The value is used to calculated
+<TT
+CLASS="LITERAL"
+>sin(&thetas;)/&lambda;</TT
+> values for each reflection, often
+quoted in diffraction experiments</P
+></LI
+></UL
+></DD
+></DL
+></DIV
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="basis.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="dftgrid.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>BASIS</TT
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="keywords.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+><TT
+CLASS="LITERAL"
+>DFTGRID</TT
+></TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

@@ -1,0 +1,101 @@
+! Copyright (C) Dylan Jayatilaka, 2000
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: run_dftgrid.foo,v 1.7.2.2 2003/11/13 06:33:24 reaper Exp $
+
+program run_DFTGRID
+
+   use TYPES
+   use SYSTEM
+   use TEXTFILE
+   use DFTGRID
+
+   implicit none
+
+   g :: DFTGRID*
+   atom :: ATOMVEC*
+
+   f :: REAL
+   external f
+
+   integral :: REAL
+   alph, beta :: REAL
+   pf, pff, ab1, dx, dy, dz, dxyz2, dxyz, argf, ab2, ab3, ab4 :: REAL
+   rax, ray, raz, ra2, ga :: REAL
+   rbx, rby, rbz, rb2, gb :: REAL
+
+   tonto.initialize
+
+   ! Get atoms
+   stdin.create_stdin
+   stdin.open
+
+   ! Output
+   stdout.create_stdout
+   stdout.open
+
+   atom.read_keywords
+
+   g.create
+   g.read_keywords
+   g.put
+
+   integral = g.integrate(f,atom)
+
+         ! FUNCTION PARAMETERS
+         ! ATOM A = 1
+         alph = FIVE
+         rax = 1 ! atoms(1)%pos(1)
+         ray = 0 ! atoms(1)%pos(2)
+         raz = 0 ! atoms(1)%pos(3)
+         ! ATOM B = 2
+         beta = EIGHT
+         rbx = -1 ! atoms(2)%pos(1)
+         rby = 0 ! atoms(2)%pos(2)
+         rbz = 0 ! atoms(2)%pos(3)
+
+     dx = rax - rbx
+     dy = ray - rby
+     dz = raz - rbz
+     dxyz2 = dx*dx + dy*dy + dz*dz
+     dxyz  = sqrt(dxyz2)
+
+     print "(a)", "(exp(-alph*ra2) + exp(-beta*rb2))^2:"
+     print "(a, f10.5)", "RAB = ", dxyz
+     print "(a, 2f10.5)", "alpha, beta = ", alph, beta
+     print "(a, d25.15)", "numerical integral = ", integral
+
+     pf = sqrt(PI/(TWO*alph))
+     pff = pf*pf*pf
+     ab1 = pff
+
+     pf = sqrt(PI/(alph + beta))
+     pff = pf*pf*pf
+     argf = alph*beta/(alph + beta)
+     ab2 = pff*exp(-argf*dxyz2)
+
+     ab3 = ab2
+
+     pf = sqrt(PI/(TWO*beta))
+     pff = pf*pf*pf
+     ab4 = pff
+
+     print "(a, d25.15)", "analytical integral = ", ab1 + ab2 + ab3 + ab4
+     print "(a, d25.15)", "diff = ", abs(ab1 + ab2 + ab3 + ab4 - integral)
+     print "(a, f25.15)", "log10(diff) = ", log10(abs(ab1 + ab2 + ab3 + ab4 - integral))
+
+end

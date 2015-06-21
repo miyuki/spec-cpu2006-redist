@@ -1,0 +1,57 @@
+#bigdef test1() multi
+line
+
+macro
+#endbigdef
+
+First macro:
+test1()
+#######################################################################
+
+#bigdef test2(arg1, arg2)
+multi line macro
+with args : <arg1> and <arg2>
+------
+#endbigdef
+
+Second macro:
+test2(this, that)
+#######################################################################
+
+#bigdef test3()
+  
+        lots
+          of      
+           spaces   
+        
+#endbigdef
+
+#define spaces don't you want to know about the wasted spaces
+
+Third macro:
+This is <test3()>
+#######################################################################
+
+#bigdef test4()            
+Macro with conditional bits in:
+#define SHOWME
+#ifdef SHOWME
+This should be in test macro
+#else
+This should not be in test macro
+#endif
+#endbigdef
+
+Fourth macro:
+test4()
+#######################################################################
+
+#bigdef test5()            
+#pragma filepp SetKeywordchar ##
+##include "README"
+##pragma filepp SetKeywordchar #
+#endbigdef
+
+Fifth macro:
+test5()
+#######################################################################

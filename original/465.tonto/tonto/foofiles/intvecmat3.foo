@@ -1,0 +1,214 @@
+!---------------------------------------------------------------------------
+!
+!  INTVECMAT3 : a 3-D matrix where each element is a vector of (possibly)
+!  a different length
+!
+! Copyright (C) Dylan Jayatilaka, 2002
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: intvecmat3.foo,v 1.2 2003/02/19 07:48:57 reaper Exp $
+!---------------------------------------------------------------------------
+
+module INTVECMAT3
+
+   implicit none
+
+contains
+
+   create(dim1,dim2,dim3)
+   ! Create space
+      self :: PTR
+      dim1,dim2,dim3 :: INT
+      nullify(self)
+      allocate(self(dim1,dim2,dim3))
+      ADD_MEMORY(dim1*dim2*dim3*PTR_SIZE)
+      .nullify_ptr_part
+   end
+
+   create(dim1,dim2,dim3,dimv)
+   ! Create space
+      self :: PTR
+      dim1,dim2,dim3,dimv :: INT
+      nullify(self)
+      allocate(self(dim1,dim2,dim3))
+      ADD_MEMORY(dim1*dim2*dim3*PTR_SIZE)
+      .create_vec(dimv)
+   end
+
+   create(dim1,dim2,dim3,dimv)
+   ! Create space
+      self :: PTR
+      dim1,dim2,dim3 :: INT
+      dimv :: INTVEC(2)
+      nullify(self)
+      allocate(self(dim1,dim2,dim3))
+      ADD_MEMORY(dim1*dim2*dim3*PTR_SIZE)
+      .create_vec(dimv)
+   end
+
+   create(dim)
+   ! Create space
+      self :: PTR
+      dim :: INTVEC(3)
+      nullify(self)
+      allocate(self(dim(1),dim(2),dim(3)))
+      ADD_MEMORY(dim(1)*dim(2)*dim(3)*PTR_SIZE)
+      .nullify_ptr_part
+   end
+
+   create_vec(dimv)
+   ! Allocate the "vec" pointer parts
+      dimv :: INT
+      i,j,k :: INT
+      do i = 1,.dim1
+      do j = 1,.dim2
+      do k = 1,.dim3
+         self(i,j,k).element.create(dimv)
+      end
+      end
+      end
+   end
+
+   create_vec(dimv)
+   ! Allocate the "vec" pointer parts
+      dimv :: INTVEC(2)
+      i,j,k :: INT
+      do i = 1,.dim1
+      do j = 1,.dim2
+      do k = 1,.dim3
+         self(i,j,k).element.create(dimv)
+      end
+      end
+      end
+   end
+
+   destroy
+   ! Destroy allocated space
+      self :: PTR
+      if (.destroyed) return
+      .destroy_ptr_part
+      DELETE_MEMORY(size(self)*PTR_SIZE)
+      deallocate(self)
+   end
+
+   nullify_ptr_part
+   ! Nullify the pointer parts
+      self :: PTR
+      i,j,k :: INT
+      do i = 1,.dim1
+      do j = 1,.dim2
+      do k = 1,.dim3
+         nullify(self(i,j,k).element)
+      end
+      end
+      end
+   end
+
+   destroy_ptr_part
+   ! Destroy the pointer parts of an ivecvec
+      self :: PTR
+      i,j,k :: INT
+      do i = 1,.dim1
+      do j = 1,.dim2
+      do k = 1,.dim3
+         self(i,j,k).element.destroy
+      end
+      end
+      end
+   end
+
+!   created result (res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result (res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   create_copy(v) ::: leaky
+   ! Create a copy of "v"
+      self :: PTR
+      v :: INTVECMAT3
+      .create(v.dim1,v.dim2,v.dim3)
+      .copy(v)
+   end
+
+   copy(v) ::: leaky
+   ! Make a copy of "v"
+      v :: INTVECMAT3
+      i,j,k :: INT
+      do i = 1,v.dim1
+      do j = 1,v.dim2
+      do k = 1,v.dim3
+         self(i,j,k).element.create_copy(v(i,j,k).element)
+      end
+      end
+      end
+   end
+
+   set_to(v)
+   ! Set self to "v". Up to you to make sure they are compatible!
+      self :: INOUT
+      v :: INTVECMAT3, IN
+      i,j,k :: INT
+      do i = 1,v.dim1
+      do j = 1,v.dim2
+      do k = 1,v.dim3
+         self(i,j,k).element.set_to(v(i,j,k).element)
+      end
+      end
+      end
+   end
+
+   zero
+   ! Zero all elements
+      self :: INOUT
+      i,j,k :: INT
+      do i = 1,.dim1
+      do j = 1,.dim2
+      do k = 1,.dim3
+         self(i,j,k).element = 0
+      end
+      end
+      end
+   end
+
+   dim1 result (res)
+   ! The first dimension of self
+      res :: INT
+      res = size(self,1)
+   end
+
+   dim2 result (res)
+   ! The second dimension of self
+      res :: INT
+      res = size(self,2)
+   end
+
+   dim3 result (res)
+   ! The third dimension of self
+      res :: INT
+      res = size(self,3)
+   end
+
+end

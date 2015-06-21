@@ -1,0 +1,33 @@
+These notes by Cloyce Spradling, spring 2011, (edited by johnh, but the word
+"I" here means "Cloyce", unless he takes steps to deny it)
+
+This is specmd5sum [and also specsha*sum, which, as of mid-2011, are 
+built but are not incorporated into the binary tools tarballs].  
+
+See the NEWS file for info about origins, etc.
+
+Hopefully YOU will never be tasked with updating these programs.  The
+easy way out would be to just copy in the latest GNU coreutils package
+and call it good, but that way lies bloat and failed tests.
+
+To avoid situations like that, just update the md5sum sources from
+coreutils and update the GNUlib bits separately.
+
+There are only two files taken from coreutils: md5sum.c and system.h, 
+which are used build the several variations (by setting 
+-DHASH_ALGO_xx to MD5, SHA512, SHA384, etc)
+
+What I'd do (if I have to do this again) is diff SPEC's versions of those
+files against the version of coreutils from which they were taken (see
+redistributable_sources/original/tools.src/coreutils-8.9.tar.xz and
+attempt to apply SPEC's diffs to the new versions of the files.
+
+If you're lucky and coreutils hasn't changed much, that might be all
+that's necessary.  Otherwise, you'll get to hone your code maintenance
+skills a bit.
+
+After the changes are all re-applied, check out a copy of GNUlib (there is no
+downloadable tarball) and put it in $SPEC/tools/src/gnulib.  Then just run
+'./bootstrap', fix up the Subversion stuff (delete deleted files, add new
+files) and check it all in.  The GNUlib used for this version was checked out
+on 28 Feb 2011 and updated once or twice before everything was finally done.

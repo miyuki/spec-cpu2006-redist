@@ -1,0 +1,427 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>The GAUSSIAN2 and DFTGRID modules</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Examples of simple TONTO programs"
+HREF="example-programs.html"><LINK
+REL="PREVIOUS"
+TITLE="The REALVEC module"
+HREF="module-vec.html"><LINK
+REL="NEXT"
+TITLE="The SHELL4 module"
+HREF="module-shell4.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="module-vec.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="module-shell4.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="MODULE-GAUSSIAN2"
+></A
+>The <TT
+CLASS="LITERAL"
+>GAUSSIAN2</TT
+> and <TT
+CLASS="LITERAL"
+>DFTGRID</TT
+> modules</H1
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>GAUSSIAN2</TT
+> module is concerned with pairs of shells
+of gaussian functions.  This program illustrates the main use of the module---to
+calculate integrals betwen pairs of shells. In addition, the
+<TT
+CLASS="LITERAL"
+>DFTGRID</TT
+> module is used to numerically integrate some of the
+integrals to check them. A function required for this numerical integration is
+provided in the <TT
+CLASS="LITERAL"
+>TEST</TT
+> module and reproduced below.</P
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="CODE-GAUSSIAN2"
+></A
+>Code</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>program run_gaussian2
+
+   use TYPES
+   use SYSTEM
+   use REALMAT
+   use TEXTFILE
+   use GAUSSIAN2
+   use DFTGRID
+   use TEST
+
+#  include "macros"
+
+   implicit none
+
+   GAUSSIAN2 :: g
+   REALMAT(10,6) :: S
+   DFTGRID*  :: d
+
+   tonto.initialize
+   stdout.create_stdout
+   stdout.open
+
+   stdout.flush
+   stdout.text("Make the overlap integrals between two gaussian functions:")
+   stdout.flush
+   stdout.text("--an F function at (0,0,0) with exponent 0.3, and")
+   stdout.text("--a  D function at (0,0,1) with exponent 0.5")
+   stdout.flush
+
+   g.set(l_a=3,pos_a=[0.0d0,0.0d0,0.0d0],ex_a=0.3d0, &#38;
+         l_b=2,pos_b=[0.0d0,0.0d0,0.1d0],ex_b=0.5d0)
+
+   g.make_overlap_ints(S)
+
+   stdout.text("Answer:")
+   stdout.put(S)
+
+   stdout.flush
+   stdout.text("Now make the nuclear attaction integrals for the same functions")
+   stdout.text("assuming the nucleus of unit charge is at (0,1,0)")
+   stdout.flush
+
+   g.make_nuclear_attraction_ints(S,c=[0.0d0,1.0d0,0.0d0])
+
+   stdout.set_fields(3)
+
+   stdout.text("Answer:")
+   stdout.put(S)
+
+   stdout.flush
+   stdout.text("Now do the last integration numerically with a default DFT grid")
+   stdout.flush
+
+   d.create
+   d.set_defaults
+
+   d.make_matrix_elements_of(v010,g,S) 
+
+   stdout.text("Answer:")
+   stdout.put(S)
+
+end</PRE
+></TD
+></TR
+></TABLE
+><P
+ALIGN="justify"
+>And here is the relevant part of the <TT
+CLASS="LITERAL"
+>TEST</TT
+>
+module:</P
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>module TEST
+
+   use TYPES
+   use SYSTEM
+   use REALVEC
+   use REALMAT
+
+   implicit none
+
+#  include "macros"
+
+   public v010
+
+contains
+
+   v010(grid,pts)  [selfless]
+   ! The potential "grid" from a unit charge at (0,1,0)
+      REALVEC :: grid
+      REALMAT :: pts
+      INT :: i
+      REAL :: x,y,z
+      ENSURE(pts.dim2==3,"incorrect pts array")
+      ENSURE(grid.dim==pts.dim1,"incorrect pts array")
+      do i = 1,grid.dim
+         x = pts(i,1)
+         y = pts(i,2)
+         z = pts(i,3)
+         grid(i) = ONE/sqrt(x*x + (y-1)*(y-1) + z*z)
+      end
+   end
+
+end</PRE
+></TD
+></TR
+></TABLE
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="RESULTS-GAUSSIAN2"
+></A
+>Results</H2
+><TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>Make the overlap integrals between two gaussian functions:
+
+--an F function at (0,0,0) with exponent 0.3, and
+--a  D function at (0,0,1) with exponent 0.5
+
+Answer:
+                            1                   2                   3
+
+        1         0.000000000         0.000000000         0.000000000
+        2         0.000000000         0.000000000         0.000000000
+        3         0.570086401         0.570086401         1.022223439
+        4         0.000000000         0.000000000         0.000000000
+        5         0.568901274         0.189633730        -0.037500070
+        6         0.000000000         0.000000000         0.000000000
+        7         0.189633730         0.568901274        -0.037500070
+        8         0.000000000         0.000000000         0.000000000
+        9         0.000000000         0.000000000         0.000000000
+       10         0.000000000         0.000000000         0.000000000
+
+                            4                   5                   6
+
+        1         0.000000000        -0.341340764         0.000000000
+        2         0.000000000         0.000000000        -0.341340764
+        3         0.000000000         0.000000000         0.000000000
+        4         0.000000000         0.000000000        -0.113780238
+        5         0.000000000         0.000000000         0.000000000
+        6         0.000000000        -0.113780238         0.000000000
+        7         0.000000000         0.000000000         0.000000000
+        8         0.000000000         0.264776096         0.000000000
+        9         0.000000000         0.000000000         0.264776096
+       10         0.189633730         0.000000000         0.000000000
+
+Now make the nuclear attaction integrals for the same functions
+assuming the nucleus of unit charge is at (0,1,0)
+
+Answer:
+                            1                   2                   3
+
+        1         0.000000000         0.000000000         0.000000000
+        2         0.636763789         4.019132228         0.646818792
+        3         0.241830653         0.258244683         0.325292502
+        4         0.542365560         0.636763789         0.182672067
+        5         0.241377093         0.085923808        -0.051936955
+        6         0.000000000         0.000000000         0.000000000
+        7         0.085923808         0.279895783        -0.071817372
+        8         0.000000000         0.000000000         0.000000000
+        9         0.181576872         0.639360793         0.540965498
+       10         0.000000000         0.000000000         0.000000000
+
+                            4                   5                   6
+
+        1         0.542365560        -0.199062812         0.000000000
+        2         0.000000000         0.000000000        -0.315145144
+        3         0.000000000         0.000000000         0.541667992
+        4         0.000000000         0.000000000        -0.079072965
+        5         0.000000000         0.000000000         0.179768987
+        6         0.636763789        -0.079072965         0.000000000
+        7         0.000000000         0.000000000         0.632993155
+        8         0.181576872         0.094212783         0.000000000
+        9         0.000000000         0.000000000         0.092388672
+       10         0.085923808         0.179768987         0.000000000
+
+Now do the last integration numerically with a default DFT grid
+
+Answer:
+                            1                   2                   3
+
+        1         0.000000000         0.000000000         0.000000000
+        2         0.636767966         4.014766773         0.646766758
+        3         0.241830651         0.258244191         0.325292449
+        4         0.542365396         0.636767966         0.182672052
+        5         0.241377047         0.085924086        -0.051936949
+        6         0.000000000         0.000000000         0.000000000
+        7         0.085924086         0.279921708        -0.071817050
+        8         0.000000000         0.000000000         0.000000000
+        9         0.181576877         0.639358039         0.540965447
+       10         0.000000000         0.000000000         0.000000000
+
+                            4                   5                   6
+
+        1         0.542365396        -0.199062777         0.000000000
+        2         0.000000000         0.000000000        -0.314679742
+        3         0.000000000         0.000000000         0.541667922
+        4         0.000000000         0.000000000        -0.079073069
+        5         0.000000000         0.000000000         0.179768964
+        6         0.636767966        -0.079073069         0.000000000
+        7         0.000000000         0.000000000         0.632987859
+        8         0.181576877         0.094212783         0.000000000
+        9         0.000000000         0.000000000         0.092388462
+       10         0.085924086         0.179768964         0.000000000</PRE
+></TD
+></TR
+></TABLE
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="module-vec.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="module-shell4.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>The <TT
+CLASS="LITERAL"
+>REALVEC</TT
+> module</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="example-programs.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>The <TT
+CLASS="LITERAL"
+>SHELL4</TT
+> module</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

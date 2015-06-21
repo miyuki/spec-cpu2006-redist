@@ -1,0 +1,10 @@
+FOPTNS   = $(FFAST)
+FFLAGS   = -I$(srcdir) -module $(moddir) -I$(moddir)
+FPROF    = -M prof=func
+FDEBUG   = -O0 -g -Mdclchk -Mbounds -Mchkptr
+FFAST    = -O2 -fast -Munroll
+#FFAST    = -O2 -fast -Munroll -Mvect=cachesize:131072
+FSUFFIX  = F90
+
+LIBS  = -llapack -lblas
+DEFS  = -DFLUSH -DLANGUAGE_FORTRAN_90 -DUSE_PRE_AND_POST_CONDITIONS

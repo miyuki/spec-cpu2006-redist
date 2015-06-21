@@ -1,0 +1,279 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>Modules in TONTO</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Writing programs with TONTO"
+HREF="writing-programs.html"><LINK
+REL="PREVIOUS"
+TITLE="Writing programs with TONTO"
+HREF="writing-programs.html"><LINK
+REL="NEXT"
+TITLE="The foo language in TONTO"
+HREF="foo.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="writing-programs.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="foo.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="TONTO-MODULES"
+></A
+>Modules in TONTO</H1
+><P
+ALIGN="justify"
+>TONTO is different from most programs used in computational chemistry
+because it does not have a <SPAN
+CLASS="QUOTE"
+>"main program"</SPAN
+> (although for convenience
+a few common <SPAN
+CLASS="QUOTE"
+>"main programs"</SPAN
+> are already set up for you to use).
+Instead, TONTO consists of about fifty independent modules.  In most cases the
+more sophisticated modules will make use of the simpler ones.  Once compiled,
+however, each single module can be used separately, in its own right. It is the
+documentation for each of these modules which appears on the TONTO
+homepage.</P
+><P
+ALIGN="justify"
+>The module which probably will be used most often is
+<TT
+CLASS="LITERAL"
+>MOL</TT
+>, since it contains routines which deal with the
+<SPAN
+CLASS="QUOTE"
+>"molecule data type"</SPAN
+>.  The executable, or <SPAN
+CLASS="QUOTE"
+>"main
+program"</SPAN
+> associated with this module is called
+<TT
+CLASS="LITERAL"
+>run_mol.x</TT
+>. Indeed, the executable associated with any module
+with name <TT
+CLASS="LITERAL"
+>XXXX</TT
+> is, by convention, always called
+<TT
+CLASS="LITERAL"
+>run_xxxx.x</TT
+>.</P
+><P
+ALIGN="justify"
+>Each module in TONTO is organised so that it is concerned only with
+tasks which deal with a specific data type.  For example, the module
+<TT
+CLASS="LITERAL"
+>REALMAT</TT
+> deals with the data type <SPAN
+CLASS="QUOTE"
+>"matrices of real
+numbers"</SPAN
+>, and consists of routines, such as
+<TT
+CLASS="LITERAL"
+>swap_columns</TT
+> or <TT
+CLASS="LITERAL"
+>solve_eigenproblem</TT
+>, which
+only deal with matrices.  That is, their first argument is always a matrix of
+real numbers.</P
+><P
+ALIGN="justify"
+>More complicated modules are designed around Fortran95 derived data types.
+For example, the <SPAN
+CLASS="QUOTE"
+>"molecule data type"</SPAN
+> which is used in module
+<TT
+CLASS="LITERAL"
+>MOL</TT
+>  is built from a collection of items, called
+<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>components</I
+></SPAN
+>, of a simpler data type.  There is one component
+called <TT
+CLASS="LITERAL"
+>name</TT
+> of <SPAN
+CLASS="QUOTE"
+>"string type"</SPAN
+> which holds the
+name of the molecule. There is also another component called
+<TT
+CLASS="LITERAL"
+>atom</TT
+>, which is a vector.  Each element of this vector is of
+<SPAN
+CLASS="QUOTE"
+>"atom type"</SPAN
+>, and holds information about each of the atoms which
+make up the molecule.  Each of the routines in module <TT
+CLASS="LITERAL"
+>MOL</TT
+>
+(for example, <TT
+CLASS="LITERAL"
+>center_of_mass</TT
+>, which returns the center of
+mass of the molecule) always takes as its first argument, a variable of the
+molecule data type.</P
+><P
+ALIGN="justify"
+>The style of module programming used in TONTO is known as abstract data
+type programming, or more loosely, object based programming.</P
+><P
+ALIGN="justify"
+>This style of module was chosen because we believe it has a simplicity of
+structure and ease of modification which was one of the main design goals of
+TONTO. </P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="writing-programs.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="foo.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Writing programs with TONTO</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="writing-programs.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>The <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> language in TONTO</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

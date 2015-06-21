@@ -1,0 +1,444 @@
+!-------------------------------------------------------------------------------
+!
+! BASIS: For gaussian basis sets
+!
+! Copyright (C) Dylan Jayatilaka, 1998
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: basis.foo,v 1.17.2.8 2003/11/13 05:34:14 reaper Exp $
+!
+!-------------------------------------------------------------------------------
+
+module BASIS
+
+   implicit none
+
+   keys DEFAULT_NULL :: STRVEC*, private
+
+contains
+
+!*******************************************************************************
+!                             Create and Destroy Routines
+!*******************************************************************************
+
+   create
+   ! Create a basis object
+      self :: PTR
+      nullify(self)
+      allocate(self)
+      ADD_MEMORY(SELF_TYPE_SIZE)
+      .nullify_ptr_part
+      .set_defaults
+   end
+
+   destroy
+   ! Destroy a basis object
+      self :: PTR
+      if (.destroyed) return
+      .destroy_ptr_part
+      DELETE_MEMORY(SELF_TYPE_SIZE)
+      deallocate(self)
+   end
+
+   nullify_ptr_part
+   ! Nullify the shell parts of self
+      nullify(.shell)
+   end
+
+   destroy_ptr_part
+   ! Destroy the shell parts of self
+      .shell.destroy
+   end
+
+!   created result(res) ::: pure
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res) ::: pure
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   create_copy(b)
+   ! Create a copy of the basis "b".
+     b :: SELF_TYPE, IN
+     self :: PTR
+     .create
+     .copy(b)
+   end
+
+   copy(b) ::: leaky
+   ! Copy a basis "b" to "self". Make sure pointer parts are first
+   ! destroyed or nullified, as you want.
+      b :: SELF_TYPE, IN
+      self = b
+      if (b.shell.created) .shell.create_copy(b.shell)
+   end
+
+   set_defaults
+   ! Create and set up a default basis set
+      .label   = " "
+      .n_shell = 0
+      .n_bf    = 0
+      .n_prim  = 0
+   end
+
+   update
+   ! Update the shell data, if it exists
+      if (.shell.destroyed) return
+      .n_shell = .no_of_shells
+      .n_bf    = .no_of_basis_functions
+      .n_prim  = .no_of_primitives
+   end
+
+   set_label(label)
+   ! Set the basis label
+      label :: STR
+      .label = label
+   end
+
+   resolve_by_label(label,basis,clobber,found)
+   ! Resolve "self" by pointer assigning it to the element in "basis" which has
+   ! a label which matches "label". If "clobber" is present and TRUE (the
+   ! default situation), then "self" is pointer assigned to the matching element
+   ! in "basis" irrespective of whether it is already associated; otherwise it
+   ! is not pointer assigned. If present, "found" is set TRUE if "self" is
+   ! resolved (or was already resolved if clobber was not set), or false
+   ! otherwise. If "found" is not present, and a match has not been found, an
+   ! error is generated.
+      self :: PTR
+      label :: STR
+      basis :: BASISVEC*
+      clobber,found :: BIN, optional
+      b :: INT
+      check :: BINVEC*
+      fnd :: BIN
+   ENSURE(basis.created, "no basis set")
+      if (present(clobber)) then
+      if (NOT clobber) then
+      if (.created) then
+      if (.label/=" ") then
+         if (present(found)) found = TRUE
+         return
+      end
+      end
+      end
+      end
+      check.create(basis.dim)
+      check = basis.label==label
+      b = check.index_of_first_true_element
+      check.destroy
+      fnd = b>0
+      if (fnd) self => basis(b) ! NOTE : this is a pointer assign NOT COPY
+      if (present(found)) then; found = fnd
+      else; ENSURE(fnd,"unknown basis label, "// trim(label))
+      end
+   end
+
+!  ************
+!  I/O Routines
+!  ************
+
+   read_keywords ::: get_from(OBJECT), recursive, leaky
+   ! Read data from "stdin" using keyword style input.
+   end
+
+   process_keyword(keyword) ::: leaky
+   ! Process command "keyword". Any required data needed by the "keyword" is
+   ! inputted from "stdin".
+     keyword :: STR(*), IN
+     word :: STR
+     word = keyword
+     word.to_lower_case
+     select case (word)
+       case ("}            "); ! exit surrounding loop
+       case ("gamess-us=   "); .read_gamess_us
+       case ("label=       "); .read_label
+       case ("shells=      "); .read_shell
+       case ("units=       "); .read_units
+       case ("put          "); .put
+       case ("put_table    "); .put_table
+       ! These are only for making custom tables for the list type
+       case ("put_label    "); stdout.put(.label,int_width=TRUE)
+       case ("put_n_shells "); stdout.put(.n_shell)
+       case ("put_n_bf     "); stdout.put(.n_bf)
+       case ("put_n_prim   "); stdout.put(.n_prim)
+       case ("tonto-style= "); .read_tonto_style
+       case ("flush        "); stdout.flush
+       case  default ;      UNKNOWN(word)
+     end
+   end
+
+   read_units ::: get_from(OBJECT)
+   ! Read a string which describes the units to be used
+   end
+
+   read_junk ::: get_from(OBJECT)
+   ! Read in a junk string, useful for ignoring a field
+   end
+
+   read_label
+   ! Read only the basis label
+      stdin.read(.label)
+   end
+
+   read_shell ::: leaky
+   ! Read a shell
+      .shell.read_list_keywords
+      .update
+   end
+
+   read_tonto_style ::: leaky
+   ! Create and read a tonto style basis set
+      .read_label
+      .shell.set_keys(["l_chr=","n_cc= ","ex,cc="])
+      .shell.read_data
+      .update
+   end
+
+   read_gamess_us ::: leaky
+   ! Create and read a GAMESS-US style basis set
+      the_keys :: STRVEC*
+      .read_label
+      the_keys => ("l_chr= n_cc= junk,ex,cc=").split
+      .shell.set_keys(the_keys)
+      the_keys.destroy
+      .shell.read_data
+      .update
+   end
+
+!  ********************
+!  Key related routines
+!  ********************
+
+   read_keys ::: get_from(OBJECT)
+   ! Read the "keys".
+   end
+
+   process_keys ::: get_from(OBJECT), leaky
+   ! Process each of the words in the "keys" list.
+   end
+
+   keys_created result (res) ::: get_from(OBJECT)
+   ! Return TRUE if the list-element keys are created.
+      res :: BIN
+   end
+
+   set_keys(the_keys) ::: get_from(OBJECT)
+   ! This is for setting the "keys" externally.
+     the_keys :: STRVEC(len=*,:)
+   end
+
+   clear_keys ::: get_from(OBJECT)
+   ! This is for destroying the "keys" externally.
+   end
+
+   put_table_footer ::: get_from(OBJECT)
+   ! Output a table footer from the list of "keys". NOTE: not all keywords need
+   ! contribute to the banner - any unrecognised keyword is skipped.
+   end
+
+   put_table_header
+   ! Output a table header from the list of "keys". NOTE: not all keywords need
+   ! contribute to the banner - any unrecognised keyword is skipped.
+     word :: STR
+     width,k :: INT
+     ENSURE(keys.created,"no keys")
+     width = .table_width
+     if (width > 0) then
+       stdout.dash(width=width)
+       do k = 1,size(keys)
+         word = keys(k)
+         word.to_lower_case
+         select case (word)
+           case ("put_label   "); stdout.put("label",int_width=TRUE)
+           case ("put_n_shells"); stdout.put("n_shells",int_width=TRUE)
+           case ("put_n_bf    "); stdout.put("n_bf",int_width=TRUE)
+           case ("put_n_prim  "); stdout.put("n_prim",int_width=TRUE)
+           case ("flush       "); stdout.flush; exit
+         end
+         if (k==size(keys)) then
+           stdout.flush ! In case they didn't write one.
+           WARN("no flush keyword - you may later overrun the output buffer")
+         end
+       end
+       stdout.dash(width=width)
+     end
+   end
+
+   table_width result (res)
+   ! Return the table width in characters, based on "keys".  Note that not all
+   ! keywords need to contribute to the banner - if a keyword is not recognised,
+   ! then it is skipped.
+     res :: INT
+     word :: STR
+     int_dash,real_dash,k :: INT
+     ENSURE(keys.created,"no keys")
+     int_dash = 0
+     real_dash = 0
+     do k = 1,size(keys)
+       word = keys(k)
+       word.to_lower_case
+       select case (word)
+         case ("}           "); ! exit surrounding loop
+         case ("put_label   "); int_dash = int_dash + 1
+         case ("put_n_shells"); int_dash = int_dash + 1
+         case ("put_n_bf    "); int_dash = int_dash + 1
+         case ("put_n_prim  "); int_dash = int_dash + 1
+         case ("flush       "); exit
+         case default
+       end
+     end
+     res = int_dash * stdout.int_width + real_dash * stdout.real_width
+   end
+
+!  *******
+!  Methods
+!  *******
+
+   same_as(b) result(res)
+   ! Return TRUE if the basis set "self" is the same as "b". Only the
+   ! shell vector is compared to see if they are "really" the same.
+      self :: IN
+      b :: SELF_TYPE, IN
+      res :: BIN
+      res = .shell.same_as(b.shell)
+   end
+
+   contraction_matrix result(ccm)
+   ! Set the contraction coefficient matrix. Its dimensions are (.n_prim,.n_bf).
+      self :: IN
+      ccm :: REALMAT(.n_prim,.n_bf)
+      b,p,n_p,n_b,i :: INT
+      sh :: SHELL*
+      p = 0                       ! no of primitives in all previous shells
+      b = 0                       ! basis number
+      ccm = ZERO
+      do i = 1,.n_shell           ! For segmented basis sets !
+         sh => .shell(i)
+         n_b = sh.n_comp
+         n_p = sh.n_prim
+         sh.make_contraction_matrix(ccm(p+1:p+n_p,b+1:b+n_b))
+         b = b + n_b
+         p = p + n_p
+      end
+   end
+
+   unnormalise
+   ! Take the normalisation factors out of the primitives, assuming
+   ! that the contraction coeff's refer to normalised basis functions
+      if (.shell.created) .shell.unnormalise
+   end
+
+   renormalise
+   ! Put back in the normalisation factors of the primitives, assuming
+   ! that the contraction coeff's refer to unnormalised basis functions
+      if (.shell.created) .shell.renormalise
+   end
+
+!  ************
+!  Put routines
+!  ************
+
+   put
+   ! Put out the basis information to file "stdout"
+      stdout.flush
+      stdout.show("Basis set : ",trim(.label))
+      stdout.flush
+      stdout.show("No. of shells          =",.n_shell)
+      stdout.show("No. of basis functions =",.n_bf)
+      stdout.show("No. of primitives      =",.n_prim)
+      .put_table
+   end
+
+   put_table
+   ! Put out the basis information to file "stdout"
+      sh :: SHELL*
+      i,j,b,p :: INT
+      stdout.flush
+      stdout.dash(int_fields=3,real_fields=2)
+      stdout.put("Type",int_width=TRUE)
+      stdout.put("Fn",int_width=TRUE)
+      stdout.put("Prim",int_width=TRUE)
+      stdout.put("Exponent")
+      stdout.put("Contraction")
+      stdout.flush
+      stdout.dash(int_fields=3,real_fields=2)
+      b = 1
+      p = 1
+      do i = 1,.n_shell
+         sh => .shell(i)
+         do j = 1,sh.n_cc
+            if (j==1) then
+               stdout.put(sh.l_chr,int_width=TRUE)
+               stdout.put(b)
+            else
+               stdout.tab(int_fields=2)
+            end
+            stdout.put(p)
+            stdout.put(sh.ex(j))
+            stdout.put(sh.cc(j))
+            stdout.flush
+            p = p + sh.n_comp
+         end
+         b = b + sh.n_comp
+      end
+      stdout.dash(int_fields=3,real_fields=2)
+   end
+
+!  ***************
+!  Inquiry methods
+!  ***************
+
+   no_of_shells result(res) ::: pure
+   ! Work out and return the number of shells in the basis set
+      self :: IN
+      res :: INT
+   ENSURE(.shell.created,"no shells")
+      res = .shell.no_of_shells
+   end
+
+   no_of_basis_functions result (res) ::: pure
+   ! Work out and return the number of basis functions in the basis set
+      self :: IN
+      res :: INT
+   ENSURE(.shell.created,"no shells")
+      res = .shell.no_of_basis_functions
+   end
+
+   no_of_primitives result (res) ::: pure
+   ! Work out and return the number of primitives in the basis set
+      self :: IN
+      res :: INT
+   ENSURE(.shell.created,"no shells")
+      res = .shell.no_of_primitives
+   end
+
+   min_exponent result (res) ::: pure
+   ! Return the minimum exponent in the basis.
+     self :: IN
+     res :: REAL
+   ENSURE(.shell.created,"no shells")
+     res = .shell.min_exponent
+   end
+
+end

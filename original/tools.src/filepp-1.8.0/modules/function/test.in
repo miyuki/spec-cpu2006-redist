@@ -1,0 +1,16 @@
+tolower(I SHOULD BE LOWERCASE)
+
+#function toupper Test::ToUpper
+Normal: toupper(i should be uppercase) :Normal
+
+Start "tolower(toupper(I Should Be Lowercase))", <toupper(tolower(I Should Be Uppercase))> End
+
+The word tolower should be in this sentance because it isn't followed by (args)
+
+#rmfunction tolower
+tolower(Nothing should happen because tolower has been removed)
+
+#function multi Test::MultiInputs
+
+multi(this, that, the other)
+multi(one, toupper("ooh, uppercase two!"), three, four, five)

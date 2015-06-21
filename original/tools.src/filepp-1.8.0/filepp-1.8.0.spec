@@ -1,0 +1,45 @@
+Summary: Generic file pre-processor
+Name: filepp
+Version: 1.8.0
+Release: 1
+Copyright: GPL
+Group: Applications/File 
+Source: http://www.cabaret.demon.co.uk/filepp/filepp-1.8.0.tar.gz
+Url: http://www.cabaret.demon.co.uk/filepp/
+Requires: perl
+BuildArch: noarch
+
+# Turn auto dependencies off as rpm treats filepp modules as normal Perl
+# modules, which messes things up.
+%undefine __find_provides
+%undefine __find_requires
+
+%description
+filepp is a generic file preprocessor that lets C preprocessor
+functionality be used with any file type. It supports the full set of
+C preprocessor keywords (#include, #define, #if, etc.). filepp is also
+highly customisable and allows users to easily add their own keywords
+or modify the behaviour of existing keywords, and is more user
+friendly than cpp.
+
+%prep
+%setup
+
+%build
+%configure
+make
+
+%install
+make install
+
+%clean
+
+%files
+%doc COPYING ChangeLog INSTALL README filepp.lsm filepp.html
+%{_bindir}/filepp
+%{_mandir}/man1/filepp.1*
+%{_datadir}/filepp
+
+%changelog
+* Tue Oct 09 2001 Darren Miller <darren@cabaret.demon.co.uk>
+- created first rpm distribution of filepp

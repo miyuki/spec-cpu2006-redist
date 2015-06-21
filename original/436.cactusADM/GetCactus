@@ -1,0 +1,1913 @@
+eval 'exec perl -sS $0 ${1+"$@"}' if 0;
+#!/usr/local/bin/perl -s
+
+# remove "if 0" from the command line
+$#ARGV -= 2;
+
+#/*@@
+#   @file      GetCactus
+#   @date      Feb 19 2000
+#   @author    Gabrielle Allen
+#   @desc
+#   Installer for Cactus Code Flesh
+#
+#   To run
+#     ./GetCactus <thornlist>
+#
+#   @enddesc
+#   @version $Header: /cactus/Utilities/Scripts/GetCactus,v 1.58 2004/05/12 16:33:33 tradke Exp $
+# @@*/
+
+# Add something here to checkout from a given date or tag, for example
+# -D 2002-01-01
+$CHECKOUT_OPTIONS = " -D 2002-01-29";
+
+# Set to one to test without a network
+$debug = 0;
+
+# max processes at one time
+$processes = 1 if (! defined $processes);
+
+my %arrangement_dirs;
+
+# Where am I
+$mydir = `pwd`;
+chomp($mydir);
+
+if (($help||$h) || (${-help}))
+{
+   # See if help is required
+   GetCactusHelp();
+}
+
+if ($options)
+{
+    print "Syntax:\n";
+    print "\tperl -s GetCactus\n\n";
+    print "Options:\n";
+    print "\t-install=\"\"     : (default: ./Cactus)\n";
+    print "\t-anonymous=\"\"   : [yes/no] (default: yes)\n";
+    print "\t-cvs=\"\"         : [<cvs client>] (default: cvs)\n";
+    print "\t-repository=\"\"  : [stable/development] (default: stable)\n";
+    print "\t-verbose=\"\"     : [yes/no] (default: no)\n";
+    print "\t-defaults         : instruct program to use defaults when unsure\n";
+    print "\t-updatemode=      : [for thorns] (a)ll (n)one (i)nteractive (default=none)\n";
+    print "\t-updateflesh      : updates the flesh\n";
+    print "\t-shownewthorns    : lists thorns that will be checked out\n";
+    print "\t-processes=       : number of processes to use (default=1)\n";
+    print "\t-options          : this screen\n";
+    print "\t-help|-h          : GetCactus Help Screen\n\n";
+    print "Example:\n\tperl -s GetCactus -anonymous=yes -repository=development -verbose=no -install=CheckOut -defaults WaveToyC.th\n";
+    DIE("Leaving GetCactus script");
+}
+
+
+# Print welcome message
+&Message("hello");
+
+
+# Check that CVS is on the system
+$cvs = &CVSFound if (!defined $cvs);
+DIE("cvs not found") if (!$cvs);
+
+
+# Look for ThornList
+while ($thornlist = shift) {
+   $thornlist = "" if m:/^\-/:;
+   $thornlist = &GetThornList($thornlist);
+
+   # Needed for cygwin
+   $thornlist =~ s,^//(.)/,$1:/,;
+
+   push @thornlists, $thornlist;
+}
+
+
+# Find the Cactus checkout directory
+($installdir,$cactusdir) = &GetCactusDir;
+
+# Parse CVS password file .cvspass
+@rep = &ParseCVSPasswordFile;
+$rep = join(" ",@rep);
+
+# anonymous repositories, automically added to .cvspass if not already there
+%anon_repos = (
+ ":pserver:cvs_anon\@cvs.cactuscode.org:/cactusdevcvs" => "Ay=0=",
+ ":pserver:cvs_anon\@cvs.cactuscode.org:/cactus"       => "Ay=0=",
+ ":pserver:cvs_anon\@cvs.cactuscode.org:/arrangements" => "Ay=0=",
+ ":pserver:cvs_anon\@cvs.cactuscode.org:/packages"     => "Ay=0=",
+);
+
+foreach my $repos (keys %anon_repos) {
+   if ($rep !~ /$repos\b/i) {
+      &AddCVSPasswordFile($repos, $anon_repos{$repos});
+   }
+}
+
+# Choose flesh repository and login
+$getrep = &FleshExists;
+if ($getrep) {
+   # we don't need to ask which repository, or anonymous, we use our defaults
+   $anonymous = "yes";
+   $fleshrep = $getrep;
+   $getrep =~ s/.*(\/.*)/$1/;
+
+   $updatetheflesh = 0;
+
+        print "\n\n Do you want to update your flesh installation y)es n)o [no] : ";
+        if ($defaults)
+        {
+           if (defined $updateflesh) {
+              print " yes\n";
+              $updatetheflesh = 1;
+           } else {
+              print " no\n";
+           }
+        }
+        else
+        {
+           $answer = <STDIN>;
+        }
+
+        if ($answer =~ /^\s*?y/i) {
+           $updatetheflesh = 1;
+        }
+
+} else {
+ do
+ {
+  print "\n Anonymous Flesh checkout? (y)es, n)o, h)elp) [yes] : ";
+
+  $anonymous = "yes" if (($defaults) && (! defined $anonymous));
+
+  if (! defined $anonymous)
+  {
+     $answer = <STDIN>;
+  }
+  else
+  {
+     $answer = $anonymous;
+     print "$answer\n";
+  }
+
+  if ($answer =~ /^h/i)
+  {
+    AnonymousCheckoutHelp();
+  }
+  elsif ($answer =~ /^n/i)
+  {
+    $anon = 0;
+    $login = &GetLoginName;
+    ($getrep,$tag) = &GetRepository;
+    $fleshrep = ":pserver:$login\@cvs.cactuscode.org:$getrep";
+    if ($rep !~ /$fleshrep/)
+    {
+      &LoginRepository($fleshrep);
+    }
+  } else {
+    $anon = 1;
+    $login = "cvs_anon";
+    ($getrep,$tag) = &GetRepository;
+    $fleshrep = ":pserver:$login\@cvs.cactuscode.org:$getrep";
+    $anonymous = "yes";
+  }
+ } while ($answer =~ /^h/i);
+}
+
+
+# Check repository exists (can only do this if logged in already)
+DIE(" Repository $fleshrep not found ... are you connected to the network?") if (!&RepositoryExists($fleshrep));
+
+
+# Parse the ThornList
+foreach my $thornlist (@thornlists) {
+   %thorns =  &ParseThornList($thornlist,$login,$getrep,$tag);
+}
+
+# Parse CVS password file .cvspass
+# (again, incase cvs_anon stuff was added)
+@rep = &ParseCVSPasswordFile;
+$rep = join(" ",@rep);
+
+# see if we need any passwords
+foreach my $key (keys %thorns) {
+   next if ($key !~ /REPOSITORY/);
+   if ($rep !~ $thorns{$key}) {
+      $thorns{$key} =~ /(.*:)(.*?)(\/.*)/;
+      if ($2 eq "") {
+         my $temprepos = "${1}2401${3}";
+         if ($rep !~ $temprepos) {
+            $unknownreps{$thorns{$key}} = 1;
+         }
+      }
+   }
+}
+# print "\n(($rep))";
+
+# get passwords we need
+foreach my $key (keys %unknownreps) {
+   print "\n\n Repository ($key) not found in .cvspass, please login:\n";
+   &LoginRepository($key);
+}
+
+
+chdir $installdir;
+$thorns{"THORNS"} = &ShouldWeUpdate("$cactusdir/arrangements/", $thorns{"THORNS"});
+
+# Get CVS options
+$cvs_options = &CVSOptions;
+
+# Checkout the flesh
+# (if already checked out, get the checked out repository)
+$fleshrep = &GetFlesh($fleshrep,$cvs_options) if ($updatetheflesh ne 0);
+chdir $mydir;
+
+# Checkout the thorns
+chdir $installdir;
+
+if (@thornlists)
+{
+  &GetThorns($fleshrep,$cvs_options,$tag,%thorns);
+}
+chdir $mydir;
+
+
+# And finish nicely ...
+print "\n Checkout complete\n";
+chdir $mydir;
+&Message("goodbye");
+
+
+########################################################################
+
+
+#/*@@
+#  @routine   Repository exists
+#  @date      Sat Mar 11 15:31:55 CET 2000
+#  @author    Gabrielle Allen
+#  @desc
+#  Check that the CVS repository is actually there
+#  @enddesc
+#  @calls
+#  @calledby
+#  @history
+#
+#  @endhistory
+#
+#@@*/
+
+sub RepositoryExists
+{
+  my($repository) = @_;
+  my $command,@dummy;
+
+  $command = "$cvs -d $_[0] co -s |";
+  if ($debug != 1)
+  {
+    open(MODULES,$command);
+    @dummy = <MODULES>;
+    close(MODULES);
+  }
+  else
+  {
+    print "\n DEBUG: Checking repository exists\n";
+    print " DEBUG: $command\n\n";
+  }
+
+  return !$?;
+}
+
+
+
+#/*@@
+#  @routine   CVSFound
+#  @date      Sat Mar 11 15:31:55 CET 2000
+#  @author    Gabrielle Allen
+#  @desc
+#  See if cvs is installed on the machine
+#  @enddesc
+#  @calls
+#  @calledby
+#  @history
+#
+#  @endhistory
+#
+#@@*/
+
+sub CVSFound
+{
+
+  my($foundit);
+
+  if (-e "/usr/local/bin/cvs")
+  {
+    $cvs = "/usr/local/bin/cvs ";
+  }
+  elsif (-e "/usr/ncsa/bin/cvs")
+  {
+    $cvs = "/usr/ncsa/bin/cvs ";
+  }
+  else
+  {
+    $cvs = "cvs ";
+  }
+  $foundif = 0;
+  open(MODULES,"$cvs -v | ");
+  while (<MODULES>)
+  {
+    if (!/Concurrent Versions System/)
+    {
+      $foundit = $cvs;
+    }
+  }
+  close(MODULES);
+
+  return $foundit;
+
+}
+
+
+
+#/*@@
+#  @routine   GetLoginName
+#  @date      Sat Mar 11 15:31:55 CET 2000
+#  @author    Gabrielle Allen
+#  @desc
+#  Choose login name if required
+#  @enddesc
+#  @calls
+#  @calledby
+#  @history
+#
+#  @endhistory
+#
+#@@*/
+
+sub GetLoginName
+{
+  my($login);
+
+  print "\n What is your login name [cvs_anon] : ";
+  $login = <STDIN> if (($anonymous eq "no") || (! $defaults));
+  if ($login =~ /^$/)
+  {
+    $login = "cvs_anon";
+  }
+  chomp($login);
+  return $login;
+}
+
+#
+#
+#
+#
+
+sub FleshExists {
+   my $myrepository = "UNSET";
+   my $tag = "";
+
+  if (open(IN, "<$installdir/$cactusdir/CVS/Root")) {
+     $myrepository = <IN>;
+     chomp($myrepository);
+     if ($myrepository =~ /\w+/) {
+        print "\n Flesh already checked out, using ";
+        print $myrepository =~ /cactusdevcvs/ ? "development version." : "stable version.";
+        return $myrepository;
+     }
+  }
+  return 0;
+}
+#/*@@
+#  @routine
+#  @date      Sat Mar 11 15:31:55 CET 2000
+#  @author    Gabrielle Allen
+#  @desc
+#  Find out which repository to use for the flesh
+#  @enddesc
+#  @calls
+#  @calledby
+#  @history
+#
+#  @endhistory
+#
+#@@*/
+
+sub GetRepository
+{
+  my ($myrepository) = "UNSET";
+  my ($tag) = "";
+
+
+  do
+  {
+    print "\n Checkout Flesh from \n";
+    print "   [1] Last stable release\n";
+    print "   [2] Standard development version (bug fixes/unstable)\n";
+    print " Choose version: (1-2, h)elp, q)uit) [1] : ";
+
+    if ((! defined $repository) && (! $defaults))
+    {
+       $answer = <STDIN>;
+       print "\n ";
+    }
+    else
+    {
+      if ($repository =~ /^dev/)
+      {
+         $answer = "2";
+      }
+      else
+      {
+         $answer = "1";
+      }
+      print "$answer\n";
+    }
+
+    if ($answer =~ /^q/i)
+    {
+      DIE("Leaving GetCactus script");
+    }
+    elsif ($answer =~ /^h/i)
+    {
+      GetRepositoryHelp();
+    }
+     elsif ($answer =~ /^3/)
+    {
+      $myrepository = "/cactusdevcvs";
+      print " Choose required tag for development checkout : ";
+      $tag = <STDIN>;
+      $tag = " -r $tag ";
+    }
+     elsif ($answer =~ /^2/)
+    {
+      $myrepository = "/cactusdevcvs";
+    }
+    else
+    {
+      $myrepository = "/cactus";
+    }
+
+  } until ($myrepository !~ /UNSET/);
+
+  return ($myrepository,$tag);
+
+}
+
+
+
+#/*@@
+#  @routine
+#  @date      Sat Mar 11 15:31:55 CET 2000
+#  @author    Gabrielle Allen
+#  @desc
+#  Give help on the different CVS repositories
+#  @enddesc
+#  @calls
+#  @calledby
+#  @history
+#
+#  @endhistory
+#
+#@@*/
+
+sub GetRepositoryHelp
+{
+
+  print "\n\n";
+  print " CactusCode CVS Repositories\n";
+  print " ---------------------------\n\n";
+  print " CactusCode uses different CVS repositories to hold the stable\n";
+  print " and development versions of the source code.\n\n";
+  print " Your first choice should be the last stable release. This\n";
+  print " version has been tested on all our supported platforms.\n";
+  print " (See http://www.cactuscode.org/Development.html for release\n";
+  print " details)\n\n";
+  print " You will need to use the development version if you need features\n";
+  print " or bug fixes which have been added since the last release, or if you\n";
+  print " want to submit changes to the CactusCode flesh or thorns for inclusion\n";
+  print " in the next release. You should be aware that the development version\n";
+  print " is not always guaranteed to compile or work properly on all platforms\n";
+  print " and changes on a day-to-day basis.\n\n";
+  print " The development version is periodically tagged to provide thorn developers\n";
+  print " access to a version which includes all the latest features and bug fixes\n";
+  print " but is not changing on a daily basis\n\n";
+  print " The repositories used are\n\n";
+  print " STABLE VERSION      :pserver:<login>\@cvs.cactuscode.org:/cactus\n\n";
+  print " DEVELOPMENT VERSION :pserver:<login>\@cvs.cactuscode.org:/cactusdevcvs\n\n";
+  print " here <login> is either the anonymous CVS user (cvs_anon, with the\n";
+  print " password anon), or your own username if you have been assigned one\n\n";
+  print " It is not recommended to mix different versions of the flesh and thorns.\n";
+  print " If you need the development version of any thorn, or the flesh, then\n";
+  print " you should use the development version of everything.\n\n";
+
+}
+
+#/*@@
+#  @routine   ParseCVSPasswordFile
+#  @date      Sat Mar 11 15:31:55 CET 2000
+#  @author    Gabrielle Allen
+#  @desc
+#  Read in .cvspass if it is there
+#  @enddesc
+#  @calls
+#  @calledby
+#  @history
+#
+#  @endhistory
+#
+#@@*/
+
+sub ParseCVSPasswordFile
+{
+  my @rep;
+  my $numinpass;
+  my $home;
+
+  $cvspassfile = $ENV{CVS_PASSFILE};
+  if (! $cvspassfile)
+  {
+    $home = $ENV{"HOME"};
+    if ($home =~ /^$/)
+    {
+      DIE("Set \$HOME environment variable to home directory");
+    }
+    $cvspassfile = "$home/.cvspass";
+  }
+  if (open(CVSPASS,"<$cvspassfile"))
+  {
+    $numinpass = 0;
+    while (<CVSPASS>)
+    {
+      if (/^.*?(:.*?)\s(\S.*)/) {
+         $rep[$numinpass] = $1;
+         $numinpass++;
+      }
+    }
+  }
+  else
+  {
+    @rep = "";
+  }
+
+  return @rep;
+
+}
+
+
+
+#/*@@
+#  @routine   AddCVSPasswordFile
+#  @date      Sat Mar 11 15:31:55 CET 2000
+#  @author    Gabrielle Allen
+#  @desc
+#  If the checkout is anonymous add any needed passwords to .cvspass
+#  @enddesc
+#  @calls
+#  @calledby
+#  @history
+#
+#  @endhistory
+#
+#@@*/
+
+sub AddCVSPasswordFile
+{
+  my($rep, $pass) = @_;
+  my $home;
+
+  $home = $ENV{"HOME"};
+  if ($home =~ /^$/)
+  {
+    DIE("Set \$HOME environment variable to home directory");
+  }
+
+  $cvspassfile = $ENV{CVS_PASSFILE};
+  $cvspassfile = "$home/.cvspass" if (! $cvspassfile);
+  if ( -e "$cvspassfile")
+  {
+    open(CVSPASS,">>$cvspassfile");
+  }
+  else
+  {
+    open(CVSPASS,">$cvspassfile");
+  }
+
+  print CVSPASS "$rep $pass\n";
+
+
+  close(CVSPASS);
+
+}
+
+
+
+#/*@@
+#  @routine   StripSpaces
+#  @date      Sat Mar 11 15:31:55 CET 2000
+#  @author    Gabrielle Allen
+#  @desc
+#  Remove spaces at start and end of word ... there's probably
+#  a much easier way to do this
+#  @enddesc
+#  @calls
+#  @calledby
+#  @history
+#
+#  @endhistory
+#
+#@@*/
+
+sub StripSpaces
+{
+  my($name) = @_;
+
+  $name =~ s/^\s*//;
+  $name =~ s/\s*$//;
+
+  return $name;
+}
+
+
+#/*@@
+#  @routine   LoginRepository
+#  @date      Sat Mar 11 15:31:55 CET 2000
+#  @author    Gabrielle Allen
+#  @desc
+#  Login to a repository with chosen username
+#  @enddesc
+#  @calls
+#  @calledby
+#  @history
+#
+#  @endhistory
+#
+#@@*/
+
+sub LoginRepository
+{
+  my ($repository) = @_;
+  my ($command);
+  my $status = "";
+
+  $command = "$cvs -d $repository login 2>&1|";
+
+  if ($debug != 1)
+  {
+    open(CVSLOGIN,$command);
+    while (<CVSLOGIN>)
+    {
+      print $_;
+    }
+    close(CVSLOGIN);
+  }
+  else
+  {
+    print "\n DEBUG: Logging into repository\n";
+    print " DEBUG: $command\n\n";
+  }
+
+}
+
+
+
+#/*@@
+#  @routine   Message
+#  @date      Sat Mar 11 15:31:55 CET 2000
+#  @author    Gabrielle Allen
+#  @desc
+#  Print messages to screen
+#  @enddesc
+#  @calls
+#  @calledby
+#  @history
+#
+#  @endhistory
+#
+#@@*/
+
+sub Message
+{
+  my($choice) = @_;
+  my($line);
+
+  $line = "--------------------------------------------------------------------";
+
+  if ($choice eq "hello")
+  {
+
+    print "\n";
+    print $line;
+    print "\n\n";
+    print "                   -------------------------\n";
+    print "                   Installer for Cactus Code\n";
+    print "                   -------------------------\n";
+
+    print "\n This installer guides you through checking out the core (flesh)\n";
+    print " and modules (thorns) of the Cactus Code from the Cactus CVS server.\n\n";
+    print " For a description of the checkout procedure, and how to use this\n";
+    print " script, type \n\n";
+    print "               ./GetCactus -help\n\n";
+
+    print " The latest release of the Cactus Code (flesh and thorns) can also\n";
+    print " be obtained as a tar file from our web site at \n\n";
+    print "             http://www.cactuscode.org\n";
+
+    print "\n For more information please contact cactusmaint\@cactuscode.org\n\n";
+    print $line;
+  }
+  elsif ($choice eq "goodbye")
+  {
+    # Mangle the thorn list till the Makefile is fixed
+    $thornlist =~ m:(.*)/([^/]*)$:;
+    $thorndir  = $1;
+    $thornname = $2;
+
+    print "\n$line";
+    print "\n To install more arrangements and thorns:\n\n  gmake checkout\n";
+    print "\n To compile Cactus:\n\n  gmake <config-name>\n";
+    print "\n To create user documentation:\n\n  gmake UsersGuide\n";
+    print "\n To receive Email updates about Cactus news and developments\n";
+    print " please join our Cactus Users list by mailing\n";
+    print "\n                  majordomo\@cactuscode.org\n\n";
+    print " with the message line\n\n";
+    print "                    subscribe users\n\n";
+    print $line;
+    print "\n";
+  }
+}
+
+
+
+#/*@@
+#  @routine   GetFlesh
+#  @date      Sat Mar 11 15:31:55 CET 2000
+#  @author    Gabrielle Allen
+#  @desc
+#  Checkout the flesh from CVS
+#  @enddesc
+#  @calls
+#  @calledby
+#  @history
+#
+#  @endhistory
+#
+#@@*/
+
+sub GetFlesh
+{
+  my($repository,$options) = @_;
+  my($installedrep,$answer);
+
+  if (-e $cactusdir)
+  {
+    if (-e "$cactusdir/arrangements")
+    {
+      print "\n--------------------------------------------------------------------\n";
+     # print "\n Checking out Cactus Flesh\n";
+     # print "  (CVS repository: $repository)";
+      #print "\n Cactus Flesh already installed ... no overwrite\n";
+      open(REP,"<$cactusdir/CVS/Root") || DIE("No CVS files for Flesh");
+      $installedrep = <REP>;
+      chop $installedrep;
+      if ($repository !~ m:^$installedrep$:)
+      {
+        print " WARNING: Installed Flesh from different repository\n";
+        print "          ($installedrep)\n\n";
+        print " Continue ? [yes] : ";
+        if ($defaults)
+        {
+           print "\n";
+        }
+        else
+        {
+           $answer = <STDIN>;
+        }
+        if ($answer =~ /^n/i)
+        {
+          DIE("Leaving GetCactus script");
+        }
+        else
+        {
+          $repository = $installedrep;
+        }
+      }
+      else
+      {
+         if ($updatetheflesh) {
+            $answer = "yes";
+         }
+         else {
+         print " Do you want to update your flesh installation y)es n)o [no] : ";
+         if (($defaults) && ($defaults ne "2"))
+         {
+            print "\n";
+         }
+         else
+         {
+                 $answer = <STDIN>;
+             }
+        }
+        if ($answer =~ /^y/i)
+        {
+          print "\n Updating Cactus Flesh \n";
+          print "  (CVS repository: $repository)\n\n";
+          chdir ($cactusdir);
+          $command = "$cvs $cvs_options update -d -P CONTRIBUTORS COPYRIGHT Makefile lib doc src 2>&1|";
+
+         # $command = "$cvs -d $repository $cvs_options update -d $cactusdir |";
+
+          if ($debug != 1)
+          {
+ 	    &RunCVSCommand($command, 1);
+            #open(CVSCO,$command);
+            #while (<CVSCO>)
+            #{
+            #  print $_;
+            #}
+            #close CVSCO;
+          }
+          else
+          {
+            print "\n DEBUG: Updating Flesh ($repository)\n";
+            print " DEBUG: $command\n\n";
+          }
+        }
+      }
+      close(REP);
+    }
+    else
+    {
+      DIE("Cactus Flesh installed, but no arrangements directory");
+    }
+  }
+  else
+  {
+    print "\n--------------------------------------------------------------------\n";
+    print "\n Checking out Cactus Flesh \n";
+    print "  (CVS repository: $repository)\n";
+    $command = "$cvs $cvs_options -d $repository co $CHECKOUT_OPTIONS -d $cactusdir Cactus 2>&1|";
+
+    if ($debug != 1)
+    {
+      &RunCVSCommand($command, 1);
+      #open(CVSCO,$command);
+      #while (<CVSCO>)
+      #{
+      #  print $_;
+      #}
+      #close CVSCO;
+    }
+    else
+    {
+      print "\n DEBUG: Checking out Flesh ($repository)\n";
+      print " DEBUG: $command\n\n";
+    }
+
+  }
+
+  return $repository;
+}
+
+
+
+#/*@@
+#  @routine   GetThorns
+#  @date      Sat Mar 11 15:31:55 CET 2000
+#  @author    Gabrielle Allen
+#  @desc
+#  Check out the thorns from CVS
+#  @enddesc
+#  @calls
+#  @calledby
+#  @history
+#
+#  @endhistory
+#
+#@@*/
+
+sub GetThorns
+{
+  my($fleshrep,$options,$tag,%thorns) = @_;
+
+  if ( -d "$cactusdir/arrangements")
+  {
+    chdir "$cactusdir/arrangements";
+  }
+  else
+  {
+    if ($debug != 1)
+    {
+      DIE("arrangements directory does not exist");
+    }
+    else
+    {
+      print "DEBUG: NO ARRANGEMENTS DIRECTORY\n";
+    }
+  }
+
+   my @get_which_thorns = split(" ",$thorns{"THORNS"});
+
+   # just one process
+   if ($processes <= 1) {
+      foreach $th (@get_which_thorns) {
+        &GetOneThorn($fleshrep, $options, $tag, $th, %thorns);
+      }
+   }
+   # parallel mode
+   else {
+      my @procs = @get_which_thorns;
+      my $proc = '';
+
+      @procs = (split(" ", $thorns{"THORNS"}));
+      $| = 1;
+
+      # load up the first batch
+      for (my $num_of_procs = 0; $num_of_procs < $processes; $num_of_procs++) {
+         last if (@procs == 0);
+         $proc = pop(@procs);
+         if (! fork()) {
+             &GetOneThorn($fleshrep, $options, $tag, $proc, %thorns);
+             exit;
+         }
+      }
+      # we still got processes to finish?
+      while (@procs > 0) {
+         wait;
+         $proc = pop(@procs);
+         if (! fork()) {
+            &GetOneThorn($fleshrep, $options, $tag, $proc, %thorns);
+            exit;
+         }
+      }
+
+      print "\n\nWaiting for child processes to finish";
+      # wait for all child processes to terminate
+      while (wait() ne "-1") {
+         # do something intelligent while we wait.....
+         print ".";
+      }
+   }
+
+  chdir "../..";
+}
+
+####################################
+sub GetOneThorn {
+    my ($fleshrep, $options, $tag, $th, %thorns) = @_;
+
+    $answer = "";
+
+    print "--------------------------------------------------------------------\n\n";
+    if ($thorns{"$th REPOSITORY"} =~ m|cvs.cactuscode.org:/cactus|)
+    {
+      my $tp = $thorns{"$th REPOSITORY"};
+      my $fp = $fleshrep;
+      $tp =~ s/.*\@//;
+      $fp =~ s/.*\@//;
+
+      #if ($thorns{"$th REPOSITORY"} ne $fleshrep)
+      if ($tp ne $fp)
+      {
+        print "\n WARNING: Mixing stable and developmental repositories\n    Flesh: <$fleshrep>\n    $th: <$thorns{\"$th REPOSITORY\"}>\n\n Continue ? (h)elp, y)es, n)o) a)ll q)uit [yes] : ";
+       # print "\n Do you still want to update $th ?  h)elp y)es n)o a)ll q)uit [yes] : ";
+        if ($ignore_mixing_repository_warning) {
+           $answer = "yes";
+           print "\n";
+        } elsif ($defaults)
+        {
+          $answer = "yes";
+          print "\n";
+        }
+        else
+        {
+          $answer = <STDIN>;
+        }
+        if ($answer =~ /^q/i)
+        {
+          DIE("Leaving GetCactus script");
+        } elsif ($answer =~ /^n/i) {
+          next;
+       } elsif ($answer =~ /^a/i) {
+           $ignore_mixing_repository_warning = 1;
+        }
+      }
+    }
+
+    # Check we're logged into this repository
+    if ($thorns{"$th REPOSITORY"} =~ /pserver/)
+    {
+      @rep = &ParseCVSPasswordFile;
+      $rep = join(" ",@rep);
+      if ($rep !~ $thorns{"$th REPOSITORY"})
+      {
+         $thorns{"$th REPOSITORY"} =~ /(.*:)(.*?)(\/.*)/;
+         if ($2 eq "") {
+            my $temprepos = "${1}2401${3}";
+            if ($rep !~ $temprepos) {
+
+        #############
+        print "\n No login for CVS repository \n  $thorns{\"$th REPOSITORY\"}\n\n";
+        do
+        {
+          print " Action: (q)uit, l)ogin, h)elp) [login] : ";
+          if ( ($defaults && ($updatemode=~ /^a/i)) || (! $defaults) ) {
+             $answer = <STDIN>;
+          }
+          if ($answer =~ /^q/i)
+          {
+            DIE("Leaving GetCactus script");
+          }
+          elsif ($answer =~ /^h/i)
+          {
+            &OtherRepositoriesHelp();
+          }
+          else
+          {
+            &LoginRepository($thorns{"$th REPOSITORY"});
+          }
+        } while ($answer =~ /^h/i);
+        ##########################
+            } # $rep !~...
+         } # $2 eq ""...
+
+      } # rep !~ $thorns{$th....
+    } # ... =~ /pserver...
+
+    $th =~ /(.*?)\//;
+    my $cur_arrangement = $1;
+
+
+    # get the arrangement directory and the arrangement doc directory.
+    # we use the hash %arrangment_dirs to keep track to make sure we don't
+    # do this for every thorn, but rather just once per arrangement
+    if (! defined $arrangement_dirs{$cur_arrangement})
+    {
+       $arrangement_dirs{$cur_arrangement} = 1;
+
+       my $command = "$cvs $cvs_options checkout -l $cur_arrangement $tag 2>&1 |";
+       &RunCVSCommand($command, 0);
+
+       $command = "$cvs $cvs_options checkout ${cur_arrangement}/doc $tag 2>&1 |";
+       &RunCVSCommand($command, 0);
+    }
+
+    # Checkout or update
+    if (-e $th)
+    {
+      if (! $defaults)  {
+         #print " Thorn already installed ... no overwrite\n";
+         print "\n Do you want to update $th from \n  $thorns{\"$th REPOSITORY\"} y)es n)o a)ll [no] : ";
+         $answer = <STDIN>;
+      } else {
+         $answer = "yes";
+      }
+      if ($answer =~ /^a/i) {
+         $defaults = 1;
+         $answer = "yes";
+      }
+      if ($answer =~ /^y/i)
+      {
+        open(REP,"<$th/CVS/Root") || DIE("No CVS files for $th");
+        $installedrep = <REP>;
+        close(REP);
+        chomp $installedrep;
+
+        my $tp = $thorns{"$th REPOSITORY"};
+        $tp =~ s/.*\@//;
+        $installedrep =~ s/.*\@//;
+
+#        if (($thorns{"$th REPOSITORY"} !~ m:^$installedrep$:))
+        if ($tp ne $installedrep)
+        {
+          print "\n WARNING: GetCactus is refusing to update $th\n          Thorn installed from different repository\n          ($installedrep)\n";
+        }
+        else
+        {
+          print " Updating $th\n";
+          $command_up = "$cvs $cvs_options -d $thorns{\"$th REPOSITORY\"} update -d $tag $th 2>&1|";
+          print "  (CVS repository: $thorns{\"$th REPOSITORY\"})\n";
+          if ($debug != 1)
+          {
+	    &RunCVSCommand($command_up, 1);
+            #open(CVSCO,$command_up);
+            #while (<CVSCO>)
+            #{
+            #  print $_;
+            #}
+            #close CVSCO;
+          }
+          else
+          {
+            print "\n DEBUG: $command_up\n\n";
+          }
+        }
+      }
+    }
+    else
+    {
+
+
+    print " Checking out thorn $th\n   CVS repository: $thorns{\"$th REPOSITORY\"}\n   CVS module: $thorns{\"$th MODULE\"}\n\n";
+
+
+      if ($th eq $thorns{"$th MODULE"})
+      {
+        $command_co = "$cvs $cvs_options -d $thorns{\"$th REPOSITORY\"} co $CHECKOUT_OPTIONS $tag $th 2>&1|";
+        $check_dir = "";
+      }
+      else
+      {
+        $th =~ m:^(.*)/(.*):;
+        $check_dir = $1;
+        $call_thorn = $2;
+        $command_co = "$cvs $cvs_options -d $thorns{\"$th REPOSITORY\"} co -d $call_thorn $tag $thorns{\"$th MODULE\"} 2>&1|";
+      }
+
+      if ($debug != 1)
+      {
+        # Check that the repository exists
+#        DIE("Repository $thorns{\"$th REPOSITORY\"} not found \n Are you connected to the network?\n Is the repository name spelt right in your thornlist file?") if (!&RepositoryExists($thorns{"$th REPOSITORY"}));
+
+        # Create arrangement directory if needbe
+        if ($check_dir !~ m:^$: && !(-e $check_dir))
+        {
+          mkdir($check_dir,0755) || DIE("Could not make directory $check_dir");
+        }
+
+        if ($check_dir !~ m:^$:)
+        {
+          $arrangement_dir = `pwd`;
+          chomp ($arrangement_dir);
+          chdir $check_dir;
+        }
+
+        &RunCVSCommand($command_co, 1);
+        #open(CVSCO,$command_co);
+        #while (<CVSCO>)
+        #{
+        #  print $_;
+        #}
+        #close CVSCO;
+
+        if ($check_dir !~ m:^$:)
+        {
+          chdir $arrangement_dir;
+        }
+
+      }
+      else
+      {
+        print "\n DEBUG: $command_co\n\n";
+      }
+    }
+}
+
+sub RunCVSCommand
+{
+   my $command = shift;
+   my $display_results = shift;
+
+   open (CVSCO, $command) || DIE("Could not run command: $command, because of $!");
+   while (<CVSCO>) {
+      if ($display_results) {
+         print $_;
+      }
+   }
+
+   close CVSCO;
+}
+
+#/*@@
+#  @routine
+#  @date      Sat Mar 11 15:31:55 CET 2000
+#  @author    Gabrielle Allen
+#  @desc
+#  Get options to be passed to CVS
+#  @enddesc
+#  @calls
+#  @calledby
+#  @history
+#
+#  @endhistory
+#
+#@@*/
+
+sub CVSOptions
+{
+  my($answer,$cvs_options);
+
+  # Chose information or not
+  do
+  {
+    $verbose = "no" if (($defaults) && (! defined $verbose));
+
+    print "\n Verbose checkout (y)es, n)o, h)elp) [no] : ";
+    if (! defined $verbose)
+    {
+       $answer = <STDIN>
+    }
+    else
+    {
+       $answer = $verbose;
+       print "$answer\n";
+    }
+
+    if ($answer =~ /^h/i)
+    {
+      VerboseCheckoutHelp();
+    }
+    elsif ($answer =~ /^y/i)
+    {
+      $cvs_options = " -z9 ";
+    }
+    else
+    {
+      $cvs_options = " -Q -z9 ";
+    }
+  } while ($answer =~ /^h/i);
+
+  return $cvs_options;
+
+}
+
+sub VerboseCheckoutHelp
+{
+  print "\n\n";
+  print " CactusCode CVS checkout options\n";
+  print " -------------------------------\n\n";
+  print " By default, all checkouts using this script use the option -z9\n";
+  print " which transfers a compressed version of each file across the \n";
+  print " network\n\n";
+  print " Choosing verbose checkout provides a report of all the files\n";
+  print " as they are checked out from the chosen CVS repository, by using \n";
+  print " the option -Q\n\n";
+  print " cvs -z9 [-Q] -d <repository name> checkout <module name>\n\n";
+}
+
+
+
+#/*@@
+#  @routine   GetCactusDir
+#  @date      Sat Mar 11 15:31:55 CET 2000
+#  @author    Gabrielle Allen
+#  @desc
+#  Get directory for Cactus installation
+#  @enddesc
+#  @calls
+#  @calledby
+#  @history
+#
+#  @endhistory
+#
+#@@*/
+
+sub GetCactusDir
+{
+  $mydir = `pwd`;
+  chomp($mydir);
+
+  print "\n\n Directory for Cactus installation [Cactus] : ";
+
+  if (defined $install)
+  {
+      print " $install\n";
+  }
+
+  $install = "" if (($defaults) && (! defined $install));
+
+  if (! $install)
+  {
+     $install = <STDIN>;
+  }
+
+  if ($install =~ /^$/)
+  {
+    $install = "$mydir/Cactus";
+  }
+
+  chomp($install);
+
+# Needed for Cygwin.
+  $install =~ s,^//(.)/,$1:/,;
+
+# Chop of the last word
+
+  if ($install =~ m:^(.*)/+([^/]+)$:) {
+     $install = $1;
+     $cactusdir = $2;
+  } else {
+     $cactusdir = $install;
+     $install = ".";
+  }
+  #just spacees
+  if ($install =~ m:^\s*$:)
+  {
+      $install = ".";
+  }
+
+  DIE("Directory $install not found") if (! -e $install);
+
+  return ($install,$cactusdir);
+}
+
+
+
+#/*@@
+#  @routine   GetThornList
+#  @date      Sat Mar 11 15:31:55 CET 2000
+#  @author    Gabrielle Allen
+#  @desc
+#  Get the full path of the thorn list
+#  @enddesc
+#  @calls
+#  @calledby
+#  @history
+#
+#  @endhistory
+#
+#@@*/
+
+sub GetThornList
+{
+
+  my($thornlist) = @_;
+  my($mydir,$outlist);
+
+  # Maybe user forgot to give a ThornList
+  if (!$thornlist)
+  {
+    print "\n Give ThornList if required [none] : ";
+    $thornlist=<STDIN>;
+    chomp $thornlist;
+    if ($thornlist =~ m:^\s*$:)
+    {
+      undef $thornlist;
+      print "\n No ThornList given, checking out Cactus flesh only.\n";
+    }
+  }
+
+  while ($thornlist)
+  {
+    if ($thornlist !~ m:^/:)
+    {
+      $mydir = `pwd`;
+      chomp($mydir);
+      $outlist = $mydir."/".$thornlist;
+    }
+    else
+    {
+      $outlist = $thornlist;
+    }
+
+#   Needed for cygwin
+    $outlist =~ s,^//(.)/,$1:/,;
+    if (! -e $outlist)
+    {
+      print "\n ThornList $outlist not found!\n";
+      print "\n Give ThornList if required [quit] : ";
+      $thornlist=<STDIN>;
+      chomp $thornlist;
+      if ($thornlist =~ m:^\s*$: || $thornlist =~ m:quit:i)
+      {
+        undef $thornlist;
+        DIE("Leaving GetCactus");
+      }
+    }
+    else
+    {
+      undef $thornlist;
+    }
+  }
+
+  return $outlist;
+}
+
+
+
+#/*@@
+#  @routine   ParseThornList
+#  @date      Sat Mar 11 15:31:55 CET 2000
+#  @author    Gabrielle Allen
+#  @desc
+#  Read the thorn names and repositories from the thorn list
+#  @enddesc
+#  @calls
+#  @calledby
+#  @history
+#
+#  @endhistory
+#
+#@@*/
+
+sub ParseThornList
+{
+  my($thornlist,$user,$name,$tag) = @_;
+  my($directive,$value);
+  my($parfile);
+  my($repository_user,$repository_location,$repository_name,$repository_port);
+
+  $parfile = 0;
+
+  $repository_tag      = "$tag";
+  $repository_type     = "pserver";
+  $repository_location = "cvs.cactuscode.org";
+  $repository_user     = $user;
+  $repository_name     = $name;
+  $repository_module   = "";
+  $repository_port     = "";
+
+  $repository_user = "cvs_anon" if ($repository_user =~ /^$/);
+
+
+  open(THORNLIST,"<$thornlist");
+  while (<THORNLIST>)
+  {
+
+    if ($parfile)
+    {
+      if (m:^\s*\!*\s*$endstring:)
+      {
+        $parfile = 0;
+        &WriteParameterFile($filename,$parfiledata);
+        next;
+      }
+      else
+      {
+        if (m:^\s*\#(.*)$:)
+        {
+          $parfiledata .= "$1\n";
+          next;
+        }
+      }
+    }
+
+    # Skip blank lines and comments
+    next if (m:^\s*$:);
+    next if (m:^\s*\#.*$:);
+
+    # Parse directives
+    if (m:^\s*\!\s*(\w+)\s(.*)$:)
+    {
+      $directive = &StripSpaces($1);
+      $value = &StripSpaces($2);
+
+      # Global directives
+      if ($directive =~ "DESC")
+      {
+        $description = $value;
+        next;
+      }
+      # Thorn directives
+      elsif ($directive =~ "REPOSITORY_TYPE")
+      {
+        $repository_type = $value;
+        next;
+      }
+      elsif ($directive =~ "REPOSITORY_TAG")
+      {
+        $repository_tag = $value;
+        next;
+      }
+      elsif ($directive =~ "REPOSITORY_LOCATION")
+      {
+        $repository_location = $value;
+        next;
+      }
+      elsif ($directive =~ "REPOSITORY_USER")
+      {
+        $repository_user = $value;
+        next;
+      }
+      elsif ($directive =~ "REPOSITORY_NAME")
+      {
+        $repository_name = $value;
+        next;
+      }
+      elsif ($directive =~ "REPOSITORY_MODULE")
+      {
+        $repository_module = $value;
+        next;
+      }
+      elsif ($directive =~ "REPOSITORY_PORT")
+      {
+         if ($value ne "2401") {
+            $repository_port = $value;
+         }
+         next;
+      }
+      elsif ($directive =~ "PARAMETER_FILE")
+      {
+        $value =~ m:([\w._]*)\s*<<\s*(\w*)\s*$:;
+        $parfile     =  1;
+        $filename    = $1;
+        $endstring   = $2;
+        $parfiledata = "";
+#        print "Parameter file $filename\n";
+#        print "End string $endstring\n";
+        next;
+      }
+    }
+
+    # Thorn name
+    m:^([^#]*):;
+    $name = &StripSpaces($1);
+
+    # Thorn repository
+    $rep = ":$repository_type:$repository_user\@$repository_location:${repository_port}${repository_name}";
+
+    if ($name && $rep)
+    {
+      $thorns{"THORNS"} .= " $name" if (! defined $thorns{"$name REPOSITORY"});
+      $thorns{"$name REPOSITORY"} = $rep;
+      if ($repository_module !~ m:^$:)
+      {
+        $thorns{"$name MODULE"} = $repository_module;
+      }
+      else
+      {
+        $thorns{"$name MODULE"} = $name;
+      }
+      $repository_module = "";
+    }
+    else
+    {
+      # Ignore: blank line
+      print "WHY AM I HERE?";
+    }
+  }
+  close(THORNLIST);
+
+  return %thorns;
+
+}
+
+
+
+#/*@@
+#  @routine   DIE
+#  @date      Sat Mar 11 15:31:55 CET 2000
+#  @author    Gabrielle Allen
+#  @desc
+#  Tidy up and die
+#  @enddesc
+#  @calls
+#  @calledby
+#  @history
+#
+#  @endhistory
+#
+#@@*/
+
+sub DIE
+{
+  my($message) = @_;
+
+  chdir $mydir;
+  die "\n $message\n\n";
+}
+
+
+#/*@@
+#  @routine   AnonymousCheckoutHelp
+#  @date      Wed Mar 29 21:31:55 CET 2000
+#  @author    Gabrielle Allen
+#  @desc
+#  Print help about login name
+#  @enddesc
+#  @calls
+#  @calledby
+#  @history
+#
+#  @endhistory
+#
+#@@*/
+
+sub AnonymousCheckoutHelp
+{
+  print "\n\n";
+  print " Login name for CVS checkout\n";
+  print " ---------------------------\n\n";
+  print " Access to the CactusCode CVS repositories can be either anonymous\n";
+  print " or by a personal username.\n\n";
+  print " If you access the repositories anonymously, you have read access to\n";
+  print " the CactusCode flesh and all the released CactusCode thorns in both\n";
+  print " the stable and development repositories.\n";
+  print " The anonymous user name is cvs_anon, and the anonymous password is\n";
+  print " anon. If you use this script to get the CactusCode, you will not need\n";
+  print " to type your password, since it is automatically added to the file\n";
+  print " .cvspass in your home directory,\n\n";
+  print " Personal usernames are assigned to developers who need commit \n";
+  print " privileges to the repositories. \n\n"
+}
+
+
+#/*@@
+#  @routine   GetCactusHelp
+#  @date      Wed Mar 29 21:31:55 CET 2000
+#  @author    Gabrielle Allen
+#  @desc
+#  Print help about using this script
+#  @enddesc
+#  @calls
+#  @calledby
+#  @history
+#
+#  @endhistory
+#
+#@@*/
+
+sub GetCactusHelp
+{
+    print "\n\n";
+    print " Using GetCactus\n";
+    print " ---------------\n";
+
+    print "\n This installer guides you through checking out the core (flesh)\n";
+    print " and modules (thorns) of the Cactus Code from the Cactus CVS server.\n\n";
+    print " To be able to checkout the code, you must have CVS (Concurrent \n";
+    print " Versioning System) installed on your machine, and an internet \n";
+    print " connection.\n\n";
+    print " To check if CVS is properly installed on your machine, type\n\n";
+    print "               cvs -v\n\n";
+    print " If CVS is installed, and in your path, this command will tell you\n";
+    print " the version of CVS you will be using. If CVS is not installed, it \n";
+    print " can be freely obtained from \n\n";
+    print "               http://www.cyclic.com\n\n";
+    print " To checkout just the Cactus flesh, type\n\n";
+    print "               ./GetCactus\n\n";
+    print " The flesh will compile without any thorns being present, but you will\n";
+    print " not be able to run any applications. Compiling the flesh on it's own\n";
+    print " can be useful for checking the compilation procedure on a new machine\n";
+    print " The script will prompt you for the information needed for the checkout,\n";
+    print " at most prompts you can type \"h\" or \"help\" for more information\n\n";
+    print " To checkout the Cactus flesh and a selection of thorns, the script can\n";
+    print " can be passed a thorn list, type\n\n";
+    print "             ./GetCactus <thorn list>\n\n";
+    print " where <thorn list> is the name of any text file containing a list of \n";
+    print " thorn names, and a number of directives which determine the repositories \n";
+    print " from which to check them out from.\n\n";
+    print " See below for a complete description of the thorn list syntax\n\n";
+    print " For thorns released as part of the Cactus Code, the repository name will\n";
+    print " either be the repository holding the last stable release, \n\n";
+    print "             :pserver:<login>\@cvs.cactuscode.org:/cactus\n\n";
+    print " or the repository holding the development version\n\n";
+    print "             :pserver:<login>\@cvs.cactuscode.org:/cactusdevcvs\n\n";
+    print " See below for more information about the <login> name and the difference between\n";
+    print " these two repositories\n\n";
+    print " If you are using thorns from other repositories, just insert the name of the \n";
+    print " repository where the thorn is located. Note that for this script to work, the\n";
+    print " module names of the thorns in the repository must be \n\n";
+    print "              <arrangement name>/<thorn name>.\n\n";
+    print " Sample thorn lists are provided on the Cactus Code web pages at \n\n";
+    print "              www.cactuscode.org/Download/ThornLists/index.html\n\n";
+
+    print " The latest release of the Cactus Code (flesh and thorns) can also\n";
+    print " be obtained as a tar file from our web site at \n\n";
+    print "             http://www.cactuscode.org\n";
+
+    GetRepositoryHelp();
+
+    AnonymousCheckoutHelp();
+
+    ThornListSyntax();
+
+    UsingCactusHelp();
+
+    print "\n For more information, or for suggestions for improvements or additional\n";
+    print " features for this script, please contact cactusmaint\@cactuscode.org\n\n";
+
+    DIE("Leaving GetCactus script");
+  }
+
+
+#/*@@
+#  @routine   UsingCactusHelp
+#  @date      Wed Mar 29 21:31:55 CET 2000
+#  @author    Gabrielle Allen
+#  @desc
+#  Print help about using Cactus
+#  @enddesc
+#  @calls
+#  @calledby
+#  @history
+#
+#  @endhistory
+#
+#@@*/
+
+sub UsingCactusHelp
+{
+  print "\n\n";
+  print " Using the Cactus Code\n";
+  print " ---------------------\n\n";
+  print " For full instructions on compiling and running Cactus, read\n";
+  print " the Users Guide. Both an online and printable version can be found \n";
+  print " on our web pages at\n\n";
+  print "              www.cactuscode.org/Documentation.html\n\n";
+  print " Alternatively, if you have installed the Cactus flesh, type\n\n";
+  print "              gmake UsersGuide\n\n";
+  print " in the Cactus directory to create the postscript version UsersGuide.ps\n\n";
+  print " For the impatient, a Quick Start guide, describing how to run a simple\n";
+  print " application is available at\n\n";
+  print "              www.cactuscode.org/Documentation/HOWTO/QuickStart-HOWTO\n\n";
+}
+
+
+
+#/*@@
+#  @routine   ThornListSyntax
+#  @date      Sun Apr 2 21:31:55 CET 2000
+#  @author    Gabrielle Allen
+#  @desc
+#  Print help about the syntax for the thorn list
+#  @enddesc
+#  @calls
+#  @calledby
+#  @history
+#
+#  @endhistory
+#
+#@@*/
+
+sub ThornListSyntax
+{
+  print "\n\n";
+  print " Syntax for the Input Thorn List\n";
+  print " -------------------------------\n\n";
+  print " GetCactus can be passed a optional file containing an list of thorns to \n";
+  print " be checked out from CVS repositories (a ThornList). Directives in the \n";
+  print " ThornList specify which repository to use, etc. If no directives are used,\n";
+  print " the thorns will be checked out from the same repository as the Flesh.\n\n";
+  print " Directives:\n\n";
+  print " Directives in the ThornList are identified by a ! at the start of the line,\n\n";
+  print " and are assigned the value of the text after the space, \n\n";
+  print " !<DIRECTIVE> <ASSIGNMENT>\n\n";
+  print " Directives are applied from the point they are assigned in the file.\n\n";
+  print " DESCRIPTION \n";
+  print "     Description of the thornlist\n";
+  print " REPOSITORY_TYPE \n";
+  print "     pserver\n";
+  print " REPOSITORY_TAG \n";
+  print "     tag to use when checking out\n";
+  print " REPOSITORY_USER \n";
+  print "     user name for checking out\n";
+  print " REPOSITORY_NAME \n";
+  print "     name of CVS repository (location in filesystem)\n";
+  print " REPOSITORY_LOCATION \n";
+  print "     CVS server machine\n";
+  print " REPOSITORY_PORT\n";
+  print "     CVS server port number, defaults to 2401\n\n";
+
+}
+
+
+
+
+#/*@@
+#  @routine   WriteParameterFile
+#  @date      Sun Apr 2 21:31:55 CET 2000
+#  @author    Gabrielle Allen
+#  @desc
+#  Write parameter file
+#  @enddesc
+#  @calls
+#  @calledby
+#  @history
+#
+#  @endhistory
+#
+#@@*/
+
+sub WriteParameterFile
+{
+
+  my($filename,$data) = @_;
+  my($answer);
+
+  print "\n Extracting embedded parameter file $filename\n";
+
+  if (-e $filename)
+  {
+    print "\n Parameter file $filename exists, overwrite [n] : ";
+    $answer = <STDIN> if (! $defaults);
+    if ($answer !~ /^y/i)
+    {
+      return;
+    }
+  }
+
+  open(FILE,">$filename") || DIE("Could not open $filename");
+
+  print FILE $data;
+
+  close(FILE);
+
+}
+
+
+#/*@@
+#  @routine   OtherRepositoriesHelp
+#  @date      Sun Apr 2 21:31:55 CET 2000
+#  @author    Gabrielle Allen
+#  @desc
+#  Print help about using custom repositories
+#  @enddesc
+#  @calls
+#  @calledby
+#  @history
+#
+#  @endhistory
+#
+#@@*/
+
+sub OtherRepositoriesHelp
+{
+  print "\n\n";
+  print " Using Non Cactus Repositories\n";
+  print " -----------------------------\n\n";
+  print " Thorn lists can also be used to checkout thorns from\n";
+  print " other CVS repositories. These repositories may, or may not,\n";
+  print " require you to give a username and password depending on their\n";
+  print " access mechanism.\n\n";
+}
+
+#/*@@
+#  @routine   ShouldWeUpdate
+#  @date      Oct 22 22:24:38 CEST 2001
+#  @author    Ian Kelley
+#  @desc
+#  Sees if we should update thorns at the very beginning of checkout.
+#  @enddesc
+#  @calls
+#  @calledby
+#  @history
+#
+#  @endhistory
+#
+#@@*/
+
+sub ShouldWeUpdate {
+   my ($arrangementsdir,$thorns) = @_;
+   my (@thorns) = split/\s+/, $thorns;
+   my @toupdate;
+   my @new;
+
+   my $currentdir = `pwd`;
+   chomp($currentdir);
+   $currentdir .= '/' if ($currentdir !~ /\/$/);
+
+   foreach my $th (@thorns) {
+      next if ($th =~ /^$/);
+      my $dir = $currentdir . $arrangementsdir . $th;
+      if (-d $dir) {
+         push @toupdate, $th;
+      } else {
+         push @new, $th;
+      }
+   }
+
+   # if we have something to process
+   if (@toupdate > 0) {
+      # just to let people see what ones will be new, if they want to
+      if ((@new > 0) && ($shownewthorns)) {
+         print "\nGetCactus will checkout the following thorns:";
+         foreach (@new) {
+            print "\n\t$_";
+         }
+         print "\n";
+      }
+
+      print "\n The following thorns already exist in checkout:";
+      foreach (@toupdate) {
+         print "\n\t$_";
+      }
+      $updatemode = "all" if ($defaults);
+
+      print "\n Update Mode : (a)ll, (n)one (i)nteractive [none] : ";
+      if (! defined $updatemode) {
+         $updatemode = <STDIN>;
+      } else {
+         print "$updatemode\n";
+      }
+
+      if ($updatemode =~ /^a/i) {
+         if ($defaults) {
+            $defaults = 1;
+         } else {   # we make it 2, because we want to know if we started it here or at command line
+            $defaults = 2;
+         }
+      } elsif ($updatemode =~ /^i/i) {
+         $defaults = 0;
+      } else {
+         foreach (@toupdate) {
+            $thorns =~ s/\b$_\b//;
+         }
+      }
+   }
+   $thorns =~ s/\s+/ /g;
+   $thorns =~ s/^s+//;
+   $thorns =~ s/\s+$//;
+
+   return $thorns;
+
+}

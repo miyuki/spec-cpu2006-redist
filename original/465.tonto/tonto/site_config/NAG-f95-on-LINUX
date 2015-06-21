@@ -1,0 +1,10 @@
+FOPTNS   = $(FFAST)
+FFLAGS   = -I$(srcdir) -I$(moddir) -mdir $(moddir)
+FPROF    = -pg
+FDEBUG   = -C=all -g90
+FFAST    = -O4
+FSUFFIX  = f90
+
+LIBS     = -llapack -lblas
+#LIBS     = -lacml -L/usr/lib/gcc-lib/i386-redhat-linux/3.2 -lg2c
+DEFS     = -DUSE_PRE_AND_POST_CONDITIONS -DF90_UNIX_IO -DFLUSH

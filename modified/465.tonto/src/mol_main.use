@@ -1,0 +1,118 @@
+   use TYPES_MODULE
+   use SYSTEM_MODULE
+ 
+   use SCFDATA_MODULE, only: eri_cutoff_
+   use SCFDATA_MODULE, only: spinorbital_kind_
+ 
+   use BASISVEC_MODULE, only: read_library_directory_
+ 
+   use CRYSTAL_MODULE, only: simulate_new_F_exp_
+   use CRYSTAL_MODULE, only: put_fcalc_plots_
+   use CRYSTAL_MODULE, only: read_CIF_
+   use CRYSTAL_MODULE, only: put_qq_plot_
+   use CRYSTAL_MODULE, only: make_reduced_group_data_
+   use CRYSTAL_MODULE, only: create_
+   use CRYSTAL_MODULE, only: put_labelled_qq_plot_
+   use CRYSTAL_MODULE, only: put_chi2_vs_angle_plot_
+   use CRYSTAL_MODULE, only: put_CX_
+   use CRYSTAL_MODULE, only: destroy_
+   use CRYSTAL_MODULE, only: put_F_calc_
+ 
+   use CIF_MODULE, only: open_
+   use CIF_MODULE, only: create_
+   use CIF_MODULE, only: find_data_block_
+   use CIF_MODULE, only: destroy_
+   use CIF_MODULE, only: find_crystal_data_block_
+ 
+   use SHELL2_MODULE, only: get_kei_
+   use SHELL2_MODULE, only: destroy_ptr_part_
+   use SHELL2_MODULE, only: make_magnetic_S_ints_
+   use SHELL2_MODULE, only: get_nuc_
+ 
+   use SHELL4_MODULE, only: destroy_cd_
+   use SHELL4_MODULE, only: destroy_ab_
+   use SHELL4_MODULE, only: get_ERI_
+ 
+   use CPXMAT3_MODULE, only: create_
+ 
+   use REALVEC_MODULE, only: create_
+   use REALVEC_MODULE, only: destroy_
+ 
+   use INT_MODULE, only: to_str_
+ 
+   use TIME_MODULE, only: std_time
+   use TIME_MODULE, only: cpu_time_taken_
+   use TIME_MODULE, only: time_taken_
+   use TIME_MODULE, only: start_
+   use TIME_MODULE, only: start_time_
+ 
+   use ATOM_MODULE, only: mass_
+ 
+   use ISOSURFACE_MODULE, only: put_CX_
+ 
+ 
+   use REALMAT3_MODULE, only: make_symmetric_
+   use REALMAT3_MODULE, only: create_
+   use REALMAT3_MODULE, only: destroy_
+ 
+   use REALMAT4_MODULE, only: create_
+   use REALMAT4_MODULE, only: destroy_
+ 
+   use STR_MODULE, only: filename_head_
+   use STR_MODULE, only: to_lower_case_
+   use STR_MODULE, only: includes_
+ 
+   use TEXTFILE_MODULE, only: stdin
+   use TEXTFILE_MODULE, only: stdout
+   use TEXTFILE_MODULE, only: text_
+   use TEXTFILE_MODULE, only: open_
+   use TEXTFILE_MODULE, only: redirect_
+   use TEXTFILE_MODULE, only: create_
+   use TEXTFILE_MODULE, only: exists_
+   use TEXTFILE_MODULE, only: show_
+   use TEXTFILE_MODULE, only: close_
+   use TEXTFILE_MODULE, only: is_open_
+   use TEXTFILE_MODULE, only: revert_
+   use TEXTFILE_MODULE, only: put_
+   use TEXTFILE_MODULE, only: read_
+   use TEXTFILE_MODULE, only: read_keywords_
+   use TEXTFILE_MODULE, only: flush_
+   use TEXTFILE_MODULE, only: reverted_
+   use TEXTFILE_MODULE, only: destroy_
+ 
+   use CLUSTER_MODULE, only: put_
+   use CLUSTER_MODULE, only: put_spartan_
+   use CLUSTER_MODULE, only: make_info_
+   use CLUSTER_MODULE, only: create_
+   use CLUSTER_MODULE, only: put_CX_
+ 
+ 
+   use ATOMVEC_MODULE, only: read_CIF_
+   use ATOMVEC_MODULE, only: nullify_basis_part_
+   use ATOMVEC_MODULE, only: put_coord_info_
+   use ATOMVEC_MODULE, only: destroy_
+ 
+   use REALMAT_MODULE, only: to_scaled_product_of_
+   use REALMAT_MODULE, only: to_inverse_of_
+   use REALMAT_MODULE, only: trace_product_with_
+   use REALMAT_MODULE, only: create_
+   use REALMAT_MODULE, only: is_square_
+   use REALMAT_MODULE, only: shrink_
+   use REALMAT_MODULE, only: plus_product_of_
+   use REALMAT_MODULE, only: trace_
+   use REALMAT_MODULE, only: change_basis_
+   use REALMAT_MODULE, only: symmetric_reflect_
+   use REALMAT_MODULE, only: to_product_of_
+   use REALMAT_MODULE, only: back_transform_
+   use REALMAT_MODULE, only: destroy_
+ 
+   use ARCHIVE_MODULE, only: set_genre_
+   use ARCHIVE_MODULE, only: read_
+   use ARCHIVE_MODULE, only: set_
+   use ARCHIVE_MODULE, only: write_
+ 
+   use OPMATRIX_MODULE, only: spinorbital_kind_
+   use OPMATRIX_MODULE, only: create_
+   use OPMATRIX_MODULE, only: created_
+   use OPMATRIX_MODULE, only: guess_scf_kind_
+   use OPMATRIX_MODULE, only: destroyed_

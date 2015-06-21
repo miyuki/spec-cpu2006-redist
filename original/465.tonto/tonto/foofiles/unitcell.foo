@@ -1,0 +1,498 @@
+!-------------------------------------------------------------------------------
+!
+! UNITCELL: Data structure for a crystal unit cell
+!
+! $Id: unitcell.foo,v 1.6.2.6 2003/11/13 05:33:02 reaper Exp $
+!
+! Copyright (C) Dylan Jayatilaka, Daniel Grimwood, 1999
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+!-------------------------------------------------------------------------------
+
+module UNITCELL
+
+   implicit none
+
+contains
+
+!  **************************
+!  Create and destroy methods
+!  **************************
+
+   create ::: leaky
+   ! Create the object
+      self :: PTR
+      nullify(self)
+      allocate(self)
+      ADD_MEMORY(UNITCELL_SIZE)
+      .set_defaults
+   end
+
+   destroy ::: leaky
+   ! Destroy the object
+      self :: PTR
+      if (.destroyed) return
+      DELETE_MEMORY(UNITCELL_SIZE)
+      deallocate(self)
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   set_defaults
+   ! Set up a default crystal object
+      .angle        = UNITCELL_ANGLES
+      .angle.convert_from("degree")
+      .length       = UNITCELL_LENGTHS
+      .make_info
+   end
+
+   create_copy(unitcell) ::: leaky
+   ! Create a copy of "unitcell"
+     self :: PTR
+     unitcell :: UNITCELL, IN
+     .create
+     .copy(unitcell)
+   end
+
+   copy(unitcell)
+   ! Set self to be "unitcell"
+     unitcell :: UNITCELL, IN
+     self = unitcell
+   end
+
+!  ***************
+!  Basic cell info
+!  ***************
+
+   alpha result(res)
+   ! Return the alpha angle, in radians.
+     res :: REAL
+     ENSURE(.info_made,"cell info not made")
+     res = .angle(1)
+   end
+
+   beta result(res)
+   ! Return the beta angle, in radians.
+     res :: REAL
+     ENSURE(.info_made,"cell info not made")
+     res = .angle(2)
+   end
+
+   gamma result(res)
+   ! Return the gamma angle, in radians.
+     res :: REAL
+     ENSURE(.info_made,"cell info not made")
+     res = .angle(3)
+   end
+
+   alpha_star result(res)
+   ! Return the alpha reciprocal lattice angle, in radians.
+     res :: REAL
+     tmp,alpha,beta,gamma :: REAL
+     ENSURE(.info_made,"cell info not made")
+     alpha = .angle(1); beta  = .angle(2); gamma = .angle(3)
+     tmp = (cos(beta)*cos(gamma)-cos(alpha))/(sin(beta)*sin(gamma))
+     res = tmp.arccos
+   end
+
+   beta_star result(res)
+   ! Return the beta reciprocal lattice angle, in radians.
+     res :: REAL
+     tmp,alpha,beta,gamma :: REAL
+     ENSURE(.info_made,"cell info not made")
+     alpha = .angle(1); beta  = .angle(2); gamma = .angle(3)
+     tmp = (cos(gamma)*cos(alpha)-cos(beta))/(sin(gamma)*sin(alpha))
+     res = tmp.arccos
+   end
+
+   gamma_star result(res)
+   ! Return the gamma reciprocal lattice angle, in radians.
+     res :: REAL
+     tmp,alpha,beta,gamma :: REAL
+     ENSURE(.info_made,"cell info not made")
+     alpha = .angle(1); beta  = .angle(2); gamma = .angle(3)
+     tmp = (cos(alpha)*cos(beta)-cos(gamma))/(sin(alpha)*sin(beta))
+     res = tmp.arccos
+   end
+
+   a result(res)
+   ! Return the a cell length, in bohr.
+     res :: REAL
+     ENSURE(.info_made,"cell info not made")
+     res = .length(1) 
+   end
+
+   b result(res)
+   ! Return the b cell length, in bohr.
+     res :: REAL
+     ENSURE(.info_made,"cell info not made")
+     res = .length(2) 
+   end
+
+   c result(res)
+   ! Return the c cell length, in bohr.
+     res :: REAL
+     ENSURE(.info_made,"cell info not made")
+     res = .length(3) 
+   end
+
+   a_star result(res)
+   ! Return the a reciprocal lattice length, in bohr.
+     res :: REAL
+     ENSURE(.info_made,"cell info not made")
+     res = .length(2) * .length(3) * sin(.angle(1)) / .volume
+   end
+
+   b_star result(res)
+   ! Return the b reciprocal lattice length, in bohr.
+     res :: REAL
+     ENSURE(.info_made,"cell info not made")
+     res = .length(3) * .length(1) * sin(.angle(2)) / .volume
+   end
+
+   c_star result(res)
+   ! Return the c reciprocal lattice length, in bohr.
+     res :: REAL
+     ENSURE(.info_made,"cell info not made")
+     res = .length(1) * .length(2) * sin(.angle(3)) / .volume
+   end
+
+!  **************************
+!  Make cell axis/volume info
+!  **************************
+
+   make_info 
+   ! Calculate the various unit cell axis matrices.
+      .info_made = FALSE
+      .make_volume
+      .make_direct_matrix
+      .make_reciprocal_matrix
+      .make_direct_U_matrix
+      .make_reciprocal_U_matrix
+      .info_made = TRUE
+   end
+
+   make_volume ::: private
+   ! Calculate the cell volume
+      a,b,c,ca,cb,cg,sb :: REAL
+      a = .length(1)
+      b = .length(2)
+      c = .length(3)
+      ca = cos(.angle(1))
+      cb = cos(.angle(2))
+      cg = cos(.angle(3))
+      sb = sin(.angle(2))
+      .volume = a*b*c*sqrt(ONE-ca**2-cb**2-cg**2+TWO*ca*cb*cg)
+   end
+
+   make_direct_matrix ::: private
+   ! Calculate the direct cell matrices (i.e. cell axes) in units of BOHRS.
+      v,a,b,c,ca,cb,cg,sb :: REAL
+      a = .length(1)
+      b = .length(2)
+      c = .length(3)
+      ca = cos(.angle(1))
+      cb = cos(.angle(2))
+      cg = cos(.angle(3))
+      sb = sin(.angle(2))
+      v = .volume
+      ! Direct cell matrix
+      .direct_matrix(1,1) = a
+      .direct_matrix(1,2) = b*cg
+      .direct_matrix(1,3) = c*cb
+      .direct_matrix(2,1) = ZERO
+      .direct_matrix(2,2) = v/(a*c*sb)
+      .direct_matrix(2,3) = ZERO
+      .direct_matrix(3,1) = ZERO
+      .direct_matrix(3,2) = b*(ca-cg*cb)/sb
+      .direct_matrix(3,3) = c*sb
+   end
+
+   make_reciprocal_matrix ::: private
+   ! Calculate the reciprocal cell matrices (i.e. reciprocal cell axes) in units
+   ! of 1/BOHRS. Also calculate the inverse direct cell matrix.
+      v,a,b,c,ca,cb,cg,sb :: REAL
+      a = .length(1)
+      b = .length(2)
+      c = .length(3)
+      ca = cos(.angle(1))
+      cb = cos(.angle(2))
+      cg = cos(.angle(3))
+      sb = sin(.angle(2))
+      v = .volume
+      ! Reciprocal cell matrix
+      .reciprocal_matrix(1,1) = ONE/a
+      .reciprocal_matrix(1,2) = ZERO
+      .reciprocal_matrix(1,3) = ZERO
+      .reciprocal_matrix(2,1) = b*c*(ca*cb-cg)/sb/v
+      .reciprocal_matrix(2,2) = a*c*sb/v
+      .reciprocal_matrix(2,3) = a*b*(cb*cg-ca)/sb/v
+      .reciprocal_matrix(3,1) = -cb/a/sb
+      .reciprocal_matrix(3,2) = ZERO
+      .reciprocal_matrix(3,3) = ONE/c/sb
+      .inverse_matrix = transpose(.reciprocal_matrix)
+   end
+
+   make_direct_U_matrix ::: private
+   ! Return the transformation matrix which changes the thermal tensor
+   ! from the crystal axis system into the cartesian axis system.
+   ! See comments for reciprocal_U_tensor_matrix below.
+      len :: REAL
+      i :: INT
+      do i = 1,3
+         len = .reciprocal_matrix(:,i).norm
+         .direct_U_matrix(i,:) = len*.direct_matrix(:,i)
+      end
+   end
+
+   make_reciprocal_U_matrix ::: private
+   ! Return the transformation matrix which changes the thermal tensor
+   ! from the cartesian axis system into the crystal axis system.
+   ! The thermal tensor in the crystal axis system U_{ij} is defined
+   ! by the temperature factor expansion:
+   !         TF = exp ( -2\pi^2 U_{ij} h_i h_j a^*_i a^*_j )
+   ! where h are the Miller indices and a^* are the reciprocal lattice
+   ! constants (in bohr^{-2}). This is as used by systems like Xtal.
+   ! The thermal tensor in the cartesian axis system U_{ij} is defined
+   ! by the temperature factor expansion:
+   !         TF = exp ( -0.5 U_{ij} k_i k_j )
+   ! where k = 2\pi B h, and B is the reciprocal cell matrix.
+      len :: REAL
+      i :: INT
+      do i = 1,3
+         len = ONE/.reciprocal_matrix(:,i).norm
+         .reciprocal_U_matrix(:,i) = .reciprocal_matrix(:,i)*len
+      end
+   end
+
+!  **************************
+!  Geometry altering routines
+!  **************************
+
+   change_from_fractional(g)
+   ! Change the columns of geometry array "g" *from* crystal fractional
+   ! coordinates into standard cartesian coordiantes
+      g :: REALMAT
+      n,n_atom :: INT
+   ENSURE(g.dim1==3,"incorrect dimension for g")
+      n_atom = g.dim2
+      do n = 1,n_atom
+         g(:,n).rotate_by(.direct_matrix)
+      end
+   end
+
+   change_into_fractional(g)
+   ! Change the columns of geometry array "g" from standard cartesian
+   ! coordinates *into* crystal fractional coordinates
+      g :: REALMAT
+      n,n_atom :: INT
+   ENSURE(size(g,1)==3,"incorrect dimension for g")
+      n_atom = size(g,2)
+      do n = 1,n_atom
+         g(:,n).rotate_by(.inverse_matrix)
+      end
+   end
+
+   change_from_fractional(p)
+   ! Change the position "p" *from* crystal fractional coordinates into standard
+   ! cartesian coordiantes
+      p :: REALVEC(3)
+      p.rotate_by(.direct_matrix)
+   end
+
+   change_into_fractional(p)
+   ! Change the position "p" from standard cartesian coordinates *into* crystal
+   ! fractional coordinates
+      p :: REALVEC(3)
+      p.rotate_by(.inverse_matrix)
+   end
+
+!  ************
+!  Read methods
+!  ************
+
+   read_keywords ::: get_from(OBJECT), recursive
+   ! Read data from "stdin" using keyword style input.
+   end
+
+   process_keyword(keyword)
+   ! Process command "keyword". Any required data needed by the "keyword" is
+   ! inputted from "stdin".
+     keyword :: STR(*)
+     word :: STR
+     word = keyword
+     word.to_lower_case
+     select case (word)
+        case ("}                ")  ! exit read_loop
+        case ("a=               "); .read_a
+        case ("alpha=           "); .read_alpha
+        case ("angles=          "); .read_angles
+        case ("b=               "); .read_b
+        case ("beta=            "); .read_beta
+        case ("c=               "); .read_c
+        case ("gamma=           "); .read_gamma
+        case ("dimensions=      "); .read_lengths
+        case ("junk=            "); .read_junk
+        case ("lengths=         "); .read_lengths
+        case ("put              "); .put
+        case ("units=           "); .read_units
+        case default;                       UNKNOWN(word)
+      end
+     .update
+   end
+
+   read_units ::: get_from(OBJECT)
+   ! Read a string which describes the units to be used
+   end
+
+   read_junk ::: get_from(OBJECT)
+   ! Read in a junk string, useful for ignoring a field
+   end
+
+   update
+   ! Update the cell information
+     .make_info
+   end
+
+   read_lengths ::: private
+   ! Read the unit cell axis lengths
+      stdin.read(.length)
+   end
+
+   read_a ::: private
+   ! Read the a length
+      stdin.read(.length(1))
+   end
+
+   read_b ::: private
+   ! Read the b length
+      stdin.read(.length(2))
+   end
+
+   read_c ::: private
+   ! Read the c length
+      stdin.read(.length(3))
+   end
+
+   read_angles ::: private
+   ! Read the unit cell angles
+      stdin.read(.angle)
+   end
+
+   read_alpha ::: private
+   ! Read the alpha angle
+      stdin.read(.angle(1))
+   end
+
+   read_beta ::: private
+   ! Read the beta angle
+      stdin.read(.angle(2))
+   end
+
+   read_gamma ::: private
+   ! Read the gamma angle
+      stdin.read(.angle(3))
+   end
+
+   read_CIF(cif) 
+   ! Read cell information from a CIF file "cif"
+      cif :: CIF
+      err :: REAL
+      found :: BIN
+      .set_defaults
+      .angle(1) = 90 ! Reset defaults (already set in read_CIF)
+      .angle(2) = 90 ! in degrees !
+      .angle(3) = 90
+      cif.read_item("_cell_angle_alpha",.angle(1),err,found)
+      cif.read_item("_cell_angle_beta" ,.angle(2),err,found)
+      cif.read_item("_cell_angle_gamma",.angle(3),err,found)
+      cif.read_item("_cell_length_a",.length(1),err)
+      cif.read_item("_cell_length_b",.length(2),err)
+      cif.read_item("_cell_length_c",.length(3),err)
+      .length.convert_from("angstrom")
+      .angle.convert_from("degree")    ! Now convert to rads
+      .update
+   end
+
+!  ***********
+!  Put methods
+!  ***********
+
+   put
+   ! Put unitcell information 
+     stdout.flush
+     stdout.text("Unitcell information:")
+     stdout.flush
+     stdout.show("alpha angle (rad)        = ",.angle(1))
+     stdout.show("beta  angle (rad)        = ",.angle(2))
+     stdout.show("gamma angle (rad)        = ",.angle(3))
+     stdout.show("a cell parameter (bohr)  = ",.length(1))
+     stdout.show("b cell parameter (bohr)  = ",.length(2))
+     stdout.show("c cell parameter (bohr)  = ",.length(3))
+     stdout.show("Cell volume(bohr^3)      = ",.volume)
+     stdout.flush
+     stdout.show("alpha* angle (rad)       = ",.alpha_star)
+     stdout.show("beta*  angle (rad)       = ",.beta_star)
+     stdout.show("gamma* angle (rad)       = ",.gamma_star)
+     stdout.show("a* cell parameter (bohr) = ",.a_star)
+     stdout.show("b* cell parameter (bohr) = ",.b_star)
+     stdout.show("c* cell parameter (bohr) = ",.c_star)
+     stdout.flush
+     stdout.text("Direct cell matrix/bohr:")
+     stdout.put(.direct_matrix)
+     stdout.flush
+     stdout.text("Inverse direct cell matrix/bohr:")
+     stdout.put(.inverse_matrix)
+     stdout.flush
+     stdout.text("Reciprocal cell matrix/(bohr^{-1}):")
+     stdout.put(.reciprocal_matrix)
+     stdout.flush
+     stdout.text("Direct U cell matrix/bohr:")
+     stdout.put(.direct_U_matrix)
+     stdout.flush
+     stdout.text("Reciprocal U cell matrix/(bohr^{-1}):")
+     stdout.put(.reciprocal_U_matrix)
+     stdout.flush
+   end
+
+   put_CX(label)
+   ! Output some information for the Crystal Explorer program.
+       label :: STR
+       stdout.flush
+       stdout.text("begin crystalcell " // label.trim)
+       stdout.show("   a =",.length(1).to_units("angstrom"))
+       stdout.show("   b =",.length(2).to_units("angstrom"))
+       stdout.show("   c =",.length(3).to_units("angstrom"))
+       stdout.show("   alpha =",.angle(1).to_units("degree"))
+       stdout.show("   beta  =",.angle(2).to_units("degree"))
+       stdout.show("   gamma =",.angle(3).to_units("degree"))
+       stdout.text("end crystalcell")
+   end
+
+end

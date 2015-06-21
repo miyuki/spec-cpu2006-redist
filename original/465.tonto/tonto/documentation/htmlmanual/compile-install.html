@@ -1,0 +1,378 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>Compiling and Installing TONTO</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="Citation and attribution in TONTO"
+HREF="citation.html"><LINK
+REL="NEXT"
+TITLE="System requirements for TONTO"
+HREF="system-requirements.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="CHAPTER"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="citation.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="system-requirements.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="COMPILE-INSTALL"
+></A
+>Compiling and Installing TONTO</H1
+><P
+ALIGN="justify"
+>TONTO has been compiled and tested using a variety of compilers
+and systems. The set of known systems is given in the next section.</P
+><P
+ALIGN="justify"
+>You will need a number of <SPAN
+CLASS="ACRONYM"
+>GNU</SPAN
+> software tools. These are
+also listed in the next section.</P
+><P
+ALIGN="justify"
+>Unfortunately, compiler bugs are relatively common. You should scan the
+section <A
+HREF="install-problems.html"
+>the Section called <I
+>Known problems installing TONTO</I
+></A
+>&#62; before attempting an install.  Please
+contact us with problems; we are always interested in making this code
+universally accesible.</P
+><P
+ALIGN="justify"
+>For a known system, the compilation procedure is given in the section
+<A
+HREF="compiling-tonto.html"
+>the Section called <I
+>Compiling TONTO</I
+></A
+>&#62;.  It extensively uses <B
+CLASS="COMMAND"
+>Perl</B
+>,
+and should automatically build a production code.</P
+><P
+ALIGN="justify"
+>If your system is not known to us, or if you have any other compile
+problems you can look at <A
+HREF="compile-fail.html"
+>the Section called <I
+>What to do if compiling TONTO fails</I
+></A
+>&#62;.</P
+><P
+ALIGN="justify"
+><A
+HREF="customised-compilation.html"
+>the chapter called <I
+>Compiling customised versions of TONTO</I
+></A
+>&#62; gives further information
+explaining how to compile versions of TONTO for specific purposes, such as:
+those which can detect memory leaks, those which can detect violation of routine
+preconditions and postconditions, those with error management, debug versions,
+profiling versions, or highly optimised versions.</P
+><P
+ALIGN="justify"
+>Also for programmers, <A
+HREF="building-executables.html"
+>the chapter called <I
+>How TONTO builds executables</I
+></A
+>&#62; gives an
+overview of the build <B
+CLASS="COMMAND"
+>make</B
+> process, and how TONTO has been
+designed to avoid unneccesary recompilation.</P
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="COMPILER-REQUIREMENTS"
+></A
+>Compiler requirements for TONTO</H1
+><P
+ALIGN="justify"
+>The set of compilers and operating systems on which 
+TONTO has been tested is:
+<P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Compaq <B
+CLASS="COMMAND"
+>f90</B
+> or <B
+CLASS="COMMAND"
+>f95</B
+> compiler
+under Tru64</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>DEC <B
+CLASS="COMMAND"
+>f90</B
+> or <B
+CLASS="COMMAND"
+>f95</B
+> compiler
+under OSF1</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Fujitsu <B
+CLASS="COMMAND"
+>frtvpp</B
+> compiler under
+UXP5</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Fujitsu <B
+CLASS="COMMAND"
+>frtvpp</B
+> cross compiler under
+Solaris</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Fujitsu <B
+CLASS="COMMAND"
+>f90</B
+> or <B
+CLASS="COMMAND"
+>f95</B
+>
+compiler under LINUX</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>IBM <B
+CLASS="COMMAND"
+>xlf90</B
+> compiler under
+AIX</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Lahey-Fujitsu <B
+CLASS="COMMAND"
+>lf95</B
+> compiler under
+LINUX</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Silicon Graphics MIPSPRO <B
+CLASS="COMMAND"
+>f90</B
+> compiler under
+IRIX64</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>NAG <B
+CLASS="COMMAND"
+>f95</B
+> compiler under
+LINUX</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Sun Workshop <B
+CLASS="COMMAND"
+>f90</B
+> compiler under
+Solaris</P
+></LI
+></UL
+></P
+><P
+ALIGN="justify"
+>Other compilers:
+<P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Intel Fortran for Linux 6.0 does not compile TONTO.  This is
+due to a compiler bug, which Intel say they have fixed for the next compiler
+version.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>No attempt to compile TONTO has been made under MS Windows or
+on a Macintosh.  To get TONTO to compile on these other systems, you will need
+the standard unix utilities (available for free from <A
+HREF="http://www.cygwin.com/"
+TARGET="_top"
+>Cygwin</A
+>) and <B
+CLASS="COMMAND"
+>perl</B
+>, which
+is also free.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>TONTO will not work with MS-DOS.</P
+></LI
+></UL
+></P
+><P
+ALIGN="justify"
+>Some compilers may need upgrading or require special settings. Have a look
+at section <A
+HREF="install-problems.html"
+>the Section called <I
+>Known problems installing TONTO</I
+></A
+>&#62; for compiler specific issues. </P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="citation.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="system-requirements.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Citation and attribution in TONTO</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>System requirements for TONTO</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

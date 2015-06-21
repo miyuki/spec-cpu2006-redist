@@ -1,0 +1,630 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>Which C-preprocessor options to use?</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="Compiling customised versions of TONTO"
+HREF="customised-compilation.html"><LINK
+REL="PREVIOUS"
+TITLE="Which Fortran compiler options to use?"
+HREF="compiler-options.html"><LINK
+REL="NEXT"
+TITLE="How TONTO builds executables"
+HREF="building-executables.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="compiler-options.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="building-executables.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="C-PREPROCESSOR"
+></A
+>Which C-preprocessor options to use?</H1
+><P
+ALIGN="justify"
+>In addition to different compiler-switch versions, you can generate
+versions of TONTO which will
+<P
+></P
+><UL
+><LI
+><P
+ALIGN="justify"
+>Issue minimal error messages when anticipated problems are
+detected</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Issue error messages when certain preconditions for executing a
+subroutine are not satisfied, so that it becomes impossible for the subroutine
+to complete its task</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Issue a full call-stack traceback when an error condition is
+detected <A
+NAME="AEN6115"
+HREF="#FTN.AEN6115"
+>[1]</A
+>.</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Generate a version of TONTO which reverts to Fortran90
+language definitions</P
+></LI
+><LI
+><P
+ALIGN="justify"
+>Issue error messages when certain routines contain unintentional
+memory leaks</P
+></LI
+></UL
+></P
+><P
+ALIGN="justify"
+>The following sections describe how to compile TONTO so that these
+additional features become available.</P
+><P
+ALIGN="justify"
+>All these options are controlled by C-preprocessor directives which appear
+in the <TT
+CLASS="LITERAL"
+>macros</TT
+> file; the features can be turned on or off
+independently.</P
+><DIV
+CLASS="INFORMALEXAMPLE"
+><A
+NAME="AEN6124"
+></A
+><P
+></P
+><P
+ALIGN="justify"
+>Note that you must recompile TONTO if any of the features described in
+the section are to be activated</P
+><P
+></P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="USE-ERROR-MANAGEMENT"
+></A
+>The <TT
+CLASS="LITERAL"
+>USE_ERROR_MANAGEMENT</TT
+> switch</H2
+><P
+ALIGN="justify"
+>Error checking in TONTO is achieved using C preprocessor macros
+which stand for calls to certain routines in the TONTO system.</P
+><P
+ALIGN="justify"
+>To remove this facility, delete the
+<TT
+CLASS="LITERAL"
+>-DUSE_ERROR_MANAGEMENT</TT
+> switch in the Makefile near the top,
+e.g.
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>DEFS    := -DCOMPAQ -DUSE_ERROR_MANAGEMENT</PRE
+></TD
+></TR
+></TABLE
+></P
+><P
+ALIGN="justify"
+>The way this switch works is as follows:</P
+><P
+ALIGN="justify"
+>In the <TT
+CLASS="LITERAL"
+>macros</TT
+> file, a test is done to establish if the
+<TT
+CLASS="LITERAL"
+>USE_ERROR_MANAGEMENT</TT
+> switch has been defined by the
+preprocessor (for example, because it has been set as a compile switch in ther
+<TT
+CLASS="LITERAL"
+>Makefile</TT
+> as above). If this switch is defined, other macros
+<TT
+CLASS="LITERAL"
+>DIE</TT
+>, <TT
+CLASS="LITERAL"
+>WARN</TT
+>, <TT
+CLASS="LITERAL"
+>DIE_IF</TT
+>, and
+<TT
+CLASS="LITERAL"
+>WARN_IF</TT
+> are defined to be calls to certain Fortran
+subroutines which issue the required warnings.</P
+><P
+ALIGN="justify"
+>It is not recommended that you remove this switch, as it does not affect
+performance greatly.</P
+><P
+ALIGN="justify"
+>Once the change has been made, you will have to recompile TONTO for that
+change to take effect.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="USE-PRE-AND-POST-CONDITIONS"
+></A
+>The <TT
+CLASS="LITERAL"
+>USE_PRE_AND_POST_CONDITIONS</TT
+> switch</H2
+><P
+ALIGN="justify"
+>This switch is turned off by default.</P
+><P
+ALIGN="justify"
+>To include precondition and postcondition facilities, add the
+<TT
+CLASS="LITERAL"
+>-DUSE_PRE_AND_POST_CONDITIONS</TT
+> macros to the
+<TT
+CLASS="LITERAL"
+>DEFS</TT
+> variable in the Makefile, e.g.
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>DEFS    := -DCOMPAQ -DUSE_PRE_AND_POST_CONDITIONS</PRE
+></TD
+></TR
+></TABLE
+></P
+><P
+ALIGN="justify"
+>Note that enabling the <TT
+CLASS="LITERAL"
+>USE_CALL_STACK_MANAGEMENT</TT
+> switch
+automatically turns on the <TT
+CLASS="LITERAL"
+>USE_ERROR_MANAGEMENT</TT
+>
+switch.</P
+><P
+ALIGN="justify"
+>Note that using this switch can lead to significant performance
+degradation (say up to 30% in execuation time).</P
+><P
+ALIGN="justify"
+>The way this switch works is as follows:</P
+><P
+ALIGN="justify"
+>In the <TT
+CLASS="LITERAL"
+>macros</TT
+> file, a test is done to establish if the
+above <TT
+CLASS="LITERAL"
+>USE_PRE_AND_POSTCONDITIONS</TT
+> switch has been defined by
+the preprocessor (for example, because it has been set as a compile switch in
+the <TT
+CLASS="LITERAL"
+>Makefile</TT
+>, as above). If it is defined, other macros
+<TT
+CLASS="LITERAL"
+>ENSURE</TT
+> and <TT
+CLASS="LITERAL"
+>VERIFY</TT
+> are defined to be calls
+to certain Fortran subroutines which issue the required warnings.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="USE-CALL-STACK-MANAGEMENT"
+></A
+>The <TT
+CLASS="LITERAL"
+>USE_CALL_STACK_MANAGEMENT</TT
+> switch</H2
+><P
+ALIGN="justify"
+>This switch is turned off by default.</P
+><P
+ALIGN="justify"
+>To include precondition and postcondition facilities, add the
+<TT
+CLASS="LITERAL"
+>-DUSE_CALL_STACK_MANAGEMENT</TT
+> switch to the
+<TT
+CLASS="LITERAL"
+>DEFS</TT
+> variable in the Makefile, e.g.
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>DEFS    := -DCOMPAQ -DUSE_CALL_STACK_MANAGEMENT</PRE
+></TD
+></TR
+></TABLE
+></P
+><P
+ALIGN="justify"
+>Using this switch not only produces a calling stack whenever an error is
+generated, but it also turns on memory management facilities and pre and post
+condition checking. The memory management facility will issue a warning whenever
+the routine exits with a memory leak --- unless the routine is explicitly marked
+<TT
+CLASS="LITERAL"
+>[leaky]</TT
+> on its definition line. For further information on
+<TT
+CLASS="LITERAL"
+>[leaky]</TT
+>, look in <A
+HREF="foo-chap.html"
+>the chapter called <I
+>The <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> preprocessor</I
+></A
+>&#62;.</P
+><P
+ALIGN="justify"
+>Note that using this switch can lead to significant performance
+degradation (up to 30% in execution time).</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="LANGUAGE-FORTRAN-90"
+></A
+>The <TT
+CLASS="LITERAL"
+>LANGUAGE_FORTRAN_90</TT
+> switch</H2
+><P
+ALIGN="justify"
+>This switch is turned off by default for Fortran95 compliant
+compilers.</P
+><P
+ALIGN="justify"
+>If you want to set the Fortran language level to Fortran90 (if it is not
+already set) simply add the <TT
+CLASS="LITERAL"
+>-DLANGUAGE_FORTRAN_90</TT
+> switch to
+the definition of the <TT
+CLASS="LITERAL"
+>DEFS</TT
+> variable in the
+<TT
+CLASS="LITERAL"
+>Makefile</TT
+>, e.g.
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>DEFS    := -DCOMPAQ -DLANGUAGE_FORTRAN_90</PRE
+></TD
+></TR
+></TABLE
+></P
+><P
+ALIGN="justify"
+>The way this works is as follows:</P
+><P
+ALIGN="justify"
+>The <TT
+CLASS="LITERAL"
+>pure</TT
+> and <TT
+CLASS="LITERAL"
+>elemental</TT
+> keywords are
+usually conditionally compiled in the TONTO system, using C preprocessor
+macros <TT
+CLASS="LITERAL"
+>PURE</TT
+>  and <TT
+CLASS="LITERAL"
+>ELEMENTAL</TT
+>. There are also
+macros <TT
+CLASS="LITERAL"
+>ALWAYS_PURE</TT
+> and <TT
+CLASS="LITERAL"
+>ALWAYS_ELEMENTAL</TT
+>.
+These are required because some routines must always be pure or elemental---for
+example if they appear in the initialization of variables in a declaration line.
+(In this case, programmers should note that separate definition lines should be
+used when the language level is reduced to Fortran90). Note that, if the <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+>
+preprocessor is being used the <TT
+CLASS="LITERAL"
+>pure</TT
+>,
+<TT
+CLASS="LITERAL"
+>elemental</TT
+>, <TT
+CLASS="LITERAL"
+>always_pure</TT
+>, and
+<TT
+CLASS="LITERAL"
+>always_elemental</TT
+> attributes of a routine are activated by
+square brakets on the routine declaration line.  For further detailes, refer to
+the chapter describing the <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> preprocessor.</P
+></DIV
+><DIV
+CLASS="SECT2"
+><H2
+CLASS="SECT2"
+><A
+NAME="BROKEN-TYPE-INITIALIZATION"
+></A
+>The <TT
+CLASS="LITERAL"
+>BROKEN_TYPE_INITIALIZATION</TT
+> switch</H2
+><P
+ALIGN="justify"
+>Unfortunately it seems to be quite common that many Fortran95 compilers
+cannot correctly cope with derived type initialization.</P
+><P
+ALIGN="justify"
+>Derived type initialization can be switched off via the
+<TT
+CLASS="LITERAL"
+>BROKEN_TYPE_INITIALIZATION</TT
+> switch,
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>DEFS    := -DCOMPAQ -DBROKEN_TYPE_INITIALIZATION</PRE
+></TD
+></TR
+></TABLE
+></P
+><P
+ALIGN="justify"
+>This switch is automatically activated when the
+<TT
+CLASS="LITERAL"
+>LANGUAGE_FORTRAN_90</TT
+> switch is set, since type initialization
+is a Fortran95 feature.</P
+></DIV
+></DIV
+><H3
+CLASS="FOOTNOTES"
+>Notes</H3
+><TABLE
+BORDER="0"
+CLASS="FOOTNOTES"
+WIDTH="100%"
+><TR
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="5%"
+><A
+NAME="FTN.AEN6115"
+HREF="c-preprocessor.html#AEN6115"
+>[1]</A
+></TD
+><TD
+ALIGN="LEFT"
+VALIGN="TOP"
+WIDTH="95%"
+><P
+ALIGN="justify"
+>This is only available for routines which are not pure
+according to the fortran definition; pure routines are not allowed to have any
+I/O operations embedded within them, including I/O operations which issue error
+messages</P
+></TD
+></TR
+></TABLE
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="compiler-options.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="building-executables.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Which Fortran compiler options to use?</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="customised-compilation.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>How TONTO builds executables</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

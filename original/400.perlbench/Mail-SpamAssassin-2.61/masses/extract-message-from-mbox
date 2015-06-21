@@ -1,0 +1,74 @@
+#!/usr/bin/perl
+# Copyright (c) 2003  Malte S. Stretz <spamassassin at msquadrat dot de>
+#
+# Modified by Duncan Findlay <duncf@debian.org>  May 2003
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of either the Artistic License or the GNU General
+# Public License as published by the Free Software Foundation; either
+# version 2 of the License, or (at your option) any later version.
+
+
+use strict;
+use bytes;
+
+use vars qw {
+  $opt_f $opt_h $opt_m $opt_H
+};
+
+use Getopt::Std;
+getopts("f:hmH");
+
+sub usage {
+  die "extract-message-from-mbox [-f=file] [-m] [-H] offset
+
+  Extracts the message starting at offset from file (or stdin). Very
+  useful in combination with mass-check logs and mboxes. If the -m
+  option is used, the input should be in \"mass-check\" format (as
+  output by mass-check). Use the -H option to just output headers.
+";
+}
+
+usage() if($opt_h || (!defined($ARGV[0]) && !$opt_m));
+my $offset = $ARGV[0];
+
+if($opt_m) {
+  masscheck();
+} else {
+  $opt_f ||= '&STDIN';
+  extract($opt_f, $offset);
+}
+
+sub extract {
+  my $file = shift;
+  my $offset = shift;
+  my $found = 0;
+
+  open (IN, "<$file") || die "Could not open $file: $!\n";
+
+  while(<IN>) {
+
+    if(!$found) {
+      $offset -= length;
+      $found = $offset <= 0;
+    } else {
+      $found++ if(/^From /);
+      last if($found == 3);
+      print;
+      last if ($opt_H && /^$/) # empty line? end of headers
+    }
+  }
+}
+
+sub masscheck {
+  while (<STDIN>) {
+    my $mail = (split(/\s+/, $_))[2];
+    $mail =~ tr/_/ /;
+    if ($mail =~ /^(.*)\.(\d+)$/) {
+      extract($1, $2);
+    } else { # could just be a filename. Lets print it anyway.
+      chomp $mail;
+      extract ($mail, 0);
+    }
+  }
+}

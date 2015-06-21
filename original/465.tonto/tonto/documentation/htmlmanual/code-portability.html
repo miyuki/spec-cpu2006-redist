@@ -1,0 +1,227 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>Machine specific code in TONTO</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="UP"
+TITLE="How TONTO builds executables"
+HREF="building-executables.html"><LINK
+REL="PREVIOUS"
+TITLE="How TONTO builds executables"
+HREF="building-executables.html"><LINK
+REL="NEXT"
+TITLE="Code dependencies in TONTO"
+HREF="make-dependencies.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="SECT1"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="building-executables.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="make-dependencies.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="CODE-PORTABILITY"
+></A
+>Machine specific code in TONTO</H1
+><P
+ALIGN="justify"
+>When generating code which can be used on many platforms, invariably there
+are pieces of code which are needed only on certain platforms and not others.
+For example, compiler options, which are contained in a
+<TT
+CLASS="LITERAL"
+>Makefile</TT
+> are specific to a platform.</P
+><P
+ALIGN="justify"
+>TONTO uses a perl script <TT
+CLASS="LITERAL"
+>Makefile.pl</TT
+> to generate
+machine specfic files such as <TT
+CLASS="LITERAL"
+>Makefiles</TT
+>. It also uses the C
+preprocessor to make sure certain lines of code are compiled only for certain
+machines.</P
+><P
+ALIGN="justify"
+>This is the way it works:</P
+><P
+ALIGN="justify"
+>In the top directory are files <TT
+CLASS="LITERAL"
+>Makefile.pl</TT
+> and
+<TT
+CLASS="LITERAL"
+>Makefile.in</TT
+>. When you type <TT
+CLASS="LITERAL"
+>perl -w
+Makefile.pl</TT
+>, the perl script <TT
+CLASS="LITERAL"
+>Makefile.pl</TT
+> is
+executed to determine what kind of operating system you have, what kind of
+compiler, and if everything you need to make TONTO is available. </P
+><P
+ALIGN="justify"
+>Once this information is known, <TT
+CLASS="LITERAL"
+>Makefile.pl</TT
+> decides the
+correct <TT
+CLASS="LITERAL"
+>site_config</TT
+> file to use by looking in the directory
+<TT
+CLASS="LITERAL"
+>site_config</TT
+> which contains a series of files for machine
+specific compile options. <TT
+CLASS="LITERAL"
+>Makefile.pl</TT
+> then includes the
+appropriate machine specific compile-option file, and any other machine specific
+information it knows about, into the generic template
+<TT
+CLASS="LITERAL"
+>Makefile.in</TT
+> to make the correct
+<TT
+CLASS="LITERAL"
+>Makefile</TT
+>.</P
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="building-executables.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="make-dependencies.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>How TONTO builds executables</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+><A
+HREF="building-executables.html"
+ACCESSKEY="U"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Code dependencies in TONTO</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

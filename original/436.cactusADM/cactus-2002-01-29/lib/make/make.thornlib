@@ -1,0 +1,102 @@
+# /*@@
+#   @file      make.thornlib
+#   @date      Sun Jan 17 22:20:45 1999
+#   @author    Tom Goodale
+#   @desc 
+#   Creates the library for a particular thorn
+#   @enddesc 
+#   @version $Id: make.thornlib,v 1.27 2001/06/13 09:43:35 goodale Exp $
+# @@*/
+
+# Silence all but designated output
+#.SILENT:
+
+# Dividers to make the screen output slightly nicer
+DIVEL   =  __________________
+DIVIDER =  $(DIVEL)$(DIVEL)$(DIVEL)$(DIVEL)
+
+# Include the main make definitions for this configuration
+include $(CONFIG)/make.config.defn
+
+# Add appropriate include lines
+INC_DIRS = $(SYS_INC_DIRS) $(SRCDIR) $(SRCDIR)/include $(CONFIG) $(TOP)/bindings/include $(CCTK_HOME)/src/include $(CCTK_HOME)/arrangements
+
+# Allow subdirectories to inherit these include directories
+export INC_DIRS
+
+BINDINGS_DIR=$(TOP)/bindings
+
+EXTRA_DEFINES += THORN_IS_$(THORN) 
+
+# Define some make variables
+PRE_WRAPPER = make.pre
+POST_WRAPPER = make.post
+
+CCTK_SRCS :=
+
+# Include the thorn's local include data
+include $(SRCDIR)/make.code.defn
+
+# Some extra stuff to allow make to recurse into subdirectories
+# Protect the value of SRCS and SUBDIRS of this directory
+
+LOCAL_SUBDIRS := . $(SUBDIRS)
+
+# Include all the make.code.defn files for the subdirectories
+# These have to be wrapped to allow us to concatanate all the
+# SRCS definitions, complete with subdirectory names.
+# Using -include to prevent warnings the first time the make.identity files 
+# need to be made.
+ifneq ($(strip $(LOCAL_SUBDIRS)),)
+-include $(foreach DIR,$(LOCAL_SUBDIRS), $(DIR)/make.identity $(MAKE_DIR)/$(PRE_WRAPPER) $(SRCDIR)/$(DIR)/make.code.defn $(MAKE_DIR)/$(POST_WRAPPER))
+endif
+
+# The CactusBindings pseudo-thorn doesn't need to define its own bindings 8-)
+
+ifneq ($(THORN), CactusBindings)
+THORNBINDINGS=cctk_Bindings
+-include cctk_Bindings/make.identity $(MAKE_DIR)/$(PRE_WRAPPER) $(BINDINGS_DIR)/build/$(THORN)/make.code.defn $(MAKE_DIR)/$(POST_WRAPPER)
+endif
+
+# Restore the value of SRCS and SUBDIRS of this directory
+SRCS = $(CCTK_SRCS)
+
+SUBDIRS = $(LOCAL_SUBDIRS)
+
+# Turn source file names into object file names
+OBJS = $(SRCS:%=%.o)
+
+$(NAME): $(addsuffix /make.checked, $(SUBDIRS) $(THORNBINDINGS))
+	@echo $(DIVIDER)
+	if [ -r $(NAME) ] ; then echo Updating $(NAME) ; else echo Creating $(NAME) ; fi
+	if [ -r $@ ] ; then rm $@ ; fi
+	$(AR) $(ARFLAGS) $@ $(OBJS)
+	if test "x$(USE_RANLIB)" = "xyes" ; then $(RANLIB) $(RANLIBFLAGS) $@ ; fi
+
+# Extra stuff for allowing make to recurse into directories
+
+# This one makes the object files in the subdirectory
+.PHONY: FORCE
+
+$(addsuffix /make.checked, $(SUBDIRS)) : FORCE
+	if [ ! -d $(dir $@) ] ; then $(MKDIR) $(MKDIRFLAGS) $(dir $@) ; fi
+	cd $(dir $@) ; $(MAKE) CCTK_TARGET=make.checked TOP=$(TOP) CONFIG=$(CONFIG) SRCDIR=$(subst /./,,$(SRCDIR)/$(dir $@)) THORN=$(THORN) -f $(MAKE_DIR)/make.subdir
+
+cctk_Bindings/make.checked: FORCE
+	cd  cctk_Bindings; $(MAKE) CCTK_TARGET=make.checked TOP=$(TOP) CONFIG=$(CONFIG) SRCDIR=$(BINDINGS_DIR)/build/$(THORN) THORN=$(THORN) -f $(MAKE_DIR)/make.subdir
+
+# This one puts a file containing identity info into the build subdirectory
+$(addsuffix /make.identity, $(SUBDIRS) $(THORNBINDINGS)):
+	if [ ! -d $(dir $@) ] ; then $(MKDIR) $(MKDIRFLAGS) $(dir $@) ; fi
+	echo CCTK_THIS_SUBDIR := $(dir $@) > $@
+
+
+# Catch people who have not done a -rebuild.  Remove in beta 12
+$(BINDINGS_DIR)/build/$(THORN)/make.code.defn:
+	@echo $(DIVIDER)
+	@echo "************************************************************************"
+	@echo "             Major changes to CST and bindings system."
+	@echo "             Please $(MAKE) $(notdir $(TOP))-rebuild  "
+	@echo "************************************************************************"
+	@echo $(DIVIDER)
+	@exit 1

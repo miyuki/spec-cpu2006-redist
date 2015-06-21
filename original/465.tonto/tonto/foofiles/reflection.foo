@@ -1,0 +1,419 @@
+!-------------------------------------------------------------------------------
+!
+! REFLECTION: Reflection data for crystals
+!
+! Copyright (C) Daniel Grimwood, 2000
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: reflection.foo,v 1.3.2.2 2003/11/13 05:36:07 reaper Exp $
+!-------------------------------------------------------------------------------
+
+module REFLECTION
+
+   implicit none
+
+   keys DEFAULT_NULL :: STRVEC*, private
+
+contains
+
+!*******************************************************************************
+!                        Create and Destroy Routines
+!*******************************************************************************
+
+   create
+   ! Create the object
+      self :: PTR
+      nullify(self)
+      allocate(self)
+      ADD_MEMORY(REFLECTION_SIZE)
+      .set_defaults
+   end
+
+   destroy
+   ! Destroy the object
+      self :: PTR
+      if (.destroyed) return
+      DELETE_MEMORY(REFLECTION_SIZE)
+      deallocate(self)
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   create_copy(r)
+   ! Create a copy of the reflection "r"
+      self :: PTR
+      r :: REFLECTION
+      .create
+      .copy(r)
+   end
+
+   copy(r)
+   ! Make a copy of the reflection "r"
+      r :: REFLECTION
+      self = r
+   end
+
+   set_defaults
+   ! Set up a default object
+     .h = 0
+     .k = 0
+     .l = 0
+     .F_exp = ZERO
+     .F_calc = ZERO
+     .F_pred = ZERO
+     .F_sigma = ZERO
+     .I_exp = ZERO
+     .I_pred = ZERO
+     .I_sigma = ZERO
+   end
+
+
+!  ************
+!  I/O Routines
+!  ************
+
+   read_keywords ::: get_from(OBJECT), recursive, leaky
+   ! Read data from "stdin" using keyword style input.
+   end
+
+   process_keyword(keyword) ::: leaky
+   ! Process command "keyword". Any required data needed by the "keyword" is
+   ! inputted from "stdin".
+     keyword :: STR(*), IN
+     word :: STR
+     word = keyword
+     word.to_lower_case
+     select case (word)
+       case ("}           "); ! exit surrounding loop
+       case ("add_f_calc= "); .add_F_calc
+       case ("add_f_exp=  "); .add_F_exp
+       case ("add_f_pred= "); .add_F_pred
+       case ("add_f_sigma="); .add_F_sigma
+       case ("add_i_exp=  "); .add_I_exp
+       case ("add_i_pred= "); .add_I_pred
+       case ("add_i_sigma="); .add_I_sigma
+       case ("f_calc=     "); .read_F_calc
+       case ("f_exp=      "); .read_F_exp
+       case ("f_pred=     "); .read_F_pred
+       case ("f_sigma=    "); .read_F_sigma
+       case ("h=          "); .read_h
+       case ("indices=    "); .read_indices
+       case ("i_exp=      "); .read_I_exp
+       case ("i_pred=     "); .read_I_pred
+       case ("i_sigma=    "); .read_I_sigma
+       case ("junk=       "); .read_junk
+       case ("k=          "); .read_k
+       case ("l=          "); .read_l
+       case ("units=      "); .read_units
+       ! These are only for making custom tables for the list type
+       case ("flush       "); stdout.flush
+       case ("put_f_calc  "); stdout.put(.F_calc)
+       case ("put_f_exp   "); stdout.put(.F_exp)
+       case ("put_f_phase "); stdout.put(.F_phase)
+       case ("put_f_pred  "); stdout.put(.F_pred)
+       case ("put_f_sigma "); stdout.put(.F_sigma)
+       case ("put_f_z     "); stdout.put(.F_z)
+       case ("put_f_z2    "); stdout.put(.F_z2)
+       case ("put_h       "); stdout.put(.h)
+       case ("put_i_exp   "); stdout.put(.I_exp)
+       case ("put_i_pred  "); stdout.put(.I_pred)
+       case ("put_i_sigma "); stdout.put(.I_sigma)
+       case ("put_i_z     "); stdout.put(.I_z)
+       case ("put_indices "); stdout.put(.h); stdout.put(.k); stdout.put(.l)
+       case ("put_k       "); stdout.put(.k)
+       case ("put_l       "); stdout.put(.l)
+       case default;         UNKNOWN(word)
+     end
+   end
+
+   read_units ::: get_from(OBJECT)
+   ! Read a string which describes the units to be used
+   end
+
+   read_junk ::: get_from(OBJECT)
+   ! Read in a junk string, useful for ignoring a field
+   end
+
+   read_h
+   ! Read in the "h" Miller index
+      stdin.read_int(.h)
+   end
+
+   read_k
+   ! Read in the "k" Miller index
+      stdin.read_int(.k)
+   end
+
+   read_l
+   ! Read in the "l" Miller index
+      stdin.read_int(.l)
+   end
+
+   read_indices
+   ! Read in the h k l Miller indices as a triple
+      stdin.read_int(.h)
+      stdin.read_int(.k)
+      stdin.read_int(.l)
+   end
+
+   read_F_exp
+   ! Read in the experimentally determined structure factor
+      stdin.read(.F_exp)
+   end
+
+   add_F_exp
+   ! Read in an increment to add to .F_exp
+      tmp :: REAL
+      stdin.read(tmp)
+      .F_exp = .F_exp + tmp
+   end
+
+   read_F_calc
+   ! Read in a calculated (complex) structure factor
+      stdin.read(.F_calc)
+   end
+
+   add_F_calc
+   ! Read in a *complex* increment to add to .F_calc
+      tmp :: CPX
+      stdin.read(tmp)
+      .F_calc = .F_calc + tmp
+   end
+
+   read_F_pred
+   ! Read in a predicted (real) structure factor
+      stdin.read(.F_pred)
+   end
+
+   add_F_pred
+   ! Read in an increment to add to .F_pred
+      tmp :: REAL
+      stdin.read(tmp)
+      .F_pred = .F_pred + tmp
+   end
+
+   read_F_sigma
+   ! Read in the experimentally determined standard devaiation in
+   ! the structure factor
+      stdin.read(.F_sigma)
+   end
+
+   add_F_sigma
+   ! Read in an increment to add to .F_sigma
+      tmp :: REAL
+      stdin.read(tmp)
+      .F_sigma = .F_sigma + tmp
+   end
+
+   read_I_exp
+   ! Read in the experimentally determined intensity
+      stdin.read(.I_exp)
+   end
+
+   add_I_exp
+   ! Read in an increment to add to .I_exp
+      tmp :: REAL
+      stdin.read(tmp)
+      .I_exp = .I_exp + tmp
+   end
+
+   read_I_pred
+   ! Read in a predicted intensity
+      stdin.read(.I_pred)
+   end
+
+   add_I_pred
+   ! Read in an increment to add to .I_pred
+      tmp :: REAL
+      stdin.read(tmp)
+      .I_pred = .I_pred + tmp
+   end
+
+   read_I_sigma
+   ! Read in an experimentally determined standard deviation in the
+   ! observed intensity
+      stdin.read(.I_sigma)
+   end
+
+   add_I_sigma
+   ! Read in an increment to add to .I_sigma
+      tmp :: REAL
+      stdin.read(tmp)
+      .I_sigma = .I_sigma + tmp
+   end
+
+!  ********************
+!  Key related routines
+!  ********************
+
+   read_keys ::: get_from(OBJECT)
+   ! Read the "keys".
+   end
+
+   process_keys ::: get_from(OBJECT), leaky
+   ! Process each of the words in the "keys" list.
+   end
+
+   keys_created result (res) ::: get_from(OBJECT)
+   ! Return TRUE if the list-element keys are created.
+      res :: BIN
+   end
+
+   set_keys(the_keys) ::: get_from(OBJECT)
+   ! This is for setting the "keys" externally.
+     the_keys :: STRVEC(len=*,:)
+   end
+
+   clear_keys ::: get_from(OBJECT)
+   ! This is for destroying the "keys" externally.
+   end
+
+   put_table_footer ::: get_from(OBJECT)
+   ! Output a table footer from the list of "keys". NOTE: not all keywords need
+   ! contribute to the banner - any unrecognised keyword is skipped.
+   end
+
+   put_table_header
+   ! Output a table header from the list of "keys". NOTE: not all keywords need
+   ! contribute to the banner - any unrecognised keyword is skipped.
+     word :: STR
+     width,k :: INT
+     width = .table_width
+     if (width > 0) then
+       stdout.dash(width=width)
+       do k = 1,size(keys)
+         word = keys(k)
+         word.to_lower_case
+         select case (word)
+           case ("flush       "); stdout.flush; exit
+           case ("put_indices "); stdout.put("h",int_width=TRUE)
+                                  stdout.put("k",int_width=TRUE)
+                                  stdout.put("l",int_width=TRUE)
+           case ("put_h       "); stdout.put("h",int_width=TRUE)
+           case ("put_k       "); stdout.put("k",int_width=TRUE)
+           case ("put_l       "); stdout.put("l",int_width=TRUE)
+           case ("put_f_calc  "); stdout.put("F_calc",width=2*stdout.real_width)
+           case ("put_f_exp   "); stdout.put("F_exp")
+           case ("put_f_pred  "); stdout.put("F_pred")
+           case ("put_f_sigma "); stdout.put("F_sigma")
+           case ("put_f_phase "); stdout.put("F_phase")
+           case ("put_f_z     "); stdout.put("F_z")
+           case ("put_f_z2    "); stdout.put("F_z2")
+           case ("put_i_exp   "); stdout.put("I_exp")
+           case ("put_i_pred  "); stdout.put("I_pred")
+           case ("put_i_sigma "); stdout.put("I_sigma")
+           case ("put_i_z     "); stdout.put("I_z")
+           case default
+         end
+         if (k==size(keys)) then
+           stdout.flush ! In case they didn't write one.
+           WARN("no flush keyword - you may later overrun the output buffer")
+         end
+       end
+       stdout.dash(width=width)
+     end
+   end
+
+   table_width result (res)
+   ! Return the table width in characters, based on "keys".  Note that not all
+   ! keywords need to contribute to the banner - if a keyword is not recognised,
+   ! then it is skipped.
+     res :: INT
+     word :: STR
+     int_dash,real_dash,k :: INT
+     ENSURE(keys.created,"no keywords")
+     int_dash = 0
+     real_dash = 0
+     do k = 1,size(keys)
+       word = keys(k)
+       word.to_lower_case
+       select case (word)
+         case ("flush       "); exit
+         case ("put_indices "); int_dash = int_dash + 3
+         case ("put_h       "); int_dash = int_dash + 1
+         case ("put_k       "); int_dash = int_dash + 1
+         case ("put_l       "); int_dash = int_dash + 1
+         case ("put_f_calc  "); real_dash = real_dash + 2
+         case ("put_f_exp   "); real_dash = real_dash + 1
+         case ("put_f_pred  "); real_dash = real_dash + 1
+         case ("put_f_sigma "); real_dash = real_dash + 1
+         case ("put_f_phase "); real_dash = real_dash + 1
+         case ("put_f_z     "); real_dash = real_dash + 1
+         case ("put_f_z2    "); real_dash = real_dash + 1
+         case ("put_i_exp   "); real_dash = real_dash + 1
+         case ("put_i_pred  "); real_dash = real_dash + 1
+         case ("put_i_sigma "); real_dash = real_dash + 1
+         case ("put_i_z     "); real_dash = real_dash + 1
+         case default
+       end
+     end
+     res = int_dash * stdout.int_width + real_dash * stdout.real_width
+   end
+
+!*******************************************************************************
+!                           Enquiry Routines
+!*******************************************************************************
+
+   F_z result (res) ::: pure
+   ! Return the z statistic for the predicted structure factor.
+     self :: IN
+     res :: REAL
+     res = sign(ONE,real(.F_calc)) * (.F_pred - .F_exp) / .F_sigma
+   end
+
+   F_z2 result (res) ::: pure
+   ! Return the z**2 statistic for the predicted structure factor.
+     self :: IN
+     res :: REAL
+     z :: REAL
+     z = (.F_pred - .F_exp) / .F_sigma
+     res = z*z
+   end
+
+   F_r result(res) ::: pure
+   ! Return the r factor for the predicted structure factor.
+     self :: IN
+     res :: REAL
+     res = (.F_pred - .F_exp) / .F_exp
+   end
+
+   I_z result (res) ::: pure
+   ! Return the z statistic for the predicted intensity.
+     self :: IN
+     res :: REAL
+     res = (.I_pred - .I_exp) / .I_sigma
+   end
+
+   F_phase result (res) ::: pure
+   ! Return the phase angle of the complex structure factor.
+     self :: IN
+     res :: REAL
+     res = atan2(aimag(.F_calc),real(.F_calc))
+   end
+end

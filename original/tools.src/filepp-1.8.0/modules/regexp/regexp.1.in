@@ -1,0 +1,66 @@
+.\"  Hey Emacs! This file is -*- nroff -*- source.
+.\" __FILEPP_INPUT__ version __VERSION__
+.\" filepp is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program; see the file COPYING.  If not, write to
+.\" the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+.\"
+.SH REGEXP MODULE - regexp.pm
+The regexp module allows Perl regular expression replacement to be
+done with filepp. Its file name is \fBregexp.pm\fP.
+.PP
+Perl regular expression replacement allows a regular expression to be
+searched for and replaced with something else.  Regular expressions
+are defined as follows:
+.TP
+.BR #regexp " /\fIregexp\fP/\fIreplacement\fP/"
+It is very similar to the Perl syntax and the following Perl code will
+be executed on each line of the input file:
+.TP
+.BR $line " =~ s/\fIregexp\fP/\fIreplacement\fP/g"
+For users who don't understand Perl, this means replace all
+occurrences of \fIregexp\fP in the current line with
+\fIreplacement\fP.
+.PP
+A full description of regular expressions and possible replacements is
+beyond the scope of this man page.  More information can be found in
+the Perl documentation using the command:
+.TP
+.BR perldoc " \fBperlre\fP"
+.PP
+Any number of regular expressions can be defined.  Each regular
+expression is evaluated once for each line of the input file.  Regular
+expressions are evaluated in the order they are defined.
+.PP
+Regular expressions can be undefined in the following way:
+.TP
+.BR #rmregexp " /\fIregexp\fP/\fIreplacement\fP/"
+This will remove the specified regular expression.
+.PP
+In debugging mode the current list of regular expressions can be
+viewed using the pragma keyword:
+.TP
+.BR #pragma " \fBfilepp\fP \fIShowRegexp\fP"
+When not in debugging mode, this will produce no output.
+.PP
+A single regular expression can also be defined on the command line
+using the \fIREGEXP\fP macro, for example:
+.PP
+filepp -D\fIREGEXP\fP=/\fIregexp\fP/\fIreplacement\fP/ -m regexp.pm inputfile
+.PP
+Note: the \fIREGEXP\fP macro must be defined BEFORE the regexp module
+is loaded, putting -D\fIREGEXP\fP... after -m regexp.pm will not work.
+When using the command line approach, if the \fIREGEXP\fP macro is
+successfully parsed as a regular expression it will be undefined from
+the normal filepp macro list before processing starts.  Care should
+obviously be taken when escaping special characters in the shell with
+command line regexps.

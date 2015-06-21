@@ -1,0 +1,41 @@
+# Schedule definitions for thorn pugh
+# $Header: /cactus/CactusPUGH/PUGH/schedule.ccl,v 1.9 2001/09/26 08:01:58 rideout Exp $
+
+schedule PUGH_Startup at STARTUP as Driver_Startup
+{
+  LANG:C
+} "Startup routine"
+
+schedule PUGH_Report at BASEGRID
+{
+  LANG:C
+} "Report on PUGH set up"
+
+if (timer_output)
+{
+  schedule PUGH_PrintTimingInfo at TERMINATE
+  {
+    LANG:C
+  } "Print time spent in communication"
+}
+
+if (CCTK_Equals(storage_verbose,"yes") || CCTK_Equals(storage_verbose,"report") )
+{
+  schedule PUGH_PrintFinalStorageReport at TERMINATE
+  {
+    LANG:C
+  } "Print storage information"
+}
+
+if (CCTK_Equals(storage_verbose,"yes") || CCTK_Equals(storage_verbose,"report"))
+{
+  schedule PUGH_PrintStorageReport at POSTSTEP
+  {
+    LANG:C
+  } "Print storage information"
+}
+
+schedule PUGH_Terminate at TERMINATE as Driver_Terminate
+{
+  LANG:C
+} "Termination routine"

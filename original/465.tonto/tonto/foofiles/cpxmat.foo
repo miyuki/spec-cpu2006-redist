@@ -1,0 +1,2623 @@
+!---------------------------------------------------------------------------
+!
+!  complex matrix operations :: CPXMAT ...
+!
+! Copyright (C) Dylan Jayatilaka, 1996
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: cpxmat.foo,v 1.17.2.2 2003/11/13 05:34:39 reaper Exp $
+!---------------------------------------------------------------------------
+
+module CPXMAT
+
+   implicit none
+
+   tol5 :: REAL, private = 1.0d-5
+!   tol10 :: REAL, private = 1.0d-10
+
+contains
+
+   create(dim1,dim2) ::: get_from(INTRINSICMAT)
+   ! Create a matrix with the given dimensions
+      self :: PTR
+      dim1,dim2 :: INT, IN
+   end
+
+   create(lb1,ub1,lb2,ub2) ::: get_from(INTRINSICMAT)
+   ! Create a matrix with the given dimensions
+      self :: PTR
+      lb1,ub1,lb2,ub2 :: INT, IN
+   end
+
+   destroy ::: get_from(INTRINSICMAT)
+   ! Destroy the object
+      self :: PTR
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   is_square result(res) ::: get_from(INTRINSICMAT), pure
+   ! Returns TRUE if the matrix is square
+      self :: IN
+      res :: BIN
+   end
+
+   is_symmetric(tol) result(res)
+   ! Returns TRUE if the matrix is symmetric. You can set the tolerance "tol"
+   ! for comparison.
+      res :: BIN
+      tol :: REAL, optional
+      res = .is_square AND .same_as(transpose(self),tol)
+   end
+
+   is_antisymmetric(tol) result(res)
+   ! Returns TRUE if the matrix is symmetric. You can set the tolerance "tol"
+   ! for comparison.
+      res :: BIN
+      tol :: REAL, optional
+      res = .is_square AND .same_as(-transpose(self),tol)
+   end
+
+   is_hermitian(tol) result(res)
+   ! Returns TRUE if the matrix is hermitian. You can set the tolerance "tol"
+   ! for comparison.
+      self :: IN
+      res :: BIN
+      tol :: REAL, optional
+      res = .is_square AND .same_as(transpose(conjg(self)),tol)
+   end
+
+   is_antihermitian(tol) result(res)
+   ! Returns TRUE if the matrix is antihermitian. You can set the tolerance
+   ! "tol" for comparison.
+      self :: IN
+      res :: BIN
+      tol :: REAL, optional
+      res = .is_square AND .same_as(-transpose(conjg(self)),tol)
+   end
+
+   is_same_shape_as(b) result(res) ::: get_from(INTRINSICMAT), pure
+   ! Returns TRUE if the matrix "b" has the same shape as self
+      self :: IN
+      b :: CPXMAT, IN
+      res :: BIN
+   end
+
+   is_same_shape_as(b) result(res) ::: get_from(INTRINSICMAT), pure
+   ! Returns TRUE if the matrix "b" has the same shape as self
+      self :: IN
+      b :: REALMAT, IN
+      res :: BIN
+   end
+
+   is_transposed_shape_of(b) result(res) ::: get_from(INTRINSICMAT), pure
+   ! Returns TRUE if the matrix "b" is the transposed shape of self
+      self :: IN
+      b :: CPXMAT, IN
+      res :: BIN
+   end
+
+   is_transposed_shape_of(b) result(res) ::: get_from(INTRINSICMAT), pure
+   ! Returns TRUE if the matrix "b" is the transposed shape of self
+      self :: IN
+      b :: REALMAT, IN
+      res :: BIN
+   end
+
+   is_zero(eps) result (res)
+   ! Return TRUE is "self" is the zero matrix, i.e. every element is zero.
+   ! If present, "eps" is used to decide when a small number is zero.
+      eps :: REAL, optional, IN
+      res :: BIN
+      dim1,dim2,i,j :: INT
+      re,im :: REAL
+      dim1 = .dim1
+      dim2 = .dim2
+      res = TRUE
+      do i = 1,dim1
+      do j = 1,dim2
+         re = real(self(i,j))
+         im = aimag(self(i,j))
+         if (re.is_zero(eps) AND im.is_zero(eps)) cycle
+         res = FALSE
+         exit
+      end
+      end
+   end
+
+   dot(l,r) result (res)
+   ! Multiply the matrix self by the complex conjugate of vector "l" on the left
+   ! and vector "r" on the right ie:  res = l^\dagger self r. Useful for
+   ! non-unit metric dot_products.
+     l,r :: CPXVEC, IN
+     res :: CPX
+     w :: CPXVEC*
+     ENSURE(.dim1==l.dim,"wrong size, r")
+     ENSURE(.dim2==r.dim,"wrong size, r")
+     w.create(l.dim)
+     w.to_product_of(self,r)
+     res = dot_product(l,w)
+     w.destroy
+   end
+
+   to_product_of(a,b,dagger_a,dagger_b)
+   ! Set "self" to the matrix product of "a" and "b". If present,
+   ! "dagger_a" and "dagger_b" can be set to TRUE if "a" and "b"
+   ! needs to be daggerred.
+      a, b :: CPXMAT
+      dagger_a, dagger_b :: BIN, optional
+      dagg_a,dagg_b :: BIN
+      opt :: INT
+      dima,dim1,dim2,i,j,k :: INT
+      temp :: CPX
+      dagg_a = FALSE;       dagg_b = FALSE
+      if (present(dagger_a)) dagg_a = dagger_a
+      if (present(dagger_b)) dagg_b = dagger_b
+      opt = 0
+      if (dagg_a) opt = opt + 1
+      if (dagg_b) opt = opt + 2
+      select case (opt)
+        case (0) ! .to_product_an_bn
+          ENSURE( .dim1==a.dim1,"incompatible shapes")
+          ENSURE( .dim2==b.dim2,"incompatible shapes")
+          ENSURE(a.dim2==b.dim1,"incompatible shapes")
+          dima = a.dim2
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + a(i,k) * b(k,j)
+            end
+            self(i,j) = temp
+          end
+          end
+        case (1) ! .to_product_ad_bn
+          ENSURE( .dim1==a.dim2,"incompatible shapes")
+          ENSURE( .dim2==b.dim2,"incompatible shapes")
+          ENSURE(a.dim1==b.dim1,"incompatible shapes")
+          dima = a.dim1
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + conjg(a(k,i)) * b(k,j)
+            end
+            self(i,j) = temp
+          end
+          end
+        case (2) ! .to_product_an_bd
+          ENSURE( .dim1==a.dim1,"incompatible shapes")
+          ENSURE( .dim2==b.dim1,"incompatible shapes")
+          ENSURE(a.dim2==b.dim2,"incompatible shapes")
+          dima = a.dim2
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + a(i,k) * conjg(b(j,k))
+            end
+            self(i,j) = temp
+          end
+          end
+        case (3) ! .to_product_ad_bd
+          ENSURE( .dim1==a.dim2,"incompatible shapes")
+          ENSURE( .dim2==b.dim1,"incompatible shapes")
+          ENSURE(a.dim1==b.dim2,"incompatible shapes")
+          dima = a.dim1
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + conjg(a(k,i)) * conjg(b(j,k))
+            end
+            self(i,j) = temp
+          end
+          end
+      end
+   end
+
+   to_product_of(a,b,dagger_a,transpose_b)
+   ! Set "self" to the product of complex matrix "a" and real matrix "b".
+   ! If present, "dagger_a" and "transpose_b" can be set to TRUE
+   ! if "a" and "b" needs to be daggerred or transposed.
+      a :: CPXMAT
+      b :: REALMAT
+      dagger_a, transpose_b :: BIN, optional
+      dagg_a,trans_b :: BIN
+      opt :: INT
+      dima,dim1,dim2,i,j,k :: INT
+      temp :: CPX
+      dagg_a = FALSE;           trans_b = FALSE
+      if (present(dagger_a))    dagg_a  = dagger_a
+      if (present(transpose_b)) trans_b = transpose_b
+      opt = 0
+      if (dagg_a)  opt = opt + 1
+      if (trans_b) opt = opt + 2
+      select case (opt)
+        case(0) ! .to_product_an_bn
+          ENSURE( .dim1==a.dim1,"incompatible shapes")
+          ENSURE( .dim2==b.dim2,"incompatible shapes")
+          ENSURE(a.dim2==b.dim1,"incompatible shapes")
+          dima = a.dim2
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              self(i,j) = self(i,j) + a(i,k) * b(k,j)
+            end
+            self(i,j) = temp
+          end
+          end
+        case(1) ! .to_product_ad_bn
+          ENSURE( .dim1==a.dim2,"incompatible shapes")
+          ENSURE( .dim2==b.dim2,"incompatible shapes")
+          ENSURE(a.dim1==b.dim1,"incompatible shapes")
+          dima = a.dim1
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              self(i,j) = self(i,j) + conjg(a(k,i)) * b(k,j)
+            end
+            self(i,j) = temp
+          end
+          end
+        case(2) ! .to_product_an_bt
+          ENSURE( .dim2==b.dim1,"incompatible shapes")
+          ENSURE(a.dim2==b.dim2,"incompatible shapes")
+          dima = a.dim2
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              self(i,j) = self(i,j) + a(i,k) * b(j,k)
+            end
+            self(i,j) = temp
+          end
+          end
+        case(3) ! .to_product_ad_bt
+          ENSURE( .dim1==a.dim2,"incompatible shapes")
+          ENSURE( .dim2==b.dim1,"incompatible shapes")
+          ENSURE(a.dim1==b.dim2,"incompatible shapes")
+          dima = a.dim1
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              self(i,j) = self(i,j) + conjg(a(k,i)) * b(j,k)
+            end
+            self(i,j) = temp
+          end
+          end
+      end
+   end
+
+   to_product_of(a,b,transpose_a,dagger_b)
+   ! Set "self" to the product of real matrix "a" and complex matrix "b".
+   ! If present, "transpose_a" and "dagger_b" can be set to TRUE
+   ! if "a" and "b" needs to be daggerred or transposed.
+      a :: REALMAT
+      b :: CPXMAT
+      transpose_a, dagger_b :: BIN, optional
+      trans_a,dagg_b :: BIN
+      opt :: INT
+      dima,dim1,dim2,i,j,k :: INT
+      temp :: CPX
+      trans_a = FALSE;          dagg_b  = FALSE
+      if (present(transpose_a)) trans_a = transpose_a
+      if (present(dagger_b))    dagg_b  = dagger_b
+      opt = 0
+      if (trans_a) opt = opt + 1
+      if (dagg_b)  opt = opt + 2
+      select case (opt)
+        case(0) ! .to_product_an_bn
+          ENSURE( .dim1==a.dim1,"incompatible shapes")
+          ENSURE( .dim2==b.dim2,"incompatible shapes")
+          ENSURE(a.dim2==b.dim1,"incompatible shapes")
+          dima = a.dim2
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              self(i,j) = self(i,j) + a(i,k) * b(k,j)
+            end
+            self(i,j) = temp
+          end
+          end
+        case(1) ! .to_product_at_bn
+          ENSURE( .dim1==a.dim2,"incompatible shapes")
+          ENSURE( .dim2==b.dim2,"incompatible shapes")
+          ENSURE(a.dim1==b.dim1,"incompatible shapes")
+          dima = a.dim1
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              self(i,j) = self(i,j) + a(k,i) * b(k,j)
+            end
+            self(i,j) = temp
+          end
+          end
+        case(2) ! .to_product_an_bd
+          ENSURE( .dim1==a.dim1,"incompatible shapes")
+          ENSURE( .dim2==b.dim1,"incompatible shapes")
+          ENSURE(a.dim2==b.dim2,"incompatible shapes")
+          dima = a.dim2
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              self(i,j) = self(i,j) + a(i,k) * conjg(b(j,k))
+            end
+            self(i,j) = temp
+          end
+          end
+        case(3) ! .to_product_at_bd
+          ENSURE( .dim1==a.dim2,"incompatible shapes")
+          ENSURE( .dim2==b.dim1,"incompatible shapes")
+          ENSURE(a.dim1==b.dim2,"incompatible shapes")
+          dima = a.dim1
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              self(i,j) = self(i,j) + a(k,i) * conjg(b(j,k))
+            end
+            self(i,j) = temp
+          end
+          end
+      end
+   end
+
+   plus_product_of(a,b,dagger_a,dagger_b)
+   ! Add to "self" the matrix product of "a" and "b". If present, "dagger_a"
+   ! and "dagger_b" can be set to TRUE if "a" and "b" neeb to be daggerd.
+      a, b :: CPXMAT
+      dagger_a, dagger_b :: BIN, optional
+      dagg_a,dagg_b :: BIN
+      opt :: INT
+      dima,dim1,dim2,i,j,k :: INT
+      temp :: CPX
+      dagg_a = FALSE;        dagg_b = FALSE
+      if (present(dagger_a)) dagg_a = dagger_a
+      if (present(dagger_b)) dagg_b = dagger_b
+      opt = 0
+      if (dagg_a) opt = opt + 1
+      if (dagg_b) opt = opt + 2
+      select case (opt)
+        case(0) ! .plus_product_an_bn
+          ENSURE( .dim1==a.dim1,"incompatible shapes")
+          ENSURE( .dim2==b.dim2,"incompatible shapes")
+          ENSURE(a.dim2==b.dim1,"incompatible shapes")
+          dima = a.dim2
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + a(i,k) * b(k,j)
+            end
+            self(i,j) = self(i,j) + temp
+          end
+          end
+        case(1) ! .plus_product_ad_bn
+          ENSURE( .dim1==a.dim2,"incompatible shapes")
+          ENSURE( .dim2==b.dim2,"incompatible shapes")
+          ENSURE(a.dim1==b.dim1,"incompatible shapes")
+          dima = a.dim1
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + conjg(a(k,i)) * b(k,j)
+            end
+            self(i,j) = self(i,j) + temp
+          end
+          end
+        case(2) ! .plus_product_an_bd
+          ENSURE( .dim1==a.dim1,"incompatible shapes")
+          ENSURE( .dim2==b.dim1,"incompatible shapes")
+          ENSURE(a.dim2==b.dim2,"incompatible shapes")
+          dima = a.dim2
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + a(i,k) * conjg(b(j,k))
+            end
+            self(i,j) = self(i,j) + temp
+          end
+          end
+        case(3) ! .plus_product_ad_bd
+          ENSURE( .dim1==a.dim2,"incompatible shapes")
+          ENSURE( .dim2==b.dim1,"incompatible shapes")
+          ENSURE(a.dim1==b.dim2,"incompatible shapes")
+          dima = a.dim1
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + conjg(a(k,i)) * conjg(b(j,k))
+            end
+            self(i,j) = self(i,j) + temp
+          end
+          end
+      end
+   end
+
+   plus_product_of(a,b,dagger_a,transpose_b)
+   ! Add to "self" the matrix product of "a" and real matrix "b".
+   ! If present, "dagger_a" and "transpose_b" can be set to TRUE
+   ! if "a" and "b" need to be daggered or transposed
+      a :: CPXMAT
+      b :: REALMAT
+      dagger_a, transpose_b :: BIN, optional
+      dagg_a,trans_b :: BIN
+      opt :: INT
+      dima,dim1,dim2,i,j,k :: INT
+      temp :: CPX
+      dagg_a = FALSE;           trans_b = FALSE
+      if (present(dagger_a))    dagg_a = dagger_a
+      if (present(transpose_b)) trans_b = transpose_b
+      opt = 0
+      if (dagg_a)  opt = opt + 1
+      if (trans_b) opt = opt + 2
+      select case (opt)
+        case(0) ! .plus_product_an_bn
+          ENSURE( .dim1==a.dim1,"incompatible shapes")
+          ENSURE( .dim2==b.dim2,"incompatible shapes")
+          ENSURE(a.dim2==b.dim1,"incompatible shapes")
+          dima = a.dim2
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + a(i,k) * b(k,j)
+            end
+            self(i,j) = self(i,j) + temp
+          end
+          end
+        case(1) ! .plus_product_ad_bn
+          ENSURE( .dim1==a.dim2,"incompatible shapes")
+          ENSURE( .dim2==b.dim2,"incompatible shapes")
+          ENSURE(a.dim1==b.dim1,"incompatible shapes")
+          dima = a.dim1
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + conjg(a(k,i)) * b(k,j)
+            end
+            self(i,j) = self(i,j) + temp
+          end
+          end
+        case(2) ! .plus_product_an_bt
+          ENSURE( .dim1==a.dim1,"incompatible shapes")
+          ENSURE( .dim2==b.dim1,"incompatible shapes")
+          ENSURE(a.dim2==b.dim2,"incompatible shapes")
+          dima = a.dim2
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + a(i,k) * b(j,k)
+            end
+            self(i,j) = self(i,j) + temp
+          end
+          end
+        case(3) ! .plus_product_ad_bt
+          ENSURE( .dim1==a.dim2,"incompatible shapes")
+          ENSURE( .dim2==b.dim1,"incompatible shapes")
+          ENSURE(a.dim1==b.dim2,"incompatible shapes")
+          dima = a.dim1
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + conjg(a(k,i)) * b(j,k)
+            end
+            self(i,j) = self(i,j) + temp
+          end
+          end
+      end
+   end
+
+   plus_product_of(a,b,transpose_a,dagger_b)
+   ! Add to "self" the product of real matrix "a" and complex matrix "b".
+   ! If present, "tranpose_a" and "dagger_b" can be set to TRUE if
+   ! "a" and "b" need to be transposed or daggerd.
+      a :: REALMAT
+      b :: CPXMAT
+      transpose_a, dagger_b :: BIN, optional
+      trans_a,dagg_b :: BIN
+      opt :: INT
+      dima,dim1,dim2,i,j,k :: INT
+      temp :: CPX
+      trans_a = FALSE;          dagg_b  = FALSE
+      if (present(transpose_a)) trans_a = transpose_a
+      if (present(dagger_b))    dagg_b  = dagger_b
+      opt = 0
+      if (trans_a) opt = opt + 1
+      if (dagg_b)  opt = opt + 2
+      select case (opt)
+        case(0) ! .plus_product_an_bn
+          ENSURE( .dim1==a.dim1,"incompatible shapes")
+          ENSURE( .dim2==b.dim2,"incompatible shapes")
+          ENSURE(a.dim2==b.dim1,"incompatible shapes")
+          dima = a.dim2
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + a(i,k) * b(k,j)
+            end
+            self(i,j) = self(i,j) + temp
+          end
+          end
+        case(1) ! .plus_product_at_bn
+          ENSURE( .dim1==a.dim2,"incompatible shapes")
+          ENSURE( .dim2==b.dim2,"incompatible shapes")
+          ENSURE(a.dim1==b.dim1,"incompatible shapes")
+          dima = a.dim1
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + a(k,i) * b(k,j)
+            end
+            self(i,j) = self(i,j) + temp
+          end
+          end
+        case(2) ! .plus_product_an_bd
+          ENSURE( .dim1==a.dim1,"incompatible shapes")
+          ENSURE( .dim2==b.dim1,"incompatible shapes")
+          ENSURE(a.dim2==b.dim2,"incompatible shapes")
+          dima = a.dim2
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + a(i,k) * conjg(b(j,k))
+            end
+            self(i,j) = self(i,j) + temp
+          end
+          end
+        case(3) ! .plus_product_at_bd
+          ENSURE( .dim1==a.dim2,"incompatible shapes")
+          ENSURE( .dim2==b.dim1,"incompatible shapes")
+          ENSURE(a.dim1==b.dim2,"incompatible shapes")
+          dima = a.dim1
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + a(k,i) * conjg(b(j,k))
+            end
+            self(i,j) = self(i,j) + temp
+          end
+          end
+      end
+   end
+
+   to_scaled_product_of(fac,a,b,dagger_a,dagger_b)
+   ! Set "self" to the matrix product of "a" and "b" scaled by "fac". If
+   ! present, "dagger_a" and "dagger_b" can be set to TRUE if "a" and "b"
+   ! need to be daggerred.
+      fac :: REAL
+      a, b :: CPXMAT
+      dagger_a, dagger_b :: BIN, optional
+      dagg_a,dagg_b :: BIN
+      opt :: INT
+      dima,dim1,dim2,i,j,k :: INT
+      temp :: CPX
+      dagg_a = FALSE;        dagg_b = FALSE
+      if (present(dagger_a)) dagg_a = dagger_a
+      if (present(dagger_b)) dagg_b = dagger_b
+      opt = 0
+      if (dagg_a) opt = opt + 1
+      if (dagg_b) opt = opt + 2
+      select case (opt)
+        case(0) ! .to_scaled_product_an_bn
+          ENSURE( .dim1==a.dim1,"incompatible shapes")
+          ENSURE( .dim2==b.dim2,"incompatible shapes")
+          ENSURE(a.dim2==b.dim1,"incompatible shapes")
+          dima = a.dim2
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              self(i,j) = self(i,j) + a(i,k) * b(k,j)
+            end
+            self(i,j) = fac*temp
+          end
+          end
+        case(1) ! .to_scaled_product_ad_bn
+          ENSURE( .dim1==a.dim2,"incompatible shapes")
+          ENSURE( .dim2==b.dim2,"incompatible shapes")
+          ENSURE(a.dim1==b.dim1,"incompatible shapes")
+          dima = a.dim1
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              self(i,j) = self(i,j) + conjg(a(k,i)) * b(k,j)
+            end
+            self(i,j) = fac*temp
+          end
+          end
+        case(2) ! .to_scaled_product_an_bd
+          ENSURE( .dim1==a.dim1,"incompatible shapes")
+          ENSURE( .dim2==b.dim1,"incompatible shapes")
+          ENSURE(a.dim2==b.dim2,"incompatible shapes")
+          dima = a.dim2
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              self(i,j) = self(i,j) + a(i,k) * conjg(b(j,k))
+            end
+            self(i,j) = fac*temp
+          end
+          end
+        case(3) ! .to_scaled_product_ad_bd
+          ENSURE( .dim1==a.dim2,"incompatible shapes")
+          ENSURE( .dim2==b.dim1,"incompatible shapes")
+          ENSURE(a.dim1==b.dim2,"incompatible shapes")
+          dima = a.dim1
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              self(i,j) = self(i,j) + conjg(a(k,i)) * conjg(b(j,k))
+            end
+            self(i,j) = fac*temp
+          end
+          end
+      end
+   end
+
+   to_scaled_product_of(fac,a,b,dagger_a,transpose_b)
+   ! Set "self" to the matrix product of "a" and real matrix "b" scaled by "fac".
+   ! If present, "dagger_a" and "transpose_b" can be set to TRUE if "a" and "b"
+   ! need to be daggerred or transposed.
+      fac :: REAL
+      a :: CPXMAT
+      b :: REALMAT
+      dagger_a, transpose_b :: BIN, optional
+      dagg_a,trans_b :: BIN
+      opt :: INT
+      dima,dim1,dim2,i,j,k :: INT
+      temp :: CPX
+      dagg_a = FALSE;           trans_b = FALSE
+      if (present(dagger_a))    dagg_a  = dagger_a
+      if (present(transpose_b)) trans_b = transpose_b
+      opt = 0
+      if (dagg_a)  opt = opt + 1
+      if (trans_b) opt = opt + 2
+      select case (opt)
+        case(0) ! .to_scaled_product_an_bn
+          ENSURE( .dim1==a.dim1,"incompatible shapes")
+          ENSURE( .dim2==b.dim2,"incompatible shapes")
+          ENSURE(a.dim2==b.dim1,"incompatible shapes")
+          dima = a.dim2
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              self(i,j) = self(i,j) + a(i,k) * b(k,j)
+            end
+            self(i,j) = fac*temp
+          end
+          end
+        case(1) ! .to_scaled_product_ad_bn
+          ENSURE( .dim1==a.dim2,"incompatible shapes")
+          ENSURE( .dim2==b.dim2,"incompatible shapes")
+          ENSURE(a.dim1==b.dim1,"incompatible shapes")
+          dima = a.dim1
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              self(i,j) = self(i,j) + conjg(a(k,i)) * b(k,j)
+            end
+            self(i,j) = fac*temp
+          end
+          end
+        case(2) ! .to_scaled_product_an_bt
+          ENSURE( .dim1==a.dim1,"incompatible shapes")
+          ENSURE( .dim2==b.dim1,"incompatible shapes")
+          ENSURE(a.dim2==b.dim2,"incompatible shapes")
+          dima = a.dim2
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              self(i,j) = self(i,j) + a(i,k) * b(j,k)
+            end
+            self(i,j) = fac*temp
+          end
+          end
+        case(3) ! .to_scaled_product_ad_bt
+          ENSURE( .dim1==a.dim2,"incompatible shapes")
+          ENSURE( .dim2==b.dim1,"incompatible shapes")
+          ENSURE(a.dim1==b.dim2,"incompatible shapes")
+          dima = a.dim1
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              self(i,j) = self(i,j) + conjg(a(k,i)) * b(j,k)
+            end
+            self(i,j) = fac*temp
+          end
+          end
+      end
+   end
+
+   to_scaled_product_of(fac,a,b,transpose_a,dagger_b)
+   ! Set "self" to the product of real matrix "a" and complex "b" scaled by "fac".
+   ! If present, "transpose_a" and "dagger_b" can be set to TRUE if "a" and "b"
+   ! need to be transposed or daggerred.
+      fac :: REAL
+      a :: REALMAT
+      b :: CPXMAT
+      transpose_a, dagger_b :: BIN, optional
+      trans_a,dagg_b :: BIN
+      opt :: INT
+      dima,dim1,dim2,i,j,k :: INT
+      temp :: CPX
+      trans_a = FALSE;          dagg_b  = FALSE
+      if (present(transpose_a)) trans_a = transpose_a
+      if (present(dagger_b))    dagg_b  = dagger_b
+      opt = 0
+      if (trans_a) opt = opt + 1
+      if (dagg_b)  opt = opt + 2
+      select case (opt)
+        case(0) ! .to_scaled_product_an_bn
+          ENSURE( .dim1==a.dim1,"incompatible shapes")
+          ENSURE( .dim2==b.dim2,"incompatible shapes")
+          ENSURE(a.dim2==b.dim1,"incompatible shapes")
+          dima = a.dim2
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + a(i,k) * b(k,j)
+            end
+            self(i,j) = fac*temp
+          end
+          end
+        case(1) ! .to_scaled_product_at_bn
+          ENSURE( .dim1==a.dim2,"incompatible shapes")
+          ENSURE( .dim2==b.dim2,"incompatible shapes")
+          ENSURE(a.dim1==b.dim1,"incompatible shapes")
+          dima = a.dim1
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + a(k,i) * b(k,j)
+            end
+            self(i,j) = fac*temp
+          end
+          end
+        case(2) ! .to_scaled_product_an_bd
+          ENSURE( .dim1==a.dim1,"incompatible shapes")
+          ENSURE( .dim2==b.dim1,"incompatible shapes")
+          ENSURE(a.dim2==b.dim2,"incompatible shapes")
+          dima = a.dim2
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + a(i,k) * conjg(b(j,k))
+            end
+            self(i,j) = fac*temp
+          end
+          end
+        case(3) ! .to_scaled_product_at_bd
+          ENSURE( .dim1==a.dim2,"incompatible shapes")
+          ENSURE( .dim2==b.dim1,"incompatible shapes")
+          ENSURE(a.dim1==b.dim2,"incompatible shapes")
+          dima = a.dim1
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + a(k,i) * conjg(b(j,k))
+            end
+            self(i,j) = fac*temp
+          end
+          end
+      end
+   end
+
+   plus_scaled_product_of(fac,a,b,dagger_a,dagger_b)
+   ! Add to "self" the matrix product of "a" and "b" scaled by "fac". If
+   ! present, "dagger_a" and "dagger_b" can be set to TRUE if "a" and "b"
+   ! need to be daggerred.
+      fac :: REAL
+      a, b :: CPXMAT
+      dagger_a, dagger_b :: BIN, optional
+      dagg_a,dagg_b :: BIN
+      opt :: INT
+      dima,dim1,dim2,i,j,k :: INT
+      temp :: CPX
+      dagg_a = FALSE;        dagg_b = FALSE
+      if (present(dagger_a)) dagg_a = dagger_a
+      if (present(dagger_b)) dagg_b = dagger_b
+      opt = 0
+      if (dagg_a) opt = opt + 1
+      if (dagg_b) opt = opt + 2
+      select case (opt)
+        case(0) ! .plus_scaled_product_an_bn
+          ENSURE( .dim1==a.dim1,"incompatible shapes")
+          ENSURE( .dim2==b.dim2,"incompatible shapes")
+          ENSURE(a.dim2==b.dim1,"incompatible shapes")
+          dima = a.dim2
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + fac * a(i,k) * b(k,j)
+            end
+            self(i,j) = self(i,j) + fac*temp
+          end
+          end
+        case(1) ! .plus_scaled_product_ad_bn
+          ENSURE( .dim1==a.dim2,"incompatible shapes")
+          ENSURE( .dim2==b.dim2,"incompatible shapes")
+          ENSURE(a.dim1==b.dim1,"incompatible shapes")
+          dima = a.dim1
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + fac * conjg(a(k,i)) * b(k,j)
+            end
+            self(i,j) = self(i,j) + fac*temp
+          end
+          end
+        case(2) ! .plus_scaled_product_an_bd
+          ENSURE( .dim1==a.dim1,"incompatible shapes")
+          ENSURE( .dim2==b.dim1,"incompatible shapes")
+          ENSURE(a.dim2==b.dim2,"incompatible shapes")
+          dima = a.dim2
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + fac * a(i,k) * conjg(b(j,k))
+            end
+            self(i,j) = self(i,j) + fac*temp
+          end
+          end
+        case(3) ! .plus_scaled_product_ad_bd
+          ENSURE( .dim1==a.dim2,"incompatible shapes")
+          ENSURE( .dim2==b.dim1,"incompatible shapes")
+          ENSURE(a.dim1==b.dim2,"incompatible shapes")
+          dima = a.dim1
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + fac * conjg(a(k,i)) * conjg(b(j,k))
+            end
+            self(i,j) = self(i,j) + fac*temp
+          end
+          end
+      end
+   end
+
+   plus_scaled_product_of(fac,a,b,dagger_a,transpose_b)
+   ! Add to "self" the matrix product of "a" and real matrix "b" scaled by "fac".
+   ! If present, "dagger_a" and "transpose_b" can be set to TRUE if "a" and "b"
+   ! need to be daggerred or transposed.
+      fac :: REAL
+      a :: CPXMAT
+      b :: REALMAT
+      dagger_a, transpose_b :: BIN, optional
+      dagg_a,trans_b :: BIN
+      opt :: INT
+      dima,dim1,dim2,i,j,k :: INT
+      temp :: CPX
+      dagg_a = FALSE;           trans_b = FALSE
+      if (present(dagger_a))    dagg_a  = dagger_a
+      if (present(transpose_b)) trans_b = transpose_b
+      opt = 0
+      if (dagg_a)  opt = opt + 1
+      if (trans_b) opt = opt + 2
+      select case (opt)
+        case(0) ! .plus_scaled_product_an_bn
+          ENSURE( .dim1==a.dim1,"incompatible shapes")
+          ENSURE( .dim2==b.dim2,"incompatible shapes")
+          ENSURE(a.dim2==b.dim1,"incompatible shapes")
+          dima = a.dim2
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + fac * a(i,k) * b(k,j)
+            end
+            self(i,j) = self(i,j) + fac*temp
+          end
+          end
+        case(1) ! .plus_scaled_product_ad_bn
+          ENSURE( .dim1==a.dim2,"incompatible shapes")
+          ENSURE( .dim2==b.dim2,"incompatible shapes")
+          ENSURE(a.dim1==b.dim1,"incompatible shapes")
+          dima = a.dim1
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + fac * conjg(a(k,i)) * b(k,j)
+            end
+            self(i,j) = self(i,j) + fac*temp
+          end
+          end
+        case(2) ! .plus_scaled_product_an_bt
+          ENSURE( .dim1==a.dim1,"incompatible shapes")
+          ENSURE( .dim2==b.dim1,"incompatible shapes")
+          ENSURE(a.dim2==b.dim2,"incompatible shapes")
+          dima = a.dim2
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + fac * a(i,k) * b(j,k)
+            end
+            self(i,j) = self(i,j) + fac*temp
+          end
+          end
+        case(3) ! .plus_scaled_product_ad_bt
+          ENSURE( .dim1==a.dim2,"incompatible shapes")
+          ENSURE( .dim2==b.dim1,"incompatible shapes")
+          ENSURE(a.dim1==b.dim2,"incompatible shapes")
+          dima = a.dim1
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + fac * conjg(a(k,i)) * b(j,k)
+            end
+            self(i,j) = self(i,j) + fac*temp
+          end
+          end
+      end
+   end
+
+   plus_scaled_product_of(fac,a,b,transpose_a,dagger_b)
+   ! Add to "self" the product of real matrix "a" and complex "b" scaled by "fac".
+   ! If present, "transpose_a" and "dagger_b" can be set to TRUE if "a" and "b"
+   ! need to be transposed or daggerred.
+      fac :: REAL
+      a :: REALMAT
+      b :: CPXMAT
+      transpose_a, dagger_b :: BIN, optional
+      trans_a,dagg_b :: BIN
+      opt :: INT
+      dima,dim1,dim2,i,j,k :: INT
+      temp :: CPX
+      trans_a = FALSE;          dagg_b  = FALSE
+      if (present(transpose_a)) trans_a = transpose_a
+      if (present(dagger_b))    dagg_b  = dagger_b
+      opt = 0
+      if (trans_a) opt = opt + 1
+      if (dagg_b)  opt = opt + 2
+      select case (opt)
+        case(0) ! .plus_scaled_product_an_bn
+          ENSURE( .dim1==a.dim1,"incompatible shapes")
+          ENSURE( .dim2==b.dim2,"incompatible shapes")
+          ENSURE(a.dim2==b.dim1,"incompatible shapes")
+          dima = a.dim2
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + fac * a(i,k) * b(k,j)
+            end
+            self(i,j) = self(i,j) + fac*temp
+          end
+          end
+        case(1) ! .plus_scaled_product_at_bn
+          ENSURE( .dim1==a.dim2,"incompatible shapes")
+          ENSURE( .dim2==b.dim2,"incompatible shapes")
+          ENSURE(a.dim1==b.dim1,"incompatible shapes")
+          dima = a.dim1
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + fac * a(k,i) * b(k,j)
+            end
+            self(i,j) = self(i,j) + fac*temp
+          end
+          end
+        case(2) ! .plus_scaled_product_an_bd
+          ENSURE( .dim1==a.dim1,"incompatible shapes")
+          ENSURE( .dim2==b.dim1,"incompatible shapes")
+          ENSURE(a.dim2==b.dim2,"incompatible shapes")
+          dima = a.dim2
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + fac * a(i,k) * conjg(b(j,k))
+            end
+            self(i,j) = self(i,j) + fac*temp
+          end
+          end
+        case(3) ! .plus_scaled_product_at_bd
+          ENSURE( .dim1==a.dim2,"incompatible shapes")
+          ENSURE( .dim2==b.dim1,"incompatible shapes")
+          ENSURE(a.dim1==b.dim2,"incompatible shapes")
+          dima = a.dim1
+          dim1 = .dim1
+          dim2 = .dim2
+          do i=1,dim1
+          do j=1,dim2
+            temp = (ZERO,ZERO)
+            do k=1,dima
+              temp = temp + fac * a(k,i) * conjg(b(j,k))
+            end
+            self(i,j) = self(i,j) + fac*temp
+          end
+          end
+      end
+   end
+
+   to_product_with_diagonal(a,diag,dagger_a)
+   ! set self to the product of "a" and with diagonal "diag"
+      a :: CPXMAT
+      diag :: REALVEC
+      dagger_a :: BIN, optional
+      a1,a2,s1,s2,d1,i,j :: INT
+      diag_j :: REAL
+      ENSURE(.is_same_shape_as(a),"incompatible dimensions")
+      s1 = .dim1; s2 = .dim2
+      a1 = a.dim1;    a2 = a.dim2
+      d1 = diag.dim
+      if (present(dagger_a)) then
+         ENSURE(a1==d1,"incompatible dimensions")
+         do j = 1,s2
+           diag_j = diag(j)
+           do i = 1,s1
+             self(i,j) = conjg(a(j,i))*diag_j
+           end
+         end
+      else
+         ENSURE(a2==d1,"incompatible dimensions")
+         do j = 1,s2
+           diag_j = diag(j)
+           do i = 1,s1
+             self(i,j) = a(i,j)*diag_j
+           end
+         end
+      end
+   end
+
+   to_product_with_diagonal(dg,a,dagger_a)
+   ! set self to the product of diagonal "dg" with "a"
+      a :: CPXMAT
+      dg :: REALVEC
+      dagger_a :: BIN, optional
+      a1,a2,s1,s2,d1,i,j :: INT
+      dg_i :: REAL
+      ENSURE(.is_same_shape_as(a),"incompatible dimensions")
+      s1 = .dim1;  s2 = .dim2
+      a1 = a.dim1; a2 = a.dim2
+      d1 = dg.dim
+      if (present(dagger_a)) then
+         ENSURE(a2==d1,"incompatible dimensions")
+         do i = 1,s1
+           dg_i = dg(i)
+           do j = 1,s2
+             self(i,j) = dg_i*conjg(a(j,i))
+           end
+         end
+      else
+         ENSURE(a1==d1,"incompatible dimensions")
+         do i = 1,s1
+           dg_i = dg(i)
+           do j = 1,s2
+             self(i,j) = dg_i*a(i,j)
+           end
+         end
+      end
+   end
+
+   trace result (res) ::: get_from(INTRINSICMAT)
+   ! Return the trace of self
+      self :: IN
+      res :: ELEMENT_TYPE
+   end
+
+! These next few commented routines are unused ESSL routines.
+
+!   solve_general_eigenproblem(eigenvalues,eigenvectors)
+!   ! Solve the eigenproblem for "self", yeilding a vector of "eigenvalues" and
+!   ! a matrix of "eigenvectors"
+!      eigenvalues :: CPXVEC
+!      eigenvectors :: CPXMAT
+!       W :: REALVEC*
+!      dim1,dim2,dime,dimv :: INT
+!      select :: BIN
+!      dim1 = .dim1
+!      dim2 = .dim2
+!      dime = size(eigenvalues)
+!      dimv = size(eigenvectors)
+!      ENSURE(dim1==dim2,"non-square matrix")
+!      ENSURE(dime>=dim1,"supplied eigenvalue array too small")
+!      ENSURE(dimv>=dim1*dim1,"supplied eigenvector matrix too small")
+!      W.create(3*dim1)
+!      call zgeev(1,self,dim1,eigenvalues,eigenvectors,dim1,select,dim1,W,3*dim1)
+!      W.destroy
+!   end
+!
+!   solve_linear_equations(rhs,solution)
+!   ! Solve the linear equations posed by "self", with "rhs" as the RHS vector,
+!   ! yeilding vector "solution" as the answer
+!      rhs, solution :: CPXVEC
+!      err,nrhs :: INT
+!      LU :: CPXMAT*
+!      pivot :: INTVEC*
+!      dim,dim1,dim2 :: INT
+!      dim1 = .dim1
+!      dim2 = .dim2
+!      ENSURE(dim1==dim2,"non-square matrix")
+!      dim = size(rhs)
+!      ENSURE(dim==dim1,"incompatible rhs")
+!      nrhs = 1
+!      LU.create(dim,dim)
+!      pivot.create(dim)
+!      LU = self
+!      solution = rhs
+!      call zgef(LU,dim,dim,pivot)
+!      call zges(LU,dim,dim,pivot,solution,0)
+!      pivot.destroy
+!      LU.destroy
+!   end
+!
+!   solve_linear_equations(rhs,solution)
+!   ! Solve the linear equations posed by "self", with "rhs" as a matrix of RHS vectors,
+!   ! yeilding matrix "solution" as a matrix of solution vectors.
+!      rhs, solution :: CPXMAT
+!      err,nrhs :: INT
+!      LU :: CPXMAT*
+!      pivot :: INTVEC*
+!      dim1,dim2 :: INT
+!      dim1 = .dim1
+!      dim2 = .dim2
+!      ENSURE(dim1==dim2,"non-square matrix")
+!      dim1 = size(rhs,1)
+!      nrhs = size(rhs,2)
+!      ENSURE(dim1==dim2,"rhs incompatible with coefficient matrix")
+!      ENSURE(nrhs>0,"no rhs vectors")
+!      LU.create(dim1,dim1)
+!      pivot.create(dim1)
+!      LU = self
+!      solution = rhs
+!      call zgef(LU,dim1,dim1,pivot)
+!      call zgesm("N",LU,dim1,dim1,pivot,solution,dim1,nrhs)
+!      pivot.destroy
+!      LU.destroy
+!   end
+
+   solve_eigenproblem(eigenvalues,eigenvectors,routine)
+   ! Solve the hermitian eigenvalue problem for self
+      eigenvalues :: REALVEC
+      eigenvectors :: CPXMAT
+      routine :: STR(*), optional
+#ifdef ESSL
+      .solve_eigenproblem_ESSL(eigenvalues,eigenvectors,routine)
+#else
+      .solve_eigenproblem_LAPACK(eigenvalues,eigenvectors,routine)
+#endif
+   end
+
+   solve_eigenproblem_ESSL(eigenvalues,eigenvectors,routine) ::: private
+   ! Solve the hermitian eigenvalue problem for self. ESSL version.
+      eigenvalues :: REALVEC
+      eigenvectors :: CPXMAT
+      routine :: STR(*), optional
+      ap :: CPXVEC*
+      RW :: REALVEC*
+      dim :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(eigenvalues.dim>=.dim1,"supplied eigenvalue array too small")
+      ENSURE(eigenvectors.dim>=self.dim,"supplied eigenvector array too small")
+      ENSURE(NOT present(routine),"routine specifier not allowed in ESSL version")
+      dim = .dim1
+      ap.create(dim*(dim+1)/2)
+      self.compress_to_triangle(ap)
+      RW.create(4*dim)
+#ifdef ESSL
+      call zhpev(21,ap,eigenvalues,eigenvectors,dim,dim,RW,4*dim)
+#endif
+      RW.destroy
+      ap.destroy
+   end
+
+   solve_eigenproblem_LAPACK(eigenvalues,eigenvectors,routine) ::: private
+   ! Solve the hermitian eigenvalue problem for self. LAPACK version.
+      eigenvalues :: REALVEC
+      eigenvectors :: CPXMAT
+      routine :: STR(*), optional
+      rout :: STR
+      ap,W :: CPXVEC*
+      RW :: REALVEC*
+      dim,fail,info :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(eigenvalues.dim>=.dim1,"supplied eigenvalue array too small")
+      ENSURE(eigenvectors.dim>=self.dim,"supplied eigenvector array too small")
+      rout = "zheev"
+      if (present(routine)) rout = routine
+      dim = .dim1
+      select case (rout)
+        case ("zheev")
+          W.create(dim*dim)
+          RW.create(3*dim)
+          eigenvectors.set_to(self)
+          fail = 0
+#ifndef ESSL
+          call zheev("V","L",dim,eigenvectors,dim,eigenvalues,W,dim*dim,RW,fail)
+#endif
+          RW.destroy
+          W.destroy
+        case ("zhpev")
+          ap.create(dim*(dim+1)/2)
+          self.compress_to_triangle(ap)
+          W.create(2*dim)
+          RW.create(3*dim)
+#ifndef ESSL
+          call zhpev("V","U",dim,ap,eigenvalues,eigenvectors,dim,W,RW,info)
+#endif
+          RW.destroy
+          W.destroy
+          ap.destroy
+      end
+   end
+
+   trace_of_product_with(b) result (res)
+   ! Return the trace of the product of self with "b"
+      b :: CPXMAT, IN
+      res :: CPX
+      res = .trace_of_product(b)
+   end
+
+   trace_of_product(b) result (res)
+   ! Return the trace of the product of self with "b"
+      self :: IN
+      b :: CPXMAT, IN
+      res :: CPX
+      a1,a2,i,j :: INT
+      ENSURE(.is_transposed_shape_of(b),"incompatible shape")
+      a1 = .dim1
+      a2 = .dim2
+      res = ZERO
+      if (a1==1 AND a2==1) then
+        res = self(1,1)*b(1,1)
+      else
+        res = ZERO
+        do i = 1,a1
+          do j = 1,a2
+            res = res + self(i,j)*b(j,i)
+          end
+        end
+      end
+   end
+
+   trace_of_product_with(b) result (res)
+   ! Return the trace of the product of self with real matrix "b"
+      self :: IN
+      b :: REALMAT, IN
+      res :: CPX
+      res = .trace_of_product(b)
+   end
+
+   trace_of_product(b) result (res)
+   ! Return the trace of the product of self with real matrix "b"
+      self :: IN
+      b :: REALMAT, IN
+      res :: CPX
+      a1,a2,i,j :: INT
+      ENSURE(.is_transposed_shape_of(b),"incompatible shape")
+      a1 = .dim1
+      a2 = .dim2
+      if (a1==1 AND a2==1) then
+        res = self(1,1)*b(1,1)
+      else
+        res = ZERO
+        do i = 1,a1
+          do j = 1,a2
+            res = res + self(i,j)*b(j,i)
+          end
+        end
+      end
+   end
+
+   equals(b) result(res)
+   ! Check if the matrix is the same as "b".
+      self :: IN
+      b :: CPXMAT, IN
+      res :: BIN
+      res = .same_as(b)
+   end
+
+   same_as(b, tol) result(res)
+   ! Return TRUE if self is the same as "b:", within tolerance "tol", if
+   ! provided, or 10^-5 if not.
+      b :: CPXMAT
+      tol :: REAL, optional
+      res :: BIN
+      diff :: REAL
+      a1,a2,i,j :: INT
+      tolerance :: REAL
+      ENSURE(.is_same_shape_as(b),"incompatible shape")
+      a1 = .dim1
+      a2 = .dim2
+      if (present(tol))     tolerance = tol
+      if (NOT present(tol)) tolerance = tol5
+      diff = ZERO
+      do i = 1,a1
+      do j = 1,a2
+         diff = diff + abs(self(j,i)-b(j,i))**2
+      end
+      end
+      diff = sqrt(diff)
+      res = FALSE
+      if (diff<tolerance) res=TRUE
+   end
+
+   swap_columns(col1,col2) ::: get_from(INTRINSICMAT)
+   ! Swap columns "col1" and "col2" of self
+      col1,col2 :: INT, IN
+   end
+
+   set_to(b) ::: get_from(INTRINSICMAT)
+   ! Set self to "b"
+      b :: SELF_TYPE, IN
+   end
+
+   plus(b) ::: get_from(INTRINSICMAT)
+   ! Add to self the matrix "b"
+      b :: SELF_TYPE, IN
+   end
+
+   minus(b) ::: get_from(INTRINSICMAT)
+   ! Subtract from self the matrix "b"
+      b :: SELF_TYPE, IN
+   end
+
+   to_scaled_mat(fac,b)
+   ! Set self to the scaled matrix "b"
+      b :: CPXMAT, IN
+      fac :: CPX, IN
+      ENSURE(.is_same_shape_as(b),"incompatible shape")
+      self = fac*b
+   end
+
+   to_scaled_mat(fac,b)
+   ! Set self to the scaled matrix "b"
+      b :: CPXMAT, IN
+      fac :: REAL, IN
+      ENSURE(.is_same_shape_as(b),"incompatible shape")
+      self = fac*b
+   end
+
+   plus_scaled_mat(fac,b)
+   ! Add to self the scaled matrix "b"
+      b :: CPXMAT, IN
+      fac :: CPX, IN
+      ENSURE(.is_same_shape_as(b),"incompatible shape")
+      self = self+fac*b
+   end
+
+   plus_scaled_mat(fac,b)
+   ! Add to self the scaled matrix "b"
+      b :: CPXMAT, IN
+      fac :: REAL, IN
+      ENSURE(.is_same_shape_as(b),"incompatible shape")
+      self = self+fac*b
+   end
+
+   change_basis(V)
+   ! Change the basis of self using matrix V, i.e. self = V^dagger self V
+      V :: CPXMAT
+      W :: CPXMAT*
+      o1,v2 :: INT
+      ENSURE( .is_square,"non-square matrix")
+      ENSURE(V.is_square,"new basis not square")
+      ENSURE(.dim1==V.dim1,"incompatible sizes")
+      o1 = .dim1
+      v2 = V.dim2
+      W.create(o1,v2)
+      W.to_product_of(self,V)
+      self.to_product_of(V,W,dagger_a=TRUE)
+   !  W = matmul(self,V)
+   !  self = matmul(transpose(conjg(V)),W)
+      W.destroy
+   end
+
+   change_basis(L,R)
+   ! Change the basis of self using diagonals L and R, i.e. self = L^T self R
+      L,R :: REALVEC
+      W :: CPXMAT*
+      l1,r1 :: INT
+      ENSURE(.dim1==L.dim,"incompatible sizes")
+      ENSURE(.dim2==R.dim,"incompatible sizes")
+      l1 = L.dim
+      r1 = R.dim
+      W.create(l1,r1)
+      W.to_product_with_diagonal(self,R)
+      self.to_product_with_diagonal(L,W)
+      W.destroy
+   end
+
+   change_basis(new,V)
+   ! Set new = V^T self V
+      new :: CPXMAT, OUT
+      V :: CPXMAT, IN
+      W :: CPXMAT*
+      o1,v2 :: INT
+      ENSURE(   .is_square,"non-square matrix")
+      ENSURE(new.is_square,"new basis not square")
+      ENSURE(V.dim1==.dim2,"incompatible sizes")
+      ENSURE(V.dim2==new.dim2,"incompatible sizes")
+      o1 = .dim1
+      v2 = V.dim2
+      W.create(o1,v2)
+      W.to_product_of(self,V)
+      new.to_product_of(V,W,dagger_a=TRUE)
+      W.destroy
+   end
+
+   change_basis(new,V)
+   ! Set new = V^T self V, V a real matrix
+      self :: IN
+      new :: CPXMAT, INOUT
+      V :: REALMAT, IN
+      W :: CPXMAT*
+      o1,v2 :: INT
+      ENSURE(   .is_square,"non-square matrix")
+      ENSURE(new.is_square,"new basis not square")
+      ENSURE(V.dim1==.dim2,"incompatible sizes")
+      ENSURE(V.dim2==new.dim2,"incompatible sizes")
+      o1 = .dim1
+      v2 = V.dim2
+      W.create(o1,v2)
+      W.to_product_of(self,V)
+      new.to_product_of(V,W,transpose_a=TRUE)
+      W.destroy
+   end
+
+   back_transform(new,V)
+   ! Back transform "self" using vectors "V", and place the result in "new",
+   ! new = V self V^dagger
+      new,V :: CPXMAT
+      W :: CPXMAT*
+      v1,o2 :: INT
+      ENSURE(   .is_square,"non-square matrix")
+      ENSURE(new.is_square,"new basis not square")
+      ENSURE(V.dim1==new.dim1,"incompatible sizes")
+      ENSURE(V.dim2==.dim1,"incompatible sizes")
+      v1 = V.dim1
+      o2 = .dim2
+      W.create(v1,o2)
+      W.to_product_of(V,self) ! W = V self
+      new.to_product_of(W,V,dagger_b=TRUE)  ! new = V self V^dagger
+      W.destroy
+   end
+
+   compress_to_square(sq)
+   ! Compresses the hermitian matrix self to vector "sq". First comes the
+   ! lower half of the real part, then lower half of the imaginary part.
+      self :: IN
+      sq :: REALVEC
+      dim1,i,j,ij :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(sq.dim>=self.dim,"sq array too small")
+      dim1 = .dim1
+      ij = 0
+      do i = 1,dim1
+         do j = 1,i
+            sq(ij+j) = real(self(i,j),kind=REAL_KIND)
+         end
+         ij = ij+i
+      end
+      do i = 1,dim1
+         do j = 1,i-1
+            sq(ij+j) = aimag(self(i,j))
+         end
+         ij = ij+i-1
+      end
+   end
+
+   uncompress_from_square(sq)
+   ! Uncompress the vector "sq" to a hermitian matrix assuming the lower half
+   ! of the real part comes first, then the lower half of the imaginary part.
+      sq :: REALVEC
+      dim1,i,j,ij :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(sq.dim>=self.dim,"sq array too small")
+      dim1 = .dim1
+      ij = 0
+      do i = 1,dim1
+         do j = 1,i
+            self(i,j) = sq(ij+j)
+            self(j,i) = sq(ij+j)
+         end
+         ij = ij+i
+      end
+      do i = 1,dim1
+         do j = 1,i-1
+            self(i,j) = self(i,j) + cmplx(ZERO,sq(ij+j),kind=CPX_KIND)
+            self(j,i) = self(j,i) - cmplx(ZERO,sq(ij+j),kind=CPX_KIND)
+         end
+         ij = ij+i-1
+      end
+   end
+
+   compress_to_triangle(tr)
+   ! Converts the upper triangle of matrix self to the triangle "tr".
+      self :: IN
+      tr :: CPXVEC
+      dim1,i,j,ij :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(tr.dim>=.dim1*(.dim1+1)/2,"tr array too small")
+      dim1 = .dim1
+      ij = 0
+      do i = 1,dim1
+         do j = 1,i
+            tr(ij+j) = self(j,i)
+         end
+         ij = ij+i
+      end
+   end
+
+   uncompress_from_triangle(tr)
+   ! Converts the triangle "tr" into the hermitian matrix "self".
+   ! WARNING: won't work for symmetric matrices
+      tr :: CPXVEC
+      dim1,i,j,ij :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(tr.dim>=.tri_size,"tr array too small")
+      dim1 = .dim1
+      ij = 0
+      do i = 1,dim1
+         do j = 1,i
+            self(j,i) =       tr(ij+j)
+            self(i,j) = conjg(tr(ij+j))
+         end
+         ij = ij+i
+      end
+   end
+
+   from_diagonal(d)
+   ! Converts the diagonal vector "d" to matrix "self".
+      d :: REALVEC
+      dim,i :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(d.dim==.dim1,"wrong diagonal length")
+      dim  = d.dim
+      self = ZERO
+      do i = 1,dim
+         self(i,i) = d(i)
+      end
+   end
+
+   tri_size result (ltr)
+   ! Returns the size of the lower triangle needed to store self.
+      self :: IN
+      ltr :: INT
+      dim1 :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim1 = .dim1
+      ltr = dim1*(dim1+1)/2
+   end
+
+   to_unit_mat
+   ! Set self to the unit matrix
+      dim,i :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim = .dim1
+      self = (0.0,0.0)
+      do i = 1,dim
+         self(i,i) = (1.0,0.0)
+      end
+   end
+
+   weight_diagonal(fac)
+   ! Weight the diagonals of self by "fac"
+      fac :: CPX
+      dim,i :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim = .dim1
+      do i = 1,dim
+         self(i,i) = fac*self(i,i)
+      end
+   end
+
+   weight_diagonal(fac)
+   ! Weight the diagonals of self by "fac"
+      fac :: REAL
+      dim,i :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim = .dim1
+      do i = 1,dim
+         self(i,i) = fac*self(i,i)
+      end
+   end
+
+   get_diagonal(diag)
+   ! Return the diagonals of self in "diag"
+      diag :: CPXVEC
+      dim,i :: INT
+      ENSURE(diag.dim==min(.dim1,.dim2),"diag vector is incompatible")
+      dim  = diag.dim
+      do i = 1,dim
+         diag(i) = self(i,i)
+      end
+   end
+
+   hermitian_fold
+   ! Add the hermitian conjugate of the upper half of the
+   ! matrix into its lower half.
+      dim1,i,j :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim1 = .dim1
+      do i = 1,dim1
+         do j=1,i-1
+            self(i,j) = self(i,j)+conjg(self(j,i))
+         end
+         self(i,i) = real(self(i,i),kind=REAL_KIND)
+      end
+   end
+
+   antihermitian_fold
+   ! Subtract the hermitian conjugate of the upper half of the
+   ! matrix into its lower half.
+      dim1,i,j :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim1 = .dim1
+      do i = 1,dim1
+         do j=1,i-1
+            self(i,j) = self(i,j)-conjg(self(j,i))
+         end
+         self(i,i) = ZERO
+      end
+   end
+
+   make_hermitian
+   ! Make the upper half of self hermitian with respect to the lower half
+      dim1,i,j :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim1 = .dim1
+      do i = 1,dim1
+         do j = 1,i-1
+            self(j,i) = conjg(self(i,j))
+         end
+      end
+      do i = 1,dim1
+         self(i,i) = real(self(i,i),kind=REAL_KIND)
+      end
+   end
+
+   hermitian_reflect
+   ! Make the upper half of self hermitian with respect
+   ! to the lower half
+      dim1,i,j :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim1 = .dim1
+      do i = 1,dim1
+         do j = 1,i-1
+            self(j,i) = conjg(self(i,j))
+         end
+      end
+      do i = 1,dim1
+         self(i,i) = real(self(i,i),kind=REAL_KIND)
+      end
+   end
+
+   make_antihermitian
+   ! Make the upper half of self anti-hermitian with respect
+   ! to the lower half
+      dim1,i,j :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim1 = .dim1
+      do i = 1,dim1
+         do j = 1,i-1
+            self(j,i) = -conjg(self(i,j))
+         end
+      end
+      do i = 1,dim1
+         self(i,i) = ZERO
+      end
+   end
+
+   antihermitian_reflect
+   ! Make the upper half of self anti-hermitian with respect
+   ! to the lower half
+      dim1,i,j :: INT
+      ENSURE(.is_square,"non-square matrix")
+      dim1 = .dim1
+      do i = 1,dim1
+         do j = 1,i-1
+            self(j,i) = -conjg(self(i,j))
+         end
+      end
+      do i = 1,dim1
+         self(i,i) = ZERO
+      end
+   end
+
+!  ************************
+!  Block returning routines
+!  ************************
+
+   alpha_alpha result(res)
+   ! return the alpha-alpha sector of the matrix
+      self :: TARGET
+      res :: CPXMAT*
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      res => self(1:n,1:n)
+   end
+
+   beta_alpha result(res)
+   ! return the beta-alpha sector of the matrix
+      self :: TARGET
+      res :: CPXMAT*
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      res => self(n+1:2*n,1:n)
+   end
+
+   alpha_beta result(res)
+   ! return the alpha-beta sector of the matrix
+      self :: TARGET
+      res :: CPXMAT*
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      res => self(1:n,n+1:2*n)
+   end
+
+   beta_beta result(res)
+   ! return the beta-beta sector of the matrix
+      self :: TARGET
+      res :: CPXMAT*
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      res => self(n+1:2*n,n+1:2*n)
+   end
+
+!  ***************
+!  Set_to routines
+!  ***************
+
+   alpha_alpha_set_to(X,factor)
+   ! Set the alpha-alpha sector of the matrix to "X"
+      X :: CPXMAT, IN
+      factor :: CPX, IN, optional
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      if (present(factor)) then; self(1:n,1:n) = factor*X
+      else;                      self(1:n,1:n) = X
+      end
+   end
+
+   alpha_alpha_set_to(X,factor)
+   ! Set the alpha-alpha sector of the matrix to "X"
+      X :: CPXMAT, IN
+      factor :: REAL, IN
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      self(1:n,1:n) = factor*X
+   end
+
+   alpha_alpha_set_to(X,factor)
+   ! Set the alpha-alpha sector of the matrix to "X"
+      X :: REALMAT, IN
+      factor :: CPX, IN, optional
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      if (present(factor)) then; self(1:n,1:n) = factor*X
+      else;                      self(1:n,1:n) = X
+      end
+   end
+
+   alpha_alpha_set_to(X,factor)
+   ! Set the alpha-alpha sector of the matrix to "X"
+      X :: REALMAT, IN
+      factor :: REAL, IN
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      self(1:n,1:n) = factor*X
+   end
+
+   beta_alpha_set_to(X,factor)
+   ! Set the beta-alpha sector of the matrix to "X"
+      X :: CPXMAT, IN
+      factor :: CPX, IN, optional
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      if (present(factor)) then; self(n+1:2*n,1:n) = factor*X
+      else;                      self(n+1:2*n,1:n) = X
+      end
+   end
+
+   beta_alpha_set_to(X,factor)
+   ! Set the beta-alpha sector of the matrix to "X"
+      X :: CPXMAT, IN
+      factor :: REAL, IN
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      self(n+1:2*n,1:n) = factor*X
+   end
+
+   beta_alpha_set_to(X,factor)
+   ! Set the beta-alpha sector of the matrix to "X"
+      X :: REALMAT, IN
+      factor :: CPX, IN, optional
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      if (present(factor)) then; self(n+1:2*n,1:n) = factor*X
+      else;                      self(n+1:2*n,1:n) = X
+      end
+   end
+
+   beta_alpha_set_to(X,factor)
+   ! Set the beta-alpha sector of the matrix to "X"
+      X :: REALMAT, IN
+      factor :: REAL, IN
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      self(n+1:2*n,1:n) = factor*X
+   end
+
+   alpha_beta_set_to(X,factor)
+   ! Set the alpha-beta sector of the matrix to "X"
+      X :: CPXMAT, IN
+      factor :: CPX, IN, optional
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      if (present(factor)) then; self(1:n,n+1:2*n) = factor*X
+      else;                      self(1:n,n+1:2*n) = X
+      end
+   end
+
+   alpha_beta_set_to(X,factor)
+   ! Set the alpha-beta sector of the matrix to "X"
+      X :: CPXMAT, IN
+      factor :: REAL, IN
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      self(1:n,n+1:2*n) = factor*X
+   end
+
+   alpha_beta_set_to(X,factor)
+   ! Set the alpha-beta sector of the matrix to "X"
+      X :: REALMAT, IN
+      factor :: CPX, IN, optional
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      if (present(factor)) then; self(1:n,n+1:2*n) = factor*X
+      else;                      self(1:n,n+1:2*n) = X
+      end
+   end
+
+   alpha_beta_set_to(X,factor)
+   ! Set the alpha-beta sector of the matrix to "X"
+      X :: REALMAT, IN
+      factor :: REAL, IN
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      self(1:n,n+1:2*n) = factor*X
+   end
+
+   beta_beta_set_to(X,factor)
+   ! Set the beta-beta sector of the matrix to "X"
+      X :: CPXMAT, IN
+      factor :: CPX, IN, optional
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      if (present(factor)) then; self(n+1:2*n,n+1:2*n) = factor*X
+      else;                      self(n+1:2*n,n+1:2*n) = X
+      end
+   end
+
+   beta_beta_set_to(X,factor)
+   ! Set the beta-beta sector of the matrix to "X"
+      X :: CPXMAT, IN
+      factor :: REAL, IN
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      self(n+1:2*n,n+1:2*n) = factor*X
+   end
+
+   beta_beta_set_to(X,factor)
+   ! Set the beta-beta sector of the matrix to "X"
+      X :: REALMAT, IN
+      factor :: CPX, IN, optional
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      if (present(factor)) then; self(n+1:2*n,n+1:2*n) = factor*X
+      else;                      self(n+1:2*n,n+1:2*n) = X
+      end
+   end
+
+   beta_beta_set_to(X,factor)
+   ! Set the beta-beta sector of the matrix to "X"
+      X :: REALMAT, IN
+      factor :: REAL, IN
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      self(n+1:2*n,n+1:2*n) = factor*X
+   end
+
+!  ***************
+!  Put_to routines
+!  ***************
+
+   alpha_alpha_put_to(X,factor)
+   ! Put the alpha-alpha sector of the matrix to "X"
+      X :: CPXMAT, OUT
+      factor :: CPX, IN, optional
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      if (present(factor)) then; X = factor*self(1:n,1:n)
+      else;                      X = self(1:n,1:n)
+      end
+   end
+
+   alpha_alpha_put_to(X,factor)
+   ! Put the alpha-alpha sector of the matrix to "X"
+      X :: CPXMAT, OUT
+      factor :: REAL
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      X = factor*self(1:n,1:n)
+   end
+
+   alpha_alpha_put_to(X,factor)
+   ! Put the alpha-alpha sector of the matrix to "X"
+      X :: REALMAT, OUT
+      factor :: CPX, IN, optional
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      if (present(factor)) then; X = factor*self(1:n,1:n)
+      else;                      X = self(1:n,1:n)
+      end
+   end
+
+   alpha_alpha_put_to(X,factor)
+   ! Put the alpha-alpha sector of the matrix to "X"
+      X :: REALMAT, OUT
+      factor :: REAL, IN
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      X = factor*self(1:n,1:n)
+   end
+
+   beta_alpha_put_to(X,factor)
+   ! Put the beta-alpha sector of the matrix to "X"
+      X :: CPXMAT, OUT
+      factor :: CPX, IN, optional
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      if (present(factor)) then; X = factor*self(n+1:2*n,1:n)
+      else;                      X = self(n+1:2*n,1:n)
+      end
+   end
+
+   beta_alpha_put_to(X,factor)
+   ! Put the beta-alpha sector of the matrix to "X"
+      X :: CPXMAT, OUT
+      factor :: REAL, IN
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      X = factor*self(n+1:2*n,1:n)
+   end
+
+   beta_alpha_put_to(X,factor)
+   ! Put the beta-alpha sector of the matrix to "X"
+      X :: REALMAT, OUT
+      factor :: CPX, IN, optional
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      if (present(factor)) then; X = factor*self(n+1:2*n,1:n)
+      else;                      X = self(n+1:2*n,1:n)
+      end
+   end
+
+   beta_alpha_put_to(X,factor)
+   ! Put the beta-alpha sector of the matrix to "X"
+      X :: REALMAT, OUT
+      factor :: REAL, IN
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      X = factor*self(n+1:2*n,1:n)
+   end
+
+   alpha_beta_put_to(X,factor)
+   ! Put the alpha-beta sector of the matrix to "X"
+      X :: CPXMAT, OUT
+      factor :: CPX, IN, optional
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      if (present(factor)) then; X = factor*self(1:n,n+1:2*n)
+      else;                      X = self(1:n,n+1:2*n)
+      end
+   end
+
+   alpha_beta_put_to(X,factor)
+   ! Put the alpha-beta sector of the matrix to "X"
+      X :: CPXMAT, OUT
+      factor :: REAL, IN
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      X = factor*self(1:n,n+1:2*n)
+   end
+
+   alpha_beta_put_to(X,factor)
+   ! Put the alpha-beta sector of the matrix to "X"
+      X :: REALMAT, OUT
+      factor :: CPX, IN, optional
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      if (present(factor)) then; X = factor*self(1:n,n+1:2*n)
+      else;                      X = self(1:n,n+1:2*n)
+      end
+   end
+
+   alpha_beta_put_to(X,factor)
+   ! Put the alpha-beta sector of the matrix to "X"
+      X :: REALMAT, OUT
+      factor :: REAL, IN
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      X = factor*self(1:n,n+1:2*n)
+   end
+
+   beta_beta_put_to(X,factor)
+   ! Put the beta-beta sector of the matrix to "X"
+      X :: CPXMAT, OUT
+      factor :: CPX, IN, optional
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      if (present(factor)) then; X = factor*self(n+1:2*n,n+1:2*n)
+      else;                      X = self(n+1:2*n,n+1:2*n)
+      end
+   end
+
+   beta_beta_put_to(X,factor)
+   ! Put the beta-beta sector of the matrix to "X"
+      X :: CPXMAT, OUT
+      factor :: REAL, IN
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      X = factor*self(n+1:2*n,n+1:2*n)
+   end
+
+   beta_beta_put_to(X,factor)
+   ! Put the beta-beta sector of the matrix to "X"
+      X :: REALMAT, OUT
+      factor :: CPX, IN, optional
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      if (present(factor)) then; X = factor*self(n+1:2*n,n+1:2*n)
+      else;                      X = self(n+1:2*n,n+1:2*n)
+      end
+   end
+
+   beta_beta_put_to(X,factor)
+   ! Put the beta-beta sector of the matrix to "X"
+      X :: REALMAT, OUT
+      factor :: REAL, IN
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      X = factor*self(n+1:2*n,n+1:2*n)
+   end
+
+!  *************
+!  plus routines
+!  *************
+
+   alpha_alpha_plus(X,factor)
+   ! Add "X" to the alpha-alpha sector of the matrix
+      X :: CPXMAT, IN
+      factor :: CPX, IN, optional
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      if (present(factor)) then; self(1:n,1:n) = self(1:n,1:n) + factor*X
+      else;                      self(1:n,1:n) = self(1:n,1:n) + X
+      end
+   end
+
+   alpha_alpha_plus(X,factor)
+   ! Add "X" to the alpha-alpha sector of the matrix
+      X :: CPXMAT, IN
+      factor :: REAL, IN
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      self(1:n,1:n) = self(1:n,1:n) + factor*X
+   end
+
+   alpha_alpha_plus(X,factor)
+   ! Add "X" to the alpha-alpha sector of the matrix
+      X :: REALMAT, IN
+      factor :: CPX, IN, optional
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      if (present(factor)) then; self(1:n,1:n) = self(1:n,1:n) + factor*X
+      else;                      self(1:n,1:n) = self(1:n,1:n) + X
+      end
+   end
+
+   alpha_alpha_plus(X,factor)
+   ! Add "X" to the alpha-alpha sector of the matrix
+      X :: REALMAT, IN
+      factor :: REAL, IN
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      self(1:n,1:n) = self(1:n,1:n) + factor*X
+   end
+
+   beta_alpha_plus(X,factor)
+   ! Add "X" to the beta-alpha sector of the matrix
+      X :: CPXMAT, IN
+      factor :: CPX, IN, optional
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      if (present(factor)) then; self(n+1:2*n,1:n) = self(n+1:2*n,1:n) + factor*X
+      else;                      self(n+1:2*n,1:n) = self(n+1:2*n,1:n) + X
+      end
+   end
+
+   beta_alpha_plus(X,factor)
+   ! Add "X" to the beta-alpha sector of the matrix
+      X :: CPXMAT, IN
+      factor :: REAL, IN
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      self(n+1:2*n,1:n) = self(n+1:2*n,1:n) + factor*X
+   end
+
+   beta_alpha_plus(X,factor)
+   ! Add "X" to the beta-alpha sector of the matrix
+      X :: REALMAT, IN
+      factor :: CPX, IN, optional
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      if (present(factor)) then; self(n+1:2*n,1:n) = self(n+1:2*n,1:n) + factor*X
+      else;                      self(n+1:2*n,1:n) = self(n+1:2*n,1:n) + X
+      end
+   end
+
+   beta_alpha_plus(X,factor)
+   ! Add "X" to the beta-alpha sector of the matrix
+      X :: REALMAT, IN
+      factor :: REAL, IN
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      self(n+1:2*n,1:n) = self(n+1:2*n,1:n) + factor*X
+   end
+
+   alpha_beta_plus(X,factor)
+   ! Add "X" to the alpha-beta sector of the matrix
+      X :: CPXMAT, IN
+      factor :: CPX, IN, optional
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      if (present(factor)) then; self(1:n,n+1:2*n) = self(1:n,n+1:2*n) + factor*X
+      else;                      self(1:n,n+1:2*n) = self(1:n,n+1:2*n) + X
+      end
+   end
+
+   alpha_beta_plus(X,factor)
+   ! Add "X" to the alpha-beta sector of the matrix
+      X :: CPXMAT, IN
+      factor :: REAL, IN
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      self(1:n,n+1:2*n) = self(1:n,n+1:2*n) + factor*X
+   end
+
+   alpha_beta_plus(X,factor)
+   ! Add "X" to the alpha-beta sector of the matrix
+      X :: REALMAT, IN
+      factor :: CPX, IN, optional
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      if (present(factor)) then; self(1:n,n+1:2*n) = self(1:n,n+1:2*n) + factor*X
+      else;                      self(1:n,n+1:2*n) = self(1:n,n+1:2*n) + X
+      end
+   end
+
+   alpha_beta_plus(X,factor)
+   ! Add "X" to the alpha-beta sector of the matrix
+      X :: REALMAT, IN
+      factor :: REAL, IN
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      self(1:n,n+1:2*n) = self(1:n,n+1:2*n) + factor*X
+   end
+
+   beta_beta_plus(X, factor)
+   ! Add "X" to the beta-beta sector of the matrix
+      X :: CPXMAT, IN
+      factor :: CPX, IN, optional
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      if (present(factor)) then; self(n+1:2*n,n+1:2*n) = self(n+1:2*n,n+1:2*n) + factor*X
+      else;                      self(n+1:2*n,n+1:2*n) = self(n+1:2*n,n+1:2*n) + X
+      end
+   end
+
+   beta_beta_plus(X, factor)
+   ! Add "X" to the beta-beta sector of the matrix
+      X :: CPXMAT, IN
+      factor :: REAL, IN
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      self(n+1:2*n,n+1:2*n) = self(n+1:2*n,n+1:2*n) + factor*X
+   end
+
+   beta_beta_plus(X,factor)
+   ! Add "X" to the beta-beta sector of the matrix
+      X :: REALMAT, IN
+      factor :: CPX, IN, optional
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      if (present(factor)) then; self(n+1:2*n,n+1:2*n) = self(n+1:2*n,n+1:2*n) + factor*X
+      else;                      self(n+1:2*n,n+1:2*n) = self(n+1:2*n,n+1:2*n) + X
+      end
+   end
+
+   beta_beta_plus(X,factor)
+   ! Add "X" to the beta-beta sector of the matrix
+      X :: REALMAT, IN
+      factor :: REAL, IN
+      n :: INT
+      ENSURE(.is_square,"non-square matrix")
+      ENSURE(.dim1.is_even,"not even-dimensioned")
+      n = .dim1/2
+      self(n+1:2*n,n+1:2*n) = self(n+1:2*n,n+1:2*n) + factor*X
+   end
+
+   schmidt_orthonormalise(S,scale)
+   ! Schmidt ortyhonormalise the column vectors in "self" using "S" as the
+   ! metric.  If "scale" is present, it is set to the product of the
+   ! normalisation factors used to normalise each column after the Schmidt
+   ! procedure.
+     self :: target
+     scale :: REAL, optional
+     S :: REALMAT, IN
+     dim,n,o :: INT
+     fac :: CPX
+     norm :: REAL
+     new,old :: CPXVEC*
+     ENSURE( .is_square,"non-square matrix")
+     ENSURE(S.is_square,"non-square matrix")
+     ENSURE(.dim1==S.dim1,"matrices not same size")
+     ENSURE(NOT .is_zero,"self is zero matrix")
+     if (present(scale)) scale = ONE
+     dim = .dim1
+     do n = 1,dim
+        new => self(:,n)
+        do o = 1,n-1
+           old => self(:,o)
+           fac = S.dot(old,new)
+           new = new - fac*old
+        end
+        norm = S.dot(new,new)
+        ENSURE(norm>MAT_LINEAR_DEPENDENCE_TOL,"linear dependence in vector "//n.to_str)
+        norm = 1/sqrt(norm)
+        new = new*norm
+        if (present(scale)) scale = scale*norm
+     end
+   end
+
+   symmetrically_orthonormalise(S)
+   ! Symmetrically orthonormalise the column vectors in "self" using "S" as the
+   ! metric.
+     S :: REALMAT, IN
+     SS,SI :: CPXMAT*
+     dim :: INT
+     ENSURE(.is_square,"non-square matrix")
+     ENSURE(.is_same_shape_as(S),"non-square matrix")
+     dim = S.dim1
+     SS.create(dim,dim)
+     SI.create(dim,dim)
+     SS = S
+     SS.change_basis(self)
+     SI.to_inverse_sqrt(SS)
+     SS.to_product_of(self,SI)
+     self = SS
+     SI.destroy
+     SS.destroy
+   end
+
+   to_sqrt(R)
+   ! self = sqrt(R), cannot have R=self
+      R :: CPXMAT
+      evec :: CPXMAT*
+      eval :: REALVEC*
+      veci,vecj :: CPXVEC*
+      d,i,j :: INT
+      temp :: REAL
+      d = R.dim1
+      eval.create(d)
+      evec.create(d,d)
+      R.solve_eigenproblem(eval,evec)
+      do i = 1,d
+         temp = eval(i)
+         if (temp <= ZERO) then
+           WARN("non-positive eigenvalue, " // trim(temp.to_str("e15.8")))
+         end
+         eval(i) = sqrt(abs(temp))
+      end
+      do i=1,d
+        veci => evec(i,:)
+        do j=1,d
+          vecj => evec(j,:)
+          self(i,j) = sum(veci*eval*vecj)
+        end
+      end
+      evec.destroy
+      eval.destroy
+   end
+
+   to_inverse_sqrt(R)
+   ! self = sqrt(R)^(-1), cannot have R=self
+      R :: CPXMAT
+      evec :: CPXMAT*
+      eval :: REALVEC*
+      veci,vecj :: CPXVEC*
+      d,i,j :: INT
+      val :: STR
+      temp :: REAL
+      d = R.dim1
+      eval.create(d)
+      evec.create(d,d)
+      R.solve_eigenproblem(eval,evec)
+      do i = 1,d
+         temp = eval(i)
+         val = temp.to_str("e15.8")
+         WARN_IF(temp<=ZERO,"non-positive eigenvalue, "// trim(val))
+         eval(i) = ONE/sqrt(abs(temp))
+      end
+      do i=1,d
+        veci => evec(i,:)
+        do j=1,d
+          vecj => evec(j,:)
+          self(i,j) = sum(veci*eval*vecj)
+        end
+      end
+      evec.destroy
+      eval.destroy
+   end
+
+end

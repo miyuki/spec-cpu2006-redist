@@ -1,0 +1,232 @@
+\documentstyle{report}
+\newcommand{\parameter}[1]{{\it #1}}
+
+\begin{document}
+
+\chapter{Einstein}
+
+\begin{tabular}{@{}ll}
+Code Authors & Joan Masso, Paul Walker, Ed Seidel, Gabrielle Allen,
+Gerd Lanfermann \\
+Maintained by & Cactus Developers \\
+Documentation Authors & 
+\end{tabular}
+
+\section{Introduction}
+  
+\subsection{Purpose of Thorn}
+
+
+\subsection{Technical Specification}
+
+\begin{itemize}
+
+\item{Implements} einstein
+\item{Inherits from} grid
+\item{Tested with thorns} Einstein
+
+\end{itemize}
+
+\section{Theoretical Background}
+
+
+\section{Algorithmic and Implementation Details}
+
+
+\subsection{Slicing registration}
+To allow for a flexible and expandable way of conditionally executing slicing
+routines we integrated a slicing registration structure into the Einstein
+thorn. The slicing registry works this way:
+We assume an evolution routine that offers some slicing algorithm as
+part of its evolution routine and an external thorn's slicing algorithm, e.g.
+maximal slicing. Each of these slicing is registered by name and
+obtains a unique number (``{\em handle}''). Before the evolution routine is
+carried out, the slicing parameters (and conditional functions (see
+below)) are evaluted and a (global) grid scalar is set to the handle
+of the slicing which is {\em active} during the next iterative step.
+
+Within the evolution routine, the code has to check if it is time to
+execute any of the slicings it offers or make a pass. In the code, the 
+programmer gets the handle for a particular slicing and compares it
+to {\tt active\_slicing\_handle}. It it matches, it can execute the
+slicing code, otherwise he continues, comparing to the next slicing he offers.
+
+Two parameters are used by the slicing mechanism: {\tt slicing}, which 
+can hold {\bf one} slicing name or the keyword {\tt mixed}. If {\tt
+mixed} is set, the second parameter {\tt mixed\_slicing} may be used to 
+specify more than one slicing, where priorities decrease with order/position.
+The use of conditional slicing functions is explained in the next section.
+
+
+\subsection{Using slicing registration}
+Here we give a detailed programming guide on how to incorporate a slicing and 
+a conditional function.
+\begin{enumerate}
+\item{\bf active\_slicing\_handle}: this grid scalar can be understood
+as global integer, that takes the handle of next active slicing. It is 
+set by the routine {\tt  Einstein\_SetNextSlicing}, scheduled at
+CCTK\_PRESTEP. This routine evaluates {\tt slicing}, {\tt
+mixed\_slicing} and any conditional slicing functions registered
+for any of the slicings mentioned in  {\tt mixed\_slicing}. Note that
+you cannot have a conditional slicing function for the single slicing mentioned 
+in the parameter {\tt slicing}.
+
+\item{\bf conditional slicing function} this is a function which is
+registered together with a slicing. This function must return the values
+{\tt SLICING\_YES}, {\tt SLICING\_DONTCARE} or {\tt SLICING\_NO}, (defined
+in {\tt ./Einstein/src/Slicing.h}). Depending of these return value, a 
+slicing is ``activated'': its handle is assigned to {\em
+active\_slicing\_handle}. Should more than one slicing insists on being
+activated, the slicing which is mentioned first in {\tt mixes\_slicing} 
+is given priority.
+
+\item{\bf Register slicing}: Initially, a thorn or evolution routine
+registers the slicing it offers with the slicing database {\em by name}.
+A index number (``{\em handle}'')is assigned to each of the
+slicings. The name under which the slicing is referenced in the
+database {\em has to be the same} as the value taken by the parameter
+{\tt slicing} ( same applies to{\tt mixed\_slicing}). For example in {\tt param.ccl}: 
+\begin{verbatim}
+shares:einstein
+
+EXTENDS KEYWORD slicing ""
+{
+   "static"   :: "Lapse is not evolved"
+   "geodesic" :: "Lapse is set to unity"
+}
+\end{verbatim}
+These slicing can now be registered with the slicing database in {\tt Startup.c}
+
+\begin{verbatim}
+#include "CactusEinstein/Einstein/src/Slicing.h"
+
+void MyEvol_RegisterSlicing(void) {
+  DECLARE_CCTK_PARAMETERS
+  handle = Einstein_RegisterSlicing("geodesic");
+  handle = Einstein_RegisterSlicing("static");
+}
+\end{verbatim}
+The function {\tt MyEvol\_RegisterSlicing(void)} can be scheduled at CCTK\_INITIAL
+FIXME. In this example,  the handle of the slicing is returned by the
+registration call but
+not used any further. Note that the slicing has to be coded, there is
+no check by system if this slicing code exists.
+
+\item{\bf Register ``time-to-slice'' function}: in addition, a
+conditional function can be associated with the slicing handle and 
+will be evalutated everytime that slicing is activated. This allows
+for simple conditionals (``use this slicing every second iteration'')
+to rather complex slicing conditionals (``use this slicing, when the
+lapse has collapsed in the center''). An extension of the example
+above could read:
+\begin{verbatim}
+ 
+#include "CactusEinstein/Einstein/src/Slicing.h"
+
+void MyEvol_RegisterSlicing(void) {
+  DECLARE_CCTK_PARAMETERS
+
+  int LapseHasCollapsed(cGH *GH);
+  int SliceEverySecondIteration(cGH *GH);
+
+  handle = Einstein_RegisterSlicing("default_slice");
+
+  handle = Einstein_RegisterSlicing("geodesic");
+  active = Einstein_RegisterTimeToSlice(handle, SliceEverySecondIteration);	
+
+  handle = Einstein_RegisterSlicing("static");
+  active = Einstein_RegisterTimeToSlice(handle, LapseHasCollapsed);	
+
+}
+
+
+int SliceEverySoManyIteration(cGH *GH) {
+  DECLARE_PARAMETER
+  if (cGH->cctk_iteration%geodesic_every==0) 
+    return(SLICING_YES);
+  else 
+    return(SLICING_NO);
+}
+
+int LapseHasCollapsed(cGH *GH) {
+  if (CheckLapse(GH)) 
+    return(SLICING_YES)
+  else
+    return(SLICING_DONTCARE)
+}
+
+\end{verbatim}
+Note that we include the Slicing.h, which defines our return values
+for the conditional functions. 
+
+In the example above we register two
+slicings and combine them with a condition:
+Slicing {\em geodesic} is activated only if the associated function
+{\tt SliceEverySoManyIteration} returns {\tt SLICING\_YES}. (This is
+the case if the iteration number modulo the value set in the parameter 
+{\tt geodesic\_every} is zero.)
+Otherwise, this slicing is {\em not} executed and the default slicing
+has to kick in. This default slicing could 
+be a slicing that has either {\em no} conditional function or its
+conditional function returns a {\tt SLICING\_DONTCARE}.
+
+Slicing {\em static} is activated, if the associated function returns
+{\tt SLICING\_YES}, which is the case if the lapse has collapsed 
+(as signaled by {\tt CheckLapse(GH)}). If the associated function returns
+the value {\tt SLICING\_DONTCARE} for a failed laps check,
+this slicing will be executed if no other slicing insists on being
+activated. 
+
+
+If two slicings insist on being activated ({\tt SLICING\_YES}) or two
+slicings don't care ({\tt SLICING\_DONTCARE}), the slicing mentioned in
+the parameter {\tt mixed\_slicing} is given priority. 
+
+\item{\bf Using the parameters}
+For the example above, the slicing section of the parameter file could 
+look like this:
+\begin{verbatim}
+einstein::slicing         =  ``mixed''
+einstein::mixed_slicing   =  ``default_slice geodesic static''
+einstein::geodesic_every  =  2
+\end{verbatim}
+Here we would execute {\em default\_slice} by default and+ every second
+iteration {\em geodesic} would kick in. Once the lapse has collapsed,
+{\em static} is executed, overriding the default, but {\em not}
+overriding {\em geodesic}, which is still activated every second
+iteration because it's positioned {\em before} the {\em static}.
+
+\item{\bf Set active slicing} The {\em active\_slicing\_handle} is set
+at {\tt CCTK\_BASEGRID} and {\tt CCTK\_PRESTEP}, {\em before} the
+evolution routine.
+
+\item{\bf Checking the for the active slicing}: Within the program,
+which provides a slicing, a check for the active slicing has to be
+done. Assuming a Fortran code has registered the two slicings
+``geodesic'' and ``static'', the code would like this:
+\begin{verbatim}
+subroutine MY_EVOLUTION(CCTK_ARGUMENTS)
+
+c     declare this function
+      INTEGER Einstein_GetSlicingHandle
+
+c     compare the handle for ``geodesic'' to active_slicing_handle
+      if (active_slicing_handle .eq. 
+     .    Einstein_GetSlicingHandle("geodesic")) then
+        <EXECUTE GEODESIC>
+      else if (active_slicing_handle .eq. 
+     .         Einstein_GetSlicingHandle("static")) then
+        <EXECUTE STATIC>
+      else if (Einstein_GetSlicingHandle(slicing).lt.0)
+         call CCTK_WARN(0,"ERROR: slicing in parfile not registered")
+      endif
+\end{verbatim}
+Here we first check for if the active handle corresponds to ``{\em
+geodesic}'', then ``{\em static}'' and if that fails, we do some
+primitive error management and check if the value of slicing is
+actually the key to a slicing in the database.
+
+\end{enumerate}
+
+
+\end{document}

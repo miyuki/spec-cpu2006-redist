@@ -1,0 +1,1616 @@
+<HTML><HEAD><SCRIPT language="JavaScript" src="../resources/script.js" type="text/javascript"></SCRIPT><TITLE>DOMBuilder class Reference</TITLE><link href="XercesApi.css" rel="stylesheet" type="text/css"></HEAD><BODY alink="#ff0000" bgcolor="#ffffff" leftmargin="4" link="#0000ff" marginheight="4" marginwidth="4" text="#000000" topmargin="4" vlink="#0000aa"><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" height="60" rowspan="3" valign="top" width="135"><IMG border="0" height="60" hspace="0" src="../resources/logo.gif" vspace="0" width="135"></TD><TD align="left" colspan="4" height="5" valign="top" width="456"><IMG border="0" height="5" hspace="0" src="../resources/line.gif" vspace="0" width="456"></TD><TD align="left" height="60" rowspan="3" valign="top" width="29"><IMG border="0" height="60" hspace="0" src="../resources/right.gif" vspace="0" width="29"></TD></TR><TR><TD align="left" bgcolor="#0086b2" colspan="4" height="35" valign="top" width="456"><IMG alt="" border="0" height="35" hspace="0" src="../graphics/api-header.jpg" vspace="0" width="456"></TD></TR><TR><TD align="left" height="20" valign="top" width="168"><IMG border="0" height="20" hspace="0" src="../resources/bottom.gif" vspace="0" width="168"></TD><TD align="left" height="20" valign="top" width="96"><A href="http://xml.apache.org/" onMouseOut="rolloverOff('xml');" onMouseOver="rolloverOn('xml');" target="new"><IMG alt="http://xml.apache.org/" border="0" height="20" hspace="0" name="xml" onLoad="rolloverLoad('xml','../resources/button-xml-hi.gif','../resources/button-xml-lo.gif');" src="../resources/button-xml-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.apache.org/" onMouseOut="rolloverOff('asf');" onMouseOver="rolloverOn('asf');" target="new"><IMG alt="http://www.apache.org/" border="0" height="20" hspace="0" name="asf" onLoad="rolloverLoad('asf','../resources/button-asf-hi.gif','../resources/button-asf-lo.gif');" src="../resources/button-asf-lo.gif" vspace="0" width="96"></A></TD><TD align="left" height="20" valign="top" width="96"><A href="http://www.w3.org/" onMouseOut="rolloverOff('w3c');" onMouseOver="rolloverOn('w3c');" target="new"><IMG alt="http://www.w3.org/" border="0" height="20" hspace="0" name="w3c" onLoad="rolloverLoad('w3c','../resources/button-w3c-hi.gif','../resources/button-w3c-lo.gif');" src="../resources/button-w3c-lo.gif" vspace="0" width="96"></A></TD></TR></TABLE><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD align="left" valign="top" width="120"><IMG border="0" height="14" hspace="0" src="../resources/join.gif" vspace="0" width="120"><BR>
+  <A href="../../index.html" onMouseOut="rolloverOff('side-ext-2');" onMouseOver="rolloverOn('side-ext-2');"><IMG alt="Home" border="0" height="12" hspace="0" name="side-ext-2" onLoad="rolloverLoad('side-ext-2','../graphics/ext-2-label-2.jpg','../graphics/ext-2-label-3.jpg');" src="../graphics/ext-2-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../index.html" onMouseOut="rolloverOff('side-index');" onMouseOver="rolloverOn('side-index');"><IMG alt="Readme" border="0" height="12" hspace="0" name="side-index" onLoad="rolloverLoad('side-index','../graphics/index-label-2.jpg','../graphics/index-label-3.jpg');" src="../graphics/index-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../releases.html" onMouseOut="rolloverOff('side-releases');" onMouseOver="rolloverOn('side-releases');"><IMG alt="Release Info" border="0" height="12" hspace="0" name="side-releases" onLoad="rolloverLoad('side-releases','../graphics/releases-label-2.jpg','../graphics/releases-label-3.jpg');" src="../graphics/releases-label-3.jpg" vspace="0" width="120"></A><BR>
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../install.html" onMouseOut="rolloverOff('side-install');" onMouseOver="rolloverOn('side-install');"><IMG alt="Installation" border="0" height="12" hspace="0" name="side-install" onLoad="rolloverLoad('side-install','../graphics/install-label-2.jpg','../graphics/install-label-3.jpg');" src="../graphics/install-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://xml.apache.org/dist/xerces-c/" onMouseOut="rolloverOff('side-ext-18');" onMouseOver="rolloverOn('side-ext-18');"><IMG alt="Download" border="0" height="12" hspace="0" name="side-ext-18" onLoad="rolloverLoad('side-ext-18','../graphics/ext-18-label-2.jpg','../graphics/ext-18-label-3.jpg');" src="../graphics/ext-18-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../build.html" onMouseOut="rolloverOff('side-build');" onMouseOver="rolloverOn('side-build');"><IMG alt="Build" border="0" height="12" hspace="0" name="side-build" onLoad="rolloverLoad('side-build','../graphics/build-label-2.jpg','../graphics/build-label-3.jpg');" src="../graphics/build-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../faqs.html" onMouseOut="rolloverOff('side-faqs');" onMouseOver="rolloverOn('side-faqs');"><IMG alt="FAQs" border="0" height="12" hspace="0" name="side-faqs" onLoad="rolloverLoad('side-faqs','../graphics/faqs-label-2.jpg','../graphics/faqs-label-3.jpg');" src="../graphics/faqs-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../samples.html" onMouseOut="rolloverOff('side-samples');" onMouseOver="rolloverOn('side-samples');"><IMG alt="Samples" border="0" height="12" hspace="0" name="side-samples" onLoad="rolloverLoad('side-samples','../graphics/samples-label-2.jpg','../graphics/samples-label-3.jpg');" src="../graphics/samples-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../api.html" onMouseOut="rolloverOff('side-api');" onMouseOver="rolloverOn('side-api');"><IMG alt="API Docs" border="0" height="12" hspace="0" name="side-api" onLoad="rolloverLoad('side-api','../graphics/api-label-2.jpg','../graphics/api-label-3.jpg');" src="../graphics/api-label-3.jpg" vspace="0" width="120"></A><BR>  
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+  <A href="../ApacheDOMC++Binding.html" onMouseOut="rolloverOff('side-ext-64');" onMouseOver="rolloverOn('side-ext-64');"><IMG alt="DOM C++ Binding" border="0" height="12" hspace="0" name="side-ext-64" onLoad="rolloverLoad('side-ext-64','../graphics/ext-64-label-2.jpg','../graphics/ext-64-label-3.jpg');" src="../graphics/ext-64-label-3.jpg" vspace="0" width="120"></A><BR> 
+  <A href="../program.html" onMouseOut="rolloverOff('side-program');" onMouseOver="rolloverOn('side-program');"><IMG alt="Programming" border="0" height="12" hspace="0" name="side-program" onLoad="rolloverLoad('side-program','../graphics/program-label-2.jpg','../graphics/program-label-3.jpg');" src="../graphics/program-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../migrate.html" onMouseOut="rolloverOff('side-migrate');" onMouseOver="rolloverOn('side-migrate');"><IMG alt="Migration Guide" border="0" height="12" hspace="0" name="side-migrate" onLoad="rolloverLoad('side-migrate','../graphics/migrate-label-2.jpg','../graphics/migrate-label-3.jpg');" src="../graphics/migrate-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="../feedback.html" onMouseOut="rolloverOff('side-feedback');" onMouseOver="rolloverOn('side-feedback');"><IMG alt="Feedback" border="0" height="12" hspace="0" name="side-feedback" onLoad="rolloverLoad('side-feedback','../graphics/feedback-label-2.jpg','../graphics/feedback-label-3.jpg');" src="../graphics/feedback-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="../bug-report.html" onMouseOut="rolloverOff('side-bug-report');" onMouseOver="rolloverOn('side-bug-report');"><IMG alt="Bug-Reporting" border="0" height="12" hspace="0" name="side-bug-report" onLoad="rolloverLoad('side-bug-report','../graphics/bug-report-label-2.jpg','../graphics/bug-report-label-3.jpg');" src="../graphics/bug-report-label-3.jpg" vspace="0" width="120"></A><BR>  
+  <A href="../pdf.html" onMouseOut="rolloverOff('side-pdf');" onMouseOver="rolloverOn('side-pdf');"><IMG alt="PDF Document" border="0" height="12" hspace="0" name="side-pdf" onLoad="rolloverLoad('side-pdf','../graphics/pdf-label-2.jpg','../graphics/pdf-label-3.jpg');" src="../graphics/pdf-label-3.jpg" vspace="0" width="120"></A><BR>
+
+  <IMG border="0" height="6" hspace="0" src="../resources/separator.gif" vspace="0" width="120"><BR>
+
+  <A href="http://xml.apache.org/websrc/cvsweb.cgi/xml-xerces/c/" onMouseOut="rolloverOff('side-ext-96');" onMouseOver="rolloverOn('side-ext-96');"><IMG alt="CVS Repository" border="0" height="12" hspace="0" name="side-ext-96" onLoad="rolloverLoad('side-ext-96','../graphics/ext-96-label-2.jpg','../graphics/ext-96-label-3.jpg');" src="../graphics/ext-96-label-3.jpg" vspace="0" width="120"></A><BR>
+  <A href="http://marc.theaimsgroup.com/?l=xerces-c-dev" onMouseOut="rolloverOff('side-ext-98');" onMouseOver="rolloverOn('side-ext-98');"><IMG alt="Mail Archive" border="0" height="12" hspace="0" name="side-ext-98" onLoad="rolloverLoad('side-ext-98','../graphics/ext-98-label-2.jpg','../graphics/ext-98-label-3.jpg');" src="../graphics/ext-98-label-3.jpg" vspace="0" width="120"></A><BR>
+
+<IMG border="0" height="14" hspace="0" src="../resources/close.gif" vspace="0" width="120"><BR></TD><TD align="left" valign="top" width="500"><TABLE border="0" cellpadding="3" cellspacing="0"><TR><TD>
+    <TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#FFFFFF" colspan="2" width="494"><TABLE border="0" cellpadding="0" cellspacing="0" width="494"><TR><TD bgcolor="#039acc" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#039acc" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#039acc" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#0086b2" width="492"><FONT color="#ffffff" face="arial,helvetica,sanserif" size="+1"><IMG border="0" height="2" hspace="0" src="../resources/void.gif" vspace="0" width="2"><B>API Docs for SAX and DOM</B></FONT></TD><TD bgcolor="#017299" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR><TR><TD bgcolor="#0086b2" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD><TD bgcolor="#017299" height="1" width="492"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="492"></TD><TD bgcolor="#017299" height="1" width="1"><IMG border="0" height="1" hspace="0" src="../resources/void.gif" vspace="0" width="1"></TD></TR></TABLE></TD></TR><TR><TD width="10">&nbsp;</TD><TD width="484"><FONT color="#000000" face="arial,helvetica,sanserif">
+
+	    <P>
+<!-- Generated by Doxygen 1.2.14 -->
+<center>
+<a class="qindex" href="index.html">Main Page</a> &nbsp; <a class="qindex" href="hierarchy.html">Class Hierarchy</a> &nbsp; <a class="qindex" href="classes.html">Alphabetical List</a> &nbsp; <a class="qindex" href="annotated.html">Compound List</a> &nbsp; <a class="qindex" href="files.html">File List</a> &nbsp; <a class="qindex" href="functions.html">Compound Members</a> &nbsp; <a class="qindex" href="globals.html">File Members</a> &nbsp; </center>
+<hr><h1>DOMBuilder  Class Reference</h1>DOMBuilder provides an API for parsing XML documents and building the corresponding DOM document tree. 
+<a href="#_details">More...</a>
+<p>
+<a href="classDOMBuilder-members.html">List of all members.</a><table border=0 cellpadding=0 cellspacing=0>
+<tr><td colspan=2><br><h2>Public Types</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Public Constants</div></td></tr>
+<tr><td nowrap align=right valign=top>enum &nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z9_0">ActionType</a> { <a class="el" href="classDOMBuilder.html#z9_0s0">ACTION_REPLACE</a> =  1, 
+<a class="el" href="classDOMBuilder.html#z9_0s1">ACTION_APPEND_AS_CHILDREN</a> =  2, 
+<a class="el" href="classDOMBuilder.html#z9_0s2">ACTION_INSERT_AFTER</a> =  3, 
+<a class="el" href="classDOMBuilder.html#z9_0s3">ACTION_INSERT_BEFORE</a> =  4
+ }</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Action types for use in parseWithContext.</em> <a href="#z9_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan=2><br><h2>Public Methods</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Destructor</div></td></tr>
+<tr><td nowrap align=right valign=top>virtual&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z8_0">~DOMBuilder</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Destructor.</em> <a href="#z8_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Functions introduced in DOM Level 3</div></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classDOMErrorHandler.html">DOMErrorHandler</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z10_0">getErrorHandler</a> ()=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Get a pointer to the error handler.</em> <a href="#z10_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual const <a class="el" href="classDOMErrorHandler.html">DOMErrorHandler</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z10_1">getErrorHandler</a> () const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Get a const pointer to the error handler.</em> <a href="#z10_1">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classDOMEntityResolver.html">DOMEntityResolver</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z10_2">getEntityResolver</a> ()=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Get a pointer to the entity resolver.</em> <a href="#z10_2">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual const <a class="el" href="classDOMEntityResolver.html">DOMEntityResolver</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z10_3">getEntityResolver</a> () const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Get a const pointer to the entity resolver.</em> <a href="#z10_3">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual DOMBuilderFilter *&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z10_4">getFilter</a> ()=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Get a pointer to the application filter.</em> <a href="#z10_4">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual const DOMBuilderFilter *&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z10_5">getFilter</a> () const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Get a const pointer to the application filter.</em> <a href="#z10_5">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z10_6">setErrorHandler</a> (<a class="el" href="classDOMErrorHandler.html">DOMErrorHandler</a> *const handler)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Set the error handler.</em> <a href="#z10_6">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z10_7">setEntityResolver</a> (<a class="el" href="classDOMEntityResolver.html">DOMEntityResolver</a> *const handler)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Set the entity resolver.</em> <a href="#z10_7">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z10_8">setFilter</a> (DOMBuilderFilter *const filter)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Set the application filter.</em> <a href="#z10_8">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z10_9">setFeature</a> (const XMLCh *const name, const bool state)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Set the state of a feature.</em> <a href="#z10_9">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual bool&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z10_10">getFeature</a> (const XMLCh *const name) const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Look up the value of a feature.</em> <a href="#z10_10">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual bool&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z10_11">canSetFeature</a> (const XMLCh *const name, const bool state) const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Query whether setting a feature to a specific value is supported.</em> <a href="#z10_11">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classDOMDocument.html">DOMDocument</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z10_12">parse</a> (const <a class="el" href="classDOMInputSource.html">DOMInputSource</a> &amp;source)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Parse via an input source object.</em> <a href="#z10_12">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classDOMDocument.html">DOMDocument</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z10_13">parseURI</a> (const XMLCh *const systemId)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Parse via a file path or URL.</em> <a href="#z10_13">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="classDOMDocument.html">DOMDocument</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z10_14">parseURI</a> (const char *const systemId)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Parse via a file path or URL (in the local code page).</em> <a href="#z10_14">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z10_15">parseWithContext</a> (const <a class="el" href="classDOMInputSource.html">DOMInputSource</a> &amp;source, <a class="el" href="classDOMNode.html">DOMNode</a> *const contextNode, const short action)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Parse via an input source object.</em> <a href="#z10_15">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Non-standard Extension</div></td></tr>
+<tr><td nowrap align=right valign=top>virtual void *&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z11_0">getProperty</a> (const XMLCh *const name) const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Query the current value of a property in a DOMBuilder.</em> <a href="#z11_0">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z11_1">setProperty</a> (const XMLCh *const name, void *value)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Set the value of any property in a DOMBuilder.</em> <a href="#z11_1">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z11_2">release</a> ()=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Called to indicate that this DOMBuilder is no longer in use and that the implementation may relinquish any resources associated with it.</em> <a href="#z11_2">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z11_3">resetDocumentPool</a> ()=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Reset the documents vector pool and release all the associated memory back to the system.</em> <a href="#z11_3">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="XSModel_8hpp.html#a1">Grammar</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z11_4">loadGrammar</a> (const <a class="el" href="classDOMInputSource.html">DOMInputSource</a> &amp;source, const short grammarType, const bool toCache=false)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Preparse schema grammar (XML Schema, DTD, etc.) via an input source object.</em> <a href="#z11_4">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="XSModel_8hpp.html#a1">Grammar</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z11_5">loadGrammar</a> (const XMLCh *const systemId, const short grammarType, const bool toCache=false)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Preparse schema grammar (XML Schema, DTD, etc.) via a file path or URL.</em> <a href="#z11_5">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="XSModel_8hpp.html#a1">Grammar</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z11_6">loadGrammar</a> (const char *const systemId, const short grammarType, const bool toCache=false)=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Preparse schema grammar (XML Schema, DTD, etc.) via a file path or URL.</em> <a href="#z11_6">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="XSModel_8hpp.html#a1">Grammar</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z11_7">getGrammar</a> (const XMLCh *const nameSpaceKey) const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Retrieve the grammar that is associated with the specified namespace key.</em> <a href="#z11_7">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual <a class="el" href="XSModel_8hpp.html#a1">Grammar</a> *&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z11_8">getRootGrammar</a> () const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Retrieve the grammar where the root element is declared.</em> <a href="#z11_8">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual const XMLCh *&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z11_9">getURIText</a> (unsigned int uriId) const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Returns the string corresponding to a URI id from the URI string pool.</em> <a href="#z11_9">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual void&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z11_10">resetCachedGrammarPool</a> ()=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Clear the cached grammar pool.</em> <a href="#z11_10">More...</a><em></em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top>virtual unsigned int&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z11_11">getSrcOffset</a> () const=0</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Returns the current src offset within the input source.</em> <a href="#z11_11">More...</a><em></em></font><br><br></td></tr>
+<tr><td colspan=2><br><h2>Protected Methods</h2></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Hidden constructors</div></td></tr>
+<tr><td nowrap align=right valign=top>&nbsp;</td><td valign=bottom><a class="el" href="classDOMBuilder.html#z6_0">DOMBuilder</a> ()</td></tr>
+</table>
+<hr><a name="_details"></a><h2>Detailed Description</h2>
+DOMBuilder provides an API for parsing XML documents and building the corresponding DOM document tree.
+<p>
+A DOMBuilder instance is obtained from the <a class="el" href="classDOMImplementationLS.html">DOMImplementationLS</a> interface by invoking its createDOMBuilder method. This implementation also allows the applications to install an error and an entity handler (useful extensions to the DOM specification).
+<p>
+<dl compact><dt><b>
+Since: </b><dd>
+DOM Level 3 </dl>
+<p>
+<hr><h2>Member Enumeration Documentation</h2>
+<a name="z9_0" doxytag="DOMBuilder::ActionType"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> enum DOMBuilder::ActionType
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Action types for use in parseWithContext.
+<p>
+
+<p>
+ <code>ACTION_REPLACE</code>: Replace the context node with the result of parsing the input source. For this action to work the context node must be an <code><a class="el" href="classDOMElement.html">DOMElement</a></code>, <code><a class="el" href="classDOMText.html">DOMText</a></code>, <code><a class="el" href="classDOMCDATASection.html">DOMCDATASection</a></code>, <code><a class="el" href="classDOMComment.html">DOMComment</a></code>, <code><a class="el" href="classDOMProcessingInstruction.html">DOMProcessingInstruction</a></code>, or <code><a class="el" href="classDOMEntityReference.html">DOMEntityReference</a></code> node.
+<p>
+
+<p>
+ <code>ACTION_APPEND</code>: Append the result of parsing the input source to the context node. For this action to work, the context node must be an <code><a class="el" href="classDOMElement.html">DOMElement</a></code>.
+<p>
+
+<p>
+ <code>ACTION_INSERT_AFTER</code>: Insert the result of parsing the input source after the context node. For this action to work the context nodes parent must be an <code><a class="el" href="classDOMElement.html">DOMElement</a></code>.
+<p>
+
+<p>
+ <code>ACTION_INSERT_BEFORE</code>: Insert the result of parsing the input source before the context node. For this action to work the context nodes parent must be an <code><a class="el" href="classDOMElement.html">DOMElement</a></code>.
+<p>
+<dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classDOMBuilder.html#z10_15">parseWithContext</a>(...) </dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 3 </dl><dl compact><dt><b>
+Enumeration values:</b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em><a name="z9_0s0" doxytag="ACTION_REPLACE"></a><em>ACTION_REPLACE</em></em>&nbsp;</td><td>
+</td></tr>
+<tr><td valign=top><em><a name="z9_0s1" doxytag="ACTION_APPEND_AS_CHILDREN"></a><em>ACTION_APPEND_AS_CHILDREN</em></em>&nbsp;</td><td>
+</td></tr>
+<tr><td valign=top><em><a name="z9_0s2" doxytag="ACTION_INSERT_AFTER"></a><em>ACTION_INSERT_AFTER</em></em>&nbsp;</td><td>
+</td></tr>
+<tr><td valign=top><em><a name="z9_0s3" doxytag="ACTION_INSERT_BEFORE"></a><em>ACTION_INSERT_BEFORE</em></em>&nbsp;</td><td>
+</td></tr>
+</table>
+</dl>
+    </td>
+  </tr>
+</table>
+<hr><h2>Constructor &amp; Destructor Documentation</h2>
+<a name="z6_0" doxytag="DOMBuilder::DOMBuilder"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> DOMBuilder::DOMBuilder </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [protected]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+    </td>
+  </tr>
+</table>
+<a name="z8_0" doxytag="DOMBuilder::~DOMBuilder"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual DOMBuilder::~DOMBuilder </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Destructor.
+<p>
+    </td>
+  </tr>
+</table>
+<hr><h2>Member Function Documentation</h2>
+<a name="z10_11" doxytag="DOMBuilder::canSetFeature"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual bool DOMBuilder::canSetFeature </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>name</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const bool&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>state</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Query whether setting a feature to a specific value is supported.
+<p>
+
+<p>
+<b>"Experimental - subject to change"</b><dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>name</em>&nbsp;</td><td>
+The feature name. </td></tr>
+<tr><td valign=top><em>state</em>&nbsp;</td><td>
+The requested state of the feature (true or false). </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+<code>true</code> if the feature could be successfully set to the specified value, or <code>false</code> if the feature is not recognized or the requested value is not supported. The value of the feature itself is not changed.</dl><dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classDOMBuilder.html#z10_10">getFeature</a> , <a class="el" href="classDOMBuilder.html#z10_9">setFeature</a> </dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 3 </dl>    </td>
+  </tr>
+</table>
+<a name="z10_3" doxytag="DOMBuilder::getEntityResolver"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual const <a class="el" href="classDOMEntityResolver.html">DOMEntityResolver</a>* DOMBuilder::getEntityResolver </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Get a const pointer to the entity resolver.
+<p>
+This method returns the installed entity resolver. If no resolver has been installed, then it will be a zero pointer.
+<p>
+
+<p>
+<b>"Experimental - subject to change"</b>
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+A const pointer to the installed entity resolver object. </dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 3 </dl>    </td>
+  </tr>
+</table>
+<a name="z10_2" doxytag="DOMBuilder::getEntityResolver"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classDOMEntityResolver.html">DOMEntityResolver</a>* DOMBuilder::getEntityResolver </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Get a pointer to the entity resolver.
+<p>
+This method returns the installed entity resolver. If no resolver has been installed, then it will be a zero pointer.
+<p>
+
+<p>
+<b>"Experimental - subject to change"</b>
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+The pointer to the installed entity resolver object. </dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 3 </dl>    </td>
+  </tr>
+</table>
+<a name="z10_1" doxytag="DOMBuilder::getErrorHandler"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual const <a class="el" href="classDOMErrorHandler.html">DOMErrorHandler</a>* DOMBuilder::getErrorHandler </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Get a const pointer to the error handler.
+<p>
+This method returns the installed error handler. If no handler has been installed, then it will be a zero pointer.
+<p>
+
+<p>
+<b>"Experimental - subject to change"</b>
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+A const pointer to the installed error handler object. </dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 3 </dl>    </td>
+  </tr>
+</table>
+<a name="z10_0" doxytag="DOMBuilder::getErrorHandler"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classDOMErrorHandler.html">DOMErrorHandler</a>* DOMBuilder::getErrorHandler </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Get a pointer to the error handler.
+<p>
+This method returns the installed error handler. If no handler has been installed, then it will be a zero pointer.
+<p>
+
+<p>
+<b>"Experimental - subject to change"</b>
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+The pointer to the installed error handler object. </dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 3 </dl>    </td>
+  </tr>
+</table>
+<a name="z10_10" doxytag="DOMBuilder::getFeature"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual bool DOMBuilder::getFeature </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *const&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>name</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Look up the value of a feature.
+<p>
+
+<p>
+<b>"Experimental - subject to change"</b><dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>name</em>&nbsp;</td><td>
+The feature name. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+The current state of the feature (true or false) </dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em><a class="el" href="classDOMException.html">DOMException</a></em>&nbsp;</td><td>
+ NOT_FOUND_ERR: Raised when the DOMBuilder does not recognize the feature name.</td></tr>
+</table>
+</dl><dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classDOMBuilder.html#z10_10">getFeature</a> , <a class="el" href="classDOMBuilder.html#z10_11">canSetFeature</a> </dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 3 </dl>    </td>
+  </tr>
+</table>
+<a name="z10_5" doxytag="DOMBuilder::getFilter"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual const DOMBuilderFilter* DOMBuilder::getFilter </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Get a const pointer to the application filter.
+<p>
+This method returns the installed application filter. If no filter has been installed, then it will be a zero pointer.
+<p>
+
+<p>
+<b>"Experimental - subject to change"</b>
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+A const pointer to the installed application filter </dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 3 </dl>    </td>
+  </tr>
+</table>
+<a name="z10_4" doxytag="DOMBuilder::getFilter"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual DOMBuilderFilter* DOMBuilder::getFilter </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Get a pointer to the application filter.
+<p>
+This method returns the installed application filter. If no filter has been installed, then it will be a zero pointer.
+<p>
+
+<p>
+<b>"Experimental - subject to change"</b>
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+The pointer to the installed application filter. </dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 3 </dl>    </td>
+  </tr>
+</table>
+<a name="z11_7" doxytag="DOMBuilder::getGrammar"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="XSModel_8hpp.html#a1">Grammar</a>* DOMBuilder::getGrammar </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *const&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>nameSpaceKey</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Retrieve the grammar that is associated with the specified namespace key.
+<p>
+<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>nameSpaceKey</em>&nbsp;</td><td>
+Namespace key </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+Grammar associated with the Namespace key. </dl>    </td>
+  </tr>
+</table>
+<a name="z11_0" doxytag="DOMBuilder::getProperty"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void* DOMBuilder::getProperty </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *const&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>name</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Query the current value of a property in a DOMBuilder.
+<p>
+The builder owns the returned pointer. The memory allocated for the returned pointer will be destroyed when the builder is deleted.
+<p>
+To ensure assessiblity of the returned information after the builder is deleted, callers need to copy and store the returned information somewhere else; otherwise you may get unexpected result. Since the returned pointer is a generic void pointer, see <a href="http://xml.apache.org/xerces-c/program-dom.html#DOMBuilderProperties">http://xml.apache.org/xerces-c/program-dom.html#DOMBuilderProperties</a> to learn exactly what type of property value each property returns for replication.<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>name</em>&nbsp;</td><td>
+The unique identifier (URI) of the property being set. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+The current value of the property. The pointer spans the same life-time as the parser. A null pointer is returned if nothing was specified externally. </dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em><a class="el" href="classDOMException.html">DOMException</a></em>&nbsp;</td><td>
+ <br>
+NOT_FOUND_ERR: Raised when the DOMBuilder does not recognize the requested property. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="z11_8" doxytag="DOMBuilder::getRootGrammar"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="XSModel_8hpp.html#a1">Grammar</a>* DOMBuilder::getRootGrammar </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Retrieve the grammar where the root element is declared.
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+Grammar where root element declared </dl>    </td>
+  </tr>
+</table>
+<a name="z11_11" doxytag="DOMBuilder::getSrcOffset"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual unsigned int DOMBuilder::getSrcOffset </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Returns the current src offset within the input source.
+<p>
+<dl compact><dt><b>
+Returns: </b><dd>
+offset within the input source </dl>    </td>
+  </tr>
+</table>
+<a name="z11_9" doxytag="DOMBuilder::getURIText"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual const XMLCh* DOMBuilder::getURIText </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">unsigned int&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>uriId</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap> const<code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Returns the string corresponding to a URI id from the URI string pool.
+<p>
+<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>uriId</em>&nbsp;</td><td>
+id of the string in the URI string pool. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+URI string corresponding to the URI id. </dl>    </td>
+  </tr>
+</table>
+<a name="z11_6" doxytag="DOMBuilder::loadGrammar"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="XSModel_8hpp.html#a1">Grammar</a>* DOMBuilder::loadGrammar </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const char *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>systemId</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const short&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>grammarType</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const bool&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>toCache</em> = false</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Preparse schema grammar (XML Schema, DTD, etc.) via a file path or URL.
+<p>
+This method invokes the preparsing process on a schema grammar XML file specified by the file path parameter. If the 'toCache' flag is enabled, the parser will cache the grammars for re-use. If a grammar key is found in the pool, no caching of any grammar will take place.
+<p>
+
+<p>
+<b>"Experimental - subject to change"</b><dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>systemId</em>&nbsp;</td><td>
+A const char pointer to a native string which contains the path to the XML grammar file to be preparsed. </td></tr>
+<tr><td valign=top><em>grammarType</em>&nbsp;</td><td>
+The grammar type (Schema or DTD). </td></tr>
+<tr><td valign=top><em>toCache</em>&nbsp;</td><td>
+If <code>true</code>, we cache the preparsed grammar, otherwise, no chaching. Default is <code>false</code>. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+The preparsed schema grammar object (SchemaGrammar or DTDGrammar). That grammar object is owned by the parser.</dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em><a class="el" href="classSAXException.html">SAXException</a></em>&nbsp;</td><td>
+ Any SAX exception, possibly wrapping another exception. </td></tr>
+<tr><td valign=top><em><a class="el" href="classXMLException.html">XMLException</a></em>&nbsp;</td><td>
+ An exception from the parser or client handler code. </td></tr>
+<tr><td valign=top><em><a class="el" href="classDOMException.html">DOMException</a></em>&nbsp;</td><td>
+ A DOM exception as per DOM spec. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="z11_5" doxytag="DOMBuilder::loadGrammar"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="XSModel_8hpp.html#a1">Grammar</a>* DOMBuilder::loadGrammar </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>systemId</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const short&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>grammarType</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const bool&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>toCache</em> = false</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Preparse schema grammar (XML Schema, DTD, etc.) via a file path or URL.
+<p>
+This method invokes the preparsing process on a schema grammar XML file specified by the file path parameter. If the 'toCache' flag is enabled, the parser will cache the grammars for re-use. If a grammar key is found in the pool, no caching of any grammar will take place.
+<p>
+
+<p>
+<b>"Experimental - subject to change"</b><dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>systemId</em>&nbsp;</td><td>
+A const XMLCh pointer to the Unicode string which contains the path to the XML grammar file to be preparsed. </td></tr>
+<tr><td valign=top><em>grammarType</em>&nbsp;</td><td>
+The grammar type (Schema or DTD). </td></tr>
+<tr><td valign=top><em>toCache</em>&nbsp;</td><td>
+If <code>true</code>, we cache the preparsed grammar, otherwise, no chaching. Default is <code>false</code>. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+The preparsed schema grammar object (SchemaGrammar or DTDGrammar). That grammar object is owned by the parser.</dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em><a class="el" href="classSAXException.html">SAXException</a></em>&nbsp;</td><td>
+ Any SAX exception, possibly wrapping another exception. </td></tr>
+<tr><td valign=top><em><a class="el" href="classXMLException.html">XMLException</a></em>&nbsp;</td><td>
+ An exception from the parser or client handler code. </td></tr>
+<tr><td valign=top><em><a class="el" href="classDOMException.html">DOMException</a></em>&nbsp;</td><td>
+ A DOM exception as per DOM spec. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="z11_4" doxytag="DOMBuilder::loadGrammar"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="XSModel_8hpp.html#a1">Grammar</a>* DOMBuilder::loadGrammar </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const <a class="el" href="classDOMInputSource.html">DOMInputSource</a> &amp;&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>source</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const short&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>grammarType</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const bool&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>toCache</em> = false</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Preparse schema grammar (XML Schema, DTD, etc.) via an input source object.
+<p>
+This method invokes the preparsing process on a schema grammar XML file specified by the <a class="el" href="classDOMInputSource.html">DOMInputSource</a> parameter. If the 'toCache' flag is enabled, the parser will cache the grammars for re-use. If a grammar key is found in the pool, no caching of any grammar will take place.
+<p>
+
+<p>
+<b>"Experimental - subject to change"</b><dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>source</em>&nbsp;</td><td>
+A const reference to the <a class="el" href="classDOMInputSource.html">DOMInputSource</a> object which points to the schema grammar file to be preparsed. </td></tr>
+<tr><td valign=top><em>grammarType</em>&nbsp;</td><td>
+The grammar type (Schema or DTD). </td></tr>
+<tr><td valign=top><em>toCache</em>&nbsp;</td><td>
+If <code>true</code>, we cache the preparsed grammar, otherwise, no chaching. Default is <code>false</code>. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+The preparsed schema grammar object (SchemaGrammar or DTDGrammar). That grammar object is owned by the parser.</dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em><a class="el" href="classSAXException.html">SAXException</a></em>&nbsp;</td><td>
+ Any SAX exception, possibly wrapping another exception. </td></tr>
+<tr><td valign=top><em><a class="el" href="classXMLException.html">XMLException</a></em>&nbsp;</td><td>
+ An exception from the parser or client handler code. </td></tr>
+<tr><td valign=top><em><a class="el" href="classDOMException.html">DOMException</a></em>&nbsp;</td><td>
+ A DOM exception as per DOM spec.</td></tr>
+</table>
+</dl><dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classDOMInputSource.html#z95_0">DOMInputSource::DOMInputSource</a> </dl>    </td>
+  </tr>
+</table>
+<a name="z10_12" doxytag="DOMBuilder::parse"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classDOMDocument.html">DOMDocument</a>* DOMBuilder::parse </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const <a class="el" href="classDOMInputSource.html">DOMInputSource</a> &amp;&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>source</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Parse via an input source object.
+<p>
+This method invokes the parsing process on the XML file specified by the <a class="el" href="classDOMInputSource.html">DOMInputSource</a> parameter. This API is borrowed from the SAX <a class="el" href="classParser.html">Parser</a> interface.
+<p>
+The parser owns the returned <a class="el" href="classDOMDocument.html">DOMDocument</a>. It will be deleted when the parser is released.
+<p>
+
+<p>
+<b>"Experimental - subject to change"</b><dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>source</em>&nbsp;</td><td>
+A const reference to the <a class="el" href="classDOMInputSource.html">DOMInputSource</a> object which points to the XML file to be parsed. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+If the DOMBuilder is a synchronous DOMBuilder the newly created and populated <a class="el" href="classDOMDocument.html">DOMDocument</a> is returned. If the DOMBuilder is asynchronous then <code>null</code> is returned since the document object is not yet parsed when this method returns. </dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em><a class="el" href="classSAXException.html">SAXException</a></em>&nbsp;</td><td>
+ Any SAX exception, possibly wrapping another exception. </td></tr>
+<tr><td valign=top><em><a class="el" href="classXMLException.html">XMLException</a></em>&nbsp;</td><td>
+ An exception from the parser or client handler code. </td></tr>
+<tr><td valign=top><em><a class="el" href="classDOMException.html">DOMException</a></em>&nbsp;</td><td>
+ A DOM exception as per DOM spec.</td></tr>
+</table>
+</dl><dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classDOMInputSource.html#z95_0">DOMInputSource::DOMInputSource</a> , <a class="el" href="classDOMBuilder.html#z10_7">setEntityResolver</a> , <a class="el" href="classDOMBuilder.html#z10_6">setErrorHandler</a> , <a class="el" href="classDOMBuilder.html#z11_3">resetDocumentPool</a> </dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 3 </dl>    </td>
+  </tr>
+</table>
+<a name="z10_14" doxytag="DOMBuilder::parseURI"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classDOMDocument.html">DOMDocument</a>* DOMBuilder::parseURI </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const char *const&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>systemId</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Parse via a file path or URL (in the local code page).
+<p>
+This method invokes the parsing process on the XML file specified by the native char* string parameter 'systemId'.
+<p>
+The parser owns the returned <a class="el" href="classDOMDocument.html">DOMDocument</a>. It will be deleted when the parser is released.
+<p>
+
+<p>
+<b>"Experimental - subject to change"</b><dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>systemId</em>&nbsp;</td><td>
+A const char pointer to a native string which contains the path to the XML file to be parsed. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+If the DOMBuilder is a synchronous DOMBuilder the newly created and populated <a class="el" href="classDOMDocument.html">DOMDocument</a> is returned. If the DOMBuilder is asynchronous then <code>null</code> is returned since the document object is not yet parsed when this method returns. </dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em><a class="el" href="classSAXException.html">SAXException</a></em>&nbsp;</td><td>
+ Any SAX exception, possibly wrapping another exception. </td></tr>
+<tr><td valign=top><em><a class="el" href="classXMLException.html">XMLException</a></em>&nbsp;</td><td>
+ An exception from the parser or client handler code. </td></tr>
+<tr><td valign=top><em><a class="el" href="classDOMException.html">DOMException</a></em>&nbsp;</td><td>
+ A DOM exception as per DOM spec.</td></tr>
+</table>
+</dl><dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classDOMBuilder.html#z10_12">parse</a>(<a class="el" href="classDOMInputSource.html">DOMInputSource</a>,...) , <a class="el" href="classDOMBuilder.html#z11_3">resetDocumentPool</a> </dl>    </td>
+  </tr>
+</table>
+<a name="z10_13" doxytag="DOMBuilder::parseURI"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual <a class="el" href="classDOMDocument.html">DOMDocument</a>* DOMBuilder::parseURI </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *const&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>systemId</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Parse via a file path or URL.
+<p>
+This method invokes the parsing process on the XML file specified by the Unicode string parameter 'systemId'.
+<p>
+The parser owns the returned <a class="el" href="classDOMDocument.html">DOMDocument</a>. It will be deleted when the parser is released.
+<p>
+
+<p>
+<b>"Experimental - subject to change"</b><dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>systemId</em>&nbsp;</td><td>
+A const XMLCh pointer to the Unicode string which contains the path to the XML file to be parsed. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Returns: </b><dd>
+If the DOMBuilder is a synchronous DOMBuilder the newly created and populated <a class="el" href="classDOMDocument.html">DOMDocument</a> is returned. If the DOMBuilder is asynchronous then <code>null</code> is returned since the document object is not yet parsed when this method returns. </dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em><a class="el" href="classSAXException.html">SAXException</a></em>&nbsp;</td><td>
+ Any SAX exception, possibly wrapping another exception. </td></tr>
+<tr><td valign=top><em><a class="el" href="classXMLException.html">XMLException</a></em>&nbsp;</td><td>
+ An exception from the parser or client handler code. </td></tr>
+<tr><td valign=top><em><a class="el" href="classDOMException.html">DOMException</a></em>&nbsp;</td><td>
+ A DOM exception as per DOM spec.</td></tr>
+</table>
+</dl><dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classDOMBuilder.html#z10_12">parse</a>(<a class="el" href="classDOMInputSource.html">DOMInputSource</a>,...) , <a class="el" href="classDOMBuilder.html#z11_3">resetDocumentPool</a> </dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 3 </dl>    </td>
+  </tr>
+</table>
+<a name="z10_15" doxytag="DOMBuilder::parseWithContext"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void DOMBuilder::parseWithContext </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const <a class="el" href="classDOMInputSource.html">DOMInputSource</a> &amp;&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>source</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap><a class="el" href="classDOMNode.html">DOMNode</a> *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>contextNode</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const short&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>action</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Parse via an input source object.
+<p>
+This method invokes the parsing process on the XML file specified by the <a class="el" href="classDOMInputSource.html">DOMInputSource</a> parameter, and inserts the content into an existing document at the position specified with the contextNode and action arguments. When parsing the input stream the context node is used for resolving unbound namespace prefixes.
+<p>
+
+<p>
+<b>"Experimental - subject to change"</b><dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>source</em>&nbsp;</td><td>
+A const reference to the <a class="el" href="classDOMInputSource.html">DOMInputSource</a> object which points to the XML file to be parsed. </td></tr>
+<tr><td valign=top><em>contextNode</em>&nbsp;</td><td>
+The node that is used as the context for the data that is being parsed. This node must be a Document node, a DocumentFragment node, or a node of a type that is allowed as a child of an element, e.g. it can not be an attribute node. </td></tr>
+<tr><td valign=top><em>action</em>&nbsp;</td><td>
+This parameter describes which action should be taken between the new set of node being inserted and the existing children of the context node. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em><a class="el" href="classDOMException.html">DOMException</a></em>&nbsp;</td><td>
+ NOT_SUPPORTED_ERR: Raised when the DOMBuilder doesn't support this method. <br>
+NO_MODIFICATION_ALLOWED_ERR: Raised if the context node is readonly. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 3 </dl>    </td>
+  </tr>
+</table>
+<a name="z11_2" doxytag="DOMBuilder::release"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void DOMBuilder::release </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Called to indicate that this DOMBuilder is no longer in use and that the implementation may relinquish any resources associated with it.
+<p>
+Access to a released object will lead to unexpected result.     </td>
+  </tr>
+</table>
+<a name="z11_10" doxytag="DOMBuilder::resetCachedGrammarPool"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void DOMBuilder::resetCachedGrammarPool </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Clear the cached grammar pool.
+<p>
+    </td>
+  </tr>
+</table>
+<a name="z11_3" doxytag="DOMBuilder::resetDocumentPool"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void DOMBuilder::resetDocumentPool </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp;          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Reset the documents vector pool and release all the associated memory back to the system.
+<p>
+When parsing a document using a DOM parser, all memory allocated for a DOM tree is associated to the DOM document.
+<p>
+If you do multiple parse using the same DOM parser instance, then multiple DOM documents will be generated and saved in a vector pool. All these documents (and thus all the allocated memory) won't be deleted until the parser instance is destroyed.
+<p>
+If you don't need these DOM documents anymore and don't want to destroy the DOM parser instance at this moment, then you can call this method to reset the document vector pool and release all the allocated memory back to the system.
+<p>
+It is an error to call this method if you are in the middle of a parse (e.g. in the mid of a progressive parse).<dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>IOException</em>&nbsp;</td><td>
+ An exception from the parser if this function is called when a parse is in progress. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<a name="z10_7" doxytag="DOMBuilder::setEntityResolver"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void DOMBuilder::setEntityResolver </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classDOMEntityResolver.html">DOMEntityResolver</a> *const&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>handler</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Set the entity resolver.
+<p>
+This method allows applications to install their own entity resolver. By installing an entity resolver, the applications can trap and potentially redirect references to external entities.
+<p>
+<em>Any previously set resolver is merely dropped, since the parser does not own them.</em>
+<p>
+
+<p>
+<b>"Experimental - subject to change"</b><dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>handler</em>&nbsp;</td><td>
+A const pointer to the user supplied entity resolver.</td></tr>
+</table>
+</dl><dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classDOMBuilder.html#z10_2">getEntityResolver</a> </dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 3 </dl>    </td>
+  </tr>
+</table>
+<a name="z10_6" doxytag="DOMBuilder::setErrorHandler"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void DOMBuilder::setErrorHandler </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top"><a class="el" href="classDOMErrorHandler.html">DOMErrorHandler</a> *const&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>handler</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Set the error handler.
+<p>
+This method allows applications to install their own error handler to trap error and warning messages.
+<p>
+<em>Any previously set handler is merely dropped, since the parser does not own them.</em>
+<p>
+
+<p>
+<b>"Experimental - subject to change"</b><dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>handler</em>&nbsp;</td><td>
+A const pointer to the user supplied error handler.</td></tr>
+</table>
+</dl><dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classDOMBuilder.html#z10_0">getErrorHandler</a> </dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 3 </dl>    </td>
+  </tr>
+</table>
+<a name="z10_9" doxytag="DOMBuilder::setFeature"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void DOMBuilder::setFeature </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>name</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>const bool&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>state</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Set the state of a feature.
+<p>
+It is possible for a DOMBuilder to recognize a feature name but to be unable to set its value.
+<p>
+
+<p>
+<b>"Experimental - subject to change"</b>
+<p>
+See <a href="http://xml.apache.org/xerces-c/program-dom.html#DOMBuilderFeatures">http://xml.apache.org/xerces-c/program-dom.html#DOMBuilderFeatures</a> for the list of supported features.<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>name</em>&nbsp;</td><td>
+The feature name. </td></tr>
+<tr><td valign=top><em>state</em>&nbsp;</td><td>
+The requested state of the feature (true or false). </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em><a class="el" href="classDOMException.html">DOMException</a></em>&nbsp;</td><td>
+ NOT_SUPPORTED_ERR: Raised when the DOMBuilder recognizes the feature name but cannot set the requested value. <br>
+NOT_FOUND_ERR: Raised when the DOMBuilder does not recognize the feature name.</td></tr>
+</table>
+</dl><dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classDOMBuilder.html#z10_9">setFeature</a> , <a class="el" href="classDOMBuilder.html#z10_11">canSetFeature</a> </dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 3 </dl>    </td>
+  </tr>
+</table>
+<a name="z10_8" doxytag="DOMBuilder::setFilter"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void DOMBuilder::setFilter </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">DOMBuilderFilter *const&nbsp;</td>
+          <td class="mdname1" valign="top" nowrap>&nbsp; <em>filter</em>          </td>
+          <td class="md" valign="top">)&nbsp;</td>
+          <td class="md" nowrap><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Set the application filter.
+<p>
+When the application provides a filter, the parser will call out to the filter at the completion of the construction of each Element node. The filter implementation can choose to remove the element from the document being constructed (unless the element is the document element) or to terminate the parse early. If the document is being validated when it's loaded the validation happens before the filter is called.
+<p>
+<em>Any previously set filter is merely dropped, since the parser does not own them.</em>
+<p>
+
+<p>
+<b>"Experimental - subject to change"</b><dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>filter</em>&nbsp;</td><td>
+A const pointer to the user supplied application filter.</td></tr>
+</table>
+</dl><dl compact><dt><b>
+See also: </b><dd>
+<a class="el" href="classDOMBuilder.html#z10_4">getFilter</a> </dl><dl compact><dt><b>
+Since: </b><dd>
+DOM Level 3 </dl>    </td>
+  </tr>
+</table>
+<a name="z11_1" doxytag="DOMBuilder::setProperty"></a><p>
+<table width="100%" cellpadding="2" cellspacing="0" border="0">
+  <tr>
+    <td class="md">
+      <table cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td class="md" nowrap valign="top"> virtual void DOMBuilder::setProperty </td>
+          <td class="md" valign="top">(&nbsp;</td>
+          <td class="md" nowrap valign="top">const XMLCh *const&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>name</em>, </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td class="md" nowrap>void *&nbsp;</td>
+          <td class="mdname" nowrap>&nbsp; <em>value</em></td>
+        </tr>
+        <tr>
+          <td></td>
+          <td class="md">)&nbsp;</td>
+          <td class="md" colspan="2"><code> [pure virtual]</code></td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+<table cellspacing=5 cellpadding=0 border=0>
+  <tr>
+    <td>
+      &nbsp;
+    </td>
+    <td>
+
+<p>
+Set the value of any property in a DOMBuilder.
+<p>
+See <a href="http://xml.apache.org/xerces-c/program-dom.html#DOMBuilderProperties">http://xml.apache.org/xerces-c/program-dom.html#DOMBuilderProperties</a> for the list of supported properties.
+<p>
+It takes a void pointer as the property value. Application is required to initialize this void pointer to a correct type. See <a href="http://xml.apache.org/xerces-c/program-dom.html#DOMBuilderProperties">http://xml.apache.org/xerces-c/program-dom.html#DOMBuilderProperties</a> to learn exactly what type of property value each property expects for processing. Passing a void pointer that was initialized with a wrong type will lead to unexpected result. If the same property is set more than once, the last one takes effect.<dl compact><dt><b>
+Parameters: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em>name</em>&nbsp;</td><td>
+The unique identifier (URI) of the property being set. </td></tr>
+<tr><td valign=top><em>value</em>&nbsp;</td><td>
+The requested value for the property. See <a href="http://xml.apache.org/xerces-c/program-dom.html#DOMBuilderProperties">http://xml.apache.org/xerces-c/program-dom.html#DOMBuilderProperties</a> to learn exactly what type of property value each property expects for processing. Passing a void pointer that was initialized with a wrong type will lead to unexpected result. </td></tr>
+</table>
+</dl><dl compact><dt><b>
+Exceptions: </b><dd>
+<table border=0 cellspacing=2 cellpadding=0>
+<tr><td valign=top><em><a class="el" href="classDOMException.html">DOMException</a></em>&nbsp;</td><td>
+ <br>
+NOT_FOUND_ERR: Raised when the DOMBuilder does not recognize the requested property. </td></tr>
+</table>
+</dl>    </td>
+  </tr>
+</table>
+<hr>The documentation for this class was generated from the following file:<ul>
+<li><a class="el" href="DOMBuilder_8hpp-source.html">DOMBuilder.hpp</a></ul>
+    </FONT></TD></TR></TABLE><BR>
+</TD></TR></TABLE></TD></TR></TABLE><BR><TABLE border="0" cellpadding="0" cellspacing="0" width="620"><TR><TD bgcolor="#0086b2"><IMG height="1" src="images/dot.gif" width="1" alt=""></TD></TR><TR><TD align="center"><FONT color="#0086b2" size="-1"><I>
+              Copyright &copy; 2004 The Apache Software Foundation.
+              All Rights Reserved.
+            </I></FONT></TD></TR></TABLE></BODY></HTML>

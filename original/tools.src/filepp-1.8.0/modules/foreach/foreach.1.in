@@ -1,0 +1,85 @@
+.\"  Hey Emacs! This file is -*- nroff -*- source.
+.\" __FILEPP_INPUT__ version __VERSION__
+.\" filepp is free software; you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation; either version 2 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program; see the file COPYING.  If not, write to
+.\" the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+.\"
+.SH FOREACH MODULE - foreach.pm
+The foreach module implements a simple foreach loop. Its file name is
+\fBforeach.pm\fP.
+.PP
+The foreach loop is similar in functionality to that of other programming
+languages such as Perl.  It takes a list of values separated by a user
+definable delimiter (',' by default).  It then iterates through all
+values in the list, defining a macro to be each individual value for
+each iteration of the loop.  The loop terminates when all values have
+been used.
+.PP
+The foreach module implements the following keywords:
+.TP
+.BR #foreach " \fImacro\fP \fIlist\fP"
+The \fB#foreach\fP keyword is functionally equivalent to the following Perl
+style loop:
+
+foreach \fImacro\fP (split(/\fIdelim\fP/, \fIlist\fP))
+
+The \fB#foreach\fP keyword requires the following space separated
+parameters:
+
+\fImacro\fP : The name of the macro to which the foreach loop should
+assign the current list value.
+
+\fIlist\fP : The list of values, separated by \fIdelim\fP (see
+\fB#foreachdelim\fP keyword for how to set \fIdelim\fP). \fIlist\fP
+can also be a macro or contain macros.
+
+The loop will run from the \fB#foreach\fP keyword to the next
+\fB#endforeach\fP keyword.
+
+.TP
+.BR #endforeach
+The \fB#endforeach\fP keyword is used to signify the end of the loop.
+Everything within the opening \fB#foreach\fP and the closing \fB#endforeach\fP
+will be processed on each iteration of the loop.
+.PP
+
+Example usage:
+
+\fB#foreach\fP VALUE one, two, three, four
+
+  VALUE
+
+\fB#endforeach\fP
+
+In the above example VALUE will be defined to have values one, two,
+three and four for each successive iteration through the loop.
+
+Nested loops are also possible.
+
+.PP
+.TP
+.BR #foreachdelim " /\fIdelim\fP/"
+The \fB#foreachdelim\fP keyword is used to set the delimiter used in
+each list.  The delimiter can be any character, string or regular
+expression.  The delimiter should be enclosed in forward slashes, in
+the same style as Perl regular expressions.   The default value for
+\fIdelim\fP is ','.  To set the delimiter to be a single space do:
+
+\fB#foreachdelim\fP / /
+
+To set \fIdelim\fP to be any amount of white space do:
+
+\fB#foreachdelim\fP /\\s\+/
+
+See the Perl documentation on regular expressions for more advanced
+uses.

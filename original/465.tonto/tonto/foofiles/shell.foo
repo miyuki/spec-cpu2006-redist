@@ -1,0 +1,470 @@
+!-------------------------------------------------------------------------------
+!
+! SHELL: used to describe contracted cartesian gaussian shells.
+!
+! Copyright (C) Dylan Jayatilaka, 1997
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: shell.foo,v 1.19.2.3 2003/11/13 05:33:21 reaper Exp $
+!-------------------------------------------------------------------------------
+
+module SHELL
+
+   implicit none
+
+   keys :: STRVEC*, private DEFAULT_NULL
+
+contains
+
+!  ******************
+!  Allocation methods
+!  ******************
+
+   create
+   ! Create a shell object
+      self :: PTR
+      allocate(self)
+      ADD_MEMORY(SHELL_SIZE)
+      .nullify_ptr_part
+      .set_defaults
+   end
+
+   destroy
+   ! Destroy a shell object
+      self :: PTR
+      if (.destroyed) return
+      .destroy_ptr_part
+      DELETE_MEMORY(SHELL_SIZE)
+      deallocate(self)
+   end
+
+   nullify_ptr_part
+   ! Nullify the pointer part of a shell object
+      nullify(.ex)
+      nullify(.cc)
+   end
+
+   destroy_ptr_part
+   ! Destroy pointer part of a shell object
+      .ex.destroy
+      .cc.destroy
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   create_copy(shell) ::: leaky
+   ! Create a copy of "shell".
+      self :: PTR
+      shell :: SHELL
+      .create
+      .copy(shell)
+   end
+
+   copy(shell) ::: leaky
+   ! Copy a shell object. Make sure pointer parts are nullified or
+   ! destroyed, as you like, before using this.
+      shell :: SHELL, IN
+      self = shell
+      .ex.create_copy(shell.ex)
+      .cc.create_copy(shell.cc)
+   end
+
+   set(shell)
+   ! Set a shell object
+      shell :: SHELL
+      self = shell
+   end
+
+   set_defaults
+   ! Set a default shell
+      .l = 0
+      .n_cc = 0
+      .n_comp = 0
+   end
+
+   set_n_comp
+   ! Set the number of components
+      .n_comp = (.l+1)*(.l+2)/2
+   end
+
+!   update ::: private
+!   ! Update the shell data
+!      DIE_IF(.ex.destroyed,"no expononents")
+!      DIE_IF(.cc.destroyed,"no contractions")
+!      ENSURE(stdin.default_units==" ","default units still set")
+!   end
+
+!   n_comp_sum result (res)
+!   ! No. of cartesian components up to shell with momentum .l
+!     res :: INT
+!     res = (.l+1)*(.l+2)*(.l+3)/6
+!   end
+
+!  ************
+!  I/O Routines
+!  ************
+
+   read_keywords ::: get_from(OBJECT), recursive, leaky
+   ! Read data from "stdin" using keyword style input.
+   end
+
+   process_keyword(keyword) ::: leaky
+   ! Process command "keyword". Any required data needed by the "keyword" is
+   ! inputted from "stdin".
+     keyword :: STR(*), IN
+     word :: STR
+     word = keyword
+     word.to_lower_case
+     select case (word)
+       case ("}           "); ! exit surrounding loop
+       case ("cc=         "); .read_cc
+       case ("ex=         "); .read_ex
+       case ("ex,cc=      "); .read_ex_cc
+       case ("junk,ex,cc= "); .read_junk_ex_cc
+       case ("l=          "); .read_l
+       case ("l_chr=      "); .read_l_chr
+       case ("l_int=      "); .read_l_int
+       case ("n_cc=       "); .read_n_cc
+       case ("put         "); .put
+       case ("units=      "); .read_units
+       ! These are only for making custom tables for the list type
+       case ("flush       "); stdout.flush
+       case ("put_l       "); stdout.put(.l)
+       case ("put_l_chr   "); stdout.put(.l_chr,int_width=TRUE)
+       case ("put_l_int   "); stdout.put(.l)
+       case ("put_n_cc    "); stdout.put(.n_cc)
+       case ("put_n_prim  "); stdout.put(.n_prim)
+       case ("put_norm    "); stdout.put(.norm)
+       case default;         UNKNOWN(word)
+     end
+   end
+
+   read_units ::: get_from(OBJECT)
+   ! Read a string which describes the units to be used
+   end
+
+   read_junk ::: get_from(OBJECT)
+   ! Read in a junk string, useful for ignoring a field
+   end
+
+   read_l
+   ! Read in the l symbol
+      word :: STR
+      stdin.read(word)
+      stdin.move_to_previous_item
+      if (word.is_int) then; .read_l_int
+      else;                  .read_l_chr
+      end
+   end
+
+   read_l_int ::: private
+   ! Read in the l integer
+      word :: STR
+      stdin.read(word)
+      ENSURE(word.is_int,"expecting an integer for L")
+      .l = word.to_int
+      .set_n_comp
+   end
+
+   read_l_chr ::: private
+   ! Read in the l symbol
+      word :: STR
+      l_c :: STR(1)
+      l :: INT
+      stdin.read(word)
+      ENSURE(len_trim(word)==1,"unknown L symbol")
+      l_c = word
+      l_c.to_lower_case
+      select case (l_c)
+         case ("s");   l = 0
+         case ("p");   l = 1
+         case ("d");   l = 2
+         case ("f");   l = 3
+         case ("g");   l = 4
+         case default; l = 4 + iachar(l_c)-iachar("g")
+      end
+      .l = l
+      .set_n_comp
+   end
+
+   read_n_cc
+   ! Read in the number of contraction coefficients
+      stdin.read(.n_cc)
+      ENSURE(.n_cc>0,"n_cc must be positive")
+   end
+
+   read_ex ::: leaky
+   ! Read in the exponents
+      ENSURE(.n_cc>0,"n_cc must be entered first")
+      ENSURE(.ex.destroyed,"ex already entered")
+      .ex.create(.n_cc)
+      stdin.read(.ex)
+   end
+
+   read_cc ::: leaky
+   ! Read in the contraction coefficients
+      ENSURE(.n_cc>0,"n_cc must be entered first")
+      ENSURE(.cc.destroyed,"cc already entered")
+      .cc.create(.n_cc)
+      stdin.read(.cc)
+   end
+
+   read_ex_cc ::: leaky
+   ! Read in the exponents and contractions
+      ENSURE(.n_cc>0,"n_cc must be entered first")
+      ENSURE(.ex.destroyed,"ex already entered")
+      ENSURE(.cc.destroyed,"ex already entered")
+      .ex.create(.n_cc)
+      .cc.create(.n_cc)
+      stdin.read(.ex,.cc)
+   end
+
+   read_junk_ex_cc ::: leaky
+   ! Read in the exponents and contractions preceded by a junk string
+      i :: INT
+      ENSURE(.n_cc>0,"n_cc must be entered first")
+      ENSURE(.ex.destroyed,"ex already entered")
+      ENSURE(.cc.destroyed,"ex already entered")
+      .ex.create(.n_cc)
+      .cc.create(.n_cc)
+      do i = 1,.n_cc
+         stdin.skip_next_item
+         stdin.read(.ex(i))
+         stdin.read(.cc(i))
+      end
+   end
+
+!  ********************
+!  Key related routines
+!  ********************
+
+   read_keys ::: get_from(OBJECT)
+   ! Read the "keys".
+   end
+
+   process_keys ::: get_from(OBJECT), leaky
+   ! Process each of the words in the "keys" list.
+   end
+
+   keys_created result (res) ::: get_from(OBJECT)
+   ! Return TRUE if the list-element keys are created.
+      res :: BIN
+   end
+
+   set_keys(the_keys) ::: get_from(OBJECT)
+   ! This is for setting the "keys" externally.
+     the_keys :: STRVEC(len=*,:)
+   end
+
+   clear_keys ::: get_from(OBJECT)
+   ! This is for destroying the "keys" externally.
+   end
+
+   put_table_footer ::: get_from(OBJECT)
+   ! Output a table footer from the list of "keys". NOTE: not all keywords need
+   ! contribute to the banner - any unrecognised keyword is skipped.
+   end
+
+   put_table_header
+   ! Output a table header from the list of "keys". NOTE: not all keywords need
+   ! contribute to the banner - any unrecognised keyword is skipped.
+     word :: STR
+     width,k :: INT
+
+     width = .table_width
+
+     if (width > 0) then
+       stdout.dash(width=width)
+       do k = 1,size(keys)
+         word = keys(k)
+         word.to_lower_case
+         select case (word)
+           case ("flush       "); stdout.flush; exit
+           case ("put_l       "); stdout.put("l",int_width=TRUE)
+           case ("put_l_chr   "); stdout.put("l",int_width=TRUE)
+           case ("put_l_int   "); stdout.put("l",int_width=TRUE)
+           case ("put_n_cc    "); stdout.put("n_cc",int_width=TRUE)
+           case ("put_n_prim  "); stdout.put("n_prim",int_width=TRUE)
+           case ("put_norm    "); stdout.put("norm")
+           case default
+         end
+         if (k==size(keys)) then
+           stdout.flush ! In case they didn't write one.
+           WARN("no flush keyword - you may later overrun the output buffer")
+         end
+       end
+       stdout.dash(width=width)
+     end
+   end
+
+   table_width result (res)
+   ! Return how wide a table is, based on "keys".  Note that not all keywords
+   ! need to contribute to the banner - any unrecognised keyword is skipped.
+     res :: INT
+     int_dash,real_dash,k :: INT
+     word :: STR
+     int_dash = 0
+     real_dash = 0
+     ENSURE(keys.created,"no keywords")
+     do k = 1,size(keys)
+       word = keys(k)
+       word.to_lower_case
+       select case (word)
+         case ("}           "); ! exit surrounding loop
+         case ("put_l       "); int_dash = int_dash + 1
+         case ("put_l_chr   "); int_dash = int_dash + 1
+         case ("put_l_int   "); int_dash = int_dash + 1
+         case ("put_n_cc    "); int_dash = int_dash + 1
+         case ("put_n_prim  "); int_dash = int_dash + 1
+         case ("put_norm    "); real_dash = real_dash + 1
+         case ("flush       "); exit
+         case default
+       end
+     end
+     res = int_dash * stdout.int_width + real_dash * stdout.real_width
+   end
+
+!  *************
+!  Input methods
+!  *************
+
+   same_as(sh) result(same)
+   ! Return TRUE if the shell "self" is the same as "sh".
+      sh :: SHELL
+      same :: BIN
+      same = .l==sh.l AND .n_comp==sh.n_comp &
+         AND .ex.same_as(sh.ex) AND .cc.same_as(sh.cc)
+   end
+
+   l_chr result(res)
+   ! Return a character representation for the angular mtm
+      res :: STR(1)
+      l :: INT
+      l = .l
+      select case (l)
+         case (0); res="s"
+         case (1); res="p"
+         case (2); res="d"
+         case (3); res="f"
+         case (4); res="g"
+         case default;
+            DIE_IF(l>23,"angular momentum too large:"// trim(l.to_str))
+            res = achar(l-4+iachar("g"))
+      end select
+   end
+
+   make_contraction_matrix(ccm)
+   ! Return the contraction coefficient matrix. Size of ccm is (.n_prim,.n_comp).
+      ccm :: REALMAT
+      b,p,i :: INT
+      f :: REAL
+      fac :: REALVEC*
+      fac.create( .n_comp )
+      fac.normalising_factors( .l )
+      do b = 1,.n_comp       ! do over basis components
+         p = b               ! primitive p
+         f = fac(b)
+         do i = 1,.n_cc      ! do over contractions
+            ccm(p,b) = f*.cc(i)
+            p = p + .n_comp
+         end
+      end
+      fac.destroy
+   end
+
+   norm result (res) ::: pure
+   ! Return the norm of the shell, assuming that the existing contraction
+   ! coefficients are with respect to NORMALISED gaussians
+      self :: IN
+      res :: REAL
+      i,j :: INT
+      sum,a,b,ab :: REAL
+      sum = ZERO
+      do i = 1,.n_cc
+         a = .ex(i)
+         do j = 1,i-1
+            b = .ex(j)
+            ab = TWO*sqrt(a*b)/(a+b);
+            sum = sum + TWO*.cc(i)*.cc(j)*ab**(.l+ONE+HALF);
+         end
+         sum = sum + .cc(i)*.cc(i)
+      end
+      res = sqrt(sum) * ((TWO*PI)**(THREE/FOUR))
+   end
+
+   unnormalise
+   ! Unnormalise self as if all components in the shell were x^l, and also
+   ! assuming the existing contraction coefficients are initially with respect
+   ! to raw UNNORMALISED gaussians. It is up to you to correct this factor with
+   ! appropriate double factorial square roots for other components.
+
+      ! Take out the normalisation of each primitive.
+      ! The double factorial should be: fac = 1/sqrt(df(nx)*df(ny)*df(nz))
+      ! where n are the cartesian powers of the basis component
+       .cc(:) = .cc(:) * (FOUR*.ex(:))**(HALF*.l+HALF+QUARTER) &
+                * (ONE/(.norm*sqrt(.l.double_factorial)))
+   end
+
+   renormalise
+   ! Normalise self as if all components in the shell were x^l, and also
+   ! assuming the existing contraction coefficients are with respect to raw
+   ! unnormalised gaussians. This will undo routine "unnormalise".
+      ! The ((TWO*PI)**(THREE/FOUR)) / .norm factor is to make the cc=1 for a
+      ! shell with one primitive
+      .cc(:) = .cc(:) / ((FOUR*.ex(:))**(HALF*.l+HALF+QUARTER)) &
+               * (sqrt(.l.double_factorial) * ((TWO*PI)**(THREE/FOUR)) / .norm)
+   end
+
+   n_prim result(res) ::: pure
+   ! Return the number of primitive gaussians in the shell
+      self :: IN
+      res :: INT
+      res = .n_comp*.n_cc
+   end
+
+   put
+   ! Put the shell information to "stdout"
+       i :: INT
+      stdout.flush
+      stdout.show("L quantum number = ",.l)
+      stdout.dash(int_fields=1,real_fields=2)
+      stdout.put("N", int_width=TRUE)
+      stdout.put("Exponents")
+      stdout.put("Contraction")
+      stdout.flush
+      stdout.dash(int_fields=1,real_fields=2)
+      do i = 1,.n_cc
+         stdout.put(i)
+         stdout.put( .ex(i))
+         stdout.put( .cc(i))
+         stdout.flush
+      end
+   end
+
+end

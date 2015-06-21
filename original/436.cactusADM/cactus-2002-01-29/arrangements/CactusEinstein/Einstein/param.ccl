@@ -1,0 +1,160 @@
+# Parameter definitions for thorn Einstein
+# $Header: /cactus/CactusEinstein/Einstein/Attic/param.ccl,v 1.41 2001/12/19 08:23:29 miguel Exp $
+
+
+shares:time
+
+USES KEYWORD timestep_method 
+
+shares:grid
+
+USES KEYWORD domain ""
+
+restricted:
+
+BOOLEAN use_conformal "Use conformal metric?"
+{
+} "yes"
+
+BOOLEAN use_conformal_derivs "Use derivatives of conformal metric?"
+{
+} "yes"
+
+BOOLEAN use_mask "Turn on storage for mask?"
+{
+} "no"
+
+KEYWORD initial_data "Physical spacetime model to evolve"
+{
+  "flat" :: "Flat Minkowski space"
+} "flat"
+
+KEYWORD evolution_system "Spacetime system to evolve"
+{
+  "none" :: "Do not use a spacetime" 
+} "none"
+
+BOOLEAN einstein_register_slicing "Register slicing management routines"
+{
+} "yes"
+
+KEYWORD initial_lapse "How to initialise the lapse"
+{
+  "one"         :: "Set to unity"
+  "gaussian"    :: "Set to a gaussian bump (flatty)"
+  "isotropic"   :: "Set to isotropic lapse"
+  "psiminustwo" :: "Set to psi to the minus two"
+} "one"
+
+KEYWORD initial_shift "How to initialise the shift"
+{
+  "zero"     :: "Set to zero"
+  "rotation" :: "Set initial shift to rigid rotation"
+} "zero"
+
+BOOLEAN rot_shift_att "Use attenuation to zero the rotation shift at punctures"
+{
+} "no"
+
+INT rot_shift_att_pow "Half of the power to be used in the attenuation function"
+{
+1: :: Larger than zero
+} 1 
+
+REAL rot_shift_att_sigma "Width of the attenuation function"
+{
+0: :: Larger than zero please
+} 0.2
+
+KEYWORD slicing "Slicing condition to implement"
+{
+  "geodesic" :: "Lapse is set to unity"
+  "static"   :: "Lapse is not evolved"
+  "mixed"    :: "Allow mixed slicing, specified in parameter mixed_slicing"
+} "geodesic"
+
+STRING mixed_slicing "Mixed slicing conditions, space separated, with *decreasing* importance"
+{
+  .* :: "No default slicing"
+} "none"
+
+KEYWORD slicing_verbose "Print information on current slicing"
+{
+  "yes" :: "print slicing info"
+  "no"  :: "do not print slicing info"
+} "no"
+
+REAL gaussian_amplitude "Amplitude of gaussian bump in initial lapse"
+{
+ : :: ""
+} 0.05
+
+REAL gaussian_sigma2 "Sigma**2 of gaussian bump in initial lapse"
+{
+ : :: ""
+} 0.05
+
+REAL psiminustwo_cut "Cut off for psiminustwo initial lapse"
+{
+0.0:1.0 :: "0 means no cut off, 1 means a full cut off"
+} 0.0
+
+REAL rotation_omega "Angular velocity for initial rotation shift" STEERABLE = ALWAYS
+{
+: :: "Anything goes"
+} 0.0
+
+INT rotation_psipower "Power of psi for initial rotation shift"
+{
+0: :: "Positive please"
+} 2
+
+KEYWORD shift "Which shift condition to use"
+{
+  "none"   :: "No shift is used"
+  "zero"   :: "Zero shift is used"
+  "static" :: "Shift remains static"
+} "none"
+
+KEYWORD advection "How to finite difference advection terms on the shift"
+{
+  "upwind1" :: "First order upwind"
+  "upwind2" :: "Second order upwind"
+  "center"  :: "Second order centered"
+} "center"
+
+
+private:
+ 
+REAL dtfac "Courant factor for evolution"
+{
+ : :: "Can  in principle be anything, although negative would be strange"
+} 0.5
+
+BOOLEAN conformal_storage_all "Assign storage for psi and derivatives"
+{
+} "yes"
+
+BOOLEAN rsquared_in_sphm "Parameter in carttosphere, what does it ?"
+{
+} "no"
+
+KEYWORD wavecalc "How to calculate the wavespeed for Courant"
+{
+  "three_point_inverse" :: ""
+  "seven_point" :: ""
+} "three_point_inverse"
+
+REAL gauge_speed "Gauge speed for Courant calculation"
+{
+ *:* :: ""
+} 1.0
+
+
+
+
+
+
+
+
+

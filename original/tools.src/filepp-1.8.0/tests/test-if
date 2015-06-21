@@ -1,0 +1,20 @@
+#define STATUS FAIL!
+#define UNITS 1
+#define YES
+#if defined(YES)
+#if (UNITS==1)
+	the value of units is UNITS
+	I will skip over my endif
+#elif (UNITS==2)
+	the value of units is UNITS
+	I will skip over my endif
+#else
+	the value of units is UNITS
+	I will go to the next endif
+#endif
+ We should get here
+   #define STATUS SUCCESS!
+
+#endif
+
+STATUS

@@ -1,0 +1,52 @@
+	cmacros - make certain macros more "C" like
+
+This filepp module provides the module: cmacros
+
+The cmacros module puts quotes around certain macros which would not
+normally be quoted by filepp.  This makes filepp's output more like
+the output of the C preprocessor which always puts quotes around these
+macros.  The macros are:
+
+__DATE__
+__TIME__
+__VERSION__
+__BASE_FILE__
+__FILE__
+
+It is easy to modify the list of macros if required by editing the
+module.
+
+There is a simple test file included with this module.  To test the
+for module use the following commands (the file "test.c" is in this
+directory):
+
+filepp -m cmacros.pm test.in
+
+Also try:
+
+filepp test.in
+
+to see the effect of including the module.
+
+For full documentation on how to use filepp and the comment module read
+the filepp man page. 
+
+  Copyright (C) 2000-2007 Darren Miller
+
+  filepp is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+Comments are welcome.
+
+	- Darren Miller <darren@cabaret.demon.co.uk>

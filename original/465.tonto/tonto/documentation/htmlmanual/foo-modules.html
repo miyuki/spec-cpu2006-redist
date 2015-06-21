@@ -1,0 +1,304 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<HTML
+><HEAD
+><TITLE
+>Writing foo modules for TONTO</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.76b+
+"><LINK
+REL="HOME"
+TITLE="Tonto"
+HREF="index.html"><LINK
+REL="PREVIOUS"
+TITLE="What foo does to produce Fortran95 code"
+HREF="foo-to-f95.html"><LINK
+REL="NEXT"
+TITLE="Deciding what is data and what should be a routine"
+HREF="data-routines.html"><LINK
+REL="STYLESHEET"
+TYPE="text/css"
+HREF="../tonto.css"><META
+NAME="robots"
+CONTENT="noindex,nofollow"></HEAD
+><BODY
+CLASS="CHAPTER"
+BGCOLOR="#FFFFFF"
+TEXT="#000000"
+LINK="#0000FF"
+VLINK="#840084"
+ALINK="#0000FF"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+SUMMARY="Header navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+>Tonto</TH
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="foo-to-f95.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="bottom"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="data-routines.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+></TABLE
+><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"></DIV
+><DIV
+CLASS="CHAPTER"
+><H1
+><A
+NAME="FOO-MODULES"
+></A
+>Writing <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> modules for TONTO</H1
+><P
+ALIGN="justify"
+>The first step in writing a module for TONTO is to decide whether you
+really need to do that.</P
+><P
+ALIGN="justify"
+>TONTO is organised around about thirty data objects. Writing a whole
+module is a fairly serious undertaking in which you are required to define what
+data the object is supposed to store, and what operations might be performed on
+this data.</P
+><P
+ALIGN="justify"
+>Initially, you might only want to add particular functionality or routine
+to an existing module. </P
+><P
+ALIGN="justify"
+>If you really do want to write a whole module, or slash TONTO to bits
+for your own project, this chapter gives you the required procedure for
+constructing or deconstructing a module. </P
+><P
+ALIGN="justify"
+>A particular style has been adopted within TONTO. This is not just for
+aesthetics.  We believe that adhering to such a style will make it relatively
+easy to port <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> code to other languages. Hopefully this will not be a
+neccesity, but writing code which has a multilingual character can only help in
+its maintainence and understandability.</P
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="MODULE-PURPOSE"
+></A
+>What is the module supposed to do?</H1
+><P
+ALIGN="justify"
+>First, you must decide what the module is supposed to do. But this does
+<SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>not</I
+></SPAN
+> define a module in TONTO.</P
+><P
+ALIGN="justify"
+>Instead, a module is defined by the <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>data</I
+></SPAN
+> which is
+required to do the task.</P
+><P
+ALIGN="justify"
+>Many people, especially Fortran programmers, come from a top-down design
+philosophy. In this philosophy a desired task is broken into smaller bits, which
+are eventually coded as separate routines. This philosophy must be
+resisted.</P
+><P
+ALIGN="justify"
+>For example, a common task in quantum chemistry is the requirement for
+<SPAN
+CLASS="QUOTE"
+>"integrals"</SPAN
+>. A typical Fortran programmer would write code for the
+formulas required, breaking the code up into routines to save repetitive coding.
+At the last stage, the programmer would write input routines, or provide
+subroutine arguments, so the user could provide the data required to evaluate
+the formulas. The final result would be a Fortran routine like this
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>   call evaluate_integrals(result,input_data_1,input_data_2, ....)</PRE
+></TD
+></TR
+></TABLE
+>
+In a worst case scenario, common blocks and I/O statements would also
+be used to introduce the required data into the routine.</P
+><P
+ALIGN="justify"
+>By contrast, in an object-based design philosophy, you would start by
+asking what data is required for the integrals. If you are using gaussian
+functions, that data might be the information required to define these gaussian
+functions. All this data would be used to define a <TT
+CLASS="LITERAL"
+>gaussian</TT
+>
+data type.  Routines and functionality would be provided so that the user could
+introduce this data using I/O, or perhaps from other data types. The ability to
+<TT
+CLASS="LITERAL"
+>evaluate_integrals</TT
+> would only be one of many tasks that could
+be performed on the <TT
+CLASS="LITERAL"
+>guassian</TT
+>. The final result in TONTO
+would be some lines like this
+<TABLE
+BORDER="0"
+BGCOLOR="#DDDDEE"
+WIDTH="100%"
+><TR
+><TD
+><PRE
+CLASS="PROGRAMLISTING"
+>   gaussian.read_data_from(stdin)
+   gaussian.evaluate_integrals(result)</PRE
+></TD
+></TR
+></TABLE
+>
+In all cases, the interface to the routine is constant and involves the
+<TT
+CLASS="LITERAL"
+>gaussian</TT
+> data. </P
+><P
+ALIGN="justify"
+>It is the encapsulation of data and functionality together, and the set
+way to access a routine by its interface, which allows the object-based approach
+better suited for large scale programs.</P
+><P
+ALIGN="justify"
+>Whereas in the top-down design approach the details of how a task is
+broken down may vary from programmer to programmer, in the object-based approach
+used in TONTO the data required for a task, and the functionality that can be
+performed on that data remains fairly universal within a specified problem
+context.</P
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><BR><IMG
+SRC="../hr.png"
+HEIGHT="10"
+WIDTH="100%"><TABLE
+SUMMARY="Footer navigation table"
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="10"
+BGCOLOR="#DDDDEE"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="foo-to-f95.html"
+ACCESSKEY="P"
+> &#60;&#60; Previous</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="index.html"
+ACCESSKEY="H"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="data-routines.html"
+ACCESSKEY="N"
+>Next &#62;&#62; </A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>What <SPAN
+CLASS="emphasis"
+><I
+CLASS="EMPHASIS"
+>foo</I
+></SPAN
+> does to produce Fortran95 code</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+BGCOLOR="#DDDDEE"
+VALIGN="top"
+>&nbsp;</TD
+><TD
+WIDTH="33%"
+ALIGN="JUSTIFY"
+VALIGN="top"
+>Deciding what is data and what should be a routine</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>

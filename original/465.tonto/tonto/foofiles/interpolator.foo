@@ -1,0 +1,540 @@
+!------------------------------------------------------------------------------
+!
+! INTERPOLATOR:
+!
+! For interpolating values from a 1-D table.
+!
+! The module takes as input some "data_point"'s with their assigned "values".
+! Any data value is then assigned a value by interpolating between the two
+! nearest data points.
+! 
+! The module allows for even-spaced or uneven-spaced data. In the former case
+! all the "data_point"'s are not required: only the first data point and the
+! "spacing".
+!
+! Copyright (C) Dylan Jayatilaka, 2002
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: interpolator.foo,v 1.1.2.7 2003/11/13 05:35:09 reaper Exp $
+!
+!------------------------------------------------------------------------------
+
+module INTERPOLATOR
+
+   implicit none
+
+contains
+
+   create(spacing,first)
+   ! Create the object
+     self :: PTR
+     spacing,first :: REAL, optional
+     nullify(self)
+     allocate(self)
+     ADD_MEMORY(INTERPOLATOR_SIZE)
+     .nullify_ptr_part
+     .set_defaults(spacing,first)
+   end
+
+   create_copy(object) ::: get_from(OBJECT), leaky
+   ! Create a copy of object
+     object :: SELF_TYPE
+     self :: PTR
+   end
+
+   copy(c) ::: leaky
+   ! Copy the contents of "c" to self.
+     c :: INTERPOLATOR, IN
+     self = c
+     if (c.data_point.created) &
+        .data_point.create_copy(c.data_point)
+     if (c.data_value.created) &
+        .data_value.create_copy(c.data_value)
+   end
+
+   destroy ::: get_from(OBJECT), leaky
+   ! Destroy an object
+      self :: PTR
+   end
+
+   nullify_ptr_part
+   ! Nullify the pointer parts
+      nullify(.data_point)
+      nullify(.data_value)
+   end
+
+   destroy_ptr_part
+   ! Destroy the pointer parts
+      .data_point.destroy
+      .data_value.destroy
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      res = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      res = NOT associated(self)
+!   end
+
+   set_defaults(spacing,first) ::: leaky
+   ! Set up a defaults
+      spacing,first :: REAL, optional
+      .n_data = 0
+      .data_point.destroy
+      .data_value.destroy
+      .spacing = ZERO
+      .finalised = FALSE
+      if (present(spacing)) .set_spacing(spacing)
+      if (present(first))   .set_first_data_point(first)
+   end
+
+   set_spacing(spacing) ::: leaky
+   ! Set the "spacing" of an even-spaced interpolator
+      spacing :: REAL
+   ENSURE(spacing>ZERO,"spacing must be +ve")
+      .spacing = spacing
+   end
+
+   set_first_data_point(first) ::: leaky
+   ! Set the "first" datum of an even-spaced interpolator
+      first :: REAL
+   ENSURE(.spacing>ZERO,"spacing must be +ve")
+      .data_point.destroy
+      .data_point.create(1)
+      .data_point(1) = first
+   end
+
+   is_even_spaced result (res) 
+   ! Returns TRUE if the interpolator uses even spaced data points.
+      res :: BIN
+      res = .spacing > ZERO 
+   end
+
+   first_data_point result (res) 
+   ! Returns the first data point
+      res :: REAL
+   ENSURE(.finalised,"Not finalised")
+   ENSURE(.n_data>0,"No data")
+   ENSURE(.data_point.created,"No data")
+      res = .data_point(1)
+   end
+
+   last_data_point result (res) 
+   ! Returns the last data point
+      res :: REAL
+   ENSURE(.finalised,"Not finalised")
+   ENSURE(.n_data>0,"No data")
+   ENSURE(.data_point.created,"No data")
+      res = .data_point(.n_data)
+   end
+
+!  *************
+!  Input methods
+!  *************
+
+   read_keywords ::: get_from(OBJECT), recursive, leaky
+   ! Read data from "stdin" using keyword style input.
+   end
+
+   process_keyword(keyword) ::: leaky
+   ! Process command "keyword". Any required data needed by the "keyword" is
+   ! inputted from "stdin".
+      keyword :: STR(*)
+      word :: STR
+      word = keyword
+      word.to_lower_case
+      select case (word)
+         case ("}               ")  ! exit case
+         case ("data_points=    "); .read_data_points
+         case ("data_values=    "); .read_data_values
+         case ("kind=           "); .read_kind
+         case ("put             "); .put
+         case ("spacing=        "); .read_spacing
+         case ("units=          "); .read_units
+         case default;         UNKNOWN(word)
+      end
+   end
+
+   read_units ::: get_from(OBJECT)
+   ! Read a string which describes the units to be used
+   end
+
+   read_junk ::: get_from(OBJECT)
+   ! Read in a junk string, useful for ignoring a field
+   end
+
+   read_kind
+   ! Read the kind of interpolation to use.
+      stdin.read(.kind)
+      .kind.to_lower_case
+      select case (.kind)
+         case ("linear")
+         case ("logarithmic")
+         case default; UNKNOWN(.kind)
+      end
+   end
+
+   read_data_points ::: leaky
+   ! Read in the data points.
+      stdin.read_ptr(.data_point)
+      if (.is_even_spaced) then
+         ENSURE(.data_point.dim==1,"specify only first data point for even spaced interpolation")
+      end
+   end
+
+   read_data_values ::: leaky
+   ! Read in the data values.
+      stdin.read_ptr(.data_point)
+   end
+
+   read_spacing ::: leaky
+   ! Read in the spacing
+      spacing :: REAL
+   ENSURE(.data_point.destroyed OR .data_point.dim==1,"can't have more than one data point")
+      stdin.read(spacing)
+      .set_spacing(spacing)
+   end
+
+   finalise ::: leaky
+   ! Check everything is OK after reading data. Saturation must exist but it is
+   ! applied into the RGB triples and then destroyed.
+      order :: INTVEC*
+      ENSURE(.data_point.created," no data_point's")
+      ENSURE(.data_value.created," no data_value's")
+      if (.is_even_spaced) then
+         .n_data = .data_value.dim
+         .set_even_spaced_data_points
+      else
+         ENSURE(.data_point.dim==.data_value.dim,"inconsistent data/value lengths")
+         ENSURE(.data_point.dim>2,"not enough data_point's")
+         .n_data = .data_point.dim
+         order.create(.n_data)
+         ! Re-order from smallest to largest
+         .data_point.quick_sort(order)
+         .data_point = .data_point(order)
+         .data_value = .data_value(order)
+         order.destroy
+      end
+      .finalised = TRUE
+   end
+
+   set_even_spaced_data_points ::: leaky
+   ! Set the ".data_point" to be even-spaced, assuming .n_data has been set:
+   ! this can only be done when the ".data_point" array contains one element.
+      i :: INT
+      p :: REAL
+   ENSURE(.is_even_spaced,"not even spaced")
+   ENSURE(.data_point.dim==1,"data_point.dim/=1")
+   ENSURE(.n_data>0,"there is no data")
+      p = .data_point(1)
+      .data_point.destroy
+      .data_point.create(.n_data)
+      do i = 1,.n_data
+         .data_point(i) = p
+         p = p + .spacing
+      end
+   end
+
+   set_even_spaced_data_points(spacing,first,length) ::: leaky
+   ! Set the ".data_point" to be even-spaced. In this routine .n_data must not
+   ! have been set, nor ".data_values". Instead .n_data is worked out from the
+   ! "first" data value, the "spacing", and the "length" of the interpolation
+   ! region.
+      spacing,first,length :: REAL
+   ENSURE(.n_data==0,"there is already data")
+   ENSURE(.data_value.destroyed,"there are already data_values")
+      .set_spacing(spacing)
+      .set_first_data_point(first)
+      .n_data = floor(length/spacing) + 1
+      .set_even_spaced_data_points
+   end
+
+   set_even_spaced_data(first,spacing,length,func,tol) ::: leaky
+   ! Set ".data_point" to be even-spaced, starting from the "first" value, with
+   ! a given "spacing", extending for a total "length", and with ".data_value"
+   ! to be the corresponding values evaluated using monotonically decreasing
+   ! function "func". The number of data values is worked out from where
+   ! function "func" is greater than "tol". 
+      spacing,first,length,tol :: REAL
+      interface
+         func(point) result (value)
+            point :: REAL
+            value :: REAL
+         end
+      end
+      max_data :: INT
+      i,s,n :: INT
+      p,val :: REAL
+   ENSURE(.n_data==0,"there is already data")
+   ENSURE(.data_value.destroyed,"there are already data_values")
+   ENSURE(.data_point.destroyed,"there are already data_points")
+   ENSURE(spacing>ZERO,"spacing must be +ve")
+      .spacing = spacing
+      max_data = floor((length-first)/spacing) + 1
+      .data_point.create(max_data)
+      .data_value.create(max_data)
+    ! ENSURE(func(first)>tol_max,"tol_max initially too small")
+    ! ! Find first data_point
+    ! p = first 
+    ! do i = 1,max_data
+    !    val = func(p)
+    !    if (val<tol_max) exit
+    !    p = p + spacing
+    ! end
+    ! ENSURE(val<tol_max,"tol_max finally too small")
+    ! ! Find last data_point
+    ! .data_point(1) = p - spacing
+    ! .data_value(1) = val
+    ! s = i
+    ! n = 2
+      p = first 
+      s = 0
+      n = 1
+      do i = s+1,max_data
+         val = func(p)
+         .data_point(n) = p
+         .data_value(n) = val
+         if (val<tol) exit
+         p = p + spacing
+         n = n + 1
+      end
+      ENSURE(val<tol,"data table not large enough")
+      .n_data = n-1
+      .data_value.shrink(.n_data)
+      .data_point.shrink(.n_data)
+      if (.kind=="logarithmic") then
+         ENSURE(all(.data_value>ZERO),"-ve data_values cant be used with log interpolation")
+         .data_value = log(.data_value)
+      end
+      .finalised = TRUE
+   end
+
+!  ************
+!  Set routines
+!  ************
+
+   set_data_points(points) ::: leaky
+   ! Set the data "points". NOTE: Make sure that .finalise is called after all
+   ! set routines.
+      points :: REALVEC
+      .data_point.destroy
+      .data_point.create_copy(points)
+   end
+
+   set_data_values(values) ::: leaky
+   ! Set the data "values". NOTE: Make sure that .finalise is called after all
+   ! set routines.
+      values :: REALVEC
+      .data_value.destroy
+      .data_value.create_copy(values)
+   end
+
+!  *****************
+!  Values for points
+!  *****************
+
+   value_for(point) result (res)
+   ! Return the interpolated value for "point".
+      self :: IN
+      point :: REAL, IN
+      res :: REAL
+      del,frac :: REAL
+      i1,i2 :: INT
+   ENSURE(.finalised,"not finalised")
+      if (.is_even_spaced) then ! This is more efficient than below
+         frac = (point - .data_point(1))/.spacing
+         i1 = floor(frac)
+         if (frac>i1) then
+           i2 = i1+1
+           if (-1<i1 AND i2<.n_data) then
+              del  = .data_value(i1+2) - .data_value(i2)
+              res  = .data_value(i2) + (frac-i1)*del
+              if (.kind=="logarithmic") res = exp(res)
+           else
+              res = ZERO
+           end
+         else
+           if (-1<i1 AND i1<.n_data) then
+              res  = .data_value(i1+1)
+              if (.kind=="logarithmic") res = exp(res)
+           else
+              res = ZERO
+           end
+         end
+      else
+         if (point.is_in_range(.data_point.range)) then
+            i1 = count(.data_point<=point) ! assuming .data is ordered !
+            i1 = min(i1,.n_data-1)
+            i2 = i1 + 1
+            frac = (point - .data_point(i1))/(.data_point(i2)-.data_point(i1))
+            del  = .data_value(i2) - .data_value(i1)
+            res  = .data_value(i1) + frac*del
+            if (.kind=="logarithmic") res = exp(res)
+         else
+            res = ZERO 
+         end
+      end
+   end
+
+   values_for(points) result(values)
+   ! Return the interpolated "values" for a series of "points".
+      self :: IN
+      points :: REALVEC, IN
+      values :: REALVEC(points.dim)
+      point :: REAL
+      res :: REAL
+      del,frac :: REAL
+      i1,i2 :: INT
+      i :: INT
+      ENSURE(.finalised,"not finalised")
+      if (.is_even_spaced) then ! This is more efficient than below
+        do i = 1,points.dim
+          point = points(i)
+
+          frac = (point - .data_point(1))/.spacing
+          i1 = floor(frac)
+          if (frac>i1) then
+            i2 = i1+1
+            if (-1<i1 AND i2<.n_data) then
+              del  = .data_value(i1+2) - .data_value(i2)
+              res  = .data_value(i2) + (frac-i1)*del
+              if (.kind=="logarithmic") res = exp(res)
+              values(i) = res
+            else
+              values(i) = ZERO
+            end
+          else
+            if (-1<i1 AND i1<.n_data) then
+              res  = .data_value(i1+1)
+              if (.kind=="logarithmic") res = exp(res)
+              values(i) = res
+            else
+              values(i) = ZERO
+            end
+          end
+        end
+      else
+        do i = 1,points.dim
+          point = points(i)
+          if (point.is_in_range(.data_point.range)) then
+            i1 = count(.data_point<=point) ! assuming .data is ordered !
+            i1 = min(i1,.n_data-1)
+            i2 = i1 + 1
+            frac = (point - .data_point(i1))/(.data_point(i2)-.data_point(i1))
+            del  = .data_value(i2) - .data_value(i1)
+            res  = .data_value(i1) + frac*del
+            if (.kind=="logarithmic") res = exp(res)
+            values(i) = res
+          else
+            values(i) = ZERO
+          end
+        end
+      end
+   end
+
+   set_data_values(func) ::: leaky
+   ! Set the ".data_values" from the function "func", which returns "values"
+   ! from a set of given "points".
+      interface
+         func(points,values)
+            points :: REALVEC
+            values :: REALVEC
+         end
+      end
+   ENSURE(.finalised,"not finalised")
+   ENSURE(.data_point.created,"no data_points")
+   ENSURE(.data_point.dim==.n_data,"wrong number of data_points")
+   WARN_IF(.data_value.created,"data_values will be lost")
+      .data_value.destroy
+      .data_value.create(.n_data)
+      call func(.data_point,.data_value)
+   end
+
+   set_data_values(func_at,pos) ::: leaky
+   ! Set the ".data_values" from the function "func_at", which returns "values"
+   ! from a set of given "points", and an additional single "pos" as parameter.
+      interface
+         func_at(points,pos,values)
+            points,values :: REALVEC
+            pos :: REALVEC(3)
+         end
+      end
+      pos :: REALVEC(3)
+   ENSURE(.finalised,"not finalised")
+   ENSURE(.data_point.created,"no data_points")
+   ENSURE(.data_point.dim==.n_data,"wrong number of data_points")
+   WARN_IF(.data_value.created,"data_values will be lost")
+      .data_value.destroy
+      .data_value.create(.n_data)
+      call func_at(.data_point,pos,.data_value)
+   end
+
+!  **************
+!  Output methods
+!  **************
+
+   put
+   ! Put the list of interpolating colours.
+      i :: INT
+   ENSURE(.finalised,"not finalised")
+      stdout.flush
+      stdout.text("INTERPOLATOR info")
+      stdout.flush
+      stdout.show("No. of interpolating data points =",.n_data)
+      stdout.show("Using even spaced data points?   =",.is_even_spaced)
+      stdout.flush
+      if (.is_even_spaced) then
+         stdout.show("Initial data value               =",.data_point(1))
+         stdout.show("Last data value                  =",.data_point(.n_data))
+         stdout.show("Data point spacing               =",.spacing)
+         stdout.flush
+         stdout.dash(int_fields=1,real_fields=1)
+         stdout.put("#",int_width=TRUE)
+         stdout.put("Value")
+         stdout.flush
+         stdout.dash(int_fields=1,real_fields=1)
+         do i = 1,.n_data
+            stdout.put(i)
+            stdout.put(.data_value(i))
+            stdout.flush
+         end
+         stdout.dash(int_fields=1,real_fields=1)
+      else
+         stdout.dash(int_fields=1,real_fields=1)
+         stdout.put("#",int_width=TRUE)
+         stdout.put("Point")
+         stdout.put("Value")
+         stdout.flush
+         stdout.dash(int_fields=1,real_fields=2)
+         do i = 1,.n_data
+            stdout.put(i)
+            stdout.put(.data_point(i))
+            stdout.put(.data_value(i))
+            stdout.flush
+         end
+         stdout.dash(int_fields=1,real_fields=2)
+      end
+   end
+
+end

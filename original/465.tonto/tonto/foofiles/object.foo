@@ -1,0 +1,189 @@
+!---------------------------------------------------------------------------
+!
+! OBJECT: Generic object operations ...
+!
+! Copyright (C) Dylan Jayatilaka, 1997
+!
+! This library is free software; you can redistribute it and/or
+! modify it under the terms of the GNU Library General Public
+! License as published by the Free Software Foundation; either
+! version 2 of the License, or (at your option) any later version.
+!
+! This library is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+! Library General Public License for more details.
+!
+! You should have received a copy of the GNU Library General Public
+! License along with this library; if not, write to the
+! Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+! Boston, MA  02111-1307, USA.
+!
+! $Id: object.foo,v 1.1.2.1 2003/03/24 01:28:54 dylan Exp $
+!---------------------------------------------------------------------------
+
+virtual module OBJECT
+
+   implicit none
+
+contains
+
+!*******************************************************************************
+! Memory allocation stuff.
+!*******************************************************************************
+
+   create ::: leaky
+   ! Create an object
+      self :: PTR
+      nullify(self)
+      allocate(self)
+      ADD_MEMORY(SELF_TYPE_SIZE)
+      .nullify_ptr_part
+      .set_defaults
+   end
+
+   create_copy(object) ::: leaky
+   ! Create a copy of object
+     object :: SELF_TYPE
+     self :: PTR
+     .create
+     .copy(object)
+   end
+
+   destroy ::: leaky
+   ! Destroy an object
+      self :: PTR
+      if (associated(self)) then
+        .destroy_ptr_part
+        deallocate(self)
+        DELETE_MEMORY(SELF_TYPE_SIZE)
+      end
+   end
+
+!   created result(res)
+!   ! Returns true if self has been created
+!      self :: PTR
+!      res :: BIN
+!      result = associated(self)
+!   end
+
+!   destroyed result(res)
+!   ! Returns true if self has *not* been created
+!      self :: PTR
+!      res :: BIN
+!      result = NOT associated(self)
+!   end
+
+!*******************************************************************************
+! I/O routines.
+!*******************************************************************************
+
+   redirect ::: leaky
+   ! Redirect input
+     self :: PTR
+     stdin.redirect(stdin.next_str)
+   end
+
+   revert ::: leaky
+   ! Revert back to previous stdin file
+     self :: PTR
+     stdin.revert
+   end
+
+   read_keywords ::: recursive, leaky
+   ! Read data from "stdin" using keyword style input.
+     word :: STR
+     ENSURE(stdin.next_item=="{","expecting open bracket symbol, {")
+     stdin.read(word)
+     do                 ! Loop over input keywords
+       stdin.read(word)
+       word.to_lower_case
+       if (word=="}")      exit
+       if (stdin.reverted) exit
+       .process_keyword(word)
+     end
+   end
+
+   read_units
+   ! Read a string which describes the units to be used
+      stdin.set_default_units(stdin.next_str)
+   end
+
+   read_junk
+   ! Read in a junk string, useful for ignoring a field
+      stdin.skip_next_item
+   end
+
+   put_table_footer
+   ! Output a table footer from the list of "keys". NOTE: not all keywords need
+   ! contribute to the banner - any unrecognised keyword is skipped.
+     stdout.dash(width=.table_width)
+   end
+
+!*******************************************************************************
+! Key related routines.
+!*******************************************************************************
+
+   read_keys
+   ! Read the "keys".
+     .clear_keys
+     stdin.read_ptr(keys)
+     tonto.ignore_memory_leak(memory_blocks_gained=1)
+   end
+
+   process_keys ::: leaky
+   ! Process each of the words in the "keys" list.
+      k,l,n_key :: INT
+      keyword :: STR
+      internal :: STRVEC*
+      ENSURE(keys.created,"no keys")
+      n_key = size(keys)
+      k = 0
+      do
+         k = k + 1
+         keyword = keys(k)
+         if (keyword=="}") exit
+         if (keyword=="{") then
+            l = keys(k:).index_of_matching_bracket("{")
+            ENSURE(l>0,"no matching closing brace, }")
+            internal => keys(k:k+l-1)
+            stdin.redirect(internal)
+            .read_keywords
+            stdin.revert
+            k = k+l-1
+         else if (keyword.includes(" ")) then
+            internal => keyword.split
+            stdin.redirect(internal)
+            .read_keywords
+            internal.destroy
+            stdin.revert
+         else
+            .process_keyword(keyword)
+         end
+         if (k==n_key) exit
+      end
+   end
+
+   keys_created result (res)
+   ! Return TRUE if the list-element keys are created.
+      res :: BIN
+      res = keys.created
+   end
+
+   set_keys(the_keys)
+   ! This is for setting the "keys" externally.
+     the_keys :: STRVEC(len=*,:)
+     .clear_keys
+     keys.create_copy(the_keys)
+     tonto.ignore_memory_leak(memory_blocks_gained=1)
+   end
+
+   clear_keys
+   ! This is for destroying the "keys" externally.
+     if (keys.created) then
+       keys.destroy
+       tonto.ignore_memory_leak(memory_blocks_gained=-1)
+     end
+   end
+
+end
